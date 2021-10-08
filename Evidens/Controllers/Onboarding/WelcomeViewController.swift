@@ -28,14 +28,14 @@ class WelcomeViewController: UIViewController {
         button.backgroundColor = UIColor(rgb: 0xEBEBEB)
         button.setHeight(50)
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 18)
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
         return button
     }()
     
     private let separatorLabel: UILabel = {
         let label = UILabel()
-        label.setDimensions(height: 1, width: 200)
+        label.setDimensions(height: 1, width: 310)
         label.backgroundColor = UIColor(rgb: 0xEBEBEB)
         return label
     }()
@@ -47,7 +47,8 @@ class WelcomeViewController: UIViewController {
         button.backgroundColor = UIColor(rgb: 0x79CBBF)
         button.setHeight(50)
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 18)
+        button.addTarget(self, action: #selector(signupButtonPressed), for: .touchUpInside)
         return button
     }()
     
@@ -82,7 +83,9 @@ class WelcomeViewController: UIViewController {
         
         view.addSubview(stackButtons)
         stackButtons.centerX(inView: view)
-        stackButtons.anchor(top: secondWelcomeText.bottomAnchor, left: secondWelcomeText.leftAnchor, paddingTop: 10)
+        stackButtons.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 30)
+        stackButtons.anchor(left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 30)
+        stackButtons.anchor(right: view.safeAreaLayoutGuide.leftAnchor, paddingRight: 20)
     }
     
     //MARK: - Handlers
@@ -91,6 +94,11 @@ class WelcomeViewController: UIViewController {
     //MARK: - Actions
     @objc func loginButtonPressed() {
         let controller = LoginViewController()
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func signupButtonPressed() {
+        let controller = RegistrationViewController()
         navigationController?.pushViewController(controller, animated: true)
     }
 }

@@ -13,7 +13,7 @@ class CustomLabel: UILabel {
         super.init(frame: .zero)
         
         text = placeholder
-        font = UIFont.boldSystemFont(ofSize: 35)
+        font = UIFont(name: "Raleway-ExtraBold", size: 35)
         textColor = .black
         numberOfLines = 0
         sizeToFit()
