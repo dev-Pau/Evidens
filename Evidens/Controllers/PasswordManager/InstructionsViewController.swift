@@ -19,7 +19,7 @@ class InstructionsViewController: UIViewController {
     private let instructionsLabel: UILabel = {
         let label = UILabel()
         label.text = "We have sent a password recover instructions to your email."
-        label.font = .systemFont(ofSize: 13)
+        label.font = UIFont(name: "Raleway-Regular", size: 13)
         label.textColor = .black
         label.numberOfLines = 0
         label.sizeToFit()
@@ -36,7 +36,7 @@ class InstructionsViewController: UIViewController {
     private let didNotReceiveLabel: UILabel = {
         let label = UILabel()
         label.text = "Did not receive the email? Check your spam filter, or"
-        label.font = .systemFont(ofSize: 13)
+        label.font = UIFont(name: "Raleway-Regular", size: 13)
         label.textColor = .black
         label.numberOfLines = 0
         label.sizeToFit()
@@ -49,7 +49,7 @@ class InstructionsViewController: UIViewController {
         button.setTitleColor(UIColor(rgb: 0x79CBBF), for: .normal)
         button.backgroundColor = .clear
         button.layer.cornerRadius = 5
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
         button.addTarget(self, action: #selector(tryAnotherEmailButtonPressed), for: .touchUpInside)
         return button
     }()

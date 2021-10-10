@@ -18,7 +18,7 @@ class ResetPasswordViewController: UIViewController {
     private let instructionsPassword: UILabel = {
         let label = UILabel()
         label.text = "Enter the email associated with your account and we'll send an email with instructions to reset your password."
-        label.font = .systemFont(ofSize: 13)
+        label.font = UIFont(name: "Raleway-Regular", size: 13)
         label.textColor = .black
         label.numberOfLines = 0
         label.sizeToFit()
@@ -38,7 +38,7 @@ class ResetPasswordViewController: UIViewController {
         button.backgroundColor = UIColor(rgb: 0x79CBBF)
         button.setHeight(50)
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
         button.addTarget(self, action: #selector(resetButtonPressed), for: .touchUpInside)
         return button
     }()
@@ -49,7 +49,7 @@ class ResetPasswordViewController: UIViewController {
         button.setTitleColor(UIColor(rgb: 0x79CBBF), for: .normal)
         button.backgroundColor = .clear
         button.layer.cornerRadius = 5
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
         button.addTarget(self, action: #selector(cancelButtonPressed), for: .touchUpInside)
         return button
     }()
