@@ -19,8 +19,6 @@ class FeedViewController: UICollectionViewController {
         configureNavigationItemButtons()
         tabBarController?.tabBar.backgroundColor = .white
         tabBarController?.tabBar.isTranslucent = false
-        
-
     }
     
     //MARK: - Helpers

@@ -80,7 +80,7 @@ class LoginViewController: UIViewController {
         stack.centerX(inView: view)
         stack.centerY(inView: view)
         stack.anchor(left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 20)
-        stack.anchor(right: view.safeAreaLayoutGuide.leftAnchor, paddingRight: 20)
+        stack.anchor(right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 20)
         
         view.addSubview(forgotPasswordButton)
         forgotPasswordButton.anchor(top: loginButton.bottomAnchor, left: view.safeAreaLayoutGuide.leftAnchor, paddingTop: 15, paddingLeft: 20)

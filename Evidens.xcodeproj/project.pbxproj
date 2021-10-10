@@ -25,7 +25,7 @@
 		5F5888F827102599005E5B4F /* Raleway-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888E627102599005E5B4F /* Raleway-Regular.ttf */; };
 		5F5888F927102599005E5B4F /* Raleway-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888E727102599005E5B4F /* Raleway-SemiBold.ttf */; };
 		5F5888FA27102599005E5B4F /* Raleway-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888E827102599005E5B4F /* Raleway-Bold.ttf */; };
-		5F58890027106844005E5B4F /* RegistrationViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5888FF27106844005E5B4F /* RegistrationViewCell.swift */; };
+		5F5889022712EC39005E5B4F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889012712EC39005E5B4F /* User.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5FC4D86227070274006B7A34 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D86127070274006B7A34 /* ViewController.swift */; };
@@ -68,7 +68,7 @@
 		5F5888E627102599005E5B4F /* Raleway-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Regular.ttf"; sourceTree = "<group>"; };
 		5F5888E727102599005E5B4F /* Raleway-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-SemiBold.ttf"; sourceTree = "<group>"; };
 		5F5888E827102599005E5B4F /* Raleway-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Bold.ttf"; sourceTree = "<group>"; };
-		5F5888FF27106844005E5B4F /* RegistrationViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewCell.swift; sourceTree = "<group>"; };
+		5F5889012712EC39005E5B4F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -155,14 +155,6 @@
 			path = Customs;
 			sourceTree = "<group>";
 		};
-		5F5888FE271067E8005E5B4F /* Onboarding */ = {
-			isa = PBXGroup;
-			children = (
-				5F5888FF27106844005E5B4F /* RegistrationViewCell.swift */,
-			);
-			path = Onboarding;
-			sourceTree = "<group>";
-		};
 		5FC4D85127070274006B7A34 = {
 			isa = PBXGroup;
 			children = (
@@ -209,6 +201,7 @@
 		5FC4D87327070334006B7A34 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5F5889012712EC39005E5B4F /* User.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -216,7 +209,6 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				5F5888FE271067E8005E5B4F /* Onboarding */,
 				5FC4D88627071CC4006B7A34 /* Feed */,
 				5F5888FD271067D3005E5B4F /* Customs */,
 				5F5888FC271067C7005E5B4F /* Launch */,
@@ -378,13 +370,13 @@
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
+				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
 				5FC4D86227070274006B7A34 /* ViewController.swift in Sources */,
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* FeedViewController.swift in Sources */,
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
-				5F58890027106844005E5B4F /* RegistrationViewCell.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
@@ -548,6 +540,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -580,6 +573,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
