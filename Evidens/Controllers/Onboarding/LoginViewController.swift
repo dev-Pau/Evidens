@@ -11,6 +11,8 @@ class LoginViewController: UIViewController {
     
     //MARK: - Properties
     
+    private var viewModel = LoginViewModel()
+    
     let appearance = UINavigationBarAppearance()
     
     private let emailTextField: UITextField = {
@@ -29,10 +31,11 @@ class LoginViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Log In", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x79CBBF)
+        button.backgroundColor = UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
         button.setHeight(50)
         button.layer.cornerRadius = 26
         button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 18)
+        button.isEnabled = false
         return button
     }()
     
@@ -53,6 +56,7 @@ class LoginViewController: UIViewController {
         configureUI()
         setUpDelegates()
         configureNavigationItemButton()
+        configureNotificationsObservers()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -99,10 +103,25 @@ class LoginViewController: UIViewController {
         passwordTextField.delegate = self
     }
     
+    func configureNotificationsObservers() {
+        emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+    }
+    
     //MARK: - Actions
     
     @objc func keyboardDismiss() {
         view.endEditing(true)
+    }
+    
+    @objc func textDidChange(sender: UITextField) {
+        if sender == emailTextField {
+            viewModel.email = sender.text
+        } else {
+            viewModel.password = sender.text
+        }
+        
+        updateForm()
     }
     
     @objc func forgotPasswordButtonPressed() {
@@ -153,4 +172,13 @@ extension LoginViewController: UITextFieldDelegate {
                 textField.isSecureTextEntry = true
             }
     }
+}
+
+//MARK: - FormViewModel
+
+extension LoginViewController: FormViewModel {
+    func updateForm() {
+        loginButton.backgroundColor = viewModel.buttonBackgroundColor
+        loginButton.isEnabled = viewModel.formIsValid
+    }  
 }

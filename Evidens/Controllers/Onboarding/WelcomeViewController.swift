@@ -12,7 +12,7 @@ class WelcomeViewController: UIViewController {
     //MARK: - Properties
     
     private let firstWelcomeText: UILabel = {
-        let label = CustomLabel(placeholder: "Revolutionizing the healthcare community.")
+        let label = CustomLabel(placeholder: "Revolutionizing the health community.")
         return label
     }()
     

@@ -19,17 +19,20 @@ class FeedViewController: UICollectionViewController {
         configureNavigationItemButtons()
         tabBarController?.tabBar.backgroundColor = .white
         tabBarController?.tabBar.isTranslucent = false
+        navigationController?.navigationBar.isTranslucent = false
+        
     }
     
     //MARK: - Helpers
     func configureUI() {
         collectionView.backgroundColor = .white
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        view.isUserInteractionEnabled = true
     }
     
     func configureNavigationItemButtons() {
         navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "checklist"), style: .plain, target: self, action: #selector(didTapFilter)), UIBarButtonItem(image: .init(systemName: "paperplane"), style: .plain, target: self, action: #selector(didTapChat))]
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "person.fill"), style: .plain, target: self, action: #selector(didTapProfile))
+        navigationItem.leftBarButtonItem?.tintColor = .black
         navigationItem.rightBarButtonItems?[0].tintColor = .black
         navigationItem.rightBarButtonItems?[1].tintColor = .black
     }
@@ -37,6 +40,7 @@ class FeedViewController: UICollectionViewController {
     //MARK: - Actions
     @objc func didTapProfile() {
         print("DEBUG: did tap profile")
+        print(topbarHeight)
     }
     
     @objc func didTapFilter() {
@@ -47,14 +51,13 @@ class FeedViewController: UICollectionViewController {
         print("DEBUG: did tap chat")
         }
                 
-    
     //Manage ScrollView animation
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let magicalSafeAreaTop = topbarHeight
-        let offset = scrollView.contentOffset.y + magicalSafeAreaTop
-        navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
-        navigationController?.navigationBar.barTintColor = .white
-    }
+    //override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+      //  let magicalSafeAreaTop = topbarHeight
+      //  let offset = scrollView.contentOffset.y + magicalSafeAreaTop
+      //  navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+      //  navigationController?.navigationBar.barTintColor = .white
+    //}
 }
 
 //MARK: - UICollectionViewDataSource
@@ -77,7 +80,7 @@ extension FeedViewController {
 
 extension FeedViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 150)
+        return CGSize(width: view.frame.width, height: 180)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

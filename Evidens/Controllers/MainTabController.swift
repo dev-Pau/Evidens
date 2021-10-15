@@ -14,16 +14,10 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureViewControllers()
-        configureNavigationBar()
     }
     
     //MARK: - Helpers
-    
-    
-    func configureNavigationBar() {
-        UINavigationBar.appearance().backgroundColor = .clear
-    }
-    
+
     //Setup ViewControllers for the TabBarController
     func configureViewControllers() {
         view.backgroundColor = .white
@@ -36,14 +30,16 @@ class MainTabController: UITabBarController {
         let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: ProfileViewController())
         
         viewControllers = [feed, search, post, notifications, profile]
+        
+        tabBar.tintColor = .black
     }
     
     func templateNavigationController(unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
         let nav = UINavigationController(rootViewController: rootViewController)
         nav.tabBarItem.image = unselectedImage
         nav.tabBarItem.selectedImage = selectedImage
-        nav.navigationBar.isTranslucent =  true
+        nav.navigationBar.tintColor = .black
         return nav
     }
-    
 }
+
