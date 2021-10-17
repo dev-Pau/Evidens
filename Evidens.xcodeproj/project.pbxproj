@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5F0A4F37271C1D0800700304 /* VerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F36271C1D0800700304 /* VerificationViewController.swift */; };
+		5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F3A271C29E800700304 /* ProfileCell.swift */; };
+		5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */; };
+		5F0A4F42271C58A200700304 /* ContainerFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */; };
+		5F0A4F44271C59CD00700304 /* FeedMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */; };
+		5F0A4F46271C854600700304 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F45271C854600700304 /* Protocols.swift */; };
 		5F5888E927102599005E5B4F /* Raleway-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D727102598005E5B4F /* Raleway-Italic.ttf */; };
 		5F5888EA27102599005E5B4F /* Raleway-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */; };
 		5F5888EB27102599005E5B4F /* Raleway-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */; };
@@ -51,6 +57,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5F0A4F36271C1D0800700304 /* VerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationViewController.swift; sourceTree = "<group>"; };
+		5F0A4F3A271C29E800700304 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
+		5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeader.swift; sourceTree = "<group>"; };
+		5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerFeedViewController.swift; sourceTree = "<group>"; };
+		5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedMenuViewController.swift; sourceTree = "<group>"; };
+		5F0A4F45271C854600700304 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		5F5888D727102598005E5B4F /* Raleway-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Italic.ttf"; sourceTree = "<group>"; };
 		5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -107,6 +119,38 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5F0A4F38271C1DDB00700304 /* IdentityManager */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F36271C1D0800700304 /* VerificationViewController.swift */,
+			);
+			path = IdentityManager;
+			sourceTree = "<group>";
+		};
+		5F0A4F39271C29D700700304 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */,
+				5F0A4F3A271C29E800700304 /* ProfileCell.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		5F0A4F40271C588200700304 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
+				5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */,
+				5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */,
+				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
+				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
+				5FC4D87E270705B0006B7A34 /* NotificationsViewController.swift */,
+				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
+				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
 		5F5888D2271022E6005E5B4F /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -196,6 +240,7 @@
 			children = (
 				5F5888D2271022E6005E5B4F /* Fonts */,
 				5FC4D88727071FB0006B7A34 /* Extensions.swift */,
+				5F0A4F45271C854600700304 /* Protocols.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -211,6 +256,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5F0A4F39271C29D700700304 /* Profile */,
 				5FC4D88627071CC4006B7A34 /* Feed */,
 				5F5888FD271067D3005E5B4F /* Customs */,
 				5F5888FC271067C7005E5B4F /* Launch */,
@@ -223,13 +269,9 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D88927072AE6006B7A34 /* Onboarding */,
+				5F0A4F38271C1DDB00700304 /* IdentityManager */,
 				5FC4D8962709910B006B7A34 /* PasswordManager */,
-				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
-				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
-				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
-				5FC4D87E270705B0006B7A34 /* NotificationsViewController.swift */,
-				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
-				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
+				5F0A4F40271C588200700304 /* Core */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -368,10 +410,14 @@
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
+				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
 				5FC4D881270705E8006B7A34 /* PostViewController.swift in Sources */,
 				5FC4D88527071CB6006B7A34 /* FeedCell.swift in Sources */,
+				5F0A4F42271C58A200700304 /* ContainerFeedViewController.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
+				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
+				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
@@ -381,7 +427,9 @@
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
+				5F0A4F37271C1D0800700304 /* VerificationViewController.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
+				5F0A4F44271C59CD00700304 /* FeedMenuViewController.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */,

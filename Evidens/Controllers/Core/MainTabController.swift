@@ -14,6 +14,7 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureViewControllers()
+
     }
     
     //MARK: - Helpers
@@ -22,12 +23,20 @@ class MainTabController: UITabBarController {
     func configureViewControllers() {
         view.backgroundColor = .white
     
-        let layout = UICollectionViewFlowLayout()
-        let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: layout))
+        //let feedLayout = UICollectionViewFlowLayout()
+        //let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
+        
+    
+        let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: ContainerFeedViewController())
+        
         let search = templateNavigationController(unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
+        
         let post = templateNavigationController(unselectedImage: UIImage(systemName: "plus.app")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: PostViewController())
+        
         let notifications = templateNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationsViewController())
-        let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: ProfileViewController())
+        
+        let profileLayout = UICollectionViewFlowLayout()
+        let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: ProfileViewController(collectionViewLayout: profileLayout))
         
         viewControllers = [feed, search, post, notifications, profile]
         

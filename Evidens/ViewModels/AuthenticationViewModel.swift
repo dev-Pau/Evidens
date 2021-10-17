@@ -36,7 +36,6 @@ struct RegistrationViewModel: AuthenticationViewModel {
     var password: String?
     var firstName: String?
     var lastName: String?
-    var dateOfBirth: String?
     
     var firstNameIsValid: Bool {
         return firstName?.isEmpty == false
@@ -83,12 +82,8 @@ struct RegistrationViewModel: AuthenticationViewModel {
         return false
     }
     
-    var dateOfBirthIsValid: Bool {
-        return dateOfBirth?.isEmpty == false
-    }
-    
     var formIsValid: Bool {
-        return emailIsValid && passwordIsValid && firstNameIsValid && lastNameIsValid && dateOfBirthIsValid
+        return emailIsValid && passwordIsValid && firstNameIsValid && lastNameIsValid
     }
     
     var buttonBackgroundColor: UIColor {

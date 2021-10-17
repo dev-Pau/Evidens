@@ -87,14 +87,6 @@ class RegistrationViewController: UIViewController {
         return button
     }()
     
-    private let dateOfBirthCheckmarkButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-        button.isEnabled = true
-        button.tintColor = .white
-        return button
-    }()
-    
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.frame = CGRect(x: 0, y: topbarHeight, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - topbarHeight)
@@ -140,7 +132,6 @@ class RegistrationViewController: UIViewController {
     
     let lastNameTextField: UITextField = {
         let tf = CustomTextField(placeholder: "")
-        //tf.addTarget(self, action: #selector(textFieldLastNameDidChange(_:)), for: .editingChanged)
         tf.keyboardType = .emailAddress
         return tf
     }()
@@ -207,20 +198,6 @@ class RegistrationViewController: UIViewController {
         return label
     }()
     
-    
-    private let fieldIdentifierDateOfBirth: UILabel = {
-        let label = UILabel()
-        label.text = "Date of Birth"
-        label.font = UIFont(name: "Raleway-Bold", size: 15)
-        label.textColor = .black
-        return label
-    }()
-    
-    private let dateOfBirthTextField: UITextField = {
-        let tf = CustomTextField(placeholder: "")
-        return tf
-    }()
-    
     private let conditionsPrivacyString: NSMutableAttributedString = {
         let aString = NSMutableAttributedString(string: "By clicking Continue you are indicating that you have read and acknowledge the Terms of Service and Privacy Policy.")
         
@@ -272,7 +249,7 @@ class RegistrationViewController: UIViewController {
         setUpDelegates()
         configureNavigationItemButton()
         configureNotificationsObservers()
-        createDatePicker()
+        //createDatePicker()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -334,8 +311,7 @@ class RegistrationViewController: UIViewController {
         scrollView.addSubview(spinnerEmail)
         spinnerEmail.anchor(top: emailCheckmarkButton.topAnchor,right: emailCheckmarkButton.leftAnchor, paddingTop: 3, paddingRight: 5)
         
-        
-        
+
         scrollView.addSubview(fieldIdentifierPassword)
         fieldIdentifierPassword.anchor(top: infoLabelEmail.bottomAnchor, left: infoLabelEmail.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 10, paddingRight: 20)
 
@@ -354,18 +330,8 @@ class RegistrationViewController: UIViewController {
         scrollView.addSubview(spinnerPassword)
         spinnerPassword.anchor(top: passwordCheckmarkButton.topAnchor,right: passwordCheckmarkButton.leftAnchor, paddingTop: 3, paddingRight: 5)
         
-        scrollView.addSubview(fieldIdentifierDateOfBirth)
-        fieldIdentifierDateOfBirth.anchor(top: infoLabelPassword.bottomAnchor, left: infoLabelPassword.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 10, paddingRight: 20)
-
-        scrollView.addSubview(dateOfBirthTextField)
-        dateOfBirthTextField.anchor(top: fieldIdentifierDateOfBirth.bottomAnchor, left: fieldIdentifierDateOfBirth.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 5, paddingRight: 20)
-        
-        scrollView.addSubview(dateOfBirthCheckmarkButton)
-        dateOfBirthCheckmarkButton.anchor(top: fieldIdentifierDateOfBirth.topAnchor, right: fieldIdentifierDateOfBirth.rightAnchor, paddingTop: -3)
-        
-        
         scrollView.addSubview(conditionsPrivacyTextView)
-        conditionsPrivacyTextView.anchor(top: dateOfBirthTextField.bottomAnchor, left: dateOfBirthTextField.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 20, paddingRight: 20)
+        conditionsPrivacyTextView.anchor(top: passwordTextField.bottomAnchor, left: passwordTextField.leftAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingTop: 30, paddingRight: 20)
         
         scrollView.addSubview(createAccountButton)
         createAccountButton.anchor(top: conditionsPrivacyTextView.bottomAnchor, left: conditionsPrivacyTextView.leftAnchor, right: conditionsPrivacyTextView.rightAnchor, paddingTop: 15)
@@ -393,26 +359,13 @@ class RegistrationViewController: UIViewController {
         lastNameTextField.delegate = self
         emailTextField.delegate = self
         passwordTextField.delegate = self
-        dateOfBirthTextField.delegate = self
     }
-    
-    func createDatePicker() {
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(donePressed))
-        toolbar.setItems([doneButton], animated: true)
-        
-        dateOfBirthTextField.inputAccessoryView = toolbar
-        dateOfBirthTextField.inputView = datePicker
-    }
-    
+
     func configureNotificationsObservers() {
         firstNameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         lastNameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         passwordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        dateOfBirthTextField.addTarget(self, action: #selector(textDidChange), for: .editingDidEnd)
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -440,7 +393,8 @@ class RegistrationViewController: UIViewController {
     }
     
     @objc func createAccountButtonPressed() {
- 
+        let controller = VerificationViewController()
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func textDidChange(sender: UITextField) {
@@ -455,15 +409,19 @@ class RegistrationViewController: UIViewController {
             timerPassword.invalidate()
             spinnerPassword.startAnimating()
             timerPassword = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateCheckmarkPassword), userInfo: nil, repeats: false)
-            
+
         }
         
         else if sender == firstNameTextField {
             viewModel.firstName = sender.text
             if viewModel.firstNameIsValid {
                 firstNameCheckmarkButton.tintColor = UIColor(rgb: 0x79CBBF)
+                firstNameTextField.borderStyle = .roundedRect
+                firstNameTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+                firstNameTextField.layer.borderWidth = 2.0
             } else {
                 firstNameCheckmarkButton.tintColor = .white
+                firstNameTextField.layer.borderColor = #colorLiteral(red: 0.4274509804, green: 0.431372549, blue: 0.4431372549, alpha: 1)
             }
         }
         
@@ -471,19 +429,15 @@ class RegistrationViewController: UIViewController {
             viewModel.lastName = sender.text
             if viewModel.lastNameIsValid {
                 lastNameCheckmarkButton.tintColor = UIColor(rgb: 0x79CBBF)
+                lastNameTextField.borderStyle = .roundedRect
+                lastNameTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+                lastNameTextField.layer.borderWidth = 2.0
             } else {
                 lastNameCheckmarkButton.tintColor = .white
+                lastNameTextField.layer.borderColor = #colorLiteral(red: 0.4274509804, green: 0.431372549, blue: 0.4431372549, alpha: 1)
             }
         }
-        
-        else {
-            viewModel.dateOfBirth = sender.text
-            if viewModel.dateOfBirthIsValid {
-                dateOfBirthCheckmarkButton.tintColor = UIColor(rgb: 0x79CBBF)
-            } else {
-                dateOfBirthCheckmarkButton.tintColor = .white
-            }
-        }
+
         updateForm()
     }
     
@@ -492,13 +446,23 @@ class RegistrationViewController: UIViewController {
         if viewModel.emailIsValid {
             infoLabelEmail.text = "You'll need to verify that you own this email account."
             infoLabelEmail.textColor = .black
+            
             emailXCheckmarkButton.tintColor = .clear
             emailCheckmarkButton.tintColor = UIColor(rgb: 0x79CBBF)
+            
+            emailTextField.borderStyle = .roundedRect
+            emailTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+            emailTextField.layer.borderWidth = 2.0
         } else {
             infoLabelEmail.text = "Please enter a valid password."
             infoLabelEmail.textColor = .red
+            
             emailXCheckmarkButton.tintColor = .red
             emailCheckmarkButton.tintColor = .clear
+            
+            emailTextField.borderStyle = .roundedRect
+            emailTextField.layer.borderColor = UIColor.red.cgColor
+            emailTextField.layer.borderWidth = 2.0
         }
     }
     
@@ -507,15 +471,23 @@ class RegistrationViewController: UIViewController {
         if viewModel.passwordIsValid {
             infoLabelPassword.text = "Strong passwords include a mix of lower case letters, upper case letters, numbers, and special characters."
             infoLabelPassword.textColor = .black
+            
             passwordXCheckmarkButton.tintColor = .clear
             passwordCheckmarkButton.tintColor = UIColor(rgb: 0x79CBBF)
-            print(viewModel.passwordIsValid)
+            
+            passwordTextField.borderStyle = .roundedRect
+            passwordTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+            passwordTextField.layer.borderWidth = 2.0
         } else {
             infoLabelPassword.text = "Please enter a valid email address."
             infoLabelPassword.textColor = .red
+            
             passwordXCheckmarkButton.tintColor = .red
             passwordCheckmarkButton.tintColor = .clear
-            print("password is not valid")
+            
+            passwordTextField.borderStyle = .roundedRect
+            passwordTextField.layer.borderColor = UIColor.red.cgColor
+            passwordTextField.layer.borderWidth = 2.0
         }
     }
     
@@ -523,13 +495,6 @@ class RegistrationViewController: UIViewController {
         self.navigationController?.popToRootViewController(animated: true)
     }
     
-    @objc func donePressed() {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        dateOfBirthTextField.text = formatter.string(from: datePicker.date)
-        view.endEditing(true)
-    }
 }
 
 extension RegistrationViewController {
@@ -542,25 +507,50 @@ extension RegistrationViewController {
 
 extension RegistrationViewController: UITextFieldDelegate {
     
-    
     func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         textField.borderStyle = .roundedRect
-        textField.layer.borderColor = #colorLiteral(red: 0.921431005, green: 0.9214526415, blue: 0.9214410186, alpha: 1)
+        textField.layer.borderColor = #colorLiteral(red: 0.4274509804, green: 0.431372549, blue: 0.4431372549, alpha: 1)
         textField.layer.borderWidth = 2.0
         
         switch textField {
         case firstNameTextField:
             infoLabelFirstName.isHidden = false
+            if viewModel.firstNameIsValid {
+                firstNameTextField.borderStyle = .roundedRect
+                firstNameTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+                firstNameTextField.layer.borderWidth = 2.0
+            }
 
         case lastNameTextField:
             infoLabelLastName.isHidden = false
+            if viewModel.firstNameIsValid {
+                lastNameTextField.borderStyle = .roundedRect
+                lastNameTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+                lastNameTextField.layer.borderWidth = 2.0
+            }
             
         case emailTextField:
             infoLabelEmail.isHidden = false
+            if viewModel.emailIsValid {
+                emailTextField.borderStyle = .roundedRect
+                emailTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+                emailTextField.layer.borderWidth = 2.0
+            }
+            else if viewModel.emailIsValid == false && emailTextField.text?.count != 0 {
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+            }
             
         case passwordTextField:
             infoLabelPassword.isHidden = false
+            if viewModel.passwordIsValid {
+                passwordTextField.borderStyle = .roundedRect
+                passwordTextField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+                passwordTextField.layer.borderWidth = 2.0
+            }
+            else if viewModel.passwordIsValid == false && passwordTextField.text?.count != 0 {
+                passwordTextField.layer.borderColor = UIColor.red.cgColor
+            }
             
         default:
             print("default 432423")

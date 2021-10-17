@@ -7,20 +7,19 @@
 
 import UIKit
 
+private let reuseIdentifier = "Cell"
+
 class FeedViewController: UICollectionViewController {
     
-    private let reuseIdentifier = "Cell"
+    //MARK: - Properties
+    var feedDelegate: FeedViewControllerDelegate?
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        configureNavigationItemButtons()
-        tabBarController?.tabBar.backgroundColor = .white
-        tabBarController?.tabBar.isTranslucent = false
-        navigationController?.navigationBar.isTranslucent = false
-        
+        configureNavigationItemButtons()        
     }
     
     //MARK: - Helpers
@@ -39,8 +38,7 @@ class FeedViewController: UICollectionViewController {
     
     //MARK: - Actions
     @objc func didTapProfile() {
-        print("DEBUG: did tap profile")
-        print(topbarHeight)
+        feedDelegate?.handleMenuToggle()
     }
     
     @objc func didTapFilter() {
@@ -52,12 +50,12 @@ class FeedViewController: UICollectionViewController {
         }
                 
     //Manage ScrollView animation
-    //override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-      //  let magicalSafeAreaTop = topbarHeight
-      //  let offset = scrollView.contentOffset.y + magicalSafeAreaTop
-      //  navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
-      //  navigationController?.navigationBar.barTintColor = .white
-    //}
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let magicalSafeAreaTop = topbarHeight
+        let offset = scrollView.contentOffset.y + magicalSafeAreaTop
+        navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+        //navigationController?.navigationBar.barTintColor = .white
+    }
 }
 
 //MARK: - UICollectionViewDataSource
