@@ -54,7 +54,6 @@ class FeedViewController: UICollectionViewController {
         let magicalSafeAreaTop = topbarHeight
         let offset = scrollView.contentOffset.y + magicalSafeAreaTop
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
-        //navigationController?.navigationBar.barTintColor = .white
     }
 }
 
@@ -92,7 +91,6 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension FeedViewController {
-    
     //Get height of status bar + navigation bar
     var topbarHeight: CGFloat {
         return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +

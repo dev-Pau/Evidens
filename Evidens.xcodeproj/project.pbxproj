@@ -13,6 +13,7 @@
 		5F0A4F42271C58A200700304 /* ContainerFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */; };
 		5F0A4F44271C59CD00700304 /* FeedMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */; };
 		5F0A4F46271C854600700304 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F45271C854600700304 /* Protocols.swift */; };
+		5F0A4F4B271CA6C800700304 /* MenuFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F4A271CA6C800700304 /* MenuFeedCell.swift */; };
 		5F5888E927102599005E5B4F /* Raleway-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D727102598005E5B4F /* Raleway-Italic.ttf */; };
 		5F5888EA27102599005E5B4F /* Raleway-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */; };
 		5F5888EB27102599005E5B4F /* Raleway-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */; };
@@ -63,6 +64,7 @@
 		5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerFeedViewController.swift; sourceTree = "<group>"; };
 		5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedMenuViewController.swift; sourceTree = "<group>"; };
 		5F0A4F45271C854600700304 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+		5F0A4F4A271CA6C800700304 /* MenuFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuFeedCell.swift; sourceTree = "<group>"; };
 		5F5888D727102598005E5B4F /* Raleway-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Italic.ttf"; sourceTree = "<group>"; };
 		5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -140,15 +142,31 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
-				5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */,
-				5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */,
-				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
+				5F0A4F4C271CAC0900700304 /* Feed */,
 				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
 				5FC4D87E270705B0006B7A34 /* NotificationsViewController.swift */,
 				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		5F0A4F47271CA5B000700304 /* FeedMenu */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F4A271CA6C800700304 /* MenuFeedCell.swift */,
+			);
+			path = FeedMenu;
+			sourceTree = "<group>";
+		};
+		5F0A4F4C271CAC0900700304 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F41271C58A200700304 /* ContainerFeedViewController.swift */,
+				5F0A4F43271C59CD00700304 /* FeedMenuViewController.swift */,
+				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
+			);
+			path = Feed;
 			sourceTree = "<group>";
 		};
 		5F5888D2271022E6005E5B4F /* Fonts */ = {
@@ -295,6 +313,7 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D88427071CB6006B7A34 /* FeedCell.swift */,
+				5F0A4F47271CA5B000700304 /* FeedMenu */,
 			);
 			path = Feed;
 			sourceTree = "<group>";
@@ -414,6 +433,7 @@
 				5FC4D881270705E8006B7A34 /* PostViewController.swift in Sources */,
 				5FC4D88527071CB6006B7A34 /* FeedCell.swift in Sources */,
 				5F0A4F42271C58A200700304 /* ContainerFeedViewController.swift in Sources */,
+				5F0A4F4B271CA6C800700304 /* MenuFeedCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
