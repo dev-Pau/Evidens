@@ -11,6 +11,14 @@ class ProfileHeader: UICollectionReusableView {
     
     //MARK: - Properties
     
+    private let profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.image = UIImage(systemName: "person.fill")
+        iv.contentMode = .scaleAspectFit
+        iv.clipsToBounds = true
+        return iv
+    }()
+    
     //MARK:  - Lifecycle
     
     override init(frame: CGRect) {
