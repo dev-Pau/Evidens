@@ -13,6 +13,7 @@ class FeedViewController: UICollectionViewController {
     
     //MARK: - Properties
     var feedDelegate: FeedViewControllerDelegate?
+
     
     //MARK: - Lifecycle
     

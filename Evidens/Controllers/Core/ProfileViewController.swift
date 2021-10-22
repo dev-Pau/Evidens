@@ -20,6 +20,7 @@ class ProfileViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        configureNavigationItemButton()
         view.backgroundColor = .systemRed
     }
     
@@ -29,7 +30,17 @@ class ProfileViewController: UICollectionViewController {
         collectionView.backgroundColor = .white
         collectionView.register(ProfileCell.self, forCellWithReuseIdentifier: cellIdentifier)
         collectionView.register(ProfileHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
-
+    }
+    
+    func configureNavigationItemButton() {
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "gear"), style: .plain, target: self, action: #selector(didTapSettings)), UIBarButtonItem(image: .init(systemName: "magnifyingglass"), style: .plain, target: self, action: #selector(didTapSettings))]
+        navigationItem.rightBarButtonItems?[0].tintColor = .black
+        navigationItem.rightBarButtonItems?[1].tintColor = .black
+    }
+    
+    //MARK: - Actions
+    @objc func didTapSettings() {
+        
     }
 
 }
