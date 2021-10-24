@@ -393,8 +393,23 @@ class RegistrationViewController: UIViewController {
     }
     
     @objc func createAccountButtonPressed() {
-        let controller = VerificationViewController()
-        navigationController?.pushViewController(controller, animated: true)
+        guard let firstName = firstNameTextField.text else { return }
+        guard let lastName = lastNameTextField.text else { return }
+        guard let email = emailTextField.text else { return }
+        guard let password = passwordTextField.text else { return }
+        
+        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: email, password: password)
+        AuthService.registerUser(withCredential: credentials) { error in
+            if let error = error {
+                print("DEBUG: Failed to register user \(error.localizedDescription)")
+                return
+            }
+            
+            //Succesfullly registrates user
+            print("DEBUG: Succesfully registrated user with Firestore")
+        }
+
+        
     }
     
     @objc func textDidChange(sender: UITextField) {

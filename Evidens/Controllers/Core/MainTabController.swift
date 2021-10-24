@@ -23,7 +23,8 @@ class MainTabController: UITabBarController {
     func configureViewControllers() {
         view.backgroundColor = .white
     
-        let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: ContainerFeedViewController())
+        let feedLayout = UICollectionViewFlowLayout()
+        let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
         
         let search = templateNavigationController(unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
         

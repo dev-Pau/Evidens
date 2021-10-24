@@ -28,11 +28,8 @@ class ProfileHeader: UICollectionReusableView {
     
     private lazy var editProfileButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Edit profile", for: .normal)
-        button.layer.cornerRadius = 15
-        button.titleLabel?.font = UIFont(name: "Raleway-SemiBold", size: 15)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x79CBBF)
+        button.setImage(UIImage(systemName: "pencil"), for: .normal)
+        button.tintColor = UIColor(rgb: 0x79CBBF)
         button.addTarget(self, action: #selector(didTapEditProfile), for: .touchUpInside)
         return button
     }()
@@ -61,6 +58,22 @@ class ProfileHeader: UICollectionReusableView {
         return label
     }()
     
+    private var activityRecapLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "Activity"
+        return label
+    }()
+    
+    private var postsRecapLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "Posts"
+        return label
+    }()
+    
     //MARK:  - Lifecycle
     
     override init(frame: CGRect) {
@@ -69,22 +82,43 @@ class ProfileHeader: UICollectionReusableView {
         backgroundColor = .white
         
         addSubview(profileImageView)
-        profileImageView.anchor(top: topAnchor, left: leftAnchor, paddingTop: 16, paddingLeft: 16)
+        profileImageView.anchor(top: topAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 16)
         profileImageView.setDimensions(height: 80, width: 80)
         profileImageView.layer.cornerRadius = 80/2
         
         addSubview(nameLabel)
-        nameLabel.anchor(top: profileImageView.bottomAnchor, left: leftAnchor, paddingTop: 8, paddingLeft: 12)
+        nameLabel.centerX(inView: profileImageView)
+        nameLabel.anchor(top: profileImageView.bottomAnchor, paddingTop: 8)
         
         addSubview(editProfileButton)
-        editProfileButton.anchor(top: topAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 6, paddingLeft: frame.width * 0.7 , paddingRight: 10)
+        editProfileButton.anchor(top: topAnchor, right: rightAnchor, paddingTop: 6, paddingRight: 16)
         
         let stack = UIStackView(arrangedSubviews: [followingLabel, followersLabel])
         stack.distribution = .fillEqually
         stack.spacing = 5
         
         addSubview(stack)
-        stack.anchor(top: nameLabel.bottomAnchor, left: nameLabel.leftAnchor, paddingTop: 10)
+        stack.centerX(inView: profileImageView)
+        stack.anchor(top: nameLabel.bottomAnchor, paddingTop: 10)
+        
+        let topDivider = UIView()
+        topDivider.backgroundColor = .white
+        
+        let bottomDivider = UIView()
+        bottomDivider.backgroundColor = .lightGray
+        
+        let labelRecapStack = UIStackView(arrangedSubviews: [activityRecapLabel, postsRecapLabel])
+        labelRecapStack.distribution = .fillEqually
+        
+        addSubview(labelRecapStack)
+        addSubview(topDivider)
+        addSubview(bottomDivider)
+        
+        labelRecapStack.anchor(left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, height: 50)
+        
+        topDivider.anchor(top: labelRecapStack.topAnchor, left: leftAnchor, right: rightAnchor, height: 0.5)
+        
+        bottomDivider.anchor(top: labelRecapStack.bottomAnchor, left: leftAnchor, right: rightAnchor, height: 0.5)
         
         
     }

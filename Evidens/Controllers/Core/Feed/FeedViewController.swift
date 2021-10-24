@@ -20,7 +20,7 @@ class FeedViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        configureNavigationItemButtons()        
+        configureNavigationItemButtons()
     }
     
     //MARK: - Helpers
@@ -30,9 +30,7 @@ class FeedViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-        navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "checklist"), style: .plain, target: self, action: #selector(didTapFilter)), UIBarButtonItem(image: .init(systemName: "paperplane"), style: .plain, target: self, action: #selector(didTapChat))]
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "person.fill"), style: .plain, target: self, action: #selector(didTapProfile))
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "checklist"), style: .plain, target: self, action: #selector(didTapFilter)), UIBarButtonItem(image: .init(systemName: "tray"), style: .plain, target: self, action: #selector(didTapChat))]
         navigationItem.rightBarButtonItems?[0].tintColor = .black
         navigationItem.rightBarButtonItems?[1].tintColor = .black
     }
@@ -51,11 +49,13 @@ class FeedViewController: UICollectionViewController {
         }
                 
     //Manage ScrollView animation
+    /*
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let magicalSafeAreaTop = topbarHeight
         let offset = scrollView.contentOffset.y + magicalSafeAreaTop
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
     }
+     */
 }
 
 //MARK: - UICollectionViewDataSource

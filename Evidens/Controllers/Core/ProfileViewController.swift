@@ -14,14 +14,13 @@ private let cellIdentifier = "ProfileCell"
 class ProfileViewController: UICollectionViewController {
     
     //MARK: - Properties
-
+    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
         configureNavigationItemButton()
-        view.backgroundColor = .systemRed
     }
     
     //MARK: - Helpers
@@ -87,6 +86,4 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: view.frame.width, height: 240)
     }
-    
-    
 }
