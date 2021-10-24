@@ -17,6 +17,11 @@ struct AuthCredentials {
 }
 
 struct AuthService {
+    
+    static func logUserIn(withEmail email: String, password: String, completion: AuthDataResultCallback?) {
+        Auth.auth().signIn(withEmail: email, password: password, completion: completion)
+    }
+    
     static func registerUser(withCredential credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
         Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { result, error in
             
@@ -30,7 +35,7 @@ struct AuthService {
             
             let data: [String: Any] = ["firstName": credentials.firstName, "lastName": credentials.lastName, "email": credentials.email, "uid": uid]
             
-            Firestore.firestore().collection("users").document(uid).setData(data, completion: completion)
+            COLLECTION_USERS.document(uid).setData(data, completion: completion)
         }
     }
 }

@@ -11,6 +11,10 @@ class ProfileHeader: UICollectionReusableView {
     
     //MARK: - Properties
     
+    var viewModel: ProfileHeaderViewModel? {
+        didSet { configure() }
+    }
+    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(systemName: "person.fill")
@@ -21,7 +25,6 @@ class ProfileHeader: UICollectionReusableView {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Pau Evidens"
         label.font = UIFont(name: "Raleway-Bold", size: 15)
         return label
     }()
@@ -129,11 +132,19 @@ class ProfileHeader: UICollectionReusableView {
     
     //MARK: - Helpers
     
+    func configure() {
+        guard let viewModel = viewModel else { return }
+        print(viewModel.lastName)
+        nameLabel.text = viewModel.firstName + " " + viewModel.lastName
+        
+    }
+    
     func attributedStatText(value: Int, label: String) -> NSAttributedString {
         let attributedText = NSMutableAttributedString(string: "\(value) ", attributes: [.font: UIFont(name: "Raleway-SemiBold", size: 15)!])
         attributedText.append(NSAttributedString(string: label, attributes: [.font: UIFont(name: "Raleway-SemiBold", size: 15)!, .foregroundColor : UIColor.lightGray]))
         return attributedText
     }
+
     
     //MARK: - Actions
     @objc func didTapEditProfile() {

@@ -6,21 +6,49 @@
 //
 
 import UIKit
+import Firebase
 
 class MainTabController: UITabBarController {
+    
+    //MARK: Properties
+    
+    private var user: User? {
+        didSet {
+            guard let user = user else { return }
+            configureViewControllers(withUser: user) }
+    }
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureViewControllers()
-
+        checkIfUserIsLoggedIn()
+        fetchUser()
+    }
+    
+    //MARK: - API
+    
+    func fetchUser() {
+        UserService.fetchUser() { user in
+            self.user = user
+        }
+    }
+    
+    func checkIfUserIsLoggedIn() {
+        if Auth.auth().currentUser == nil {
+            DispatchQueue.main.async {
+                let controller = WelcomeViewController()
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true, completion: nil)
+            }
+        }
     }
     
     //MARK: - Helpers
 
     //Setup ViewControllers for the TabBarController
-    func configureViewControllers() {
+    func configureViewControllers(withUser user: User) {
         view.backgroundColor = .white
     
         let feedLayout = UICollectionViewFlowLayout()
@@ -32,8 +60,8 @@ class MainTabController: UITabBarController {
         
         let notifications = templateNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationsViewController())
         
-        let profileLayout = UICollectionViewFlowLayout()
-        let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: ProfileViewController(collectionViewLayout: profileLayout))
+        let profileController = ProfileViewController(user: user)
+        let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: profileController)
         
         viewControllers = [feed, search, post, notifications, profile]
         

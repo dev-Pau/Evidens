@@ -404,9 +404,7 @@ class RegistrationViewController: UIViewController {
                 print("DEBUG: Failed to register user \(error.localizedDescription)")
                 return
             }
-            
-            //Succesfullly registrates user
-            print("DEBUG: Succesfully registrated user with Firestore")
+            //Succesfully registrates user
         }
 
         
