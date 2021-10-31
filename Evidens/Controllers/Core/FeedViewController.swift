@@ -21,6 +21,11 @@ class FeedViewController: UICollectionViewController {
         super.viewDidLoad()
         configureUI()
         configureNavigationItemButtons()
+        let statusBarView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 40))
+        self.view.addSubview(statusBarView)
+        statusBarView.backgroundColor = UIColor(white: 1, alpha: 1)
+        
+
     }
     
     //MARK: - Helpers
@@ -36,10 +41,7 @@ class FeedViewController: UICollectionViewController {
     }
     
     //MARK: - Actions
-    @objc func didTapProfile() {
-        feedDelegate?.handleMenuToggle()
-    }
-    
+
     @objc func didTapFilter() {
         print("DEBUG: did tap filter")
     }
@@ -49,13 +51,20 @@ class FeedViewController: UICollectionViewController {
         }
                 
     //Manage ScrollView animation
-    /*
+    
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let magicalSafeAreaTop = topbarHeight
         let offset = scrollView.contentOffset.y + magicalSafeAreaTop
+        
+        let alpha: CGFloat = 1 - ((scrollView.contentOffset.y + magicalSafeAreaTop) / magicalSafeAreaTop)
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+
+        navigationItem.rightBarButtonItems?[0].tintColor = .black.withAlphaComponent(alpha)
+        navigationItem.rightBarButtonItems?[1].tintColor = .black.withAlphaComponent(alpha)
+        
+        
     }
-     */
+     
 }
 
 //MARK: - UICollectionViewDataSource

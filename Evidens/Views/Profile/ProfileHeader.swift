@@ -134,7 +134,6 @@ class ProfileHeader: UICollectionReusableView {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-        print(viewModel.lastName)
         nameLabel.text = viewModel.firstName + " " + viewModel.lastName
         
     }

@@ -41,7 +41,7 @@ class RegistrationViewController: UIViewController {
     
     private let firstNameCheckmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+        button.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
         button.isEnabled = true
         button.tintColor = .white
         return button
@@ -49,7 +49,7 @@ class RegistrationViewController: UIViewController {
     
     private let lastNameCheckmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+        button.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
         button.isEnabled = true
         button.tintColor = .white
         return button
@@ -57,7 +57,7 @@ class RegistrationViewController: UIViewController {
     
     private let emailCheckmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+        button.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
         button.isEnabled = true
         button.tintColor = .white
         return button
@@ -65,7 +65,7 @@ class RegistrationViewController: UIViewController {
     
     private let emailXCheckmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        button.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
         button.isEnabled = true
         button.tintColor = .white
         return button
@@ -73,7 +73,7 @@ class RegistrationViewController: UIViewController {
     
     private let passwordXCheckmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        button.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
         button.isEnabled = true
         button.tintColor = .white
         return button
@@ -81,7 +81,7 @@ class RegistrationViewController: UIViewController {
     
     private let passwordCheckmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+        button.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
         button.isEnabled = true
         button.tintColor = .white
         return button

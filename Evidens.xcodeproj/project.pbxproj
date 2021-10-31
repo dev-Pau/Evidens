@@ -39,6 +39,8 @@
 		5F5888FA27102599005E5B4F /* Raleway-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888E827102599005E5B4F /* Raleway-Bold.ttf */; };
 		5F5889022712EC39005E5B4F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889012712EC39005E5B4F /* User.swift */; };
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
+		5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* UserCell.swift */; };
+		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5FC4D86227070274006B7A34 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D86127070274006B7A34 /* ViewController.swift */; };
@@ -94,6 +96,8 @@
 		5F5888E827102599005E5B4F /* Raleway-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Bold.ttf"; sourceTree = "<group>"; };
 		5F5889012712EC39005E5B4F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
+		5FBC2DA1272E903C004F92CE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
+		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -215,6 +219,22 @@
 			path = Customs;
 			sourceTree = "<group>";
 		};
+		5FBC2D9D272D938D004F92CE /* Registration */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D88C27072B60006B7A34 /* RegistrationViewController.swift */,
+			);
+			path = Registration;
+			sourceTree = "<group>";
+		};
+		5FBC2DA0272E9025004F92CE /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				5FBC2DA1272E903C004F92CE /* UserCell.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
 		5FC4D85127070274006B7A34 = {
 			isa = PBXGroup;
 			children = (
@@ -274,6 +294,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5FBC2DA0272E9025004F92CE /* Search */,
 				5F0A4F39271C29D700700304 /* Profile */,
 				5FC4D88627071CC4006B7A34 /* Feed */,
 				5F5888FD271067D3005E5B4F /* Customs */,
@@ -299,6 +320,7 @@
 			children = (
 				5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */,
 				5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */,
+				5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -326,7 +348,7 @@
 			children = (
 				5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */,
 				5FC4D88A27072B56006B7A34 /* LoginViewController.swift */,
-				5FC4D88C27072B60006B7A34 /* RegistrationViewController.swift */,
+				5FBC2D9D272D938D004F92CE /* Registration */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -519,6 +541,8 @@
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
+				5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */,
+				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */,
 			);
