@@ -14,7 +14,12 @@ class SearchViewController: UITableViewController {
     //MARK: - Properties
     
     private var users = [User]()
+    private var filteredUsers = [User]()
     private let searchController = UISearchController(searchResultsController: nil)
+    
+    private var inSearchMode: Bool {
+        return searchController.isActive && !searchController.searchBar.text!.isEmpty
+    }
     
     
     //MARK: - Lifecycle
@@ -43,6 +48,7 @@ class SearchViewController: UITableViewController {
     }
     
     func configureSearchController() {
+        searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.hidesNavigationBarDuringPresentation = false
         searchController.searchBar.placeholder = "Search Evidens"
@@ -55,13 +61,14 @@ class SearchViewController: UITableViewController {
 
 extension SearchViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //Display number of users we have on the database
-        return users.count
+        //Display number of users we have on the database or filtered
+        return inSearchMode ? filteredUsers.count : users.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
-        cell.viewModel = UserCellViewModel(user: users[indexPath.row])
+        let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
+        cell.viewModel = UserCellViewModel(user: user)
         return cell
     }
 }
@@ -70,8 +77,22 @@ extension SearchViewController {
 
 extension SearchViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
-        let controller = ProfileViewController(user: users[indexPath.row])
+        let controller = ProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+//MARK: - UISearchResultsUpdating
+
+extension SearchViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let searchText = searchController.searchBar.text else { return }
+        //Search for first or last name
+        filteredUsers = users.filter({ $0.firstName!.contains(searchText) || $0.lastName!.contains(searchText)
+        })
+        self.tableView.reloadData()
     }
 }

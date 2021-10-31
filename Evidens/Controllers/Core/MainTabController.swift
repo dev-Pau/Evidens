@@ -50,6 +50,7 @@ class MainTabController: UITabBarController {
     //Setup ViewControllers for the TabBarController
     func configureViewControllers(withUser user: User) {
         view.backgroundColor = .white
+        self.delegate = self
     
         let feedLayout = UICollectionViewFlowLayout()
         let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
@@ -74,6 +75,17 @@ class MainTabController: UITabBarController {
         nav.tabBarItem.selectedImage = selectedImage
         nav.navigationBar.tintColor = .black
         return nav
+    }
+}
+
+//MARK: - UITabBarControllerDelegate
+
+extension MainTabController: UITabBarControllerDelegate {
+    
+    //Check pressed tab
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        let index = viewControllers?.firstIndex(of: viewController)
+        return true
     }
 }
 
