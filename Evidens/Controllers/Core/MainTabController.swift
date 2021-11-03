@@ -57,14 +57,12 @@ class MainTabController: UITabBarController {
         
         let search = templateNavigationController(unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
         
-        let post = templateNavigationController(unselectedImage: UIImage(systemName: "plus.app")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: PostViewController())
-        
         let notifications = templateNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationsViewController())
         
         let profileController = ProfileViewController(user: user)
         let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: profileController)
         
-        viewControllers = [feed, search, post, notifications, profile]
+        viewControllers = [feed, search, notifications, profile]
         
         tabBar.tintColor = .black
     }
@@ -84,7 +82,6 @@ extension MainTabController: UITabBarControllerDelegate {
     
     //Check pressed tab
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        let index = viewControllers?.firstIndex(of: viewController)
         return true
     }
 }

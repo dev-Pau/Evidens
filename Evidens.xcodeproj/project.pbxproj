@@ -41,6 +41,11 @@
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
 		5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* UserCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
+		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
+		5FBC2DF12732883A004F92CE /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF02732883A004F92CE /* Notifications.swift */; };
+		5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF227329316004F92CE /* NotificationService.swift */; };
+		5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */; };
+		5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF62732B1AA004F92CE /* InputTextView.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5FC4D86227070274006B7A34 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D86127070274006B7A34 /* ViewController.swift */; };
@@ -98,6 +103,11 @@
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
+		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
+		5FBC2DF02732883A004F92CE /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		5FBC2DF227329316004F92CE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewController.swift; sourceTree = "<group>"; };
+		5FBC2DF62732B1AA004F92CE /* InputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTextView.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -165,6 +175,7 @@
 				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
+				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -235,6 +246,14 @@
 			path = Search;
 			sourceTree = "<group>";
 		};
+		5FBC2DED273020B0004F92CE /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				5FBC2DEE273020BC004F92CE /* NotificationCell.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
 		5FC4D85127070274006B7A34 = {
 			isa = PBXGroup;
 			children = (
@@ -279,6 +298,7 @@
 				5FC4D88727071FB0006B7A34 /* Extensions.swift */,
 				5F0A4F45271C854600700304 /* Protocols.swift */,
 				5F0A4F582725A1EE00700304 /* K.swift */,
+				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -287,6 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				5F5889012712EC39005E5B4F /* User.swift */,
+				5FBC2DF02732883A004F92CE /* Notifications.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -294,6 +315,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5FBC2DED273020B0004F92CE /* Notifications */,
 				5FBC2DA0272E9025004F92CE /* Search */,
 				5F0A4F39271C29D700700304 /* Profile */,
 				5FC4D88627071CC4006B7A34 /* Feed */,
@@ -331,6 +353,7 @@
 				5F0A4F502725622800700304 /* AuthService.swift */,
 				5F0A4F522725623E00700304 /* ImageUploader.swift */,
 				5F0A4F562725A1BA00700304 /* UserService.swift */,
+				5FBC2DF227329316004F92CE /* NotificationService.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -514,6 +537,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
+				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
@@ -527,6 +551,7 @@
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
+				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
 				5FC4D86227070274006B7A34 /* ViewController.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
@@ -535,6 +560,8 @@
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
+				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
+				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F0A4F37271C1D0800700304 /* VerificationViewController.swift in Sources */,
 				5F0A4F532725623E00700304 /* ImageUploader.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
@@ -542,6 +569,7 @@
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */,
+				5FBC2DF12732883A004F92CE /* Notifications.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */,

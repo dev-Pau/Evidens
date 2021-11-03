@@ -20,13 +20,11 @@ class FeedViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        configureBlurryTopView()
         configureNavigationItemButtons()
-        let statusBarView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 40))
-        self.view.addSubview(statusBarView)
-        statusBarView.backgroundColor = UIColor(white: 1, alpha: 1)
-        
-
     }
+    
+    
     
     //MARK: - Helpers
     func configureUI() {
@@ -34,10 +32,18 @@ class FeedViewController: UICollectionViewController {
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
     }
     
+    func configureBlurryTopView() {
+        let statusBarView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 40))
+        view.addSubview(statusBarView)
+        statusBarView.backgroundColor = UIColor(white: 1, alpha: 1)
+
+    }
+    
     func configureNavigationItemButtons() {
-        navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "checklist"), style: .plain, target: self, action: #selector(didTapFilter)), UIBarButtonItem(image: .init(systemName: "tray"), style: .plain, target: self, action: #selector(didTapChat))]
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "checklist"), style: .plain, target: self, action: #selector(didTapFilter)), UIBarButtonItem(image: .init(systemName: "envelope"), style: .plain, target: self, action: #selector(didTapChat)), UIBarButtonItem(image: .init(systemName: "plus.app"), style: .plain, target: self, action: #selector(didTapPost))]
         navigationItem.rightBarButtonItems?[0].tintColor = .black
         navigationItem.rightBarButtonItems?[1].tintColor = .black
+        navigationItem.rightBarButtonItems?[2].tintColor = .black
     }
     
     //MARK: - Actions
@@ -49,6 +55,14 @@ class FeedViewController: UICollectionViewController {
     @objc func didTapChat() {
         print("DEBUG: did tap chat")
         }
+    
+    @objc func didTapPost() {
+        let controller = UploadPostViewController()
+        controller.hidesBottomBarWhenPushed = true
+        //navigationController?.pushViewController(controller, animated: false)
+        navigationController?.pushViewController(controller, animated: true)
+        
+    }
                 
     //Manage ScrollView animation
     
@@ -61,6 +75,7 @@ class FeedViewController: UICollectionViewController {
 
         navigationItem.rightBarButtonItems?[0].tintColor = .black.withAlphaComponent(alpha)
         navigationItem.rightBarButtonItems?[1].tintColor = .black.withAlphaComponent(alpha)
+        navigationItem.rightBarButtonItems?[2].tintColor = .black.withAlphaComponent(alpha)
         
         
     }

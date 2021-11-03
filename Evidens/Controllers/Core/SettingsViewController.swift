@@ -34,7 +34,7 @@ class SettingsViewController: UIViewController {
     
     //MARK: - Helpers
     func configureUI() {
-        view.backgroundColor = .lightGray
+        view.backgroundColor = .white
         
         view.addSubview(logoutButton)
         logoutButton.anchor(top: view.topAnchor, right: view.rightAnchor, paddingTop: 5, paddingRight: 10)

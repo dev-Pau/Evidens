@@ -7,7 +7,7 @@
 
 
 import UIKit
-import grpc
+
 
 private let headerIdentifier = "ProfileHeader"
 private let cellIdentifier = "ProfileCell"
@@ -15,7 +15,9 @@ private let cellIdentifier = "ProfileCell"
 class ProfileViewController: UICollectionViewController {
     
     //MARK: - Properties
+
     private var user: User
+    
     
     //MARK: - Lifecycle
     
@@ -33,8 +35,10 @@ class ProfileViewController: UICollectionViewController {
         super.viewDidLoad()
         configureCollectionView()
         configureNavigationItemButton()
+        configureNavigationBar()
         checkIfUserIsFollowed()
         fetchUserStats()
+
     }
     
     //MARK: - API
@@ -68,6 +72,12 @@ class ProfileViewController: UICollectionViewController {
         navigationItem.rightBarButtonItems?[1].tintColor = .black
     }
     
+    func configureNavigationBar() {
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
+    }
+    
     //MARK: - Actions
     @objc func didTapSettings() {
         let controller = SettingsViewController()
@@ -77,6 +87,18 @@ class ProfileViewController: UICollectionViewController {
         }
         self.present(controller, animated: true)
     }
+    
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let magicalSafeAreaTop = topbarHeight
+        let offset = scrollView.contentOffset.y + magicalSafeAreaTop
+        
+        let alpha: CGFloat = 1 - ((scrollView.contentOffset.y + magicalSafeAreaTop) / magicalSafeAreaTop)
+        navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+        
+        navigationItem.rightBarButtonItems?[0].tintColor = .black.withAlphaComponent(alpha)
+        navigationItem.rightBarButtonItems?[1].tintColor = .black.withAlphaComponent(alpha)
+    }
+    
 
 }
 
@@ -155,6 +177,12 @@ extension ProfileViewController: ProfileHeaderDelegate {
             
         }
     }
-    
-    
+}
+
+extension ProfileViewController {
+    //Get height of status bar + navigation bar
+    var topbarHeight: CGFloat {
+        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
+            (self.navigationController?.navigationBar.frame.height ?? 0.0)
+    }
 }
