@@ -19,6 +19,8 @@
 		5F0A4F572725A1BA00700304 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F562725A1BA00700304 /* UserService.swift */; };
 		5F0A4F592725A1EE00700304 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F582725A1EE00700304 /* K.swift */; };
 		5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */; };
+		5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCAB27382BB50005AEC3 /* PostService.swift */; };
+		5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */; };
 		5F5888E927102599005E5B4F /* Raleway-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D727102598005E5B4F /* Raleway-Italic.ttf */; };
 		5F5888EA27102599005E5B4F /* Raleway-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */; };
 		5F5888EB27102599005E5B4F /* Raleway-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */; };
@@ -81,6 +83,8 @@
 		5F0A4F562725A1BA00700304 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		5F0A4F582725A1EE00700304 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderViewModel.swift; sourceTree = "<group>"; };
+		5F4DBCAB27382BB50005AEC3 /* PostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostService.swift; sourceTree = "<group>"; };
+		5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageViewController.swift; sourceTree = "<group>"; };
 		5F5888D727102598005E5B4F /* Raleway-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Italic.ttf"; sourceTree = "<group>"; };
 		5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -176,6 +180,7 @@
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
+				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -354,6 +359,7 @@
 				5F0A4F522725623E00700304 /* ImageUploader.swift */,
 				5F0A4F562725A1BA00700304 /* UserService.swift */,
 				5FBC2DF227329316004F92CE /* NotificationService.swift */,
+				5F4DBCAB27382BB50005AEC3 /* PostService.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -552,6 +558,7 @@
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
+				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
 				5FC4D86227070274006B7A34 /* ViewController.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
@@ -569,6 +576,7 @@
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */,
+				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notifications.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,

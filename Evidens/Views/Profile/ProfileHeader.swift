@@ -10,8 +10,8 @@ import UIKit
 
 protocol ProfileHeaderDelegate: AnyObject {
     func header(_ profileHeader: ProfileHeader, didTapActionButtonFor user: User)
+    func updateProfileImage(_ profileHeader: ProfileHeader, didTapChangeProfilePicFor user: User)
 }
-
 
 class ProfileHeader: UICollectionReusableView {
     
@@ -99,6 +99,11 @@ class ProfileHeader: UICollectionReusableView {
         profileImageView.setDimensions(height: 80, width: 80)
         profileImageView.layer.cornerRadius = 80/2
         
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapChangeProfilePic))
+        profileImageView.addGestureRecognizer(gesture)
+        profileImageView.isUserInteractionEnabled = true
+        
+        
         addSubview(nameLabel)
         nameLabel.centerX(inView: profileImageView)
         nameLabel.anchor(top: profileImageView.bottomAnchor, paddingTop: 8)
@@ -161,5 +166,10 @@ class ProfileHeader: UICollectionReusableView {
     @objc func didTapEditFollowProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.header(self, didTapActionButtonFor: viewModel.user)
+    }
+    
+    @objc func didTapChangeProfilePic() {
+        guard let viewModel = viewModel else { return }
+        delegate?.updateProfileImage(self, didTapChangeProfilePicFor: viewModel.user)
     }
 }

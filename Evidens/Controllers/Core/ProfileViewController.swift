@@ -18,10 +18,8 @@ class ProfileViewController: UICollectionViewController {
 
     private var user: User
     
-    
     //MARK: - Lifecycle
     
-
     init(user: User) {
         self.user = user
         super.init(collectionViewLayout: UICollectionViewFlowLayout())
@@ -153,9 +151,11 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - ProfileHeaderDelegate
 
 extension ProfileViewController: ProfileHeaderDelegate {
+    
     func header(_ profileHeader: ProfileHeader, didTapActionButtonFor user: User) {
         if user.isCurrentUser {
             //Handle edit profile
+            print("your profile")
         }
         
         else if user.isFollowed {
@@ -177,7 +177,24 @@ extension ProfileViewController: ProfileHeaderDelegate {
             
         }
     }
+    
+    func updateProfileImage(_ profileHeader: ProfileHeader, didTapChangeProfilePicFor user: User) {
+        
+        let controller = ProfileImageViewController()
+        controller.hidesBottomBarWhenPushed = true
+
+        if user.isCurrentUser {
+            print("DEBUG: Is current user, let change profile image here")
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            print("DEBUG: Is not current user, let change profile image here")
+            //button is public, implement with private!
+            controller.editProfileButton.isHidden = true
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
 }
+
 
 extension ProfileViewController {
     //Get height of status bar + navigation bar
@@ -186,3 +203,5 @@ extension ProfileViewController {
             (self.navigationController?.navigationBar.frame.height ?? 0.0)
     }
 }
+
+

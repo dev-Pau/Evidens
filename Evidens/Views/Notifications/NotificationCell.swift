@@ -105,6 +105,6 @@ class NotificationCell: UITableViewCell {
     }
     
     @objc func didTapProfile() {
-        
+        print("did tap profile notifications")
     }
 }
