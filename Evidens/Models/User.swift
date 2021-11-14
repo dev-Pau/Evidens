@@ -13,6 +13,7 @@ struct User {
     let lastName: String?
     let email: String?
     let uid: String?
+    var profileImageUrl: String?
     
     //Track if a user is followed
     var isFollowed = false
@@ -27,6 +28,7 @@ struct User {
         self.lastName = dictionary["lastName"] as? String ?? ""
         self.email = dictionary["email"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
+        self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
         
         self.stats = UserStats(followers: 0, following: 0)
     }

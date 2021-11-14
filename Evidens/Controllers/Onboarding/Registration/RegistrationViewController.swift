@@ -406,8 +406,6 @@ class RegistrationViewController: UIViewController {
             }
             //Succesfully registrates user
         }
-
-        
     }
     
     @objc func textDidChange(sender: UITextField) {

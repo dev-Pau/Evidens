@@ -39,6 +39,8 @@ class ProfileViewController: UICollectionViewController {
 
     }
     
+
+    
     //MARK: - API
     
     func fetchUserStats() {
@@ -144,7 +146,7 @@ extension ProfileViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 240)
+        return CGSize(width: view.frame.width, height: 600)
     }
 }
 
@@ -180,7 +182,7 @@ extension ProfileViewController: ProfileHeaderDelegate {
     
     func updateProfileImage(_ profileHeader: ProfileHeader, didTapChangeProfilePicFor user: User) {
         
-        let controller = ProfileImageViewController()
+        let controller = ProfileImageViewController(user: user)
         controller.hidesBottomBarWhenPushed = true
 
         if user.isCurrentUser {

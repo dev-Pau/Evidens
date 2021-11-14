@@ -18,6 +18,10 @@ struct ProfileHeaderViewModel {
         return user.lastName!
     }
     
+    var profileImageUrl: String {
+        return user.profileImageUrl!
+    }
+    
     //Change button text wether is, or not, current user
     var followButtonText: String {
         if user.isCurrentUser {

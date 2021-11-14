@@ -6,10 +6,22 @@
 //
 
 import Firebase
+import Foundation
 
 typealias FirestoreCompletion = (Error?) -> Void
 
 struct UserService {
+    
+    static func updateProfileUrl(profileImageUrl: String, completion: @escaping(User) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).setData(["profileImageUrl" : profileImageUrl], merge: true) { err in
+            if let err = err {
+                print("Error writing document: \(err)")
+            } else {
+                print("Document succesfully written!")
+            }
+        }
+    }
     
     static func fetchUser(completion: @escaping(User) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }

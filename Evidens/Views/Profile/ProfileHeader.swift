@@ -26,7 +26,9 @@ class ProfileHeader: UICollectionReusableView {
     
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(systemName: "person.fill")
+        //iv.image = UIImage(systemName: "person.fill")
+        iv.backgroundColor = .lightGray
+        iv.setDimensions(height: 100, width: 100)
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
         return iv
@@ -95,9 +97,9 @@ class ProfileHeader: UICollectionReusableView {
         backgroundColor = .white
         
         addSubview(profileImageView)
-        profileImageView.anchor(top: topAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 16)
-        profileImageView.setDimensions(height: 80, width: 80)
-        profileImageView.layer.cornerRadius = 80/2
+        profileImageView.anchor(top: topAnchor, paddingTop: 16)
+        profileImageView.centerX(inView: self)
+        profileImageView.layer.cornerRadius = 100/2
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapChangeProfilePic))
         profileImageView.addGestureRecognizer(gesture)
@@ -159,6 +161,19 @@ class ProfileHeader: UICollectionReusableView {
         postsLabel.attributedText = viewModel.numberOfPosts
         followersLabel.attributedText = viewModel.numberOfFollowers
         followingLabel.attributedText = viewModel.numberOfFollowing
+        
+        let url = URL(string: viewModel.profileImageUrl)
+        
+        guard let url = url else { return }
+
+        DispatchQueue.global().async {
+            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+            DispatchQueue.main.async {
+                self.profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2
+                self.profileImageView.layer.masksToBounds = true
+                self.profileImageView.image = UIImage(data: data!)
+            }
+        }
     }
 
     //MARK: - Actions

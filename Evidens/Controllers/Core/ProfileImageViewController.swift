@@ -12,6 +12,20 @@ class ProfileImageViewController: UIViewController {
     
     //MARK: - Properties
     
+    public var profileImage: UIImage?
+    
+    private var user: User
+    
+    init (user: User) {
+        
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -65,7 +79,6 @@ class ProfileImageViewController: UIViewController {
     
     func configureUI() {
         
-
         view.backgroundColor = .white
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "xmark.circle.fill"), style: .done, target: self, action: #selector(didTapCancel))
@@ -91,9 +104,19 @@ extension ProfileImageViewController: UIImagePickerControllerDelegate, UINavigat
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
+        
+        profileImage = selectedImage
+        
         profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
         profileImageView.layer.masksToBounds = true
         profileImageView.image = selectedImage.withRenderingMode(.alwaysOriginal)
+        
+        //Upload image to Firestore
+        ImageUploader.uploadImage(image: profileImage!) { imageUrl in
+            UserService.updateProfileUrl(profileImageUrl: imageUrl) { user in
+                //self.user.profileImageUrl = imageUrl
+            }
+        }
         
         self.dismiss(animated: true, completion: nil)
     }
