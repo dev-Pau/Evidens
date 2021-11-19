@@ -49,7 +49,16 @@ class UploadPostViewController: UIViewController {
     }
     
     @objc func didTapShare() {
-        print("DEBUG: Share post here")
+        guard let postTextView = postTextView.text else { return }
+        PostService.uploadPost(post: postTextView) { error in
+            if let error = error {
+                print("DEBUG: Failed to upload post with error \(error.localizedDescription)")
+                return
+            }
+            
+            print("DEBUG: User did upload post")
+            self.navigationController?.popToRootViewController(animated: true)
+        }
     }
     
     //MARK: - Helpers

@@ -22,6 +22,7 @@ class FeedViewController: UICollectionViewController {
         configureUI()
         configureBlurryTopView()
         configureNavigationItemButtons()
+        fetchPosts()
     }
     
     
@@ -78,6 +79,12 @@ class FeedViewController: UICollectionViewController {
         navigationItem.rightBarButtonItems?[2].tintColor = .black.withAlphaComponent(alpha)
         
         
+    }
+    
+    //MARK: - API
+    
+    func fetchPosts() {
+        PostService.fetchPosts()
     }
      
 }
