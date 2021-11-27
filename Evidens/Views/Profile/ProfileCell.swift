@@ -11,12 +11,18 @@ class ProfileCell: UICollectionViewCell {
     
     // MARK: - Properties
     
+    var viewModel: PostViewModel? {
+        didSet {
+            configure()
+        }
+    }
+    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(systemName: "eye.fill")
+        iv.backgroundColor = .lightGray
         return iv
     }()
     
@@ -123,6 +129,25 @@ class ProfileCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure() {
+        guard let viewModel = viewModel else { return }
+        
+        //Configure post with post info
+        postLabel.text = viewModel.postText
+        likesLabel.text = viewModel.likesLabelText
+        //postTimeLabel.text = viewModel.timesta
+        
+        let url = viewModel.userProfileImageUrl
+        guard let url = url else { return }
+        DispatchQueue.global().async {
+            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+            DispatchQueue.main.async {
+                self.profileImageView.image = UIImage(data: data!)
+            }
+        }
+
     }
     
     // MARK: - Actions

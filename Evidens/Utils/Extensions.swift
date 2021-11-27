@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 extension UIButton {
     func attributedTitle(buttonInfo: String, buttonContent: String) {
         let atts: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(rgb: 0x1E1E1E), .font: UIFont.systemFont(ofSize: 16)]

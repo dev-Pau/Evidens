@@ -7,23 +7,32 @@
 
 import UIKit
 
+protocol FeedCellDelegate: AnyObject {
+    func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post)
+}
+
 class FeedCell: UICollectionViewCell {
     
     // MARK: - Properties
+    
+    var viewModel: PostViewModel? {
+        didSet { configure() }
+    }
+    
+    weak var delegate: FeedCellDelegate?
     
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(systemName: "eye.fill")
+        iv.backgroundColor = .lightGray
         return iv
     }()
     
     private lazy var usernameButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitleColor(.black, for: .normal)
-        button.setTitle("Evidens", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
         button.addTarget(self, action: #selector(didTapUsername), for: .touchUpInside)
         return button
@@ -31,7 +40,6 @@ class FeedCell: UICollectionViewCell {
     
     private let postLabel: UILabel = {
         let label = UILabel()
-        label.text = "Evidens Feed test"
         label.textColor = .black
         label.contentMode = .scaleAspectFit
         label.isUserInteractionEnabled = true
@@ -49,6 +57,7 @@ class FeedCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "bubble.left"), for: .normal)
         button.tintColor = .black
+        button.addTarget(self, action: #selector(didTapComments), for: .touchUpInside)
         return button
     }()
     
@@ -69,7 +78,6 @@ class FeedCell: UICollectionViewCell {
     
     private let likesLabel: UILabel = {
         let label = UILabel()
-        label.text = "1040"
         label.setDimensions(height: 50, width: 100)
         label.textColor = .black
         label.font = UIFont.boldSystemFont(ofSize: 13)
@@ -131,7 +139,32 @@ class FeedCell: UICollectionViewCell {
         print("DEBUG: did tap username")
     }
     
+    @objc func didTapComments() {
+        //Delegate the action to FeedViewController
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
+    }
+    
     // MARK: - Helpers
+    
+    func configure() {
+        guard let viewModel = viewModel else { return }
+        
+        //Configure post with post info
+        postLabel.text = viewModel.postText
+        likesLabel.text = viewModel.likesLabelText
+        
+        //Configure post with user info
+        usernameButton.setTitle(viewModel.fullName, for: .normal)
+        let url = viewModel.userProfileImageUrl
+        guard let url = url else { return }
+        DispatchQueue.global().async {
+            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+            DispatchQueue.main.async {
+                self.profileImageView.image = UIImage(data: data!)
+            }
+        }
+    }
     
     func configureActionButtons() {
         let stackView = UIStackView(arrangedSubviews: [likeButton, likesLabel, commentButton, commentLabel, shareButton])

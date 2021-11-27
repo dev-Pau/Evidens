@@ -14,6 +14,9 @@ class FeedViewController: UICollectionViewController {
     //MARK: - Properties
     var feedDelegate: FeedViewControllerDelegate?
 
+    private var posts = [Post]()
+    
+    var post: Post?
     
     //MARK: - Lifecycle
     
@@ -25,12 +28,15 @@ class FeedViewController: UICollectionViewController {
         fetchPosts()
     }
     
-    
-    
     //MARK: - Helpers
     func configureUI() {
         collectionView.backgroundColor = .white
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        
+        //Configure UIRefreshControl
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.refreshControl = refresher
     }
     
     func configureBlurryTopView() {
@@ -41,13 +47,20 @@ class FeedViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
+        if post == nil {
         navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "checklist"), style: .plain, target: self, action: #selector(didTapFilter)), UIBarButtonItem(image: .init(systemName: "envelope"), style: .plain, target: self, action: #selector(didTapChat)), UIBarButtonItem(image: .init(systemName: "plus.app"), style: .plain, target: self, action: #selector(didTapPost))]
         navigationItem.rightBarButtonItems?[0].tintColor = .black
         navigationItem.rightBarButtonItems?[1].tintColor = .black
         navigationItem.rightBarButtonItems?[2].tintColor = .black
+        }
     }
     
     //MARK: - Actions
+    
+    @objc func handleRefresh() {
+        posts.removeAll()
+        fetchPosts()
+    }
 
     @objc func didTapFilter() {
         print("DEBUG: did tap filter")
@@ -84,22 +97,35 @@ class FeedViewController: UICollectionViewController {
     //MARK: - API
     
     func fetchPosts() {
-        PostService.fetchPosts()
+        guard post == nil else { return }
+        PostService.fetchPosts { posts in
+            self.posts = posts
+            self.collectionView.refreshControl?.endRefreshing()
+            self.collectionView.reloadData()
+        }
     }
-     
 }
 
 //MARK: - UICollectionViewDataSource
 
 extension FeedViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return post == nil ? posts.count : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! FeedCell
+        
+        cell.delegate = self
+        
         cell.layer.borderWidth = 0.19
         cell.layer.borderColor = UIColor.lightGray.cgColor
+        
+        if let post = post {
+            cell.viewModel = PostViewModel(post: post)
+        } else {
+            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+        }
         return cell
     }
 }
@@ -127,6 +153,15 @@ extension FeedViewController {
     var topbarHeight: CGFloat {
         return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
             (self.navigationController?.navigationBar.frame.height ?? 0.0)
+    }
+}
+
+//MARK: -
+
+extension FeedViewController: FeedCellDelegate {
+    func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post) {
+        let controller = CommentViewController(collectionViewLayout: UICollectionViewFlowLayout())
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

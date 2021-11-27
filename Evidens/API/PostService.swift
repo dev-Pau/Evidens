@@ -10,21 +10,47 @@ import Firebase
 
 struct PostService {
     
-    static func uploadPost(post: String, completion: @escaping(FirestoreCompletion)) {
+    static func uploadPost(post: String, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
-        let data = ["post": post, "timestamp": Timestamp(date: Date()), "likes": 0, "ownerUid": uid] as [String : Any]
+        let data = ["post": post,
+                    "timestamp": Timestamp(date: Date()),
+                    "likes": 0, "ownerUid": uid,
+                    "ownerFirstName": user.firstName,
+                    "ownerLastName": user.lastName,
+                    "ownerImageUrl": user.profileImageUrl] as [String : Any]
         
         COLLECTION_POSTS.addDocument(data: data, completion: completion)
     }
     
-    static func fetchPosts() {
-        COLLECTION_POSTS.getDocuments { (snapshot, error) in
+    static func fetchPosts(completion: @escaping([Post]) -> Void) {
+        //Fetch posts by filtering according to timestamp
+        COLLECTION_POSTS.order(by: "timestamp", descending: true).getDocuments { (snapshot, error) in
             guard let documents = snapshot?.documents else { return }
-            documents.forEach { doc in
-                print("DEBUG: Doc data is \(doc.data())")
+            
+            //Mapping that creates an array for each post
+            let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            completion(posts)
+        }
+    }
+    
+    static func fetchPosts(forUser uid: String, completion: @escaping([Post]) -> Void) {
+        //Fetch posts by filtering according to timestamp & user uid
+        let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid)
+            //.order(by: "timestamp", descending: false)
+        
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else { return }
+        
+            var posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            
+            //Order posts by timestamp
+            posts.sort { (post1, post2) -> Bool in
+                return post1.timestamp.seconds > post2.timestamp.seconds
             }
             
+            completion(posts)
+
         }
     }
 }

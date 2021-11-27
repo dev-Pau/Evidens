@@ -11,6 +11,8 @@ class UploadPostViewController: UIViewController {
     
     //MARK: - Properties
     
+    //var currentUser: User
+    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -49,15 +51,21 @@ class UploadPostViewController: UIViewController {
     }
     
     @objc func didTapShare() {
-        guard let postTextView = postTextView.text else { return }
-        PostService.uploadPost(post: postTextView) { error in
-            if let error = error {
-                print("DEBUG: Failed to upload post with error \(error.localizedDescription)")
-                return
+        guard let postTextView = postTextView.text else { print("1")
+            return }
+        
+        //Pass the user to UploadPostViewController instead of fetching current user
+        UserService.fetchUser { user in
+            PostService.uploadPost(post: postTextView, user: user) { error in
+                if let error = error {
+                    print("DEBUG: Failed to upload post with error \(error.localizedDescription)")
+                    return
+                }
+                
+                //Upload FeewViewController when Post is published!!!
+                self.navigationController?.popToRootViewController(animated: true)
+
             }
-            
-            print("DEBUG: User did upload post")
-            self.navigationController?.popToRootViewController(animated: true)
         }
     }
     
