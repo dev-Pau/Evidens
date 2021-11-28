@@ -27,6 +27,7 @@ class UploadPostViewController: UIViewController {
         tv.placeholderText = "Start typing your post"
         tv.font = UIFont.systemFont(ofSize: 16)
         tv.delegate = self
+        tv.placeHolderShouldCenter = false
         return tv
     }()
     

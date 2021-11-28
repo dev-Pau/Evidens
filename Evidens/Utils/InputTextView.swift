@@ -21,14 +21,24 @@ class InputTextView: UITextView {
         return label
     }()
     
+    var placeHolderShouldCenter = true {
+        didSet {
+            if placeHolderShouldCenter {
+                placeholderLabel.anchor(left: leftAnchor, right: rightAnchor, paddingLeft: 8)
+                placeholderLabel.centerY(inView: self)
+            } else {
+                placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 7, paddingLeft: 7)
+            }
+        }
+    }
+    
     //MARK: - Lifecycle
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
         
         addSubview(placeholderLabel)
-        placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 7, paddingLeft: 7)
-        
+    
         //Observer on textDidChange to update placeholder
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChange), name: UITextView.textDidChangeNotification, object: nil)
     }

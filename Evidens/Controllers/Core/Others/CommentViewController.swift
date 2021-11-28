@@ -13,11 +13,37 @@ class CommentViewController: UICollectionViewController {
     
     //MARK: - Properties
     
+    private lazy var commentInputView: CommentInputAccessoryView = {
+        let frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 70)
+        let cv = CommentInputAccessoryView(frame: frame)
+        return cv
+    }()
+    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+    }
+    
+    override var inputAccessoryView: UIView? {
+        get { return commentInputView }
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    //Hide tab bar when comment input acccesory view dissappears
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    //Show tab bar when comment input acccesory view dissappears
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     //MARK: - Helpers
@@ -26,6 +52,10 @@ class CommentViewController: UICollectionViewController {
         navigationItem.title = "Comments"
         collectionView.backgroundColor = .white
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        
+        collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .interactive
+        
     }
 }
 
@@ -33,12 +63,11 @@ class CommentViewController: UICollectionViewController {
 
 extension CommentViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 6
+        return 10
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-        cell.backgroundColor = .red
         return cell
     }
 }

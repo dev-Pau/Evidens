@@ -45,6 +45,7 @@
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
+		5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */; };
 		5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* UserCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -113,6 +114,7 @@
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
+		5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputAccessoryView.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				5F8666F427529AF5009B26E6 /* CommentCell.swift */,
+				5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */,
 			);
 			path = Comments;
 			sourceTree = "<group>";
@@ -586,6 +589,7 @@
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
 				5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
+				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
