@@ -160,3 +160,30 @@ extension String {
         return regex.firstMatch(in: self, options: [], range: NSRange(location: 0, length: count)) != nil
     }
 }
+
+extension UIView {
+    
+    func activityStartAnimating() {
+        let backgroundView = UIView()
+        
+        var activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView()
+        activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        activityIndicator.center = self.center
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.style = UIActivityIndicatorView.Style.medium
+        activityIndicator.startAnimating()
+        self.isUserInteractionEnabled = false
+        
+        backgroundView.addSubview(activityIndicator)
+        self.addSubview(backgroundView)
+    }
+    
+    func activityStopAnimating() {
+            if let background = viewWithTag(475647){
+                background.removeFromSuperview()
+            }
+            self.isUserInteractionEnabled = true
+    }
+}
+
+

@@ -6,12 +6,19 @@
 //
 
 import UIKit
+import SDWebImage
+
+protocol CommentInputAccessoryViewDelegate: AnyObject {
+    func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String)
+}
 
 class CommentInputAccessoryView: UIView {
     
     //MARK: - Properties
     
-    private let profileImageView: UIImageView = {
+    weak var delegate: CommentInputAccessoryViewDelegate?
+    
+    let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
@@ -64,7 +71,6 @@ class CommentInputAccessoryView: UIView {
         addSubview(commentTextView)
         commentTextView.centerY(inView: profileImageView, leftAnchor: profileImageView.rightAnchor, paddingLeft: 8, constant: 0)
         commentTextView.anchor(right: postButton.leftAnchor, paddingRight: 8)
-        //commentTextView.anchor(top: topAnchor, left: profileImageView.rightAnchor, right: postButton.leftAnchor ,paddingTop: 8, paddingLeft: 8, paddingBottom: 8, paddingRight: 8)
         
         let divider = UIView()
         divider.backgroundColor = .lightGray
@@ -85,6 +91,14 @@ class CommentInputAccessoryView: UIView {
     //MARK: - Actions
     
     @objc func didTapPostButton() {
-        
+        delegate?.inputView(self, wantsToUploadComment: commentTextView.text)
     }
+    
+    func clearCommentTextView() {
+        commentTextView.text = nil
+        commentTextView.placeholderLabel.isHidden = false
+    }
+    
+    //MARK: - Helpers
+    
 }

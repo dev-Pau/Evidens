@@ -41,8 +41,8 @@ class FeedViewController: UICollectionViewController {
     
     func configureBlurryTopView() {
         let statusBarView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 40))
-        view.addSubview(statusBarView)
-        statusBarView.backgroundColor = UIColor(white: 1, alpha: 1)
+        //view.addSubview(statusBarView)
+        //statusBarView.backgroundColor = UIColor(white: 1, alpha: 1)
 
     }
     
@@ -160,7 +160,7 @@ extension FeedViewController {
 
 extension FeedViewController: FeedCellDelegate {
     func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post) {
-        let controller = CommentViewController(collectionViewLayout: UICollectionViewFlowLayout())
+        let controller = CommentViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
     }
 }

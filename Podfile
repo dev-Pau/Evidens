@@ -6,6 +6,9 @@ target 'Evidens' do
   use_frameworks!
 
   # Pods for Evidens
+
+	#Firebase
+
 	pod 'Firebase/Core'
 	pod 'Firebase/Database'
 	pod 'Firebase/Firestore'
@@ -13,4 +16,7 @@ target 'Evidens' do
 	pod 'Firebase/Messaging'
 	pod 'Firebase/Auth'
 	pod 'Firebase/Analytics'
+
+	#SDWebImage
+	pod 'SDWebImage', '~> 5.0'
 end
