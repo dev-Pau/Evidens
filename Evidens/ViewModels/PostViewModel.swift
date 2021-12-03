@@ -8,7 +8,7 @@
 import UIKit
 
 struct PostViewModel {
-    let post: Post
+    var post: Post
     
     var postText: String {
         return post.postText

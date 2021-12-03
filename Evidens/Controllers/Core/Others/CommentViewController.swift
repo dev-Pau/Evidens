@@ -109,6 +109,18 @@ extension CommentViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+//MARK: - UICollectionViewDelegate
+
+extension CommentViewController {
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let uid = comments[indexPath.row].uid
+        UserService.fetchUser(withUid: uid) { user in
+            let controller = ProfileViewController(user: user)
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+}
+
 //MARK: - CommentInputAccesoryViewDelegate
 
 extension CommentViewController: CommentInputAccessoryViewDelegate {

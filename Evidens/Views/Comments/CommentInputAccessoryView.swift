@@ -17,7 +17,7 @@ class CommentInputAccessoryView: UIView {
     //MARK: - Properties
     
     weak var delegate: CommentInputAccessoryViewDelegate?
-    
+
     let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -49,6 +49,8 @@ class CommentInputAccessoryView: UIView {
     }()
     
     //MARK: - Lifecycle
+    
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)

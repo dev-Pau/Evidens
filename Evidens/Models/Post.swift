@@ -17,6 +17,7 @@ struct Post {
     let ownerImageUrl: String
     let ownerFirstName: String
     let ownerLastName: String
+    var didLike = false
     
     //For future development, different types of posts + images, links, etc.
     //let imageUrl: String?

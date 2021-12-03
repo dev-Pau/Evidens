@@ -9,6 +9,7 @@ import UIKit
 
 protocol FeedCellDelegate: AnyObject {
     func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post)
+    func cell(_ cell: FeedCell, didLike post: Post)
 }
 
 class FeedCell: UICollectionViewCell {
@@ -50,6 +51,7 @@ class FeedCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "heart"), for: .normal)
         button.tintColor = UIColor(rgb: 0x79CBBF)
+        button.addTarget(self, action: #selector(didTapLike), for: .touchUpInside)
         return button
     }()
     
@@ -143,6 +145,11 @@ class FeedCell: UICollectionViewCell {
         //Delegate the action to FeedViewController
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
+    }
+    
+    @objc func didTapLike() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didLike: viewModel.post)
     }
     
     // MARK: - Helpers

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class UploadPostViewController: UIViewController {
     
@@ -56,7 +57,8 @@ class UploadPostViewController: UIViewController {
             return }
         
         //Pass the user to UploadPostViewController instead of fetching current user
-        UserService.fetchUser { user in
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        UserService.fetchUser(withUid: uid) { user in
             PostService.uploadPost(post: postTextView, user: user) { error in
                 if let error = error {
                     print("DEBUG: Failed to upload post with error \(error.localizedDescription)")
