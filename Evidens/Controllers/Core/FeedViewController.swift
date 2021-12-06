@@ -14,7 +14,9 @@ class FeedViewController: UICollectionViewController {
     //MARK: - Properties
     var feedDelegate: FeedViewControllerDelegate?
 
-    private var posts = [Post]()
+    private var posts = [Post]() {
+        didSet { collectionView.reloadData() }
+    }
     
     var post: Post?
     
@@ -90,8 +92,6 @@ class FeedViewController: UICollectionViewController {
         navigationItem.rightBarButtonItems?[0].tintColor = .black.withAlphaComponent(alpha)
         navigationItem.rightBarButtonItems?[1].tintColor = .black.withAlphaComponent(alpha)
         navigationItem.rightBarButtonItems?[2].tintColor = .black.withAlphaComponent(alpha)
-        
-        
     }
     
     //MARK: - API
@@ -101,7 +101,21 @@ class FeedViewController: UICollectionViewController {
         PostService.fetchPosts { posts in
             self.posts = posts
             self.collectionView.refreshControl?.endRefreshing()
-            self.collectionView.reloadData()
+            self.checkIfUserLikedPosts()
+        }
+    }
+    
+    func checkIfUserLikedPosts() {
+        //For every post in array fetched
+        self.posts.forEach { post in
+            //Check if user did like
+            PostService.checkIfUserLikedPost(post: post) { didLike in
+                //Check the postId of the current post looping
+                if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
+                    //Change the didLike according if user did like post
+                    self.posts[index].didLike = didLike
+                }
+            }
         }
     }
 }
@@ -156,7 +170,7 @@ extension FeedViewController {
     }
 }
 
-//MARK: -
+//MARK: - FeedCellDelegate
 
 extension FeedViewController: FeedCellDelegate {
     func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post) {
@@ -168,12 +182,20 @@ extension FeedViewController: FeedCellDelegate {
         cell.viewModel?.post.didLike.toggle()
         if post.didLike {
             //Unlike post here
-
+            PostService.unlikePost(post: post) { _ in
+                cell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+                cell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                cell.viewModel?.post.likes = post.likes - 1
+            }
         } else {
-
-        }
+            //Like post here
+            PostService.likePost(post: post) { _ in
+                cell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+                cell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                cell.viewModel?.post.likes = post.likes + 1
+                }
+            }
     }
-    
-
 }
+    
 

@@ -33,9 +33,5 @@
 	<string>UIStatusBarStyleDarkContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSCameraUsageDescription</key>
-	<string>Evidens need acces to your camera to set a profile picture</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Evidens need access to select a photo for your profile</string>
 </dict>
 </plist>

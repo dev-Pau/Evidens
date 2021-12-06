@@ -10,12 +10,12 @@ import Firebase
 struct CommentService {
     
     static func uploadComment(comment: String, postID: String, user: User, completion: @escaping(FirestoreCompletion)) {
-        let data: [String: Any] = ["uid": user.uid,
+        let data: [String: Any] = ["uid": user.uid as Any,
                                    "comment": comment,
                                    "timestamp": Timestamp(date: Date()),
-                                   "firstName": user.firstName,
-                                   "lastName": user.lastName,
-                                   "profileImageUrl": user.profileImageUrl]
+                                   "firstName": user.firstName as Any,
+                                   "lastName": user.lastName as Any,
+                                   "profileImageUrl": user.profileImageUrl as Any]
         
         COLLECTION_POSTS.document(postID).collection("comments").addDocument(data: data, completion: completion)
     }

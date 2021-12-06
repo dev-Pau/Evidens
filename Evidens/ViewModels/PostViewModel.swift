@@ -34,6 +34,15 @@ struct PostViewModel {
         return post.likes
     }
     
+    var likeButtonTintColor: UIColor {
+        return post.didLike ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF)
+    }
+    
+    var likeButtonImage: UIImage? {
+        let imageName = post.didLike ? "heart.fill" : "heart"
+        return UIImage(systemName: imageName)
+    }
+    
     //var timestamp: String {
      //   return post.timestamp
     //}

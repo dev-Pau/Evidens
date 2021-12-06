@@ -47,10 +47,8 @@ class FeedCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var likeButton: UIButton = {
+    lazy var likeButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "heart"), for: .normal)
-        button.tintColor = UIColor(rgb: 0x79CBBF)
         button.addTarget(self, action: #selector(didTapLike), for: .touchUpInside)
         return button
     }()
@@ -162,15 +160,12 @@ class FeedCell: UICollectionViewCell {
         likesLabel.text = viewModel.likesLabelText
         
         //Configure post with user info
+        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         usernameButton.setTitle(viewModel.fullName, for: .normal)
-        let url = viewModel.userProfileImageUrl
-        guard let url = url else { return }
-        DispatchQueue.global().async {
-            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-            DispatchQueue.main.async {
-                self.profileImageView.image = UIImage(data: data!)
-            }
-        }
+        
+        likeButton.tintColor = viewModel.likeButtonTintColor
+        likeButton.setImage(viewModel.likeButtonImage, for: .normal)
+
     }
     
     func configureActionButtons() {
@@ -182,6 +177,7 @@ class FeedCell: UICollectionViewCell {
         commentButton.setDimensions(height: 50, width: 30)
         commentLabel.setDimensions(height: 50, width: 50)
         shareButton.setDimensions(height: 50, width: 30)
+        
         addSubview(stackView)
         stackView.anchor(top: postLabel.bottomAnchor, left: usernameButton.leftAnchor, width: 200, height: 50)
     }

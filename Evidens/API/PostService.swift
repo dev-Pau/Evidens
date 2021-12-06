@@ -16,9 +16,9 @@ struct PostService {
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
                     "likes": 0, "ownerUid": uid,
-                    "ownerFirstName": user.firstName,
-                    "ownerLastName": user.lastName,
-                    "ownerImageUrl": user.profileImageUrl] as [String : Any]
+                    "ownerFirstName": user.firstName as Any,
+                    "ownerLastName": user.lastName as Any,
+                    "ownerImageUrl": user.profileImageUrl as Any] as [String : Any]
         
         COLLECTION_POSTS.addDocument(data: data, completion: completion)
     }
@@ -51,6 +51,40 @@ struct PostService {
             
             completion(posts)
 
+        }
+    }
+    
+    static func likePost(post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        //Add a new like to the post
+        COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes + 1])
+        
+        //Update posts likes collection to track likes for a particular post
+        COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
+            //Update user likes collection to track likes for a particular user
+            COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).setData([:], completion: completion)
+        }
+    }
+    
+    static func unlikePost(post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard post.likes > 0 else { return }
+        
+        COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes - 1])
+
+        COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).delete() { _ in
+            COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).delete(completion: completion)
+        }
+    }
+    
+    static func checkIfUserLikedPost(post: Post, completion: @escaping(Bool) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).getDocument { (snapshot, _) in
+            
+            //If the snapshot (document) exists, means current user did like the post
+            guard let didLike = snapshot?.exists else { return }
+            completion(didLike)
         }
     }
 }
