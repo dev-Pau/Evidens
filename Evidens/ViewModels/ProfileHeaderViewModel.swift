@@ -17,9 +17,9 @@ struct ProfileHeaderViewModel {
     var lastName: String {
         return user.lastName!
     }
-    
-    var profileImageUrl: String {
-        return user.profileImageUrl!
+
+    var profileImageUrl: URL? {
+        return URL(string: user.profileImageUrl!)
     }
     
     //Change button text wether is, or not, current user

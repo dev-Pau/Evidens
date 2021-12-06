@@ -161,19 +161,9 @@ class ProfileHeader: UICollectionReusableView {
         postsLabel.attributedText = viewModel.numberOfPosts
         followersLabel.attributedText = viewModel.numberOfFollowers
         followingLabel.attributedText = viewModel.numberOfFollowing
-        
-        let url = URL(string: viewModel.profileImageUrl)
-        
-        guard let url = url else { return }
-
-        DispatchQueue.global().async {
-            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-            DispatchQueue.main.async {
-                self.profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2
-                self.profileImageView.layer.masksToBounds = true
-                self.profileImageView.image = UIImage(data: data!)
-            }
-        }
+        profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2
+        profileImageView.layer.masksToBounds = true
+        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
     }
 
     //MARK: - Actions

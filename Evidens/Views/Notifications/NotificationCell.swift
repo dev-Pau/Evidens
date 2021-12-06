@@ -12,6 +12,10 @@ class NotificationCell: UITableViewCell {
     
     //MARK: - Properties
     
+    var viewModel: NotificationViewModel? {
+        didSet { configure() }
+    }
+    
     private let notificationTypeImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -24,7 +28,6 @@ class NotificationCell: UITableViewCell {
     private let notificationTypeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
-        label.text = "liked your post"
         return label
     }()
     
@@ -32,6 +35,7 @@ class NotificationCell: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.text = "comment of user"
+        label.numberOfLines = 0
         return label
     }()
     
@@ -50,7 +54,16 @@ class NotificationCell: UITableViewCell {
     private let fullNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
-        label.text = "Evidens"
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = .lightGray
+        label.text = "2m ago"
+        label.numberOfLines = 0
         return label
     }()
     
@@ -81,14 +94,18 @@ class NotificationCell: UITableViewCell {
         profileImageView.layer.cornerRadius = 40/2
         profileImageView.anchor(top: notificationTypeImageView.topAnchor, left: notificationTypeImageView.rightAnchor, paddingLeft: 5)
         
+        addSubview(timeLabel)
+        timeLabel.centerY(inView: profileImageView)
+        timeLabel.anchor(left: profileImageView.rightAnchor, paddingLeft: 5)
+        
         addSubview(fullNameLabel)
         fullNameLabel.anchor(top: profileImageView.bottomAnchor, left: profileImageView.leftAnchor, paddingTop: 5)
         
         addSubview(notificationTypeLabel)
-        notificationTypeLabel.centerY(inView: fullNameLabel, leftAnchor: fullNameLabel.rightAnchor, paddingLeft: 5)
+        notificationTypeLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 5)
         
-        addSubview(notificationTextLabel)
-        notificationTextLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 5)
+        //addSubview(notificationTextLabel)
+        //notificationTextLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 5)
         
         addSubview(followButton)
         followButton.centerY(inView: notificationTypeImageView)
@@ -106,5 +123,15 @@ class NotificationCell: UITableViewCell {
     
     @objc func didTapProfile() {
         print("did tap profile notifications")
+    }
+    
+    //MARK: - Helpers
+    
+    func configure() {
+        guard let viewModel = viewModel else { return }
+        
+        //Complete with all information regarding notifications
+        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+        fullNameLabel.attributedText = viewModel.notificationUserInfo
     }
 }

@@ -173,12 +173,23 @@ extension FeedViewController {
 //MARK: - FeedCellDelegate
 
 extension FeedViewController: FeedCellDelegate {
+    func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            let controller = ProfileViewController(user: user)
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post) {
         let controller = CommentViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: FeedCell, didLike post: Post) {
+        //Grab the current user that sends the notification
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         cell.viewModel?.post.didLike.toggle()
         if post.didLike {
             //Unlike post here
@@ -193,6 +204,8 @@ extension FeedViewController: FeedCellDelegate {
                 cell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
                 cell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                 cell.viewModel?.post.likes = post.likes + 1
+                
+                NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
     }

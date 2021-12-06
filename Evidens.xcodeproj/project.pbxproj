@@ -43,6 +43,7 @@
 		5F5888FA27102599005E5B4F /* Raleway-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888E827102599005E5B4F /* Raleway-Bold.ttf */; };
 		5F5889022712EC39005E5B4F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889012712EC39005E5B4F /* User.swift */; };
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
+		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
 		5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */; };
@@ -52,7 +53,7 @@
 		5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* UserCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
-		5FBC2DF12732883A004F92CE /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF02732883A004F92CE /* Notifications.swift */; };
+		5FBC2DF12732883A004F92CE /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF02732883A004F92CE /* Notification.swift */; };
 		5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF227329316004F92CE /* NotificationService.swift */; };
 		5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */; };
 		5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF62732B1AA004F92CE /* InputTextView.swift */; };
@@ -115,6 +116,7 @@
 		5F5888E827102599005E5B4F /* Raleway-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Bold.ttf"; sourceTree = "<group>"; };
 		5F5889012712EC39005E5B4F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
+		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputAccessoryView.swift; sourceTree = "<group>"; };
@@ -124,7 +126,7 @@
 		5FBC2DA1272E903C004F92CE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
-		5FBC2DF02732883A004F92CE /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		5FBC2DF02732883A004F92CE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		5FBC2DF227329316004F92CE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewController.swift; sourceTree = "<group>"; };
 		5FBC2DF62732B1AA004F92CE /* InputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTextView.swift; sourceTree = "<group>"; };
@@ -346,7 +348,7 @@
 			isa = PBXGroup;
 			children = (
 				5F5889012712EC39005E5B4F /* User.swift */,
-				5FBC2DF02732883A004F92CE /* Notifications.swift */,
+				5FBC2DF02732883A004F92CE /* Notification.swift */,
 				5F4DBCB1274793320005AEC3 /* Post.swift */,
 				5F8666FB27552222009B26E6 /* Comment.swift */,
 			);
@@ -387,6 +389,7 @@
 				5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */,
 				5F4DBCB3274799080005AEC3 /* PostViewModel.swift */,
 				5F8666FD2755255F009B26E6 /* CommentViewModel.swift */,
+				5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -623,9 +626,10 @@
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */,
+				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
-				5FBC2DF12732883A004F92CE /* Notifications.swift in Sources */,
+				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */,
