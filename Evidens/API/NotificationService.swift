@@ -11,7 +11,7 @@ import Firebase
 struct NotificationService {
     
     //Upload a notification to a specific user
-    static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil) {
+    static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, withComment: String? = nil) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         //To avoid receiving user own notifications
         guard uid != currentUid else { return }
@@ -26,11 +26,16 @@ struct NotificationService {
                                    "firstName": fromUser.firstName as Any,
                                    "lastName": fromUser.lastName as Any]
         
-        //Notifications cannot have a post associated
+        //Notifications could not have a post associated
         if let post = post {
             data["postId"] = post.postId
             //Put all the post information to navigate
             data["postUrl"] = post.postText
+        }
+        
+        //If notification is a reply
+        if let comment = withComment {
+            data["postComment"] = comment
         }
         
         docRef.setData(data)

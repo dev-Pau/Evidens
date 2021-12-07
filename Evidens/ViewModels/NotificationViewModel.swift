@@ -31,8 +31,17 @@ struct NotificationViewModel {
         return attributedText
     }
     
-    var notificationImage: UIImage {
-        let notificationType = notification.type
+    var notificationUserImage: UIImage? {
+        let notificationType = notification.type.notificationImage
+        return notificationType
     }
     
+    var notificationPostComment: String? {
+        return notification.postComment
+    }
+    
+    var shouldShowFollowButton: Bool {
+        return self.notification.type == .follow
+    }
 }
+

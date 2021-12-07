@@ -21,20 +21,14 @@ class NotificationCell: UITableViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.tintColor = .red
-        iv.image = UIImage(systemName: "heart.fill")
+        //iv.image = UIImage(systemName: "heart.fill")
         return iv
-    }()
-    
-    private let notificationTypeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        return label
     }()
     
     private let notificationTextLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
-        label.text = "comment of user"
+        label.textColor = .lightGray
         label.numberOfLines = 0
         return label
     }()
@@ -101,14 +95,11 @@ class NotificationCell: UITableViewCell {
         addSubview(fullNameLabel)
         fullNameLabel.anchor(top: profileImageView.bottomAnchor, left: profileImageView.leftAnchor, paddingTop: 5)
         
-        addSubview(notificationTypeLabel)
-        notificationTypeLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 5)
-        
-        //addSubview(notificationTextLabel)
-        //notificationTextLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 5)
+        addSubview(notificationTextLabel)
+        notificationTextLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 8)
         
         addSubview(followButton)
-        followButton.centerY(inView: notificationTypeImageView)
+        followButton.centerY(inView: profileImageView)
         followButton.anchor(right: rightAnchor, paddingRight: 12, width: 100, height: 32)
     }
     
@@ -133,5 +124,9 @@ class NotificationCell: UITableViewCell {
         //Complete with all information regarding notifications
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         fullNameLabel.attributedText = viewModel.notificationUserInfo
+        notificationTypeImageView.image = viewModel.notificationUserImage
+        notificationTextLabel.text = viewModel.notificationPostComment
+        
+        followButton.isHidden = !viewModel.shouldShowFollowButton
     }
 }

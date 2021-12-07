@@ -126,16 +126,18 @@ extension CommentViewController {
 extension CommentViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         
-        //Get user from MainTabontroller
+        //Get user from MainTabController
         guard let tab = self.tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
+        guard let currentUser = tab.user else { return }
         
         //Show loader to block user interactions
         self.view.isUserInteractionEnabled = false
         //Upload commento to Firebase
-        CommentService.uploadComment(comment: comment, postID: post.postId, user: user) { error in
+        CommentService.uploadComment(comment: comment, postID: post.postId, user: currentUser) { error in
             //Unshow loader
             inputView.clearCommentTextView()
+            
+            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .comment, post: self.post, withComment: comment)
             self.view.isUserInteractionEnabled = true
             //self.view.activityStopAnimating()
         }

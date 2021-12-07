@@ -24,6 +24,19 @@ struct Notification {
             case .comment: return " commented on your post"
             }
         }
+        
+        var notificationImage: UIImage? {
+            switch self {
+            case .likePost:
+                return UIImage(systemName: "heart.fill")?.withTintColor(UIColor(rgb: 0x79CBBF), renderingMode: .alwaysOriginal)
+            case .likeReply:
+                return UIImage(systemName: "hands.clap.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
+            case .follow:
+                return UIImage(systemName: "person.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
+            case .comment:
+                return UIImage(systemName: "plus.bubble.fill")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+            }
+        }
     }
     
     let uid: String
@@ -35,6 +48,7 @@ struct Notification {
     let userProfileImageUrl: String
     let firstName: String
     let lastName: String
+    let postComment: String
     
     init(dictionary: [String: Any]) {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
@@ -46,5 +60,6 @@ struct Notification {
         self.userProfileImageUrl = dictionary["userProfileImageUrl"] as? String ?? ""
         self.firstName = dictionary["firstName"] as? String ?? ""
         self.lastName = dictionary["lastName"] as? String ?? ""
+        self.postComment = dictionary["postComment"] as? String ?? ""
     }
 }
