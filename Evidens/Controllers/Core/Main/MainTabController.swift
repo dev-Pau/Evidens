@@ -36,8 +36,12 @@ class MainTabController: UITabBarController {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         UserService.fetchUser(withUid: uid) { user in
             self.user = user
+            
+            //UserDefaults to query realtimedatabase for chat purposes
+            UserDefaults.standard.set(user.uid, forKey: "uid")
+            
             //Change to == false for real use app, != false for testing purposes
-            if (user.isVerified == true) {
+            if (user.isVerified == false) {
                 //User not verified
                 let controller = WelcomeViewController()
                 let nav = UINavigationController(rootViewController: controller)
@@ -71,12 +75,15 @@ class MainTabController: UITabBarController {
         
         let search = templateNavigationController(unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
         
+        let postController = UploadPostViewController(user: user)
+        let post = templateNavigationController(unselectedImage: UIImage(systemName: "plus.app")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: postController)
+        
         let notifications = templateNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationViewController())
         
         let profileController = ProfileViewController(user: user)
         let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: profileController)
         
-        viewControllers = [feed, search, notifications, profile]
+        viewControllers = [feed, search, post, notifications, profile]
         
         tabBar.tintColor = .black
     }

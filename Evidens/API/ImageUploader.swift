@@ -23,6 +23,7 @@ struct ImageUploader {
             
             ref.downloadURL { url, error in
                 guard let imageUrl = url?.absoluteString else { return }
+                UserDefaults.standard.set(imageUrl, forKey: "imageUrl")
                 completion(imageUrl)
             }
         }

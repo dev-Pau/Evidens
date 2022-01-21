@@ -197,35 +197,15 @@ class RegistrationViewController: UIViewController {
         
         spinner.show(in: view)
         
-        //let controller = EmailRegistrationViewController()
-        //controller.firstName = firstName
-        //controller.modalPresentationStyle = .fullScreen
-        //present(controller, animated: true)
-        let controller = InfoRegistrationViewController()
-        //controller.firstName = firstName
+        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: email, password: password, profileImageUrl: "")
+        
+        let controller = InfoRegistrationViewController(credentials: credentials)
+        controller.firstName = firstName
+
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
-        
-        /*
-        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: email, password: password, profileImageUrl: "")
-        AuthService.registerUser(withCredential: credentials) { error in
-            
-            DispatchQueue.main.async {
-                self.spinner.dismiss()
-            }
-         
-         
-            if let error = error {
-                print("DEBUG: Failed to register user \(error.localizedDescription)")
-                return
-            }
-            
-            //Succesfully registrates user - Present a Welcome email with a task to check e-mail
-            self.dismiss(animated: true, completion: nil)
-
-        }
-         */
+    
     }
     
     @objc func textDidChange(sender: UITextField) {

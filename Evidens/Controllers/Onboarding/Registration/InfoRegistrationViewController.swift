@@ -6,12 +6,17 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let reuseIdentifier = "UserTypeCell"
 
 class InfoRegistrationViewController: UIViewController {
     
     //MARK: - Properties
+    
+    private let spinner = JGProgressHUD(style: .dark)
+    
+    var credentials: AuthCredentials
     
     var dataSource = ["Healthcare professional", "Research scientist", "Teacher", "Student"]
     
@@ -84,6 +89,15 @@ class InfoRegistrationViewController: UIViewController {
         tableView.register(RegisterTypeCell.self, forCellReuseIdentifier: reuseIdentifier)
     }
     
+    init(credentials: AuthCredentials) {
+        self.credentials = credentials
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     //MARK: - Helpers
 
     func configureUI() {
@@ -138,9 +152,22 @@ class InfoRegistrationViewController: UIViewController {
     }
     
     @objc func continueButtonPressed() {
-        let controller = EmailRegistrationViewController()
-        navigationController?.navigationBar.isHidden = true
-        navigationController?.pushViewController(controller, animated: true)
+        //Registrates user to Firebase
+        AuthService.registerUser(withCredential: credentials) { error in
+            DispatchQueue.main.async {
+                self.spinner.dismiss()
+            }
+         
+            if let error = error {
+                print("DEBUG: Failed to register user \(error.localizedDescription)")
+                return
+            }
+            
+            //Succesfully registrates user and present a "Welcome Screen" with email instructions
+            let controller = EmailRegistrationViewController()
+            self.navigationController?.navigationBar.isHidden = true
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }
 

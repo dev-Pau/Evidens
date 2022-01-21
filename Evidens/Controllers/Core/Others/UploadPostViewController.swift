@@ -7,13 +7,15 @@
 
 import UIKit
 import Firebase
+import SDWebImage
 
 class UploadPostViewController: UIViewController {
     
     //MARK: - Properties
     
-    //var currentUser: User
+    private var user: User
     
+   
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -45,6 +47,15 @@ class UploadPostViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+    }
+    
+    init(user: User) {
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     //MARK: - Actions
@@ -85,12 +96,15 @@ class UploadPostViewController: UIViewController {
         profileImageView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.safeAreaLayoutGuide.leftAnchor, paddingTop: 10, paddingLeft: 12)
         profileImageView.setDimensions(height: 40, width: 40)
         profileImageView.layer.cornerRadius = 40/2
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         
         view.addSubview(postTextView)
         postTextView.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, right: view.rightAnchor, paddingLeft: 12, paddingRight: 12, height: 64)
         
         view.addSubview(characterCountLabel)
         characterCountLabel.anchor(bottom: postTextView.bottomAnchor, right: view.rightAnchor, paddingRight: 12)
+
+        //profileImageView.sd_setImage(with: UserDefaults.standard.url(forKey: "imageUrl"))
         
     }
     
