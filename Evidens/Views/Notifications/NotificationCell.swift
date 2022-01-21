@@ -8,9 +8,18 @@
 import Foundation
 import UIKit
 
+protocol NotificationCellDelegate: AnyObject {
+    func cell(_ cell: NotificationCell, wantsToFollow uid: String)
+    func cell(_ cell: NotificationCell, wantsToUnfollow uid: String)
+    func cell(_ cell: NotificationCell, wantsToViewPost postId: String)
+    func cell(_ cell: NotificationCell, wantsToViewProfile uid: String)
+}
+
 class NotificationCell: UITableViewCell {
     
     //MARK: - Properties
+    
+    weak var delegate: NotificationCellDelegate?
     
     var viewModel: NotificationViewModel? {
         didSet { configure() }
@@ -20,28 +29,27 @@ class NotificationCell: UITableViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.tintColor = .red
-        //iv.image = UIImage(systemName: "heart.fill")
+        iv.tintColor = UIColor(rgb: 0x79CBBF)
         return iv
     }()
     
     private let notificationTextLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .lightGray
+        label.textColor = .black
         label.numberOfLines = 0
         return label
     }()
     
-    private let profileImageView: UIImageView = {
+    private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
-        iv.image = UIImage(systemName: "person.circle")
-        let tap = UIGestureRecognizer(target: self, action: #selector(didTapProfile))
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(tap)
+        
         return iv
     }()
     
@@ -61,7 +69,7 @@ class NotificationCell: UITableViewCell {
         return label
     }()
     
-    private let followButton: UIButton = {
+    private lazy var followButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Loading", for: .normal)
         button.layer.cornerRadius = 3
@@ -83,7 +91,7 @@ class NotificationCell: UITableViewCell {
         notificationTypeImageView.setDimensions(height: 24, width: 24)
         notificationTypeImageView.centerY(inView: self, leftAnchor: leftAnchor, paddingLeft: 12)
         
-        addSubview(profileImageView)
+        contentView.addSubview(profileImageView)
         profileImageView.setDimensions(height: 40, width: 40)
         profileImageView.layer.cornerRadius = 40/2
         profileImageView.anchor(top: notificationTypeImageView.topAnchor, left: notificationTypeImageView.rightAnchor, paddingLeft: 5)
@@ -98,7 +106,7 @@ class NotificationCell: UITableViewCell {
         addSubview(notificationTextLabel)
         notificationTextLabel.anchor(top: fullNameLabel.bottomAnchor, left: fullNameLabel.leftAnchor, paddingTop: 8)
         
-        addSubview(followButton)
+        contentView.addSubview(followButton)
         followButton.centerY(inView: profileImageView)
         followButton.anchor(right: rightAnchor, paddingRight: 12, width: 100, height: 32)
     }
@@ -109,11 +117,23 @@ class NotificationCell: UITableViewCell {
     
     //MARK: - Actions
     @objc func didTapFollowButton() {
-        
+        guard let viewModel = viewModel else { return }
+        if viewModel.notification.userIsFollowed {
+            delegate?.cell(self, wantsToUnfollow: viewModel.notification.uid)
+        } else {
+            delegate?.cell(self, wantsToFollow: viewModel.notification.uid)
+        }
     }
     
+    //@objc func didTapPost() {
+      //  guard let viewModel = viewModel else { return }
+      //  delegate?.cell(self, wantsToViewPost: viewModel.notification.postId)
+   // }
+    
     @objc func didTapProfile() {
-        print("did tap profile notifications")
+        print("cell did tap profile")
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
     }
     
     //MARK: - Helpers
@@ -128,5 +148,8 @@ class NotificationCell: UITableViewCell {
         notificationTextLabel.text = viewModel.notificationPostComment
         
         followButton.isHidden = !viewModel.shouldShowFollowButton
+        followButton.setTitle(viewModel.followButtonText, for: .normal)
+        followButton.backgroundColor = viewModel.followButtonBackgroundColor
+        followButton.setTitleColor(viewModel.followButtonTextColor, for: .normal)
     }
 }

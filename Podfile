@@ -8,7 +8,6 @@ target 'Evidens' do
   # Pods for Evidens
 
 	#Firebase
-
 	pod 'Firebase/Core'
 	pod 'Firebase/Database'
 	pod 'Firebase/Firestore'
@@ -17,6 +16,17 @@ target 'Evidens' do
 	pod 'Firebase/Auth'
 	pod 'Firebase/Analytics'
 
+
 	#SDWebImage
 	pod 'SDWebImage', '~> 5.0'
+
+	#Messaging
+	pod 'MessageKit'
+
+	#Progression
+	pod 'JGProgressHUD'
+
+	#Realm
+	
+	
 end

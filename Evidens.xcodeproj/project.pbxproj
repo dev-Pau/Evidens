@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		01C1E9DC631A7F3CE12E4108 /* Pods_Evidens.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */; };
-		5F0A4F37271C1D0800700304 /* VerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F36271C1D0800700304 /* VerificationViewController.swift */; };
 		5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F3A271C29E800700304 /* ProfileCell.swift */; };
 		5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */; };
 		5F0A4F46271C854600700304 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F45271C854600700304 /* Protocols.swift */; };
@@ -19,6 +18,17 @@
 		5F0A4F572725A1BA00700304 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F562725A1BA00700304 /* UserService.swift */; };
 		5F0A4F592725A1EE00700304 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F582725A1EE00700304 /* K.swift */; };
 		5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */; };
+		5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */; };
+		5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */; };
+		5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BF27620415008FD6ED /* DatabaseManager.swift */; };
+		5F4493C227708A84008FD6ED /* EmailRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */; };
+		5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */; };
+		5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
+		5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */; };
+		5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */; };
+		5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */; };
+		5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493F827941D0F008FD6ED /* ConversationViewController.swift */; };
+		5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493FB27942818008FD6ED /* ChatViewController.swift */; };
 		5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCAB27382BB50005AEC3 /* PostService.swift */; };
 		5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */; };
 		5F4DBCB2274793320005AEC3 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCB1274793320005AEC3 /* Post.swift */; };
@@ -58,7 +68,6 @@
 		5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */; };
 		5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF62732B1AA004F92CE /* InputTextView.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
-		5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5FC4D86227070274006B7A34 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D86127070274006B7A34 /* ViewController.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -66,7 +75,7 @@
 		5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8782707047E006B7A34 /* MainTabController.swift */; };
 		5FC4D87B2707058D006B7A34 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87A2707058D006B7A34 /* FeedViewController.swift */; };
 		5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87C2707059D006B7A34 /* SearchViewController.swift */; };
-		5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87E270705B0006B7A34 /* NotificationsViewController.swift */; };
+		5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87E270705B0006B7A34 /* NotificationViewController.swift */; };
 		5FC4D881270705E8006B7A34 /* PostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D880270705E8006B7A34 /* PostViewController.swift */; };
 		5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D882270705F8006B7A34 /* ProfileViewController.swift */; };
 		5FC4D88527071CB6006B7A34 /* FeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88427071CB6006B7A34 /* FeedCell.swift */; };
@@ -81,7 +90,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5F0A4F36271C1D0800700304 /* VerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationViewController.swift; sourceTree = "<group>"; };
 		5F0A4F3A271C29E800700304 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
 		5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeader.swift; sourceTree = "<group>"; };
 		5F0A4F45271C854600700304 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
@@ -92,6 +100,16 @@
 		5F0A4F562725A1BA00700304 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		5F0A4F582725A1EE00700304 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderViewModel.swift; sourceTree = "<group>"; };
+		5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
+		5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
+		5F4493BF27620415008FD6ED /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBlurEffect.swift; sourceTree = "<group>"; };
+		5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTypeCell.swift; sourceTree = "<group>"; };
+		5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterUserTypeCell.swift; sourceTree = "<group>"; };
+		5F4493F827941D0F008FD6ED /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
+		5F4493FB27942818008FD6ED /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		5F4DBCAB27382BB50005AEC3 /* PostService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostService.swift; sourceTree = "<group>"; };
 		5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageViewController.swift; sourceTree = "<group>"; };
 		5F4DBCB1274793320005AEC3 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
@@ -141,7 +159,7 @@
 		5FC4D8782707047E006B7A34 /* MainTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabController.swift; sourceTree = "<group>"; };
 		5FC4D87A2707058D006B7A34 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		5FC4D87C2707059D006B7A34 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
-		5FC4D87E270705B0006B7A34 /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
+		5FC4D87E270705B0006B7A34 /* NotificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
 		5FC4D880270705E8006B7A34 /* PostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewController.swift; sourceTree = "<group>"; };
 		5FC4D882270705F8006B7A34 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		5FC4D88427071CB6006B7A34 /* FeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCell.swift; sourceTree = "<group>"; };
@@ -170,14 +188,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5F0A4F38271C1DDB00700304 /* IdentityManager */ = {
-			isa = PBXGroup;
-			children = (
-				5F0A4F36271C1D0800700304 /* VerificationViewController.swift */,
-			);
-			path = IdentityManager;
-			sourceTree = "<group>";
-		};
 		5F0A4F39271C29D700700304 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -190,15 +200,86 @@
 		5F0A4F40271C588200700304 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				5F4493B82760CD14008FD6ED /* Main */,
 				5F8666F3274FAD44009B26E6 /* Others */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		5F4493B62760CCD6008FD6ED /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */,
+				5FC4D88A27072B56006B7A34 /* LoginViewController.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
+		5F4493B82760CD14008FD6ED /* Main */ = {
+			isa = PBXGroup;
+			children = (
 				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
 				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
 				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
-				5FC4D87E270705B0006B7A34 /* NotificationsViewController.swift */,
-				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
+				5FC4D87E270705B0006B7A34 /* NotificationViewController.swift */,
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 			);
-			path = Core;
+			path = Main;
+			sourceTree = "<group>";
+		};
+		5F4493B92761F9B1008FD6ED /* Customs */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
+				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
+				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
+				5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */,
+				5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */,
+			);
+			path = Customs;
+			sourceTree = "<group>";
+		};
+		5F4493BA2761F9C9008FD6ED /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D88727071FB0006B7A34 /* Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		5F4493BB2761F9E5008FD6ED /* K */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F582725A1EE00700304 /* K.swift */,
+			);
+			path = K;
+			sourceTree = "<group>";
+		};
+		5F4493BC2761F9F0008FD6ED /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F45271C854600700304 /* Protocols.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		5F4493EE278218EF008FD6ED /* Register */ = {
+			isa = PBXGroup;
+			children = (
+				5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */,
+				5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */,
+			);
+			path = Register;
+			sourceTree = "<group>";
+		};
+		5F4493FA27942802008FD6ED /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				5F4493F827941D0F008FD6ED /* ConversationViewController.swift */,
+				5F4493FB27942818008FD6ED /* ChatViewController.swift */,
+				5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */,
+			);
+			path = Chat;
 			sourceTree = "<group>";
 		};
 		5F5888D2271022E6005E5B4F /* Fonts */ = {
@@ -242,18 +323,11 @@
 			path = Launch;
 			sourceTree = "<group>";
 		};
-		5F5888FD271067D3005E5B4F /* Customs */ = {
-			isa = PBXGroup;
-			children = (
-				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
-				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
-			);
-			path = Customs;
-			sourceTree = "<group>";
-		};
 		5F8666F3274FAD44009B26E6 /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5F4493FA27942802008FD6ED /* Chat */,
+				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
 				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
@@ -275,6 +349,8 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D88C27072B60006B7A34 /* RegistrationViewController.swift */,
+				5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */,
+				5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */,
 			);
 			path = Registration;
 			sourceTree = "<group>";
@@ -320,10 +396,8 @@
 				5FC4D87427070352006B7A34 /* Views */,
 				5FC4D87627070376006B7A34 /* ViewModels */,
 				5FC4D8752707035A006B7A34 /* Controllers */,
-				5FC4D87227070315006B7A34 /* Utils */,
+				5FC4D87227070315006B7A34 /* Resources */,
 				5FC4D8772707038C006B7A34 /* API */,
-				5FC4D85D27070274006B7A34 /* AppDelegate.swift */,
-				5FC4D85F27070274006B7A34 /* SceneDelegate.swift */,
 				5FC4D86127070274006B7A34 /* ViewController.swift */,
 				5FC4D86327070274006B7A34 /* Main.storyboard */,
 				5FC4D86B27070277006B7A34 /* Info.plist */,
@@ -332,16 +406,18 @@
 			path = Evidens;
 			sourceTree = "<group>";
 		};
-		5FC4D87227070315006B7A34 /* Utils */ = {
+		5FC4D87227070315006B7A34 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5FC4D85D27070274006B7A34 /* AppDelegate.swift */,
+				5FC4D85F27070274006B7A34 /* SceneDelegate.swift */,
+				5F4493BC2761F9F0008FD6ED /* Protocols */,
+				5F4493BB2761F9E5008FD6ED /* K */,
+				5F4493BA2761F9C9008FD6ED /* Extensions */,
+				5F4493B92761F9B1008FD6ED /* Customs */,
 				5F5888D2271022E6005E5B4F /* Fonts */,
-				5FC4D88727071FB0006B7A34 /* Extensions.swift */,
-				5F0A4F45271C854600700304 /* Protocols.swift */,
-				5F0A4F582725A1EE00700304 /* K.swift */,
-				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
 			);
-			path = Utils;
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		5FC4D87327070334006B7A34 /* Models */ = {
@@ -358,12 +434,12 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5F4493EE278218EF008FD6ED /* Register */,
 				5F8666F627529B01009B26E6 /* Comments */,
 				5FBC2DED273020B0004F92CE /* Notifications */,
 				5FBC2DA0272E9025004F92CE /* Search */,
 				5F0A4F39271C29D700700304 /* Profile */,
 				5FC4D88627071CC4006B7A34 /* Feed */,
-				5F5888FD271067D3005E5B4F /* Customs */,
 				5F5888FC271067C7005E5B4F /* Launch */,
 				5F5888FB271067B8005E5B4F /* Assets */,
 			);
@@ -374,8 +450,6 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D88927072AE6006B7A34 /* Onboarding */,
-				5F0A4F38271C1DDB00700304 /* IdentityManager */,
-				5FC4D8962709910B006B7A34 /* PasswordManager */,
 				5F0A4F40271C588200700304 /* Core */,
 			);
 			path = Controllers;
@@ -403,6 +477,7 @@
 				5FBC2DF227329316004F92CE /* NotificationService.swift */,
 				5F4DBCAB27382BB50005AEC3 /* PostService.swift */,
 				5F8666F92754D658009B26E6 /* CommentService.swift */,
+				5F4493BF27620415008FD6ED /* DatabaseManager.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -418,9 +493,9 @@
 		5FC4D88927072AE6006B7A34 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
-				5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */,
-				5FC4D88A27072B56006B7A34 /* LoginViewController.swift */,
+				5F4493B62760CCD6008FD6ED /* Welcome */,
 				5FBC2D9D272D938D004F92CE /* Registration */,
+				5FC4D8962709910B006B7A34 /* PasswordManager */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -588,10 +663,15 @@
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
+				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
+				5F4493C227708A84008FD6ED /* EmailRegistrationViewController.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
 				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
+				5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */,
+				5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
+				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
 				5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */,
 				5FC4D881270705E8006B7A34 /* PostViewController.swift in Sources */,
 				5FC4D88527071CB6006B7A34 /* FeedCell.swift in Sources */,
@@ -608,31 +688,35 @@
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
 				5FC4D86227070274006B7A34 /* ViewController.swift in Sources */,
+				5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */,
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* FeedViewController.swift in Sources */,
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
+				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
 				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
+				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
-				5F0A4F37271C1D0800700304 /* VerificationViewController.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
 				5F0A4F532725623E00700304 /* ImageUploader.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
+				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
+				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
-				5FC4D87F270705B0006B7A34 /* NotificationsViewController.swift in Sources */,
+				5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */,
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
+				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
-				5FC4D86027070274006B7A34 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -787,14 +871,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Evidens/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Evidens;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Evidens need acces to your camera to set a profile picture";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Evidens need access to select a photo for your profile";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow access to take a profile picture";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow access to select a photo for your profile";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -823,14 +907,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Evidens/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Evidens;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Evidens need acces to your camera to set a profile picture";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Evidens need access to select a photo for your profile";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please allow access to take a profile picture";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Please allow access to select a photo for your profile";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (

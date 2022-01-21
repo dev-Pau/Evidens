@@ -67,7 +67,7 @@ class FeedCell: UICollectionViewCell {
     
     private lazy var shareButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "paperplane"), for: .normal)
+        button.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
         button.tintColor = .black
         return button
     }()
@@ -145,7 +145,6 @@ class FeedCell: UICollectionViewCell {
     }
     
     @objc func didTapComments() {
-        //Delegate the action to FeedViewController
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
     }

@@ -7,12 +7,14 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 
 struct User {
     let firstName: String?
     let lastName: String?
     let email: String?
     let uid: String?
+    let isVerified: Bool?
     var profileImageUrl: String?
     
     //Track if a user is followed
@@ -28,6 +30,7 @@ struct User {
         self.lastName = dictionary["lastName"] as? String ?? ""
         self.email = dictionary["email"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
+        self.isVerified = dictionary["isVerified"] as? Bool ?? false
         self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
         
         self.stats = UserStats(followers: 0, following: 0, posts: 0)

@@ -26,7 +26,7 @@ class ProfileImageViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let profileImageView: UIImageView = {
+    public let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
@@ -37,7 +37,7 @@ class ProfileImageViewController: UIViewController {
     
     public lazy var editProfileButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Edit Profile", for: .normal)
+        button.setTitle("Edit", for: .normal)
         button.layer.cornerRadius = 5
         button.layer.borderColor = UIColor.lightGray.cgColor
         button.layer.borderWidth = 0.5
@@ -61,8 +61,10 @@ class ProfileImageViewController: UIViewController {
         navigationController?.popToRootViewController(animated: true)
     }
     
-    @objc func didTapEdit() {
-        print("DEBUG: did tap edit")
+    @objc func didTapShare() {
+        let activityVC = UIActivityViewController(activityItems: [self.profileImageView.image as Any], applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     @objc func didTapEditProfile() {
@@ -79,10 +81,11 @@ class ProfileImageViewController: UIViewController {
     
     func configureUI() {
         
-        view.backgroundColor = .white
+        let backgroundColor = profileImageView.image?.averageColor
+        view.backgroundColor = backgroundColor
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "xmark.circle.fill"), style: .done, target: self, action: #selector(didTapCancel))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(systemName: "square.and.pencil"), style: .done, target: self, action: #selector(didTapEdit))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "xmark"), style: .done, target: self, action: #selector(didTapCancel))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         
         view.addSubview(profileImageView)
         profileImageView.centerY(inView: view)
@@ -124,5 +127,4 @@ extension ProfileImageViewController: UIImagePickerControllerDelegate, UINavigat
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
-    
 }

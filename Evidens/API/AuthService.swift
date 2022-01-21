@@ -14,6 +14,7 @@ struct AuthCredentials {
     let lastName: String
     let email: String
     let password: String
+    let profileImageUrl: String
 }
 
 struct AuthService {
@@ -26,19 +27,24 @@ struct AuthService {
         
             Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { (result, error) in
                 
-                if let error = error {
-                    print("DEBUG: Failed to register user \(error.localizedDescription)")
-                    return
-                }
+                if let error = error { return }
                 
                 //Unique identifier of user
                 guard let uid = result?.user.uid else { return }
                 
-                let data: [String: Any] = ["firstName": credentials.firstName, "lastName": credentials.lastName, "email": credentials.email, "uid": uid]
+                let data: [String: Any] = ["firstName": credentials.firstName, "lastName": credentials.lastName, "email": credentials.email, "uid": uid, "profileImageUrl": ""]
+                
                 
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)
+                
+                //Add user info to Realtime Database for chat purposes
+                DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
         }
-        
     }
+    
+    static func resetPassword(withEmail email: String, completion: SendPasswordResetCallback?) {
+        Auth.auth().sendPasswordReset(withEmail: email, completion: completion)
+    }
+    
 }
 

@@ -19,16 +19,18 @@
 	<key>STORAGE_BUCKET</key>
 	<string>evidens-ec6bd.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:200647345557:ios:cf48caaf9167e38db2a29c</string>
+	<key>DATABASE_URL</key>
+	<string>https://evidens-ec6bd-default-rtdb.europe-west1.firebasedatabase.app</string>
 </dict>
 </plist>

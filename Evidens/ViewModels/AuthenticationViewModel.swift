@@ -16,9 +16,22 @@ protocol AuthenticationViewModel {
     var buttonBackgroundColor: UIColor { get }
 }
 
+struct ResetPasswordViewModel: AuthenticationViewModel {
+    var email: String?
+    
+    var formIsValid: Bool {
+        return email?.isEmpty == false
+    }
+    
+    var buttonBackgroundColor: UIColor {
+        return formIsValid ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+    }
+}
+
 struct LoginViewModel: AuthenticationViewModel {
     var email: String?
     var password: String?
+    var placeholder: Bool = false
     
     var formIsValid: Bool {
         return email?.isEmpty == false && password?.isEmpty == false
@@ -26,6 +39,10 @@ struct LoginViewModel: AuthenticationViewModel {
     
     var buttonBackgroundColor: UIColor {
         return formIsValid ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+    }
+    
+    var updatePlaceholder: Bool {
+        return true
     }
 }
 
