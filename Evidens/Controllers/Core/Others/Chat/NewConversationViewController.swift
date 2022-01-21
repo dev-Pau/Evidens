@@ -39,6 +39,8 @@ class NewConversationViewController: UIViewController {
         label.textColor = .black
         label.font = .systemFont(ofSize: 21, weight: .medium)
         return label
+        
+        
     }()
     
     //MARK: - Lifecycle
