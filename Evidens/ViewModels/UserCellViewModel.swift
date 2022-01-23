@@ -20,6 +20,10 @@ struct UserCellViewModel {
         return user.lastName!
     }
     
+    var profileImageUrl: URL? {
+        return URL(string: user.profileImageUrl!)
+    }
+    
     init(user: User) {
         self.user = user
     }

@@ -17,6 +17,8 @@ class ResetPasswordViewController: UIViewController {
     
     let appearance = UINavigationBarAppearance()
     
+    var email: String?
+    
     private var viewModel = ResetPasswordViewModel()
     
     weak var delegate: ResetPasswordViewControllerDelegate?
@@ -76,7 +78,11 @@ class ResetPasswordViewController: UIViewController {
     
     func configureUI() {
         view.backgroundColor = .white
-        
+
+        emailTextField.text = email
+        viewModel.email = email
+        updateForm()
+
         let stack = UIStackView(arrangedSubviews: [resetPassword, instructionsPassword, emailTextField, resetButton])
         stack.axis = .vertical
         stack.spacing = 20

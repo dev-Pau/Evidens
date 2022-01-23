@@ -18,7 +18,9 @@ class FeedViewController: UICollectionViewController {
         didSet { collectionView.reloadData() }
     }
     
-    var post: Post?
+    var post: Post? {
+        didSet { checkIfUserLikedPosts() }
+    }
 
     //MARK: - Lifecycle
     
@@ -67,10 +69,14 @@ class FeedViewController: UICollectionViewController {
         navigationController?.pushViewController(controller, animated: true)
     }
 
+    
     //MARK: - API
     
     func fetchPosts() {
-        guard post == nil else { return }
+        guard post == nil else {
+            //self.collectionView.refreshControl?.endRefreshing()
+            return
+        }
         //PostService.fetchPosts { posts in
 
         //}
@@ -83,14 +89,21 @@ class FeedViewController: UICollectionViewController {
     }
     
     func checkIfUserLikedPosts() {
-        //For every post in array fetched
-        self.posts.forEach { post in
-            //Check if user did like
+        if let post = post {
             PostService.checkIfUserLikedPost(post: post) { didLike in
-                //Check the postId of the current post looping
-                if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
-                    //Change the didLike according if user did like post
-                    self.posts[index].didLike = didLike
+                self.post?.didLike = didLike
+                self.collectionView.reloadData()
+            }
+        } else {
+            //For every post in array fetched
+            self.posts.forEach { post in
+                //Check if user did like
+                PostService.checkIfUserLikedPost(post: post) { didLike in
+                    //Check the postId of the current post looping
+                    if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
+                        //Change the didLike according if user did like post
+                        self.posts[index].didLike = didLike
+                    }
                 }
             }
         }

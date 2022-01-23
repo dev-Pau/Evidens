@@ -36,12 +36,12 @@ class MainTabController: UITabBarController {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         UserService.fetchUser(withUid: uid) { user in
             self.user = user
-            
+    
             //UserDefaults to query realtimedatabase for chat purposes
             UserDefaults.standard.set(user.uid, forKey: "uid")
-            
+
             //Change to == false for real use app, != false for testing purposes
-            if (user.isVerified == false) {
+            if (user.isVerified == true) {
                 //User not verified
                 let controller = WelcomeViewController()
                 let nav = UINavigationController(rootViewController: controller)

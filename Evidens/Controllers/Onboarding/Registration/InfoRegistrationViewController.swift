@@ -153,6 +153,8 @@ class InfoRegistrationViewController: UIViewController {
     
     @objc func continueButtonPressed() {
         //Registrates user to Firebase
+        spinner.show(in: view)
+        
         AuthService.registerUser(withCredential: credentials) { error in
             DispatchQueue.main.async {
                 self.spinner.dismiss()

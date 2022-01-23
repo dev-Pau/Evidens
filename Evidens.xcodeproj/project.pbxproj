@@ -221,6 +221,7 @@
 				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
 				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
 				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
+				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
 				5FC4D87E270705B0006B7A34 /* NotificationViewController.swift */,
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 			);
@@ -330,7 +331,6 @@
 				5FC4D880270705E8006B7A34 /* PostViewController.swift */,
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
 				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
-				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
 				5F8666F1274FAD30009B26E6 /* CommentViewController.swift */,
 			);
 			path = Others;

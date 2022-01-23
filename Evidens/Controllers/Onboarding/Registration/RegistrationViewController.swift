@@ -12,8 +12,6 @@ class RegistrationViewController: UIViewController {
     
     //MARK: - Properties
     
-    private let spinner = JGProgressHUD(style: .dark)
-
     private var viewModel = RegistrationViewModel()
     
     let firstNameTextField: UITextField = {
@@ -194,8 +192,6 @@ class RegistrationViewController: UIViewController {
         guard let lastName = lastNameTextField.text else { return }
         guard let email = emailTextField.text else { return }
         guard let password = passwordTextField.text else { return }
-        
-        spinner.show(in: view)
         
         let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: email, password: password, profileImageUrl: "")
         

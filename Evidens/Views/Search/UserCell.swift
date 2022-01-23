@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class UserCell: UITableViewCell {
     
@@ -56,5 +57,6 @@ class UserCell: UITableViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
+        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
     }
 }

@@ -30,8 +30,6 @@ class LoginViewController: UIViewController {
         return tf
     }()
     
-   
-    
     private let passwordTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Password")
         tf.isSecureTextEntry = true
@@ -175,6 +173,7 @@ class LoginViewController: UIViewController {
     @objc func forgotPasswordButtonPressed() {
         let controller = ResetPasswordViewController()
         controller.delegate = self
+        controller.email = emailTextField.text
         self.navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -199,7 +198,11 @@ class LoginViewController: UIViewController {
                 return
             }
             
-            self.dismiss(animated: true, completion: nil)
+            //self.dismiss(animated: true, completion: nil)
+            let controller = MainTabController()
+            //let nav = UINavigationController(rootViewController: controller)
+            controller.modalPresentationStyle = .fullScreen
+            self.present(controller, animated: false, completion: nil)
         }
     }
     
