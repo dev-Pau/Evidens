@@ -19,7 +19,7 @@ class FeedViewController: UICollectionViewController {
     }
     
     var post: Post? {
-        didSet { checkIfUserLikedPosts() }
+        didSet { collectionView.reloadData() }
     }
 
     //MARK: - Lifecycle
@@ -29,6 +29,10 @@ class FeedViewController: UICollectionViewController {
         fetchPosts()
         configureUI()
         configureNavigationItemButtons()
+        
+        if post != nil {
+            checkIfUserLikedPosts()
+        }
     }
     
     
@@ -92,7 +96,6 @@ class FeedViewController: UICollectionViewController {
         if let post = post {
             PostService.checkIfUserLikedPost(post: post) { didLike in
                 self.post?.didLike = didLike
-                self.collectionView.reloadData()
             }
         } else {
             //For every post in array fetched

@@ -33,16 +33,19 @@ class MainTabController: UITabBarController {
     //MARK: - API
     
     func fetchUser() {
+        //Get the uid of current user
         guard let uid = Auth.auth().currentUser?.uid else { return }
+        //Fetch user with user uid
         UserService.fetchUser(withUid: uid) { user in
+            //Set user property
             self.user = user
     
-            //UserDefaults to query realtimedatabase for chat purposes
+            //Save uid to UserDefaults
             UserDefaults.standard.set(user.uid, forKey: "uid")
 
             //Change to == false for real use app, != false for testing purposes
             if (user.isVerified == true) {
-                //User not verified
+                //If user is not verified, present WelcomeViewController()
                 let controller = WelcomeViewController()
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen

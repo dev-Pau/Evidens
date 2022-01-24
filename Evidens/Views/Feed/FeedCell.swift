@@ -98,7 +98,6 @@ class FeedCell: UICollectionViewCell {
         
     private let postTimeLabel: UILabel = {
         let label = UILabel()
-        label.text = "2 days ago"
         label.font = UIFont.systemFont(ofSize: 12)
         label.textColor = .lightGray
         return label
@@ -162,6 +161,7 @@ class FeedCell: UICollectionViewCell {
         //Configure post with post info
         postLabel.text = viewModel.postText
         likesLabel.text = viewModel.likesLabelText
+        postTimeLabel.text = "\(viewModel.timestampString ?? "") ago"
         
         //Configure post with user info
         profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)

@@ -146,6 +146,7 @@ class NotificationCell: UITableViewCell {
         fullNameLabel.attributedText = viewModel.notificationUserInfo
         notificationTypeImageView.image = viewModel.notificationUserImage
         notificationTextLabel.text = viewModel.notificationPostComment
+        timeLabel.text = viewModel.notificationTimeStamp
         
         followButton.isHidden = !viewModel.shouldShowFollowButton
         followButton.setTitle(viewModel.followButtonText, for: .normal)

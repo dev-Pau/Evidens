@@ -36,8 +36,6 @@ class LoginViewController: UIViewController {
         return tf
     }()
     
-  
-    
     private let loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Log In", for: .normal)
