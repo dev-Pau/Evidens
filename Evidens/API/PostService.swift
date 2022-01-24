@@ -36,6 +36,23 @@ struct PostService {
         }
     }
     
+    static func fetchFeedPosts(completion: @escaping([Post]) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        var posts = [Post]()
+        
+        COLLECTION_USERS.document(uid).collection("user-feed").getDocuments { snapshot, error in
+            snapshot?.documents.forEach({ document in
+                fetchPost(withPostId: document.documentID) { post in
+                    posts.append(post)
+                    
+                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    
+                    completion(posts)
+                }
+            })
+        }
+    }
+    
     static func fetchPost(withPostId postId: String, completion: @escaping(Post) -> Void) {
         COLLECTION_POSTS.document(postId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
@@ -56,9 +73,7 @@ struct PostService {
             var posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
             
             //Order posts by timestamp
-            posts.sort { (post1, post2) -> Bool in
-                return post1.timestamp.seconds > post2.timestamp.seconds
-            }
+            posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
             
             completion(posts)
 
@@ -99,19 +114,7 @@ struct PostService {
         }
     }
     
-    static func fetchFeedPosts(completion: @escaping([Post]) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        var posts = [Post]()
-        
-        COLLECTION_USERS.document(uid).collection("user-feed").getDocuments { snapshot, error in
-            snapshot?.documents.forEach({ document in
-                fetchPost(withPostId: document.documentID) { post in
-                    posts.append(post)
-                    completion(posts)
-                }
-            })
-        }
-    }
+    
     
     static func updateUserFeedAfterFollowing(user: User, didFollow: Bool) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
