@@ -159,14 +159,17 @@ class InfoRegistrationViewController: UIViewController {
             DispatchQueue.main.async {
                 self.spinner.dismiss()
             }
-         
+
             if let error = error {
                 print("DEBUG: Failed to register user \(error.localizedDescription)")
                 return
             }
             
             //Succesfully registrates user and present a "Welcome Screen" with email instructions
+            //After user registrates, signOut to avoid retention cycle
+            AuthService.logout()
             let controller = EmailRegistrationViewController()
+            controller.firstName = self.firstName
             self.navigationController?.navigationBar.isHidden = true
             self.navigationController?.pushViewController(controller, animated: true)
         }
@@ -196,6 +199,7 @@ extension InfoRegistrationViewController: UITableViewDelegate, UITableViewDataSo
         category = indexPath.row
         userTypeButton.setTitle(dataSource[indexPath.row], for: .normal)
         userTypeButton.backgroundColor = UIColor(rgb: 0x79CBBF)
+        credentials.category = dataSource[indexPath.row]
         nextButton.backgroundColor = UIColor(rgb: 0x79CBBF)
         nextButton.isEnabled = true
         nextButton.isHidden = false

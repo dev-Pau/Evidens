@@ -16,6 +16,7 @@ struct User {
     let uid: String?
     let isVerified: Bool?
     var profileImageUrl: String?
+    var category: String?
     
     //Track if a user is followed
     var isFollowed = false
@@ -32,6 +33,7 @@ struct User {
         self.uid = dictionary["uid"] as? String ?? ""
         self.isVerified = dictionary["isVerified"] as? Bool ?? false
         self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
+        self.category = dictionary["category"] as? String ?? ""
         
         self.stats = UserStats(followers: 0, following: 0, posts: 0)
     }

@@ -193,7 +193,7 @@ class RegistrationViewController: UIViewController {
         guard let email = emailTextField.text else { return }
         guard let password = passwordTextField.text else { return }
         
-        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: email, password: password, profileImageUrl: "")
+        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: email, password: password, profileImageUrl: "", isVerified: false, category: "")
         
         let controller = InfoRegistrationViewController(credentials: credentials)
         controller.firstName = firstName

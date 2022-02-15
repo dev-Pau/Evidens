@@ -64,8 +64,7 @@ class UploadPostViewController: UIViewController {
     }
     
     @objc func didTapShare() {
-        guard let postTextView = postTextView.text else { print("1")
-            return }
+        guard let postTextView = postTextView.text else { return }
         
         //Pass the user to UploadPostViewController instead of fetching current user
         guard let uid = Auth.auth().currentUser?.uid else { return }

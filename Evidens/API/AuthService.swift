@@ -15,6 +15,8 @@ struct AuthCredentials {
     let email: String
     let password: String
     let profileImageUrl: String
+    var isVerified: Bool
+    var category: String
 }
 
 struct AuthService {
@@ -32,18 +34,25 @@ struct AuthService {
                 //Unique identifier of user
                 guard let uid = result?.user.uid else { return }
                 
-                let data: [String: Any] = ["firstName": credentials.firstName, "lastName": credentials.lastName, "email": credentials.email, "uid": uid, "profileImageUrl": ""]
+                let data: [String: Any] = ["firstName": credentials.firstName, "lastName": credentials.lastName, "email": credentials.email, "uid": uid, "profileImageUrl": "", "category": credentials.category, "isVerified": credentials.isVerified]
                 
                 
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)
                 
-                //Add user info to Realtime Database for chat purposes
-                DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
+                DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))    
         }
     }
     
     static func resetPassword(withEmail email: String, completion: SendPasswordResetCallback?) {
         Auth.auth().sendPasswordReset(withEmail: email, completion: completion)
+    }
+    
+    static func logout() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("DEBUG: Failed to logout")
+        }
     }
     
 }

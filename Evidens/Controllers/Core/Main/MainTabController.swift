@@ -44,7 +44,7 @@ class MainTabController: UITabBarController {
             UserDefaults.standard.set(user.uid, forKey: "uid")
 
             //Change to == false for real use app, != false for testing purposes
-            if (user.isVerified == true) {
+            if (user.isVerified == false) {
                 //If user is not verified, present WelcomeViewController()
                 let controller = WelcomeViewController()
                 let nav = UINavigationController(rootViewController: controller)
@@ -56,6 +56,7 @@ class MainTabController: UITabBarController {
     }
     
     func checkIfUserIsLoggedIn() {
+
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
                 let controller = WelcomeViewController()
