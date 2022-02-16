@@ -76,8 +76,28 @@ class ConversationViewController: UIViewController {
     //Creates a new conversation
     @objc private func didTapComposeButton() {
         let vc = NewConversationViewController()
+        
+        vc.completion = { [weak self] result in
+            self?.createNewConversation(result: result)
+        }
+        
         let controller = UINavigationController(rootViewController: vc)
         present(controller, animated: true)
+    }
+    
+    private func createNewConversation(result: [String: String]) {
+        print("\(result)")
+        guard let name = result["name"],
+              let email = result["emailAddress"],
+              let uid = result["uid"] else {
+                  return
+              }
+        let controller = ChatViewController(with: uid)
+        controller.isNewConversation = true
+        
+        controller.title = name
+        controller.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -99,7 +119,7 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let controller = ChatViewController()
+        let controller = ChatViewController(with: "")
         controller.title = "Pau Fernández"
         controller.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(controller, animated: true)

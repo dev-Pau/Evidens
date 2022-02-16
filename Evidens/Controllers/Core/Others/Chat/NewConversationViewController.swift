@@ -12,8 +12,9 @@ private let reusableIdentifier = "cell"
 
 class NewConversationViewController: UIViewController {
     
-    
     //MARK: - Properties
+    
+    public var completion: (([String: String]) -> (Void))?
     
     private let spinner = JGProgressHUD(style: .dark)
     
@@ -108,6 +109,11 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         //Start conversation
+        let targetUserData = results[indexPath.row]
+        
+        dismiss(animated: true, completion: { [weak self] in
+            self?.completion?(targetUserData)
+        })
     }
 }
 
