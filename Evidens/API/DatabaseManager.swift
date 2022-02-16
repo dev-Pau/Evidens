@@ -57,28 +57,30 @@ extension DatabaseManager {
     }
     
     public func getAllUsers(completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        database.child("users").observeSingleEvent(of: .value) { snapshot in
+        database.child("users").observeSingleEvent(of: .value, with: { snapshot in
             guard let value = snapshot.value as? [[String: String]] else {
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
             
             completion(.success(value))
-        }
+        })
     }
+    
     
     public enum DatabaseError: Error {
         case failedToFetch
     }
-    
-    
 }
+
 
 //MARK: - Sending messages & Conversations
 extension DatabaseManager {
     
+    
+    
     /// Creates a new conversation with target user uid and first message sent
-    public func createNewConversation(withUid otherUserUid: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+    public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
         
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") else { return }
         print("uid \(currentUid)")
@@ -125,6 +127,7 @@ extension DatabaseManager {
             
             let newConversationData: [String: Any] = ["id": conversationId,
                                                       "other_user_uid": otherUserUid,
+                                                      "name": name,
                                                       "latest_message": ["date": dateString,
                                                                          "message": message,
                                                                          "is_read": false
@@ -141,12 +144,13 @@ extension DatabaseManager {
                         completion(false)
                         return
                     }
-                    self?.finishCreatingConversation(conversationID: conversationId,
-                                                    firstMessage: firstMessage,
-                                                    completion: completion)
+                    self?.finishCreatingConversation(name: name,
+                                                     conversationID: conversationId,
+                                                     firstMessage: firstMessage,
+                                                     completion: completion)
                 })
             } else {
-
+                
                 //Conversation array does not exist, create it
                 userNode["conversations"] = [newConversationData]
                 
@@ -155,15 +159,58 @@ extension DatabaseManager {
                         completion(false)
                         return
                     }
-                    self?.finishCreatingConversation(conversationID: conversationId,
-                                                    firstMessage: firstMessage,
-                                                    completion: completion)
+                    self?.finishCreatingConversation(name: name,
+                                                     conversationID: conversationId,
+                                                     firstMessage: firstMessage,
+                                                     completion: completion)
                 })
             }
         }
     }
     
-    private func finishCreatingConversation(conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+    /// Fetches and returns all conversations for the user with passed in uid
+    public func getAllConversations(forUid uid: String, completion: @escaping(Result<[Conversation], Error>) -> Void) {
+        database.child("\(uid)/conversations").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [[String: Any]] else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            let conversations: [Conversation] = value.compactMap ({ dictionary in
+                guard let conversationId = dictionary["id"] as? String,
+                      let name = dictionary["name"] as? String,
+                      let otherUserUid = dictionary["other_user_uid"] as? String,
+                      let latestMessage = dictionary["latest_message"] as? [String: Any],
+                      let date = latestMessage["date"] as? String,
+                      let message = latestMessage["message"] as? String,
+                      let isRead = latestMessage["is_read"]  as? Bool else { return nil }
+                
+                
+                let latestMessageObject = LatestMessage(date: date,
+                                                        text: message,
+                                                        isRead: isRead)
+                
+                return Conversation(id: conversationId,
+                                    name: name,
+                                    otherUserUid: otherUserUid,
+                                    latestMessage: latestMessageObject)
+            })
+            completion(.success(conversations))
+        })
+    }
+    
+    /// Get all messages for a given conversation
+    public func getAllMessagesForConversation(with id: String, completion: @escaping(Result<String, Error>) -> Void) {
+        
+    }
+    
+    /// Sends a message with target conversation and message
+    public func sendMessage(to conversation: String, message: Message, completion: @escaping (Bool) -> Void) {
+        
+    }
+    
+
+    private func finishCreatingConversation(name: String, conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
         let messageDate = firstMessage.sentDate
         let dateString = ChatViewController.dateFormatter.string(from: messageDate)
         
@@ -204,7 +251,8 @@ extension DatabaseManager {
             "content": message,
             "date": dateString,
             "sender_uid": currentUserUid,
-            "is_read": false
+            "is_read": false,
+            "name": name
         ]
         
         let value : [String: Any] = [
@@ -224,22 +272,6 @@ extension DatabaseManager {
         })
     }
                                                      }
-    
-    /// Fetches and returns all conversations for the user with passed in uid
-    public func getAllConversations(forUid uid: String, completion: @escaping(Result<String, Error>) -> Void) {
-        
-    }
-    
-    /// Get all messages for a given conversation
-    public func getAllMessagesForConversation(with id: String, completion: @escaping(Result<String, Error>) -> Void) {
-        
-    }
-    
-    /// Sends a message with target conversation and message
-    //public func sendMessage(to conversation: String, message: Message, completion: @escaping (Bool) -> Void) {
-        
-    //}
-
 
 //Move to models folder
 struct ChatUser {
