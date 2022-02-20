@@ -87,7 +87,7 @@ extension DatabaseManager {
         
         let ref = database.child("\(currentUid)")
         
-        ref.observeSingleEvent(of: .value) { snapshot in
+        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
             guard var userNode = snapshot.value as? [String: Any] else {
                 completion(false)
                 return
@@ -125,15 +125,39 @@ extension DatabaseManager {
             
             let conversationId = "conversation_\(firstMessage.messageId)"
             
-            let newConversationData: [String: Any] = ["id": conversationId,
-                                                      "other_user_uid": otherUserUid,
-                                                      "name": name,
-                                                      "latest_message": ["date": dateString,
-                                                                         "message": message,
-                                                                         "is_read": false
-                                                                        ]
+            let newConversationData: [String: Any] = [
+                "id": conversationId,
+                "other_user_uid": otherUserUid,
+                "name": name,
+                "latest_message": ["date": dateString,
+                                   "message": message,
+                                   "is_read": false
+                ]
             ]
             
+            let recipientNewConversationData: [String: Any] = [
+                "id": conversationId,
+                "other_user_uid": currentUid,
+                "name": "Self",
+                "latest_message": ["date": dateString,
+                                   "message": message,
+                                   "is_read": false
+                ]
+            ]
+            
+            //Update recipient conversation entry
+            self?.database.child("\(otherUserUid)/conversations").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+                if var conversations = snapshot.value as? [[String: Any]] {
+                    //Append
+                    conversations.append(recipientNewConversationData)
+                    self?.database.child("\(otherUserUid)/conversations").setValue(conversationId)
+                } else {
+                    //Create new conversation
+                    self?.database.child("\(otherUserUid)/conversations").setValue([recipientNewConversationData])
+                }
+            })
+            
+            //Update current user conversation entry
             if var conversations = userNode["conversations"] as? [[String: Any]] {
                 //Conversation array exists for current user, append
                 conversations.append(newConversationData)
@@ -200,8 +224,35 @@ extension DatabaseManager {
     }
     
     /// Get all messages for a given conversation
-    public func getAllMessagesForConversation(with id: String, completion: @escaping(Result<String, Error>) -> Void) {
-        
+    public func getAllMessagesForConversation(with id: String, completion: @escaping(Result<[Message], Error>) -> Void) {
+        database.child("\(id)/messages").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [[String: Any]] else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            let messages: [Message] = value.compactMap({ dictionary in
+                guard let name = dictionary["name"] as? String,
+                      let isRead = dictionary["is_read"] as? Bool,
+                      let messageID = dictionary["id"] as? String,
+                      let content = dictionary["content"] as? String,
+                      let senderUid = dictionary["sender_uid"] as? String,
+                      let type = dictionary["type"] as? String,
+                      let dateString = dictionary["date"] as? String,
+                      let date = ChatViewController.dateFormatter.date(from: dateString) else { return nil }
+
+                let sender = Sender(userProfileImageUrl: "",
+                                    senderId: senderUid,
+                                    displayName: name)
+                
+                return Message(sender: sender,
+                               messageId: messageID,
+                               sentDate: date,
+                               kind: .text(content))
+            })
+            
+            completion(.success(messages))
+        })
     }
     
     /// Sends a message with target conversation and message

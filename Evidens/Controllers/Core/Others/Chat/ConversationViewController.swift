@@ -115,7 +115,7 @@ class ConversationViewController: UIViewController {
               let uid = result["uid"] else {
                   return
               }
-        let controller = ChatViewController(with: uid)
+        let controller = ChatViewController(with: uid, id: nil)
         controller.isNewConversation = true
         
         controller.title = name
@@ -143,7 +143,7 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         tableView.deselectRow(at: indexPath, animated: true)
         let model = conversations[indexPath.row]
         
-        let controller = ChatViewController(with: model.otherUserUid)
+        let controller = ChatViewController(with: model.otherUserUid, id: model.id)
         controller.title = model.name
         controller.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(controller, animated: true)

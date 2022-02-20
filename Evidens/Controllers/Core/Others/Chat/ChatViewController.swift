@@ -63,6 +63,7 @@ class ChatViewController: MessagesViewController {
     }()
     
     public let otherUserUid: String
+    private let conversationId: String?
     public var isNewConversation = false
     
     private var messages = [Message]()
@@ -76,9 +77,12 @@ class ChatViewController: MessagesViewController {
     
     //MARK: - Lifecycle
     
-    init(with uid: String) {
+    init(with uid: String, id: String?) {
         self.otherUserUid = uid
+        self.conversationId = id
         super.init(nibName: nil, bundle: nil)
+        
+       
     }
     
     required init?(coder: NSCoder) {
@@ -97,6 +101,28 @@ class ChatViewController: MessagesViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
+        if let conversationId = conversationId { listenForMessages(id: conversationId, shouldScrollToBottom: true) }
+    }
+    
+    private func listenForMessages(id: String, shouldScrollToBottom: Bool) {
+        DatabaseManager.shared.getAllMessagesForConversation(with: id, completion: { [weak self] result in
+            switch result {
+            case .success(let messages):
+                guard !messages.isEmpty else { return }
+                self?.messages = messages
+                
+                DispatchQueue.main.async {
+                    self?.messagesCollectionView.reloadDataAndKeepOffset()
+                    
+                    if shouldScrollToBottom {
+                        self?.messagesCollectionView.scrollToLastItem()
+                    }
+                }
+                
+            case .failure(let error):
+                print("Failed to get messages: \(error)")
+            }
+        })
     }
     
     //MARK: - Helpers

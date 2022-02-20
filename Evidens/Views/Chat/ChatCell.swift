@@ -18,6 +18,7 @@ class ChatCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 50
         imageView.layer.masksToBounds = true
+        imageView.backgroundColor = .clear
         return imageView
     }()
     
@@ -58,13 +59,13 @@ class ChatCell: UITableViewCell {
                                 height: 100)
         
         usernameLabel.anchor(top: profileImageView.topAnchor,
-                             left: profileImageView.leftAnchor,
+                             left: profileImageView.rightAnchor,
                              paddingLeft: 10,
                              width: contentView.bounds.width - 20 - profileImageView.bounds.width,
                              height: (contentView.bounds.height-20)/2)
         
         userMessageLabel.anchor(top: usernameLabel.bottomAnchor,
-                                left: profileImageView.leftAnchor,
+                                left: profileImageView.rightAnchor,
                                 paddingTop: 10, paddingLeft: 10,
                                 width: contentView.bounds.width - 20 - profileImageView.bounds.width,
                                 height: (contentView.bounds.height - 20)/2)

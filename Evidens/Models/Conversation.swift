@@ -12,11 +12,8 @@ struct Conversation {
     let name: String
     let otherUserUid: String
     let latestMessage: LatestMessage
+    
 }
-
-
-
-
 
 struct LatestMessage {
     let date: String
