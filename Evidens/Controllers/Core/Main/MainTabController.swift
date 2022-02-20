@@ -42,6 +42,7 @@ class MainTabController: UITabBarController {
     
             //Save uid to UserDefaults
             UserDefaults.standard.set(user.uid, forKey: "uid")
+            UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
 
             //Change to == false for real use app, != false for testing purposes
             if (user.isVerified == false) {
