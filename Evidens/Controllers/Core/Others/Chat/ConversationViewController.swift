@@ -117,7 +117,7 @@ class ConversationViewController: UIViewController {
               }
         let controller = ChatViewController(with: uid, id: nil)
         controller.isNewConversation = true
-        
+    
         controller.title = name
         controller.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(controller, animated: true)

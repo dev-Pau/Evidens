@@ -248,9 +248,21 @@ extension DatabaseManager {
                     let media = Media(url: imageUrl,
                                       image: nil,
                                       placeholderImage: placeHolder,
-                                      size: CGSize(width: 300, height: 300))
+                                      size: CGSize(width: 150, height: 150))
                     kind = .photo(media)
-                } else {
+                } else if type == "video" {
+                    //Placeholder should be a thumbnail of the video
+                    guard let imageUrl = URL(string: content), let placeHolder = UIImage(systemName: "play.circle.fill")?.withTintColor(.clear, renderingMode: .alwaysOriginal) else { return nil }
+
+                    let media = Media(url: imageUrl,
+                                      image: nil,
+                                      placeholderImage: placeHolder,
+                                      size: CGSize(width: 150, height: 150))
+                    kind = .video(media)
+                    
+                    
+                }
+                else {
                     kind = .text(content)
                 }
                 
@@ -303,7 +315,10 @@ extension DatabaseManager {
                     message = targetUrl
                 }
                 break
-            case .video(_):
+            case .video(let mediaItem):
+                if let targetUrl = mediaItem.url?.absoluteString {
+                    message = targetUrl
+                }
                 break
             case .location(_):
                 break

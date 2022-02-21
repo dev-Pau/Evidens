@@ -6,8 +6,7 @@
 //
 
 import FirebaseStorage
-import Foundation
-import SwiftUI
+import UIKit
 
 struct ImageUploader {
     
@@ -63,4 +62,21 @@ struct ImageUploader {
             }
         }
     }
+    
+    ///Upload video that will be sent in a conversation message
+    static func uploadMessageVideo(with fileUrl: URL, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let ref = Storage.storage().reference(withPath: "/message_videos/\(fileName)")
+        ref.putFile(from: fileUrl, metadata: nil) { result, error in
+            if let error = error {
+                print("Failed to upload message video file \(error.localizedDescription)")
+                return
+            }
+            ref.downloadURL { url, error in
+                guard let url = url else { return }
+                let urlString = url.absoluteString
+                completion(.success(urlString))
+            }
+        }
+    }
+    
 }
