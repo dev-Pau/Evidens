@@ -297,9 +297,9 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                     print("failed to send")
                 }
             })
-            
-            
         }
+        //Delete text bar upon sending a message
+        inputBar.inputTextView.text = ""
     }
     
     private func createMessageId() -> String? {

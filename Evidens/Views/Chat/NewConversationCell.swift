@@ -23,7 +23,7 @@ class NewConversationCell: UITableViewCell {
     
     private let usernameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 21, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
@@ -52,9 +52,9 @@ class NewConversationCell: UITableViewCell {
         
         usernameLabel.anchor(top: profileImageView.topAnchor,
                              left: profileImageView.rightAnchor,
-                             paddingLeft: 20,
-                             width: contentView.bounds.width - 20 - profileImageView.bounds.width,
-                             height: 50)
+                             bottom: profileImageView.bottomAnchor,
+                             paddingLeft: 10,
+                             width: contentView.bounds.width - 20 - profileImageView.bounds.width)
     }
     
     

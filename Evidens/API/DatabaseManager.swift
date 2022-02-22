@@ -151,7 +151,7 @@ extension DatabaseManager {
                 if var conversations = snapshot.value as? [[String: Any]] {
                     //Append
                     conversations.append(recipientNewConversationData)
-                    self?.database.child("\(otherUserUid)/conversations").setValue(conversationId)
+                    self?.database.child("\(otherUserUid)/conversations").setValue(conversations)
                 } else {
                     //Create new conversation
                     self?.database.child("\(otherUserUid)/conversations").setValue([recipientNewConversationData])
@@ -504,7 +504,43 @@ extension DatabaseManager {
             completion(true)
         })
     }
-                                                     }
+    
+    ///Deletes a conversation with conversationID for the target user
+    public func deleteConversation(conversationId: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        //Get all conversations for current user
+        let ref = database.child("\(uid)/conversations")
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var conversations = snapshot.value as? [[String: Any]] {
+                var positionToRemove = 0
+                for conversation in conversations {
+                    if let id = conversation["id"] as? String,
+                       id == conversationId {
+                        break
+                    }
+                    positionToRemove += 1
+                }
+                //Delete conversation in collection with target conversationID
+                conversations.remove(at: positionToRemove)
+                //Reset those conversations for the user in the database
+                ref.setValue(conversations) { error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                    completion(true)
+                }
+            }
+        }
+    }
+    
+    ///Check if the conversation already exists in conversation list
+    public func conversationExists(with targetRecipientUid: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let senderUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        
+    }
+}
 
 //Move to models folder
 struct ChatUser {

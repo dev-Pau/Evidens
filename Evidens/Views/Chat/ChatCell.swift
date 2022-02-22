@@ -16,7 +16,7 @@ class ChatCell: UITableViewCell {
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 50
+        imageView.layer.cornerRadius = 35
         imageView.layer.masksToBounds = true
         imageView.backgroundColor = .clear
         return imageView
@@ -24,13 +24,13 @@ class ChatCell: UITableViewCell {
     
     private let usernameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 21, weight: .semibold)
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         return label
     }()
     
     private let userMessageLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 19, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 0
         return label
     }()
@@ -55,20 +55,20 @@ class ChatCell: UITableViewCell {
                                 left: contentView.leftAnchor,
                                 paddingTop: 10,
                                 paddingLeft: 10,
-                                width: 100,
-                                height: 100)
+                                width: 70,
+                                height: 70)
         
         usernameLabel.anchor(top: profileImageView.topAnchor,
                              left: profileImageView.rightAnchor,
                              paddingLeft: 10,
-                             width: contentView.bounds.width - 20 - profileImageView.bounds.width,
-                             height: (contentView.bounds.height-20)/2)
+                             width: contentView.bounds.width - 20 - profileImageView.bounds.width)
+                             //height: (contentView.bounds.height-20)/2)
         
         userMessageLabel.anchor(top: usernameLabel.bottomAnchor,
                                 left: profileImageView.rightAnchor,
-                                paddingTop: 10, paddingLeft: 10,
-                                width: contentView.bounds.width - 20 - profileImageView.bounds.width,
-                                height: (contentView.bounds.height - 20)/2)
+                                paddingTop: 10,
+                                paddingLeft: 10,
+                                width: contentView.bounds.width - 20 - profileImageView.bounds.width)
     }
     
     
