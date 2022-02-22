@@ -14,7 +14,7 @@ class NewConversationViewController: UIViewController {
     
     //MARK: - Properties
     
-    public var completion: (([String: String]) -> (Void))?
+    public var completion: ((SearchResult) -> (Void))?
     
     private let spinner = JGProgressHUD(style: .dark)
     
@@ -22,7 +22,7 @@ class NewConversationViewController: UIViewController {
     private var users = [[String: String]]()
     private var hasFetched = false
     
-    private var results = [[String: String]]()
+    private var results = [SearchResult]()
     
     private let searchBar : UISearchBar = {
         let searchBar = UISearchBar()
@@ -33,7 +33,7 @@ class NewConversationViewController: UIViewController {
     private let tableView: UITableView = {
         let table = UITableView()
         table.isHidden = true
-        table.register(UITableViewCell.self,
+        table.register(NewConversationCell.self,
                        forCellReuseIdentifier: reusableIdentifier)
         return table
     }()
@@ -46,8 +46,6 @@ class NewConversationViewController: UIViewController {
         label.textColor = .black
         label.font = .systemFont(ofSize: 21, weight: .medium)
         return label
-        
-        
     }()
     
     //MARK: - Lifecycle
@@ -101,8 +99,9 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reusableIdentifier, for: indexPath)
-        cell.textLabel?.text = results[indexPath.row]["name"]
+        let model = results[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: reusableIdentifier, for: indexPath) as! NewConversationCell
+        cell.configure(with: model)
         return cell
     }
     
@@ -114,6 +113,10 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
         dismiss(animated: true, completion: { [weak self] in
             self?.completion?(targetUserData)
         })
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 90
     }
 }
 
@@ -151,13 +154,21 @@ extension NewConversationViewController: UISearchBarDelegate {
     
     func filterUsers(with term: String) {
         //Update the UI: Either show results or show no results label
-        guard hasFetched else { return }
+        guard let currentUserUid = UserDefaults.standard.value(forKey: "uid") as? String, hasFetched else { return }
+        
+        
+        
         
         self.spinner.dismiss()
         
-        let results: [[String: String]] = self.users.filter({
+        let results: [SearchResult] = self.users.filter({
+            //Avoid filtering current user
+            guard let uid = $0["uid"], uid != currentUserUid else { return false }
             guard let name = $0["name"]?.lowercased() else { return false }
             return name.hasPrefix(term.lowercased())
+        }).compactMap({
+            guard let uid = $0["uid"], let name = $0["name"] else { return nil }
+            return SearchResult(name: name, uid: uid)
         })
         
         self.results = results
@@ -176,4 +187,10 @@ extension NewConversationViewController: UISearchBarDelegate {
             
         }
     }
+}
+
+struct SearchResult {
+    let name: String
+    let uid: String
+    
 }

@@ -11,6 +11,7 @@
 		5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05206A27BD4D9C001E7D8F /* ChatCell.swift */; };
 		5F05206D27BD5461001E7D8F /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05206C27BD5461001E7D8F /* Conversation.swift */; };
 		5F05206F27C3AF1A001E7D8F /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05206E27C3AF19001E7D8F /* PhotoViewController.swift */; };
+		5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05207027C4D04F001E7D8F /* NewConversationCell.swift */; };
 		5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F3A271C29E800700304 /* ProfileCell.swift */; };
 		5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */; };
 		5F0A4F46271C854600700304 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F45271C854600700304 /* Protocols.swift */; };
@@ -96,6 +97,7 @@
 		5F05206A27BD4D9C001E7D8F /* ChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCell.swift; sourceTree = "<group>"; };
 		5F05206C27BD5461001E7D8F /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		5F05206E27C3AF19001E7D8F /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+		5F05207027C4D04F001E7D8F /* NewConversationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationCell.swift; sourceTree = "<group>"; };
 		5F0A4F3A271C29E800700304 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
 		5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeader.swift; sourceTree = "<group>"; };
 		5F0A4F45271C854600700304 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				5F05206A27BD4D9C001E7D8F /* ChatCell.swift */,
+				5F05207027C4D04F001E7D8F /* NewConversationCell.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -693,6 +696,7 @@
 				5FC4D881270705E8006B7A34 /* PostViewController.swift in Sources */,
 				5FC4D88527071CB6006B7A34 /* FeedCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
+				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
