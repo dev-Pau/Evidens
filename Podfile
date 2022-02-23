@@ -15,6 +15,7 @@ target 'Evidens' do
 	pod 'Firebase/Messaging'
 	pod 'Firebase/Auth'
 	pod 'Firebase/Analytics'
+	pod 'Firebase/Crashlytics'
 
 
 	#SDWebImage

@@ -12,68 +12,24 @@ import SDWebImage
 import AVFoundation
 import AVKit
 
-struct Message: MessageType {
-    public var sender: SenderType
-    public var messageId: String
-    public var sentDate: Date
-    public var kind: MessageKind
-}
-
-extension MessageKind {
-    var messageKindString: String {
-        switch self {
-        case .text(_):
-            return "text"
-        case .attributedText(_):
-            return "attributed_text"
-        case .photo(_):
-            return "photo"
-        case .video(_):
-            return "video"
-        case .location(_):
-            return "location"
-        case .emoji(_):
-            return "emoji"
-        case .audio(_):
-            return "audio"
-        case .contact(_):
-            return "contact"
-        case .linkPreview(_):
-            return "link_preview"
-        case .custom(_):
-            return "custom"
-        }
-        
-    }
-}
-
-struct Sender: SenderType {
-    public var userProfileImageUrl: String
-    public var senderId: String
-    public var displayName: String
-}
-
-struct Media: MediaItem {
-    var url: URL?
-    var image: UIImage?
-    var placeholderImage: UIImage
-    var size: CGSize
-}
 
 class ChatViewController: MessagesViewController {
     
     //MARK: - Properties
     
+    private var senderPhotoUrl: URL?
+    private var otherUserPhotoUrl: URL?
+    
     public static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .long
-        formatter.locale = .current
+        formatter.timeZone = .current
         return formatter
     }()
     
     public let otherUserUid: String
-    private let conversationId: String?
+    private var conversationId: String?
     public var isNewConversation = false
     
     private var messages = [Message]()
@@ -122,9 +78,10 @@ class ChatViewController: MessagesViewController {
         DatabaseManager.shared.getAllMessagesForConversation(with: id, completion: { [weak self] result in
             switch result {
             case .success(let messages):
+                print("CASE SUCCESS")
                 guard !messages.isEmpty else { return }
                 self?.messages = messages
-                
+                print(messages)
                 DispatchQueue.main.async {
                     self?.messagesCollectionView.reloadDataAndKeepOffset()
                     
@@ -235,6 +192,65 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             break
         }
     }
+    
+    //Configure the color of messages
+    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
+        let sender = message.sender
+        if sender.senderId == selfSender?.senderId {
+            //Our message that we've sent
+            return UIColor(rgb: 0x79CBBF)
+        }
+        //Other recipient in conversation
+        return UIColor(rgb: 0xEBEBEB)
+    }
+    
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        
+        let sender = message.sender
+        if sender.senderId == selfSender?.senderId {
+            //Show our user profile image
+            if let currentUserImageURL = self.senderPhotoUrl {
+                avatarView.sd_setImage(with: currentUserImageURL, completed: nil)
+            } else {
+                //Fetch url
+                guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+                let path = "profile_images/\(uid)"
+                
+                StorageManager.downloadImageURL(for: path) { [weak self] result in
+                    switch result {
+                    case .success(let url):
+                        self?.senderPhotoUrl = url
+                        DispatchQueue.main.async {
+                            avatarView.sd_setImage(with: url, completed: nil)
+                        }
+                    case .failure(let error):
+                        print("\(error)")
+                    }
+                }
+            }
+        } else {
+            //Show other user profile image
+            if let otherUserPhotoURL = self.otherUserPhotoUrl {
+                avatarView.sd_setImage(with: otherUserPhotoUrl, completed: nil)
+            } else {
+                //Fetch url
+                let uid = self.otherUserUid
+                let path = "profile_images/\(uid)"
+                
+                StorageManager.downloadImageURL(for: path) { [weak self] result in
+                    switch result {
+                    case .success(let url):
+                        self?.otherUserPhotoUrl = url
+                        DispatchQueue.main.async {
+                            avatarView.sd_setImage(with: url, completed: nil)
+                        }
+                    case .failure(let error):
+                        print("\(error)")
+                    }
+                }
+            }
+        }
+    }
 }
 
 //MARK: - MessageCellDelegate
@@ -282,6 +298,9 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                 if success {
                     print("message sent")
                     self?.isNewConversation = false
+                    let newConversationId = "conversation_\(message.messageId)"
+                    self?.conversationId = newConversationId
+                    self?.listenForMessages(id: newConversationId, shouldScrollToBottom: true)
                 } else {
                     print("failed to send message")
                 }
@@ -306,7 +325,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         //date, otherUserUid, senderUid, randomInt
         guard let currentUserUid = UserDefaults.standard.value(forKey: "uid") else { return nil }
         let dateString = Self.dateFormatter.string(from: Date())
-        let newIdentifier = "\(otherUserUid)_\(currentUserUid)_\(dateString)"
+        let newIdentifier = ("\(otherUserUid)_\(currentUserUid)_\(dateString)").replacingOccurrences(of: ".", with: "")
         print("Created message id: \(newIdentifier)")
         return newIdentifier
     }
@@ -333,7 +352,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
             let fileName = "photo_messaage_" + messageId.replacingOccurrences(of: " ", with: "-") + ".png"
             
             //Upload image
-            ImageUploader.uploadMessagePhoto(with: imageData, fileName: fileName, completion: { [weak self] result in
+            StorageManager.uploadMessagePhoto(with: imageData, fileName: fileName, completion: { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success(let urlString):
@@ -366,10 +385,10 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
             })
         } else if let videoUrl = info[.mediaURL] as? URL {
             //Video
-            let fileName = "photo_messaage_" + messageId.replacingOccurrences(of: " ", with: "-") + ".mov"
+            let fileName = "photo_message_" + messageId.replacingOccurrences(of: " ", with: "-") + ".mov"
             
             //Upload video
-            ImageUploader.uploadMessageVideo(with: videoUrl, fileName: fileName, completion: { [weak self] result in
+            StorageManager.uploadMessageVideo(with: videoUrl, fileName: fileName, completion: { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success(let urlString):

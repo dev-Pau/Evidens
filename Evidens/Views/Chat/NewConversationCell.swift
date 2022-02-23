@@ -62,10 +62,10 @@ class NewConversationCell: UITableViewCell {
     //MARK: - Helpers
     
     public func configure(with model: SearchResult) {
-        self.usernameLabel.text = model.name
+        usernameLabel.text = model.name
 
         let path = "/profile_images/\(model.uid)"
-        ImageUploader.downloadImageURL(for: path, completion: { [weak self] result in
+        StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
             switch result {
             case .success(let url):
                 

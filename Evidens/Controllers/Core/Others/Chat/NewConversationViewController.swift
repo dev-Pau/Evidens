@@ -128,7 +128,7 @@ extension NewConversationViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
         results.removeAll()
         spinner.show(in: view)
-        self.searchUsers(query: text)
+        searchUsers(query: text)
     }
     
     func searchUsers(query: String) {
@@ -161,7 +161,7 @@ extension NewConversationViewController: UISearchBarDelegate {
         
         self.spinner.dismiss()
         
-        let results: [SearchResult] = self.users.filter({
+        let results: [SearchResult] = users.filter({
             //Avoid filtering current user
             guard let uid = $0["uid"], uid != currentUserUid else { return false }
             guard let name = $0["name"]?.lowercased() else { return false }
@@ -178,19 +178,13 @@ extension NewConversationViewController: UISearchBarDelegate {
     
     func updateUI() {
         if results.isEmpty {
-            self.noResultsLabel.isHidden = false
-            self.tableView.isHidden = true
+            noResultsLabel.isHidden = false
+            tableView.isHidden = true
         } else {
-            self.noResultsLabel.isHidden = true
-            self.tableView.isHidden = false
-            self.tableView.reloadData()
+            noResultsLabel.isHidden = true
+            tableView.isHidden = false
+            tableView.reloadData()
             
         }
     }
-}
-
-struct SearchResult {
-    let name: String
-    let uid: String
-    
 }

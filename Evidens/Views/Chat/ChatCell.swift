@@ -76,11 +76,11 @@ class ChatCell: UITableViewCell {
     //MARK: - Helpers
     
     public func configure(with model: Conversation) {
-        self.userMessageLabel.text = model.latestMessage.text
-        self.usernameLabel.text = model.name
+        userMessageLabel.text = model.latestMessage.text
+        usernameLabel.text = model.name
 
         let path = "/profile_images/\(model.otherUserUid)"
-        ImageUploader.downloadImageURL(for: path, completion: { [weak self] result in
+        StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
             switch result {
             case .success(let url):
                 

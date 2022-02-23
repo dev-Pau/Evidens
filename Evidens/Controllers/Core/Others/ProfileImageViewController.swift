@@ -115,7 +115,7 @@ extension ProfileImageViewController: UIImagePickerControllerDelegate, UINavigat
         profileImageView.image = selectedImage.withRenderingMode(.alwaysOriginal)
         
         //Upload image to Firestore
-        ImageUploader.uploadImage(image: profileImage!, uid: user.uid!) { imageUrl in
+        StorageManager.uploadImage(image: profileImage!, uid: user.uid!) { imageUrl in
             UserService.updateProfileUrl(profileImageUrl: imageUrl) { user in
                 //self.user.profileImageUrl = imageUrl
             }

@@ -8,8 +8,10 @@
 import FirebaseStorage
 import UIKit
 
-struct ImageUploader {
+/// Allows to get get, fetch and upload files to firebase storage
+struct StorageManager {
     
+    /// Uploads a profile image for a specific user to firebase storage with url string to download
     static func uploadImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
         //let filename = NSUUID().uuidString
@@ -34,6 +36,7 @@ struct ImageUploader {
            case failedToGetDownloadUrl
        }
     
+    /// Downloads image url for a specific path
     static func downloadImageURL(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
         let reference = Storage.storage().reference().child(path)
 
