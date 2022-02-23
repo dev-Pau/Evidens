@@ -324,8 +324,9 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
     private func createMessageId() -> String? {
         //date, otherUserUid, senderUid, randomInt
         guard let currentUserUid = UserDefaults.standard.value(forKey: "uid") else { return nil }
-        let dateString = Self.dateFormatter.string(from: Date())
-        let newIdentifier = ("\(otherUserUid)_\(currentUserUid)_\(dateString)").replacingOccurrences(of: ".", with: "")
+        let uuid = UUID().uuidString
+        //let dateString = Self.dateFormatter.string(from: Date())
+        let newIdentifier = ("\(otherUserUid)_\(currentUserUid)_\(uuid)").replacingOccurrences(of: ".", with: "")
         print("Created message id: \(newIdentifier)")
         return newIdentifier
     }
