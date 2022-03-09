@@ -35,6 +35,13 @@ class ChatCell: UITableViewCell {
         return label
     }()
     
+    private let dateLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.numberOfLines = 0
+        return label
+    }()
+    
     //MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -42,6 +49,7 @@ class ChatCell: UITableViewCell {
         contentView.addSubview(profileImageView)
         contentView.addSubview(usernameLabel)
         contentView.addSubview(userMessageLabel)
+        contentView.addSubview(dateLabel)
     }
     
     required init?(coder: NSCoder) {
@@ -62,13 +70,18 @@ class ChatCell: UITableViewCell {
                              left: profileImageView.rightAnchor,
                              paddingLeft: 10,
                              width: contentView.bounds.width - 20 - profileImageView.bounds.width)
-                             //height: (contentView.bounds.height-20)/2)
+                             
         
         userMessageLabel.anchor(top: usernameLabel.bottomAnchor,
                                 left: profileImageView.rightAnchor,
                                 paddingTop: 10,
                                 paddingLeft: 10,
-                                width: contentView.bounds.width - 20 - profileImageView.bounds.width)
+                                width: contentView.bounds.width - 20 - profileImageView.bounds.width,
+                                height: contentView.bounds.height - 10 - usernameLabel.bounds.height - 10)
+        
+        dateLabel.anchor(top: profileImageView.topAnchor,
+                         right: contentView.rightAnchor,
+                         paddingRight: 10)
     }
     
     
@@ -76,9 +89,32 @@ class ChatCell: UITableViewCell {
     //MARK: - Helpers
     
     public func configure(with model: Conversation) {
-        userMessageLabel.text = model.latestMessage.text
+        
+        let message = model.latestMessage.text
+        if message.contains("https://firebasestorage.googleapis.com") {
+            //Is a photo or video
+            if message.contains("message_images") {
+                userMessageLabel.text = "Photo"
+            } else {
+                userMessageLabel.text = "Video"
+            }
+        } else {
+            //It is a normal message
+            userMessageLabel.text = model.latestMessage.text
+        }
+        
         usernameLabel.text = model.name
+        
+        let dateString = model.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CET", with: "")
+        
+        let addedDateFormatter = DateFormatter()
+        addedDateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
+        addedDateFormatter.timeZone = TimeZone(abbreviation: "UTC")
 
+        if let addedDate = addedDateFormatter.date(from: dateString) {
+            dateLabel.text = addedDate.formatRelativeString()
+        }
+        
         let path = "/profile_images/\(model.otherUserUid)"
         StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
             switch result {

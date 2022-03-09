@@ -193,6 +193,48 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         }
     }
     
+    //Configure the cell top label to display dates
+    func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+        if indexPath.section % 3 == 0 {
+            let topCellText = MessageKitDateFormatter.shared.string(from: message.sentDate)
+            let font = UIFont.boldSystemFont(ofSize: 10)
+            let color = UIColor.darkGray
+            
+            return NSAttributedString(string: topCellText, attributes: [.font: font, .foregroundColor: color])
+        }
+        return nil
+    }
+    
+    func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+        let font = UIFont.boldSystemFont(ofSize: 10)
+        let color = UIColor.darkGray
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        var finalDate = dateFormatter.string(from: message.sentDate)
+        return NSAttributedString(string: finalDate, attributes: [.font: font,
+                                                                  .foregroundColor: color])
+    }
+    
+    //Cell top label size
+    func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+        if indexPath.section % 3 == 0 {
+            return 18
+        }
+        return 0
+    }
+    
+    //Configure bottom label size
+    func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+        return isFromCurrentSender(message: message) ? 17 : 0
+            
+    }
+    
+    //Configure message bottom label
+    func messageBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+        return 10
+    }
+    
+
     //Configure the color of messages
     func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
         let sender = message.sender
