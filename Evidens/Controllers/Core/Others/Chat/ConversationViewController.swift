@@ -121,6 +121,7 @@ class ConversationViewController: UIViewController {
                 strongSelf.createNewConversation(result: result)
             }
         }
+        
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true)
     }

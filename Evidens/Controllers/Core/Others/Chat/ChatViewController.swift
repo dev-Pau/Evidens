@@ -28,9 +28,16 @@ class ChatViewController: MessagesViewController {
         return formatter
     }()
     
+    private let micButton = InputBarButtonItem()
+    
     public let otherUserUid: String
     private var conversationId: String?
     public var isNewConversation = false
+    
+    private var longPressMicrophone: UILongPressGestureRecognizer!
+    private var audioFileName = ""
+    private var audioDuration: Date!
+
     
     private var messages = [Message]()
     private var selfSender: Sender? {
@@ -63,15 +70,21 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messagesDisplayDelegate = self
         messagesCollectionView.messageCellDelegate = self
         messageInputBar.delegate = self
+        configureGestureRecognizer()
         setupInputButton()
+        
     }
-    
-    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
         if let conversationId = conversationId { listenForMessages(id: conversationId, shouldScrollToBottom: true) }
+    }
+    
+    private func configureGestureRecognizer() {
+        longPressMicrophone = UILongPressGestureRecognizer(target: self, action: #selector(recordAudio))
+        longPressMicrophone.minimumPressDuration = 0.5
+        longPressMicrophone.delaysTouchesBegan = true
     }
     
     private func listenForMessages(id: String, shouldScrollToBottom: Bool) {
@@ -99,14 +112,31 @@ class ChatViewController: MessagesViewController {
     //MARK: - Helpers
     
     private func setupInputButton() {
-        let button = InputBarButtonItem()
-        button.setSize(CGSize(width: 35, height: 35), animated: false)
-        button.setImage(UIImage(systemName: "paperclip"), for: .normal)
-        button.onTouchUpInside { [weak self] _ in
+        let inputButton = InputBarButtonItem()
+        inputButton.setSize(CGSize(width: 35, height: 35), animated: false)
+        inputButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
+        inputButton.onTouchUpInside { [weak self] _ in
             self?.presentInputActionSheet()
         }
         messageInputBar.setLeftStackViewWidthConstant(to: 36, animated: false)
-        messageInputBar.setStackViewItems([button], forStack: .left, animated: false)
+        messageInputBar.setStackViewItems([inputButton], forStack: .left, animated: false)
+        
+        micButton.setSize(CGSize(width: 35, height: 35), animated: false)
+        micButton.setImage(UIImage(systemName: "mic"), for: .normal)
+        
+        micButton.addGestureRecognizer(longPressMicrophone)
+        
+        updateMicrophoneButtonStatus(show: true)
+    }
+    
+    private func updateMicrophoneButtonStatus(show: Bool) {
+        if show {
+            messageInputBar.setStackViewItems([micButton], forStack: .right, animated: false)
+            messageInputBar.setRightStackViewWidthConstant(to: 35, animated: false)
+        } else {
+            messageInputBar.setStackViewItems([messageInputBar.sendButton], forStack: .right, animated: false)
+            messageInputBar.setRightStackViewWidthConstant(to: 40, animated: false)
+        }
     }
     
     private func presentInputActionSheet() {
@@ -152,7 +182,7 @@ class ChatViewController: MessagesViewController {
         }))
         actionSheet.addAction(UIAlertAction(title: "Cancel",
                                             style: .cancel,
-                                            handler: { [weak self] _ in
+                                            handler: { _ in
         }))
         
         present(actionSheet, animated: true)
@@ -163,6 +193,42 @@ class ChatViewController: MessagesViewController {
     }
     
     //MARK: - Actions
+    
+    @objc func recordAudio() {
+        switch longPressMicrophone.state {
+        case .began:
+            print("Recording began")
+            audioDuration = Date()
+            audioFileName = Date().formatRelativeString()
+            print(audioFileName)
+            AudioRecorder.shared.startRecording(fileName: audioFileName)
+        case .ended:
+            AudioRecorder.shared.finishRecording()
+            
+            if fileExistsAtPath(path: audioFileName + ".m4a") {
+                //Send message
+                let finalAudioDuration = audioDuration.interval(ofComponent: .second, from: Date())
+                print(finalAudioDuration)
+                
+                StorageManager.uploadMessageAudio(fileName: audioFileName) { result in
+                    switch result {
+                    case .success(let urlString):
+                        print("Uploading message photo: \(urlString)")
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+                }
+            } else {
+                print("No audio file found")
+            }
+            
+            audioFileName = ""
+
+            
+        @unknown default:
+            print("Unknown")
+        }
+    }
     
 }
 
@@ -202,17 +268,8 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             
             return NSAttributedString(string: topCellText, attributes: [.font: font, .foregroundColor: color])
         }
+        
         return nil
-    }
-    
-    func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        let font = UIFont.boldSystemFont(ofSize: 10)
-        let color = UIColor.darkGray
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        var finalDate = dateFormatter.string(from: message.sentDate)
-        return NSAttributedString(string: finalDate, attributes: [.font: font,
-                                                                  .foregroundColor: color])
     }
     
     //Cell top label size
@@ -224,16 +281,12 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
     }
     
     //Configure bottom label size
-    func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        return isFromCurrentSender(message: message) ? 17 : 0
+    //func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+        //return isFromCurrentSender(message: message) ? 17 : 0
             
-    }
+    //}
     
-    //Configure message bottom label
-    func messageBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        return 10
-    }
-    
+
 
     //Configure the color of messages
     func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
@@ -323,6 +376,10 @@ extension ChatViewController: MessageCellDelegate {
 
 
 extension ChatViewController: InputBarAccessoryViewDelegate {
+    
+    func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
+        updateMicrophoneButtonStatus(show: text == "")
+    }
     
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }

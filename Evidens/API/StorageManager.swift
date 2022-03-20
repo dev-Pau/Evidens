@@ -82,4 +82,39 @@ struct StorageManager {
         }
     }
     
+    ///Upload audio that will be sent in a conversation message
+    static func uploadMessageAudio(fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
+        
+        let fileName = fileName + ".m4a"
+        let ref = Storage.storage().reference(withPath: "/message_audios/\(fileName)")
+        
+        if fileExistsAtPath(path: fileName) {
+            
+            if let audioData = NSData(contentsOfFile: fileInDocumentsDirectory(fileName: fileName)) {
+                ref.putData(audioData as Data, metadata: nil) { result, error in
+                    if let error = error {
+                        print("Failed to upload message audio file \(error.localizedDescription)")
+                        return
+                    }
+                    ref.downloadURL { url, error in
+                        guard let url = url else { return }
+                        let urlString = url.absoluteString
+                        completion(.success(urlString))
+                    }
+                }
+            }
+        }
+    }
+}
+
+func fileInDocumentsDirectory(fileName: String) -> String {
+    return getDocumentsURL().appendingPathComponent(fileName).path
+}
+
+func getDocumentsURL() -> URL {
+    return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last!
+}
+
+func fileExistsAtPath(path: String) -> Bool {
+    return FileManager.default.fileExists(atPath: fileInDocumentsDirectory(fileName: path))
 }
