@@ -268,6 +268,3 @@ extension Date {
         return Float(startDate - endDate)
     }
 }
-
-
-

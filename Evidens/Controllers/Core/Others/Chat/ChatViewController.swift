@@ -34,6 +34,8 @@ class ChatViewController: MessagesViewController {
     private var conversationId: String?
     public var isNewConversation = false
     
+    private var chatImage: UIImageView?
+    
     private var longPressMicrophone: UILongPressGestureRecognizer!
     private var audioFileName = ""
     private var audioDuration: Date!
@@ -360,6 +362,7 @@ extension ChatViewController: MessageCellDelegate {
             guard let imageUrl = media.url else { return }
             let vc = PhotoViewController(with: imageUrl)
             self.navigationController?.pushViewController(vc, animated: true)
+            
             
         case .video(let media):
             guard let videoUrl = media.url else { return }

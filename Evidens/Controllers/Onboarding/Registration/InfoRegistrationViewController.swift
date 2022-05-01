@@ -163,6 +163,7 @@ class InfoRegistrationViewController: UIViewController {
             if let error = error {
                 print("DEBUG: Failed to register user \(error.localizedDescription)")
                 return
+                //self.spinner.dismiss()
             }
             
             //Succesfully registrates user and present a "Welcome Screen" with email instructions

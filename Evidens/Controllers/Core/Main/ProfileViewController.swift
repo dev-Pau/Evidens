@@ -40,8 +40,6 @@ class ProfileViewController: UICollectionViewController {
         fetchPosts()
     }
     
-
-    
     //MARK: - API
     
     func fetchUserStats() {
@@ -64,7 +62,6 @@ class ProfileViewController: UICollectionViewController {
             self.collectionView.reloadData()
         }
     }
-
     
     //MARK: - Helpers
     

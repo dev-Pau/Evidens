@@ -44,8 +44,8 @@ class MainTabController: UITabBarController {
             UserDefaults.standard.set(user.uid, forKey: "uid")
             UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
 
-            //Change to == false for real use app, != false for testing purposes
-            if (user.isVerified == false) {
+            //Change to == false for real use app, != false for testing welcome
+            if (user.isVerified != true) {
                 //If user is not verified, present WelcomeViewController()
                 let controller = WelcomeViewController()
                 let nav = UINavigationController(rootViewController: controller)
@@ -76,26 +76,28 @@ class MainTabController: UITabBarController {
         self.delegate = self
     
         let feedLayout = UICollectionViewFlowLayout()
-        let feed = templateNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
+        let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
         
-        let search = templateNavigationController(unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
+        let search = templateNavigationController(title: nil, unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
         
         let postController = UploadPostViewController(user: user)
-        let post = templateNavigationController(unselectedImage: UIImage(systemName: "plus.app")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: postController)
+        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus.app")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: postController)
         
-        let notifications = templateNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationViewController())
+        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationViewController())
         
         let profileController = ProfileViewController(user: user)
-        let profile = templateNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: profileController)
+        let profile = templateNavigationController(title: nil, unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: profileController)
         
         viewControllers = [feed, search, post, notifications, profile]
         
         tabBar.tintColor = .black
     }
     
-    func templateNavigationController(unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
+    func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
         let nav = UINavigationController(rootViewController: rootViewController)
         nav.tabBarItem.image = unselectedImage
+        nav.tabBarItem.title = title
+        nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.3)], for: .normal)
         nav.tabBarItem.selectedImage = selectedImage
         nav.navigationBar.tintColor = .black
         return nav

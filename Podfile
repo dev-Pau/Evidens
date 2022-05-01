@@ -29,6 +29,8 @@ target 'Evidens' do
 
 	#Realm
 	pod 'RealmSwift'
-	
+
+	#Image viewing
+
 	
 end

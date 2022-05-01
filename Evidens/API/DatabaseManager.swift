@@ -341,7 +341,10 @@ extension DatabaseManager {
                 break
             case .emoji(_):
                 break
-            case .audio(_):
+            case .audio(let audioItem):
+                //if let audioItem = AudioItem. {
+                    
+                //}
                 break
             case .contact(_):
                 break
