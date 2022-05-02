@@ -13,6 +13,8 @@ class MainTabController: UITabBarController {
     
     //MARK: Properties
     
+    var lastIndex = 0
+    
     var user: User? {
         didSet {
             guard let user = user else { return }
@@ -43,6 +45,7 @@ class MainTabController: UITabBarController {
             //Save uid to UserDefaults
             UserDefaults.standard.set(user.uid, forKey: "uid")
             UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+            UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
 
             //Change to == false for real use app, != false for testing welcome
             if (user.isVerified != true) {
@@ -76,17 +79,17 @@ class MainTabController: UITabBarController {
         self.delegate = self
     
         let feedLayout = UICollectionViewFlowLayout()
-        let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
+        let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
         
-        let search = templateNavigationController(title: nil, unselectedImage: UIImage(systemName: "magnifyingglass")!, selectedImage: UIImage(systemName: "magnifyingglass")!, rootViewController: SearchViewController())
+        let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
         
-        let postController = UploadPostViewController(user: user)
+        let postController = ViewController()
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus.app")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: postController)
         
-        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationViewController())
+        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "bell")!, selectedImage: UIImage(named: "bell")!, rootViewController: NotificationViewController())
         
         let profileController = ProfileViewController(user: user)
-        let profile = templateNavigationController(title: nil, unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: profileController)
+        let profile = templateNavigationController(title: nil, unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: profileController)
         
         viewControllers = [feed, search, post, notifications, profile]
         
@@ -94,10 +97,11 @@ class MainTabController: UITabBarController {
     }
     
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
+    
         let nav = UINavigationController(rootViewController: rootViewController)
         nav.tabBarItem.image = unselectedImage
         nav.tabBarItem.title = title
-        nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.3)], for: .normal)
+        nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
         nav.tabBarItem.selectedImage = selectedImage
         nav.navigationBar.tintColor = .black
         return nav
@@ -110,7 +114,20 @@ extension MainTabController: UITabBarControllerDelegate {
     
     //Check pressed tab
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if viewController == tabBarController.viewControllers?[2] {
+            print("Is the post VC")
+            guard let user = user else { return false }
+            let postController = UploadPostViewController(user: user)
+            let nav = UINavigationController(rootViewController: postController)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true, completion: nil)
+            return false
+        }
         return true
+    }
+    
+    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        
     }
 }
 

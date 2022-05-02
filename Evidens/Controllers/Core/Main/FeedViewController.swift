@@ -12,8 +12,22 @@ private let reuseIdentifier = "Cell"
 class FeedViewController: UICollectionViewController {
     
     //MARK: - Properties
+    
+    private lazy var profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.layer.masksToBounds = true
+        iv.setDimensions(height: 35, width: 35)
+        iv.layer.cornerRadius = 35/2
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
+        iv.addGestureRecognizer(tap)
+        iv.isUserInteractionEnabled = true
+        
+        return iv
+    }()
+    
     var feedDelegate: FeedViewControllerDelegate?
-
+    
     private var posts = [Post]() {
         didSet { collectionView.reloadData() }
     }
@@ -48,11 +62,20 @@ class FeedViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(systemName: "message"),
+        
+        
+        
+        
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "messages"),
                                                             style: .plain,
                                                             target: self,
                                                             action: #selector(didTapChat))
-            navigationItem.rightBarButtonItem?.tintColor = .black
+        navigationItem.rightBarButtonItem?.tintColor = .black
+        
+        let profileImageItem = UIBarButtonItem(customView: profileImageView)
+        profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+        navigationItem.leftBarButtonItem = profileImageItem
     }
     
     //MARK: - Actions
@@ -65,6 +88,11 @@ class FeedViewController: UICollectionViewController {
 
     @objc func didTapFilter() {
         print("DEBUG: did tap filter")
+    }
+    
+    @objc func didTapProfile() {
+        print("DEBUG: did tap profile")
+    
     }
                                               
     @objc func didTapChat() {

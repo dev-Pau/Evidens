@@ -60,7 +60,7 @@ class UploadPostViewController: UIViewController {
     
     //MARK: - Actions
     @objc func didTapCancel() {
-        navigationController?.popToRootViewController(animated: true)
+        navigationController?.dismiss(animated: true)
     }
     
     @objc func didTapShare() {
@@ -68,17 +68,17 @@ class UploadPostViewController: UIViewController {
         
         //Pass the user to UploadPostViewController instead of fetching current user
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        UserService.fetchUser(withUid: uid) { user in
+        //UserService.fetchUser(withUid: uid) { user in
             PostService.uploadPost(post: postTextView, user: user) { error in
                 if let error = error {
                     print("DEBUG: Failed to upload post with error \(error.localizedDescription)")
                     return
                 }
                 
-                //Upload FeewViewController when Post is published!!!
+                //Upload FeedViewController when Post is published!!!
                 self.navigationController?.popToRootViewController(animated: true)
 
-            }
+            
         }
     }
     
@@ -96,6 +96,7 @@ class UploadPostViewController: UIViewController {
         profileImageView.setDimensions(height: 40, width: 40)
         profileImageView.layer.cornerRadius = 40/2
         profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        
         
         view.addSubview(postTextView)
         postTextView.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, right: view.rightAnchor, paddingLeft: 12, paddingRight: 12, height: 64)
