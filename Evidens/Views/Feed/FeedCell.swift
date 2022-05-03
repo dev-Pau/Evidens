@@ -11,7 +11,7 @@ protocol FeedCellDelegate: AnyObject {
     func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post)
     func cell(_ cell: FeedCell, didLike post: Post)
     func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String)
-    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post)
+    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post, withAction action: String)
 }
 
 class FeedCell: UICollectionViewCell {
@@ -247,8 +247,8 @@ class FeedCell: UICollectionViewCell {
     // MARK: - Actions
     
     @objc func didTapThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+        dotsImageButton.menu = addMenuItems()
+        dotsImageButton.showsMenuAsPrimaryAction = true
     }
     
     @objc func didTapUsername() {
@@ -298,5 +298,18 @@ class FeedCell: UICollectionViewCell {
         
         addSubview(stackView)
         stackView.anchor(top: postLabel.bottomAnchor, left: usernameLabel.leftAnchor, width: 200, height: 50)
+    }
+    
+    func addMenuItems() -> UIMenu {
+        let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
+                print("Copy")
+                guard let viewModel = self.viewModel else { return }
+                self.delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: "report")
+            })
+        
+        ])
+        return menuItem
+        
     }
 }

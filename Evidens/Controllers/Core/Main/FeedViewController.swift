@@ -215,16 +215,30 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
         return 0.0
         }
     
+    override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            return UIMenu(title: "", subtitle: nil, image: nil, identifier: nil, options: .displayInline, children: [
+                UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
+                    print("Report post pressed")
+                })
+
+            ])
+        }
+        
+        return config
+    }
+    
 }
 
 //MARK: - FeedCellDelegate
 
 extension FeedViewController: FeedCellDelegate {
     
-    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post) {
-        print("3 DOTS")
+    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post, withAction action: String) {
+        print(action)
     }
-   
+    
     func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String) {
         UserService.fetchUser(withUid: uid) { user in
             let controller = ProfileViewController(user: user)
