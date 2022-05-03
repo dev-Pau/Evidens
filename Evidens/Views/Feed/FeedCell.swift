@@ -11,6 +11,7 @@ protocol FeedCellDelegate: AnyObject {
     func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post)
     func cell(_ cell: FeedCell, didLike post: Post)
     func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String)
+    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post)
 }
 
 class FeedCell: UICollectionViewCell {
@@ -22,6 +23,64 @@ class FeedCell: UICollectionViewCell {
     }
     
     weak var delegate: FeedCellDelegate?
+    
+    private lazy var categoryPostButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(UIColor(rgb: 0xFFFFFF), for: .normal)
+        button.setTitle("  Nutrition  ", for: .normal)
+        button.backgroundColor = UIColor(rgb: 0x2B2D42)
+        button.layer.cornerRadius = 2
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 12)
+        return button
+    }()
+    
+    private lazy var subCategoryPostButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(UIColor(rgb: 0x2B2D42), for: .normal)
+        button.setTitle("  Vegetables  ", for: .normal)
+        button.backgroundColor = UIColor(rgb: 0xF1F4F7)
+        button.layer.cornerRadius = 2
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 12)
+        return button
+    }()
+    
+    /*
+    private lazy var dotsImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFit
+        iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.image = UIImage(named: "dots")
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapThreeDots))
+        iv.addGestureRecognizer(tap)
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
+     */
+    
+    private lazy var dotsImageButton: UIButton = {
+        let button = UIButton(type: .system)
+        //button.backgroundColor = UIColor(rgb: 0xF1F4F7)
+        button.setDimensions(height: 20, width: 20)
+        button.setImage(UIImage(named: "dots"), for: .normal)
+        button.tintColor = UIColor(rgb: 0x576670)
+        button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
+        return button
+    }()
+    
+    
+    
+    private lazy var userTypeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(UIColor(rgb: 0x677987), for: .normal)
+        button.setTitle("  Professional  ", for: .normal)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 2
+        button.layer.borderWidth = 1.5
+        button.layer.borderColor = UIColor(rgb: 0x677987).cgColor
+        button.titleLabel?.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        return button
+    }()
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -38,9 +97,32 @@ class FeedCell: UICollectionViewCell {
     
     private lazy var usernameButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+        button.setTitleColor(UIColor(rgb: 0x2B2D42), for: .normal)
+        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
         return button
+    }()
+    
+    private let usernameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(rgb: 0x2B2D42)
+        label.font = UIFont(name: "Raleway-Bold", size: 16)
+        label.isUserInteractionEnabled = true
+        return label
+    }()
+    
+    private let clockImage: UIImageView = {
+        let iv = UIImageView()
+        iv.image = UIImage(named: "clock")
+        iv.setDimensions(height: 9.6, width: 9.6)
+        return iv
+    }()
+    
+    private let userCategoryLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(rgb: 0x677987)
+        label.text = "Researcher"
+        label.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        return label
     }()
     
     private let postLabel: UILabel = {
@@ -98,11 +180,11 @@ class FeedCell: UICollectionViewCell {
         
     private let postTimeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 12)
-        label.textColor = .lightGray
+        label.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        label.textColor = UIColor(rgb: 0x677987)
         return label
     }()
-
+   
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
@@ -110,26 +192,52 @@ class FeedCell: UICollectionViewCell {
         
         backgroundColor = .white
         
+        addSubview(categoryPostButton)
+        categoryPostButton.anchor(top: topAnchor, left: leftAnchor, paddingTop: 10, paddingLeft: 15)
+        
+        addSubview(subCategoryPostButton)
+        subCategoryPostButton.anchor(top: topAnchor, left: categoryPostButton.rightAnchor, paddingTop: 10, paddingLeft: 10)
+        
+        addSubview(dotsImageButton)
+        dotsImageButton.centerY(inView: subCategoryPostButton)
+        dotsImageButton.anchor(right: rightAnchor, paddingRight: 15)
+        
         //Profile ImageView
         addSubview(profileImageView)
-        profileImageView.anchor(top: topAnchor, left: leftAnchor, paddingTop: 12, paddingLeft: 12)
-        profileImageView.setDimensions(height: 40, width: 40)
-        profileImageView.layer.cornerRadius = 40 / 2
+        profileImageView.anchor(top: categoryPostButton.bottomAnchor, left: categoryPostButton.leftAnchor, paddingTop: 12)
+        profileImageView.setDimensions(height: 47, width: 47)
+        profileImageView.layer.cornerRadius = 47 / 2
         
         //Username Button
-        addSubview(usernameButton)
-        usernameButton.centerY(inView: profileImageView, leftAnchor: profileImageView.rightAnchor, paddingLeft: 8)
+        addSubview(usernameLabel)
+        usernameLabel.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, paddingLeft: 8)
+        //usernameButton.centerY(inView: profileImageView, leftAnchor: profileImageView.rightAnchor, paddingLeft: 8)
+        
+        addSubview(userCategoryLabel)
+        userCategoryLabel.anchor(top: usernameLabel.bottomAnchor, left: usernameLabel.leftAnchor)
+        
+        addSubview(clockImage)
+        clockImage.anchor(top: userCategoryLabel.bottomAnchor, left: userCategoryLabel.leftAnchor, paddingTop: 3)
+        
+        addSubview(postTimeLabel)
+        //postTimeLabel.anchor(top: clockImage.topAnchor, left: clockImage.rightAnchor, paddingLeft: 4)
+        postTimeLabel.centerY(inView: clockImage, leftAnchor: clockImage.rightAnchor, paddingLeft: 4)
+        
+        addSubview(userTypeButton)
+        userTypeButton.centerY(inView: usernameLabel)
+        userTypeButton.anchor(right: rightAnchor, paddingRight: 15)
+        
         
         //Post Label
-        addSubview(postLabel)
-        postLabel.anchor(top: profileImageView.bottomAnchor, left: usernameButton.leftAnchor, right: rightAnchor, paddingTop: 1)
-        postLabel.setDimensions(height: 30, width: frame.width)
+        //addSubview(postLabel)
+        //postLabel.anchor(top: profileImageView.bottomAnchor, left: usernameButton.leftAnchor, right: rightAnchor, paddingTop: 1)
+        //postLabel.setDimensions(height: 30, width: frame.width)
         
-        configureActionButtons()
+        //configureActionButtons()
         
         //Time Label
-        addSubview(postTimeLabel)
-        postTimeLabel.centerY(inView: profileImageView, leftAnchor: shareButton.rightAnchor, paddingLeft: 8)
+        //addSubview(postTimeLabel)
+        //postTimeLabel.centerY(inView: profileImageView, leftAnchor: shareButton.rightAnchor, paddingLeft: 8)
     }
     
     required init?(coder: NSCoder) {
@@ -137,6 +245,11 @@ class FeedCell: UICollectionViewCell {
     }
     
     // MARK: - Actions
+    
+    @objc func didTapThreeDots() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+    }
     
     @objc func didTapUsername() {
         guard let viewModel = viewModel else { return }
@@ -161,11 +274,12 @@ class FeedCell: UICollectionViewCell {
         //Configure post with post info
         postLabel.text = viewModel.postText
         likesLabel.text = viewModel.likesLabelText
-        postTimeLabel.text = "\(viewModel.timestampString ?? "") ago"
+        postTimeLabel.text = viewModel.timestampString
         
         //Configure post with user info
         profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        usernameButton.setTitle(viewModel.fullName, for: .normal)
+        usernameLabel.text = viewModel.fullName
+        //usernameButton.setTitle(viewModel.fullName, for: .normal)
         
         likeButton.tintColor = viewModel.likeButtonTintColor
         likeButton.setImage(viewModel.likeButtonImage, for: .normal)
@@ -183,6 +297,6 @@ class FeedCell: UICollectionViewCell {
         shareButton.setDimensions(height: 50, width: 30)
         
         addSubview(stackView)
-        stackView.anchor(top: postLabel.bottomAnchor, left: usernameButton.leftAnchor, width: 200, height: 50)
+        stackView.anchor(top: postLabel.bottomAnchor, left: usernameLabel.leftAnchor, width: 200, height: 50)
     }
 }

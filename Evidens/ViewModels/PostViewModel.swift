@@ -59,7 +59,7 @@ struct PostViewModel {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
-        formatter.unitsStyle = .full
+        formatter.unitsStyle = .abbreviated
         return formatter.string(from: post.timestamp.dateValue(), to: Date())
     }
     

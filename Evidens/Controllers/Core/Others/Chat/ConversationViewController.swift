@@ -44,6 +44,7 @@ class ConversationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didTapComposeButton))
+        navigationItem.rightBarButtonItem?.tintColor = .black
         configureUI()
         configureTableView()
         startListeningForConversations()
@@ -179,6 +180,11 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         let controller = ChatViewController(with: model.otherUserUid, id: model.id)
         controller.title = model.name
         controller.navigationItem.largeTitleDisplayMode = .never
+        
+        //let backItem = UIBarButtonItem()
+        //backItem.title = ""
+        //navigationItem.backBarButtonItem = backItem
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     

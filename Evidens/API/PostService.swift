@@ -17,6 +17,7 @@ struct PostService {
                     "timestamp": Timestamp(date: Date()),
                     "likes": 0, "ownerUid": uid,
                     "ownerFirstName": user.firstName as Any,
+                    "ownerCategory": user.category as Any,
                     "ownerLastName": user.lastName as Any,
                     "ownerImageUrl": user.profileImageUrl as Any] as [String : Any]
         

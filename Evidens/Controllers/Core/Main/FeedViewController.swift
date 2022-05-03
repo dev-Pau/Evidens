@@ -13,6 +13,8 @@ class FeedViewController: UICollectionViewController {
     
     //MARK: - Properties
     
+    var user: User?
+    
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
@@ -24,6 +26,14 @@ class FeedViewController: UICollectionViewController {
         iv.isUserInteractionEnabled = true
         
         return iv
+    }()
+    
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
+        searchBar.searchTextField.attributedPlaceholder = atrString
+
+        return searchBar
     }()
     
     var feedDelegate: FeedViewControllerDelegate?
@@ -40,9 +50,11 @@ class FeedViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchUser()
         fetchPosts()
         configureUI()
         configureNavigationItemButtons()
+        searchBar.delegate = self
         
         if post != nil {
             checkIfUserLikedPosts()
@@ -52,7 +64,8 @@ class FeedViewController: UICollectionViewController {
     
     //MARK: - Helpers
     func configureUI() {
-        collectionView.backgroundColor = .white
+
+        collectionView.backgroundColor = UIColor(rgb: 0xF1F4F7)
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         
         //Configure UIRefreshControl
@@ -62,11 +75,7 @@ class FeedViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-        
-        
-        
-        
-        
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "messages"),
                                                             style: .plain,
                                                             target: self,
@@ -76,6 +85,9 @@ class FeedViewController: UICollectionViewController {
         let profileImageItem = UIBarButtonItem(customView: profileImageView)
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
         navigationItem.leftBarButtonItem = profileImageItem
+        
+        navigationItem.titleView = searchBar
+        
     }
     
     //MARK: - Actions
@@ -92,17 +104,39 @@ class FeedViewController: UICollectionViewController {
     
     @objc func didTapProfile() {
         print("DEBUG: did tap profile")
-    
+        guard let user = user else { return }
+        let controller = ProfileViewController(user: user)
+        
+        //let backItem = UIBarButtonItem()
+        //backItem.title = ""
+        //navigationItem.backBarButtonItem = backItem
+        //navigationItem.backBarButtonItem?.tintColor = .black
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
                                               
     @objc func didTapChat() {
         let controller = ConversationViewController()
+        
+        //let backItem = UIBarButtonItem()
+        //backItem.title = ""
+        //navigationItem.backBarButtonItem = backItem
+        //navigationItem.backBarButtonItem?.tintColor = .black
+        
         controller.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(controller, animated: true)
+        
+        navigationController?.pushViewController(controller, animated: false)
     }
 
     
     //MARK: - API
+    func fetchUser() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        UserService.fetchUser(withUid: uid) { user in
+            self.user = user
+        }
+    }
+    
     
     func fetchPosts() {
         guard post == nil else {
@@ -153,8 +187,8 @@ extension FeedViewController {
         
         cell.delegate = self
         
-        cell.layer.borderWidth = 0.19
-        cell.layer.borderColor = UIColor.lightGray.cgColor
+        cell.layer.borderWidth = 0
+        //cell.layer.borderColor = UIColor.lightGray.cgColor
         
         if let post = post {
             cell.viewModel = PostViewModel(post: post)
@@ -174,26 +208,23 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-          return 0.0
+          return 7.0
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-            return 0.0
+        return 0.0
         }
     
-}
-
-extension FeedViewController {
-    //Get height of status bar + navigation bar
-    var topbarHeight: CGFloat {
-        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
-            (self.navigationController?.navigationBar.frame.height ?? 0.0)
-    }
 }
 
 //MARK: - FeedCellDelegate
 
 extension FeedViewController: FeedCellDelegate {
+    
+    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post) {
+        print("3 DOTS")
+    }
+   
     func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String) {
         UserService.fetchUser(withUid: uid) { user in
             let controller = ProfileViewController(user: user)
@@ -229,6 +260,24 @@ extension FeedViewController: FeedCellDelegate {
                 NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
+    }
+}
+
+extension FeedViewController: UISearchBarDelegate {
+    
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        print("User pressed SearchBar")
+        
+        let controller = SearchViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        searchBar.resignFirstResponder()
+        
+        return true
     }
 }
     

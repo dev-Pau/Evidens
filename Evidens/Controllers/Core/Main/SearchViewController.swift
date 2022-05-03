@@ -56,7 +56,7 @@ class SearchViewController: UITableViewController {
         definesPresentationContext = false
     }
 }
-
+ 
 //MARK: - UITableViewDataSource
 
 extension SearchViewController {

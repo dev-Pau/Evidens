@@ -19,6 +19,14 @@ class ProfileViewController: UICollectionViewController {
     private var user: User
     private var posts = [Post]()
     
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
+        searchBar.searchTextField.attributedPlaceholder = atrString
+
+        return searchBar
+    }()
+    
     //MARK: - Lifecycle
     
     init(user: User) {
@@ -34,7 +42,7 @@ class ProfileViewController: UICollectionViewController {
         super.viewDidLoad()
         configureCollectionView()
         configureNavigationItemButton()
-        configureNavigationBar()
+        //configureNavigationBar()
         checkIfUserIsFollowed()
         fetchUserStats()
         fetchPosts()
@@ -72,16 +80,22 @@ class ProfileViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButton() {
-        navigationItem.rightBarButtonItems = [UIBarButtonItem(image: .init(systemName: "gear"), style: .plain, target: self, action: #selector(didTapSettings)), UIBarButtonItem(image: .init(systemName: "magnifyingglass"), style: .plain, target: self, action: #selector(didTapSettings))]
-        navigationItem.rightBarButtonItems?[0].tintColor = .black
-        navigationItem.rightBarButtonItems?[1].tintColor = .black
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(named: "gear"), style: .plain, target: self, action: #selector(didTapSettings))
+        navigationItem.rightBarButtonItem?.tintColor = .black
+        
+        navigationItem.titleView = searchBar
+        guard let firstName = user.firstName, let lastName = user.lastName else { return }
+        searchBar.text = "\(firstName ) \(lastName)"
+        searchBar.searchTextField.clearButtonMode = .never
     }
     
+    /*
     func configureNavigationBar() {
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
     }
+     */
     
     //MARK: - Actions
     @objc func didTapSettings() {
@@ -93,6 +107,7 @@ class ProfileViewController: UICollectionViewController {
         self.present(controller, animated: true)
     }
     
+    /*
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let magicalSafeAreaTop = topbarHeight
         let offset = scrollView.contentOffset.y + magicalSafeAreaTop
@@ -103,8 +118,7 @@ class ProfileViewController: UICollectionViewController {
         navigationItem.rightBarButtonItems?[0].tintColor = .black.withAlphaComponent(alpha)
         navigationItem.rightBarButtonItems?[1].tintColor = .black.withAlphaComponent(alpha)
     }
-    
-
+     */
 }
 
 //MARK: - UICollectionViewDataSource

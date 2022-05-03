@@ -81,6 +81,9 @@ class MainTabController: UITabBarController {
         let feedLayout = UICollectionViewFlowLayout()
         let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
         
+        //feed.navigationBar.tintColor = .white
+        //feed.navigationBar.isTranslucent = false
+        
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
         
         let postController = ViewController()
@@ -104,6 +107,7 @@ class MainTabController: UITabBarController {
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
         nav.tabBarItem.selectedImage = selectedImage
         nav.navigationBar.tintColor = .black
+        
         return nav
     }
 }
