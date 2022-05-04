@@ -11,6 +11,7 @@ import Firebase
 struct Post {
     var postText: String
     var likes: Int
+    let numberOfComments: Int
     let ownerUid: String
     let timestamp: Timestamp
     let postId: String
@@ -27,6 +28,7 @@ struct Post {
         self.postId = postId
         self.postText = dictionary["post"] as? String ?? ""
         self.likes = dictionary["likes"] as? Int ?? 0
+        self.numberOfComments = dictionary["comments"] as? Int ?? 0
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
         self.ownerCategory = dictionary["ownerCategory"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())

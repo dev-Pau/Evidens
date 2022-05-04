@@ -14,6 +14,22 @@ struct PostViewModel {
         return post.postText
     }
     
+    var comments: Int {
+        return post.numberOfComments
+    }
+    
+    var commentsLabelText: String {
+        if post.numberOfComments > 1 {
+            return "\(post.numberOfComments) comments"
+        }
+        else if post.numberOfComments == 1 {
+            return "\(post.numberOfComments) comments"
+        }
+        else {
+            return ""
+        }
+    }
+    
     var userProfileImageUrl: URL? {
         return URL(string: post.ownerImageUrl)
     }
@@ -35,12 +51,12 @@ struct PostViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return post.didLike ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF)
+        return post.didLike ? UIColor(rgb: 0xEC7480) : UIColor(rgb: 0x000000)
     }
     
     var likeButtonImage: UIImage? {
         let imageName = post.didLike ? "heart.fill" : "heart"
-        return UIImage(systemName: imageName)
+        return UIImage(named: imageName)
     }
     
     //var timestamp: String {
@@ -48,10 +64,18 @@ struct PostViewModel {
     //}
     
     var likesLabelText: String {
-        if post.likes != 1 {
-            return "\(post.likes) likes"
+        if post.likes > 0 {
+            return "\(post.likes)"
         } else {
-            return "\(post.likes) like"
+            return ""
+        }
+    }
+    
+    var isLikesHidden: Bool {
+        if post.likes == 0 {
+            return true
+        } else {
+            return false
         }
     }
     
@@ -65,5 +89,15 @@ struct PostViewModel {
     
     init(post: Post) {
         self.post = post
+    }
+    
+    //Return the height for dynamic cell height
+    func size(forWidth width: CGFloat) ->CGSize {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.text = post.postText
+        label.lineBreakMode = .byWordWrapping
+        label.setWidth(width)
+        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
 }

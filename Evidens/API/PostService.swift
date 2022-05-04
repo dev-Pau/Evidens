@@ -15,7 +15,9 @@ struct PostService {
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
-                    "likes": 0, "ownerUid": uid,
+                    "likes": 0,
+                    "ownerUid": uid,
+                    "comments": 0,
                     "ownerFirstName": user.firstName as Any,
                     "ownerCategory": user.category as Any,
                     "ownerLastName": user.lastName as Any,

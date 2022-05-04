@@ -133,7 +133,7 @@ extension CommentViewController: CommentInputAccessoryViewDelegate {
         //Show loader to block user interactions
         self.view.isUserInteractionEnabled = false
         //Upload commento to Firebase
-        CommentService.uploadComment(comment: comment, postID: post.postId, user: currentUser) { error in
+        CommentService.uploadComment(comment: comment, post: post, user: currentUser) { error in
             //Unshow loader
             inputView.clearCommentTextView()
             

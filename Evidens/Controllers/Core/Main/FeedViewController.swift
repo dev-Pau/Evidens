@@ -67,6 +67,7 @@ class FeedViewController: UICollectionViewController {
 
         collectionView.backgroundColor = UIColor(rgb: 0xF1F4F7)
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        //Delete if auto size doesn't work
         
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
@@ -203,12 +204,23 @@ extension FeedViewController {
 //MARK: - UICollectionViewDelegateFlowLayout
 
 extension FeedViewController: UICollectionViewDelegateFlowLayout {
+    
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 180)
+        if post != nil {
+            //Single cell display
+            return CGSize(width: view.frame.width, height: 300)
+        } else {
+            //Array of posts
+            let viewModel = PostViewModel(post: posts[indexPath.row])
+            let height = viewModel.size(forWidth: view.frame.width).height + 210
+            return CGSize(width: view.frame.width, height: height)
+        }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-          return 7.0
+          return 14.0
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -222,10 +234,8 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
                 UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
                     print("Report post pressed")
                 })
-
             ])
         }
-        
         return config
     }
     
