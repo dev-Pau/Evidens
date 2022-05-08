@@ -13,7 +13,7 @@ class CommentViewController: UICollectionViewController {
     
     //MARK: - Properties
     
-    private let post: Post
+    private var post: Post
     private var comments = [Comment]()
     
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -135,6 +135,7 @@ extension CommentViewController: CommentInputAccessoryViewDelegate {
         //Upload commento to Firebase
         CommentService.uploadComment(comment: comment, post: post, user: currentUser) { error in
             //Unshow loader
+            self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .comment, post: self.post, withComment: comment)

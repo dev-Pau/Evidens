@@ -22,7 +22,6 @@ struct CommentService {
         
         //Update number of comments for the post
         COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments + 1])
-        
     }
     
     static func fetchComments(forPost postID: String, completion: @escaping([Comment]) -> Void) {

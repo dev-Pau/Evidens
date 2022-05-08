@@ -151,6 +151,7 @@ class FeedViewController: UICollectionViewController {
         PostService.fetchFeedPosts { posts in
             self.posts = posts
             self.checkIfUserLikedPosts()
+            self.checkIfUserBookmarkedPost()
             self.collectionView.refreshControl?.endRefreshing()
         }
     }
@@ -169,6 +170,23 @@ class FeedViewController: UICollectionViewController {
                     if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
                         //Change the didLike according if user did like post
                         self.posts[index].didLike = didLike
+                    }
+                }
+            }
+        }
+    }
+    
+    func checkIfUserBookmarkedPost() {
+        if let post = post {
+            PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
+                self.post?.didBookmark = didBookmark
+            }
+        } else {
+            //For every post in array fetched
+            self.posts.forEach { post in
+                PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
+                    if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
+                        self.posts[index].didBookmark = didBookmark
                     }
                 }
             }
@@ -253,6 +271,26 @@ extension FeedViewController: FeedCellDelegate {
         UserService.fetchUser(withUid: uid) { user in
             let controller = ProfileViewController(user: user)
             self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
+    func cell(_ cell: FeedCell, didBookmark post: Post) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        cell.viewModel?.post.didBookmark.toggle()
+        if post.didBookmark {
+            //Unbookmark post here
+            PostService.unbookmarkPost(post: post) { _ in
+                cell.bookmarkButton.setImage(UIImage(named: "bookmark"), for: .normal)
+                cell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+            }
+        } else {
+            //Bookmark post here
+            PostService.bookmarkPost(post: post) { _ in
+                cell.bookmarkButton.setImage(UIImage(named: "bookmark.fill"), for: .normal)
+                cell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+            }
         }
     }
     

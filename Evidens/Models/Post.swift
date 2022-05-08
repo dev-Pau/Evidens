@@ -11,7 +11,9 @@ import Firebase
 struct Post {
     var postText: String
     var likes: Int
-    let numberOfComments: Int
+    var numberOfComments: Int
+    var numberOfShares: Int
+    var numberOfBookmarks: Int
     let ownerUid: String
     let timestamp: Timestamp
     let postId: String
@@ -19,7 +21,9 @@ struct Post {
     let ownerImageUrl: String
     let ownerFirstName: String
     let ownerLastName: String
+    
     var didLike = false
+    var didBookmark = false
     
     //For future development, different types of posts + images, links, etc.
     //let imageUrl: String?
@@ -29,6 +33,8 @@ struct Post {
         self.postText = dictionary["post"] as? String ?? ""
         self.likes = dictionary["likes"] as? Int ?? 0
         self.numberOfComments = dictionary["comments"] as? Int ?? 0
+        self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0
+        self.numberOfShares = dictionary["shares"] as? Int ?? 0
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
         self.ownerCategory = dictionary["ownerCategory"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())

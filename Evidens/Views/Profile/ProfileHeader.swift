@@ -23,14 +23,12 @@ class ProfileHeader: UICollectionReusableView {
     
     weak var delegate: ProfileHeaderDelegate?
 
-    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
-        //iv.image = UIImage(systemName: "person.fill")
-        iv.backgroundColor = .lightGray
-        iv.setDimensions(height: 100, width: 100)
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .lightGray
         return iv
     }()
     
@@ -99,7 +97,9 @@ class ProfileHeader: UICollectionReusableView {
         addSubview(profileImageView)
         profileImageView.anchor(top: topAnchor, paddingTop: 16)
         profileImageView.centerX(inView: self)
+        profileImageView.setDimensions(height: 100, width: 100)
         profileImageView.layer.cornerRadius = 100/2
+        
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapChangeProfilePic))
         profileImageView.addGestureRecognizer(gesture)

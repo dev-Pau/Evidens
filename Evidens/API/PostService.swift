@@ -18,6 +18,8 @@ struct PostService {
                     "likes": 0,
                     "ownerUid": uid,
                     "comments": 0,
+                    "shares" : 0,
+                    "bookmarks" : 0,
                     "ownerFirstName": user.firstName as Any,
                     "ownerCategory": user.category as Any,
                     "ownerLastName": user.lastName as Any,
@@ -96,6 +98,18 @@ struct PostService {
         }
     }
     
+    static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks + 1])
+        
+        //Update post bookmark collection to track bookmarks for a particular post
+        COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
+            //Update user bookmarks collection to track bookmarks for a particular user
+            COLLECTION_USERS.document(uid).collection("user-bookmarks").document(post.postId).setData([:], completion: completion)
+        }
+    }
+    
     static func unlikePost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         guard post.likes > 0 else { return }
@@ -107,6 +121,19 @@ struct PostService {
         }
     }
     
+    static func unbookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard post.numberOfBookmarks > 0 else { return }
+        
+        COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks - 1])
+        
+        COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
+            COLLECTION_USERS.document(uid).collection("user-bookmarks").document(post.postId).delete(completion: completion)
+        }
+        
+        
+    }
+    
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Bool) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).getDocument { (snapshot, _) in
@@ -114,6 +141,16 @@ struct PostService {
             //If the snapshot (document) exists, means current user did like the post
             guard let didLike = snapshot?.exists else { return }
             completion(didLike)
+        }
+    }
+    
+    static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Bool) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).collection("user-bookmarks").document(post.postId).getDocument { (snapshot, _) in
+            
+            //If the snapshot (document) exists, means current user did like the post
+            guard let didBookmark = snapshot?.exists else { return }
+            completion(didBookmark)
         }
     }
     

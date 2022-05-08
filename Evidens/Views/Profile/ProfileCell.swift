@@ -137,7 +137,6 @@ class ProfileCell: UICollectionViewCell {
         //Configure post with post info
         postLabel.text = viewModel.postText
         likesLabel.text = viewModel.likesLabelText
-        //postTimeLabel.text = viewModel.timesta
         
         let url = viewModel.userProfileImageUrl
         guard let url = url else { return }

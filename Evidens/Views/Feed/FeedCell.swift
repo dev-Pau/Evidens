@@ -12,6 +12,7 @@ protocol FeedCellDelegate: AnyObject {
     func cell(_ cell: FeedCell, didLike post: Post)
     func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String)
     func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post, withAction action: String)
+    func cell(_ cell: FeedCell, didBookmark post: Post)
 }
 
 class FeedCell: UICollectionViewCell {
@@ -28,8 +29,8 @@ class FeedCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.setTitleColor(UIColor(rgb: 0xFFFFFF), for: .normal)
         button.setTitle("  Nutrition  ", for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x418B71)
-        button.layer.cornerRadius = 2
+        button.backgroundColor = UIColor(rgb: 0x2B2D42)
+        button.layer.cornerRadius = 11
         button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 12)
         return button
     }()
@@ -39,7 +40,7 @@ class FeedCell: UICollectionViewCell {
         button.setTitleColor(UIColor(rgb: 0x2B2D42), for: .normal)
         button.setTitle("  Vegetables  ", for: .normal)
         button.backgroundColor = UIColor(rgb: 0xF1F4F7)
-        button.layer.cornerRadius = 2
+        button.layer.cornerRadius = 11
         button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 12)
         return button
     }()
@@ -186,10 +187,11 @@ class FeedCell: UICollectionViewCell {
         return button
     }()
     
-    private lazy var bookmarkButton: UIButton = {
+    lazy var bookmarkButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "bookmark"), for: .normal)
         button.tintColor = UIColor(rgb: 0x2B2D42)
+        button.addTarget(self, action: #selector(didTapBookmark), for: .touchUpInside)
         return button
     }()
     
@@ -217,7 +219,6 @@ class FeedCell: UICollectionViewCell {
     
     private let commentLabel: UILabel = {
         let label = UILabel()
-        label.text = "..."
         label.textColor = UIColor(rgb: 0x677987)
         label.font = UIFont(name: "Raleway-SemiBold", size: 12)
         return label
@@ -225,10 +226,17 @@ class FeedCell: UICollectionViewCell {
     
     private let shareLabel: UILabel = {
         let label = UILabel()
-        label.text = "..."
         label.textColor = UIColor(rgb: 0x677987)
         label.font = UIFont(name: "Raleway-SemiBold", size: 12)
         return label
+    }()
+    
+    private let dotSeparator: UIImageView = {
+        let iv = UIImageView()
+        iv.image = UIImage(named: "dot")
+        iv.contentMode = .scaleAspectFit
+        iv.setDimensions(height: 3, width: 3)
+        return iv
     }()
         
     private let postTimeLabel: UILabel = {
@@ -237,7 +245,7 @@ class FeedCell: UICollectionViewCell {
         label.textColor = UIColor(rgb: 0x677987)
         return label
     }()
-   
+    
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
@@ -291,7 +299,7 @@ class FeedCell: UICollectionViewCell {
         
         addSubview(seeMoreLabel)
         seeMoreLabel.anchor(top: postLabel.bottomAnchor, left: postLabel.leftAnchor)
-        //configureActionButtons()
+
         
         addSubview(likesIndicatorImage)
         likesIndicatorImage.anchor(top: seeMoreLabel.bottomAnchor, left: postLabel.leftAnchor, paddingTop: 12)
@@ -349,6 +357,12 @@ class FeedCell: UICollectionViewCell {
         delegate?.cell(self, didLike: viewModel.post)
     }
     
+    @objc func didTapBookmark() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didBookmark: viewModel.post)
+ 
+    }
+    
     // MARK: - Helpers
     
     func configure() {
@@ -359,51 +373,75 @@ class FeedCell: UICollectionViewCell {
         likesLabel.text = viewModel.likesLabelText
         likesIndicatorImage.isHidden = viewModel.isLikesHidden
         postTimeLabel.text = viewModel.timestampString
-        
-        //configureActionButtons(numberOfComments: "\(viewModel.comments)", numberOfShares: nil)
-        
-        //commentLabel.text = "\(viewModel.comments)"
-
-        /*
-        if commentLabel.text != "0" {
-            commentLabel.centerY(inView: likesLabel, leftAnchor: likesLabel.rightAnchor, paddingLeft: 10)
-        } else {
-            commentLabel.centerY(inView: likesLabel, leftAnchor: likesLabel.rightAnchor, paddingLeft: 50)
-        }
-         */
+        bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
 
         //Configure post with user info
-        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        let url = viewModel.userProfileImageUrl
+        guard let url = url else { return }
+        DispatchQueue.global().async {
+            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+            DispatchQueue.main.async {
+                self.profileImageView.image = UIImage(data: data!)
+            }
+        }
         usernameLabel.text = viewModel.fullName
         //usernameButton.setTitle(viewModel.fullName, for: .normal)
         
         likeButton.tintColor = viewModel.likeButtonTintColor
         likeButton.setImage(viewModel.likeButtonImage, for: .normal)
         
-        //configureActionButtons()
+        
+        configureActionButtons(numberOfComments: "\(viewModel.comments)", numberOfShares: "\(viewModel.shares)")
 
     }
     
-    func configureActionButtons(numberOfComments: String, numberOfShares: String?) {
+    func configureActionButtons(numberOfComments: String, numberOfShares: String) {
         //Post has comments & shares
+
+        commentLabel.removeFromSuperview()
+        shareLabel.removeFromSuperview()
+        dotSeparator.removeFromSuperview()
+        let stackView = UIStackView(arrangedSubviews: [commentLabel, dotSeparator, shareLabel])
+        commentLabel.text = viewModel?.commentsLabelText
+        shareLabel.text = viewModel?.shareLabelText
+
         if numberOfComments != "0" && numberOfShares != "0" {
-            let stackView = UIStackView(arrangedSubviews: [commentLabel, shareLabel])
+            print("is this case")
             stackView.axis = .horizontal
-            stackView.distribution = .fill
+            stackView.distribution = .equalSpacing
             addSubview(stackView)
-            stackView.anchor(top: postLabel.bottomAnchor, left: usernameLabel.leftAnchor, width: 200, height: 50)
+            stackView.centerY(inView: likesLabel)
+            stackView.anchor(right: postLabel.rightAnchor, width: 120, height: 50)
+            return
+            //stackView.anchor(top: postLabel.bottomAnchor, left: usernameLabel.leftAnchor, width: 200, height: 50)
             
         }
         //Post has shares
-        else if numberOfComments == "0" && numberOfShares != "0" {
+        if numberOfComments == "0" && numberOfShares != "0" {
+            stackView.removeFromSuperview()
+            addSubview(shareLabel)
+            shareLabel.centerY(inView: likesLabel)
+            shareLabel.anchor(right: postLabel.rightAnchor)
+            return
             
         }
         //Post has comments
-        else if numberOfComments != "0" && numberOfShares == "0" {
-            
-        } else {
-            //Post doesn't have comments/shares
+        if numberOfComments != "0" && numberOfShares == "0" {
+            print("only comments")
+            stackView.removeFromSuperview()
+            addSubview(commentLabel)
+            commentLabel.centerY(inView: likesLabel)
+            commentLabel.anchor(right: postLabel.rightAnchor)
+            return
+
         }
+        //Post doesn't have comments/shares
+        stackView.removeFromSuperview()
+        commentLabel.removeFromSuperview()
+        shareLabel.removeFromSuperview()
+        dotSeparator.removeFromSuperview()
+            
+            
     }
     
     func addMenuItems() -> UIMenu {

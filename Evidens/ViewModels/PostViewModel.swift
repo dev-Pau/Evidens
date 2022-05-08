@@ -23,7 +23,23 @@ struct PostViewModel {
             return "\(post.numberOfComments) comments"
         }
         else if post.numberOfComments == 1 {
-            return "\(post.numberOfComments) comments"
+            return "\(post.numberOfComments) comment"
+        }
+        else {
+            return ""
+        }
+    }
+    
+    var shares: Int {
+        return post.numberOfShares
+    }
+    
+    var shareLabelText: String {
+        if post.numberOfShares > 1 {
+            return "\(post.numberOfShares) shares"
+        }
+        else if post.numberOfShares == 1 {
+            return "\(post.numberOfShares) share"
         }
         else {
             return ""
@@ -59,9 +75,10 @@ struct PostViewModel {
         return UIImage(named: imageName)
     }
     
-    //var timestamp: String {
-     //   return post.timestamp
-    //}
+    var bookMarkImage: UIImage? {
+        let imageName = post.didBookmark ? "bookmark.fill" : "bookmark"
+        return UIImage(named: imageName)
+    }
     
     var likesLabelText: String {
         if post.likes > 0 {
