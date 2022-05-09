@@ -74,7 +74,7 @@ class FeedCell: UICollectionViewCell {
         button.setTitleColor(UIColor(rgb: 0x677987), for: .normal)
         button.setTitle("  Professional  ", for: .normal)
         button.backgroundColor = .white
-        button.layer.cornerRadius = 2
+        button.layer.cornerRadius = 11
         button.layer.borderWidth = 1.5
         button.layer.borderColor = UIColor(rgb: 0x677987).cgColor
         button.titleLabel?.font = UIFont(name: "Raleway-SemiBold", size: 12)

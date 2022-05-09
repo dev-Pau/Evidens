@@ -30,7 +30,8 @@ target 'Evidens' do
 	#Realm
 	pod 'RealmSwift'
 
-	#Image viewing
+	#GrowingTextView
+	pod 'NextGrowingTextView'
 
 	
 end
