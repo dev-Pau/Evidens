@@ -60,7 +60,6 @@ class MainTabController: UITabBarController {
     }
     
     func checkIfUserIsLoggedIn() {
-
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
                 let controller = WelcomeViewController()

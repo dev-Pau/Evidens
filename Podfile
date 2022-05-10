@@ -17,6 +17,9 @@ target 'Evidens' do
 	pod 'Firebase/Analytics'
 	pod 'Firebase/Crashlytics'
 
+	#Google 
+	pod 'GoogleSignIn'
+
 
 	#SDWebImage
 	pod 'SDWebImage', '~> 5.0'
