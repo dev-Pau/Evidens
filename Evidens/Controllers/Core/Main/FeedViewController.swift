@@ -32,7 +32,6 @@ class FeedViewController: UICollectionViewController {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
-
         return searchBar
     }()
     
@@ -59,6 +58,12 @@ class FeedViewController: UICollectionViewController {
         if post != nil {
             checkIfUserLikedPosts()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(false)
+        // To resign first responder
+        searchBar.resignFirstResponder()
     }
     
     
@@ -234,7 +239,6 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
             let height = viewModel.size(forWidth: view.frame.width).height + 210
             return CGSize(width: view.frame.width, height: height)
         }
-        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -337,8 +341,7 @@ extension FeedViewController: UISearchBarDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
-        searchBar.resignFirstResponder()
-        
+
         return true
     }
 }

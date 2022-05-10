@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import GoogleSignIn
 import FirebaseAuth
 
 class MainTabController: UITabBarController {
@@ -25,7 +26,10 @@ class MainTabController: UITabBarController {
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        //GIDSignIn.sharedInstance.signOut()
+        //AuthService.logout()
         view.backgroundColor = UIColor(rgb: 0x79CBBF)
         self.tabBar.isHidden = true
         checkIfUserIsLoggedIn()

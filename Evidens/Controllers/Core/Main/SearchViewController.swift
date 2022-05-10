@@ -21,14 +21,26 @@ class SearchViewController: UITableViewController {
         return searchController.isActive && !searchController.searchBar.text!.isEmpty
     }
     
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
+        searchBar.searchTextField.attributedPlaceholder = atrString
+        return searchBar
+    }()
+    
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureSearchController()
+        navigationItem.titleView = searchBar
+        searchBar.becomeFirstResponder()
+        //configureSearchController()
         configureTableView()
         fetchUsers()
+
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(SearchViewController.keyboardDismiss))
+        view.addGestureRecognizer(tap)
     }
     
     //MARK: - API
@@ -45,6 +57,7 @@ class SearchViewController: UITableViewController {
         
         tableView.register(UserCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.rowHeight = 64
+        tableView.keyboardDismissMode = .onDrag
     }
     
     func configureSearchController() {
@@ -54,6 +67,11 @@ class SearchViewController: UITableViewController {
         searchController.searchBar.placeholder = "Search Evidens"
         navigationItem.searchController = searchController
         definesPresentationContext = false
+    }
+    
+    
+    @objc func keyboardDismiss() {
+        view.endEditing(true)
     }
 }
  
@@ -95,4 +113,6 @@ extension SearchViewController: UISearchResultsUpdating {
         })
         self.tableView.reloadData()
     }
+    
+    
 }

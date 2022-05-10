@@ -6,7 +6,9 @@
 //
 
 import UIKit
+import Firebase
 import GoogleSignIn
+import RealmSwift
 
 
 class WelcomeViewController: UIViewController {
@@ -32,7 +34,7 @@ class WelcomeViewController: UIViewController {
         button.configuration?.background.strokeColor = UIColor(rgb: 0xDCE4EA)
         button.configuration?.background.strokeWidth = 1.5
         
-
+        
         button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.configuration?.imagePadding = 15
         
@@ -42,6 +44,8 @@ class WelcomeViewController: UIViewController {
         var container = AttributeContainer()
         container.font = UIFont(name: "Raleway-ExtraBold", size: 15)
         button.configuration?.attributedTitle = AttributedString("Continue with Google", attributes: container)
+        
+        button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
         
         return button
     }()
@@ -55,7 +59,7 @@ class WelcomeViewController: UIViewController {
         button.configuration?.background.strokeColor = UIColor(rgb: 0xDCE4EA)
         button.configuration?.background.strokeWidth = 1.5
         
-
+        
         button.configuration?.image = UIImage(systemName: "applelogo")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.configuration?.imagePadding = 15
         
@@ -75,7 +79,7 @@ class WelcomeViewController: UIViewController {
         button.configuration?.baseBackgroundColor = .white
         
         button.configuration?.baseForegroundColor = UIColor(rgb: 0x5ABBB7)
-
+        
         var container = AttributeContainer()
         container.font = UIFont(name: "Raleway-Bold", size: 13)
         button.configuration?.attributedTitle = AttributedString("Log In", attributes: container)
@@ -113,21 +117,22 @@ class WelcomeViewController: UIViewController {
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
+
         super.viewDidLoad()
         if #available(iOS 15, *) {
-                    let appearance = UINavigationBarAppearance()
-                    appearance.configureWithOpaqueBackground()
-                    self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
-                    self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
-                    appearance.shadowColor = .clear    //removing navigationbar 1 px bottom border.
-                    UINavigationBar.appearance().standardAppearance = appearance
-                    UINavigationBar.appearance().scrollEdgeAppearance = appearance
-                }
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
+            self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
+            appearance.shadowColor = .clear    //removing navigationbar 1 px bottom border.
+            UINavigationBar.appearance().standardAppearance = appearance
+            UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        }
         
         configureUI()
     }
     
-
+    
     //MARK: - Helpers
     func configureUI() {
         view.addSubview(scrollView)
@@ -160,13 +165,13 @@ class WelcomeViewController: UIViewController {
         scrollView.addSubview(separatorLabel)
         separatorLabel.anchor(top: appleSingInButton.bottomAnchor, paddingTop: 10)
         separatorLabel.centerX(inView: scrollView)
-
+        
         scrollView.addSubview(signUpButton)
         signUpButton.anchor(top: separatorLabel.bottomAnchor, paddingTop: 10)
         signUpButton.centerX(inView: scrollView)
         signUpButton.setHeight(50)
         signUpButton.setWidth(UIScreen.main.bounds.width * 0.8)
-    
+        
         let stackLogin = UIStackView(arrangedSubviews: [haveAccountlabel, loginButton])
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
@@ -188,6 +193,46 @@ class WelcomeViewController: UIViewController {
     @objc func signupButtonPressed() {
         let controller = RegistrationViewController()
         navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func googleLoginButtonPressed() {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        // Create Google Sign In configuration object.
+        let config = GIDConfiguration(clientID: clientID)
+        // Start the sign in flow!
+        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
+            if let error = error {
+                print(error.localizedDescription)
+                return
+            }
+            
+            guard
+                let authentication = user?.authentication,
+                let idToken = authentication.idToken
+            else {
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                           accessToken: authentication.accessToken)
+            
+            
+            
+            // Firebase Auth
+            Auth.auth().signIn(with: credential) { result, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    return
+                }
+
+                // Displaying user data
+                guard let googleUser = result?.user else { return }
+                
+                print(googleUser.displayName ?? "Success!")
+                print(googleUser.email)
+                
+            }
+        }
     }
 }
 

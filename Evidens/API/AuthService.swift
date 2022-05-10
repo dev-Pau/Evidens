@@ -34,9 +34,15 @@ struct AuthService {
                 //Unique identifier of user
                 guard let uid = result?.user.uid else { return }
                 
-                let data: [String: Any] = ["firstName": credentials.firstName, "lastName": credentials.lastName, "email": credentials.email, "uid": uid, "profileImageUrl": "", "category": credentials.category, "isVerified": credentials.isVerified]
+                let data: [String: Any] = ["firstName": credentials.firstName,
+                                           "lastName": credentials.lastName,
+                                           "email": credentials.email,
+                                           "uid": uid,
+                                           "profileImageUrl": "",
+                                           "category": credentials.category,
+                                           "isVerified": credentials.isVerified]
                 
-                
+
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)
                 
                 DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))    
