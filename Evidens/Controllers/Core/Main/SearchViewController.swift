@@ -9,7 +9,7 @@ import UIKit
 
 private let reuseIdentifier = "UserCell"
 
-class SearchViewController: UITableViewController {
+class SearchViewController: UIViewController {
     
     //MARK: - Properties
     
@@ -20,6 +20,11 @@ class SearchViewController: UITableViewController {
     private var inSearchMode: Bool {
         return searchController.isActive && !searchController.searchBar.text!.isEmpty
     }
+
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        return tableView
+    }()
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -35,12 +40,10 @@ class SearchViewController: UITableViewController {
         super.viewDidLoad()
         navigationItem.titleView = searchBar
         searchBar.becomeFirstResponder()
-        //configureSearchController()
-        configureTableView()
-        fetchUsers()
 
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(SearchViewController.keyboardDismiss))
-        view.addGestureRecognizer(tap)
+        configureTableView()
+        configureUI()
+        fetchUsers()
     }
     
     //MARK: - API
@@ -52,38 +55,32 @@ class SearchViewController: UITableViewController {
     }
     
     //MARK: - Helpers
+  
     func configureTableView() {
         view.backgroundColor = .white
-        
+        tableView.delegate = self
+        tableView.dataSource = self
         tableView.register(UserCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.rowHeight = 64
         tableView.keyboardDismissMode = .onDrag
     }
     
-    func configureSearchController() {
-        searchController.searchResultsUpdater = self
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.hidesNavigationBarDuringPresentation = false
-        searchController.searchBar.placeholder = "Search Evidens"
-        navigationItem.searchController = searchController
-        definesPresentationContext = false
-    }
-    
-    
-    @objc func keyboardDismiss() {
-        view.endEditing(true)
+    func configureUI() {
+       
+        view.addSubview(tableView)
+        tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
     }
 }
- 
+
 //MARK: - UITableViewDataSource
 
-extension SearchViewController {
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension SearchViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //Display number of users we have on the database or filtered
         return inSearchMode ? filteredUsers.count : users.count
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
         let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         cell.viewModel = UserCellViewModel(user: user)
@@ -93,8 +90,8 @@ extension SearchViewController {
 
 //MARK: - UITableViewDelegate
 
-extension SearchViewController {
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+extension SearchViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
         let controller = ProfileViewController(user: user)
@@ -113,6 +110,4 @@ extension SearchViewController: UISearchResultsUpdating {
         })
         self.tableView.reloadData()
     }
-    
-    
 }

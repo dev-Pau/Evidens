@@ -12,6 +12,8 @@ class LoginViewController: UIViewController {
     
     //MARK: - Properties
     
+
+    
     private let spinner = JGProgressHUD(style: .dark)
     
     private var viewModel = LoginViewModel()
@@ -23,6 +25,12 @@ class LoginViewController: UIViewController {
     
     var iconClick = false
     let imageIcon = UIImageView()
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.backgroundColor = .white
+        return scrollView
+    }()
     
     private let emailTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Email")
@@ -40,10 +48,10 @@ class LoginViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Log In", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+        button.backgroundColor = primaryColor.withAlphaComponent(0.5)
         button.setHeight(50)
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 18)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
         button.isEnabled = false
         return button
@@ -52,10 +60,10 @@ class LoginViewController: UIViewController {
     private let forgotPasswordButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Trouble logging in?", for: .normal)
-        button.setTitleColor(UIColor(rgb: 0x79CBBF), for: .normal)
+        button.setTitleColor(primaryColor, for: .normal)
         button.backgroundColor = .clear
         button.layer.cornerRadius = 5
-        button.titleLabel?.font = UIFont(name: "Raleway-SemiBold", size: 18)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .bold)
         button.addTarget(self, action: #selector(forgotPasswordButtonPressed), for: .touchUpInside)
         return button
     }()
@@ -68,8 +76,6 @@ class LoginViewController: UIViewController {
         setUpDelegates()
         configureNavigationItemButton()
         configureNotificationsObservers()
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -80,29 +86,36 @@ class LoginViewController: UIViewController {
     //MARK: - Helpers
     
     func configureUI() {
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-        navigationItem.standardAppearance = appearance
-        navigationItem.title = "Log In"
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         
+        //appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
+        //navigationItem.standardAppearance = appearance
+        navigationItem.title = "Log In"
+        //navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         view.backgroundColor = .white
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barStyle = .black
+        
+        view.addSubview(scrollView)
+        
+        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 2.75 * topbarHeight)
+        
+        //view.backgroundColor = .white
+        //navigationController?.navigationBar.isHidden = false
+        //navigationController?.navigationBar.barStyle = .black
 
         let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, loginButton, forgotPasswordButton])
         stack.axis = .vertical
         stack.spacing = 20
         
-        view.addSubview(stack)
-        stack.centerX(inView: view)
-        stack.centerY(inView: view)
+        scrollView.addSubview(stack)
+        stack.centerX(inView: scrollView)
+        stack.anchor(top: scrollView.topAnchor, paddingTop: 20)
         stack.setWidth(UIScreen.main.bounds.width * 0.8)
        
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.keyboardDismiss))
         view.addGestureRecognizer(tap)
         
         imageIcon.image = UIImage(systemName: "eye.fill")
-        imageIcon.tintColor = UIColor(rgb: 0x79CBBF)
+        imageIcon.tintColor = primaryColor
         
         let contentView = UIView()
         contentView.addSubview(imageIcon)
@@ -141,11 +154,11 @@ class LoginViewController: UIViewController {
     
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         let tappedImage = tapGestureRecognizer.view as! UIImageView
-        tappedImage.tintColor = UIColor(rgb: 0x79CBBF)
+        tappedImage.tintColor = primaryColor
         if iconClick {
             iconClick = false
             tappedImage.image = UIImage(systemName: "eye.slash.fill")
-            tappedImage.tintColor = UIColor(rgb: 0x79CBBF)
+            tappedImage.tintColor = primaryColor
             passwordTextField.isSecureTextEntry = false
         } else {
             iconClick = true
@@ -204,17 +217,7 @@ class LoginViewController: UIViewController {
         }
     }
     
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            self.view.frame.origin.y = 0 - keyboardSize.height * 0.5
-        }
-    }
 
-    @objc func keyboardWillHide(notification: NSNotification) {
-        if self.view.frame.origin.y != 0 {
-            self.view.frame.origin.y = 0
-        }
-    }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardDidShowNotification, object: nil)
@@ -227,15 +230,15 @@ class LoginViewController: UIViewController {
 extension LoginViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        textField.backgroundColor = .white
         textField.borderStyle = .roundedRect
-        textField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
+        textField.layer.borderColor = primaryColor.cgColor
         textField.layer.borderWidth = 2.0
 
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.backgroundColor = #colorLiteral(red: 0.9215686275, green: 0.9215686275, blue: 0.9215686275, alpha: 1)
+        textField.backgroundColor = lightColor
         textField.layer.borderColor = UIColor.white.cgColor
         textField.layer.borderWidth = 1.0
         //Secure text entry true by default when user ends editing
@@ -262,3 +265,12 @@ extension LoginViewController: ResetPasswordViewControllerDelegate {
         self.displayAlert(withTitle: "Success", withMessage: "We have sent password recover instruction to your email.")
     }
 }
+
+extension LoginViewController {
+    //Get height of status bar + navigation bar
+    var topbarHeight: CGFloat {
+        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
+            (self.navigationController?.navigationBar.frame.height ?? 0.0)
+    }
+}
+

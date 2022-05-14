@@ -31,7 +31,7 @@ class ResetPasswordViewController: UIViewController {
     private let instructionsPassword: UILabel = {
         let label = UILabel()
         label.text = "Enter the email associated with your account and we'll send an email with instructions to reset your password."
-        label.font = UIFont(name: "Raleway-Regular", size: 13)
+        label.font = .systemFont(ofSize: 11, weight: .regular)
         label.textColor = .black
         label.numberOfLines = 0
         label.sizeToFit()
@@ -48,11 +48,11 @@ class ResetPasswordViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Reset password", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+        button.backgroundColor = primaryColor.withAlphaComponent(0.5)
         button.setHeight(50)
         button.isEnabled = false
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(resetButtonPressed), for: .touchUpInside)
         return button
     }()
@@ -159,16 +159,16 @@ class ResetPasswordViewController: UIViewController {
 extension ResetPasswordViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-            textField.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-            textField.borderStyle = .roundedRect
-            textField.layer.borderColor = #colorLiteral(red: 0.5381981134, green: 0.8285184503, blue: 0.7947158217, alpha: 1)
-            textField.layer.borderWidth = 2.0
+        textField.backgroundColor = .white
+        textField.borderStyle = .roundedRect
+        textField.layer.borderColor = primaryColor.cgColor
+        textField.layer.borderWidth = 2.0
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-            textField.backgroundColor = #colorLiteral(red: 0.9215686275, green: 0.9215686275, blue: 0.9215686275, alpha: 1)
-            textField.layer.borderColor = UIColor.white.cgColor
-            textField.layer.borderWidth = 1.0
+        textField.backgroundColor = lightColor
+        textField.layer.borderColor = UIColor.white.cgColor
+        textField.layer.borderWidth = 1.0
     }
 }
 

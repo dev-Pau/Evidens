@@ -24,7 +24,7 @@ struct ResetPasswordViewModel: AuthenticationViewModel {
     }
     
     var buttonBackgroundColor: UIColor {
-        return formIsValid ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+        return formIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
     }
 }
 
@@ -38,7 +38,7 @@ struct LoginViewModel: AuthenticationViewModel {
     }
     
     var buttonBackgroundColor: UIColor {
-        return formIsValid ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+        return formIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
     }
     
     var updatePlaceholder: Bool {
@@ -103,7 +103,7 @@ struct RegistrationViewModel: AuthenticationViewModel {
     }
     
     var buttonBackgroundColor: UIColor {
-        return formIsValid ? UIColor(rgb: 0x79CBBF) : UIColor(rgb: 0x79CBBF).withAlphaComponent(0.5)
+        return formIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
     }
 
 }

@@ -19,7 +19,7 @@ class InstructionsViewController: UIViewController {
     private let instructionsLabel: UILabel = {
         let label = UILabel()
         label.text = "We have sent a password recover instructions to your email."
-        label.font = UIFont(name: "Raleway-Regular", size: 13)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = .black
         label.numberOfLines = 0
         label.sizeToFit()
@@ -29,14 +29,14 @@ class InstructionsViewController: UIViewController {
     private let separatorLabel: UILabel = {
         let label = UILabel()
         label.setDimensions(height: 1, width: 200)
-        label.backgroundColor = UIColor(rgb: 0xEBEBEB)
+        label.backgroundColor = lightColor
         return label
     }()
     
     private let didNotReceiveLabel: UILabel = {
         let label = UILabel()
         label.text = "Did not receive the email? Check your spam filter, or"
-        label.font = UIFont(name: "Raleway-Regular", size: 13)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = .black
         label.numberOfLines = 0
         label.sizeToFit()
@@ -46,10 +46,10 @@ class InstructionsViewController: UIViewController {
     private let tryAnotherEmailButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("try another email address", for: .normal)
-        button.setTitleColor(UIColor(rgb: 0x79CBBF), for: .normal)
+        button.setTitleColor(primaryColor, for: .normal)
         button.backgroundColor = .clear
         button.layer.cornerRadius = 5
-        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .bold)
         button.addTarget(self, action: #selector(tryAnotherEmailButtonPressed), for: .touchUpInside)
         return button
     }()

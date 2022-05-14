@@ -117,8 +117,11 @@ class RegistrationViewController: UIViewController {
         navigationItem.standardAppearance = appearance
         navigationItem.title = "Create account"
         view.backgroundColor = .white
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barStyle = .black
+        
+        
+        
+        //navigationController?.navigationBar.isHidden = false
+        //navigationController?.navigationBar.barStyle = .black
         
         let stack = UIStackView(arrangedSubviews: [firstNameTextField, lastNameTextField, emailTextField, passwordTextField, infoLabelPassword])
         stack.axis = .vertical

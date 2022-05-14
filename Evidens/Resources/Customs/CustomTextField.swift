@@ -20,7 +20,8 @@ class CustomTextField: UITextField {
         textColor = .black
         keyboardAppearance = .dark
         keyboardType = .emailAddress
-        backgroundColor = UIColor(rgb: 0xEBEBEB)
+        autocorrectionType = .no
+        backgroundColor = lightColor
         layer.cornerRadius = 5
         layer.borderColor = UIColor.white.cgColor
         layer.borderWidth = 1.0

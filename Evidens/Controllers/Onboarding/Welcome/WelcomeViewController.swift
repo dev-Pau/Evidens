@@ -31,18 +31,18 @@ class WelcomeViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.background.strokeColor = UIColor(rgb: 0xDCE4EA)
+        button.configuration?.background.strokeColor = lightGrayColor
         button.configuration?.background.strokeWidth = 1.5
         
         
         button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.configuration?.imagePadding = 15
         
-        button.configuration?.baseForegroundColor = UIColor(rgb: 0x2B2D42)
+        button.configuration?.baseForegroundColor = blackColor
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = UIFont(name: "Raleway-ExtraBold", size: 15)
+        container.font = .systemFont(ofSize: 15, weight: .heavy)
         button.configuration?.attributedTitle = AttributedString("Continue with Google", attributes: container)
         
         button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
@@ -56,18 +56,18 @@ class WelcomeViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.background.strokeColor = UIColor(rgb: 0xDCE4EA)
+        button.configuration?.background.strokeColor = lightGrayColor
         button.configuration?.background.strokeWidth = 1.5
         
         
         button.configuration?.image = UIImage(systemName: "applelogo")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.configuration?.imagePadding = 15
         
-        button.configuration?.baseForegroundColor = UIColor(rgb: 0x2B2D42)
+        button.configuration?.baseForegroundColor = blackColor
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = UIFont(name: "Raleway-ExtraBold", size: 15)
+        container.font = .systemFont(ofSize: 15, weight: .heavy)
         button.configuration?.attributedTitle = AttributedString("Continue with Apple", attributes: container)
         
         return button
@@ -78,10 +78,10 @@ class WelcomeViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.baseForegroundColor = UIColor(rgb: 0x5ABBB7)
+        button.configuration?.baseForegroundColor = primaryColor
         
         var container = AttributeContainer()
-        container.font = UIFont(name: "Raleway-Bold", size: 13)
+        container.font = .systemFont(ofSize: 15, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Log In", attributes: container)
         
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
@@ -91,7 +91,7 @@ class WelcomeViewController: UIViewController {
     private let separatorLabel: UILabel = {
         let label = UILabel()
         label.setDimensions(height: 1, width: 310)
-        label.backgroundColor = UIColor(rgb: 0xDCE4EA)
+        label.backgroundColor = lightGrayColor
         return label
     }()
     
@@ -99,17 +99,17 @@ class WelcomeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Create account", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x5ABBB7)
+        button.backgroundColor = primaryColor
         button.setHeight(50)
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = UIFont(name: "Raleway-ExtraBold", size: 18)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(signupButtonPressed), for: .touchUpInside)
         return button
     }()
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Raleway-Regular", size: 13)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.text = "Have an account already?"
         return label
     }()
@@ -139,11 +139,11 @@ class WelcomeViewController: UIViewController {
         view.backgroundColor = .white
         
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 1.75 * topbarHeight)
-        
-        navigationController?.navigationBar.isHidden = true
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 2.75 * topbarHeight)
         
         navigationController?.navigationBar.barStyle = .black
+        
+        //navigationController?.navigationBar.isHidden = true
         
         scrollView.addSubview(welcomeText)
         welcomeText.anchor(top: scrollView.topAnchor, paddingTop: 200)

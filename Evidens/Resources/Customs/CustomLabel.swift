@@ -11,10 +11,9 @@ class CustomLabel: UILabel {
     
     init(placeholder: String) {
         super.init(frame: .zero)
-        
         text = placeholder
-        font = UIFont(name: "Raleway-ExtraBold", size: 35)
-        textColor = .black
+        font = .systemFont(ofSize: 35, weight: .heavy)
+        textColor = blackColor
         numberOfLines = 0
         sizeToFit()
     }
