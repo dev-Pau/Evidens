@@ -25,6 +25,9 @@
 		5F0A4F592725A1EE00700304 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F582725A1EE00700304 /* K.swift */; };
 		5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */; };
 		5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */; };
+		5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B499282FF1020079F8CF /* RecentHeader.swift */; };
+		5F39B49C283005890079F8CF /* RecentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B49B283005890079F8CF /* RecentCell.swift */; };
+		5F39B49E283007E70079F8CF /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B49D283007E70079F8CF /* CollectionViewCell.swift */; };
 		5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */; };
 		5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BF27620415008FD6ED /* DatabaseManager.swift */; };
 		5F4493C227708A84008FD6ED /* EmailRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */; };
@@ -114,6 +117,9 @@
 		5F0A4F582725A1EE00700304 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderViewModel.swift; sourceTree = "<group>"; };
 		5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
+		5F39B499282FF1020079F8CF /* RecentHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentHeader.swift; sourceTree = "<group>"; };
+		5F39B49B283005890079F8CF /* RecentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentCell.swift; sourceTree = "<group>"; };
+		5F39B49D283007E70079F8CF /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		5F4493BF27620415008FD6ED /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailRegistrationViewController.swift; sourceTree = "<group>"; };
@@ -384,6 +390,9 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DA1272E903C004F92CE /* UserCell.swift */,
+				5F39B499282FF1020079F8CF /* RecentHeader.swift */,
+				5F39B49B283005890079F8CF /* RecentCell.swift */,
+				5F39B49D283007E70079F8CF /* CollectionViewCell.swift */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -726,6 +735,7 @@
 				5FC4D88527071CB6006B7A34 /* FeedCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
+				5F39B49C283005890079F8CF /* RecentCell.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
@@ -745,6 +755,7 @@
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
+				5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* FeedViewController.swift in Sources */,
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
@@ -760,6 +771,7 @@
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
+				5F39B49E283007E70079F8CF /* CollectionViewCell.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */,

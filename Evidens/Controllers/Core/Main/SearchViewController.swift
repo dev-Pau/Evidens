@@ -7,7 +7,8 @@
 
 import UIKit
 
-private let reuseIdentifier = "UserCell"
+private let reuseIdentifier = "RecentCell"
+private let recentHeaderReuseIdentifier = "RecentHeaderCell"
 
 class SearchViewController: UIViewController {
     
@@ -22,7 +23,7 @@ class SearchViewController: UIViewController {
     }
 
     private let tableView: UITableView = {
-        let tableView = UITableView()
+        let tableView = UITableView(frame: CGRect(), style: .grouped)
         return tableView
     }()
     
@@ -38,6 +39,7 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.addSubview(UIView())
         navigationItem.titleView = searchBar
         searchBar.becomeFirstResponder()
 
@@ -57,16 +59,17 @@ class SearchViewController: UIViewController {
     //MARK: - Helpers
   
     func configureTableView() {
-        view.backgroundColor = .white
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UserCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.backgroundColor = lightColor
+        tableView.sectionHeaderTopPadding = 0
+        tableView.register(RecentCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(RecentHeader.self, forHeaderFooterViewReuseIdentifier: recentHeaderReuseIdentifier)
         tableView.rowHeight = 64
         tableView.keyboardDismissMode = .onDrag
     }
     
     func configureUI() {
-       
         view.addSubview(tableView)
         tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
     }
@@ -75,16 +78,52 @@ class SearchViewController: UIViewController {
 //MARK: - UITableViewDataSource
 
 extension SearchViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        //let headerView = UIView()
+        let headerCell = tableView.dequeueReusableHeaderFooterView(withIdentifier: recentHeaderReuseIdentifier)
+        //headerView.addSubview(headerCell)
+        return headerCell
+    }
+    
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 0 {
+            return 3
+        }
+        return 4
+        
         //Display number of users we have on the database or filtered
-        return inSearchMode ? filteredUsers.count : users.count
+        //return inSearchMode ? filteredUsers.count : users.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
-        let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
-        cell.viewModel = UserCellViewModel(user: user)
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentCell
+        
+        if indexPath.section == 0 {
+            
+        } else {
+ 
+        }
         return cell
+        
+        
+        //let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
+        //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
+        //cell.viewModel = UserCellViewModel(user: user)
+        //return cell
     }
 }
 
@@ -92,10 +131,11 @@ extension SearchViewController: UITableViewDataSource {
 
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
+        
+        //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
-        let controller = ProfileViewController(user: user)
-        navigationController?.pushViewController(controller, animated: true)
+        //let controller = ProfileViewController(user: user)
+        //navigationController?.pushViewController(controller, animated: true)
     }
 }
 

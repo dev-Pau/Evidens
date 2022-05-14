@@ -27,37 +27,23 @@ class FeedCell: UICollectionViewCell {
     
     private lazy var categoryPostButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitleColor(UIColor(rgb: 0xFFFFFF), for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.setTitle("  Nutrition  ", for: .normal)
-        button.backgroundColor = UIColor(rgb: 0x2B2D42)
+        button.backgroundColor = blackColor
         button.layer.cornerRadius = 11
-        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 12)
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
         return button
     }()
     
     private lazy var subCategoryPostButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitleColor(UIColor(rgb: 0x2B2D42), for: .normal)
+        button.setTitleColor(blackColor, for: .normal)
         button.setTitle("  Vegetables  ", for: .normal)
-        button.backgroundColor = UIColor(rgb: 0xF1F4F7)
+        button.backgroundColor = lightGrayColor
         button.layer.cornerRadius = 11
-        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 12)
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
         return button
     }()
-    
-    /*
-    private lazy var dotsImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
-        iv.clipsToBounds = true
-        iv.isUserInteractionEnabled = true
-        iv.image = UIImage(named: "dots")
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapThreeDots))
-        iv.addGestureRecognizer(tap)
-        iv.isUserInteractionEnabled = true
-        return iv
-    }()
-     */
     
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
@@ -71,13 +57,13 @@ class FeedCell: UICollectionViewCell {
     
     private lazy var userTypeButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitleColor(UIColor(rgb: 0x677987), for: .normal)
+        button.setTitleColor(grayColor, for: .normal)
         button.setTitle("  Professional  ", for: .normal)
         button.backgroundColor = .white
         button.layer.cornerRadius = 11
         button.layer.borderWidth = 1.5
-        button.layer.borderColor = UIColor(rgb: 0x677987).cgColor
-        button.titleLabel?.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        button.layer.borderColor = grayColor.cgColor
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
         return button
     }()
     
@@ -87,7 +73,6 @@ class FeedCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.backgroundColor = .lightGray
-        
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapUsername))
         iv.addGestureRecognizer(tap)
         iv.isUserInteractionEnabled = true
@@ -96,15 +81,15 @@ class FeedCell: UICollectionViewCell {
     
     private lazy var usernameButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitleColor(UIColor(rgb: 0x2B2D42), for: .normal)
-        button.titleLabel?.font = UIFont(name: "Raleway-Bold", size: 16)
+        button.setTitleColor(blackColor, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
         return button
     }()
     
     private let usernameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(rgb: 0x2B2D42)
-        label.font = UIFont(name: "Raleway-Bold", size: 16)
+        label.textColor = blackColor
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.isUserInteractionEnabled = true
         return label
     }()
@@ -120,28 +105,28 @@ class FeedCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = UIColor(rgb: 0x677987)
         label.text = "Researcher"
-        label.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
         return label
     }()
     
     private let separatorLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = UIColor(rgb: 0xDCE4EA)
+        label.backgroundColor = lightGrayColor
         label.setHeight(1.0)
         return label
     }()
     
     private let bottomSeparatorLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = UIColor(rgb: 0xDCE4EA)
+        label.backgroundColor = lightGrayColor
         label.setHeight(1.0)
         return label
     }()
     
     private let postLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(rgb: 0x2B2D42)
-        label.font = UIFont(name: "Raleway-Regular", size: 14)
+        label.textColor = blackColor
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingTail
         label.contentMode = .scaleAspectFit
@@ -151,8 +136,8 @@ class FeedCell: UICollectionViewCell {
     
     private let seeMoreLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(rgb: 0x677987)
-        label.font = UIFont(name: "Raleway-Semibold", size: 14)
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.isUserInteractionEnabled = true
         label.text = ("...see more")
         label.isHidden = true
@@ -175,7 +160,7 @@ class FeedCell: UICollectionViewCell {
     private lazy var commentButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "comment"), for: .normal)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
+        button.tintColor = blackColor
         button.addTarget(self, action: #selector(didTapComments), for: .touchUpInside)
         return button
     }()
@@ -183,14 +168,14 @@ class FeedCell: UICollectionViewCell {
     private lazy var shareButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "share"), for: .normal)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
+        button.tintColor = blackColor
         return button
     }()
     
     lazy var bookmarkButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "bookmark"), for: .normal)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
+        button.tintColor = blackColor
         button.addTarget(self, action: #selector(didTapBookmark), for: .touchUpInside)
         return button
     }()
@@ -198,7 +183,7 @@ class FeedCell: UICollectionViewCell {
     private lazy var sendButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "paperplane"), for: .normal)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
+        button.tintColor = blackColor
         return button
     }()
     
@@ -212,22 +197,22 @@ class FeedCell: UICollectionViewCell {
     
     private let likesLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(rgb: 0x677987)
-        label.font = UIFont(name: "Raleway-Semibold", size: 12)
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
         return label
     }()
     
     private let commentLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(rgb: 0x677987)
-        label.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
         return label
     }()
     
     private let shareLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(rgb: 0x677987)
-        label.font = UIFont(name: "Raleway-SemiBold", size: 12)
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
         return label
     }()
     
@@ -241,8 +226,8 @@ class FeedCell: UICollectionViewCell {
         
     private let postTimeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Raleway-SemiBold", size: 12)
-        label.textColor = UIColor(rgb: 0x677987)
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.textColor = grayColor
         return label
     }()
     

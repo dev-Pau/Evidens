@@ -70,9 +70,8 @@ class FeedViewController: UICollectionViewController {
     //MARK: - Helpers
     func configureUI() {
 
-        collectionView.backgroundColor = UIColor(rgb: 0xF1F4F7)
+        collectionView.backgroundColor = lightColor
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        //Delete if auto size doesn't work
         
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
@@ -236,7 +235,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
         } else {
             //Array of posts
             let viewModel = PostViewModel(post: posts[indexPath.row])
-            let height = viewModel.size(forWidth: view.frame.width).height + 210
+            let height = viewModel.size(forWidth: view.frame.width).height + 220
             return CGSize(width: view.frame.width, height: height)
         }
     }
