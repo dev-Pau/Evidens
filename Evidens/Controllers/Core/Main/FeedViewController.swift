@@ -32,6 +32,7 @@ class FeedViewController: UICollectionViewController {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
+        searchBar.searchTextField.backgroundColor = lightColor
         return searchBar
     }()
     

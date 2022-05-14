@@ -28,7 +28,7 @@ class RecentCell: UITableViewCell {
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: identifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.showsHorizontalScrollIndicator = false
         addSubview(collectionView)
         collectionView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
     }
@@ -56,6 +56,6 @@ extension RecentCell: UICollectionViewDataSource {
 
 extension RecentCell: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 100, height: 100)
+        return CGSize(width: 100, height: 80)
     }
 }

@@ -30,7 +30,7 @@ class UserCell: UITableViewCell {
     private let fullNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
-        label.text = "user evidens debug"
+        label.text = ". . ."
         return label
     }()
     

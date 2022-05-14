@@ -33,13 +33,13 @@ class MainTabController: UITabBarController {
             appearance.configureWithOpaqueBackground()
             self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
             self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
-            appearance.shadowColor = .clear    //removing navigationbar 1 px bottom border.
+            appearance.shadowColor = grayColor    // navigationbar 1 px bottom border.
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
         //GIDSignIn.sharedInstance.signOut()
         //AuthService.logout()
-        view.backgroundColor = UIColor(rgb: 0x79CBBF)
+        view.backgroundColor = primaryColor
         self.tabBar.isHidden = true
         checkIfUserIsLoggedIn()
         fetchUser()

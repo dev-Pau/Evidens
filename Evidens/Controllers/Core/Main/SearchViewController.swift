@@ -24,6 +24,7 @@ class SearchViewController: UIViewController {
 
     private let tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
+        tableView.separatorColor = .clear
         return tableView
     }()
     
@@ -31,6 +32,7 @@ class SearchViewController: UIViewController {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
+        searchBar.searchTextField.backgroundColor = lightColor
         return searchBar
     }()
     
@@ -65,7 +67,7 @@ class SearchViewController: UIViewController {
         tableView.sectionHeaderTopPadding = 0
         tableView.register(RecentCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.register(RecentHeader.self, forHeaderFooterViewReuseIdentifier: recentHeaderReuseIdentifier)
-        tableView.rowHeight = 64
+        //tableView.rowHeight = 64
         tableView.keyboardDismissMode = .onDrag
     }
     
@@ -86,14 +88,14 @@ extension SearchViewController: UITableViewDataSource {
         return headerCell
     }
     
-    
+    // Returns the number of sections
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 3
+            return 1
         }
         return 4
         
@@ -102,12 +104,14 @@ extension SearchViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50
+        return 30
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0.0
     }
+    
+    
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentCell
@@ -124,6 +128,10 @@ extension SearchViewController: UITableViewDataSource {
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //cell.viewModel = UserCellViewModel(user: user)
         //return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 130
     }
 }
 
