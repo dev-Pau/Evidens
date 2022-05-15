@@ -127,7 +127,7 @@ extension DatabaseManager {
     }
     
     public func fetchRecentSearches(completion: @escaping(Result<[String], Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let ref = database.child("\(uid)/recentSearches")
         ref.getData { error, snapshot in

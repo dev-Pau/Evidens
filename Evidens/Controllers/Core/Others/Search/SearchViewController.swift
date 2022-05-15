@@ -81,6 +81,9 @@ class SearchViewController: UIViewController {
     }
     
     func configureUI() {
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        tableView.refreshControl = refresher
         view.addSubview(tableView)
         tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
     }
@@ -95,6 +98,14 @@ class SearchViewController: UIViewController {
                 print(error)
             }
         }
+        tableView.refreshControl?.endRefreshing()
+    }
+    
+    //MARK: - Actions
+    @objc func handleRefresh() {
+        HapticsManager.shared.vibrate(for: .success)
+        recentSearchedText.removeAll()
+        fetchRecents()
     }
 }
 
@@ -187,10 +198,9 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text else { return }
         
-        
-        //DatabaseManager.shared.uploadRecentSearches(with: text) { _ in
-            
-        //}
+        DatabaseManager.shared.uploadRecentSearches(with: text) { _ in
+            // Text uploaded to recent searches of user
+        }
         
         let controller = SearchResultsViewController()
         controller.searchedText = text
@@ -198,7 +208,7 @@ extension SearchViewController: UISearchBarDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        
+
         navigationController?.pushViewController(controller, animated: true)
     }
 }

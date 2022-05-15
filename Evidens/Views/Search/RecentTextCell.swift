@@ -63,7 +63,6 @@ class RecentTextCell: UITableViewCell {
     }
     
     //MARK: - Helpers
-    //MARK: - Helpers
     
     func configure() {
         guard let viewModel = viewModel else { return }

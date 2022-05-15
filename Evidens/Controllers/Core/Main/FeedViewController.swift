@@ -35,9 +35,7 @@ class FeedViewController: UICollectionViewController {
         searchBar.searchTextField.backgroundColor = lightColor
         return searchBar
     }()
-    
-    var feedDelegate: FeedViewControllerDelegate?
-    
+
     private var posts = [Post]() {
         didSet { collectionView.reloadData() }
     }
