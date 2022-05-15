@@ -7,12 +7,19 @@
 
 import UIKit
 
-private let reuseIdentifier = "RecentCell"
+private let reuseIdentifier = "RecentUserCell"
+private let recentTextReuseIdentifier = "RecentTextCell"
 private let recentHeaderReuseIdentifier = "RecentHeaderCell"
 
 class SearchViewController: UIViewController {
     
     //MARK: - Properties
+    
+    private var recentSearchedText = [String]() {
+        didSet {
+            tableView.reloadData()
+        }
+    }
     
     private var users = [User]()
     private var filteredUsers = [User]()
@@ -41,10 +48,11 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchRecents()
         view.addSubview(UIView())
         navigationItem.titleView = searchBar
         searchBar.becomeFirstResponder()
-
+        searchBar.delegate = self
         configureTableView()
         configureUI()
         fetchUsers()
@@ -65,8 +73,9 @@ class SearchViewController: UIViewController {
         tableView.dataSource = self
         tableView.backgroundColor = lightColor
         tableView.sectionHeaderTopPadding = 0
-        tableView.register(RecentCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(RecentUserCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.register(RecentHeader.self, forHeaderFooterViewReuseIdentifier: recentHeaderReuseIdentifier)
+        tableView.register(RecentTextCell.self, forCellReuseIdentifier: recentTextReuseIdentifier)
         //tableView.rowHeight = 64
         tableView.keyboardDismissMode = .onDrag
     }
@@ -74,6 +83,18 @@ class SearchViewController: UIViewController {
     func configureUI() {
         view.addSubview(tableView)
         tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
+    }
+    
+    func fetchRecents() {
+        DatabaseManager.shared.fetchRecentSearches { recents in
+            switch recents {
+            case .success(let recentSearches):
+                print(recentSearches)
+                self.recentSearchedText = recentSearches
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
 }
 
@@ -95,9 +116,9 @@ extension SearchViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
-        }
-        return 4
+            return recentSearchedText.count > 0 ? recentSearchedText.count + 1 : 1
+            }
+        return 5
         
         //Display number of users we have on the database or filtered
         //return inSearchMode ? filteredUsers.count : users.count
@@ -114,16 +135,21 @@ extension SearchViewController: UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentCell
         
         if indexPath.section == 0 {
-            
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentUserCell
+        
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: recentTextReuseIdentifier, for: indexPath) as! RecentTextCell
+                cell.viewModel = RecentTextCellViewModel(recentText: recentSearchedText[indexPath.row - 1])
+                return cell
+            }
         } else {
- 
+            let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentUserCell
+            return cell
         }
-        return cell
-        
-        
         //let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //cell.viewModel = UserCellViewModel(user: user)
@@ -131,6 +157,13 @@ extension SearchViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
+            if indexPath.row == 0 {
+                return 130
+            } else {
+                return 50
+            }
+        }
         return 130
     }
 }
@@ -146,6 +179,30 @@ extension SearchViewController: UITableViewDelegate {
         //navigationController?.pushViewController(controller, animated: true)
     }
 }
+
+//MARK: - UISearchBarDelegate
+
+
+extension SearchViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let text = searchBar.text else { return }
+        
+        
+        //DatabaseManager.shared.uploadRecentSearches(with: text) { _ in
+            
+        //}
+        
+        let controller = SearchResultsViewController()
+        controller.searchedText = text
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
 
 //MARK: - UISearchResultsUpdating
 

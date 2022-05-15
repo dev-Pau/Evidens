@@ -10,7 +10,7 @@ import CoreGraphics
 
 private let identifier = "collectionCell"
 
-class RecentCell: UITableViewCell {
+class RecentUserCell: UITableViewCell {
     
     //MARK: - Properties
     private let collectionView: UICollectionView = {
@@ -40,7 +40,7 @@ class RecentCell: UITableViewCell {
 
 //MARK: - UICollectionViewDataSource
 
-extension RecentCell: UICollectionViewDataSource {
+extension RecentUserCell: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 10
@@ -54,7 +54,7 @@ extension RecentCell: UICollectionViewDataSource {
 
 //MARK: - UICollectionViewDelegateFlowLayout
 
-extension RecentCell: UICollectionViewDelegateFlowLayout {
+extension RecentUserCell: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 100, height: 80)
     }

@@ -36,6 +36,9 @@ class MainTabController: UITabBarController {
             appearance.shadowColor = grayColor    // navigationbar 1 px bottom border.
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
+            
+            
+            
         }
         //GIDSignIn.sharedInstance.signOut()
         //AuthService.logout()
@@ -68,7 +71,14 @@ class MainTabController: UITabBarController {
                 nav.modalPresentationStyle = .fullScreen
                 self.present(nav, animated: false, completion: nil)
             }
+            
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.shadowColor = grayColor
             self.tabBar.isHidden = false
+            self.tabBar.isTranslucent = true
+            self.tabBar.backgroundColor = .white
+            self.tabBar.standardAppearance = appearance
         }
     }
     
@@ -92,10 +102,7 @@ class MainTabController: UITabBarController {
     
         let feedLayout = UICollectionViewFlowLayout()
         let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
-        
-        //feed.navigationBar.tintColor = .white
-        //feed.navigationBar.isTranslucent = false
-        
+
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
         
         let postController = ViewController()

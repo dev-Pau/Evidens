@@ -112,12 +112,6 @@ class FeedViewController: UICollectionViewController {
         print("DEBUG: did tap profile")
         guard let user = user else { return }
         let controller = ProfileViewController(user: user)
-        
-        //let backItem = UIBarButtonItem()
-        //backItem.title = ""
-        //navigationItem.backBarButtonItem = backItem
-        //navigationItem.backBarButtonItem?.tintColor = .black
-        
         navigationController?.pushViewController(controller, animated: true)
     }
                                               
@@ -345,5 +339,6 @@ extension FeedViewController: UISearchBarDelegate {
         return true
     }
 }
+
     
 

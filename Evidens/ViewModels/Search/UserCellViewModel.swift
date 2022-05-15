@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+//   UPDATE SI IT HAS CIRCULAR IMAGE VIEW AS FIRST ROW OF SEARCH LINKEDIN
 struct UserCellViewModel {
     
     private let user: User
