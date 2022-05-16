@@ -9,6 +9,12 @@ import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
     
+    var viewModel: UserCellViewModel? {
+        didSet {
+            configure()
+        }
+    }
+    
     //MARK: - Properties
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -16,8 +22,6 @@ class CollectionViewCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.backgroundColor = .lightGray
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapUsername))
-        iv.addGestureRecognizer(tap)
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -27,6 +31,8 @@ class CollectionViewCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.numberOfLines = 2
         label.textAlignment = .center
+        label.layer.contentsGravity = .center
+        label.setHeight(40)
         label.text = "Pau Fernández Solà"
         return label
     }()
@@ -37,23 +43,22 @@ class CollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .white
         addSubview(profileImageView)
-        profileImageView.setDimensions(height: 60, width: 60)
-        profileImageView.layer.cornerRadius = 60/2
+        profileImageView.setDimensions(height: 40, width: 40)
+        profileImageView.layer.cornerRadius = 40/2
         profileImageView.anchor(top: topAnchor)
         profileImageView.centerX(inView: self)
         
         addSubview(nameLabel)
-        nameLabel.anchor(top: profileImageView.bottomAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 3)
+        nameLabel.anchor(top: profileImageView.bottomAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 3, paddingLeft: 3)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: - Actions
-    @objc func didTapUsername() {
-        
+    func configure() {
+        guard let viewModel = viewModel else { return }
+        nameLabel.text = viewModel.firstName + " " + viewModel.lastName
+        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
     }
-    
-    
 }

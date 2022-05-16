@@ -55,9 +55,9 @@ class SearchViewController: UIViewController {
         searchBar.delegate = self
         configureTableView()
         configureUI()
-        fetchUsers()
+        //fetchUsers()
     }
-    
+    /*
     //MARK: - API
     func fetchUsers() {
         UserService.fetchUsers { users in
@@ -65,6 +65,7 @@ class SearchViewController: UIViewController {
             self.tableView.reloadData()
         }
     }
+     */
     
     //MARK: - Helpers
   
@@ -106,6 +107,7 @@ class SearchViewController: UIViewController {
         HapticsManager.shared.vibrate(for: .success)
         recentSearchedText.removeAll()
         fetchRecents()
+        
     }
 }
 
@@ -122,7 +124,7 @@ extension SearchViewController: UITableViewDataSource {
     
     // Returns the number of sections
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -130,13 +132,10 @@ extension SearchViewController: UITableViewDataSource {
             return recentSearchedText.count > 0 ? recentSearchedText.count + 1 : 1
             }
         return 5
-        
-        //Display number of users we have on the database or filtered
-        //return inSearchMode ? filteredUsers.count : users.count
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 30
+        return 20
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -150,7 +149,8 @@ extension SearchViewController: UITableViewDataSource {
         if indexPath.section == 0 {
             if indexPath.row == 0 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentUserCell
-        
+                cell.delegate = self
+                //cell.recentUsers = users[indexPath.row]
                 return cell
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: recentTextReuseIdentifier, for: indexPath) as! RecentTextCell
@@ -170,7 +170,7 @@ extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                return 130
+                return 110
             } else {
                 return 50
             }
@@ -224,5 +224,13 @@ extension SearchViewController: UISearchResultsUpdating {
         filteredUsers = users.filter({ $0.firstName!.contains(searchText) || $0.lastName!.contains(searchText)
         })
         self.tableView.reloadData()
+    }
+}
+
+extension SearchViewController: RecentUserCellDelegate {
+    func cell(_ cell: RecentUserCell, wantsToShowProfileOf user: User) {
+        print("Did receive protocol")
+        let controller = ProfileViewController(user: user)
+        self.navigationController?.pushViewController(controller, animated: true)
     }
 }
