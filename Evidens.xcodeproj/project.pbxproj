@@ -73,6 +73,7 @@
 		5F8666FC27552222009B26E6 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FB27552222009B26E6 /* Comment.swift */; };
 		5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FD2755255F009B26E6 /* CommentViewModel.swift */; };
 		5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */; };
+		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
 		5FBC2DA2272E903C004F92CE /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* UserCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -166,6 +167,7 @@
 		5F8666FB27552222009B26E6 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		5F8666FD2755255F009B26E6 /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
 		5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* UserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
 				5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */,
 				5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */,
+				5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */,
 			);
 			path = Customs;
 			sourceTree = "<group>";
@@ -761,6 +764,7 @@
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
+				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
 				5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
