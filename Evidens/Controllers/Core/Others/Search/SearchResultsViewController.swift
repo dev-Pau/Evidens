@@ -7,7 +7,8 @@
 
 import UIKit
 
-private let reuseIdentifier = "CollectionViewCell"
+private let topCellIdentifier = "TopCell"
+private let reuseIdentifier = "Prova"
 
 class SearchResultsViewController: UIViewController {
    
@@ -77,14 +78,13 @@ class SearchResultsViewController: UIViewController {
     }
     
     func configureCollectionView() {
+        collectionView.register(TopCollectionViewCell.self, forCellWithReuseIdentifier: topCellIdentifier)
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         segmentedButtonsView.segmentedControlDelegate = self
         
     }
-    
-    
     
     func scrollToFrame(scrollOffset : CGFloat) {
         guard scrollOffset <= collectionView.contentSize.width - collectionView.bounds.size.width else { return }
@@ -113,16 +113,19 @@ extension SearchResultsViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-        cell.backgroundColor = lightGrayColor
-        return cell
+        
+        if indexPath.row == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: topCellIdentifier, for: indexPath) as! TopCollectionViewCell
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: self.view.frame.width, height: self.view.frame.height - 150)
     }
-    
-    
 }
 
 extension SearchResultsViewController: UICollectionViewDelegateFlowLayout {
@@ -199,7 +202,10 @@ extension SearchResultsViewController: SegmentedControlDelegate {
     }
     
     func moveToFrame(contentOffset : CGFloat) {
-        let frame: CGRect = CGRect(x : contentOffset ,y : self.collectionView.contentOffset.y ,width : self.collectionView.frame.width, height: self.collectionView.frame.height)
-        self.collectionView.scrollRectToVisible(frame, animated: true)
+        UIView.animate(withDuration: 1) {
+            let frame: CGRect = CGRect(x : contentOffset ,y : self.collectionView.contentOffset.y ,width : self.collectionView.frame.width, height: self.collectionView.frame.height)
+            self.collectionView.scrollRectToVisible(frame, animated: true)
+        }
+        
     }
 }

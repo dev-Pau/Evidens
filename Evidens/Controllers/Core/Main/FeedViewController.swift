@@ -242,17 +242,15 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
         }
     
     override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        
-        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            return UIMenu(title: "", subtitle: nil, image: nil, identifier: nil, options: .displayInline, children: [
-                UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
-                    print("Report post pressed")
-                })
-            ])
+            let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+                return UIMenu(title: "", subtitle: nil, image: nil, identifier: nil, options: .displayInline, children: [
+                    UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
+                        print("Report post pressed")
+                    })
+                ])
+            }
+            return config
         }
-        return config
-    }
-    
 }
 
 //MARK: - FeedCellDelegate

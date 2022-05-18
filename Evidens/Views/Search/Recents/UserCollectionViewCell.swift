@@ -7,8 +7,8 @@
 
 import UIKit
 
-class CollectionViewCell: UICollectionViewCell {
-    
+class UserCollectionViewCell: UICollectionViewCell {
+
     var viewModel: UserCellViewModel? {
         didSet {
             configure()
@@ -16,13 +16,12 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     //MARK: - Properties
+    
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.isUserInteractionEnabled = true
         iv.backgroundColor = .lightGray
-        iv.isUserInteractionEnabled = true
         return iv
     }()
     
@@ -33,7 +32,7 @@ class CollectionViewCell: UICollectionViewCell {
         label.textAlignment = .center
         label.layer.contentsGravity = .center
         label.setHeight(40)
-        label.text = "Pau Fernández Solà"
+        label.text = "Dummy"
         return label
     }()
     

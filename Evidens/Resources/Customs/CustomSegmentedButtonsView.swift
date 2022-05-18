@@ -28,9 +28,6 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
     // Bottom border to track labels
     private lazy var selectorView = UIView()
     
-    var textColor = grayColor
-    var selectorTextColor = blackColor
-
     public private(set) var selectedIndex: Int = 0
     public private(set) var pastIndex: Int = 0
     
@@ -93,13 +90,13 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
             
             // Configure label
             label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-            label.textColor = textColor
+            label.textColor = grayColor
             label.textAlignment = .center
             label.text = labelTitle
             // Append new label to labels array
             labels.append(label)
         }
-        labels[0].textColor = selectorTextColor
+        labels[0].textColor = blackColor
     }
                             
     /// Configure labels into a StackView to display them
@@ -127,9 +124,9 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
                 // Notify the controller about a change
                 segmentedControlDelegate?.indexDidChange(from: pastIndex, to: selectedIndex)
                 // Animate transition from one label to other
-                UIView.animate(withDuration: 0.1) {
-                    self.selectorView.frame.origin.x = selectorPosition
-                }
+                //UIView.animate(withDuration: 0.0) {
+                //self.selectorView.frame.origin.x = selectorPosition
+                //}
             }
         }
         pastIndex = selectedIndex
@@ -149,38 +146,40 @@ extension CustomSegmentedButtonsView {
                 if view is UIStackView {
                     guard let stack = view as? UIStackView else { return }
                     for _ in stack.arrangedSubviews.enumerated() {
-
+                        
+                        // Get all the labels from the stackView
                         guard let firstLabel = stack.subviews[0] as? UILabel else { return }
                         guard let secondLabel = stack.subviews[1] as? UILabel else { return }
                         guard let thirdLabel = stack.subviews[2] as? UILabel else { return }
                         guard let fourLabel = stack.subviews[3] as? UILabel else { return }
                         
+                        // Depending on distance of the origin.x it changes the colors accordingly
                         switch self.selectorView.frame.origin.x {
                         case 0..<(minUnit):
                             firstLabel.textColor = blackColor
-                            secondLabel.textColor = textColor
-                            thirdLabel.textColor = textColor
-                            fourLabel.textColor = textColor
+                            secondLabel.textColor = grayColor
+                            thirdLabel.textColor = grayColor
+                            fourLabel.textColor = grayColor
                             pastIndex = 0
                             
                         case (minUnit)..<(minUnit * 2):
-                            firstLabel.textColor = textColor
+                            firstLabel.textColor = grayColor
                             secondLabel.textColor = blackColor
-                            thirdLabel.textColor = textColor
-                            fourLabel.textColor = textColor
+                            thirdLabel.textColor = grayColor
+                            fourLabel.textColor = grayColor
                             pastIndex = 1
                             
                         case (minUnit * 2)..<(minUnit * 3):
-                            firstLabel.textColor = textColor
-                            secondLabel.textColor = textColor
+                            firstLabel.textColor = grayColor
+                            secondLabel.textColor = grayColor
                             thirdLabel.textColor = blackColor
-                            fourLabel.textColor = textColor
+                            fourLabel.textColor = grayColor
                             pastIndex = 2
                             
                         case (minUnit * 3)...self.frame.width:
-                            firstLabel.textColor = textColor
-                            secondLabel.textColor = textColor
-                            thirdLabel.textColor = textColor
+                            firstLabel.textColor = grayColor
+                            secondLabel.textColor = grayColor
+                            thirdLabel.textColor = grayColor
                             fourLabel.textColor = blackColor
                             pastIndex = 3
                             

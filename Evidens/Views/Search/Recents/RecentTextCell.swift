@@ -28,7 +28,8 @@ class RecentTextCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "arrow.up.left"), for: .normal)
         button.tintColor = blackColor
-        button.addTarget(self, action: #selector(didTapRecentText), for: .touchUpInside)
+        button.isUserInteractionEnabled = false
+        //button.addTarget(self, action: #selector(didTapRecentText), for: .touchUpInside)
         return button
     }()
     
@@ -70,13 +71,4 @@ class RecentTextCell: UITableViewCell {
         //fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
         //profileImageView.sd_setImage(with: viewModel.profileImageUrl)
     }
-    
-    
-    //MARK: - Actions
-    
-    @objc func didTapRecentText() {
-        print("Did tap recent text")
-    }
-    
-    
 }

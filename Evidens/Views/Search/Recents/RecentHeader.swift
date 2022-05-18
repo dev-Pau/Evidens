@@ -7,13 +7,15 @@
 
 import UIKit
 
-protocol RecentHeaderCellDelegate: AnyObject {
-    func headerPressed()
+protocol RecentHeaderDelegate: AnyObject {
+    func didTapClearButton()
 }
 
 class RecentHeader: UITableViewHeaderFooterView {
     
     //MARK: - Properties
+    
+    weak var delegate: RecentHeaderDelegate?
     private let recentSearchesLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
@@ -54,6 +56,6 @@ class RecentHeader: UITableViewHeaderFooterView {
     
     //MARK: - Actions
     @objc func clearButtonPressed() {
-        print("clear button pressed")
+        delegate?.didTapClearButton()
     }
 }

@@ -117,7 +117,8 @@ extension SearchViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         //let headerView = UIView()
-        let headerCell = tableView.dequeueReusableHeaderFooterView(withIdentifier: recentHeaderReuseIdentifier)
+        let headerCell = tableView.dequeueReusableHeaderFooterView(withIdentifier: recentHeaderReuseIdentifier) as! RecentHeader
+        headerCell.delegate = self
         //headerView.addSubview(headerCell)
         return headerCell
     }
@@ -155,6 +156,7 @@ extension SearchViewController: UITableViewDataSource {
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: recentTextReuseIdentifier, for: indexPath) as! RecentTextCell
                 cell.viewModel = RecentTextCellViewModel(recentText: recentSearchedText[indexPath.row - 1])
+                cell.selectionStyle = .none
                 return cell
             }
         } else {
@@ -183,7 +185,19 @@ extension SearchViewController: UITableViewDataSource {
 
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        if indexPath.section == 0 {
+            if indexPath.row > 0 {
+                // Press on recent text cell
+                let controller = SearchResultsViewController()
+                controller.searchedText = recentSearchedText[indexPath.row - 1]
+                
+                let backItem = UIBarButtonItem()
+                backItem.title = ""
+                navigationItem.backBarButtonItem = backItem
+
+                navigationController?.pushViewController(controller, animated: true)
+            }
+        }
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
         //let controller = ProfileViewController(user: user)
@@ -228,9 +242,22 @@ extension SearchViewController: UISearchResultsUpdating {
 }
 
 extension SearchViewController: RecentUserCellDelegate {
-    func cell(_ cell: RecentUserCell, wantsToShowProfileOf user: User) {
-        print("Did receive protocol")
+    func didTapProfileFor(_ user: User) {
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
         let controller = ProfileViewController(user: user)
         self.navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    
+}
+
+extension SearchViewController: RecentHeaderDelegate {
+
+    func didTapClearButton() {
+        print("Tap button is pressed")
     }
 }
