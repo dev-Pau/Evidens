@@ -64,7 +64,7 @@ class SearchResultsViewController: UIViewController {
 
         view.addSubview(segmentedButtonsView)
         segmentedButtonsView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor)
-        segmentedButtonsView.setHeight(40)
+        segmentedButtonsView.setHeight(51)
         
         view.addSubview(collectionView)
         collectionView.anchor(top: segmentedButtonsView.bottomAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
@@ -103,6 +103,8 @@ class SearchResultsViewController: UIViewController {
 //MARK: - UICollectionViewDataSource
 
 extension SearchResultsViewController: UICollectionViewDataSource {
+    
+    
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1

@@ -24,7 +24,7 @@ class TopCollectionViewCell: UICollectionViewCell {
      */
     
     private lazy var tableView: UITableView = {
-        let tableView = UITableView()
+        let tableView = UITableView(frame: CGRect(), style: .grouped)
         return tableView
     }()
     
@@ -62,6 +62,13 @@ class TopCollectionViewCell: UICollectionViewCell {
 }
 
 extension TopCollectionViewCell: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == 0 {
+            return 40.0
+        }
+        return 40.0
+    }
     
     func numberOfSections(in tableView: UITableView) -> Int {
         1

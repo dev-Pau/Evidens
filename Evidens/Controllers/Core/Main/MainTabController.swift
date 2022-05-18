@@ -19,7 +19,8 @@ class MainTabController: UITabBarController {
     var user: User? {
         didSet {
             guard let user = user else { return }
-            configureViewControllers(withUser: user)
+            guard let controller = viewControllers?[0] as? ContainerController else { return }
+            controller.user = user
         }
     }
     
@@ -36,15 +37,14 @@ class MainTabController: UITabBarController {
             appearance.shadowColor = grayColor    // navigationbar 1 px bottom border.
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
-            
-            
-            
+
         }
         //GIDSignIn.sharedInstance.signOut()
         //AuthService.logout()
         view.backgroundColor = primaryColor
         self.tabBar.isHidden = true
         checkIfUserIsLoggedIn()
+        configureViewControllers()
         fetchUser()
     }
     
@@ -96,13 +96,19 @@ class MainTabController: UITabBarController {
     //MARK: - Helpers
 
     //Setup ViewControllers for the TabBarController
-    func configureViewControllers(withUser user: User) {
+    func configureViewControllers() {
         view.backgroundColor = .white
         self.delegate = self
     
-        let feedLayout = UICollectionViewFlowLayout()
-        let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
-
+        //let feedLayout = UICollectionViewFlowLayout()
+        //let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
+        let feedContainer = ContainerController()
+        feedContainer.tabBarItem.image = UIImage(named: "home")
+        feedContainer.tabBarItem.selectedImage = UIImage(named: "home.fill")
+        feedContainer.title = "Home"
+        feedContainer.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
+        
+        
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
         
         let postController = ViewController()
@@ -110,10 +116,10 @@ class MainTabController: UITabBarController {
         
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "bell")!, selectedImage: UIImage(named: "bell")!, rootViewController: NotificationViewController())
         
-        let profileController = ProfileViewController(user: user)
+        let profileController = ViewController()
         let profile = templateNavigationController(title: nil, unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: profileController)
         
-        viewControllers = [feed, search, post, notifications, profile]
+        viewControllers = [feedContainer, search, post, notifications, profile]
         
         tabBar.tintColor = .black
     }

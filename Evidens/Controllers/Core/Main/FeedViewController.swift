@@ -9,9 +9,16 @@ import UIKit
 
 private let reuseIdentifier = "Cell"
 
+
+protocol FeedControllerDelegate: AnyObject {
+    func handleMenuToggle()
+}
+
 class FeedViewController: UICollectionViewController {
     
     //MARK: - Properties
+    
+    weak var delegate: FeedControllerDelegate?
     
     var user: User?
     
@@ -109,6 +116,12 @@ class FeedViewController: UICollectionViewController {
     @objc func didTapProfile() {
         print("DEBUG: did tap profile")
         guard let user = user else { return }
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        backItem.tintColor = blackColor
+        
         let controller = ProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }

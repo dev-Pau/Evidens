@@ -66,6 +66,8 @@
 		5F5889022712EC39005E5B4F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889012712EC39005E5B4F /* User.swift */; };
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
 		5F598BF72835002400189722 /* TopHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BF62835002400189722 /* TopHeaderCell.swift */; };
+		5F598BFA283548B400189722 /* ContainerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BF9283548B400189722 /* ContainerController.swift */; };
+		5F598BFC2835494900189722 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BFB2835494900189722 /* MenuController.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
@@ -161,6 +163,8 @@
 		5F5889012712EC39005E5B4F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
 		5F598BF62835002400189722 /* TopHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopHeaderCell.swift; sourceTree = "<group>"; };
+		5F598BF9283548B400189722 /* ContainerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerController.swift; sourceTree = "<group>"; };
+		5F598BFB2835494900189722 /* MenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -273,6 +277,7 @@
 		5F4493B82760CD14008FD6ED /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				5F598BF8283548A500189722 /* Slide Menu */,
 				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
 				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
@@ -388,6 +393,15 @@
 				5F598BF62835002400189722 /* TopHeaderCell.swift */,
 			);
 			path = Top;
+			sourceTree = "<group>";
+		};
+		5F598BF8283548A500189722 /* Slide Menu */ = {
+			isa = PBXGroup;
+			children = (
+				5F598BF9283548B400189722 /* ContainerController.swift */,
+				5F598BFB2835494900189722 /* MenuController.swift */,
+			);
+			path = "Slide Menu";
 			sourceTree = "<group>";
 		};
 		5F8666F3274FAD44009B26E6 /* Others */ = {
@@ -804,6 +818,7 @@
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
+				5F598BFA283548B400189722 /* ContainerController.swift in Sources */,
 				5FC4D86227070274006B7A34 /* ViewController.swift in Sources */,
 				5F05206F27C3AF1A001E7D8F /* PhotoViewController.swift in Sources */,
 				5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */,
@@ -814,6 +829,7 @@
 				5FC4D87B2707058D006B7A34 /* FeedViewController.swift in Sources */,
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
+				5F598BFC2835494900189722 /* MenuController.swift in Sources */,
 				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
 				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
