@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopHeaderCell: UITableViewHeaderFooterView {
+class TopPeopleHeader: UITableViewHeaderFooterView {
     
     //MARK: - Properties
     
@@ -23,10 +23,8 @@ class TopHeaderCell: UITableViewHeaderFooterView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
         contentView.backgroundColor = .white
-        
         addSubview(recentSearchesLabel)
         recentSearchesLabel.centerY(inView: self, leftAnchor: leftAnchor, paddingLeft: 12)
-
     }
     
     required init?(coder: NSCoder) {

@@ -65,9 +65,15 @@
 		5F5888FA27102599005E5B4F /* Raleway-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888E827102599005E5B4F /* Raleway-Bold.ttf */; };
 		5F5889022712EC39005E5B4F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889012712EC39005E5B4F /* User.swift */; };
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
-		5F598BF72835002400189722 /* TopHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BF62835002400189722 /* TopHeaderCell.swift */; };
+		5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BF62835002400189722 /* TopPeopleHeader.swift */; };
 		5F598BFA283548B400189722 /* ContainerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BF9283548B400189722 /* ContainerController.swift */; };
 		5F598BFC2835494900189722 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BFB2835494900189722 /* MenuController.swift */; };
+		5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BFD28362E9200189722 /* TopPeopleCell.swift */; };
+		5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C022836347D00189722 /* TopPeopleCellViewModel.swift */; };
+		5F598C052836569400189722 /* TopPostHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C042836569400189722 /* TopPostHeader.swift */; };
+		5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0628368E3B00189722 /* TopCaseHeader.swift */; };
+		5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C092836912400189722 /* UserProfileViewController.swift */; };
+		5F598C0C28376C5700189722 /* UserProfileHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0B28376C5700189722 /* UserProfileHeader.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
@@ -162,9 +168,15 @@
 		5F5888E827102599005E5B4F /* Raleway-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Bold.ttf"; sourceTree = "<group>"; };
 		5F5889012712EC39005E5B4F /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
-		5F598BF62835002400189722 /* TopHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopHeaderCell.swift; sourceTree = "<group>"; };
+		5F598BF62835002400189722 /* TopPeopleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPeopleHeader.swift; sourceTree = "<group>"; };
 		5F598BF9283548B400189722 /* ContainerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerController.swift; sourceTree = "<group>"; };
 		5F598BFB2835494900189722 /* MenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
+		5F598BFD28362E9200189722 /* TopPeopleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPeopleCell.swift; sourceTree = "<group>"; };
+		5F598C022836347D00189722 /* TopPeopleCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPeopleCellViewModel.swift; sourceTree = "<group>"; };
+		5F598C042836569400189722 /* TopPostHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostHeader.swift; sourceTree = "<group>"; };
+		5F598C0628368E3B00189722 /* TopCaseHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCaseHeader.swift; sourceTree = "<group>"; };
+		5F598C092836912400189722 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
+		5F598C0B28376C5700189722 /* UserProfileHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileHeader.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -234,6 +246,7 @@
 			children = (
 				5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */,
 				5F0A4F3A271C29E800700304 /* ProfileCell.swift */,
+				5F598C0B28376C5700189722 /* UserProfileHeader.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -243,6 +256,7 @@
 			children = (
 				5F4493B82760CD14008FD6ED /* Main */,
 				5F8666F3274FAD44009B26E6 /* Others */,
+				5F598C092836912400189722 /* UserProfileViewController.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -259,8 +273,8 @@
 		5F39B4A428310C960079F8CF /* Search */ = {
 			isa = PBXGroup;
 			children = (
-				5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */,
-				5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */,
+				5F598C012836346E00189722 /* Top */,
+				5F598C002836346500189722 /* Recents */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -282,7 +296,6 @@
 				5FC4D87A2707058D006B7A34 /* FeedViewController.swift */,
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
 				5FC4D87E270705B0006B7A34 /* NotificationViewController.swift */,
-				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -390,7 +403,10 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */,
-				5F598BF62835002400189722 /* TopHeaderCell.swift */,
+				5F598BF62835002400189722 /* TopPeopleHeader.swift */,
+				5F598BFD28362E9200189722 /* TopPeopleCell.swift */,
+				5F598C042836569400189722 /* TopPostHeader.swift */,
+				5F598C0628368E3B00189722 /* TopCaseHeader.swift */,
 			);
 			path = Top;
 			sourceTree = "<group>";
@@ -404,9 +420,35 @@
 			path = "Slide Menu";
 			sourceTree = "<group>";
 		};
+		5F598C002836346500189722 /* Recents */ = {
+			isa = PBXGroup;
+			children = (
+				5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */,
+				5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */,
+			);
+			path = Recents;
+			sourceTree = "<group>";
+		};
+		5F598C012836346E00189722 /* Top */ = {
+			isa = PBXGroup;
+			children = (
+				5F598C022836347D00189722 /* TopPeopleCellViewModel.swift */,
+			);
+			path = Top;
+			sourceTree = "<group>";
+		};
+		5F598C08283690F400189722 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		5F8666F3274FAD44009B26E6 /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5F598C08283690F400189722 /* Profile */,
 				5F39B49F2830E8AE0079F8CF /* Search */,
 				5F4493FA27942802008FD6ED /* Chat */,
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
@@ -783,6 +825,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */,
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
 				5F05207627C63A35001E7D8F /* SearchResult.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,
@@ -806,7 +849,7 @@
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
-				5F598BF72835002400189722 /* TopHeaderCell.swift in Sources */,
+				5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
 				5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
@@ -831,6 +874,7 @@
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5F598BFC2835494900189722 /* MenuController.swift in Sources */,
 				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
+				5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
 				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
 				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
@@ -842,16 +886,20 @@
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
+				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
+				5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */,
+				5F598C0C28376C5700189722 /* UserProfileHeader.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
+				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,

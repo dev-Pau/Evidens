@@ -8,12 +8,16 @@
 import UIKit
 import SDWebImage
 
-private let testIdentifier = "test"
-private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
+private let topPeopleCellIdentifier = "TopCellIdentifier"
+private let topPeopleHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
+private let topPostHeaderReuseIdentifier = "TopPostHeaderReuseIdentifier"
+private let topCaseHeaderReuseIdentifier = "TopHeaderCaseReuseIdentifier"
 
 class TopCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Properties
+    
+    private var topUsersFetched = [User]()
     
     /*
     var viewModel: UserCellViewModel? {
@@ -22,6 +26,8 @@ class TopCollectionViewCell: UICollectionViewCell {
         }
     }
      */
+    
+    // Top users fetched based on current user search
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
@@ -32,11 +38,13 @@ class TopCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        fetchTopUsers()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(TopHeaderCell.self, forHeaderFooterViewReuseIdentifier: topHeaderReuseIdentifier)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: testIdentifier)
-        
+        tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
+        tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellIdentifier)
+        tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
+        tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topCaseHeaderReuseIdentifier)
         addSubview(tableView)
         tableView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
     
@@ -59,34 +67,63 @@ class TopCollectionViewCell: UICollectionViewCell {
     //MARK: - Actions
     
     //MARK: - API
+    
+    // Fetch top users based on current user search
+    func fetchTopUsers() {
+        // Needs to create a new function to fetch with name
+        UserService.fetchUsers { users in
+            self.topUsersFetched = users
+            self.tableView.reloadData()
+        }
+    }
 }
 
 extension TopCollectionViewCell: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 0 {
-            return 40.0
-        }
         return 40.0
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        1
+        3
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let cell = tableView.dequeueReusableHeaderFooterView(withIdentifier: topHeaderReuseIdentifier) as! TopHeaderCell
-        return cell
+        if section == 0 {
+            let cell = tableView.dequeueReusableHeaderFooterView(withIdentifier: topPeopleHeaderReuseIdentifier) as! TopPeopleHeader
+            return cell
+        } else if section == 1 {
+            let cell = tableView.dequeueReusableHeaderFooterView(withIdentifier: topPostHeaderReuseIdentifier) as! TopPostHeader
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableHeaderFooterView(withIdentifier: topCaseHeaderReuseIdentifier) as! TopCaseHeader
+            return cell
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        if section == 0 {
+            return topUsersFetched.count
+        } else {
+            return topUsersFetched.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: testIdentifier, for: indexPath)
-        cell.backgroundColor = .red
-        return cell
+        if indexPath.section == 1 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellIdentifier, for: indexPath) as! TopPeopleCell
+            cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellIdentifier, for: indexPath) as! TopPeopleCell
+            cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
+            return cell
+            
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100
     }
 }
 

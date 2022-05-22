@@ -104,7 +104,7 @@ class FeedCell: UICollectionViewCell {
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(rgb: 0x677987)
-        label.text = "Researcher"
+        label.text = "Physiotherapist"
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         return label
     }()

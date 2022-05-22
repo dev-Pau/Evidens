@@ -199,7 +199,7 @@ extension SearchResultsViewController: SegmentedControlDelegate {
                 self.moveToFrame(contentOffset: contentOffset)
             }
         default:
-            print("error")
+            print("Not found index to c hange position")
         }
     }
     
