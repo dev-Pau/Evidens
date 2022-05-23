@@ -32,9 +32,5 @@ target 'Evidens' do
 
 	#Realm
 	pod 'RealmSwift'
-
-	#GrowingTextView
-	pod 'NextGrowingTextView'
-
 	
 end

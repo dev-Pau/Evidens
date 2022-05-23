@@ -10,6 +10,11 @@ import UIKit
 struct PostViewModel {
     var post: Post
     
+    
+    var postType: Int {
+        return post.type.postType
+    }
+    
     var postText: String {
         return post.postText
     }
@@ -50,6 +55,10 @@ struct PostViewModel {
         return URL(string: post.ownerImageUrl)
     }
     
+    var postImageUrl: [String] {
+        return post.postImageUrl
+    }
+    
     var firstName: String {
         return post.ownerFirstName
     }
@@ -57,6 +66,8 @@ struct PostViewModel {
     var lastName: String {
         return post.ownerLastName
     }
+    
+    
     
     var fullName: String {
         return post.ownerFirstName + " " + post.ownerLastName

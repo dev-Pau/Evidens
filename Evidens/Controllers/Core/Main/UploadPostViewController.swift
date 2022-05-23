@@ -8,14 +8,16 @@
 import UIKit
 import Firebase
 import SDWebImage
-import NextGrowingTextView
-
 
 class UploadPostViewController: UIViewController {
     
     //MARK: - Properties
     
     private var user: User
+    
+    private var postImages = [UIImage?]()
+    
+    var postUrlImages: [String]?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -34,32 +36,16 @@ class UploadPostViewController: UIViewController {
     
     private lazy var postTextView: UITextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Start typing your post"
-        tv.font = UIFont.systemFont(ofSize: 16)
+        tv.placeholderText = "What would you like to share"
+        tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .light)
+        tv.font = .systemFont(ofSize: 18, weight: .regular)
+        tv.textColor = blackColor
         tv.delegate = self
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
         return tv
     }()
      
-     
-    /*
-    private lazy var postTextView: NextGrowingTextView = {
-        let tv = NextGrowingTextView()
-        tv.configuration.minLines = 1
-        tv.configuration.maxLines = 20
-        tv.configuration.isAutomaticScrollToBottomEnabled = true
-        tv.configuration.isFlashScrollIndicatorsEnabled = true
-        tv.placeholderLabel.text = "What would you like to share"
-        tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .light)
-        tv.placeholderLabel.textColor = grayColor
-        tv.textView.font = .systemFont(ofSize: 18, weight: .regular)
-        tv.textView.textColor = blackColor
-        return tv
-    }()
-     */
-     
-
     private lazy var cameraButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "camera.fill"), for: .normal)
@@ -79,8 +65,24 @@ class UploadPostViewController: UIViewController {
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
+        iv.layer.cornerRadius = 10
+        iv.layer.borderWidth = 1
+        iv.layer.borderColor = blackColor.cgColor
+        iv.contentMode = .scaleAspectFill
         return iv
+    }()
+    
+    private lazy var deleteImageButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = blackColor
+        button.configuration?.image = UIImage(named: "x")?.scalePreservingAspectRatio(targetSize: CGSize(width:15, height: 15))
+        //button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.cornerStyle = .capsule
+        button.setDimensions(height: 30, width: 30)
+        button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
+       
+        return button
     }()
     
     //MARK: - Lifecycle
@@ -152,22 +154,44 @@ class UploadPostViewController: UIViewController {
     }
     
     @objc func didTapShare() {
-        guard let postTextView = postTextView.text else { return } //postTextView.textView.text
         
-        //Pass the user to UploadPostViewController instead of fetching current user
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        //UserService.fetchUser(withUid: uid) { user in
-            PostService.uploadPost(post: postTextView, user: user) { error in
-                if let error = error {
-                    print("DEBUG: Failed to upload post with error \(error.localizedDescription)")
-                    return
-                }
-                
-                //Upload FeedViewController when Post is published!!!
-                self.navigationController?.popToRootViewController(animated: true)
-
+        guard let postTextView = postTextView.text else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        if postImages.count > 0 {
+            // Unwrap the images array
+            let imagesToUpload = postImages.compactMap { $0 }
             
+            if postImages.isEmpty == false {
+                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                    // Post images saved to firebase. Upload post with images
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithImage, user: self.user) { error in
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            // Post is uploaded to Firebase
+                            print("Post with text and image uploaded to FB")
+                        }
+                    }
+                }
+            } else {
+                print("Post has no image")
+            }
+        } else {
+            // Post has text
+            PostService.uploadPost(post: postTextView, postImageUrl: nil, type: .plainText, user: user) { error in
+                if let error = error {
+                    print("DEBUG: \(error.localizedDescription)")
+                    return
+                } else {
+                    // Post is uploaded to Firebase
+                    print("Post with only text uploaded to FB")
+                }
+            }
         }
+        
+        
     }
     
     //MARK: - Helpers
@@ -181,7 +205,6 @@ class UploadPostViewController: UIViewController {
         
         view.addSubview(scrollView)
         view.backgroundColor = .white
-        scrollView.backgroundColor = .red
         scrollView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
         //scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
         //scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
@@ -220,8 +243,14 @@ class UploadPostViewController: UIViewController {
     func addPostImageToView(image: UIImage) {
         postImageView.image = image
         scrollView.addSubview(postImageView)
-        postImageView.anchor(top: postTextView.bottomAnchor, left: scrollView.leftAnchor)
-        postImageView.setDimensions(height: 400, width: UIScreen.main.bounds.width)
+        postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
+        postImageView.setHeight(500)
+        
+        scrollView.addSubview(deleteImageButton)
+        deleteImageButton.anchor(top: postImageView.topAnchor, right: postImageView.rightAnchor, paddingTop: 10, paddingRight: 10)
+    
+        postImages.append(image)
+
     }
     
     @objc func didTapCameraButton() {
@@ -235,6 +264,10 @@ class UploadPostViewController: UIViewController {
     
     @objc func didTapPlayButton() {
         print("Did press video")
+    }
+    
+    @objc func didTapDeletePostImage() {
+        
     }
 }
 

@@ -12,7 +12,7 @@ import UIKit
 struct StorageManager {
     
     /// Uploads a profile image for a specific user to firebase storage with url string to download
-    static func uploadImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
+    static func uploadProfileImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
         //let filename = NSUUID().uuidString
         let filename = uid
@@ -30,6 +30,43 @@ struct StorageManager {
             }
         }
     }
+    
+    /// Uploads a profile image for a specific user to firebase storage with url string to download
+    static func uploadPostImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
+        
+        //var imageData: [Data] = []
+        var postImagesUrl: [String] = []
+        
+        images.enumerated().forEach { (index, image) in
+
+            guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+            
+            
+            let filename = "\(uid) \(NSUUID().uuidString)"
+            let ref = Storage.storage().reference(withPath: "/post_images/\(filename)")
+            
+            
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    guard let imageUrl = url?.absoluteString else { return }
+                    postImagesUrl.append(imageUrl)
+                    if images.count == index + 1 {
+                        completion(postImagesUrl)
+                    }
+                }
+            }
+        }
+        //print(postImagesUrl)
+        //completion(postImagesUrl)
+    }
+    
+    
+    
     
     public enum StorageErrors: Error {
            case failedToUpload

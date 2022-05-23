@@ -525,7 +525,6 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - NextGrowingTextView (2.1.0)
   - PromisesObjC (2.0.0)
   - Realm (10.12.0):
     - Realm/Headers (= 10.12.0)
@@ -548,7 +547,6 @@ DEPENDENCIES:
   - GoogleSignIn
   - JGProgressHUD
   - MessageKit
-  - NextGrowingTextView
   - RealmSwift
   - SDWebImage (~> 5.0)
 
@@ -581,7 +579,6 @@ SPEC REPOS:
     - leveldb-library
     - MessageKit
     - nanopb
-    - NextGrowingTextView
     - PromisesObjC
     - Realm
     - RealmSwift
@@ -615,12 +612,11 @@ SPEC CHECKSUMS:
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   MessageKit: 8e76dd8d65ad44b49e1651c673497146416461e9
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  NextGrowingTextView: 249ac6c55877ded085460a397477eca0d19ebabc
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   Realm: 32488213acb44660539c619d620cec1bac046166
   RealmSwift: 0abdca6231d5ff8a4f84cef9c1121ef95a483faf
   SDWebImage: 4dc3e42d9ec0c1028b960a33ac6b637bb432207b
 
-PODFILE CHECKSUM: 36e8df8545325f890a2be5d3043d59150bbd7942
+PODFILE CHECKSUM: c2b3a0bae064a5f753118244ebf457a36a8d8180
 
 COCOAPODS: 1.10.2
