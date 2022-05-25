@@ -100,7 +100,7 @@ extension NotificationViewController {
         if postId != "" {
             guard let postId = postId else { return }
             PostService.fetchPost(withPostId: postId) { post in
-                let controller = FeedViewController(collectionViewLayout: UICollectionViewFlowLayout())
+                let controller = HomeViewController(collectionViewLayout: UICollectionViewFlowLayout())
                 controller.post = post
                 self.navigationController?.pushViewController(controller, animated: true)
             }
@@ -135,7 +135,7 @@ extension NotificationViewController: NotificationCellDelegate {
     //TASK: - Search how to call this function on a generic cell click (if post is associated with the notification)
     func cell(_ cell: NotificationCell, wantsToViewPost postId: String) {
         PostService.fetchPost(withPostId: postId) { post in
-            let controller = FeedViewController(collectionViewLayout: UICollectionViewFlowLayout())
+            let controller = HomeViewController(collectionViewLayout: UICollectionViewFlowLayout())
             controller.post = post
             self.navigationController?.pushViewController(controller, animated: true)
         }

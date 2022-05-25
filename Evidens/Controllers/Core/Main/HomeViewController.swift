@@ -8,15 +8,23 @@
 import UIKit
 
 private let reuseIdentifier = "Cell"
+private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 
 
 protocol FeedControllerDelegate: AnyObject {
     func handleMenuToggle()
 }
 
-class FeedViewController: UICollectionViewController {
+class HomeViewController: UICollectionViewController {
     
     //MARK: - Properties
+    
+    // Instance of MenuViewController
+    let menuController = MenuViewController()
+    
+    fileprivate let menuWidth: CGFloat = 300
+    
+    let mainWindow = UIApplication.shared.keyWindow
     
     weak var delegate: FeedControllerDelegate?
     
@@ -77,7 +85,8 @@ class FeedViewController: UICollectionViewController {
     func configureUI() {
 
         collectionView.backgroundColor = lightColor
-        collectionView.register(FeedCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
@@ -115,6 +124,25 @@ class FeedViewController: UICollectionViewController {
     
     @objc func didTapProfile() {
         print("DEBUG: did tap profile")
+        
+        
+        menuController.view.backgroundColor = .yellow
+        menuController.view.frame = CGRect(x: -menuWidth, y: 0, width: menuWidth, height: self.view.frame.height)
+        
+        // Add side menu
+        mainWindow?.addSubview(menuController.view)
+        
+        
+        
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            self.menuController.view.transform = CGAffineTransform(translationX: self.menuWidth, y: 0)
+        })
+        
+        addChild(menuController)
+        //menuController.view.removeFromSuperview()
+        //menuController.removeFromParent()
+        
+        /*
         guard let user = user else { return }
         
         let backItem = UIBarButtonItem()
@@ -122,8 +150,9 @@ class FeedViewController: UICollectionViewController {
         navigationItem.backBarButtonItem = backItem
         backItem.tintColor = blackColor
         
-        let controller = ProfileViewController(user: user)
+        let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
+         */
     }
                                               
     @objc func didTapChat() {
@@ -206,33 +235,51 @@ class FeedViewController: UICollectionViewController {
 
 //MARK: - UICollectionViewDataSource
 
-extension FeedViewController {
+extension HomeViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return post == nil ? posts.count : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! FeedCell
-        
-        cell.delegate = self
-        
-        cell.layer.borderWidth = 0
-        //cell.layer.borderColor = UIColor.lightGray.cgColor
-        
-        if let post = post {
-            cell.viewModel = PostViewModel(post: post)
+        if posts[indexPath.row].type.postType == 0 {
+            print("post type 0")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+            
+            cell.delegate = self
+            
+            cell.layer.borderWidth = 0
+            //cell.layer.borderColor = UIColor.lightGray.cgColor
+            
+            if let post = post {
+                cell.viewModel = PostViewModel(post: post)
+            } else {
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            }
+            return cell
+
         } else {
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+            cell.postImageView.image = nil
+            //cell.layer.borderColor = UIColor.lightGray.cgColor
+            if let post = post {
+                cell.viewModel = PostViewModel(post: post)
+            } else {
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+            }
+            return cell
         }
-        return cell
     }
 }
 
 
 //MARK: - UICollectionViewDelegateFlowLayout
 
-extension FeedViewController: UICollectionViewDelegateFlowLayout {
+extension HomeViewController: UICollectionViewDelegateFlowLayout {
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -240,12 +287,24 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
             //Single cell display
             return CGSize(width: view.frame.width, height: 300)
         } else {
-            //Array of posts
-            let viewModel = PostViewModel(post: posts[indexPath.row])
-            let height = viewModel.size(forWidth: view.frame.width).height + 220
-            return CGSize(width: view.frame.width, height: height)
+            if posts[indexPath.row].type.postType == 1 {
+                let viewModel = PostViewModel(post: posts[indexPath.row])
+                
+                
+                
+                
+                let height = viewModel.size(forWidth: view.frame.width).height + 700
+                return CGSize(width: view.frame.width, height: height)
+            } else {
+                //Array of posts
+                let viewModel = PostViewModel(post: posts[indexPath.row])
+                let height = viewModel.size(forWidth: view.frame.width).height + 220
+                return CGSize(width: view.frame.width, height: height)
+            }
+            
         }
     }
+     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
           return 14.0
@@ -267,88 +326,96 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
         }
 }
 
-//MARK: - FeedCellDelegate
+//MARK: - HomeCellDelegate
 
-extension FeedViewController: FeedCellDelegate {
-    
-    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post, withAction action: String) {
-        print(action)
+extension HomeViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
+        let controller = CommentViewController(post: post)
+        navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String) {
+    func cell(_ cell: UICollectionViewCell, didLike post: Post) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        switch cell {
+        case is HomeTextCell:
+            let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+                    currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+                    currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                }
+        default:
+            print("No cell registered")
+        }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
         UserService.fetchUser(withUid: uid) { user in
             let controller = ProfileViewController(user: user)
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
     
-    func cell(_ cell: FeedCell, didBookmark post: Post) {
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, withAction action: String) {
+        print(action)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-        cell.viewModel?.post.didBookmark.toggle()
-        if post.didBookmark {
-            //Unbookmark post here
-            PostService.unbookmarkPost(post: post) { _ in
-                cell.bookmarkButton.setImage(UIImage(named: "bookmark"), for: .normal)
-                cell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
-            }
-        } else {
-            //Bookmark post here
-            PostService.bookmarkPost(post: post) { _ in
-                cell.bookmarkButton.setImage(UIImage(named: "bookmark.fill"), for: .normal)
-                cell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
-            }
-        }
-    }
-    
-    func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post) {
-        let controller = CommentViewController(post: post)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func cell(_ cell: FeedCell, didLike post: Post) {
-        //Grab the current user that sends the notification
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        cell.viewModel?.post.didLike.toggle()
-        if post.didLike {
-            //Unlike post here
-            PostService.unlikePost(post: post) { _ in
-                cell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-                cell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
-                cell.viewModel?.post.likes = post.likes - 1
-            }
-        } else {
-            //Like post here
-            PostService.likePost(post: post) { _ in
-                cell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-                cell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
-                cell.viewModel?.post.likes = post.likes + 1
-                
-                NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+        switch cell {
+        case is HomeTextCell:
+            let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            if post.didBookmark {
+                //Unbookmark post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.bookmarkButton.setImage(UIImage(named: "bookmark"), for: .normal)
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                }
+            } else {
+                //Bookmark post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.bookmarkButton.setImage(UIImage(named: "bookmark.fill"), for: .normal)
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
                 }
             }
+            
+        default:
+            print("No cell registered")
+        }
     }
 }
 
-extension FeedViewController: UISearchBarDelegate {
+extension HomeViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         print("User pressed SearchBar")
         
-        let controller = SearchViewController()
-        
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
+        backItem.tintColor = blackColor
         
+        let controller = SearchViewController()
         navigationController?.pushViewController(controller, animated: true)
 
         return true
     }
 }
-
-    
-

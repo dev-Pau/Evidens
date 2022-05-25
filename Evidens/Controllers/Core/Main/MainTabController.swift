@@ -19,8 +19,8 @@ class MainTabController: UITabBarController {
     var user: User? {
         didSet {
             guard let user = user else { return }
-            guard let controller = viewControllers?[0] as? ContainerController else { return }
-            controller.user = user
+            configureViewControllers(withUser: user)
+            //controller.user = user
         }
     }
     
@@ -44,7 +44,6 @@ class MainTabController: UITabBarController {
         view.backgroundColor = primaryColor
         self.tabBar.isHidden = true
         checkIfUserIsLoggedIn()
-        configureViewControllers()
         fetchUser()
     }
     
@@ -96,18 +95,21 @@ class MainTabController: UITabBarController {
     //MARK: - Helpers
 
     //Setup ViewControllers for the TabBarController
-    func configureViewControllers() {
+    func configureViewControllers(withUser user: User) {
         view.backgroundColor = .white
         self.delegate = self
     
-        //let feedLayout = UICollectionViewFlowLayout()
-        //let feed = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: FeedViewController(collectionViewLayout: feedLayout))
+        
+        let layout = UICollectionViewFlowLayout()
+        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
+        
+        /*
         let feedContainer = ContainerController()
         feedContainer.tabBarItem.image = UIImage(named: "home")
         feedContainer.tabBarItem.selectedImage = UIImage(named: "home.fill")
         feedContainer.title = "Home"
         feedContainer.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
-        
+        */
         
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
         
@@ -119,7 +121,7 @@ class MainTabController: UITabBarController {
         let profileController = ViewController()
         let profile = templateNavigationController(title: nil, unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: profileController)
         
-        viewControllers = [feedContainer, search, post, notifications, profile]
+        viewControllers = [home, search, post, notifications, profile]
         
         tabBar.tintColor = .black
     }
@@ -147,6 +149,7 @@ extension MainTabController: UITabBarControllerDelegate {
             print("Is the post VC")
             guard let user = user else { return false }
             let postController = UploadPostViewController(user: user)
+            
             let nav = UINavigationController(rootViewController: postController)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)

@@ -1,29 +1,22 @@
 //
-//  FeedImageCell.swift
+//  FeedCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 23/5/22.
+//  Created by Pau Fernández Solà on 1/10/21.
 //
 
 import UIKit
+import SwiftUI
 
-
-protocol FeedImageCellDelegate: AnyObject {
-    func cell(_ cell: FeedImageCell, wantsToShowCommentsFor post: Post)
-    func cell(_ cell: FeedImageCell, didLike post: Post)
-    func cell(_ cell: FeedImageCell, wantsToShowProfileFor uid: String)
-    func cell(_ cell: FeedImageCell, didPressThreeDotsFor post: Post, withAction action: String)
-    func cell(_ cell: FeedImageCell, didBookmark post: Post)
-}
-
-class FeedImageCell: UICollectionViewCell {
+class HomeTextCell: UICollectionViewCell {
+    
     // MARK: - Properties
     
     var viewModel: PostViewModel? {
         didSet { configure() }
     }
     
-    weak var delegate: FeedImageCellDelegate?
+    weak var delegate: HomeCellDelegate?
     
     private lazy var categoryPostButton: UIButton = {
         let button = UIButton(type: .system)
@@ -134,14 +127,6 @@ class FeedImageCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var postImage: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.setHeight(200)
-        return iv
-    }()
-    
     private let seeMoreLabel: UILabel = {
         let label = UILabel()
         label.textColor = grayColor
@@ -178,6 +163,14 @@ class FeedImageCell: UICollectionViewCell {
         button.setImage(UIImage(named: "share"), for: .normal)
         button.tintColor = blackColor
         return button
+    }()
+    
+    private lazy var postImage: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.setHeight(200)
+        return iv
     }()
     
     lazy var bookmarkButton: UIButton = {
@@ -289,8 +282,6 @@ class FeedImageCell: UICollectionViewCell {
         addSubview(postLabel)
         postLabel.anchor(top: profileImageView.bottomAnchor, left: profileImageView.leftAnchor, right: rightAnchor, paddingTop: 12, paddingRight: 15)
         
-        addSubview(postImage)
-        postImage.anchor(top: postLabel.bottomAnchor, left: leftAnchor, right: rightAnchor)
         
         addSubview(seeMoreLabel)
         seeMoreLabel.anchor(top: postLabel.bottomAnchor, left: postLabel.leftAnchor)
@@ -320,11 +311,6 @@ class FeedImageCell: UICollectionViewCell {
         addSubview(bookmarkButton)
         bookmarkButton.centerY(inView: likeButton)
         bookmarkButton.anchor(right: postLabel.rightAnchor)
-        
-        
-        //Time Label
-        //addSubview(postTimeLabel)
-        //postTimeLabel.centerY(inView: profileImageView, leftAnchor: shareButton.rightAnchor, paddingLeft: 8)
     }
     
     required init?(coder: NSCoder) {
@@ -364,41 +350,18 @@ class FeedImageCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         
+        let postType = viewModel.postType
+     
         //Configure post with post info
         postLabel.text = viewModel.postText
         likesLabel.text = viewModel.likesLabelText
         likesIndicatorImage.isHidden = viewModel.isLikesHidden
         postTimeLabel.text = viewModel.timestampString
         bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
-        
-        var finalUrl = [URL]()
-        
-        viewModel.postImageUrl.enumerated().forEach { index, url in
-            if let temp = URL(string: url) {
-                finalUrl.append(temp)
-                if viewModel.postImageUrl.count == index + 1 {
-                    DispatchQueue.global().async {
-                        let data = try? Data(contentsOf: finalUrl[0]) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-                        DispatchQueue.main.async {
-                            self.postImage.image = UIImage(data: data!)
-                        }
-                    }
-                }
-            } else {
-                return
-            }
-            
-        }
-        
+
         //Configure post with user info
-        let url = viewModel.userProfileImageUrl
-        guard let url = url else { return }
-        DispatchQueue.global().async {
-            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-            DispatchQueue.main.async {
-                self.profileImageView.image = UIImage(data: data!)
-            }
-        }
+        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        
         usernameLabel.text = viewModel.fullName
         //usernameButton.setTitle(viewModel.fullName, for: .normal)
         
@@ -455,8 +418,6 @@ class FeedImageCell: UICollectionViewCell {
         commentLabel.removeFromSuperview()
         shareLabel.removeFromSuperview()
         dotSeparator.removeFromSuperview()
-            
-            
     }
     
     func addMenuItems() -> UIMenu {
@@ -472,4 +433,3 @@ class FeedImageCell: UICollectionViewCell {
         
     }
 }
-

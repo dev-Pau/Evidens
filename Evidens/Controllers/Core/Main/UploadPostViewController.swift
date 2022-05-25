@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import Photos
+import PhotosUI
 import Firebase
 import SDWebImage
 
@@ -25,6 +27,11 @@ class UploadPostViewController: UIViewController {
         return scrollView
     }()
     
+    private let toolbar: UIToolbar = {
+        let toolbar = UIToolbar()
+        return toolbar
+    }()
+    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
@@ -33,6 +40,25 @@ class UploadPostViewController: UIViewController {
         return iv
     }()
     
+    private let fullName: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.textColor = blackColor
+        return label
+    }()
+    
+    private lazy var cancelImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "x")
+        iv.setDimensions(height: 35, width: 35)
+        iv.tintColor = blackColor
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapCancel))
+        iv.addGestureRecognizer(tap)
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
     
     private lazy var postTextView: UITextView = {
         let tv = InputTextView()
@@ -62,6 +88,14 @@ class UploadPostViewController: UIViewController {
         return button
     }()
     
+    private lazy var galleryButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "photo"), for: .normal)
+        button.addTarget(self, action: #selector(didTapGalleryButton), for: .touchUpInside)
+        button.tintColor = UIColor(rgb: 0x2B2D42)
+        return button
+    }()
+    
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -72,16 +106,26 @@ class UploadPostViewController: UIViewController {
         return iv
     }()
     
+    private lazy var collectionView: UICollectionView = {
+        let collectionViewFlowLayout = UICollectionViewFlowLayout()
+        collectionViewFlowLayout.scrollDirection = .horizontal
+        collectionViewFlowLayout.minimumLineSpacing = 1
+        collectionViewFlowLayout.minimumInteritemSpacing = 1
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
+        collectionView.isPagingEnabled = true
+        collectionView.indicatorStyle = .white
+        return collectionView
+    }()
+    
     private lazy var deleteImageButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = blackColor
         button.configuration?.image = UIImage(named: "x")?.scalePreservingAspectRatio(targetSize: CGSize(width:15, height: 15))
-        //button.configuration?.baseForegroundColor = blackColor
         button.configuration?.cornerStyle = .capsule
         button.setDimensions(height: 30, width: 30)
         button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
-       
         return button
     }()
     
@@ -199,9 +243,11 @@ class UploadPostViewController: UIViewController {
     func configureUI() {
         view.backgroundColor = .white
         navigationItem.title = "New Post"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: cancelImageView.image, style: .plain, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Share", style: .done, target: self, action: #selector(didTapShare))
-        navigationItem.rightBarButtonItem?.tintColor = UIColor(rgb: 0x79CBBF)
+        navigationItem.leftBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
         
         view.addSubview(scrollView)
         view.backgroundColor = .white
@@ -215,6 +261,10 @@ class UploadPostViewController: UIViewController {
         profileImageView.layer.cornerRadius = 60/2
         profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         
+        scrollView.addSubview(fullName)
+        fullName.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, paddingLeft: 4)
+        fullName.text = user.firstName! + " " + user.lastName!
+        
         scrollView.addSubview(postTextView)
         postTextView.anchor(top: profileImageView.bottomAnchor, left: profileImageView.leftAnchor, paddingTop: 10, paddingRight: 15)
         postTextView.setDimensions(height: 100, width: UIScreen.main.bounds.width - 30)
@@ -223,7 +273,7 @@ class UploadPostViewController: UIViewController {
     }
     
     func configureKeyboard() {
-        let toolbar = UIToolbar()
+        
         toolbar.sizeToFit()
         
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
@@ -233,24 +283,39 @@ class UploadPostViewController: UIViewController {
         
         let cameraButtonKeyboard = UIBarButtonItem(customView: cameraButton)
         let playButtonKeyboard = UIBarButtonItem(customView: playButton)
-        toolbar.setItems([cameraButtonKeyboard, fixedSpace, playButtonKeyboard, flexibleSpace], animated: true)
+        let galleryButtonKeyboard = UIBarButtonItem(customView: galleryButton)
+        
+        toolbar.setItems([cameraButtonKeyboard, fixedSpace, playButtonKeyboard, fixedSpace, galleryButtonKeyboard, flexibleSpace], animated: true)
         
         postTextView.inputAccessoryView = toolbar //postTextView.textView
         
         postTextView.becomeFirstResponder()
     }
     
-    func addPostImageToView(image: UIImage) {
+    func addSinglePostImageToView(image: UIImage) {
         postImageView.image = image
         scrollView.addSubview(postImageView)
         postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
-        postImageView.setHeight(500)
+        
+        
+        let ratio = image.size.width / image.size.height
+        let newHeight = view.bounds.width / ratio
+        postImageView.setHeight(newHeight)
+        //postImageView.setDimensions(height: newHeight, width: view.bounds.width)
+        //view.layoutIfNeeded()
+        
         
         scrollView.addSubview(deleteImageButton)
         deleteImageButton.anchor(top: postImageView.topAnchor, right: postImageView.rightAnchor, paddingTop: 10, paddingRight: 10)
     
         postImages.append(image)
-
+        
+        toolbar.isUserInteractionEnabled = false
+        cameraButton.alpha = 0.5
+    }
+    
+    func addPostImagesToView(images: [UIImage]) {
+        
     }
     
     @objc func didTapCameraButton() {
@@ -266,8 +331,23 @@ class UploadPostViewController: UIViewController {
         print("Did press video")
     }
     
+    @objc func didTapGalleryButton() {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 5
+        config.preferredAssetRepresentationMode = .current
+        config.filter = PHPickerFilter.any(of: [.images])
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
     @objc func didTapDeletePostImage() {
-        
+        postImageView.removeFromSuperview()
+        postImages.removeAll()
+        deleteImageButton.removeFromSuperview()
+        scrollView.resizeScrollViewContentSize()
+        toolbar.isUserInteractionEnabled = true
+        cameraButton.alpha = 1
     }
 }
 
@@ -285,9 +365,7 @@ extension UploadPostViewController: UITextViewDelegate {
                 constraint.constant = estimatedSize.height
             }
         }
-        
         scrollView.resizeScrollViewContentSize()
-        
     }
 }
 
@@ -304,9 +382,21 @@ extension UploadPostViewController: UIImagePickerControllerDelegate, UINavigatio
         if let image = info[.originalImage] as? UIImage,
            let imageData = image.pngData() {
             print("Image got saved")
-            addPostImageToView(image: image)
+            addSinglePostImageToView(image: image)
         }
         scrollView.resizeScrollViewContentSize()
+    }
+}
+
+extension UploadPostViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true, completion: nil)
+        results.enumerated().forEach { index, result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                guard let image = reading as? UIImage, error == nil else { return }
+                self.postImages.append(image)
+            }
+        }
     }
 }
 

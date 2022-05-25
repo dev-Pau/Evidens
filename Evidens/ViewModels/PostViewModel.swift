@@ -55,9 +55,13 @@ struct PostViewModel {
         return URL(string: post.ownerImageUrl)
     }
     
-    var postImageUrl: [String] {
-        return post.postImageUrl
+    var postImageUrl: [URL] {
+        post.postImageUrl.map { image in
+            URL(string: image)!
+        }
     }
+    
+    
     
     var firstName: String {
         return post.ownerFirstName

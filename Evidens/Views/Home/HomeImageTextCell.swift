@@ -1,29 +1,25 @@
 //
-//  FeedCell.swift
+//  HomeImageTextCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/10/21.
+//  Created by Pau Fernández Solà on 24/5/22.
 //
 
 import UIKit
 
-protocol FeedCellDelegate: AnyObject {
-    func cell(_ cell: FeedCell, wantsToShowCommentsFor post: Post)
-    func cell(_ cell: FeedCell, didLike post: Post)
-    func cell(_ cell: FeedCell, wantsToShowProfileFor uid: String)
-    func cell(_ cell: FeedCell, didPressThreeDotsFor post: Post, withAction action: String)
-    func cell(_ cell: FeedCell, didBookmark post: Post)
-}
+private let reuseIdentifier = "reuseIdentifier"
 
-class FeedCell: UICollectionViewCell {
+class HomeImageTextCell: UICollectionViewCell {
     
     // MARK: - Properties
     
     var viewModel: PostViewModel? {
-        didSet { configure() }
+        didSet {
+            configure()
+        }
     }
     
-    weak var delegate: FeedCellDelegate?
+    weak var delegate: HomeCellDelegate?
     
     private lazy var categoryPostButton: UIButton = {
         let button = UIButton(type: .system)
@@ -165,6 +161,17 @@ class FeedCell: UICollectionViewCell {
         return button
     }()
     
+    lazy var postImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .lightGray
+        iv.backgroundColor = lightGrayColor
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
+    
     private lazy var shareButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "share"), for: .normal)
@@ -245,7 +252,7 @@ class FeedCell: UICollectionViewCell {
         super.init(frame: frame)
         
         backgroundColor = .white
-        
+
         addSubview(categoryPostButton)
         categoryPostButton.anchor(top: topAnchor, left: leftAnchor, paddingTop: 10, paddingLeft: 15)
         
@@ -292,10 +299,13 @@ class FeedCell: UICollectionViewCell {
         
         addSubview(seeMoreLabel)
         seeMoreLabel.anchor(top: postLabel.bottomAnchor, left: postLabel.leftAnchor)
+        
+        addSubview(postImageView)
+        postImageView.anchor(top: postLabel.bottomAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 12)
 
         
         addSubview(likesIndicatorImage)
-        likesIndicatorImage.anchor(top: seeMoreLabel.bottomAnchor, left: postLabel.leftAnchor, paddingTop: 12)
+        likesIndicatorImage.anchor(top: postImageView.bottomAnchor, left: postLabel.leftAnchor, paddingTop: 12)
         
         addSubview(likesLabel)
         likesLabel.centerY(inView: likesIndicatorImage, leftAnchor: likesIndicatorImage.rightAnchor, paddingLeft: 2)
@@ -318,6 +328,7 @@ class FeedCell: UICollectionViewCell {
         addSubview(bookmarkButton)
         bookmarkButton.centerY(inView: likeButton)
         bookmarkButton.anchor(right: postLabel.rightAnchor)
+
     }
     
     required init?(coder: NSCoder) {
@@ -356,25 +367,32 @@ class FeedCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
+
+        //collectionView.register(ImageCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier!)
+        //collectionView.delegate = self
+        //collectionView.dataSource = self
         
-        let postType = viewModel.postType
-     
+        
         //Configure post with post info
         postLabel.text = viewModel.postText
         likesLabel.text = viewModel.likesLabelText
         likesIndicatorImage.isHidden = viewModel.isLikesHidden
         postTimeLabel.text = viewModel.timestampString
         bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
+        
+        postImageView.sd_setImage(with: viewModel.postImageUrl[0]) { image,_,_,_ in
+            guard let image = image else { return }
+            let ratio = image.size.width / image.size.height
+            let newHeight = self.frame.width / ratio
 
-        //Configure post with user info
-        let url = viewModel.userProfileImageUrl
-        guard let url = url else { return }
-        DispatchQueue.global().async {
-            let data = try? Data(contentsOf: url) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-            DispatchQueue.main.async {
-                self.profileImageView.image = UIImage(data: data!)
-            }
+            self.postImageView.setHeight(newHeight)
         }
+ 
+        //postImageView.setDimensions(height: 300, width: frame.width)
+        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        
+        //imagesToDisplay = viewModel.postImageUrl
+        
         usernameLabel.text = viewModel.fullName
         //usernameButton.setTitle(viewModel.fullName, for: .normal)
         
@@ -448,3 +466,25 @@ class FeedCell: UICollectionViewCell {
         
     }
 }
+
+/*
+extension HomeImageTextCell: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imagesToDisplay.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier!, for: indexPath) as! ImageCollectionViewCell
+        //cell.postImageView.image = nil
+        cell.viewModel = PostImageViewModel(imageString: imagesToDisplay[indexPath.row])
+        //print(indexPath[indexPath.row])
+        return cell
+    }
+}
+
+extension HomeImageTextCell: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: frame.size.width, height: 300)
+    }
+}
+ */
