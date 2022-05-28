@@ -22,21 +22,34 @@ struct ProfileHeaderViewModel {
         return URL(string: user.profileImageUrl!)
     }
     
+    var userCategory: String {
+        return user.category!
+    }
+    
+    var pointsMessageText: String {
+        return user.isCurrentUser ? "149 points" : "Message"
+        // Implement user.isCurrentUser ? "FETCH POINTS" : "Message"
+    }
+    
     //Change button text wether is, or not, current user
     var followButtonText: String {
         if user.isCurrentUser {
             return "Edit Profile"
         }
         
-        return user.isFollowed ? "Following" : "Follow"
+        return user.isFollowed ? "Connected" : "Connect"
     }
     
     var followButtonBackgroundColor: UIColor {
-        return user.isCurrentUser ? .white : .lightGray
+        return user.isCurrentUser ? lightGrayColor : primaryColor
+    }
+    
+    var followButtonImage: UIImage? {
+        return user.isCurrentUser ? UIImage(named: "pencil") : UIImage(named: "")
     }
     
     var followButtonTextColor: UIColor {
-        return user.isCurrentUser ? .black : .white
+        return user.isCurrentUser ? blackColor : .white
     }
     
     var numberOfFollowers: NSAttributedString {

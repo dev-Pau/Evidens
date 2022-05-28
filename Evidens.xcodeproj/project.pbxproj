@@ -76,6 +76,7 @@
 		5F598C12283D24E700189722 /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C11283D24E600189722 /* ImageCollectionViewCell.swift */; };
 		5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C13283D2E8C00189722 /* PostImageViewModel.swift */; };
 		5F598C19283E7F9400189722 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C18283E7F9300189722 /* MenuViewController.swift */; };
+		5F598C1B283F969200189722 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C1A283F969100189722 /* ContainerViewController.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
@@ -181,6 +182,7 @@
 		5F598C11283D24E600189722 /* ImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		5F598C13283D2E8C00189722 /* PostImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostImageViewModel.swift; sourceTree = "<group>"; };
 		5F598C18283E7F9300189722 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
+		5F598C1A283F969100189722 /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -295,7 +297,7 @@
 		5F4493B82760CD14008FD6ED /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				5F598C17283E7F6800189722 /* Side Menu */,
+				5F598C17283E7F6800189722 /* Home */,
 				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
 				5FC4D87A2707058D006B7A34 /* HomeViewController.swift */,
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
@@ -440,12 +442,13 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
-		5F598C17283E7F6800189722 /* Side Menu */ = {
+		5F598C17283E7F6800189722 /* Home */ = {
 			isa = PBXGroup;
 			children = (
 				5F598C18283E7F9300189722 /* MenuViewController.swift */,
+				5F598C1A283F969100189722 /* ContainerViewController.swift */,
 			);
-			path = "Side Menu";
+			path = Home;
 			sourceTree = "<group>";
 		};
 		5F8666F3274FAD44009B26E6 /* Others */ = {
@@ -889,6 +892,7 @@
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
+				5F598C1B283F969200189722 /* ContainerViewController.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,

@@ -22,11 +22,6 @@ class HomeViewController: UICollectionViewController {
     // Instance of MenuViewController
     let menuController = MenuViewController()
     
-    fileprivate let menuWidth: CGFloat = 300
-    var isMenuOpened = false
-    
-    let mainWindow = UIApplication.shared.keyWindow
-    
     weak var delegate: FeedControllerDelegate?
     
     var user: User?
@@ -37,7 +32,7 @@ class HomeViewController: UICollectionViewController {
         iv.setDimensions(height: 35, width: 35)
         iv.layer.cornerRadius = 35/2
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(handleOpen))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
         iv.addGestureRecognizer(tap)
         iv.isUserInteractionEnabled = true
         
@@ -62,20 +57,16 @@ class HomeViewController: UICollectionViewController {
 
     //MARK: - Lifecycle
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchUser()
         fetchPosts()
         configureUI()
-        configureMenuController()
         configureNavigationItemButtons()
         searchBar.delegate = self
-        
-        
-        
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        view.addGestureRecognizer(panGesture)
-        
+
         if post != nil {
             checkIfUserLikedPosts()
         }
@@ -101,12 +92,6 @@ class HomeViewController: UICollectionViewController {
         collectionView.refreshControl = refresher
     }
     
-    func configureMenuController() {
-        menuController.view.frame = CGRect(x: -menuWidth, y: 0, width: menuWidth, height: self.view.frame.height)
-        mainWindow?.addSubview(menuController.view)
-        addChild(menuController)
-    }
-    
     func configureNavigationItemButtons() {
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "messages"),
@@ -123,38 +108,6 @@ class HomeViewController: UICollectionViewController {
         
     }
     
-    func performAnimations(transform: CGAffineTransform) {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-            self.menuController.view.transform = transform
-            self.navigationController?.view.transform = transform
-        })
-    }
-    
-    func handleClose() {
-        isMenuOpened = false
-        performAnimations(transform: .identity)
-    }
-    
-    func handleEnded(gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: view)
-        
-        //let velocity = gesture.velocity(in: view)
-        
-        if isMenuOpened {
-            if abs(translation.x) < menuWidth / 6 {
-                handleOpen()
-            } else {
-                handleClose()
-            }
-        } else {
-            if translation.x < menuWidth / 6 {
-                handleClose()
-            } else {
-                handleOpen()
-            }
-        }
-    }
-    
     //MARK: - Actions
     
     @objc func handleRefresh() {
@@ -162,15 +115,8 @@ class HomeViewController: UICollectionViewController {
         posts.removeAll()
         fetchPosts()
     }
-
-    @objc func didTapFilter() {
-        print("DEBUG: did tap filter")
-    }
     
-    @objc func handleOpen() {
-        isMenuOpened = true
-        performAnimations(transform: CGAffineTransform(translationX: self.menuWidth, y: 0))
-        /*
+    @objc func didTapProfile() {
         guard let user = user else { return }
         
         let backItem = UIBarButtonItem()
@@ -180,32 +126,9 @@ class HomeViewController: UICollectionViewController {
         
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
-         */
+        
     }
 
-    @objc func handlePan(gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: view)
-        
-        if gesture.state == .changed {
-            var x = translation.x
-            
-            if isMenuOpened {
-                x += menuWidth
-            }
-            
-            x = min(menuWidth, x)
-            x = max(0, x)
-            
-            let transform = CGAffineTransform(translationX: x, y: 0)
-            menuController.view.transform = transform
-            navigationController?.view.transform = transform
-            
-        } else if gesture.state == .ended {
-            handleEnded(gesture: gesture)
-        }
-    }
-    
-                                              
     @objc func didTapChat() {
         let controller = ConversationViewController()
         
@@ -417,7 +340,7 @@ extension HomeViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
         UserService.fetchUser(withUid: uid) { user in
-            let controller = ProfileViewController(user: user)
+            let controller = UserProfileViewController(user: user)
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }

@@ -248,7 +248,7 @@ extension SearchViewController: RecentUserCellDelegate {
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         
-        let controller = ProfileViewController(user: user)
+        let controller = UserProfileViewController(user: user)
         self.navigationController?.pushViewController(controller, animated: true)
     }
     

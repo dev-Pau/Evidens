@@ -95,6 +95,8 @@ class ProfileHeader: UICollectionReusableView {
         backgroundColor = .white
         
         addSubview(profileImageView)
+        
+        
         profileImageView.anchor(top: topAnchor, paddingTop: 16)
         profileImageView.centerX(inView: self)
         profileImageView.setDimensions(height: 100, width: 100)

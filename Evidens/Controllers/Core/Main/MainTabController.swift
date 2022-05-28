@@ -18,6 +18,7 @@ class MainTabController: UITabBarController {
     
     var user: User? {
         didSet {
+            //guard let controller = viewControllers?[0] as? ContainerViewController else { return }
             guard let user = user else { return }
             configureViewControllers(withUser: user)
             //controller.user = user
@@ -95,7 +96,7 @@ class MainTabController: UITabBarController {
     //MARK: - Helpers
 
     //Setup ViewControllers for the TabBarController
-    func configureViewControllers(withUser user: User) {
+    func configureViewControllers(withUser: User) {
         view.backgroundColor = .white
         self.delegate = self
     
@@ -104,11 +105,11 @@ class MainTabController: UITabBarController {
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
         
         /*
-        let feedContainer = ContainerController()
-        feedContainer.tabBarItem.image = UIImage(named: "home")
-        feedContainer.tabBarItem.selectedImage = UIImage(named: "home.fill")
-        feedContainer.title = "Home"
-        feedContainer.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
+        let homeContainer = ContainerViewController()
+        homeContainer.tabBarItem.image = UIImage(named: "home")
+        homeContainer.tabBarItem.selectedImage = UIImage(named: "home.fill")
+        homeContainer.title = "Home"
+        homeContainer.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
         */
         
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
