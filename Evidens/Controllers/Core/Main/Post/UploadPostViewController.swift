@@ -29,6 +29,8 @@ class UploadPostViewController: UIViewController {
     
     private let toolbar: UIToolbar = {
         let toolbar = UIToolbar()
+        toolbar.isTranslucent = false
+        toolbar.layer.borderWidth = 0
         return toolbar
     }()
     

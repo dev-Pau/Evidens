@@ -19,8 +19,6 @@ class HomeViewController: UICollectionViewController {
     
     //MARK: - Properties
     
-    // Instance of MenuViewController
-    let menuController = MenuViewController()
     
     weak var delegate: FeedControllerDelegate?
     
