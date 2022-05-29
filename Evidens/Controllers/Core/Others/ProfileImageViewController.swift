@@ -17,7 +17,6 @@ class ProfileImageViewController: UIViewController {
     private var user: User
     
     init (user: User) {
-        
         self.user = user
         super.init(nibName: nil, bundle: nil)
     }
@@ -55,12 +54,7 @@ class ProfileImageViewController: UIViewController {
     }
     
     //MARK: - Actions
-    
-    @objc func didTapCancel() {
-        print("DEBUG: did tap cancel")
-        navigationController?.popToRootViewController(animated: true)
-    }
-    
+
     @objc func didTapShare() {
         let activityVC = UIActivityViewController(activityItems: [self.profileImageView.image as Any], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
@@ -68,7 +62,6 @@ class ProfileImageViewController: UIViewController {
     }
     
     @objc func didTapEditProfile() {
-        print("DEBUG: did tap edit profile")
         let picker = UIImagePickerController()
         picker.delegate = self
         picker.allowsEditing = true
@@ -84,7 +77,6 @@ class ProfileImageViewController: UIViewController {
         let backgroundColor = profileImageView.image?.averageColor
         view.backgroundColor = backgroundColor
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "xmark"), style: .done, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         
         view.addSubview(profileImageView)

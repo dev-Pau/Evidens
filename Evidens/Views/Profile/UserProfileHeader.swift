@@ -7,11 +7,17 @@
 
 import UIKit
 
+protocol UserProfileHeaderDelegate: AnyObject {
+    func header(_ userProfileHeader: UserProfileHeader, didTapProfilePictureFor user: User)
+}
+
 class UserProfileHeader: UITableViewHeaderFooterView {
     
     //MARK: - Properties
     
     let screenSize = UIScreen.main.bounds.size.width
+    
+    weak var delegate: UserProfileHeaderDelegate?
     
     var viewModel: ProfileHeaderViewModel? {
         didSet {
@@ -36,6 +42,11 @@ class UserProfileHeader: UITableViewHeaderFooterView {
         iv.image = UIImage(systemName: "person.fill")
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor(rgb: 0xFFFFFF).cgColor
+        
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapProfilePicture))
+        iv.addGestureRecognizer(gesture)
+        iv.isUserInteractionEnabled = true
+        
         return iv
     }()
     
@@ -261,7 +272,7 @@ class UserProfileHeader: UITableViewHeaderFooterView {
         addSubview(editFollowProfileButton)
         addSubview(pointsMessageButton)
         addSubview(otherProfileInfoButton)
-        addSubview(stack)
+        //addSubview(stack)
         
         NSLayoutConstraint.activate([
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
@@ -295,7 +306,7 @@ class UserProfileHeader: UITableViewHeaderFooterView {
             
             pointsMessageButton.topAnchor.constraint(equalTo: editFollowProfileButton.topAnchor),
             pointsMessageButton.leadingAnchor.constraint(equalTo: editFollowProfileButton.trailingAnchor, constant: 10),
-            pointsMessageButton.widthAnchor.constraint(equalToConstant: screenSize * 0.3),
+            pointsMessageButton.widthAnchor.constraint(equalToConstant: screenSize * 0.33),
             pointsMessageButton.bottomAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor),
             
             otherProfileInfoButton.topAnchor.constraint(equalTo: pointsMessageButton.topAnchor),
@@ -303,10 +314,10 @@ class UserProfileHeader: UITableViewHeaderFooterView {
             otherProfileInfoButton.bottomAnchor.constraint(equalTo: pointsMessageButton.bottomAnchor),
             otherProfileInfoButton.leadingAnchor.constraint(equalTo: pointsMessageButton.trailingAnchor, constant: 10),
             
-            stack.topAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor, constant: 10),
-            stack.leadingAnchor.constraint(equalTo: editFollowProfileButton.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
-            stack.heightAnchor.constraint(equalToConstant: 70)
+            //stack.topAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor, constant: 10),
+            //stack.leadingAnchor.constraint(equalTo: editFollowProfileButton.leadingAnchor),
+            //stack.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
+            //stack.heightAnchor.constraint(equalToConstant: 70)
         ])
         
         
@@ -335,11 +346,14 @@ class UserProfileHeader: UITableViewHeaderFooterView {
         editFollowProfileButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
         
         pointsMessageButton.configuration?.attributedTitle = AttributedString(viewModel.pointsMessageText, attributes: container)
-        
-        
     }
     
     //MARK: - Actions
+    
+    @objc func didTapProfilePicture() {
+        guard let viewModel = viewModel else { return }
+        delegate?.header(self, didTapProfilePictureFor: viewModel.user)
+    }
     
     //MARK: - API
 }

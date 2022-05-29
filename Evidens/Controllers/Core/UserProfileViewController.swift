@@ -87,6 +87,7 @@ extension UserProfileViewController: UITableViewDelegate, UITableViewDataSource 
         if section == 0 {
             let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: profileHeaderReuseIdentifier) as! UserProfileHeader
             header.viewModel = ProfileHeaderViewModel(user: user)
+            header.delegate = self
             return header
         } else {
             let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: profileHeaderReuseIdentifier) as! UserProfileHeader
@@ -98,7 +99,7 @@ extension UserProfileViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 500
+        return 410
     }
     
     
@@ -120,6 +121,31 @@ extension UserProfileViewController: UITableViewDelegate, UITableViewDataSource 
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
+}
+
+//MARK: - UserProfileHeaderDelegate
+
+extension UserProfileViewController: UserProfileHeaderDelegate {
     
-    
+    func header(_ userProfileHeader: UserProfileHeader, didTapProfilePictureFor user: User) {
+        
+        let controller = ProfileImageViewController(user: user)
+        controller.hidesBottomBarWhenPushed = true
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        backItem.tintColor = blackColor
+        
+        if user.isCurrentUser {
+            print("Is current user")
+            
+            controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            controller.editProfileButton.isHidden = false
+            navigationController?.pushViewController(controller, animated: true)
+            
+        } else {
+            print("Is not current user")
+        }
+    }
 }
