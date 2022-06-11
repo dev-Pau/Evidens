@@ -14,7 +14,7 @@ class MainTabController: UITabBarController {
     
     //MARK: Properties
     
-    var lastIndex = 0
+    private var postMenuLauncher = PostBottomMenuLauncher()
     
     var user: User? {
         didSet {
@@ -24,6 +24,7 @@ class MainTabController: UITabBarController {
             //controller.user = user
         }
     }
+    
     
     //MARK: - Lifecycle
     
@@ -44,6 +45,7 @@ class MainTabController: UITabBarController {
         //AuthService.logout()
         view.backgroundColor = primaryColor
         self.tabBar.isHidden = true
+        postMenuLauncher.delegate = self
         checkIfUserIsLoggedIn()
         fetchUser()
     }
@@ -100,17 +102,8 @@ class MainTabController: UITabBarController {
         view.backgroundColor = .white
         self.delegate = self
     
-        
         let layout = UICollectionViewFlowLayout()
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
-        
-        /*
-        let homeContainer = ContainerViewController()
-        homeContainer.tabBarItem.image = UIImage(named: "home")
-        homeContainer.tabBarItem.selectedImage = UIImage(named: "home.fill")
-        homeContainer.title = "Home"
-        homeContainer.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
-        */
         
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases")!, rootViewController: SearchViewController())
         
@@ -147,20 +140,35 @@ extension MainTabController: UITabBarControllerDelegate {
     //Check pressed tab
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController == tabBarController.viewControllers?[2] {
-            print("Is the post VC")
-            guard let user = user else { return false }
-            let postController = UploadPostViewController(user: user)
+            postMenuLauncher.showPostSettings(in: view)
             
-            let nav = UINavigationController(rootViewController: postController)
-            nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true, completion: nil)
+            //guard let user = user else { return false }
+            //let postController = UploadPostViewController(user: user)
+            
+            //let nav = UINavigationController(rootViewController: postController)
+            //nav.modalPresentationStyle = .fullScreen
+            //present(nav, animated: true, completion: nil)
+            
             return false
         }
         return true
     }
-    
-    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+}
+
+extension MainTabController: PostBottomMenuLauncherDelegate {
+    func didTapUploadPost() {
+        print("DEBUG: Upload Post")
+        guard let user = user else { return }
+        let postController = UploadPostViewController(user: user)
         
+        let nav = UINavigationController(rootViewController: postController)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true, completion: nil)
     }
+    
+    func didTapUploadClinicalCase() {
+        print("DEBUG: Upload Clinical Case")
+    }
+
 }
 

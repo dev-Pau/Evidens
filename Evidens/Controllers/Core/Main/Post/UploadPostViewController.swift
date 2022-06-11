@@ -31,6 +31,7 @@ class UploadPostViewController: UIViewController {
         let toolbar = UIToolbar()
         toolbar.isTranslucent = false
         toolbar.layer.borderWidth = 0
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
         return toolbar
     }()
     
@@ -382,7 +383,7 @@ extension UploadPostViewController: UIImagePickerControllerDelegate, UINavigatio
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true, completion: nil)
         if let image = info[.originalImage] as? UIImage,
-           let imageData = image.pngData() {
+           let _ = image.pngData() {
             print("Image got saved")
             addSinglePostImageToView(image: image)
         }
@@ -395,7 +396,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         results.enumerated().forEach { index, result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
-                guard let image = reading as? UIImage, error == nil else { return }
+                guard let image = reading as? UIImage, error == nil else { return }
                 self.postImages.append(image)
             }
         }

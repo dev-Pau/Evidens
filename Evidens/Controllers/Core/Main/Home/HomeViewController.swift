@@ -215,7 +215,7 @@ extension HomeViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         if posts[indexPath.row].type.postType == 0 {
-            print("post type 0")
+            //print("post type 0")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
             
             cell.delegate = self
@@ -231,7 +231,7 @@ extension HomeViewController {
             return cell
 
         } else {
-            print("post type 1")
+            //print("post type 1")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
@@ -327,7 +327,6 @@ extension HomeViewController: HomeCellDelegate {
                     currentCell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
                     currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                     currentCell.viewModel?.post.likes = post.likes + 1
-                    
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 }

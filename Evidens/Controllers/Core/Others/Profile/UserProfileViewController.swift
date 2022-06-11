@@ -139,7 +139,6 @@ extension UserProfileViewController: UserProfileHeaderDelegate {
         
         if user.isCurrentUser {
             print("Is current user")
-            
             controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
             controller.editProfileButton.isHidden = false
             navigationController?.pushViewController(controller, animated: true)

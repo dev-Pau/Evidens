@@ -26,7 +26,7 @@ class WelcomeViewController: UIViewController {
         return label
     }()
     
-    private let googleSingInButton: UIButton = {
+    private lazy var googleSingInButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
@@ -73,7 +73,7 @@ class WelcomeViewController: UIViewController {
         return button
     }()
     
-    private let loginButton: UIButton = {
+    private lazy var loginButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
         button.configuration?.baseBackgroundColor = .white
@@ -95,7 +95,7 @@ class WelcomeViewController: UIViewController {
         return label
     }()
     
-    private let signUpButton: UIButton = {
+    private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Create account", for: .normal)
         button.setTitleColor(.white, for: .normal)
@@ -229,7 +229,7 @@ class WelcomeViewController: UIViewController {
                 guard let googleUser = result?.user else { return }
                 
                 print(googleUser.displayName ?? "Success!")
-                print(googleUser.email)
+                print(googleUser.email ?? "No email")
                 
             }
         }

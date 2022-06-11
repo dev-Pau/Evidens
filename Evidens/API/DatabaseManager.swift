@@ -42,7 +42,7 @@ extension DatabaseManager {
                 userCollection.append(newUser)
                 
                 self.database.child("users").setValue(userCollection) { error, _ in
-                    if let error = error { return }
+                    if let _ = error { return }
                 }
                 
                 //completion(true)
@@ -54,7 +54,7 @@ extension DatabaseManager {
                                                           "uid": user.uid
                                                          ]]
                 self.database.child("users").setValue(newCollection) { error, _ in
-                    if let error = error { return }
+                    if let _ = error { return }
                 }
                 
                 //completion(true)

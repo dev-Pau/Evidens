@@ -29,7 +29,7 @@ struct AuthService {
         
             Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { (result, error) in
                 
-                if let error = error { return }
+                if let _ = error { return }
                 
                 //Unique identifier of user
                 guard let uid = result?.user.uid else { return }
