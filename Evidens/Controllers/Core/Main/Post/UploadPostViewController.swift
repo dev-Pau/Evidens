@@ -17,7 +17,7 @@ class UploadPostViewController: UIViewController {
     
     private var user: User
     
-    private var postImages = [UIImage?]()
+    private var postImages = [UIImage]()
     
     var postUrlImages: [String]?
     
@@ -245,7 +245,7 @@ class UploadPostViewController: UIViewController {
     
     func configureUI() {
         view.backgroundColor = .white
-        navigationItem.title = "New Post"
+        navigationItem.title = "Create a Post"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: cancelImageView.image, style: .plain, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Share", style: .done, target: self, action: #selector(didTapShare))
@@ -317,9 +317,31 @@ class UploadPostViewController: UIViewController {
         cameraButton.alpha = 0.5
     }
     
+    
     func addPostImagesToView(images: [UIImage]) {
+        let gridImagesView = MEImagesGridView(images: images, screenWidth: postTextView.bounds.size.width)
         
+        gridImagesView.translatesAutoresizingMaskIntoConstraints = false
+        gridImagesView.layer.cornerRadius = 10
+        gridImagesView.layer.borderWidth = 1
+        gridImagesView.layer.borderColor = blackColor.cgColor
+        
+        scrollView.addSubview(gridImagesView)
+        
+        NSLayoutConstraint.activate([
+            gridImagesView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            gridImagesView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            gridImagesView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+            gridImagesView.heightAnchor.constraint(equalToConstant: 300)
+        ])
+        
+        scrollView.addSubview(deleteImageButton)
+        deleteImageButton.anchor(top: gridImagesView.topAnchor, right: gridImagesView.rightAnchor, paddingTop: 10, paddingRight: 10)
+    
+        toolbar.isUserInteractionEnabled = false
+        cameraButton.alpha = 0.5
     }
+    
     
     @objc func didTapCameraButton() {
         print("Did press camera")
@@ -336,7 +358,7 @@ class UploadPostViewController: UIViewController {
     
     @objc func didTapGalleryButton() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 5
+        config.selectionLimit = 4
         config.preferredAssetRepresentationMode = .current
         config.filter = PHPickerFilter.any(of: [.images])
         let vc = PHPickerViewController(configuration: config)
@@ -346,6 +368,7 @@ class UploadPostViewController: UIViewController {
     
     @objc func didTapDeletePostImage() {
         postImageView.removeFromSuperview()
+        
         postImages.removeAll()
         deleteImageButton.removeFromSuperview()
         scrollView.resizeScrollViewContentSize()
@@ -386,6 +409,7 @@ extension UploadPostViewController: UIImagePickerControllerDelegate, UINavigatio
            let _ = image.pngData() {
             print("Image got saved")
             addSinglePostImageToView(image: image)
+
         }
         scrollView.resizeScrollViewContentSize()
     }
@@ -393,11 +417,31 @@ extension UploadPostViewController: UIImagePickerControllerDelegate, UINavigatio
 
 extension UploadPostViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        postImages.removeAll()
+        
         picker.dismiss(animated: true, completion: nil)
-        results.enumerated().forEach { index, result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+        
+        let group = DispatchGroup()
+        
+        
+        results.forEach { result in
+            group.enter()
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let self = self else { return }
+                defer {
+                    group.leave()
+                }
                 guard let image = reading as? UIImage, error == nil else { return }
                 self.postImages.append(image)
+            }
+        }
+        group.notify(queue: .main) {
+            if self.postImages.count == 1 {
+                self.addSinglePostImageToView(image: self.postImages[0])
+                
+            } else {
+                print("More thlan  1image")
+                self.addPostImagesToView(images: self.postImages)
             }
         }
     }

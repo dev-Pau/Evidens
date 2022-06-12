@@ -79,6 +79,8 @@
 		5F6607F22854DB6800FCF895 /* PostBottomMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F12854DB6800FCF895 /* PostBottomMenuLauncher.swift */; };
 		5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F52854EB5500FCF895 /* PostMenuCell.swift */; };
 		5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F72854F34400FCF895 /* PostMenuHeader.swift */; };
+		5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */; };
+		5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FC2855BBB300FCF895 /* MEPostImage.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
@@ -186,6 +188,8 @@
 		5F6607F12854DB6800FCF895 /* PostBottomMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostBottomMenuLauncher.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5F6607F52854EB5500FCF895 /* PostMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuCell.swift; sourceTree = "<group>"; };
 		5F6607F72854F34400FCF895 /* PostMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuHeader.swift; sourceTree = "<group>"; };
+		5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEImagesGridView.swift; sourceTree = "<group>"; };
+		5F6607FC2855BBB300FCF895 /* MEPostImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPostImage.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -310,6 +314,7 @@
 		5F4493B92761F9B1008FD6ED /* Customs */ = {
 			isa = PBXGroup;
 			children = (
+				5F6607FB2855BB9600FCF895 /* Post */,
 				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
 				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
 				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
@@ -506,6 +511,15 @@
 				5F6607F72854F34400FCF895 /* PostMenuHeader.swift */,
 			);
 			path = PostMenuCell;
+			sourceTree = "<group>";
+		};
+		5F6607FB2855BB9600FCF895 /* Post */ = {
+			isa = PBXGroup;
+			children = (
+				5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */,
+				5F6607FC2855BBB300FCF895 /* MEPostImage.swift */,
+			);
+			path = Post;
 			sourceTree = "<group>";
 		};
 		5F8666F3274FAD44009B26E6 /* Others */ = {
@@ -918,6 +932,7 @@
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
+				5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */,
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
@@ -951,6 +966,7 @@
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
+				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
