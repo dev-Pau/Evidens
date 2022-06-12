@@ -157,7 +157,7 @@ extension MainTabController: UITabBarControllerDelegate {
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
     func didTapUploadPost() {
-        print("DEBUG: Upload Post")
+
         guard let user = user else { return }
         let postController = UploadPostViewController(user: user)
         
@@ -166,9 +166,15 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
         present(nav, animated: true, completion: nil)
     }
     
+    
     func didTapUploadClinicalCase() {
-        print("DEBUG: Upload Clinical Case")
-    }
+        guard let user = user else { return }
 
+        let clinicalCaseController = UploadClinicalCaseViewController(user: user)
+        let nav = UINavigationController(rootViewController: clinicalCaseController)
+        
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true, completion: nil)
+    }
 }
 

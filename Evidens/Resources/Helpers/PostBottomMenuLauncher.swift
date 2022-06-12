@@ -33,7 +33,9 @@ class PostBottomMenuLauncher: NSObject {
     private var screenWidth: CGFloat = 0
     
     private var menuOptionsText: [String] = ["Create a Post", "Upload a Clinical Case"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus.circle.fill")!, UIImage(systemName: "waveform.path.ecg.rectangle.fill")!.withTintColor(primaryColor)]
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus")!,
+                                                UIImage(systemName: "waveform.path.ecg")!.withTintColor(primaryColor)
+    ]
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -72,6 +74,14 @@ class PostBottomMenuLauncher: NSObject {
         }
     }
     
+    @objc func handleDismissMenu() {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
+            self.blackBackgroundView.alpha = 0
+            self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        }
+    }
+
+    
     
     func configurePostSettings(in view: UIView) {
         view.addSubview(blackBackgroundView)
@@ -81,7 +91,7 @@ class PostBottomMenuLauncher: NSObject {
         blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.5)
         blackBackgroundView.alpha = 0
         
-        blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
+        blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))
         
         collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: screenWidth, height: menuHeight)
     }

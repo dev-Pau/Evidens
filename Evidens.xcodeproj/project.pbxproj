@@ -81,6 +81,7 @@
 		5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F72854F34400FCF895 /* PostMenuHeader.swift */; };
 		5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */; };
 		5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FC2855BBB300FCF895 /* MEPostImage.swift */; };
+		5F6607FF2856518100FCF895 /* UploadClinicalCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FE2856518100FCF895 /* UploadClinicalCaseViewController.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
@@ -190,6 +191,7 @@
 		5F6607F72854F34400FCF895 /* PostMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuHeader.swift; sourceTree = "<group>"; };
 		5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEImagesGridView.swift; sourceTree = "<group>"; };
 		5F6607FC2855BBB300FCF895 /* MEPostImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPostImage.swift; sourceTree = "<group>"; };
+		5F6607FE2856518100FCF895 /* UploadClinicalCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadClinicalCaseViewController.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -476,6 +478,7 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
+				5F6607FE2856518100FCF895 /* UploadClinicalCaseViewController.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -927,6 +930,7 @@
 				5FC4D88527071CB6006B7A34 /* HomeTextCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
+				5F6607FF2856518100FCF895 /* UploadClinicalCaseViewController.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5F39B49C283005890079F8CF /* RecentUserCell.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
