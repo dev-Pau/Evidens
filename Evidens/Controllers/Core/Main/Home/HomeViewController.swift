@@ -272,11 +272,9 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if posts[indexPath.row].type.postType == 1 {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                
-
-                let height = viewModel.size(forWidth: view.frame.width).height + 700
+                let height = viewModel.size(forWidth: view.frame.width).height + 900
                 return CGSize(width: view.frame.width, height: height)
+                
             } else if posts[indexPath.row].type.postType == 2  {
                 
                 let viewModel = PostViewModel(post: posts[indexPath.row])
@@ -289,7 +287,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             } else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + 220
+                let height = viewModel.size(forWidth: view.frame.width).height + 200
                 return CGSize(width: view.frame.width, height: height)
             }
         }
@@ -321,7 +319,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 extension HomeViewController: HomeCellDelegate {
     
     func cell(wantsToSeePostsFor topic: String) {
-        print("Home VC wants to see posts for \(topic)")
+        // Preset new VC with topic title to fetch Posts & Clinical cases regarding the topic
     }
     
 

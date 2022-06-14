@@ -48,7 +48,7 @@ class CommentCell: UICollectionViewCell {
     
     //MARK: - Helpers
     
-    func configure() {
+    private func configure() {
         guard let viewModel = viewModel else { return }
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         commentLabel.attributedText = viewModel.commentLabelText()

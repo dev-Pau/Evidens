@@ -34,9 +34,9 @@ class MEHeaderPostView: UIView {
         let button = UIButton(type: .system)
         
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: "dots")
+        button.configuration?.image = UIImage(systemName: "ellipsis")
         
-        button.configuration?.baseBackgroundColor = blackColor
+        button.configuration?.baseBackgroundColor = .white
         button.configuration?.baseForegroundColor = blackColor
         
         button.configuration?.cornerStyle = .capsule
@@ -87,7 +87,7 @@ class MEHeaderPostView: UIView {
         dotsImageButton.menu = addMenuItems()
         
         categoryPostButton.addTarget(self, action: #selector(handleCategoryTap), for: .touchUpInside)
-        //subCategoryPostButton.addTarget(self, action: #selector(handleSubCategoryTap), for: .touchUpInside)
+        subCategoryPostButton.addTarget(self, action: #selector(handleSubCategoryTap), for: .touchUpInside)
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -134,5 +134,10 @@ class MEHeaderPostView: UIView {
     @objc func handleCategoryTap() {
         guard let text = categoryPostButton.titleLabel?.text else { return }
         delegate?.didTapCategory(for: text)
+    }
+    
+    @objc func handleSubCategoryTap() {
+        guard let text = subCategoryPostButton.titleLabel?.text else { return }
+        delegate?.didTapSubCategory(for: text)
     }
 }

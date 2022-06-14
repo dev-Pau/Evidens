@@ -87,12 +87,12 @@ struct PostViewModel {
     
     var likeButtonImage: UIImage? {
         let imageName = post.didLike ? "heart.fill" : "heart"
-        return UIImage(named: imageName)
+        return UIImage(systemName: imageName)
     }
     
     var bookMarkImage: UIImage? {
         let imageName = post.didBookmark ? "bookmark.fill" : "bookmark"
-        return UIImage(named: imageName)
+        return UIImage(systemName: imageName)
     }
     
     var likesLabelText: String {

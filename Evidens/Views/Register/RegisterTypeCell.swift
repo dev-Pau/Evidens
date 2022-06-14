@@ -50,7 +50,7 @@ class RegisterTypeCell: UITableViewCell {
   
     //MARK: - Helpers
     
-    func configure() {
+    private func configure() {
         backgroundColor = .white
     }
 }
