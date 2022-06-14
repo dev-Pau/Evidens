@@ -97,12 +97,12 @@ class MEImagesGridView: UIView {
             secondImage.topAnchor.constraint(equalTo: firstImage.bottomAnchor),
             secondImage.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             secondImage.heightAnchor.constraint(equalToConstant: 150),
-            secondImage.widthAnchor.constraint(equalToConstant: screenWidth * 2 / 3),
+            secondImage.widthAnchor.constraint(equalToConstant: screenWidth / 2),
             
             thirdImage.topAnchor.constraint(equalTo: firstImage.bottomAnchor),
             thirdImage.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             thirdImage.heightAnchor.constraint(equalToConstant: 150),
-            thirdImage.widthAnchor.constraint(equalToConstant: screenWidth / 3)
+            thirdImage.widthAnchor.constraint(equalToConstant: screenWidth / 2)
         ])
     }
     

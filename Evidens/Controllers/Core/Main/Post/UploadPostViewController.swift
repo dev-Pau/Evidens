@@ -19,7 +19,7 @@ class UploadPostViewController: UIViewController {
     
     private var user: User
     
-    private var postImages = [UIImage]()
+    private var postImages: [UIImage] = []
     
     var gridImagesView = MEImagesGridView()
     
@@ -177,8 +177,8 @@ class UploadPostViewController: UIViewController {
         container.font = .systemFont(ofSize: 15, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Share", attributes: container)
         
-        button.isUserInteractionEnabled = false
-        button.alpha = 0.5
+        button.isUserInteractionEnabled = true
+        button.alpha = 1
         
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
@@ -276,7 +276,7 @@ class UploadPostViewController: UIViewController {
     
     func addSinglePostImageToView(image: UIImage) {
         
-        postImages.append(image)
+        //postImages.append(image)
         
         postImageView.image = image
         
@@ -454,11 +454,16 @@ class UploadPostViewController: UIViewController {
         guard let postTextView = postTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
+        
+        
+        
         if postImages.count > 0 {
             // Unwrap the images array
             let imagesToUpload = postImages.compactMap { $0 }
-            
-            if postImages.isEmpty == false {
+
+            print(imagesToUpload.count)
+            switch postImages.count {
+            case 1:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
                     PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithImage, user: self.user) { error in
@@ -467,15 +472,58 @@ class UploadPostViewController: UIViewController {
                             return
                         } else {
                             // Post is uploaded to Firebase
-                            print("Post with text and image uploaded to FB")
+                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
                         }
                     }
                 }
-            } else {
-                print("Post has no image")
+            case 2:
+                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                    // Post images saved to firebase. Upload post with images
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithTwoImage, user: self.user) { error in
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            // Post is uploaded to Firebase
+                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                        }
+                    }
+                }
+            case 3:
+                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                    // Post images saved to firebase. Upload post with images
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithThreeImage, user: self.user) { error in
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            // Post is uploaded to Firebase
+                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                        }
+                    }
+                }
+            case 4:
+                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                    // Post images saved to firebase. Upload post with images
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithFourImage, user: self.user) { error in
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            // Post is uploaded to Firebase
+                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                        }
+                    }
+                }
+            default:
+                print("NO")
             }
+            
+            
+            
+            
         } else {
-            // Post has text
+            // Post has text only
             PostService.uploadPost(post: postTextView, postImageUrl: nil, type: .plainText, user: user) { error in
                 if let error = error {
                     print("DEBUG: \(error.localizedDescription)")
@@ -537,6 +585,9 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         if results.count == 0 { return }
         
+        shareButton.isUserInteractionEnabled = true
+        shareButton.alpha = 1
+        
         postImages.removeAll()
         
         let group = DispatchGroup()
@@ -556,10 +607,11 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                 }
                 group.notify(queue: .main) {
                     if self.postImages.count == 1 {
+                        print("only 1 image to upload")
                         self.addSinglePostImageToView(image: self.postImages[0])
                         
                     } else {
-                        print("More thlan  1image")
+                        print("more than 1 image to upload")
                         self.addPostImagesToView(images: self.postImages)
                     }
                 }

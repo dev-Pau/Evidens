@@ -9,18 +9,15 @@ import UIKit
 
 private let reuseIdentifier = "Cell"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
+private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
 
-
-protocol FeedControllerDelegate: AnyObject {
-    func handleMenuToggle()
-}
 
 class HomeViewController: UICollectionViewController {
     
     //MARK: - Properties
     
     
-    weak var delegate: FeedControllerDelegate?
+    //weak var delegate: FeedControllerDelegate?
     
     var user: User?
     
@@ -83,7 +80,7 @@ class HomeViewController: UICollectionViewController {
         collectionView.backgroundColor = lightColor
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
-        
+        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -230,9 +227,23 @@ extension HomeViewController {
             }
             return cell
 
-        } else {
+        } else if posts[indexPath.row].type.postType == 1 {
             //print("post type 1")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+            cell.postImageView.image = nil
+            //cell.layer.borderColor = UIColor.lightGray.cgColor
+            if let post = post {
+                cell.viewModel = PostViewModel(post: post)
+            } else {
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+            }
+            return cell
+            
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
             cell.postImageView.image = nil
@@ -263,17 +274,24 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
                 
                 
-                
-                
+
                 let height = viewModel.size(forWidth: view.frame.width).height + 700
                 return CGSize(width: view.frame.width, height: height)
+            } else if posts[indexPath.row].type.postType == 2  {
+                
+                let viewModel = PostViewModel(post: posts[indexPath.row])
+                
+                
+
+                let height = viewModel.size(forWidth: view.frame.width).height + 700
+                return CGSize(width: view.frame.width, height: height)
+                
             } else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])
                 let height = viewModel.size(forWidth: view.frame.width).height + 220
                 return CGSize(width: view.frame.width, height: height)
             }
-            
         }
     }
      
@@ -301,6 +319,12 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    
+    func cell(wantsToSeePostsFor topic: String) {
+        print("Home VC wants to see posts for \(topic)")
+    }
+    
+
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
         let controller = CommentViewController(post: post)
         navigationController?.pushViewController(controller, animated: true)
@@ -343,7 +367,8 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, withAction action: String) {
-        print(action)
+        print("Action received in HomeViewController for \(action) with post text \(post.postText)")
+        //print(action)
     }
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {

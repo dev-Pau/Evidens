@@ -13,6 +13,9 @@ struct Post {
     enum PostType: Int {
         case plainText
         case textWithImage
+        case textWithTwoImage
+        case textWithThreeImage
+        case textWithFourImage
         case document
         case poll
         
@@ -22,10 +25,17 @@ struct Post {
                 return 0
             case .textWithImage:
                 return 1
-            case .document:
+            case .textWithTwoImage:
                 return 2
-            case .poll:
+            case .textWithThreeImage:
                 return 3
+            case .textWithFourImage:
+                return 4
+            case .document:
+                return 5
+            case .poll:
+                return 6
+
             }
         }
     }

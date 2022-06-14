@@ -1,26 +1,56 @@
 //
-//  FeedCell.swift
+//  HomeTwoImageTextCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/10/21.
+//  Created by Pau Fernández Solà on 13/6/22.
 //
 
 import UIKit
-import SwiftUI
 
-class HomeTextCell: UICollectionViewCell {
+private let reuseIdentifier = "reuseIdentifier"
+
+class HomeTwoImageTextCell: UICollectionViewCell {
     
     // MARK: - Properties
     
     var viewModel: PostViewModel? {
-        didSet { configure() }
+        didSet {
+            configure()
+        }
     }
     
     weak var delegate: HomeCellDelegate?
     
-    private var headerPostView = MEHeaderPostView(category: "  Nutrition  ", subCategory: "  Vegetables  ")
+    private lazy var categoryPostButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(.white, for: .normal)
+        button.setTitle("  Nutrition  ", for: .normal)
+        button.backgroundColor = blackColor
+        button.layer.cornerRadius = 11
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        return button
+    }()
     
-   
+    private lazy var subCategoryPostButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(blackColor, for: .normal)
+        button.setTitle("  Vegetables  ", for: .normal)
+        button.backgroundColor = lightGrayColor
+        button.layer.cornerRadius = 11
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .bold)
+        return button
+    }()
+    
+    private lazy var dotsImageButton: UIButton = {
+        let button = UIButton(type: .system)
+        //button.backgroundColor = UIColor(rgb: 0xF1F4F7)
+        button.setDimensions(height: 20, width: 20)
+        button.setImage(UIImage(named: "dots"), for: .normal)
+        button.tintColor = UIColor(rgb: 0x576670)
+        button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var userTypeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitleColor(grayColor, for: .normal)
@@ -75,6 +105,13 @@ class HomeTextCell: UICollectionViewCell {
         return label
     }()
     
+    private let separatorLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = lightGrayColor
+        label.setHeight(1.0)
+        return label
+    }()
+    
     private let bottomSeparatorLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = lightGrayColor
@@ -122,6 +159,28 @@ class HomeTextCell: UICollectionViewCell {
         button.tintColor = blackColor
         button.addTarget(self, action: #selector(didTapComments), for: .touchUpInside)
         return button
+    }()
+    
+    lazy var postImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .lightGray
+        iv.backgroundColor = lightGrayColor
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
+    
+    lazy var postTwoImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .lightGray
+        iv.backgroundColor = lightGrayColor
+        iv.isUserInteractionEnabled = true
+        return iv
     }()
     
     private lazy var shareButton: UIButton = {
@@ -197,22 +256,30 @@ class HomeTextCell: UICollectionViewCell {
         label.textColor = grayColor
         return label
     }()
-    
+        
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
         super.init(frame: frame)
         
-        headerPostView.delegate = self
-        
         backgroundColor = .white
-        addSubview(headerPostView)
-        headerPostView.anchor(top: topAnchor, left: leftAnchor, right: rightAnchor)
-        headerPostView.setHeight(50)
+
+        addSubview(categoryPostButton)
+        categoryPostButton.anchor(top: topAnchor, left: leftAnchor, paddingTop: 10, paddingLeft: 15)
+        
+        addSubview(subCategoryPostButton)
+        subCategoryPostButton.anchor(top: topAnchor, left: categoryPostButton.rightAnchor, paddingTop: 10, paddingLeft: 10)
+        
+        addSubview(dotsImageButton)
+        dotsImageButton.centerY(inView: subCategoryPostButton)
+        dotsImageButton.anchor(right: rightAnchor, paddingRight: 15)
+        
+        addSubview(separatorLabel)
+        separatorLabel.anchor(top:categoryPostButton.bottomAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 10)
         
         //Profile ImageView
         addSubview(profileImageView)
-        profileImageView.anchor(top: headerPostView.bottomAnchor, left: headerPostView.leftAnchor, paddingTop: 12)
+        profileImageView.anchor(top: separatorLabel.bottomAnchor, left: categoryPostButton.leftAnchor, paddingTop: 12)
         profileImageView.setDimensions(height: 47, width: 47)
         profileImageView.layer.cornerRadius = 47 / 2
         
@@ -243,10 +310,19 @@ class HomeTextCell: UICollectionViewCell {
         
         addSubview(seeMoreLabel)
         seeMoreLabel.anchor(top: postLabel.bottomAnchor, left: postLabel.leftAnchor)
-
         
+        addSubview(postImageView)
+        postImageView.anchor(top: postLabel.bottomAnchor, left: leftAnchor, paddingTop: 12)
+        postImageView.setHeight(350)
+        postImageView.setWidth(UIScreen.main.bounds.size.width / 2 - 4)
+        
+        addSubview(postTwoImageView)
+        postTwoImageView.anchor(top: postLabel.bottomAnchor, left: postImageView.rightAnchor, right: rightAnchor, paddingTop: 12, paddingLeft: 2)
+        postTwoImageView.setHeight(350)
+
+        /*
         addSubview(likesIndicatorImage)
-        likesIndicatorImage.anchor(top: seeMoreLabel.bottomAnchor, left: postLabel.leftAnchor, paddingTop: 12)
+        likesIndicatorImage.anchor(top: postImageView.bottomAnchor, left: postLabel.leftAnchor, paddingTop: 12)
         
         addSubview(likesLabel)
         likesLabel.centerY(inView: likesIndicatorImage, leftAnchor: likesIndicatorImage.rightAnchor, paddingLeft: 2)
@@ -269,6 +345,7 @@ class HomeTextCell: UICollectionViewCell {
         addSubview(bookmarkButton)
         bookmarkButton.centerY(inView: likeButton)
         bookmarkButton.anchor(right: postLabel.rightAnchor)
+*/
     }
     
     required init?(coder: NSCoder) {
@@ -276,6 +353,11 @@ class HomeTextCell: UICollectionViewCell {
     }
     
     // MARK: - Actions
+    
+    @objc func didTapThreeDots() {
+        dotsImageButton.menu = addMenuItems()
+        dotsImageButton.showsMenuAsPrimaryAction = true
+    }
     
     @objc func didTapUsername() {
         guard let viewModel = viewModel else { return }
@@ -302,18 +384,27 @@ class HomeTextCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
+
+        //collectionView.register(ImageCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier!)
+        //collectionView.delegate = self
+        //collectionView.dataSource = self
         
-        let postType = viewModel.postType
-     
+        
         //Configure post with post info
         postLabel.text = viewModel.postText
         likesLabel.text = viewModel.likesLabelText
         likesIndicatorImage.isHidden = viewModel.isLikesHidden
         postTimeLabel.text = viewModel.timestampString
         bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
-
-        //Configure post with user info
+        
+        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
+        
+        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+ 
+        //postImageView.setDimensions(height: 300, width: frame.width)
         profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        
+        //imagesToDisplay = viewModel.postImageUrl
         
         usernameLabel.text = viewModel.fullName
         //usernameButton.setTitle(viewModel.fullName, for: .normal)
@@ -371,23 +462,43 @@ class HomeTextCell: UICollectionViewCell {
         commentLabel.removeFromSuperview()
         shareLabel.removeFromSuperview()
         dotSeparator.removeFromSuperview()
+            
+            
+    }
+    
+    func addMenuItems() -> UIMenu {
+        let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
+                print("Copy")
+                guard let viewModel = self.viewModel else { return }
+                self.delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: "report")
+            })
+        
+        ])
+        return menuItem
+        
     }
 }
 
-extension HomeTextCell: MEHeaderPostViewDelegate {
-    func didTapSubCategory(for subCategory: String) {
-        print("hi")
+/*
+extension HomeImageTextCell: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imagesToDisplay.count
     }
     
-
-    func didTapCategory(for category: String) {
-        print("Home cell received \(category) to show")
-        delegate?.cell(wantsToSeePostsFor: category)
-    }
-    
-    func didTapThreeDots(withAction action: String) {
-        print("Home cell received")
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier!, for: indexPath) as! ImageCollectionViewCell
+        //cell.postImageView.image = nil
+        cell.viewModel = PostImageViewModel(imageString: imagesToDisplay[indexPath.row])
+        //print(indexPath[indexPath.row])
+        return cell
     }
 }
+
+extension HomeImageTextCell: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: frame.size.width, height: 300)
+    }
+}
+ */
+
