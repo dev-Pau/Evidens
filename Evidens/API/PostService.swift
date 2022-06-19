@@ -156,6 +156,15 @@ struct PostService {
         }
     }
     
+    static func getAllLikesFor(post: Post, completion: @escaping([String]) -> Void) {
+        print("Called")
+        COLLECTION_POSTS.document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
+            guard let uid = snapshot?.documents else { return }
+            let docIDs = uid.map({ $0.documentID })
+            completion(docIDs)
+        }
+    }
+    
     
     
     static func updateUserFeedAfterFollowing(user: User, didFollow: Bool) {

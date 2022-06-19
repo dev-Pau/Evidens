@@ -103,7 +103,7 @@ class MEPostInfoView: UIView {
                 commentLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
                 commentLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             ])
-            commentLabel.text = shareText
+            commentLabel.text = commentText
             return
         }
         

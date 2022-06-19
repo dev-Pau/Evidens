@@ -23,9 +23,9 @@ class MEPostLabel: UILabel {
         
         textColor = blackColor
         
-        font = .systemFont(ofSize: 14, weight: .regular)
+        font = .systemFont(ofSize: 16, weight: .regular)
         
-        numberOfLines = 5
+        numberOfLines = 10
         
         lineBreakMode = .byTruncatingTail
         

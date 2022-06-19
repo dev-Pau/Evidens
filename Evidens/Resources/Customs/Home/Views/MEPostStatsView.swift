@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol MEPostStatsViewDelegate: AnyObject {
+    func wantsToShowLikes()
+}
+
 class MEPostStatsView: UIView {
+    
+    weak var delegate: MEPostStatsViewDelegate?
     
     lazy var likesIndicatorImage: UIImageView = {
         let iv = UIImageView()
@@ -17,11 +23,13 @@ class MEPostStatsView: UIView {
     }()
     
     
-    let likesLabel: UILabel = {
+    lazy var likesLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
         label.textColor = grayColor
         label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLikesTap)))
         return label
     }()
     
@@ -56,8 +64,12 @@ class MEPostStatsView: UIView {
             likesLabel.centerYAnchor.constraint(equalTo: likesIndicatorImage.centerYAnchor),
             likesLabel.leadingAnchor.constraint(equalTo: likesIndicatorImage.trailingAnchor, constant: 3),
             likesLabel.heightAnchor.constraint(equalToConstant: 20),
-            likesLabel.widthAnchor.constraint(equalToConstant: 20),
+            likesLabel.widthAnchor.constraint(equalToConstant: 40),
         ])
+    }
+    
+    @objc func handleLikesTap() {
+        delegate?.wantsToShowLikes()
     }
 }
 

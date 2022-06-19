@@ -30,61 +30,6 @@ class HomeTextCell: UICollectionViewCell {
     
     private var actionButtonsView = MEPostActionButtons()
     
-
-    private let bottomSeparatorLabel: UILabel = {
-        let label = UILabel()
-        label.backgroundColor = lightGrayColor
-        label.setHeight(1.0)
-        return label
-    }()
-    
-    
-
-    
-    lazy var likeButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.addTarget(self, action: #selector(didTapLike), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var commentButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "comment"), for: .normal)
-        button.tintColor = blackColor
-        button.addTarget(self, action: #selector(didTapComments), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var shareButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "share"), for: .normal)
-        button.tintColor = blackColor
-        return button
-    }()
-    
-    private lazy var postImage: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.setHeight(200)
-        return iv
-    }()
-    
-    lazy var bookmarkButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "bookmark"), for: .normal)
-        button.tintColor = blackColor
-        button.addTarget(self, action: #selector(didTapBookmark), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var sendButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: "paperplane"), for: .normal)
-        button.tintColor = blackColor
-        return button
-    }()
-    
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
@@ -93,6 +38,8 @@ class HomeTextCell: UICollectionViewCell {
         backgroundColor = .white
         
         headerPostView.delegate = self
+        userPostView.delegate = self
+        postStatsView.delegate = self
 
         addSubviews(headerPostView, userPostView, postTextLabel, postStatsView, postInfoView, actionButtonsView)
         
@@ -126,26 +73,6 @@ class HomeTextCell: UICollectionViewCell {
             actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-        /*
-        addSubview(bottomSeparatorLabel)
-        bottomSeparatorLabel.anchor(top:postStatsView.bottomAnchor, left: leftAnchor, right: rightAnchor, paddingTop: 10)
-        
-        addSubview(likeButton)
-        likeButton.anchor(top: bottomSeparatorLabel.bottomAnchor, left: postTextLabel.leftAnchor, paddingTop: 10)
-        
-        addSubview(commentButton)
-        commentButton.centerY(inView: likeButton, leftAnchor: likeButton.rightAnchor, paddingLeft: 15)
-        
-        addSubview(sendButton)
-        sendButton.centerY(inView: likeButton, leftAnchor: commentButton.rightAnchor, paddingLeft: 15)
-        
-        addSubview(shareButton)
-        shareButton.centerY(inView: likeButton, leftAnchor: sendButton.rightAnchor, paddingLeft: 15)
-        
-        addSubview(bookmarkButton)
-        bookmarkButton.centerY(inView: likeButton)
-        bookmarkButton.anchor(right: postTextLabel.rightAnchor)
-         */
     }
     
     required init?(coder: NSCoder) {
@@ -153,12 +80,7 @@ class HomeTextCell: UICollectionViewCell {
     }
     
     // MARK: - Actions
-    
-    @objc func didTapUsername() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
-    }
-    
+   
     @objc func didTapComments() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
@@ -182,7 +104,6 @@ class HomeTextCell: UICollectionViewCell {
         
         let postType = viewModel.postType
         
-        
         // New values
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
@@ -196,13 +117,8 @@ class HomeTextCell: UICollectionViewCell {
         
         postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
         
-
-        //Configure post with post info
-        //postLabel.text = viewModel.postText
-        //likesLabel.text = viewModel.likesLabelText
-        //likesIndicatorImage.isHidden = viewModel.isLikesHidden
-        
-        bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
+        actionButtonsView.bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
+        //bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
 
         // New values
       
@@ -212,8 +128,8 @@ class HomeTextCell: UICollectionViewCell {
         //usernameLabel.text = viewModel.fullName
         //usernameButton.setTitle(viewModel.fullName, for: .normal)
         
-        likeButton.tintColor = viewModel.likeButtonTintColor
-        likeButton.setImage(viewModel.likeButtonImage, for: .normal)
+        //likeButton.tintColor = viewModel.likeButtonTintColor
+        //likeButton.setImage(viewModel.likeButtonImage, for: .normal)
     }
 }
 
@@ -235,4 +151,22 @@ extension HomeTextCell: MEHeaderPostViewDelegate {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
     }
+}
+
+
+extension HomeTextCell: MEUserPostViewDelegate {
+    func didTapProfile() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
+    }
+}
+
+
+extension HomeTextCell: MEPostStatsViewDelegate {
+    func wantsToShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
+    }
+    
+    
 }

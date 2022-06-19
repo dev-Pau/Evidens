@@ -232,7 +232,7 @@ extension HomeViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
-            cell.postImageView.image = nil
+            //cell.postImageView.image = nil
             //cell.layer.borderColor = UIColor.lightGray.cgColor
             if let post = post {
                 cell.viewModel = PostViewModel(post: post)
@@ -287,7 +287,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             } else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + 200
+                let height = viewModel.size(forWidth: view.frame.width).height + 205
                 return CGSize(width: view.frame.width, height: height)
             }
         }
@@ -317,6 +317,13 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    func cell(wantsToSeeLikesFor post: Post) {
+        PostService.getAllLikesFor(post: post) { users in
+            let controller = PostLikesViewController(users: users)
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     
     func cell(wantsToSeePostsFor topic: String) {
         // Preset new VC with topic title to fetch Posts & Clinical cases regarding the topic
@@ -339,15 +346,15 @@ extension HomeViewController: HomeCellDelegate {
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
-                    currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-                    currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                    //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+                    //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                     currentCell.viewModel?.post.likes = post.likes - 1
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
-                    currentCell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-                    currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                    //currentCell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+                    //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                     currentCell.viewModel?.post.likes = post.likes + 1
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
@@ -380,13 +387,13 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.bookmarkButton.setImage(UIImage(named: "bookmark"), for: .normal)
+                    //currentCell.bookmarkButton.setImage(UIImage(named: "bookmark"), for: .normal)
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
-                    currentCell.bookmarkButton.setImage(UIImage(named: "bookmark.fill"), for: .normal)
+                    //currentCell.bookmarkButton.setImage(UIImage(named: "bookmark.fill"), for: .normal)
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
                 }
             }

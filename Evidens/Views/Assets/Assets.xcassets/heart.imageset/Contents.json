@@ -1,8 +1,18 @@
 {
   "images" : [
     {
-      "filename" : "heart.pdf",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Vectorheart@20.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "Vectorheart@30.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

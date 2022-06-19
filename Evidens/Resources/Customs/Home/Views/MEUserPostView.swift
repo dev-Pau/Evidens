@@ -7,19 +7,26 @@
 
 import UIKit
 
+protocol MEUserPostViewDelegate: AnyObject {
+    func didTapProfile()
+}
+
 class MEUserPostView: UIView {
+    
+    weak var delegate: MEUserPostViewDelegate?
     
     private var paddingTop: CGFloat =  10
     private var paddingLeft: CGFloat = 10
     
     lazy var profileImageView = MEProfileImageView(frame: .zero)
     
-    let usernameLabel: UILabel = {
+    lazy var usernameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = blackColor
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         return label
     }()
     
@@ -60,9 +67,9 @@ class MEUserPostView: UIView {
     
     func configure() {
         
-        addSubviews(profileImageView, usernameLabel, userCategoryLabel, clockImage, postTimeLabel)
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         
-        //userTypeButton.setTitle("Professional", for: .normal)
+        addSubviews(profileImageView, usernameLabel, userCategoryLabel, clockImage, postTimeLabel)
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -102,6 +109,6 @@ class MEUserPostView: UIView {
     }
     
     @objc func didTapProfile() {
-        
+        delegate?.didTapProfile()
     }
 }

@@ -29,10 +29,12 @@ class MEPostActionButtons: UIView {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 10, weight: .semibold)
         
+        button.configuration?.imagePadding = 5
+        
         button.configuration?.attributedTitle = AttributedString("Like", attributes: container)
         button.configuration?.imagePlacement = .top
 
-        button.configuration?.image = UIImage(systemName: "heart")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: "heart")
         
         //button.addTarget(self, action: #selector(didTapComments), for: .touchUpInside)
         return button
@@ -40,7 +42,7 @@ class MEPostActionButtons: UIView {
     
     
     lazy var commentButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         
@@ -50,17 +52,19 @@ class MEPostActionButtons: UIView {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 10, weight: .semibold)
         
+        button.configuration?.imagePadding = 5
+        
         button.configuration?.attributedTitle = AttributedString("Comment", attributes: container)
         button.configuration?.imagePlacement = .top
 
-        button.configuration?.image = UIImage(systemName: "text.bubble")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: "comment")
         
         //button.addTarget(self, action: #selector(didTapComments), for: .touchUpInside)
         return button
     }()
     
     private lazy var sendButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         
@@ -72,13 +76,15 @@ class MEPostActionButtons: UIView {
         
         button.configuration?.attributedTitle = AttributedString("Send", attributes: container)
         button.configuration?.imagePlacement = .top
+        
+        button.configuration?.imagePadding = 5
 
-        button.configuration?.image = UIImage(systemName: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: "paperplane")
         return button
     }()
     
-    private lazy var bookmarkButton: UIButton = {
-        let button = UIButton(type: .system)
+    lazy var bookmarkButton: UIButton = {
+        let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         
@@ -90,8 +96,10 @@ class MEPostActionButtons: UIView {
         
         button.configuration?.attributedTitle = AttributedString("Save", attributes: container)
         button.configuration?.imagePlacement = .top
+        
+        button.configuration?.imagePadding = 5
 
-        button.configuration?.image = UIImage(systemName: "bookmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: "bookmark")
         return button
     }()
     

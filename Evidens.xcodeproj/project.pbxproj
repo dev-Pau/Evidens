@@ -100,6 +100,8 @@
 		5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FD2755255F009B26E6 /* CommentViewModel.swift */; };
 		5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */; };
 		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
+		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
+		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -219,6 +221,8 @@
 		5F8666FD2755255F009B26E6 /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
 		5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
+		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
+		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -334,14 +338,9 @@
 		5F4493B92761F9B1008FD6ED /* Customs */ = {
 			isa = PBXGroup;
 			children = (
+				5F9F0891285F6E140069FD2C /* Others */,
 				5F77BF67285753D100F31A75 /* Home */,
 				5F6607FB2855BB9600FCF895 /* Post */,
-				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
-				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
-				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
-				5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */,
-				5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */,
-				5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */,
 			);
 			path = Customs;
 			sourceTree = "<group>";
@@ -474,6 +473,7 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D87A2707058D006B7A34 /* HomeViewController.swift */,
+				5F9F0892285F7A830069FD2C /* Others */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -632,6 +632,35 @@
 			path = Topics;
 			sourceTree = "<group>";
 		};
+		5F9F0891285F6E140069FD2C /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
+				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
+				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
+				5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */,
+				5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */,
+				5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */,
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
+		5F9F0892285F7A830069FD2C /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */,
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
+		5F9F0895285F83690069FD2C /* Likes */ = {
+			isa = PBXGroup;
+			children = (
+				5F9F0896285F83780069FD2C /* HomeLikesCell.swift */,
+			);
+			path = Likes;
+			sourceTree = "<group>";
+		};
 		5FBC2D9D272D938D004F92CE /* Registration */ = {
 			isa = PBXGroup;
 			children = (
@@ -780,6 +809,7 @@
 		5FC4D88627071CC4006B7A34 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				5F9F0895285F83690069FD2C /* Likes */,
 				5FC4D88427071CB6006B7A34 /* HomeTextCell.swift */,
 				5F598C0F283CDD4B00189722 /* HomeImageTextCell.swift */,
 				5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */,
@@ -1061,7 +1091,9 @@
 				5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */,
 				5F598C0C28376C5700189722 /* UserProfileHeader.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
+				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
+				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,

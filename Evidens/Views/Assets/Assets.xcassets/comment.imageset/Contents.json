@@ -1,8 +1,18 @@
 {
   "images" : [
     {
-      "filename" : "Unioncomment.pdf",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Unioncomments-1.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "Unioncomments.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
