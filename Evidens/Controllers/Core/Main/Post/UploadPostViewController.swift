@@ -27,6 +27,8 @@ class UploadPostViewController: UIViewController {
     
     var videoUrl: URL?
     
+    var newHeight: CGFloat = 0
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
@@ -285,7 +287,7 @@ class UploadPostViewController: UIViewController {
         
         
         let ratio = image.size.width / image.size.height
-        let newHeight = view.bounds.width / ratio
+        newHeight = view.bounds.width / ratio
         postImageView.setHeight(newHeight)
 
         
@@ -464,9 +466,10 @@ class UploadPostViewController: UIViewController {
             print(imagesToUpload.count)
             switch postImages.count {
             case 1:
+                
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: self.newHeight, type: .textWithImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -479,7 +482,7 @@ class UploadPostViewController: UIViewController {
             case 2:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithTwoImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: nil, type: .textWithTwoImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -492,7 +495,7 @@ class UploadPostViewController: UIViewController {
             case 3:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithThreeImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: nil, type: .textWithThreeImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -505,7 +508,7 @@ class UploadPostViewController: UIViewController {
             case 4:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithFourImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: nil, type: .textWithFourImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -524,7 +527,7 @@ class UploadPostViewController: UIViewController {
             
         } else {
             // Post has text only
-            PostService.uploadPost(post: postTextView, postImageUrl: nil, type: .plainText, user: user) { error in
+            PostService.uploadPost(post: postTextView, postImageUrl: nil, imageHeight: nil, type: .plainText, user: user) { error in
                 if let error = error {
                     print("DEBUG: \(error.localizedDescription)")
                     return

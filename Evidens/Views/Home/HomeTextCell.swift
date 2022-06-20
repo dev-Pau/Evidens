@@ -28,7 +28,7 @@ class HomeTextCell: UICollectionViewCell {
     
     private var postInfoView = MEPostInfoView(comments: 0, commentText: "", shares: 0, shareText: "")
     
-    private var actionButtonsView = MEPostActionButtons()
+    var actionButtonsView = MEPostActionButtons()
     
     // MARK: - Lifecycle
     
@@ -40,6 +40,8 @@ class HomeTextCell: UICollectionViewCell {
         headerPostView.delegate = self
         userPostView.delegate = self
         postStatsView.delegate = self
+        
+        actionButtonsView.delegate = self
 
         addSubviews(headerPostView, userPostView, postTextLabel, postStatsView, postInfoView, actionButtonsView)
         
@@ -79,32 +81,12 @@ class HomeTextCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Actions
-   
-    @objc func didTapComments() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
-    }
-    
-    @objc func didTapLike() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didLike: viewModel.post)
-    }
-    
-    @objc func didTapBookmark() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didBookmark: viewModel.post)
- 
-    }
-    
     // MARK: - Helpers
     
     func configure() {
+        
         guard let viewModel = viewModel else { return }
-        
-        let postType = viewModel.postType
-        
-        // New values
+
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
@@ -117,37 +99,25 @@ class HomeTextCell: UICollectionViewCell {
         
         postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
         
-        actionButtonsView.bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
-        //bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
-
-        // New values
-      
-        //Configure post with user info
-        //profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        
-        //usernameLabel.text = viewModel.fullName
-        //usernameButton.setTitle(viewModel.fullName, for: .normal)
-        
-        //likeButton.tintColor = viewModel.likeButtonTintColor
-        //likeButton.setImage(viewModel.likeButtonImage, for: .normal)
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
+        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
     }
 }
 
 
 extension HomeTextCell: MEHeaderPostViewDelegate {
+    
     func didTapSubCategory(for subCategory: String) {
-        print("Home cell received sub category \(subCategory) to show")
         delegate?.cell(wantsToSeePostsFor: subCategory)
     }
     
 
     func didTapCategory(for category: String) {
-        print("Home cell received \(category) to show")
         delegate?.cell(wantsToSeePostsFor: category)
     }
     
+    
     func didTapThreeDots(withAction action: String) {
-        print("Home cell received")
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
     }
@@ -167,6 +137,29 @@ extension HomeTextCell: MEPostStatsViewDelegate {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
     }
+}
+
+
+extension HomeTextCell: MEPostActionButtonsDelegate {
+    
+    func handleComments() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
+    }
     
     
+    func handleShare() {
+        print("Did tap share")
+    }
+    
+    
+    func handleSend() {
+        print("Did tap send")
+    }
+    
+    
+    func handleLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didLike: viewModel.post)
+    }
 }

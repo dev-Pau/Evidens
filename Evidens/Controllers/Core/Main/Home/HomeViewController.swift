@@ -218,8 +218,7 @@ extension HomeViewController {
             cell.delegate = self
             
             cell.layer.borderWidth = 0
-            //cell.layer.borderColor = UIColor.lightGray.cgColor
-            
+
             if let post = post {
                 cell.viewModel = PostViewModel(post: post)
             } else {
@@ -232,8 +231,7 @@ extension HomeViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
-            //cell.postImageView.image = nil
-            //cell.layer.borderColor = UIColor.lightGray.cgColor
+         
             if let post = post {
                 cell.viewModel = PostViewModel(post: post)
             } else {
@@ -272,16 +270,13 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if posts[indexPath.row].type.postType == 1 {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + 900
+                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage + 215
                 return CGSize(width: view.frame.width, height: height)
                 
             } else if posts[indexPath.row].type.postType == 2  {
-                
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                
-                
-
                 let height = viewModel.size(forWidth: view.frame.width).height + 700
+                
                 return CGSize(width: view.frame.width, height: height)
                 
             } else {
@@ -318,8 +313,8 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
 extension HomeViewController: HomeCellDelegate {
     func cell(wantsToSeeLikesFor post: Post) {
-        PostService.getAllLikesFor(post: post) { users in
-            let controller = PostLikesViewController(users: users)
+        PostService.getAllLikesFor(post: post) { uids in
+            let controller = PostLikesViewController(uid: uids)
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -335,30 +330,57 @@ extension HomeViewController: HomeCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
+    
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
+        HapticsManager.shared.vibrate(for: .success)
+        
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell
+            
+            
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
+                    //currentCell.actionButtonsView.likeButton.setImage(UIImage(named: "heart"), for: .normal)
                     //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
                     //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                    
                     currentCell.viewModel?.post.likes = post.likes - 1
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
-                    //currentCell.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-                    //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                     currentCell.viewModel?.post.likes = post.likes + 1
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 }
+            
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
+            
+            currentCell.viewModel?.post.didLike.toggle()
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    //currentCell.actionButtonsView.likeButton.setImage(UIImage(named: "heart"), for: .normal)
+                    //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+                    //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
+                    
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                }
+            
         default:
             print("No cell registered")
         }

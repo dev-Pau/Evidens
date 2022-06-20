@@ -21,12 +21,17 @@ class HomeImageTextCell: UICollectionViewCell {
     
     weak var delegate: HomeCellDelegate?
     
-    
     private var headerPostView = MEHeaderPostView(category: "  Nutrition  ", subCategory: "  Vegetables  ")
     
     private var userPostView = MEUserPostView()
     
     private var postTextLabel = MEPostLabel()
+    
+    private var postStatsView = MEPostStatsView()
+    
+    private var postInfoView = MEPostInfoView(comments: 0, commentText: "", shares: 0, shareText: "")
+    
+    private var actionButtonsView = MEPostActionButtons()
     
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
@@ -35,15 +40,10 @@ class HomeImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         iv.isUserInteractionEnabled = true
         return iv
     }()
-    
-    private var postStatsView = MEPostStatsView()
-    
-    private var postInfoView = MEPostInfoView(comments: 0, commentText: "", shares: 0, shareText: "")
-    
-    private var actionButtonsView = MEPostActionButtons()
     
     // MARK: - Lifecycle
     
@@ -52,7 +52,11 @@ class HomeImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
-        //headerPostView.delegate = self
+        headerPostView.delegate = self
+        userPostView.delegate = self
+        postStatsView.delegate = self
+        
+        actionButtonsView.delegate = self
 
         addSubviews(headerPostView, userPostView, postTextLabel, postImageView, postStatsView, postInfoView, actionButtonsView)
         
@@ -75,7 +79,6 @@ class HomeImageTextCell: UICollectionViewCell {
             postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             postImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            
             postStatsView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 10),
             postStatsView.leadingAnchor.constraint(equalTo: postImageView.leadingAnchor, constant: 10),
             postStatsView.widthAnchor.constraint(equalToConstant: 150),
@@ -96,37 +99,7 @@ class HomeImageTextCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Actions
-    
-    
-    
-    @objc func didTapThreeDots() {
-        //dotsImageButton.menu = addMenuItems()
-        //dotsImageButton.showsMenuAsPrimaryAction = true
-    }
-    
-    @objc func didTapUsername() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
-    }
-    
-    @objc func didTapComments() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
-    }
-    
-    @objc func didTapLike() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didLike: viewModel.post)
-    }
-    
-    @objc func didTapBookmark() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didBookmark: viewModel.post)
- 
-    }
-    
+
     // MARK: - Helpers
     
     func configure() {
@@ -144,49 +117,82 @@ class HomeImageTextCell: UICollectionViewCell {
         
         postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
         
-        
-        
-        
-        
-        //likesLabel.text = viewModel.likesLabelText
-        //likesIndicatorImage.isHidden = viewModel.isLikesHidden
-        //postTimeLabel.text = viewModel.timestampString
-        //bookmarkButton.setImage(viewModel.bookMarkImage, for: .normal)
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
+        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
         postImageView.sd_setImage(with: viewModel.postImageUrl[0]) { image,_,_,_ in
-            guard let image = image else { return }
+            guard let image = image else { return }
             let ratio = image.size.width / image.size.height
             let newHeight = self.frame.width / ratio
 
             self.postImageView.setHeight(newHeight)
         }
- 
-        //postImageView.setDimensions(height: 300, width: frame.width)
-        //profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        
-        //imagesToDisplay = viewModel.postImageUrl
-        
-        //usernameLabel.text = viewModel.fullName
-        //usernameButton.setTitle(viewModel.fullName, for: .normal)
-        
-        //likeButton.tintColor = viewModel.likeButtonTintColor
-        //likeButton.setImage(viewModel.likeButtonImage, for: .normal)
-        
-        
-        //configureActionButtons(numberOfComments: "\(viewModel.comments)", numberOfShares: "\(viewModel.shares)")
-
     }
     
-    func addMenuItems() -> UIMenu {
-        let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: "Report Post", image: UIImage(systemName: "flag"), handler: { (_) in
-                print("Copy")
-                guard let viewModel = self.viewModel else { return }
-                self.delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: "report")
-            })
+    @objc func handleImageTap() {
         
-        ])
-        return menuItem
-        
+    }
+}
+
+
+extension HomeImageTextCell: MEHeaderPostViewDelegate {
+    
+    func didTapSubCategory(for subCategory: String) {
+        print("Home cell received sub category \(subCategory) to show")
+        delegate?.cell(wantsToSeePostsFor: subCategory)
+    }
+    
+
+    func didTapCategory(for category: String) {
+        print("Home cell received \(category) to show")
+        delegate?.cell(wantsToSeePostsFor: category)
+    }
+    
+    
+    func didTapThreeDots(withAction action: String) {
+        print("Home cell received")
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
+    }
+}
+
+
+extension HomeImageTextCell: MEUserPostViewDelegate {
+    func didTapProfile() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
+    }
+}
+
+
+extension HomeImageTextCell: MEPostStatsViewDelegate {
+    func wantsToShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
+    }
+}
+
+
+extension HomeImageTextCell: MEPostActionButtonsDelegate {
+    
+    func handleComments() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
+    }
+    
+    
+    func handleShare() {
+        print("Did tap share")
+    }
+    
+    
+    func handleSend() {
+        print("Did tap send")
+    }
+    
+    
+    func handleLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didLike: viewModel.post)
     }
 }

@@ -11,16 +11,18 @@ class MEImagesGridView: UIView {
     
     private var images: [UIImage] = []
     private var screenWidth : CGFloat = 0
-    //private let postImages: [MEPostImage] = []
+
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
     
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     init(images: [UIImage], screenWidth: CGFloat) {
         super.init(frame: .zero)
@@ -28,6 +30,7 @@ class MEImagesGridView: UIView {
         self.screenWidth = screenWidth
         configure()
     }
+    
     
     private func configure() {
       
@@ -43,6 +46,7 @@ class MEImagesGridView: UIView {
             break
         }
     }
+    
     
     func addTwoImagesToPost() {
         let firstImage = MEPostImage(image: images[0])
@@ -105,6 +109,7 @@ class MEImagesGridView: UIView {
             thirdImage.widthAnchor.constraint(equalToConstant: screenWidth / 2)
         ])
     }
+    
     
     func addForImagesToPost() {
         let firstImage = MEPostImage(image: images[0])

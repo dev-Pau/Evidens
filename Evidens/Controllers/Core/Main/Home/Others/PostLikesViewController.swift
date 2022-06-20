@@ -13,7 +13,9 @@ class PostLikesViewController: UIViewController {
     
     //MARK: - Properties
     
-    private var users: [String]
+    private var uid: [String]
+    
+    private var users: [User] = []
     
     private var likesTableView: UITableView = {
         let tableView = UITableView()
@@ -29,9 +31,15 @@ class PostLikesViewController: UIViewController {
         configureUI()
     }
     
-    init(users: [String]) {
-        self.users = users
+    init(uid: [String]) {
+        self.uid = uid
         super.init(nibName: nil, bundle: nil)
+        uid.forEach { uid in
+            UserService.fetchUser(withUid: uid) { user in
+                self.users.append(user)
+                self.likesTableView.reloadData()
+            }
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -69,6 +77,12 @@ extension PostLikesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = likesTableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! HomeLikesCell
+        cell.profileImageView.sd_setImage(with: URL(string: (users[indexPath.row].profileImageUrl)!))
+        cell.nameLabel.text = users[indexPath.row].firstName! + " " + users[indexPath.row].lastName!
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60.0
     }
 }

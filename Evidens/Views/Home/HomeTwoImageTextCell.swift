@@ -479,26 +479,3 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
     }
 }
-
-/*
-extension HomeImageTextCell: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imagesToDisplay.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier!, for: indexPath) as! ImageCollectionViewCell
-        //cell.postImageView.image = nil
-        cell.viewModel = PostImageViewModel(imageString: imagesToDisplay[indexPath.row])
-        //print(indexPath[indexPath.row])
-        return cell
-    }
-}
-
-extension HomeImageTextCell: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: frame.size.width, height: 300)
-    }
-}
- */
-
