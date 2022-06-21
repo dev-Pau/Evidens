@@ -10,6 +10,8 @@ import UIKit
 private let reuseIdentifier = "Cell"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
+private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
+private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 
 
 class HomeViewController: UICollectionViewController {
@@ -81,6 +83,8 @@ class HomeViewController: UICollectionViewController {
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
+        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -200,6 +204,87 @@ class HomeViewController: UICollectionViewController {
             }
         }
     }
+    
+    let zoomImageView = UIImageView()
+    let blackBackgroundView = UIView()
+    let navBarCoverView = UIView()
+    let tabBarCoverView = UIView()
+    var postImageView: UIImageView?
+    
+    
+    func animateImageView(postImageView: UIImageView) {
+        self.postImageView = postImageView
+        
+        if let startingFrame = postImageView.superview?.convert(postImageView.frame, to: nil) {
+            
+            navBarCoverView.frame = CGRect(x: 0, y: 0, width: 1000, height: topbarHeight)
+            navBarCoverView.backgroundColor = .black
+            navBarCoverView.alpha = 0
+            
+            if let keyWindow = UIApplication.shared.keyWindow {
+                tabBarCoverView.frame = CGRect(x: 0, y: keyWindow.frame.height - 200, width: 1000, height: 200)
+                tabBarCoverView.backgroundColor = .black
+                tabBarCoverView.alpha = 0
+                keyWindow.addSubview(tabBarCoverView)
+                keyWindow.addSubview(navBarCoverView)
+            }
+            
+            postImageView.alpha = 0
+            blackBackgroundView.frame = view.frame
+            blackBackgroundView.backgroundColor = .black
+            blackBackgroundView.alpha = 0
+            view.addSubview(blackBackgroundView)
+            
+            zoomImageView.backgroundColor = .systemPink
+            zoomImageView.frame = startingFrame
+            zoomImageView.isUserInteractionEnabled = true
+            zoomImageView.image = postImageView.image
+            zoomImageView.clipsToBounds = true
+            zoomImageView.contentMode = .scaleAspectFill
+            zoomImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomOut)))
+            
+            view.addSubview(zoomImageView)
+            
+            UIView.animate(withDuration: 0.7) { [weak self] in
+                guard let self = self else { return }
+                let height = (self.view.frame.width / startingFrame.width) * startingFrame.height
+                let y = self.view.frame.height / 2 - height / 2
+                
+                self.zoomImageView.frame = CGRect(x: 0, y: y, width: self.view.frame.width, height: height)
+                self.blackBackgroundView.alpha = 1
+                self.navBarCoverView.alpha = 1
+                self.tabBarCoverView.alpha = 1
+            }
+
+        }
+        
+        
+    }
+    
+    var topbarHeight: CGFloat {
+        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
+            (self.navigationController?.navigationBar.frame.height ?? 0.0)
+    }
+    
+    
+    @objc func zoomOut() {
+        if let startingFrame = postImageView!.superview?.convert(postImageView!.frame, to: nil) {
+            UIView.animate(withDuration: 0.7) {
+                self.zoomImageView.frame = startingFrame
+                self.blackBackgroundView.alpha = 0
+                self.navBarCoverView.alpha = 0
+                self.tabBarCoverView.alpha = 0
+                
+            } completion: { _ in
+                self.zoomImageView.removeFromSuperview()
+                self.blackBackgroundView.removeFromSuperview()
+                self.navBarCoverView.removeFromSuperview()
+                self.tabBarCoverView.removeFromSuperview()
+                self.postImageView?.alpha = 1
+            }
+
+        }
+    }
 }
 
 //MARK: - UICollectionViewDataSource
@@ -240,12 +325,52 @@ extension HomeViewController {
             }
             return cell
             
+        } else if posts[indexPath.row].type.postType == 2 {
+            //print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+         
+            if let post = post {
+                cell.viewModel = PostViewModel(post: post)
+            } else {
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+            }
+            return cell
+            
+        } else if posts[indexPath.row].type.postType == 3 {
+            //print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+         
+            if let post = post {
+                cell.viewModel = PostViewModel(post: post)
+            } else {
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+            }
+            return cell
+            
+        } else if posts[indexPath.row].type.postType == 4 {
+            //print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+         
+            if let post = post {
+                cell.viewModel = PostViewModel(post: post)
+            } else {
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+            }
+            return cell
+            
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
-            cell.postImageView.image = nil
-            //cell.layer.borderColor = UIColor.lightGray.cgColor
             if let post = post {
                 cell.viewModel = PostViewModel(post: post)
             } else {
@@ -275,11 +400,26 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
                 
             } else if posts[indexPath.row].type.postType == 2  {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + 700
+                let height = viewModel.size(forWidth: view.frame.width).height + 350 + 215
                 
                 return CGSize(width: view.frame.width, height: height)
                 
-            } else {
+            } else if posts[indexPath.row].type.postType == 3  {
+                let viewModel = PostViewModel(post: posts[indexPath.row])
+                let height = viewModel.size(forWidth: view.frame.width).height + 350 + 215
+                
+                return CGSize(width: view.frame.width, height: height)
+                
+            } else if posts[indexPath.row].type.postType == 4  {
+                let viewModel = PostViewModel(post: posts[indexPath.row])
+                let height = viewModel.size(forWidth: view.frame.width).height + 350 + 215
+                
+                return CGSize(width: view.frame.width, height: height)
+                
+            }
+            
+            
+            else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])
                 let height = viewModel.size(forWidth: view.frame.width).height + 205
@@ -307,11 +447,25 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             }
             return config
         }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
 
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        animateImageView(postImageView: image)
+    }
+    
     func cell(wantsToSeeLikesFor post: Post) {
         PostService.getAllLikesFor(post: post) { uids in
             let controller = PostLikesViewController(uid: uids)
@@ -346,6 +500,23 @@ extension HomeViewController: HomeCellDelegate {
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                }
+            
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
+            
+            currentCell.viewModel?.post.didLike.toggle()
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
                     //currentCell.actionButtonsView.likeButton.setImage(UIImage(named: "heart"), for: .normal)
                     //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
                     //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
@@ -360,8 +531,8 @@ extension HomeViewController: HomeCellDelegate {
                     }
                 }
             
-        case is HomeImageTextCell:
-            let currentCell = cell as! HomeImageTextCell
+        case is HomeTwoImageTextCell:
+            let currentCell = cell as! HomeTwoImageTextCell
             
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {

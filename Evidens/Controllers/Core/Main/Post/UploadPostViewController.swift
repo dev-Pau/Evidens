@@ -464,7 +464,7 @@ class UploadPostViewController: UIViewController {
             let imagesToUpload = postImages.compactMap { $0 }
 
             print(imagesToUpload.count)
-            switch postImages.count {
+            switch imagesToUpload.count {
             case 1:
                 
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in

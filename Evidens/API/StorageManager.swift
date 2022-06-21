@@ -36,10 +36,11 @@ struct StorageManager {
         
         //var imageData: [Data] = []
         var postImagesUrl: [String] = []
+        var index = 0
         
-        images.enumerated().forEach { (index, image) in
-
-            guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        images.forEach { image in
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
             
             
             let filename = "\(uid) \(NSUUID().uuidString)"
@@ -53,39 +54,39 @@ struct StorageManager {
                 }
                 
                 ref.downloadURL { url, error in
+                    index += 1
                     guard let imageUrl = url?.absoluteString else { return }
                     postImagesUrl.append(imageUrl)
-                    if images.count == index + 1 {
+                    print(index)
+                    if images.count == index {
+                        print("we did it")
+                        print("Added to Firebase \(postImagesUrl.count)")
                         completion(postImagesUrl)
                     }
                 }
             }
+            
         }
-        //print(postImagesUrl)
-        //completion(postImagesUrl)
     }
     
-    
-    
-    
     public enum StorageErrors: Error {
-           case failedToUpload
-           case failedToGetDownloadUrl
-       }
+        case failedToUpload
+        case failedToGetDownloadUrl
+    }
     
     /// Downloads image url for a specific path
     static func downloadImageURL(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
         let reference = Storage.storage().reference().child(path)
-
-            reference.downloadURL(completion: { url, error in
-                guard let url = url, error == nil else {
-                    completion(.failure(StorageErrors.failedToGetDownloadUrl))
-                    return
-                }
-
-                completion(.success(url))
-            })
-        }
+        
+        reference.downloadURL(completion: { url, error in
+            guard let url = url, error == nil else {
+                completion(.failure(StorageErrors.failedToGetDownloadUrl))
+                return
+            }
+            
+            completion(.success(url))
+        })
+    }
     
     ///Upload image that will be sent in a conversation message
     static func uploadMessagePhoto(with data: Data, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
