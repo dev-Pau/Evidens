@@ -138,7 +138,6 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
-        
     }
     
     

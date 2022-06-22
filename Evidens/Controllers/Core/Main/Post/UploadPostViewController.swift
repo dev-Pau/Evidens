@@ -19,11 +19,11 @@ class UploadPostViewController: UIViewController {
     
     private var user: User
     
+    private var postMenuLauncher = PostPrivacyMenuLauncher()
+    
     private var postImages: [UIImage] = []
     
     var gridImagesView = MEImagesGridView()
-    
-    //var postUrlImages: [String]?
     
     var videoUrl: URL?
     
@@ -32,6 +32,7 @@ class UploadPostViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
@@ -58,6 +59,47 @@ class UploadPostViewController: UIViewController {
         return label
     }()
     
+    private lazy var settingsPostButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .plain()
+        button.configuration?.cornerStyle = .capsule
+        
+        button.configuration?.background.strokeColor = grayColor
+        button.configuration?.background.strokeWidth = 1
+
+        button.configuration?.image = UIImage(systemName: "globe.europe.africa.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.imagePlacement = .leading
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString(" Public", attributes: container)
+        
+        button.configuration?.baseForegroundColor = grayColor
+        
+        button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
+        
+        return button
+    }()
+    
+    private let typePostButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .plain()
+        button.configuration?.cornerStyle = .capsule
+        
+        button.configuration?.background.strokeColor = grayColor
+        button.configuration?.background.strokeWidth = 1
+
+        button.configuration?.image = UIImage(systemName: "paperclip")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.imagePlacement = .leading
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString(" Attachments", attributes: container)
+        
+        button.configuration?.baseForegroundColor = grayColor
+        return button
+    }()
+    
     private lazy var cancelImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -73,7 +115,7 @@ class UploadPostViewController: UIViewController {
     
     private lazy var postTextView: UITextView = {
         let tv = InputTextView()
-        tv.placeholderText = "What would you like to share"
+        tv.placeholderText = "What would you like to share?"
         tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .light)
         tv.font = .systemFont(ofSize: 18, weight: .regular)
         tv.textColor = blackColor
@@ -202,6 +244,7 @@ class UploadPostViewController: UIViewController {
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
+        postMenuLauncher.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -234,11 +277,21 @@ class UploadPostViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .white
-
+        
         view.addSubview(scrollView)
+        scrollView.addSubviews(profileImageView, fullName, postTextView)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        
+        ])
 
-        scrollView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
-      
+        scrollView.addSubviews(settingsPostButton, typePostButton)
+        
+        
         scrollView.addSubview(profileImageView)
         profileImageView.anchor(top: scrollView.topAnchor, left: scrollView.leftAnchor, paddingTop: 10, paddingLeft: 15)
         profileImageView.setDimensions(height: 60, width: 60)
@@ -249,6 +302,10 @@ class UploadPostViewController: UIViewController {
         fullName.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, paddingLeft: 4)
         fullName.text = user.firstName! + " " + user.lastName!
         
+        settingsPostButton.anchor(left: fullName.leftAnchor, bottom: profileImageView.bottomAnchor)
+        
+        typePostButton.anchor(top: settingsPostButton.topAnchor, left: settingsPostButton.rightAnchor, paddingLeft: 5)
+        
         scrollView.addSubview(postTextView)
         postTextView.anchor(top: profileImageView.bottomAnchor, left: profileImageView.leftAnchor, paddingTop: 10, paddingRight: 15)
         postTextView.setDimensions(height: 100, width: UIScreen.main.bounds.width - 30)
@@ -257,7 +314,7 @@ class UploadPostViewController: UIViewController {
     }
     
     func configureKeyboard() {
-        
+        /*
         toolbar.sizeToFit()
         
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
@@ -272,7 +329,7 @@ class UploadPostViewController: UIViewController {
         toolbar.setItems([cameraButtonKeyboard, fixedSpace, playButtonKeyboard, fixedSpace, galleryButtonKeyboard, flexibleSpace], animated: true)
         
         postTextView.inputAccessoryView = toolbar //postTextView.textView
-        
+        */
         postTextView.becomeFirstResponder()
     }
     
@@ -418,6 +475,10 @@ class UploadPostViewController: UIViewController {
         let vc = AVPlayerViewController()
         vc.player = AVPlayer(url: videoUrl)
         present(vc, animated: true)
+    }
+    
+    @objc func handleSettingsTap() {
+        postMenuLauncher.showPostSettings(in: view)
     }
     
     //MARK: - Actions
@@ -577,7 +638,6 @@ extension UploadPostViewController: UIImagePickerControllerDelegate, UINavigatio
         picker.dismiss(animated: true, completion: nil)
         if let image = info[.originalImage] as? UIImage,
            let _ = image.pngData() {
-            print("Image got saved")
             addSinglePostImageToView(image: image)
         }
     }
@@ -598,8 +658,6 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         results.forEach { result in
             group.enter()
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
-                //UIImage
-                print("Image")
                 result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                     guard let self = self else { return }
                     defer {
@@ -610,16 +668,13 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                 }
                 group.notify(queue: .main) {
                     if self.postImages.count == 1 {
-                        print("only 1 image to upload")
                         self.addSinglePostImageToView(image: self.postImages[0])
                         
                     } else {
-                        print("more than 1 image to upload")
                         self.addPostImagesToView(images: self.postImages)
                     }
                 }
             } else {
-                //Video
                 print("Video")
                 result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
                     if let _ = error {
@@ -666,6 +721,15 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                 }
             }
         }
+    }
+}
+
+
+extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
+    func didTapPrivacyOption(_ option: String) {
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .bold)
+        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option)", attributes: container)
     }
 }
 

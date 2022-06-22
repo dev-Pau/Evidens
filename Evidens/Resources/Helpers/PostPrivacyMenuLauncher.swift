@@ -1,23 +1,22 @@
 //
-//  PostBottomMenuLauncher.swift
+//  PostPrivacyMenuLauncher.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 11/6/22.
+//  Created by Pau Fernández Solà on 22/6/22.
 //
 
 import UIKit
 
-private let cellReuseIdentifier = "PostMenuCellReuseIdentifier"
-private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
+private let cellReuseIdentifier = "PostPrivacyCellReuseIdentifier"
+private let headerReuseIdentifier = "PostPrivacyHeaderReuseIdentifier"
 
 
-protocol PostBottomMenuLauncherDelegate: AnyObject {
-    func didTapUploadPost()
-    func didTapUploadClinicalCase()
+protocol PostPrivacyMenuLauncherDelegate: AnyObject {
+    func didTapPrivacyOption(_ option: String)
 }
 
 
-class PostBottomMenuLauncher: NSObject {
+class PostPrivacyMenuLauncher: NSObject {
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -25,18 +24,20 @@ class PostBottomMenuLauncher: NSObject {
         return view
     }()
     
+    var selectedOption = 0
     
-    weak var delegate: PostBottomMenuLauncherDelegate?
+    weak var delegate: PostPrivacyMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 200
+    private let menuHeight: CGFloat = 280
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Create a Post", "Upload a Clinical Case"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus")!,
-                                                UIImage(systemName: "waveform.path.ecg")!.withTintColor(primaryColor)
-    ]
+    private var menuOptionsText: [String] = ["Public", "Connections only", "Only me"]
+    private var menuOptionsSubText: [String] = ["Anyone on MyEvidens", "Your connections on MyEvidens", "Only visible to you"]
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!,
+                                                UIImage(systemName: "person.2.fill")!,
+                                                UIImage(systemName: "lock.fill")!]
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -62,16 +63,6 @@ class PostBottomMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
-        } completion: { completed in
-            
-            switch selectedOption {
-            case "Create a Post":
-                self.delegate?.didTapUploadPost()
-            case "Upload a Clinical Case":
-                self.delegate?.didTapUploadClinicalCase()
-            default:
-                break
-            }
         }
     }
     
@@ -85,8 +76,10 @@ class PostBottomMenuLauncher: NSObject {
     
     
     func configurePostSettings(in view: UIView) {
-        view.addSubview(blackBackgroundView)
-        view.addSubview(collectionView)
+        if let window = UIApplication.shared.keyWindow {
+            window.addSubview(blackBackgroundView)
+            window.addSubview(collectionView)
+        }
         
         blackBackgroundView.frame = view.frame
         blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.5)
@@ -100,8 +93,8 @@ class PostBottomMenuLauncher: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(PostMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
-        collectionView.register(PostMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
+        collectionView.register(PostPrivacyHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
+        collectionView.register(PostPrivacyCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
@@ -136,15 +129,15 @@ class PostBottomMenuLauncher: NSObject {
     }
 }
 
-extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostPrivacyHeader
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 60)
+        return CGSize(width: screenWidth, height: 90)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -152,8 +145,14 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
+        cell.set(withText: menuOptionsText[indexPath.row], witSubtitle: menuOptionsSubText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        
+        if indexPath.row == selectedOption {
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
+        } else {
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "circle")
+        }
         return cell
     }
     
@@ -162,7 +161,11 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedOption = menuOptionsText[indexPath.row]
-        handleDismiss(selectedOption: selectedOption)
+        selectedOption = indexPath.row
+        let option = menuOptionsText[indexPath.row]
+        collectionView.reloadData()
+        delegate?.didTapPrivacyOption(option)
+        //handleDismiss(selectedOption: option)
     }
 }
+

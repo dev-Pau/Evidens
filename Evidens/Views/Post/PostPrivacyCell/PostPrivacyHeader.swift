@@ -1,13 +1,13 @@
 //
-//  PostMenuHeader.swift
+//  PostPrivacyHeader.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 11/6/22.
+//  Created by Pau Fernández Solà on 22/6/22.
 //
 
 import UIKit
 
-class PostMenuHeader: UICollectionReusableView {
+class PostPrivacyHeader: UICollectionReusableView {
     
     
     private let padding: CGFloat = 10
@@ -22,9 +22,18 @@ class PostMenuHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Create"
+        label.text = "Select Privacy"
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your post will show up on the feed, on your profile and in search results"
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
         return label
     }()
     
@@ -38,8 +47,7 @@ class PostMenuHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubview(titleLabel)
-        addSubview(separator)
+        addSubviews(separator, titleLabel, subtitleLabel)
         
         NSLayoutConstraint.activate([
             
@@ -51,7 +59,13 @@ class PostMenuHeader: UICollectionReusableView {
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: padding),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            titleLabel.heightAnchor.constraint(equalToConstant: 40) 
+            titleLabel.heightAnchor.constraint(equalToConstant: 40),
+            
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            subtitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+            //subtitleLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
 }
+

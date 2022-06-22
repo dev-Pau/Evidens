@@ -463,7 +463,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
 extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
-        animateImageView(postImageView: image)
+        //animateImageView(postImageView: image)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {

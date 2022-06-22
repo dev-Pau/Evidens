@@ -29,8 +29,8 @@ class PostMenuCell: UICollectionViewCell {
     private lazy var postTyeButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.baseForegroundColor = .white
+        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .white
 
         button.configuration?.cornerStyle = .capsule
         
