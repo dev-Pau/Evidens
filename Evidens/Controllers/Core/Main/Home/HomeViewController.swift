@@ -158,7 +158,7 @@ class HomeViewController: UICollectionViewController {
         }
         //PostService.fetchPosts { posts in
 
-        //}
+        //
         
         PostService.fetchFeedPosts { posts in
             self.posts = posts
@@ -297,7 +297,8 @@ extension HomeViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         if posts[indexPath.row].type.postType == 0 {
-            //print("post type 0")
+
+            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
             
             cell.delegate = self
@@ -571,7 +572,7 @@ extension HomeViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
+        guard let _ = tab.user else { return }
         
         switch cell {
         case is HomeTextCell:
@@ -600,8 +601,6 @@ extension HomeViewController: HomeCellDelegate {
 extension HomeViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        print("User pressed SearchBar")
-        
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem

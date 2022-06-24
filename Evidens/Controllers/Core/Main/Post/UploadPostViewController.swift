@@ -10,7 +10,6 @@ import Photos
 import PhotosUI
 import Firebase
 import SDWebImage
-import AVFoundation
 import AVKit
 
 class UploadPostViewController: UIViewController {
@@ -19,7 +18,9 @@ class UploadPostViewController: UIViewController {
     
     private var user: User
     
-    private var postMenuLauncher = PostPrivacyMenuLauncher()
+    private var postPrivacyMenuLauncher = PostPrivacyMenuLauncher()
+    
+    private var postAttachementsMenuLauncher = PostAttachementsMenuLauncher()
     
     private var postImages: [UIImage] = []
     
@@ -31,29 +32,32 @@ class UploadPostViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
     private let toolbar: UIToolbar = {
         let toolbar = UIToolbar()
-        toolbar.isTranslucent = false
-        toolbar.layer.borderWidth = 0
+        toolbar.barTintColor = UIColor.white
+        toolbar.clipsToBounds = true
+        toolbar.sizeToFit()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
         return toolbar
     }()
+    
     
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = .lightGray
         return iv
     }()
     
     private let fullName: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textColor = blackColor
         return label
@@ -63,40 +67,27 @@ class UploadPostViewController: UIViewController {
         let button = UIButton()
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        
         button.configuration?.background.strokeColor = grayColor
         button.configuration?.background.strokeWidth = 1
-
         button.configuration?.image = UIImage(systemName: "globe.europe.africa.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        button.configuration?.imagePlacement = .leading
         
+        button.configuration?.imagePlacement = .leading
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
         button.configuration?.attributedTitle = AttributedString(" Public", attributes: container)
-        
         button.configuration?.baseForegroundColor = grayColor
-        
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
-        
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private let typePostButton: UIButton = {
+    private lazy var attachementsButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
-        button.configuration?.cornerStyle = .capsule
-        
-        button.configuration?.background.strokeColor = grayColor
-        button.configuration?.background.strokeWidth = 1
-
-        button.configuration?.image = UIImage(systemName: "paperclip")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        button.configuration?.imagePlacement = .leading
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 12, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString(" Attachments", attributes: container)
-        
+        button.configuration?.image = UIImage(systemName: "paperclip")
         button.configuration?.baseForegroundColor = grayColor
+        button.addTarget(self, action: #selector(handleAttachementsTap), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -122,34 +113,10 @@ class UploadPostViewController: UIViewController {
         tv.delegate = self
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
      
-    private lazy var cameraButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "camera.fill"), for: .normal)
-        button.addTarget(self, action: #selector(didTapCameraButton), for: .touchUpInside)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
-        return button
-    }()
-    
-    private lazy var playButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "play.fill"), for: .normal)
-        button.addTarget(self, action: #selector(didTapPlayButton), for: .touchUpInside)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
-        return button
-    }()
-    
-
-    private lazy var galleryButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "photo"), for: .normal)
-        button.addTarget(self, action: #selector(didTapGalleryButton), for: .touchUpInside)
-        button.tintColor = UIColor(rgb: 0x2B2D42)
-        return button
-    }()
-    
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -244,12 +211,14 @@ class UploadPostViewController: UIViewController {
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
-        postMenuLauncher.delegate = self
+        postPrivacyMenuLauncher.delegate = self
+        postAttachementsMenuLauncher.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        postTextView.becomeFirstResponder()
+        postAttachementsMenuLauncher.showPostSettings(in: view)
+        //postTextView.becomeFirstResponder()
 
         scrollView.resizeScrollViewContentSize()
     }
@@ -279,58 +248,57 @@ class UploadPostViewController: UIViewController {
         view.backgroundColor = .white
         
         view.addSubview(scrollView)
-        scrollView.addSubviews(profileImageView, fullName, postTextView)
+        scrollView.addSubviews(profileImageView, fullName, postTextView, settingsPostButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            profileImageView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
+            profileImageView.heightAnchor.constraint(equalToConstant: 50),
+            profileImageView.widthAnchor.constraint(equalToConstant: 50),
+            
+            fullName.topAnchor.constraint(equalTo: profileImageView.topAnchor),
+            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 5),
+            fullName.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -15),
+            fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            settingsPostButton.topAnchor.constraint(equalTo: fullName.bottomAnchor, constant: 4),
+            settingsPostButton.leadingAnchor.constraint(equalTo: fullName.leadingAnchor),
+            settingsPostButton.heightAnchor.constraint(equalToConstant: 20),
+            
+            postTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
+
         ])
 
-        scrollView.addSubviews(settingsPostButton, typePostButton)
-        
-        
-        scrollView.addSubview(profileImageView)
-        profileImageView.anchor(top: scrollView.topAnchor, left: scrollView.leftAnchor, paddingTop: 10, paddingLeft: 15)
-        profileImageView.setDimensions(height: 60, width: 60)
-        profileImageView.layer.cornerRadius = 60/2
+        profileImageView.layer.cornerRadius = 50/2
         profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-        
-        scrollView.addSubview(fullName)
-        fullName.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, paddingLeft: 4)
+    
         fullName.text = user.firstName! + " " + user.lastName!
-        
-        settingsPostButton.anchor(left: fullName.leftAnchor, bottom: profileImageView.bottomAnchor)
-        
-        typePostButton.anchor(top: settingsPostButton.topAnchor, left: settingsPostButton.rightAnchor, paddingLeft: 5)
-        
-        scrollView.addSubview(postTextView)
-        postTextView.anchor(top: profileImageView.bottomAnchor, left: profileImageView.leftAnchor, paddingTop: 10, paddingRight: 15)
-        postTextView.setDimensions(height: 100, width: UIScreen.main.bounds.width - 30)
         
         textViewDidChange(postTextView)
     }
     
     func configureKeyboard() {
-        /*
-        toolbar.sizeToFit()
+        toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 50)
         
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
         
-        let fixedSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.fixedSpace, target: nil, action: nil)
+        let fixedSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.fixedSpace, target: self, action: nil)
         fixedSpace.width = 10
         
-        let cameraButtonKeyboard = UIBarButtonItem(customView: cameraButton)
-        let playButtonKeyboard = UIBarButtonItem(customView: playButton)
-        let galleryButtonKeyboard = UIBarButtonItem(customView: galleryButton)
-        
-        toolbar.setItems([cameraButtonKeyboard, fixedSpace, playButtonKeyboard, fixedSpace, galleryButtonKeyboard, flexibleSpace], animated: true)
+        let attachementButton = UIBarButtonItem(customView: attachementsButton)
+      
+        toolbar.setItems([flexibleSpace, attachementButton], animated: true)
         
         postTextView.inputAccessoryView = toolbar //postTextView.textView
-        */
-        postTextView.becomeFirstResponder()
+        
+
     }
     
     func addSinglePostImageToView(image: UIImage) {
@@ -351,7 +319,7 @@ class UploadPostViewController: UIViewController {
         addCancelButtonImagePost(to: postImageView)
         
         toolbar.isUserInteractionEnabled = false
-        cameraButton.alpha = 0.5
+        //cameraButton.alpha = 0.5
         
         scrollView.resizeScrollViewContentSize()
     }
@@ -377,7 +345,7 @@ class UploadPostViewController: UIViewController {
         addCancelButtonImagePost(to: gridImagesView)
     
         toolbar.isUserInteractionEnabled = false
-        cameraButton.alpha = 0.5
+       
         
         scrollView.resizeScrollViewContentSize()
     }
@@ -397,7 +365,7 @@ class UploadPostViewController: UIViewController {
         addPlayButtonImageToPost(to: videoImageView)
         
         toolbar.isUserInteractionEnabled = false
-        cameraButton.alpha = 0.5
+
     }
     
     
@@ -418,7 +386,7 @@ class UploadPostViewController: UIViewController {
         playVideoButton.centerX(inView: imageView)
     }
     
-    
+    /*
     @objc func didTapCameraButton() {
         let picker = UIImagePickerController()
         picker.sourceType = .camera
@@ -450,6 +418,7 @@ class UploadPostViewController: UIViewController {
         vc.delegate = self
         present(vc, animated: true)
     }
+     */
     
     @objc func didTapDeletePostImage() {
         postImageView.removeFromSuperview()
@@ -462,7 +431,7 @@ class UploadPostViewController: UIViewController {
         
         scrollView.resizeScrollViewContentSize()
         toolbar.isUserInteractionEnabled = true
-        cameraButton.alpha = 1
+        //cameraButton.alpha = 1
     }
     
     @objc func didTapPlayPostVideo() {
@@ -478,7 +447,13 @@ class UploadPostViewController: UIViewController {
     }
     
     @objc func handleSettingsTap() {
-        postMenuLauncher.showPostSettings(in: view)
+        postTextView.resignFirstResponder()
+        postPrivacyMenuLauncher.showPostSettings(in: view)
+    }
+    
+    @objc func handleAttachementsTap() {
+        postTextView.resignFirstResponder()
+        postAttachementsMenuLauncher.showPostSettings(in: view)
     }
     
     //MARK: - Actions
@@ -726,10 +701,24 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
 
 
 extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
-    func didTapPrivacyOption(_ option: String) {
+    func didTapPrivacyOption(_ option: String, _ image: UIImage) {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
         settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option)", attributes: container)
+        settingsPostButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+    }
+    
+    func didDissmisMenu() {
+        postTextView.becomeFirstResponder()
+    }
+}
+
+extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
+    func didTap() {
+    }
+    
+    func menuDidDismiss() {
+        postTextView.becomeFirstResponder()
     }
 }
 

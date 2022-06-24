@@ -11,7 +11,7 @@ import Firebase
 
 class SettingsViewController: UIViewController {
     
-    private var logoutButton: UIButton = {
+    private lazy var logoutButton: UIButton = {
         let button = UIButton(type: .system)
         button.isEnabled = true
         button.setTitle("Log out", for: .normal)

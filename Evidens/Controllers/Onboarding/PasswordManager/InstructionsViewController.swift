@@ -43,7 +43,7 @@ class InstructionsViewController: UIViewController {
         return label
     }()
     
-    private let tryAnotherEmailButton: UIButton = {
+    private lazy var tryAnotherEmailButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("try another email address", for: .normal)
         button.setTitleColor(primaryColor, for: .normal)

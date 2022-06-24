@@ -107,6 +107,7 @@
 		5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F089F286306430069FD2C /* PostPrivacyMenuLauncher.swift */; };
 		5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08A128630F580069FD2C /* PostPrivacyCell.swift */; };
 		5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */; };
+		5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -233,6 +234,7 @@
 		5F9F089F286306430069FD2C /* PostPrivacyMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyMenuLauncher.swift; sourceTree = "<group>"; };
 		5F9F08A128630F580069FD2C /* PostPrivacyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyCell.swift; sourceTree = "<group>"; };
 		5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyHeader.swift; sourceTree = "<group>"; };
+		5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementsMenuLauncher.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -526,6 +528,7 @@
 				5F6607F12854DB6800FCF895 /* PostBottomMenuLauncher.swift */,
 				5F9F089F286306430069FD2C /* PostPrivacyMenuLauncher.swift */,
 				5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */,
+				5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1095,6 +1098,7 @@
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
+				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,

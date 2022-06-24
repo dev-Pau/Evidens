@@ -1,23 +1,28 @@
 //
-//  PostBottomMenuLauncher.swift
+//  PostAttachementsMenuLauncher.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 11/6/22.
+//  Created by Pau Fernández Solà on 24/6/22.
 //
 
 import UIKit
+import InputBarAccessoryView
 
-private let cellReuseIdentifier = "PostMenuCellReuseIdentifier"
-private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
+private let cellReuseIdentifier = "PostPrivacyCellReuseIdentifier"
 
 
-protocol PostBottomMenuLauncherDelegate: AnyObject {
-    func didTapUploadPost()
-    func didTapUploadClinicalCase()
+protocol PostAttachementsMenuLauncherDelegate: AnyObject {
+    func menuDidDismiss()
+    func didTap()
+}
+
+enum Attachement {
+    case photo
+    case video
 }
 
 
-class PostBottomMenuLauncher: NSObject {
+class PostAttachementsMenuLauncher: NSObject {
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -25,17 +30,19 @@ class PostBottomMenuLauncher: NSObject {
         return view
     }()
     
+    weak var delegate: PostAttachementsMenuLauncherDelegate?
     
-    weak var delegate: PostBottomMenuLauncherDelegate?
+    var selectedOption = 0
     
-    private let menuHeight: CGFloat = 200
+    private let menuHeight: CGFloat = 280
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Create a Post", "Upload a Clinical Case"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus")!,
-                                                UIImage(systemName: "waveform.path.ecg")!]
+    private var menuOptionsText: [String] = ["Add a Photo", "Insert a video"]
+
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!,
+                                                UIImage(systemName: "person.2.fill")!]
     
     
     private let collectionView: UICollectionView = {
@@ -62,16 +69,8 @@ class PostBottomMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
-        } completion: { completed in
-            
-            switch selectedOption {
-            case "Create a Post":
-                self.delegate?.didTapUploadPost()
-            case "Upload a Clinical Case":
-                self.delegate?.didTapUploadClinicalCase()
-            default:
-                break
-            }
+        } completion: { _ in
+            self.delegate?.menuDidDismiss()
         }
     }
     
@@ -79,14 +78,17 @@ class PostBottomMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        } completion: { _ in
+            self.delegate?.menuDidDismiss()
         }
     }
 
     
-    
     func configurePostSettings(in view: UIView) {
-        view.addSubview(blackBackgroundView)
-        view.addSubview(collectionView)
+        if let window = UIApplication.shared.keyWindow {
+            window.addSubview(blackBackgroundView)
+            window.addSubview(collectionView)
+        }
         
         blackBackgroundView.frame = view.frame
         blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.5)
@@ -100,7 +102,6 @@ class PostBottomMenuLauncher: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(PostMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(PostMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
@@ -136,16 +137,7 @@ class PostBottomMenuLauncher: NSObject {
     }
 }
 
-extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
-        return header
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 60)
-    }
+extension PostAttachementsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return menuOptionsText.count
@@ -162,7 +154,11 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedOption = menuOptionsText[indexPath.row]
-        handleDismiss(selectedOption: selectedOption)
+        selectedOption = indexPath.row
+        let option = menuOptionsText[indexPath.row]
+        let image = menuOptionsImages[indexPath.row]
+        collectionView.reloadData()
+        delegate?.didTap()
     }
 }
+

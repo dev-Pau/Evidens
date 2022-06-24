@@ -117,7 +117,7 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
             // Check what label is selected
             if label == sender.view {
                 // Get the starting point of the new label selected
-                let selectorPosition = frame.width / CGFloat(titles.count) * CGFloat(index)
+                let _ = frame.width / CGFloat(titles.count) * CGFloat(index)
                 // Update the new selected index of the CustomSegmentedButtonsView
                 selectedIndex = index
                 print("Wants to go from \(pastIndex) to \(selectedIndex)")

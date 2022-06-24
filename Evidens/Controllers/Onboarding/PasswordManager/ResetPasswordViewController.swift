@@ -44,7 +44,7 @@ class ResetPasswordViewController: UIViewController {
         return tf
     }()
     
-    private let resetButton: UIButton = {
+    private lazy var resetButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Reset password", for: .normal)
         button.setTitleColor(.white, for: .normal)

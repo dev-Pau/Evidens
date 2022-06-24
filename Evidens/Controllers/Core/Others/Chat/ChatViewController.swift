@@ -254,7 +254,7 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         guard let message = message as? Message else { return }
         switch message.kind {
         case .photo(let media):
-            guard let imageUrl = media.url else { return }
+            guard let imageUrl = media.url else { return }
             imageView.sd_setImage(with: imageUrl, completed: nil)
         default:
             break
@@ -310,7 +310,7 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
                 avatarView.sd_setImage(with: currentUserImageURL, completed: nil)
             } else {
                 //Fetch url
-                guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+                guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return } 
                 let path = "profile_images/\(uid)"
                 
                 StorageManager.downloadImageURL(for: path) { [weak self] result in
@@ -327,7 +327,7 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             }
         } else {
             //Show other user profile image
-            if let otherUserPhotoURL = self.otherUserPhotoUrl {
+            if let _ = self.otherUserPhotoUrl {
                 avatarView.sd_setImage(with: otherUserPhotoUrl, completed: nil)
             } else {
                 //Fetch url

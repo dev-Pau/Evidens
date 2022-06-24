@@ -42,7 +42,6 @@ class MEImagesGridView: UIView {
         case 4:
             addForImagesToPost()
         default:
-            print("DEfault case \(images.count)")
             break
         }
     }

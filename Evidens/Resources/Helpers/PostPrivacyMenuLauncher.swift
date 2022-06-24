@@ -12,7 +12,8 @@ private let headerReuseIdentifier = "PostPrivacyHeaderReuseIdentifier"
 
 
 protocol PostPrivacyMenuLauncherDelegate: AnyObject {
-    func didTapPrivacyOption(_ option: String)
+    func didDissmisMenu()
+    func didTapPrivacyOption(_ option: String, _ image: UIImage)
 }
 
 
@@ -63,6 +64,8 @@ class PostPrivacyMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        } completion: { _ in
+            self.delegate?.didDissmisMenu()
         }
     }
     
@@ -70,6 +73,8 @@ class PostPrivacyMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        } completion: { _ in
+            self.delegate?.didDissmisMenu()
         }
     }
 
@@ -163,9 +168,9 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedOption = indexPath.row
         let option = menuOptionsText[indexPath.row]
+        let image = menuOptionsImages[indexPath.row]
         collectionView.reloadData()
-        delegate?.didTapPrivacyOption(option)
-        //handleDismiss(selectedOption: option)
+        delegate?.didTapPrivacyOption(option, image)
     }
 }
 

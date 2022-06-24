@@ -30,7 +30,7 @@ class PostMenuCell: UICollectionViewCell {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.baseForegroundColor = grayColor
-        button.configuration?.baseBackgroundColor = .white
+        button.configuration?.baseBackgroundColor = lightGrayColor
 
         button.configuration?.cornerStyle = .capsule
         
