@@ -8,17 +8,20 @@
 import UIKit
 import InputBarAccessoryView
 
-private let cellReuseIdentifier = "PostPrivacyCellReuseIdentifier"
+private let headerReuseIdentifier = "PostAttachementHeaderReuseIdentifier"
+private let cellReuseIdentifier = "PostAttachementCellReuseIdentifier"
 
 
 protocol PostAttachementsMenuLauncherDelegate: AnyObject {
     func menuDidDismiss()
-    func didTap()
+    func didTap(_ option: Attachement)
 }
 
 enum Attachement {
     case photo
     case video
+    case document
+    case poll
 }
 
 
@@ -39,10 +42,12 @@ class PostAttachementsMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Add a Photo", "Insert a video"]
+    private var menuOptionsText: [String] = ["Add a photo", "Add a video", "Create a poll", "Add a document"]
 
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!,
-                                                UIImage(systemName: "person.2.fill")!]
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "photo")!,
+                                                UIImage(systemName: "video.fill")!,
+                                                UIImage(systemName: "doc.text.fill")!,
+                                                UIImage(systemName: "doc.text.fill")!]
     
     
     private let collectionView: UICollectionView = {
@@ -102,7 +107,8 @@ class PostAttachementsMenuLauncher: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(PostMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
+        collectionView.register(PostAttachementHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
+        collectionView.register(PostAttachementCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
@@ -139,12 +145,21 @@ class PostAttachementsMenuLauncher: NSObject {
 
 extension PostAttachementsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostAttachementHeader
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: screenWidth, height: 20)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return menuOptionsText.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostAttachementCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
         return cell
     }
@@ -154,11 +169,18 @@ extension PostAttachementsMenuLauncher: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedOption = indexPath.row
-        let option = menuOptionsText[indexPath.row]
-        let image = menuOptionsImages[indexPath.row]
-        collectionView.reloadData()
-        delegate?.didTap()
+        switch indexPath.row {
+        case 0:
+            delegate?.didTap(.photo)
+        case 1:
+            delegate?.didTap(.video)
+        case 2:
+            delegate?.didTap(.poll)
+        case 3:
+            delegate?.didTap(.document)
+        default:
+            break
+        }
     }
 }
 

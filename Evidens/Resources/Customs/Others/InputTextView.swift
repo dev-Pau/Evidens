@@ -18,6 +18,7 @@ class InputTextView: UITextView {
     let placeholderLabel: UILabel = {
         let label = UILabel()
         label.textColor = grayColor
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -27,7 +28,7 @@ class InputTextView: UITextView {
                 placeholderLabel.anchor(left: leftAnchor, right: rightAnchor, paddingLeft: 8)
                 placeholderLabel.centerY(inView: self)
             } else {
-                placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 7, paddingLeft: 7)
+                placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 7, paddingLeft: 5)
             }
         }
     }

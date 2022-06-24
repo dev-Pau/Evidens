@@ -88,6 +88,7 @@ struct RegistrationViewModel: AuthenticationViewModel {
                     specialCharacter = CharacterSet.punctuationCharacters.contains(char)
                 }
             }
+            
             //optional special characters
             if specialCharacter || (digit && lowerCaseLetter && upperCaseLetter) {
                 return true

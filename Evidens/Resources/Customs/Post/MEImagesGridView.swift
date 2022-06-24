@@ -9,8 +9,8 @@ import UIKit
 
 class MEImagesGridView: UIView {
     
-    private var images: [UIImage] = []
-    private var screenWidth : CGFloat = 0
+    var images: [UIImage] = []
+    var screenWidth : CGFloat = 0
 
     
     override init(frame: CGRect) {
@@ -32,7 +32,7 @@ class MEImagesGridView: UIView {
     }
     
     
-    private func configure() {
+    func configure() {
       
         switch images.count {
         case 2:

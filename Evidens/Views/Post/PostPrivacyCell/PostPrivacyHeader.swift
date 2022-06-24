@@ -64,7 +64,6 @@ class PostPrivacyHeader: UICollectionReusableView {
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            //subtitleLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
 }

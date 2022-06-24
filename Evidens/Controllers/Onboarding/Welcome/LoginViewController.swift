@@ -12,8 +12,6 @@ class LoginViewController: UIViewController {
     
     //MARK: - Properties
     
-
-    
     private let spinner = JGProgressHUD(style: .dark)
     
     private var viewModel = LoginViewModel()
@@ -53,7 +51,7 @@ class LoginViewController: UIViewController {
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
-        button.isEnabled = false
+        button.isUserInteractionEnabled = false
         return button
     }()
     

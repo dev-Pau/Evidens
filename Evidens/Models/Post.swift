@@ -18,6 +18,7 @@ struct Post {
         case textWithFourImage
         case document
         case poll
+        case video
         
         var postType: Int {
             switch self {
@@ -35,7 +36,8 @@ struct Post {
                 return 5
             case .poll:
                 return 6
-
+            case .video:
+                return 7
             }
         }
     }
