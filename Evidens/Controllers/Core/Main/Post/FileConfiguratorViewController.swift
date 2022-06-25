@@ -12,6 +12,21 @@ class FileConfiguratorViewController: UIViewController {
     
     private var url: URL
     
+    private lazy var titleTextField: UITextField = {
+        //NOT USE CUSTOM TEXT FIELD, USE A NEW CUSTOM TEXT VIEW
+        let tf = CustomTextField(placeholder: "Insert a title for your document")
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        return tf
+    }()
+    
+    private let pagesLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let pdfView: PDFView = {
         let pdf = PDFView()
         pdf.displayDirection = .horizontal
@@ -24,9 +39,7 @@ class FileConfiguratorViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        
-        guard let document = PDFDocument(url: url) else { return }
-        pdfView.document = document
+        configureDelegates()
     }
     
     init(url: URL) {
@@ -39,32 +52,62 @@ class FileConfiguratorViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(handleCancel))
+        title = "Add a Document"
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
         navigationItem.leftBarButtonItem?.tintColor = .black
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddFile))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor.withAlphaComponent(0.5)
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureUI() {
-        title = "Add a File"
-        
         view.backgroundColor = .white
-        view.addSubview(pdfView)
+        view.addSubviews(titleTextField, pdfView, pagesLabel)
         NSLayoutConstraint.activate([
-            pdfView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            pdfView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
-            pdfView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
-            pdfView.heightAnchor.constraint(equalToConstant: 600)
+            
+            pdfView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            pdfView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            pdfView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            pdfView.heightAnchor.constraint(equalToConstant: 400),
+            
+            titleTextField.bottomAnchor.constraint(equalTo: pdfView.topAnchor, constant: -10),
+            titleTextField.centerXAnchor.constraint(equalTo: pdfView.centerXAnchor),
+            titleTextField.leadingAnchor.constraint(equalTo: pdfView.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: pdfView.trailingAnchor),
+            
+            pagesLabel.bottomAnchor.constraint(equalTo: pdfView.topAnchor, constant: -3),
+            pagesLabel.trailingAnchor.constraint(equalTo: pdfView.trailingAnchor)
         ])
+        
+        guard let document = PDFDocument(url: url) else { return }
+        pdfView.document = document
+        
+        let pages = document.pageCount
+        if pages == 1 {
+            pagesLabel.text = "\(pages) page"
+        } else {
+            pagesLabel.text = "\(pages) pages"
+        }
+    }
+    
+    func configureDelegates() {
+        //titleTextField.delegate = self
+        titleTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+    }
+    
+    @objc func textDidChange() {
+        guard let text = titleTextField.text else { return }
+        navigationItem.rightBarButtonItem?.isEnabled = text.isEmpty ? false : true
     }
     
     @objc func handleAddFile() {
-        //Handle add file
+        print("Handle add file")
     }
     
     @objc func handleCancel() {
         dismiss(animated: true)
     }
-    
 }
+

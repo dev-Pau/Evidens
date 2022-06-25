@@ -691,17 +691,15 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
 extension UploadPostViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let url = urls.first else { return }
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        print(url)
+        _ = url.startAccessingSecurityScopedResource()
+
         self.postAttachementsMenuLauncher.handleDismissMenu()
         let controller = FileConfiguratorViewController(url: url)
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
-        
-        
-        
+
         /*
         let fileName = uid + url.lastPathComponent
         print(url)
