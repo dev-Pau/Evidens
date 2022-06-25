@@ -593,7 +593,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                             guard let thumbNailImage = thumbNailImage else {
                                 return
                             }
-
+                            //print(self.videoUrl)
                             self.addVideoPostPlaceholderImage(image: thumbNailImage)
                         }
                     }
@@ -672,10 +672,10 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
             present(vc, animated: true)
             
         case .document:
-            print("Document")
-            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: true)
-            
+            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.pdf])
+            picker.delegate = self
             navigationController?.present(picker, animated: true)
+            
         case .poll:
             print("Poll")
         }
@@ -688,3 +688,31 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
 }
 
 
+extension UploadPostViewController: UIDocumentPickerDelegate {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        print(url)
+        self.postAttachementsMenuLauncher.handleDismissMenu()
+        let controller = FileConfiguratorViewController(url: url)
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+        
+        
+        
+        /*
+        let fileName = uid + url.lastPathComponent
+        print(url)
+        StorageManager.uploadPostFile(fileName: fileName, url: url) { result in
+            switch result {
+            case .success(let url):
+                print(url)
+            case .failure(let error):
+                print(error)
+            }
+        }
+         */
+    }
+}

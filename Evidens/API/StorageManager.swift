@@ -57,15 +57,39 @@ struct StorageManager {
                     index += 1
                     guard let imageUrl = url?.absoluteString else { return }
                     postImagesUrl.append(imageUrl)
-                    print(index)
                     if images.count == index {
-                        print("we did it")
-                        print("Added to Firebase \(postImagesUrl.count)")
                         completion(postImagesUrl)
                     }
                 }
             }
+        }
+    }
+    
+    
+    /// Uploads a PDF file to storage with url string to download
+    static func uploadPostFile(fileName: String, url: URL, completion: @escaping(Result<URL, Error>) -> Void) {
+        let ref = Storage.storage().reference().child("/post_files/\(fileName)")
+        
+        ref.putFile(from: url, metadata: nil) { metadata, error in
+            guard let metadata = metadata else {
+                print(error?.localizedDescription)
+                completion(.failure(StorageErrors.failedToUpload))
+                return
+            }
             
+            let size = metadata.size
+            let name = metadata.name
+            
+            
+            print("Size of file is: \(size) and name is \(name)")
+            
+            ref.downloadURL { url, error in
+                guard let url = url else {
+                    completion(.failure(StorageErrors.failedToGetDownloadUrl))
+                    return
+                }
+                completion(.success(url))
+            }
         }
     }
     
@@ -143,6 +167,8 @@ struct StorageManager {
             }
         }
     }
+    
+    
 }
 
 func fileInDocumentsDirectory(fileName: String) -> String {
