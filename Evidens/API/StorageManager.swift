@@ -33,20 +33,20 @@ struct StorageManager {
     
     /// Uploads a profile image for a specific user to firebase storage with url string to download
     static func uploadPostImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
-        
-        //var imageData: [Data] = []
+
         var postImagesUrl: [String] = []
         var index = 0
+        var order = 0
         
         images.forEach { image in
             
             guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
             
             
-            let filename = "\(uid) \(NSUUID().uuidString)"
+            let filename = "\(uid) \(NSUUID().uuidString) \(order)"
+            print(filename)
             let ref = Storage.storage().reference(withPath: "/post_images/\(filename)")
-            
-            
+            order += 1
             ref.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
                     print("DEBUG: Failed to upload post image \(error.localizedDescription)")
@@ -91,34 +91,6 @@ struct StorageManager {
             print("error")
             return
         }
-        
-     
-
-
-        /*
-        ref.putFile(from: temporaryFileURL, metadata: nil) { metadata, error in
-            guard let metadata = metadata else {
-                //print(error?.localizedDescription)
-                completion(.failure(StorageErrors.failedToUpload))
-                return
-            }
-            
-            let size = metadata.size
-            let name = metadata.name
-            
-            
-            print("Size of file is: \(size) and name is \(name)")
-            
-            ref.downloadURL { url, error in
-                guard let url = url?.absoluteString else {
-                    completion(.failure(StorageErrors.failedToGetDownloadUrl))
-                    return
-                }
-                completion(.success(url))
-            }
-        }
-         */
-         
     }
     
     public enum StorageErrors: Error {
