@@ -82,7 +82,7 @@ struct PostViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return post.didLike ? pinkColor : blackColor
+        return post.didLike ? pinkColor : grayColor
     }
     
     var likeButtonImage: UIImage? {
@@ -119,8 +119,8 @@ struct PostViewModel {
         return formatter.string(from: post.timestamp.dateValue(), to: Date())
     }
     
-    var sizeOfImage: CGFloat {
-        return post.imageHeight
+    var sizeOfImage: [CGFloat] {
+        return post.imagesHeight
     }
     
     init(post: Post) {

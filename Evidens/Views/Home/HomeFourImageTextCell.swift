@@ -38,7 +38,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -50,7 +50,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -62,7 +62,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -74,7 +74,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -179,8 +179,17 @@ class HomeFourImageTextCell: UICollectionViewCell {
     }
     
     
-    @objc func handleImageTap() {
-        
+    @objc func handleImageTap(gesture: UITapGestureRecognizer) {
+        guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
+        if image == postImageView {
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
+        } else if image == postTwoImageView {
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
+        } else if image == postThreeImageView {
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[2])
+        } else {
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[3])
+        }
     }
 }
 

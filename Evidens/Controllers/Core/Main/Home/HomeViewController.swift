@@ -131,11 +131,10 @@ class HomeViewController: UICollectionViewController {
     @objc func didTapChat() {
         let controller = ConversationViewController()
         
-        //let backItem = UIBarButtonItem()
-        //backItem.title = ""
-        //navigationItem.backBarButtonItem = backItem
-        //navigationItem.backBarButtonItem?.tintColor = .black
-        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+
         controller.hidesBottomBarWhenPushed = true
         
         navigationController?.pushViewController(controller, animated: false)
@@ -212,17 +211,20 @@ class HomeViewController: UICollectionViewController {
     var postImageView: UIImageView?
     
     
-    func animateImageView(postImageView: UIImageView) {
+    func animateImageView(postImageView: UIImageView, height: CGFloat) {
         self.postImageView = postImageView
+        print(height)
         
         if let startingFrame = postImageView.superview?.convert(postImageView.frame, to: nil) {
+            
+            guard let tabBarHeight = tabBarController?.tabBar.frame.size.height else { return }
             
             navBarCoverView.frame = CGRect(x: 0, y: 0, width: 1000, height: topbarHeight)
             navBarCoverView.backgroundColor = .black
             navBarCoverView.alpha = 0
             
             if let keyWindow = UIApplication.shared.keyWindow {
-                tabBarCoverView.frame = CGRect(x: 0, y: keyWindow.frame.height - 200, width: 1000, height: 200)
+                tabBarCoverView.frame = CGRect(x: 0, y: keyWindow.frame.height - tabBarHeight, width: 1000, height: tabBarHeight)
                 tabBarCoverView.backgroundColor = .black
                 tabBarCoverView.alpha = 0
                 keyWindow.addSubview(tabBarCoverView)
@@ -245,9 +247,9 @@ class HomeViewController: UICollectionViewController {
             
             view.addSubview(zoomImageView)
             
-            UIView.animate(withDuration: 0.7) { [weak self] in
+            UIView.animate(withDuration: 0.2) { [weak self] in
                 guard let self = self else { return }
-                let height = (self.view.frame.width / startingFrame.width) * startingFrame.height
+                //let newHeight = (self.view.frame.width / startingFrame.width) * height
                 let y = self.view.frame.height / 2 - height / 2
                 
                 self.zoomImageView.frame = CGRect(x: 0, y: y, width: self.view.frame.width, height: height)
@@ -269,7 +271,7 @@ class HomeViewController: UICollectionViewController {
     
     @objc func zoomOut() {
         if let startingFrame = postImageView!.superview?.convert(postImageView!.frame, to: nil) {
-            UIView.animate(withDuration: 0.7) {
+            UIView.animate(withDuration: 0.2) {
                 self.zoomImageView.frame = startingFrame
                 self.blackBackgroundView.alpha = 0
                 self.navBarCoverView.alpha = 0
@@ -396,7 +398,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if posts[indexPath.row].type.postType == 1 {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage + 215
+                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage[0] + 215
                 return CGSize(width: view.frame.width, height: height)
                 
             } else if posts[indexPath.row].type.postType == 2  {
@@ -448,25 +450,15 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             }
             return config
         }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
 
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
-    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
-        //animateImageView(postImageView: image)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView, withHeight height: CGFloat) {
+        animateImageView(postImageView: image, height: height)
     }
-    
+
     func cell(wantsToSeeLikesFor post: Post) {
         PostService.getAllLikesFor(post: post) { uids in
             let controller = PostLikesViewController(uid: uids)

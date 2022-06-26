@@ -55,7 +55,7 @@ struct Post {
     let ownerImageUrl: String
     let ownerFirstName: String
     let ownerLastName: String
-    let imageHeight: CGFloat
+    let imagesHeight: [CGFloat]
     let postImageUrl: [String]
     
     var didLike = false
@@ -78,7 +78,7 @@ struct Post {
         self.ownerFirstName = dictionary["ownerFirstName"] as? String ?? ""
         self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""
-        self.imageHeight = dictionary["imageHeight"] as? CGFloat ?? 0.0
+        self.imagesHeight = dictionary["imagesHeight"] as? [CGFloat] ?? [0.0]
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [""]
     }
 }

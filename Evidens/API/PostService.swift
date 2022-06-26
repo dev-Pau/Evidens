@@ -10,7 +10,7 @@ import Firebase
 
 struct PostService {
     
-    static func uploadPost(post: String, postImageUrl: [String]?, imageHeight: CGFloat?, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadPost(post: String, postImageUrl: [String]?, imagesHeight: [CGFloat]?, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
@@ -25,7 +25,7 @@ struct PostService {
                     "ownerCategory": user.category as Any,
                     "ownerLastName": user.lastName as Any,
                     "ownerImageUrl": user.profileImageUrl as Any,
-                    "imageHeight" : imageHeight as Any,
+                    "imagesHeight" : imagesHeight as Any,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)

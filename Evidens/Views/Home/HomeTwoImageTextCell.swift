@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class HomeTwoImageTextCell: UICollectionViewCell {
     
@@ -38,7 +39,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -50,7 +51,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -141,8 +142,13 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     }
     
     
-    @objc func handleImageTap() {
-        delegate?.cell(self, didTapImage: postImageView)
+    @objc func handleImageTap(gesture: UITapGestureRecognizer) {
+        guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
+        if image == postImageView {
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
+        } else {
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
+        }
     }
 }
 

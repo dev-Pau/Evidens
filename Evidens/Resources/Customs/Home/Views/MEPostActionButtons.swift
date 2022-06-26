@@ -35,17 +35,6 @@ class MEPostActionButtons: UIView {
         button.configuration = .plain()
         
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = blackColor
-        
-        button.configuration?.imagePadding = 3
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .semibold)
-        
-        button.configuration?.attributedTitle = AttributedString("Like", attributes: container)
-        button.configuration?.imagePlacement = .top
-
-        button.configuration?.image = UIImage(systemName: "heart")
         
         button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return button
@@ -58,17 +47,8 @@ class MEPostActionButtons: UIView {
         button.configuration = .plain()
         
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = blackColor
 
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .semibold)
-        
-        button.configuration?.imagePadding = 3
-        
-        button.configuration?.attributedTitle = AttributedString("Comment", attributes: container)
-        button.configuration?.imagePlacement = .top
-
-        button.configuration?.image = UIImage(named: "comment")
+        button.configuration?.image = UIImage(named: "comment")?.withTintColor(grayColor)
         
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         
@@ -81,17 +61,8 @@ class MEPostActionButtons: UIView {
         button.configuration = .plain()
         
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = blackColor
 
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .semibold)
-        
-        button.configuration?.attributedTitle = AttributedString("Send", attributes: container)
-        button.configuration?.imagePlacement = .top
-        
-        button.configuration?.imagePadding = 3
-
-        button.configuration?.image = UIImage(named: "paperplane")
+        button.configuration?.image = UIImage(named: "paperplane")?.withTintColor(grayColor)
         return button
     }()
     
@@ -101,17 +72,8 @@ class MEPostActionButtons: UIView {
         button.configuration = .plain()
         
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = blackColor
 
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .semibold)
-        
-        button.configuration?.attributedTitle = AttributedString("Share", attributes: container)
-        button.configuration?.imagePlacement = .top
-        
-        button.configuration?.imagePadding = 3
-
-        button.configuration?.image = UIImage(named: "share")
+        button.configuration?.image = UIImage(named: "share")?.withTintColor(grayColor)
         return button
     }()
     

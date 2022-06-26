@@ -8,13 +8,28 @@
 import UIKit
 import PDFKit
 
+protocol FileConfiguratorViewControllerDelegate: AnyObject {
+    func addDocumentToPost(title: String, numberOfPages: Int, documentImage: UIImage, documentURL: URL)
+}
+
 class FileConfiguratorViewController: UIViewController {
     
     private var url: URL
     
+    private var numberOfPages: Int = 0
+    
+    weak var delegate: FileConfiguratorViewControllerDelegate?
+    
+    private var titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Title"
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private lazy var titleTextField: UITextField = {
-        //NOT USE CUSTOM TEXT FIELD, USE A NEW CUSTOM TEXT VIEW
-        let tf = CustomTextField(placeholder: "Insert a title for your document")
+        let tf = METextField(placeholder: "Insert a title for your document")
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         return tf
@@ -22,7 +37,7 @@ class FileConfiguratorViewController: UIViewController {
     
     private let pagesLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -34,6 +49,8 @@ class FileConfiguratorViewController: UIViewController {
         pdf.translatesAutoresizingMaskIntoConstraints = false
         return pdf
     }()
+    
+    private var postImage = UIImage()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,7 +81,7 @@ class FileConfiguratorViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .white
-        view.addSubviews(titleTextField, pdfView, pagesLabel)
+        view.addSubviews(titleLabel ,titleTextField, pdfView, pagesLabel)
         NSLayoutConstraint.activate([
             
             pdfView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -72,28 +89,37 @@ class FileConfiguratorViewController: UIViewController {
             pdfView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             pdfView.heightAnchor.constraint(equalToConstant: 400),
             
-            titleTextField.bottomAnchor.constraint(equalTo: pdfView.topAnchor, constant: -10),
+            titleTextField.bottomAnchor.constraint(equalTo: pdfView.topAnchor, constant: -20),
             titleTextField.centerXAnchor.constraint(equalTo: pdfView.centerXAnchor),
             titleTextField.leadingAnchor.constraint(equalTo: pdfView.leadingAnchor),
             titleTextField.trailingAnchor.constraint(equalTo: pdfView.trailingAnchor),
             
             pagesLabel.bottomAnchor.constraint(equalTo: pdfView.topAnchor, constant: -3),
-            pagesLabel.trailingAnchor.constraint(equalTo: pdfView.trailingAnchor)
+            pagesLabel.trailingAnchor.constraint(equalTo: pdfView.trailingAnchor),
+            
+            titleLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -10),
+            titleLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
         
         guard let document = PDFDocument(url: url) else { return }
         pdfView.document = document
         
-        let pages = document.pageCount
-        if pages == 1 {
-            pagesLabel.text = "\(pages) page"
+        numberOfPages = document.pageCount
+        
+        if numberOfPages == 1 {
+            pagesLabel.text = "\(numberOfPages) page"
         } else {
-            pagesLabel.text = "\(pages) pages"
+            pagesLabel.text = "\(numberOfPages) pages"
         }
+        
+        guard let page = document.page(at: 0) else { return }
+        
+        postImage = getImageFromPDF(atPage: page)
     }
     
     func configureDelegates() {
-        //titleTextField.delegate = self
         titleTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
     
@@ -103,11 +129,28 @@ class FileConfiguratorViewController: UIViewController {
     }
     
     @objc func handleAddFile() {
-        print("Handle add file")
+        delegate?.addDocumentToPost(title: titleTextField.text!, numberOfPages: numberOfPages, documentImage: postImage, documentURL: url)
     }
     
     @objc func handleCancel() {
         dismiss(animated: true)
+    }
+
+}
+
+extension FileConfiguratorViewController {
+    func getImageFromPDF(atPage page: PDFPage) -> UIImage {
+        let pageRect = page.bounds(for: .mediaBox)
+        
+        let renderer = UIGraphicsImageRenderer(size: pageRect.size)
+        let img = renderer.image { ctx in
+            UIColor.white.set()
+            ctx.fill(CGRect(x: 0, y: 0, width: pageRect.width, height: pageRect.height))
+            ctx.cgContext.translateBy(x: -pageRect.origin.x, y: pageRect.size.height - pageRect.origin.y)
+            ctx.cgContext.scaleBy(x: 1.0, y: -1.0)
+            page.draw(with: .mediaBox, to: ctx.cgContext)
+        }
+        return img
     }
 }
 

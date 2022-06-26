@@ -26,11 +26,13 @@ class UploadPostViewController: UIViewController {
     
     private var postImages: [UIImage] = []
     
+    private var postDocumentUrl: URL?
+    
     var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
     
     var videoUrl: URL?
     
-    var newHeight: CGFloat = 0
+    var newHeights: [CGFloat] = []
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -126,27 +128,45 @@ class UploadPostViewController: UIViewController {
         return iv
     }()
     
+    private lazy var documentImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 10
+        iv.layer.borderWidth = 1
+        iv.layer.borderColor = blackColor.cgColor
+        iv.contentMode = .scaleAspectFill
+        return iv
+    }()
+    
     private lazy var deleteImageButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
-        button.configuration?.image = UIImage(systemName: "xmark")
-        button.configuration?.baseBackgroundColor = .black
-        button.configuration?.baseForegroundColor = .white
-
+        button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
+
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 13, weight: .heavy)
+        container.foregroundColor = UIColor.red
+        
+        button.configuration?.attributedTitle = AttributedString(" Delete", attributes: container)
+        
+        //button.configuration?.baseForegroundColor = .red
+        button.configuration?.baseBackgroundColor = blackColor.withAlphaComponent(0.7)
         
         button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private lazy var playVideoButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
-        button.configuration?.image = UIImage(systemName: "play.fill")
-        button.configuration?.baseBackgroundColor = .black
-        button.configuration?.baseForegroundColor = .white
-
+        button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
+
+        button.configuration?.image = UIImage(systemName: "play.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.white)
+        button.configuration?.imagePlacement = .leading
+        
+        button.configuration?.baseForegroundColor = .white
+        button.configuration?.baseBackgroundColor = blackColor.withAlphaComponent(0.7)
         
         button.addTarget(self, action: #selector(didTapPlayPostVideo), for: .touchUpInside)
         return button
@@ -163,7 +183,7 @@ class UploadPostViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = .systemFont(ofSize: 17, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Share", attributes: container)
         
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
@@ -194,7 +214,7 @@ class UploadPostViewController: UIViewController {
         super.viewDidAppear(true)
         scrollView.resizeScrollViewContentSize()
         
-        if viewModel.hasVideo {
+        if viewModel.hasVideo || viewModel.hasDocument {
             postTextView.becomeFirstResponder()
             return
         }
@@ -285,8 +305,8 @@ class UploadPostViewController: UIViewController {
         
         
         let ratio = image.size.width / image.size.height
-        newHeight = view.bounds.width / ratio
-        postImageView.setHeight(newHeight)
+        newHeights.append(view.bounds.width / ratio)
+        postImageView.setHeight(newHeights[0])
 
         addCancelButtonImagePost(to: postImageView)
         
@@ -299,9 +319,37 @@ class UploadPostViewController: UIViewController {
         scrollView.resizeScrollViewContentSize()
     }
     
+    func addDocumentPostImageToView(image: UIImage) {
+        postImageView.image = image
+        
+        scrollView.addSubview(postImageView)
+        postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
+        
+        
+        let ratio = image.size.width / image.size.height
+        newHeights.append(view.bounds.width / ratio)
+        postImageView.setHeight(newHeights[0])
+
+        addCancelButtonImagePost(to: postImageView)
+        
+        attachementsButton.isUserInteractionEnabled = false
+        attachementsButton.alpha = 0.5
+        
+        viewModel.hasDocument = true
+        updateForm()
+     
+        scrollView.resizeScrollViewContentSize()
+    }
+    
     
     func addPostImagesToView(images: [UIImage]) {
+        print("")
         gridImagesView.images = images
+        
+        images.forEach { image in
+            let ratio = image.size.width / image.size.height
+            newHeights.append(view.bounds.width / ratio)
+        }
         gridImagesView.screenWidth = postTextView.bounds.size.width
         
         gridImagesView.configure()
@@ -329,6 +377,8 @@ class UploadPostViewController: UIViewController {
         updateForm()
        
         scrollView.resizeScrollViewContentSize()
+        
+        print(newHeights)
     }
     
     func addVideoPostPlaceholderImage(image: UIImage) {
@@ -350,7 +400,6 @@ class UploadPostViewController: UIViewController {
         viewModel.hasVideo = true
         updateForm()
     }
-    
     
     func addCancelButtonImagePost(to imageView: UIImageView) {
         scrollView.addSubview(deleteImageButton)
@@ -376,12 +425,18 @@ class UploadPostViewController: UIViewController {
         deleteImageButton.removeFromSuperview()
         playVideoButton.removeFromSuperview()
         
+        postImageView.constraints.forEach { constraint in
+            constraint.isActive = false
+        }
+        
         postImages.removeAll()
+        newHeights.removeAll()
         
         scrollView.resizeScrollViewContentSize()
         
         viewModel.hasImage = false
         viewModel.hasVideo = false
+        viewModel.hasDocument = false
         updateForm()
         
         attachementsButton.isUserInteractionEnabled = true
@@ -453,7 +508,7 @@ class UploadPostViewController: UIViewController {
                 
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: self.newHeight, type: .textWithImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -466,7 +521,7 @@ class UploadPostViewController: UIViewController {
             case 2:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: nil, type: .textWithTwoImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithTwoImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -479,7 +534,7 @@ class UploadPostViewController: UIViewController {
             case 3:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: nil, type: .textWithThreeImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithThreeImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -492,7 +547,7 @@ class UploadPostViewController: UIViewController {
             case 4:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imageHeight: nil, type: .textWithFourImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithFourImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -507,7 +562,7 @@ class UploadPostViewController: UIViewController {
             }
         } else {
             // Post has text only
-            PostService.uploadPost(post: postTextView, postImageUrl: nil, imageHeight: nil, type: .plainText, user: user) { error in
+            PostService.uploadPost(post: postTextView, postImageUrl: nil, imagesHeight: nil, type: .plainText, user: user) { error in
                 if let error = error {
                     print("DEBUG: \(error.localizedDescription)")
                     return
@@ -550,30 +605,37 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         if results.count == 0 { return }
+
         
-        postImages.removeAll()
-        
-        let group = DispatchGroup()
+        //let group = DispatchGroup()
         
         results.forEach { result in
-            group.enter()
+            //group.enter()
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
                 result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                     guard let self = self else { return }
-                    defer {
-                        group.leave()
-                    }
+                    //defer {
+                        //group.leave()
+                    //}
                     guard let image = reading as? UIImage, error == nil else { return }
                     self.postImages.append(image)
+                    
+                    if results.count == 1 {
+                        DispatchQueue.main.async {
+                            self.addSinglePostImageToView(image: self.postImages[0])
+                        }
+   
+                        }
+                    else if results.count == self.postImages.count {
+                        DispatchQueue.main.async {
+                            self.addPostImagesToView(images: self.postImages)
+                        }
+                            
+                        }
                 }
-                group.notify(queue: .main) {
-                    if self.postImages.count == 1 {
-                        self.addSinglePostImageToView(image: self.postImages[0])
-                        
-                    } else {
-                        self.addPostImagesToView(images: self.postImages)
-                    }
-                }
+                //group.notify(queue: .main) {
+
+                //}
             } else {
                 print("Video")
                 result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
@@ -588,12 +650,10 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                     
                     try? FileManager.default.copyItem(at: url, to: self.videoUrl!)
                     DispatchQueue.main.async {
-                        //self.playVideo(newUrl)
                         self.getThumbnailImageFromVideoUrl(url: self.videoUrl!) { thumbNailImage in
                             guard let thumbNailImage = thumbNailImage else {
                                 return
                             }
-                            //print(self.videoUrl)
                             self.addVideoPostPlaceholderImage(image: thumbNailImage)
                         }
                     }
@@ -695,7 +755,10 @@ extension UploadPostViewController: UIDocumentPickerDelegate {
         _ = url.startAccessingSecurityScopedResource()
 
         self.postAttachementsMenuLauncher.handleDismissMenu()
+        
         let controller = FileConfiguratorViewController(url: url)
+        controller.delegate = self
+        
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
@@ -713,4 +776,13 @@ extension UploadPostViewController: UIDocumentPickerDelegate {
         }
          */
     }
+}
+
+extension UploadPostViewController: FileConfiguratorViewControllerDelegate {
+    func addDocumentToPost(title: String, numberOfPages: Int, documentImage: UIImage, documentURL: URL) {
+        postDocumentUrl = documentURL
+        addDocumentPostImageToView(image: documentImage)
+    }
+    
+    
 }

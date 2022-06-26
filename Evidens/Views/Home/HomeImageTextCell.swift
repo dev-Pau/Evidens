@@ -118,17 +118,16 @@ class HomeImageTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
-        postImageView.sd_setImage(with: viewModel.postImageUrl[0]) { image,_,_,_ in
-            guard let image = image else { return }
-            let ratio = image.size.width / image.size.height
-            let newHeight = self.frame.width / ratio
-
-            self.postImageView.setHeight(newHeight)
-        }
+        postImageView.setHeight(viewModel.post.imagesHeight.first!)
+        postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
     }
     
     @objc func handleImageTap() {
-        delegate?.cell(self, didTapImage: postImageView)
+        guard let viewModel = viewModel else {
+            return
+        }
+
+        delegate?.cell(self, didTapImage: postImageView, withHeight: viewModel.post.imagesHeight.first!)
     }
 }
 
