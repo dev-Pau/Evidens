@@ -7,11 +7,12 @@
 
 import UIKit
 
-private let reuseIdentifier = "Cell"
+private let reuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 
 
 class HomeViewController: UICollectionViewController {
@@ -85,6 +86,7 @@ class HomeViewController: UICollectionViewController {
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        collectionView.register(HomeDocumentCell.self, forCellWithReuseIdentifier: homeDocumentCellReuseIdentifier)
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -370,7 +372,28 @@ extension HomeViewController {
             }
             return cell
             
-        } else {
+        } else if posts[indexPath.row].type.postType == 5 {
+            //print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeDocumentCellReuseIdentifier, for: indexPath) as! HomeDocumentCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+         
+            if let post = post {
+                cell.viewModel = DocumentPostViewModel(post: post)
+            } else {
+                cell.viewModel = DocumentPostViewModel(post: posts[indexPath.row])
+                
+            }
+            return cell
+            
+        }
+        
+        
+        
+        
+        
+        
+        else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
@@ -398,7 +421,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if posts[indexPath.row].type.postType == 1 {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage[0] + 215
+                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage[0] + 200
                 return CGSize(width: view.frame.width, height: height)
                 
             } else if posts[indexPath.row].type.postType == 2  {
@@ -418,10 +441,12 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
                 let height = viewModel.size(forWidth: view.frame.width).height + 350 + 215
                 
                 return CGSize(width: view.frame.width, height: height)
+            } else if posts[indexPath.row].type.postType == 5  {
+                let viewModel = DocumentPostViewModel(post: posts[indexPath.row])
+                let height = viewModel.size(forWidth: view.frame.width).height + 450 + 215
                 
+                return CGSize(width: view.frame.width, height: height)
             }
-            
-            
             else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])

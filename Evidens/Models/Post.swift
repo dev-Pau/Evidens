@@ -55,8 +55,13 @@ struct Post {
     let ownerImageUrl: String
     let ownerFirstName: String
     let ownerLastName: String
+    
     let imagesHeight: [CGFloat]
     let postImageUrl: [String]
+    
+    let postDocumentUrl: String
+    let documentPages: Int
+    let documentTitle: String
     
     var didLike = false
     var didBookmark = false
@@ -78,7 +83,12 @@ struct Post {
         self.ownerFirstName = dictionary["ownerFirstName"] as? String ?? ""
         self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""
+        
         self.imagesHeight = dictionary["imagesHeight"] as? [CGFloat] ?? [0.0]
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [""]
+        
+        self.postDocumentUrl = dictionary["postDocumentUrl"] as? String ?? ""
+        self.documentPages = dictionary["documentPages"] as? Int ?? 0
+        self.documentTitle = dictionary["documentTitle"] as? String ?? ""
     }
 }

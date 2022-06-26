@@ -27,6 +27,9 @@ class UploadPostViewController: UIViewController {
     private var postImages: [UIImage] = []
     
     private var postDocumentUrl: URL?
+    private var postDocumentPages: Int?
+    private var postDocumentTitle: String?
+    private var stop: Bool = false
     
     var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
     
@@ -453,6 +456,7 @@ class UploadPostViewController: UIViewController {
         let vc = AVPlayerViewController()
         vc.player = AVPlayer(url: videoUrl)
         present(vc, animated: true)
+        vc.player?.play()
     }
     
     @objc func handleSettingsTap() {
@@ -499,6 +503,36 @@ class UploadPostViewController: UIViewController {
     @objc func didTapShare() {
         guard let postTextView = postTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        
+        if viewModel.hasDocument {
+            guard let docUrl = postDocumentUrl else {
+                return
+            }
+            
+            let fileName = uid + docUrl.lastPathComponent
+            StorageManager.uploadPostFile(fileName: fileName, url: docUrl) { result in
+                switch result {
+                case .success(let url):
+                    //print(url)
+                    PostService.uploadDocumentPost(post: postTextView, documentURL: url, documentTitle: self.postDocumentTitle!, documentPages: self.postDocumentPages!, user: self.user, type: .document) { error in
+                        if let error = error {
+                            print(error.localizedDescription)
+                            
+                        } else {
+                            print("Document uploaded to firebase")
+
+                        }
+                    }
+                case .failure(let error):
+                    print("Could not create the url")
+                    print(error)
+                }
+            }
+            return
+        }
+        
+        
         
         if postImages.count > 0 {
             let imagesToUpload = postImages.compactMap { $0 }
@@ -605,38 +639,26 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         if results.count == 0 { return }
-
         
-        //let group = DispatchGroup()
+        
+        let group = DispatchGroup()
         
         results.forEach { result in
-            //group.enter()
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                group.enter()
                 result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                     guard let self = self else { return }
-                    //defer {
-                        //group.leave()
-                    //}
+                    defer {
+                        group.leave()
+                    }
                     guard let image = reading as? UIImage, error == nil else { return }
+                    print("append")
                     self.postImages.append(image)
-                    
-                    if results.count == 1 {
-                        DispatchQueue.main.async {
-                            self.addSinglePostImageToView(image: self.postImages[0])
-                        }
-   
-                        }
-                    else if results.count == self.postImages.count {
-                        DispatchQueue.main.async {
-                            self.addPostImagesToView(images: self.postImages)
-                        }
-                            
-                        }
                 }
-                //group.notify(queue: .main) {
 
-                //}
-            } else {
+            }
+            
+            else {
                 print("Video")
                 result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
                     if let _ = error {
@@ -654,14 +676,27 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                             guard let thumbNailImage = thumbNailImage else {
                                 return
                             }
-                            self.addVideoPostPlaceholderImage(image: thumbNailImage)
+                            DispatchQueue.main.async {
+                                self.addVideoPostPlaceholderImage(image: thumbNailImage)
+                            }
+
                         }
                     }
                 }
             }
         }
+        
+        group.notify(queue: .main) {
+            if self.postImages.count == 1 {
+                self.addSinglePostImageToView(image: self.postImages[0])
+                
+            } else if self.postImages.count == results.count {
+                self.addPostImagesToView(images: self.postImages)
+            }
+        }
         postAttachementsMenuLauncher.handleDismissMenu()
     }
+    
     
     func getThumbnailImageFromVideoUrl(url: URL, completion: @escaping ((_ image: UIImage?)->Void)) {
         DispatchQueue.global().async { //1
@@ -741,7 +776,7 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
         }
     }
     
-
+    
     func menuDidDismiss() {
         postTextView.becomeFirstResponder()
     }
@@ -753,7 +788,7 @@ extension UploadPostViewController: UIDocumentPickerDelegate {
         guard let url = urls.first else { return }
         
         _ = url.startAccessingSecurityScopedResource()
-
+        
         self.postAttachementsMenuLauncher.handleDismissMenu()
         
         let controller = FileConfiguratorViewController(url: url)
@@ -762,27 +797,14 @@ extension UploadPostViewController: UIDocumentPickerDelegate {
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
-
-        /*
-        let fileName = uid + url.lastPathComponent
-        print(url)
-        StorageManager.uploadPostFile(fileName: fileName, url: url) { result in
-            switch result {
-            case .success(let url):
-                print(url)
-            case .failure(let error):
-                print(error)
-            }
-        }
-         */
     }
 }
 
 extension UploadPostViewController: FileConfiguratorViewControllerDelegate {
     func addDocumentToPost(title: String, numberOfPages: Int, documentImage: UIImage, documentURL: URL) {
+        postDocumentTitle = title
+        postDocumentPages = numberOfPages
         postDocumentUrl = documentURL
         addDocumentPostImageToView(image: documentImage)
     }
-    
-    
 }

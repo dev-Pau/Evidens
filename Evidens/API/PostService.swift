@@ -27,11 +27,38 @@ struct PostService {
                     "ownerImageUrl": user.profileImageUrl as Any,
                     "imagesHeight" : imagesHeight as Any,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
+                   
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
+    
+    static func uploadDocumentPost(post: String, documentURL: String, documentTitle: String, documentPages: Int, user: User, type: Post.PostType, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let data = ["post": post,
+                    "timestamp": Timestamp(date: Date()),
+                    "likes": 0,
+                    "ownerUid": uid,
+                    "comments": 0,
+                    "shares": 0,
+                    "type": type.rawValue,
+                    "bookmarks": 0,
+                    "ownerFirstName": user.firstName as Any,
+                    "ownerCategory": user.category as Any,
+                    "ownerLastName": user.lastName as Any,
+                    "ownerImageUrl": user.profileImageUrl as Any,
+                    "documentPages": documentPages as Any,
+                    "documentTitle": documentTitle as Any,
+                    "postDocumentUrl": documentURL as Any] as [String : Any]
+                   
+        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+        
+        self.updateUserFeedAfterPost(postId: docRef.documentID)
+    }
+    
+    
     
     static func fetchPosts(completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp

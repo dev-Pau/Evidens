@@ -102,6 +102,8 @@
 		5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E5290286605B90053F011 /* UploadPostViewModel.swift */; };
 		5F8E52AE28671D070053F011 /* FileConfiguratorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52AD28671D070053F011 /* FileConfiguratorViewController.swift */; };
 		5F8E52B0286846A20053F011 /* METextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52AF286846A20053F011 /* METextField.swift */; };
+		5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52B22868AC820053F011 /* DocumentPostViewModel.swift */; };
+		5F8E52B52868B3A00053F011 /* HomeDocumentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52B42868B3A00053F011 /* HomeDocumentCell.swift */; };
 		5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */; };
 		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
@@ -234,6 +236,8 @@
 		5F8E5290286605B90053F011 /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
 		5F8E52AD28671D070053F011 /* FileConfiguratorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileConfiguratorViewController.swift; sourceTree = "<group>"; };
 		5F8E52AF286846A20053F011 /* METextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METextField.swift; sourceTree = "<group>"; };
+		5F8E52B22868AC820053F011 /* DocumentPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPostViewModel.swift; sourceTree = "<group>"; };
+		5F8E52B42868B3A00053F011 /* HomeDocumentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDocumentCell.swift; sourceTree = "<group>"; };
 		5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
@@ -655,6 +659,7 @@
 			children = (
 				5F4DBCB3274799080005AEC3 /* PostViewModel.swift */,
 				5F8E5290286605B90053F011 /* UploadPostViewModel.swift */,
+				5F8E52B22868AC820053F011 /* DocumentPostViewModel.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -863,6 +868,7 @@
 				5F9F089B2861C01F0069FD2C /* HomeThreeImageTextCell.swift */,
 				5F9F089D2861C3CF0069FD2C /* HomeFourImageTextCell.swift */,
 				5F9F0896285F83780069FD2C /* HomeLikesCell.swift */,
+				5F8E52B42868B3A00053F011 /* HomeDocumentCell.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -1070,6 +1076,7 @@
 				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
 				5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */,
 				5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */,
+				5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
 				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
@@ -1102,6 +1109,7 @@
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */,
+				5F8E52B52868B3A00053F011 /* HomeDocumentCell.swift in Sources */,
 				5F598C10283CDD4B00189722 /* HomeImageTextCell.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
 				5F05206F27C3AF1A001E7D8F /* PhotoViewController.swift in Sources */,

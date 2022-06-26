@@ -1,13 +1,14 @@
 //
-//  PostViewModel.swift
+//  DocumentPostViewModel.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 19/11/21.
+//  Created by Pau Fernández Solà on 26/6/22.
 //
 
 import UIKit
+import PDFKit
 
-struct PostViewModel {
+struct DocumentPostViewModel {
     var post: Post
     
     
@@ -55,11 +56,26 @@ struct PostViewModel {
         return URL(string: post.ownerImageUrl)
     }
     
-    var postImageUrl: [URL] {
-        post.postImageUrl.map { image in
-            URL(string: image)!
-        }
+    var documentURL: URL? {
+        return URL(string: post.postDocumentUrl)
     }
+    
+    var document: PDFDocument {
+        return PDFDocument(url: documentURL!)!
+    }
+    
+    var documentTitle: String {
+        return post.documentTitle
+    }
+    
+    var documentPages: Int {
+        return post.documentPages
+    }
+    
+    var documentPageText: String {
+        return post.documentPages > 1 ? "\(documentPages) pages" : "\(documentPages) page"
+    }
+    
     
     var firstName: String {
         return post.ownerFirstName
@@ -83,11 +99,6 @@ struct PostViewModel {
     
     var likeButtonImage: UIImage? {
         let imageName = post.didLike ? "heart.fill" : "heart"
-        return UIImage(systemName: imageName)
-    }
-    
-    var bookMarkImage: UIImage? {
-        let imageName = post.didBookmark ? "bookmark.fill" : "bookmark"
         return UIImage(systemName: imageName)
     }
     
@@ -115,9 +126,6 @@ struct PostViewModel {
         return formatter.string(from: post.timestamp.dateValue(), to: Date())
     }
     
-    var sizeOfImage: [CGFloat] {
-        return post.imagesHeight
-    }
     
     init(post: Post) {
         self.post = post

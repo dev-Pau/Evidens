@@ -67,12 +67,38 @@ struct StorageManager {
     
     
     /// Uploads a PDF file to storage with url string to download
-    static func uploadPostFile(fileName: String, url: URL, completion: @escaping(Result<URL, Error>) -> Void) {
+    static func uploadPostFile(fileName: String, url: URL, completion: @escaping(Result<String, Error>) -> Void) {
         let ref = Storage.storage().reference().child("/post_files/\(fileName)")
+        do {
+        let data = try Data(contentsOf: url)
+            ref.putData(data, metadata: nil) { metadata, error in
+                guard let metadata = metadata else {
+                    //print(error?.localizedDescription)
+                    completion(.failure(StorageErrors.failedToUpload))
+                    return
+                }
+                ref.downloadURL { url, error in
+                    guard let url = url?.absoluteString else {
+                        completion(.failure(StorageErrors.failedToGetDownloadUrl))
+                        return
+                    }
+                    completion(.success(url))
+                    print("put data completed")
+                }
+            }
+        }
+        catch {
+            print("error")
+            return
+        }
         
-        ref.putFile(from: url, metadata: nil) { metadata, error in
+     
+
+
+        /*
+        ref.putFile(from: temporaryFileURL, metadata: nil) { metadata, error in
             guard let metadata = metadata else {
-                print(error?.localizedDescription)
+                //print(error?.localizedDescription)
                 completion(.failure(StorageErrors.failedToUpload))
                 return
             }
@@ -84,13 +110,15 @@ struct StorageManager {
             print("Size of file is: \(size) and name is \(name)")
             
             ref.downloadURL { url, error in
-                guard let url = url else {
+                guard let url = url?.absoluteString else {
                     completion(.failure(StorageErrors.failedToGetDownloadUrl))
                     return
                 }
                 completion(.success(url))
             }
         }
+         */
+         
     }
     
     public enum StorageErrors: Error {
@@ -182,3 +210,25 @@ func getDocumentsURL() -> URL {
 func fileExistsAtPath(path: String) -> Bool {
     return FileManager.default.fileExists(atPath: fileInDocumentsDirectory(fileName: path))
 }
+
+public func copyBundleResourceToTemporaryDirectory(resourceName: String, fileExtension: String) -> URL?
+    {
+        // Get the file path in the bundle
+        if let bundleURL = Bundle.main.url(forResource: resourceName, withExtension: fileExtension) {
+
+            let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+
+            // Create a destination URL.
+            let targetURL = tempDirectoryURL.appendingPathComponent(resourceName).appendingPathExtension(fileExtension)
+
+            // Copy the file.
+            do {
+                try FileManager.default.copyItem(at: bundleURL, to: targetURL)
+                return targetURL
+            } catch let error {
+                print("Unable to copy file: \(error)")
+            }
+        }
+
+        return nil
+    }
