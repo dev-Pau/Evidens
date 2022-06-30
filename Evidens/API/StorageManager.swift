@@ -43,7 +43,7 @@ struct StorageManager {
             guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
             
             
-            let filename = "\(uid) \(NSUUID().uuidString) \(order)"
+            let filename = "\(order) \(uid) \(NSUUID().uuidString)"
             print(filename)
             let ref = Storage.storage().reference(withPath: "/post_images/\(filename)")
             order += 1

@@ -33,7 +33,7 @@ class PostBottomMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Create a Post", "Upload a Clinical Case"]
+    private var menuOptionsText: [String] = ["Create a Post", "Share a Clinical Case"]
     private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus")!,
                                                 UIImage(systemName: "waveform.path.ecg")!]
     
@@ -67,7 +67,7 @@ class PostBottomMenuLauncher: NSObject {
             switch selectedOption {
             case "Create a Post":
                 self.delegate?.didTapUploadPost()
-            case "Upload a Clinical Case":
+            case "Share a Clinical Case":
                 self.delegate?.didTapUploadClinicalCase()
             default:
                 break
@@ -164,5 +164,6 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedOption = menuOptionsText[indexPath.row]
         handleDismiss(selectedOption: selectedOption)
+        print("Selected option")
     }
 }

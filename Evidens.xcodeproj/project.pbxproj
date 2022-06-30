@@ -80,7 +80,7 @@
 		5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F72854F34400FCF895 /* PostMenuHeader.swift */; };
 		5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */; };
 		5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FC2855BBB300FCF895 /* MEPostImage.swift */; };
-		5F6607FF2856518100FCF895 /* UploadClinicalCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FE2856518100FCF895 /* UploadClinicalCaseViewController.swift */; };
+		5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */; };
 		5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */; };
 		5F77BF69285753FA00F31A75 /* MEHeaderPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF68285753FA00F31A75 /* MEHeaderPostView.swift */; };
 		5F77BF6D2857564400F31A75 /* MECategoryPostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF6C2857564400F31A75 /* MECategoryPostButton.swift */; };
@@ -104,8 +104,11 @@
 		5F8E52B0286846A20053F011 /* METextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52AF286846A20053F011 /* METextField.swift */; };
 		5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52B22868AC820053F011 /* DocumentPostViewModel.swift */; };
 		5F8E52B52868B3A00053F011 /* HomeDocumentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52B42868B3A00053F011 /* HomeDocumentCell.swift */; };
+		5F8E52B72869C4EA0053F011 /* HomeImageDisplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52B62869C4E90053F011 /* HomeImageDisplayer.swift */; };
+		5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52BB2869FFE50053F011 /* PostPollCell.swift */; };
 		5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */; };
 		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
+		5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* CasesCell.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
 		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */; };
@@ -214,7 +217,7 @@
 		5F6607F72854F34400FCF895 /* PostMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuHeader.swift; sourceTree = "<group>"; };
 		5F6607F92855AC6900FCF895 /* MEImagesGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEImagesGridView.swift; sourceTree = "<group>"; };
 		5F6607FC2855BBB300FCF895 /* MEPostImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPostImage.swift; sourceTree = "<group>"; };
-		5F6607FE2856518100FCF895 /* UploadClinicalCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadClinicalCaseViewController.swift; sourceTree = "<group>"; };
+		5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareClinicalCaseViewController.swift; sourceTree = "<group>"; };
 		5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTwoImageTextCell.swift; sourceTree = "<group>"; };
 		5F77BF68285753FA00F31A75 /* MEHeaderPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEHeaderPostView.swift; sourceTree = "<group>"; };
 		5F77BF6C2857564400F31A75 /* MECategoryPostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECategoryPostButton.swift; sourceTree = "<group>"; };
@@ -238,8 +241,11 @@
 		5F8E52AF286846A20053F011 /* METextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METextField.swift; sourceTree = "<group>"; };
 		5F8E52B22868AC820053F011 /* DocumentPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPostViewModel.swift; sourceTree = "<group>"; };
 		5F8E52B42868B3A00053F011 /* HomeDocumentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDocumentCell.swift; sourceTree = "<group>"; };
+		5F8E52B62869C4E90053F011 /* HomeImageDisplayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeImageDisplayer.swift; sourceTree = "<group>"; };
+		5F8E52BB2869FFE50053F011 /* PostPollCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPollCell.swift; sourceTree = "<group>"; };
 		5F8EBEA127DE5DA0001CFC6E /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
+		5F979C5D286DDB3D00C05D57 /* CasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCell.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
 		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeartAnimation.swift; sourceTree = "<group>"; };
@@ -523,7 +529,7 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
-				5F6607FE2856518100FCF895 /* UploadClinicalCaseViewController.swift */,
+				5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */,
 				5F8E52AD28671D070053F011 /* FileConfiguratorViewController.swift */,
 			);
 			path = Post;
@@ -544,6 +550,7 @@
 				5F9F089F286306430069FD2C /* PostPrivacyMenuLauncher.swift */,
 				5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */,
 				5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */,
+				5F8E52B62869C4E90053F011 /* HomeImageDisplayer.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -551,6 +558,7 @@
 		5F6607F32854EB3700FCF895 /* Post */ = {
 			isa = PBXGroup;
 			children = (
+				5F8E52B82869FF7B0053F011 /* Poll */,
 				5F8E528B2865F38E0053F011 /* PostAttachementCell */,
 				5F6607F42854EB4400FCF895 /* PostMenuCell */,
 				5F9F08A328630F630069FD2C /* PostPrivacyCell */,
@@ -664,6 +672,14 @@
 			path = Post;
 			sourceTree = "<group>";
 		};
+		5F8E52B82869FF7B0053F011 /* Poll */ = {
+			isa = PBXGroup;
+			children = (
+				5F8E52BB2869FFE50053F011 /* PostPollCell.swift */,
+			);
+			path = Poll;
+			sourceTree = "<group>";
+		};
 		5F9459172834E9F1008EEAAC /* Recents */ = {
 			isa = PBXGroup;
 			children = (
@@ -681,6 +697,14 @@
 				5F598BF52834EF0A00189722 /* Top */,
 			);
 			path = Topics;
+			sourceTree = "<group>";
+		};
+		5F979C5C286DDB1000C05D57 /* Cases */ = {
+			isa = PBXGroup;
+			children = (
+				5F979C5D286DDB3D00C05D57 /* CasesCell.swift */,
+			);
+			path = Cases;
 			sourceTree = "<group>";
 		};
 		5F9F0891285F6E140069FD2C /* Others */ = {
@@ -808,6 +832,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5F979C5C286DDB1000C05D57 /* Cases */,
 				5F6607F32854EB3700FCF895 /* Post */,
 				5F05206927BD4D88001E7D8F /* Chat */,
 				5F4493EE278218EF008FD6ED /* Register */,
@@ -1084,7 +1109,7 @@
 				5FC4D88527071CB6006B7A34 /* HomeTextCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
-				5F6607FF2856518100FCF895 /* UploadClinicalCaseViewController.swift in Sources */,
+				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5F39B49C283005890079F8CF /* RecentUserCell.swift in Sources */,
 				5F77BF802858F3BF00F31A75 /* MEPostInfoView.swift in Sources */,
@@ -1136,6 +1161,7 @@
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
+				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
@@ -1165,12 +1191,14 @@
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
+				5F8E52B72869C4EA0053F011 /* HomeImageDisplayer.swift in Sources */,
 				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,
 				5F77BF6D2857564400F31A75 /* MECategoryPostButton.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,
+				5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */,
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

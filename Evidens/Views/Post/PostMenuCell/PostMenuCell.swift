@@ -10,13 +10,6 @@ import UIKit
 
 class PostMenuCell: UICollectionViewCell {
     
-    override var isHighlighted: Bool {
-        didSet {
-            backgroundColor = isHighlighted ? grayColor : .white
-            postTypeLabel.textColor = isHighlighted ? .white : blackColor
-        }
-    }
-    
     private let padding: CGFloat = 10
     
     private let postTypeImage: UIImageView = {

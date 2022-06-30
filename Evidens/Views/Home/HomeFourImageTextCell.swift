@@ -31,6 +31,8 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     private var actionButtonsView = MEPostActionButtons()
     
+    private var appended: [Int] = []
+    
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -172,17 +174,35 @@ class HomeFourImageTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
-        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
-        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
-        postThreeImageView.sd_setImage(with: viewModel.postImageUrl[2])
-        postFourImageView.sd_setImage(with: viewModel.postImageUrl[3])
+        viewModel.post.postImageUrl.forEach { url in
+            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
+
+           
+            appended.append(Int(currentURL[0..<1])!)
+
+            if appended.count == viewModel.postImageUrl.count {
+                print("DONE")
+                print(appended)
+                var sortedURL = appended.sorted()
+                var index = appended.firstIndex(of: 0)
+                postImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 0)!])
+                postTwoImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 1)!])
+                postThreeImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 2)!])
+                postFourImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 3)!])
+                
+                //appended.removeAll()
+            }
+        }
+        
+
     }
     
     
     @objc func handleImageTap(gesture: UITapGestureRecognizer) {
         guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
+        print(viewModel.post.imagesHeight)
         if image == postImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
+            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[0])
         } else if image == postTwoImageView {
             delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
         } else if image == postThreeImageView {
@@ -257,4 +277,16 @@ extension HomeFourImageTextCell: MEPostActionButtonsDelegate {
 }
 
 
+extension String {
+    subscript(_ range: CountableRange<Int>) -> String {
+        let start = index(startIndex, offsetBy: max(0, range.lowerBound))
+        let end = index(start, offsetBy: min(self.count - range.lowerBound,
+                                             range.upperBound - range.lowerBound))
+        return String(self[start..<end])
+    }
 
+    subscript(_ range: CountablePartialRangeFrom<Int>) -> String {
+        let start = index(startIndex, offsetBy: max(0, range.lowerBound))
+         return String(self[start...])
+    }
+}

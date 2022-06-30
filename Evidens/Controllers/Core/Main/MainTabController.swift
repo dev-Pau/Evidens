@@ -39,7 +39,8 @@ class MainTabController: UITabBarController {
             //appearance.shadowColor = .black    // navigationbar 1 px bottom border.
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
-
+            
+            
         }
         //GIDSignIn.sharedInstance.signOut()
         //AuthService.logout()
@@ -170,7 +171,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
     func didTapUploadClinicalCase() {
         guard let user = user else { return }
 
-        let clinicalCaseController = UploadClinicalCaseViewController(user: user)
+        let clinicalCaseController = ShareClinicalCaseViewController(user: user)
         let nav = UINavigationController(rootViewController: clinicalCaseController)
         
         nav.modalPresentationStyle = .fullScreen

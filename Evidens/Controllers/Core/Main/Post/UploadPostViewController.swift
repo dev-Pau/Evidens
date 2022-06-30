@@ -12,6 +12,8 @@ import Firebase
 import SDWebImage
 import AVKit
 
+private let pollCellReuseIdentifier = "PollCellReuseIdentifier"
+
 class UploadPostViewController: UIViewController {
     
     //MARK: - Properties
@@ -98,7 +100,7 @@ class UploadPostViewController: UIViewController {
         return button
     }()
     
-    private lazy var postTextView: UITextView = {
+    private lazy var postTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = "What would you like to share?"
         tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .regular)
@@ -191,6 +193,15 @@ class UploadPostViewController: UIViewController {
         
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
+    }()
+    
+    private lazy var pollTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.isScrollEnabled = false
+        tableView.layer.cornerRadius = 10
+        tableView.layer.borderWidth = 1
+        tableView.layer.borderColor = blackColor.cgColor
+        return tableView
     }()
     
     //MARK: - Lifecycle
@@ -300,8 +311,23 @@ class UploadPostViewController: UIViewController {
         postTextView.inputAccessoryView = toolbar //postTextView.textView
     }
     
+    func configurePollTableView() {
+        pollTableView.register(PostPollCell.self, forCellReuseIdentifier: pollCellReuseIdentifier)
+        pollTableView.delegate = self
+        pollTableView.dataSource = self
+        pollTableView.backgroundColor = .systemPink
+        scrollView.addSubview(pollTableView)
+        pollTableView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
+        pollTableView.setHeight(150)
+        
+        postTextView.placeholderText = "Ask a question..."
+        
+        
+    }
+    
     func addSinglePostImageToView(image: UIImage) {
         postImageView.image = image
+        postImages.append(image)
         
         scrollView.addSubview(postImageView)
         postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
@@ -324,6 +350,7 @@ class UploadPostViewController: UIViewController {
     
     func addDocumentPostImageToView(image: UIImage) {
         postImageView.image = image
+        postImages.append(image)
         
         scrollView.addSubview(postImageView)
         postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
@@ -346,9 +373,8 @@ class UploadPostViewController: UIViewController {
     
     
     func addPostImagesToView(images: [UIImage]) {
-        print("")
         gridImagesView.images = images
-        
+
         images.forEach { image in
             let ratio = image.size.width / image.size.height
             newHeights.append(view.bounds.width / ratio)
@@ -379,9 +405,9 @@ class UploadPostViewController: UIViewController {
         viewModel.hasImage = true
         updateForm()
        
+        print(newHeights)
         scrollView.resizeScrollViewContentSize()
         
-        print(newHeights)
     }
     
     func addVideoPostPlaceholderImage(image: UIImage) {
@@ -393,7 +419,6 @@ class UploadPostViewController: UIViewController {
         
         videoImageView.setHeight(200)
 
-        
         addCancelButtonImagePost(to: videoImageView)
         addPlayButtonImageToPost(to: videoImageView)
         
@@ -428,12 +453,22 @@ class UploadPostViewController: UIViewController {
         deleteImageButton.removeFromSuperview()
         playVideoButton.removeFromSuperview()
         
+        let group = DispatchGroup()
+        
         postImageView.constraints.forEach { constraint in
+            group.enter()
+            defer {
+                group.leave()
+            }
             constraint.isActive = false
         }
         
         postImages.removeAll()
         newHeights.removeAll()
+        
+        group.notify(queue: .main) {
+            self.scrollView.resizeScrollViewContentSize()
+        }
         
         scrollView.resizeScrollViewContentSize()
         
@@ -506,6 +541,7 @@ class UploadPostViewController: UIViewController {
         
         
         if viewModel.hasDocument {
+            print("has document")
             guard let docUrl = postDocumentUrl else {
                 return
             }
@@ -535,6 +571,7 @@ class UploadPostViewController: UIViewController {
         
         
         if postImages.count > 0 {
+            print("Has images")
             let imagesToUpload = postImages.compactMap { $0 }
 
             switch imagesToUpload.count {
@@ -642,21 +679,29 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         
         
         let group = DispatchGroup()
+        var order = [String]()
+        var asyncDict = [String:UIImage]()
+        var images = [UIImage]()
+        
         
         results.forEach { result in
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
                 group.enter()
+                order.append(result.assetIdentifier ?? "")
+                
                 result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                     guard let self = self else { return }
                     defer {
                         group.leave()
                     }
                     guard let image = reading as? UIImage, error == nil else { return }
-                    print("append")
-                    self.postImages.append(image)
+                    asyncDict[result.assetIdentifier ?? ""] = image
+                    
                 }
 
             }
+            
+            
             
             else {
                 print("Video")
@@ -687,11 +732,20 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         }
         
         group.notify(queue: .main) {
-            if self.postImages.count == 1 {
-                self.addSinglePostImageToView(image: self.postImages[0])
+            if order.count == 1 {
+                self.addSinglePostImageToView(image: asyncDict[order[0]]!)
                 
-            } else if self.postImages.count == results.count {
+            } else {
+                for id in order {
+                    images.append(asyncDict[id]!)
+                }
+                self.postImages = images
                 self.addPostImagesToView(images: self.postImages)
+            
+            
+            
+            //else if self.postImages.count == results.count {
+                //self.addPostImagesToView(images: self.postImages)
             }
         }
         postAttachementsMenuLauncher.handleDismissMenu()
@@ -750,6 +804,7 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
             var config = PHPickerConfiguration(photoLibrary: .shared())
             config.selectionLimit = 4
             config.preferredAssetRepresentationMode = .current
+            config.selection = .ordered
             config.filter = PHPickerFilter.any(of: [.images])
             
             let vc = PHPickerViewController(configuration: config)
@@ -773,6 +828,8 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
             
         case .poll:
             print("Poll")
+            configurePollTableView()
+            postAttachementsMenuLauncher.handleDismissMenu()
         }
     }
     
@@ -807,4 +864,17 @@ extension UploadPostViewController: FileConfiguratorViewControllerDelegate {
         postDocumentUrl = documentURL
         addDocumentPostImageToView(image: documentImage)
     }
+}
+
+extension UploadPostViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 2
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: pollCellReuseIdentifier, for: indexPath) as! PostPollCell
+        return cell
+    }
+    
+    
 }

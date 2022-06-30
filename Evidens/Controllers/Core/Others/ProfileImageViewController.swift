@@ -73,9 +73,7 @@ class ProfileImageViewController: UIViewController {
     //MARK: - Helpers
     
     func configureUI() {
-        
-        let backgroundColor = profileImageView.image?.averageColor
-        view.backgroundColor = backgroundColor
+        view.backgroundColor = .white
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         

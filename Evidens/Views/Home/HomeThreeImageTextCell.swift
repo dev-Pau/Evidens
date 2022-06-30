@@ -31,6 +31,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     
     private var actionButtonsView = MEPostActionButtons()
     
+    private var appended: [Int] = []
+    
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -155,9 +157,25 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
-        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
-        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
-        postThreeImageView.sd_setImage(with: viewModel.postImageUrl[2])
+        viewModel.post.postImageUrl.forEach { url in
+            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
+
+           
+            appended.append(Int(currentURL[0..<1])!)
+
+            if appended.count == viewModel.postImageUrl.count {
+                print("DONE")
+                print(appended)
+                var sortedURL = appended.sorted()
+                var index = appended.firstIndex(of: 0)
+                postImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 0)!])
+                postTwoImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 1)!])
+                postThreeImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 2)!])
+               
+                appended.removeAll()
+            }
+        }
+        
         
     }
     

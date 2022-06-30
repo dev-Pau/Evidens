@@ -205,90 +205,6 @@ class HomeViewController: UICollectionViewController {
             }
         }
     }
-    
-    let zoomImageView = UIImageView()
-    let blackBackgroundView = UIView()
-    let navBarCoverView = UIView()
-    let tabBarCoverView = UIView()
-    var postImageView: UIImageView?
-    
-    
-    func animateImageView(postImageView: UIImageView, height: CGFloat) {
-        self.postImageView = postImageView
-        print(height)
-        
-        if let startingFrame = postImageView.superview?.convert(postImageView.frame, to: nil) {
-            
-            guard let tabBarHeight = tabBarController?.tabBar.frame.size.height else { return }
-            
-            navBarCoverView.frame = CGRect(x: 0, y: 0, width: 1000, height: topbarHeight)
-            navBarCoverView.backgroundColor = .black
-            navBarCoverView.alpha = 0
-            
-            if let keyWindow = UIApplication.shared.keyWindow {
-                tabBarCoverView.frame = CGRect(x: 0, y: keyWindow.frame.height - tabBarHeight, width: 1000, height: tabBarHeight)
-                tabBarCoverView.backgroundColor = .black
-                tabBarCoverView.alpha = 0
-                keyWindow.addSubview(tabBarCoverView)
-                keyWindow.addSubview(navBarCoverView)
-            }
-            
-            postImageView.alpha = 0
-            blackBackgroundView.frame = view.frame
-            blackBackgroundView.backgroundColor = .black
-            blackBackgroundView.alpha = 0
-            view.addSubview(blackBackgroundView)
-            
-            zoomImageView.backgroundColor = .systemPink
-            zoomImageView.frame = startingFrame
-            zoomImageView.isUserInteractionEnabled = true
-            zoomImageView.image = postImageView.image
-            zoomImageView.clipsToBounds = true
-            zoomImageView.contentMode = .scaleAspectFill
-            zoomImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomOut)))
-            
-            view.addSubview(zoomImageView)
-            
-            UIView.animate(withDuration: 0.2) { [weak self] in
-                guard let self = self else { return }
-                //let newHeight = (self.view.frame.width / startingFrame.width) * height
-                let y = self.view.frame.height / 2 - height / 2
-                
-                self.zoomImageView.frame = CGRect(x: 0, y: y, width: self.view.frame.width, height: height)
-                self.blackBackgroundView.alpha = 1
-                self.navBarCoverView.alpha = 1
-                self.tabBarCoverView.alpha = 1
-            }
-
-        }
-        
-        
-    }
-    
-    var topbarHeight: CGFloat {
-        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
-            (self.navigationController?.navigationBar.frame.height ?? 0.0)
-    }
-    
-    
-    @objc func zoomOut() {
-        if let startingFrame = postImageView!.superview?.convert(postImageView!.frame, to: nil) {
-            UIView.animate(withDuration: 0.2) {
-                self.zoomImageView.frame = startingFrame
-                self.blackBackgroundView.alpha = 0
-                self.navBarCoverView.alpha = 0
-                self.tabBarCoverView.alpha = 0
-                
-            } completion: { _ in
-                self.zoomImageView.removeFromSuperview()
-                self.blackBackgroundView.removeFromSuperview()
-                self.navBarCoverView.removeFromSuperview()
-                self.tabBarCoverView.removeFromSuperview()
-                self.postImageView?.alpha = 1
-            }
-
-        }
-    }
 }
 
 //MARK: - UICollectionViewDataSource
@@ -481,7 +397,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
 extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView, withHeight height: CGFloat) {
-        animateImageView(postImageView: image, height: height)
+        // Present image on a new VC
     }
 
     func cell(wantsToSeeLikesFor post: Post) {
@@ -629,3 +545,4 @@ extension HomeViewController: UISearchBarDelegate {
         return true
     }
 }
+
