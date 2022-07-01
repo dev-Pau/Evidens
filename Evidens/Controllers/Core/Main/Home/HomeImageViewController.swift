@@ -14,13 +14,7 @@ class HomeImageViewController: UIViewController {
     
     private var zoomTransitioning = ZoomTransitioning()
     
-    let postImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
+    let scrollableImageView = MEScrollImageView(frame: .zero)
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -32,10 +26,8 @@ class HomeImageViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.titleView = searchBar
         navigationController?.delegate = zoomTransitioning
-
     }
     
-   
     init(image: UIImage, height: CGFloat) {
         super.init(nibName: nil, bundle: nil)
         self.postImage = image
@@ -58,26 +50,19 @@ class HomeImageViewController: UIViewController {
         navigationController?.tabBarController?.tabBar.isHidden = false
     }
 
-     
-    
     private func configure() {
-        view.addSubview(postImageView)
-        postImageView.image = postImage
-        
-        
-        NSLayoutConstraint.activate([
-            postImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            postImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            postImageView.heightAnchor.constraint(equalToConstant: height),
-            postImageView.widthAnchor.constraint(equalToConstant: view.frame.width),
-        ])
+        scrollableImageView.frame = view.bounds
+        view.addSubview(scrollableImageView)
+        scrollableImageView.display(image: postImage)
     }
 }
 
 extension HomeImageViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return postImageView
+        return scrollableImageView.zoomImageView
     }
 }
+
+
 
 
