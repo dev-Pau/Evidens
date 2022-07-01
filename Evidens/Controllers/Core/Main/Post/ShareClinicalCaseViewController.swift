@@ -16,7 +16,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var user: User?
     
-    private var collectionImages: [UIImage]? {
+    private var collectionImages = [UIImage]() {
         didSet {
             casesCollectionView.reloadData()
         }
@@ -164,6 +164,23 @@ class ShareClinicalCaseViewController: UIViewController {
         print(newCellWidth)
     }
     
+    func addBackgroundImage() {
+        casesCollectionView.removeFromSuperview()
+        scrollView.addSubviews(imageBackgroundView, photoImage)
+        
+        NSLayoutConstraint.activate([
+            imageBackgroundView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            imageBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            imageBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            imageBackgroundView.heightAnchor.constraint(equalToConstant: 200),
+            
+            photoImage.centerXAnchor.constraint(equalTo: imageBackgroundView.centerXAnchor),
+            photoImage.centerYAnchor.constraint(equalTo: imageBackgroundView.centerYAnchor),
+            photoImage.widthAnchor.constraint(equalToConstant: 50),
+            photoImage.heightAnchor.constraint(equalToConstant: 50)
+        ])
+    }
+    
     //MARK: - Actions
     
     @objc func handleCancel() {
@@ -214,6 +231,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                 let ratio = image.size.width / image.size.height
                 let newWidth = ratio * 200
                 asyncDictWidth[result.assetIdentifier ?? ""] = newWidth
+                print(asyncDict)
             }
         }
         
@@ -225,14 +243,13 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             self.collectionImages = images
             self.newCellWidth = widths
             self.addCaseCollectionView()
+            print(self.newCellWidth.count)
         }
     }
 }
 
 extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let collectionImages = collectionImages else { return 0 }
-        print(collectionImages.count)
         return collectionImages.count
 
     }
@@ -240,12 +257,14 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = casesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
         cell.delegate = self
-        cell.set(image: collectionImages![indexPath.row])
+        cell.set(image: collectionImages[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: newCellWidth[indexPath.row], height: casesCollectionView.frame.height)
+        if collectionImages.count == 1 {
+            return CGSize(width: casesCollectionView.frame.width, height: casesCollectionView.frame.height)
+        } else { return CGSize(width: newCellWidth[indexPath.item] - 60, height: casesCollectionView.frame.height) }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -261,8 +280,14 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
 extension ShareClinicalCaseViewController: CasesCellDelegate {
     func delete(_ cell: CasesCell) {
         if let indexPath = casesCollectionView.indexPath(for: cell) {
-            casesCollectionView.deleteItems(at: [indexPath])
-            collectionImages?.remove(at: indexPath.item)
+            casesCollectionView.performBatchUpdates {
+                newCellWidth.remove(at: indexPath.item)
+                collectionImages.remove(at: indexPath.item)
+                casesCollectionView.deleteItems(at: [indexPath])
+                if collectionImages.isEmpty {
+                    addBackgroundImage()
+                }
+            }
         }
     }
 }

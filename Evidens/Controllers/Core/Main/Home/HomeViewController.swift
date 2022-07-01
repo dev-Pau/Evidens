@@ -19,10 +19,10 @@ class HomeViewController: UICollectionViewController {
     
     //MARK: - Properties
     
-    
-    //weak var delegate: FeedControllerDelegate?
-    
     var user: User?
+    var selectedImage: UIImageView!
+    
+    private var zoomTransitioning = ZoomTransitioning()
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -42,6 +42,7 @@ class HomeViewController: UICollectionViewController {
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
 
@@ -59,6 +60,7 @@ class HomeViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationController?.delegate = zoomTransitioning
         fetchUser()
         fetchPosts()
         configureUI()
@@ -74,6 +76,7 @@ class HomeViewController: UICollectionViewController {
         super.viewWillAppear(false)
         // To resign first responder
         searchBar.resignFirstResponder()
+        
     }
     
     
@@ -104,6 +107,8 @@ class HomeViewController: UICollectionViewController {
         let profileImageItem = UIBarButtonItem(customView: profileImageView)
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
         navigationItem.leftBarButtonItem = profileImageItem
+        
+
         
         navigationItem.titleView = searchBar
         
@@ -304,11 +309,7 @@ extension HomeViewController {
             
         }
         
-        
-        
-        
-        
-        
+
         else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
             cell.delegate = self
@@ -397,8 +398,17 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
 extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView, withHeight height: CGFloat) {
-        // Present image on a new VC
+        guard let newImage = image.image else { return }
+        selectedImage = image
+        let controller = HomeImageViewController(image: newImage, height: height)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
+    
 
     func cell(wantsToSeeLikesFor post: Post) {
         PostService.getAllLikesFor(post: post) { uids in
@@ -543,6 +553,13 @@ extension HomeViewController: UISearchBarDelegate {
         navigationController?.pushViewController(controller, animated: true)
 
         return true
+    }
+}
+
+extension HomeViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return selectedImage
+
     }
 }
 

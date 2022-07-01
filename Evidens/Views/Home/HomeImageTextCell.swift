@@ -31,7 +31,7 @@ class HomeImageTextCell: UICollectionViewCell {
     
     private var actionButtonsView = MEPostActionButtons()
     
-    private lazy var postImageView: UIImageView = {
+    lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
