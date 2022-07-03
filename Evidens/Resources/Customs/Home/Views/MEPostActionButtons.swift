@@ -14,9 +14,6 @@ protocol MEPostActionButtonsDelegate: AnyObject {
     func handleSend()
 }
 
-
-
-
 class MEPostActionButtons: UIView {
     
     weak var delegate: MEPostActionButtonsDelegate?

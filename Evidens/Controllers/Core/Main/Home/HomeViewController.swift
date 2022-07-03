@@ -397,10 +397,11 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
-    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView, withHeight height: CGFloat) {
-        guard let newImage = image.image else { return }
-        selectedImage = image
-        let controller = HomeImageViewController(image: newImage, height: height)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        //guard let newImage = image.image else { return }
+        let map: [UIImage] = image.compactMap { $0.image }
+        selectedImage = image[index]
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""

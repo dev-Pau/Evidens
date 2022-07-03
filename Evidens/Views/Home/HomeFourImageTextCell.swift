@@ -200,15 +200,15 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     @objc func handleImageTap(gesture: UITapGestureRecognizer) {
         guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
-        print(viewModel.post.imagesHeight)
+        let images = [postImageView, postTwoImageView, postThreeImageView,postFourImageView]
         if image == postImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[0])
+            delegate?.cell(self, didTapImage: images, index: 0)
         } else if image == postTwoImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
+            delegate?.cell(self, didTapImage: images, index: 1)
         } else if image == postThreeImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[2])
+            delegate?.cell(self, didTapImage: images, index: 2)
         } else {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[3])
+            delegate?.cell(self, didTapImage: images, index: 3)
         }
     }
 }

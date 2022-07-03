@@ -127,7 +127,7 @@ class HomeImageTextCell: UICollectionViewCell {
             return
         }
 
-        delegate?.cell(self, didTapImage: postImageView, withHeight: viewModel.post.imagesHeight.first!)
+        delegate?.cell(self, didTapImage: [postImageView], index: 0)
     }
 }
 

@@ -164,7 +164,6 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             appended.append(Int(currentURL[0..<1])!)
 
             if appended.count == viewModel.postImageUrl.count {
-                print("DONE")
                 print(appended)
                 var sortedURL = appended.sorted()
                 var index = appended.firstIndex(of: 0)
@@ -183,11 +182,11 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     @objc func handleImageTap(gesture: UITapGestureRecognizer) {
         guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
         if image == postImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
+            delegate?.cell(self, didTapImage: [postImageView, postTwoImageView, postThreeImageView], index: 0)
         } else if image == postTwoImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
+            delegate?.cell(self, didTapImage: [postImageView, postTwoImageView, postThreeImageView], index: 1)
         } else {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[2])
+            delegate?.cell(self, didTapImage: [postImageView, postTwoImageView, postThreeImageView], index: 2)
         }
     }
 }

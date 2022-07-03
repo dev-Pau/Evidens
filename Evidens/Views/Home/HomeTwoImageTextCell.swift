@@ -145,9 +145,9 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     @objc func handleImageTap(gesture: UITapGestureRecognizer) {
         guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
         if image == postImageView {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
+            //delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
         } else {
-            delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
+            //delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
         }
     }
 }

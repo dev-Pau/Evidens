@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol MEScrollImageViewDelegate: AnyObject {
+    func didZoomOut()
+}
+
 class MEScrollImageView: UIScrollView {
+    
+    weak var customDelegate: MEScrollImageViewDelegate?
     
     private var size = CGSize()
     
@@ -19,7 +25,7 @@ class MEScrollImageView: UIScrollView {
         return iv
     }()
     
-    private lazy var zoomingTap: UITapGestureRecognizer = {
+    lazy var zoomingTap: UITapGestureRecognizer = {
         let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(handleZoomingTap(_:)))
         zoomingTap.numberOfTapsRequired = 2
         return zoomingTap
@@ -35,8 +41,6 @@ class MEScrollImageView: UIScrollView {
         minimumZoomScale = 0.1
         maximumZoomScale = 5.0
     }
-    
-    
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -102,7 +106,7 @@ class MEScrollImageView: UIScrollView {
         
         // center vertically
         if frameToCenter.size.height < boundsSize.height {
-            frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height)/2 - 88
+            frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height)/2
         }
         else {
             frameToCenter.origin.y = 0
@@ -122,6 +126,12 @@ class MEScrollImageView: UIScrollView {
         
         let toScale = maxScale
         let finalScale = (currentScale == minScale) ? toScale : minScale
+        
+        if finalScale == minScale {
+            customDelegate?.didZoomOut()
+        }
+        
+        
         let zoomRect = self.zoomRect(for: finalScale, withCenter: point)
         self.zoom(to: zoomRect, animated: animated)
     }
@@ -160,5 +170,6 @@ extension MEScrollImageView: UIScrollViewDelegate {
         centerImage()
     }
 }
+
 
 

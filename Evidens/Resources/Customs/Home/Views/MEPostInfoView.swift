@@ -58,7 +58,6 @@ class MEPostInfoView: UIView {
     }
     
     func configure(comments: Int, commentText: String, shares: Int, shareText: String) {
-        print(comments)
         translatesAutoresizingMaskIntoConstraints = false
         
         commentLabel.removeFromSuperview()
@@ -72,6 +71,7 @@ class MEPostInfoView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.distribution = .equalSpacing
+        stackView.spacing = 5
         addSubview(stackView)
         
         
