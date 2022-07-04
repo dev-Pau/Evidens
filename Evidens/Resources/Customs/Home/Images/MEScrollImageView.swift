@@ -7,13 +7,8 @@
 
 import UIKit
 
-protocol MEScrollImageViewDelegate: AnyObject {
-    func didZoomOut()
-}
 
 class MEScrollImageView: UIScrollView {
-    
-    weak var customDelegate: MEScrollImageViewDelegate?
     
     private var size = CGSize()
     
@@ -126,11 +121,6 @@ class MEScrollImageView: UIScrollView {
         
         let toScale = maxScale
         let finalScale = (currentScale == minScale) ? toScale : minScale
-        
-        if finalScale == minScale {
-            customDelegate?.didZoomOut()
-        }
-        
         
         let zoomRect = self.zoomRect(for: finalScale, withCenter: point)
         self.zoom(to: zoomRect, animated: animated)

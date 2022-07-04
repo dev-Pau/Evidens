@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol HomeImageViewControllerDelegate: AnyObject {
+    func updateVisibleImageInScrollView(_ image: UIImageView)
+}
+
 class HomeImageViewController: UIViewController {
+    
+    weak var customDelegate: HomeImageViewControllerDelegate?
     
     private var postImage: [UIImage]!
     private var imageCount: Int!
@@ -40,19 +46,18 @@ class HomeImageViewController: UIViewController {
     private let whiteView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.alpha = 0.7
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    private let actionButtons = MEPostActionButtons()
-    
+
     private var postInfoView =  MEPostInfoView(comments: 1, commentText: "", shares: 1, shareText: "")
     
     private var postStatsView = MEPostStatsView()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigationBar()
+        pagingScrollView.delegate = self
         singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
         view.addGestureRecognizer(singleTap)
         navigationItem.titleView = searchBar
@@ -109,17 +114,23 @@ class HomeImageViewController: UIViewController {
         super.viewWillDisappear(animated)
         navigationController?.tabBarController?.tabBar.isHidden = false
         navigationController?.navigationBar.alpha = 1
+        pagingScrollView.backgroundColor = .clear
         containerView.removeFromSuperview()
+    }
+    
+    private func configureNavigationBar() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
     }
     
     private func configure() {
         if let keyWindow = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
             keyWindow.addSubview(containerView)
             containerView.addSubview(whiteView)
-            containerView.addSubview(actionButtons)
+          
             containerView.addSubview(postInfoView)
             containerView.addSubview(postStatsView)
-            //actionButtons.likeButton.configuration?.image = UIImage(named: "like")?.withTintColor(grayColor)
+ 
+
             postInfoView.commentLabel.text = "3 comments"
             postInfoView.shareLabel.text = "6 shares"
             postInfoView.commentLabel.textColor = .black
@@ -136,13 +147,8 @@ class HomeImageViewController: UIViewController {
                 whiteView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
                 whiteView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
                 whiteView.heightAnchor.constraint(equalToConstant: 200),
-                
-                actionButtons.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -50),
-                actionButtons.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                actionButtons.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-                actionButtons.heightAnchor.constraint(equalToConstant: 50),
-                
-                postInfoView.bottomAnchor.constraint(equalTo: actionButtons.topAnchor, constant: -5),
+
+                postInfoView.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: -5),
                 postInfoView.widthAnchor.constraint(equalToConstant: 200),
                 postInfoView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
                 postInfoView.heightAnchor.constraint(equalToConstant: 50),
@@ -150,7 +156,7 @@ class HomeImageViewController: UIViewController {
                 postStatsView.centerYAnchor.constraint(equalTo: postInfoView.centerYAnchor),
                 postStatsView.widthAnchor.constraint(equalToConstant: 150),
                 postStatsView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
-                postStatsView.heightAnchor.constraint(equalToConstant: 50)
+                postStatsView.heightAnchor.constraint(equalToConstant: 50),
             ])
         }
         
@@ -224,7 +230,7 @@ class HomeImageViewController: UIViewController {
                 self.navigationBarIsHidden = false
                 
                 UIView.animate(withDuration: duration) {
-                    self.navigationController!.navigationBar.alpha = 0.7
+                    self.navigationController!.navigationBar.alpha = 1
                     self.containerView.alpha = 1
                     self.navigationController!.navigationBar.isHidden = false
                     self.updateBackgroundColor()
@@ -233,17 +239,23 @@ class HomeImageViewController: UIViewController {
         }
     }
     
+    @objc func didTapShare() {
+        let activityVC = UIActivityViewController(activityItems: [self.postImage[0] as Any], applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        self.present(activityVC, animated: true, completion: nil)
+    }
+    
     func updateBackgroundColor() {
-            if  !self.navigationBarIsHidden {
-                self.updateBackground(to: .white)
-            }
-            else {
-                self.updateBackground(to: .black)
-            }
+        if  !self.navigationBarIsHidden {
+            self.updateBackground(to: .white)
         }
-        
-        
-        func updateBackground(to color: UIColor) {
+        else {
+            self.updateBackground(to: .black)
+        }
+    }
+    
+    
+    func updateBackground(to color: UIColor) {
             self.view.backgroundColor = color
             pagingScrollView?.backgroundColor = color
         }
@@ -256,13 +268,24 @@ extension HomeImageViewController: ZoomTransitioningDelegate {
     }
 }
 
-extension HomeImageViewController: MEScrollImageViewDelegate {
-    func didZoomOut() {
-        print("Received did zoom out")
+extension HomeImageViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        switch pagingScrollView.contentOffset.x {
+        case 0.0..<(UIScreen.main.bounds.width + 2*pagePadding):
+            index = 0
+        case UIScreen.main.bounds.width + 2*pagePadding..<2*UIScreen.main.bounds.width + 3*pagePadding:
+            index = 1
+        case 2*UIScreen.main.bounds.width + 3*pagePadding..<3*UIScreen.main.bounds.width + 4*pagePadding:
+            index = 2
+        case 3*UIScreen.main.bounds.width + 4*pagePadding..<4*UIScreen.main.bounds.width + 5*pagePadding:
+            index = 3
+        default:
+            break
+        }
+        //customDelegate?.updateVisibleImageInScrollView(pageImages[index].zoomImageView)
     }
-    
-    
 }
+
 
 
 

@@ -75,7 +75,7 @@ class ProfileImageViewController: UIViewController {
     func configureUI() {
         view.backgroundColor = .white
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .init(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         
         view.addSubview(profileImageView)
         profileImageView.centerY(inView: view)

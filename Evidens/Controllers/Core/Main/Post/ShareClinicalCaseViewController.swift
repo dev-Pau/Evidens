@@ -47,6 +47,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
         return scrollView
     }()
     
@@ -83,10 +84,71 @@ class ShareClinicalCaseViewController: UIViewController {
         return collectionView
     }()
     
+    private lazy var attributedImageInfo: NSMutableAttributedString = {
+        let aString = NSMutableAttributedString(string: "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 12, weight: .bold), range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
+        return aString
+    }()
+
     
     
+    private lazy var infoImageLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = grayColor
+        label.attributedText = attributedImageInfo
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Title your case"
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     
+    private lazy var titleTextField: UITextField = {
+        let tf = METextField(placeholder: "Add a title")
+        tf.delegate = self
+        tf.font = .systemFont(ofSize: 17, weight: .semibold)
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        return tf
+    }()
+    
+    private lazy var descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Help others with a description"
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var titleIndicator = CharacterIndicatorView(maxChar: 100)
+    
+    private lazy var descriptionTextView: InputTextView = {
+        let tv = InputTextView()
+        tv.placeholderText = "Add a description"
+        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
+        tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
+        tv.font = .systemFont(ofSize: 17, weight: .regular)
+        tv.textColor = blackColor
+        tv.delegate = self
+        tv.isScrollEnabled = false
+        tv.backgroundColor = lightColor
+        tv.layer.cornerRadius = 5
+        tv.placeHolderShouldCenter = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
+    
+    private lazy var descriptionIndicator = CharacterIndicatorView(maxChar: 2500)
+   
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -94,6 +156,20 @@ class ShareClinicalCaseViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCaseCollectionView()
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(notification:)),
+                                               name: UIResponder.keyboardWillShowNotification,
+                                               object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(notification:)),
+                                               name: UIResponder.keyboardWillChangeFrameNotification,
+                                               object: nil)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        scrollView.resizeScrollViewContentSize()
     }
     
     
@@ -123,7 +199,12 @@ class ShareClinicalCaseViewController: UIViewController {
         view.backgroundColor = .white
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(imageBackgroundView, photoImage)
+        titleIndicator.isHidden = true
+        descriptionIndicator.isHidden = true
+        
+        scrollView.keyboardDismissMode = .onDrag
+        
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, titleLabel, titleIndicator, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -139,8 +220,41 @@ class ShareClinicalCaseViewController: UIViewController {
             photoImage.centerXAnchor.constraint(equalTo: imageBackgroundView.centerXAnchor),
             photoImage.centerYAnchor.constraint(equalTo: imageBackgroundView.centerYAnchor),
             photoImage.widthAnchor.constraint(equalToConstant: 50),
-            photoImage.heightAnchor.constraint(equalToConstant: 50)
+            photoImage.heightAnchor.constraint(equalToConstant: 50),
+            
+            infoImageLabel.topAnchor.constraint(equalTo: imageBackgroundView.bottomAnchor, constant: 5),
+            infoImageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            infoImageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            titleLabel.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+            titleTextField.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            titleTextField.heightAnchor.constraint(equalToConstant: 35),
+            
+            titleIndicator.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 2),
+            titleIndicator.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            titleIndicator.heightAnchor.constraint(equalToConstant: 30),
+            titleIndicator.widthAnchor.constraint(equalToConstant: 60),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: titleIndicator.bottomAnchor, constant: 5),
+            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            descriptionTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 4),
+            descriptionTextView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            descriptionTextView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            
+            descriptionIndicator.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 2),
+            descriptionIndicator.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
+            descriptionIndicator.heightAnchor.constraint(equalToConstant: 30),
+            descriptionIndicator.widthAnchor.constraint(equalToConstant: 70)
         ])
+        
+        scrollView.resizeScrollViewContentSize()
     }
     
     func configureCaseCollectionView() {
@@ -159,9 +273,12 @@ class ShareClinicalCaseViewController: UIViewController {
             casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            casesCollectionView.heightAnchor.constraint(equalToConstant: 210)
+            casesCollectionView.heightAnchor.constraint(equalToConstant: 200),
+            
+            infoImageLabel.topAnchor.constraint(equalTo: casesCollectionView.bottomAnchor, constant: 5),
         ])
-        print(newCellWidth)
+        
+        
     }
     
     func addBackgroundImage() {
@@ -177,8 +294,16 @@ class ShareClinicalCaseViewController: UIViewController {
             photoImage.centerXAnchor.constraint(equalTo: imageBackgroundView.centerXAnchor),
             photoImage.centerYAnchor.constraint(equalTo: imageBackgroundView.centerYAnchor),
             photoImage.widthAnchor.constraint(equalToConstant: 50),
-            photoImage.heightAnchor.constraint(equalToConstant: 50)
+            photoImage.heightAnchor.constraint(equalToConstant: 50),
+            
+            infoImageLabel.topAnchor.constraint(equalTo: imageBackgroundView.bottomAnchor, constant: 5),
         ])
+    }
+    
+    func checkMaxLength(_ textView: UITextView) {
+        if textView.text.count > 2500 {
+            textView.deleteBackward()
+        }
     }
     
     //MARK: - Actions
@@ -203,6 +328,38 @@ class ShareClinicalCaseViewController: UIViewController {
         vc.delegate = self
         present(vc, animated: true)
     }
+    
+    @objc func textDidChange() {
+        guard let text = titleTextField.text else { return }
+        let count = text.count
+        if count > 100 {
+            titleTextField.deleteBackward()
+            return
+        }
+        titleIndicator.characterCountLabel.text = "\(count)/100"
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            scrollView.resizeScrollViewContentSize()
+
+            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+
+            if notification.name == UIResponder.keyboardWillHideNotification {
+                scrollView.contentInset = .zero
+            } else {
+                scrollView.contentInset = UIEdgeInsets(top: 0,
+                                                       left: 0,
+                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 45,
+                                                       right: 0)
+            }
+            
+            scrollView.scrollIndicatorInsets = scrollView.contentInset
+
+            scrollView.resizeScrollViewContentSize()
+        }
+    }
+
 }
 
 extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
@@ -231,7 +388,6 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                 let ratio = image.size.width / image.size.height
                 let newWidth = ratio * 200
                 asyncDictWidth[result.assetIdentifier ?? ""] = newWidth
-                print(asyncDict)
             }
         }
         
@@ -243,7 +399,6 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             self.collectionImages = images
             self.newCellWidth = widths
             self.addCaseCollectionView()
-            print(self.newCellWidth.count)
         }
     }
 }
@@ -263,8 +418,8 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionImages.count == 1 {
-            return CGSize(width: casesCollectionView.frame.width, height: casesCollectionView.frame.height)
-        } else { return CGSize(width: newCellWidth[indexPath.item] - 60, height: casesCollectionView.frame.height) }
+            return CGSize(width: casesCollectionView.frame.width - 10, height: casesCollectionView.frame.height)
+        } else { return CGSize(width: newCellWidth[indexPath.item], height: casesCollectionView.frame.height) }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -289,6 +444,42 @@ extension ShareClinicalCaseViewController: CasesCellDelegate {
                 }
             }
         }
+    }
+}
+
+extension ShareClinicalCaseViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        titleIndicator.isHidden = false
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        titleIndicator.isHidden = true
+    }
+}
+
+extension ShareClinicalCaseViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        checkMaxLength(textView)
+        let count = textView.text.count
+        descriptionIndicator.characterCountLabel.text = "\(count)/2500"
+        
+        let size = CGSize(width: view.frame.width, height: .infinity)
+        let estimatedSize = textView.sizeThatFits(size)
+        
+        descriptionTextView.constraints.forEach { constraint in
+            if constraint.firstAttribute == .height {
+                constraint.constant = estimatedSize.height
+            }
+        }
+        scrollView.resizeScrollViewContentSize()
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        descriptionIndicator.isHidden = false
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        descriptionIndicator.isHidden = true
     }
 }
 

@@ -26,6 +26,7 @@ class METextField: UITextField {
         layer.borderColor = UIColor.white.cgColor
         layer.borderWidth = 1.0
         attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(white: 0.2, alpha: 0.7)])
+        clearButtonMode = .whileEditing
     }
     
     required init?(coder: NSCoder) {

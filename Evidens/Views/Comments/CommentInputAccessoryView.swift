@@ -58,6 +58,8 @@ class CommentInputAccessoryView: UIView {
         //To overlap the main UI
         backgroundColor = .white
         
+        translatesAutoresizingMaskIntoConstraints = false
+        
         autoresizingMask = .flexibleHeight
         
         addSubview(profileImageView)
@@ -85,10 +87,6 @@ class CommentInputAccessoryView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //Auto figuring the size based on the dimensions on the view components inside the view
-    //override var intrinsicContentSize: CGSize {
-    //    return .zero
-    //}
     
     //MARK: - Actions
     

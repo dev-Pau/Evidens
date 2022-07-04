@@ -30,7 +30,7 @@ class CasesCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.baseBackgroundColor = .red
-        button.configuration?.image = UIImage(systemName: "xmark")
+        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(.white)
         button.alpha = 0.7
         button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -58,8 +58,8 @@ class CasesCell: UICollectionViewCell {
             
             deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 3),
             deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
-            //deleteImageButton.heightAnchor.constraint(equalTo: 10),
-            //deleteImageButton.widthAnchor.constraint(equalTo: 10)
+            deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
+            deleteImageButton.widthAnchor.constraint(equalToConstant: 26)
         ])
     }
     
