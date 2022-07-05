@@ -129,7 +129,7 @@ class ShareClinicalCaseViewController: UIViewController {
         return label
     }()
     
-    private lazy var titleIndicator = CharacterIndicatorView(maxChar: 100)
+    private lazy var titleIndicator = MECharacterIndicatorView(maxChar: 100)
     
     private lazy var descriptionTextView: InputTextView = {
         let tv = InputTextView()
@@ -142,12 +142,23 @@ class ShareClinicalCaseViewController: UIViewController {
         tv.isScrollEnabled = false
         tv.backgroundColor = lightColor
         tv.layer.cornerRadius = 5
+        tv.autocorrectionType = .no
         tv.placeHolderShouldCenter = false
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
     
-    private lazy var descriptionIndicator = CharacterIndicatorView(maxChar: 2500)
+    private lazy var specialitiesLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Specialities"
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAddSpecialities)))
+        return label
+    }()
+    
+    private lazy var descriptionIndicator = MECharacterIndicatorView(maxChar: 2500)
    
     //MARK: - Lifecycle
     
@@ -204,7 +215,7 @@ class ShareClinicalCaseViewController: UIViewController {
         
         scrollView.keyboardDismissMode = .onDrag
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, titleLabel, titleIndicator, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, titleLabel, titleIndicator, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator, specialitiesLabel)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -251,7 +262,12 @@ class ShareClinicalCaseViewController: UIViewController {
             descriptionIndicator.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 2),
             descriptionIndicator.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
             descriptionIndicator.heightAnchor.constraint(equalToConstant: 30),
-            descriptionIndicator.widthAnchor.constraint(equalToConstant: 70)
+            descriptionIndicator.widthAnchor.constraint(equalToConstant: 60),
+            
+            specialitiesLabel.topAnchor.constraint(equalTo: descriptionIndicator.bottomAnchor),
+            specialitiesLabel.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            specialitiesLabel.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor),
+            specialitiesLabel.heightAnchor.constraint(equalToConstant: 35)
         ])
         
         scrollView.resizeScrollViewContentSize()
@@ -358,6 +374,17 @@ class ShareClinicalCaseViewController: UIViewController {
 
             scrollView.resizeScrollViewContentSize()
         }
+    }
+    
+    @objc func handleAddSpecialities() {
+        let controller = SpecialitiesListViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = blackColor
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 
 }

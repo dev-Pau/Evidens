@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CharacterIndicatorView: UIView {
+class MECharacterIndicatorView: UIView {
     
     var maxChar: Int = 0
     

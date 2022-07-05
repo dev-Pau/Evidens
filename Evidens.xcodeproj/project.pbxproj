@@ -100,7 +100,10 @@
 		5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F92754D658009B26E6 /* CommentService.swift */; };
 		5F8666FC27552222009B26E6 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FB27552222009B26E6 /* Comment.swift */; };
 		5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FD2755255F009B26E6 /* CommentViewModel.swift */; };
-		5F8B7C4628730644005094A5 /* CharacterIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4528730644005094A5 /* CharacterIndicatorView.swift */; };
+		5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */; };
+		5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */; };
+		5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4B2873FC48005094A5 /* Speciality.swift */; };
+		5F8B7C4E287401B8005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4D287401B8005094A5 /* SpecialitiesCell.swift */; };
 		5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E528C2865F3A60053F011 /* PostAttachementHeader.swift */; };
 		5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E528E2865F5A10053F011 /* PostAttachementCell.swift */; };
 		5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E5290286605B90053F011 /* UploadPostViewModel.swift */; };
@@ -240,7 +243,10 @@
 		5F8666F92754D658009B26E6 /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		5F8666FB27552222009B26E6 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		5F8666FD2755255F009B26E6 /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
-		5F8B7C4528730644005094A5 /* CharacterIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterIndicatorView.swift; sourceTree = "<group>"; };
+		5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECharacterIndicatorView.swift; sourceTree = "<group>"; };
+		5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesListViewController.swift; sourceTree = "<group>"; };
+		5F8B7C4B2873FC48005094A5 /* Speciality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speciality.swift; sourceTree = "<group>"; };
+		5F8B7C4D287401B8005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
 		5F8E528C2865F3A60053F011 /* PostAttachementHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementHeader.swift; sourceTree = "<group>"; };
 		5F8E528E2865F5A10053F011 /* PostAttachementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementCell.swift; sourceTree = "<group>"; };
 		5F8E5290286605B90053F011 /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
@@ -535,8 +541,8 @@
 		5F598C1E2842777700189722 /* Post */ = {
 			isa = PBXGroup;
 			children = (
+				5F8B7C472873FAAE005094A5 /* Cases */,
 				5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */,
-				5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */,
 				5F8E52AD28671D070053F011 /* FileConfiguratorViewController.swift */,
 			);
 			path = Post;
@@ -565,7 +571,6 @@
 		5F6607F32854EB3700FCF895 /* Post */ = {
 			isa = PBXGroup;
 			children = (
-				5F8B7C422872F3B5005094A5 /* Cases */,
 				5F8E52B82869FF7B0053F011 /* Poll */,
 				5F8E528B2865F38E0053F011 /* PostAttachementCell */,
 				5F6607F42854EB4400FCF895 /* PostMenuCell */,
@@ -662,10 +667,19 @@
 			path = Comments;
 			sourceTree = "<group>";
 		};
-		5F8B7C422872F3B5005094A5 /* Cases */ = {
+		5F8B7C472873FAAE005094A5 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
-				5F8B7C4528730644005094A5 /* CharacterIndicatorView.swift */,
+				5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */,
+				5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */,
+			);
+			path = Cases;
+			sourceTree = "<group>";
+		};
+		5F8B7C4A2873FC3C005094A5 /* Cases */ = {
+			isa = PBXGroup;
+			children = (
+				5F8B7C4B2873FC48005094A5 /* Speciality.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -720,6 +734,7 @@
 			isa = PBXGroup;
 			children = (
 				5F979C5D286DDB3D00C05D57 /* CasesCell.swift */,
+				5F8B7C4D287401B8005094A5 /* SpecialitiesCell.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -727,6 +742,7 @@
 		5F9F0891285F6E140069FD2C /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */,
 				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
 				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
 				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
@@ -835,6 +851,7 @@
 		5FC4D87327070334006B7A34 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5F8B7C4A2873FC3C005094A5 /* Cases */,
 				5F5889012712EC39005E5B4F /* User.swift */,
 				5FBC2DF02732883A004F92CE /* Notification.swift */,
 				5F4DBCB1274793320005AEC3 /* Post.swift */,
@@ -1135,7 +1152,9 @@
 				5F77BF7028587DBF00F31A75 /* MEUserPostView.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
 				5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */,
+				5F8B7C4E287401B8005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
+				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */,
 				5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
@@ -1165,6 +1184,7 @@
 				5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
 				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
+				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
 				5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */,
@@ -1192,7 +1212,7 @@
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
-				5F8B7C4628730644005094A5 /* CharacterIndicatorView.swift in Sources */,
+				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5F77BF7A2858E6A200F31A75 /* MEPostStatsView.swift in Sources */,
