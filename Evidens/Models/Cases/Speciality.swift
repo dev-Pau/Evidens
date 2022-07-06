@@ -85,4 +85,10 @@ extension Speciality {
         
         return speciality
     }
+    
+    static func isHighlighted(speciality: [Speciality]) -> [Bool] {
+        var highlight: [Bool] = []
+        speciality.forEach { _ in highlight.append(false) }
+        return highlight
+    }
 }

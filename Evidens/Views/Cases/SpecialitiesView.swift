@@ -74,7 +74,7 @@ class SpecialitiesView: UIView {
             collectionView.topAnchor.constraint(equalTo: specialitiesLabel.bottomAnchor, constant: 5),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 30)
+            collectionView.heightAnchor.constraint(equalToConstant: 45)
             
         ])
     }

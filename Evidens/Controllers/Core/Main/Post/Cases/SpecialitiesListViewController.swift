@@ -23,6 +23,8 @@ class SpecialitiesListViewController: UIViewController {
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
     
     private var specialities = Speciality.allSpecialities()
+    private var highlights: [Bool] = []
+    
     private var filteredSpecialities: [Speciality] = []
     
     private var isSearching: Bool = false
@@ -30,13 +32,19 @@ class SpecialitiesListViewController: UIViewController {
     private let searchController = UISearchController()
     private var specialitiesSelected: [String] = []
     
+    var previousSpecialities: [String] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        highlights = Speciality.isHighlighted(speciality: specialities)
         configureNavigationBar()
         configureSearchBar()
         configureCollectionView()
         configureDataSource()
         updateData(on: specialities)
+        configurePreviousSpecialities()
+        print(highlights.count)
+        print(specialities.count)
     }
     
     
@@ -74,6 +82,7 @@ class SpecialitiesListViewController: UIViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createTwoColumnFlowLayout())
         collectionView.keyboardDismissMode = .interactive
+        collectionView.allowsMultipleSelection = true
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.register(SpecialitiesDiffableCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
@@ -94,6 +103,10 @@ class SpecialitiesListViewController: UIViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
         }
+    }
+    
+    private func configurePreviousSpecialities() {
+        
     }
     
     @objc func handleAddSpecialities() {
@@ -124,32 +137,27 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
 extension SpecialitiesListViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? SpecialitiesDiffableCell else { return }
-        //var selected: Bool = false
-        var selected = cell.cellIsHighlighted
-        selected.toggle()
-        
-        if specialitiesSelected.count == 5 {
-            if selected {
-                return
-            }
-        }
-
-        cell.backgroundColor = selected ? primaryColor : .white
-        cell.specialityLabel.textColor = selected  ? .white : .black
-        cell.layer.borderWidth = selected ? 0 : 1.0
-        cell.cellIsHighlighted.toggle()
         
         if let text = cell.specialityLabel.text {
-            if selected {
-                specialitiesSelected.append(text)
-                navigationItem.rightBarButtonItem?.isEnabled = true
-            } else {
-                if let index = specialitiesSelected.firstIndex(where: { $0 == text }) {
-                    specialitiesSelected.remove(at: index)
-                    if specialitiesSelected.isEmpty { navigationItem.rightBarButtonItem?.isEnabled = false }
-                }
+            specialitiesSelected.append(text)
+            navigationItem.rightBarButtonItem?.isEnabled = true
+            navigationItem.rightBarButtonItem?.title = "Add \(specialitiesSelected.count)/5"
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? SpecialitiesDiffableCell else { return }
+        if let text = cell.specialityLabel.text {
+            if let index = specialitiesSelected.firstIndex(where: { $0 == text }) {
+                specialitiesSelected.remove(at: index)
+                navigationItem.rightBarButtonItem?.title = "Add \(specialitiesSelected.count)/5"
+                if specialitiesSelected.isEmpty { navigationItem.rightBarButtonItem?.isEnabled = false }
             }
         }
-        navigationItem.rightBarButtonItem?.title = "Add \(specialitiesSelected.count)/5"
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        return collectionView.indexPathsForSelectedItems!.count <= 4
     }
 }

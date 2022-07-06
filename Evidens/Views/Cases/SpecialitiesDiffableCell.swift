@@ -9,6 +9,14 @@ import UIKit
 
 class SpecialitiesDiffableCell: UICollectionViewCell {
     
+    override var isSelected: Bool {
+        didSet {
+            backgroundColor = isSelected ? primaryColor : .white
+            specialityLabel.textColor = isSelected  ? .white : .black
+            layer.borderWidth = isSelected ? 0 : 1.0
+        }
+    }
+    
     var cellIsHighlighted: Bool = false
     
     var specialityLabel: UILabel = {

@@ -471,7 +471,7 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
         } else {
             //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
             //let width = cell.size(forHeight: 50).width
-            return CGSize(width: size(forHeight: 30, forText: specialitiesSelected[indexPath.item]).width, height: 30)
+            return CGSize(width: size(forHeight: 45, forText: specialitiesSelected[indexPath.item]).width, height: 45)
         }
     }
     
@@ -480,9 +480,11 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //Open photo
+        if collectionView == specialitiesCollectionView {
+            let controller = SpecialitiesListViewController()
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
-    
 }
 
 extension ShareClinicalCaseViewController: CasesCellDelegate {
