@@ -9,12 +9,15 @@ import UIKit
 
 class METextField: UITextField {
     
-    init(placeholder: String) {
+    init(placeholder: String, withSpacer: Bool) {
         super.init(frame: .zero)
-         
-        let spacer = UIView()
-        spacer.setDimensions(height: 40, width: 10)
-        leftView = spacer
+        
+        if withSpacer {
+            let spacer = UIView()
+            spacer.setDimensions(height: 40, width: 10)
+            leftView = spacer
+        }
+        
         leftViewMode = .always
         borderStyle = .roundedRect
         textColor = .black

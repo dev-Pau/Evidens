@@ -2,31 +2,20 @@
 //  SpecialitiesCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 5/7/22.
+//  Created by Pau Fernández Solà on 6/7/22.
 //
 
 import UIKit
 
 class SpecialitiesCell: UICollectionViewCell {
     
-    var cellIsHighlighted: Bool = false
-    
     var specialityLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.numberOfLines = 0
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    let checkmarkImage: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(systemName: "checkmark.circle.fill")
-        iv.tintColor = .white
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
     }()
     
     override init(frame: CGRect) {
@@ -38,23 +27,13 @@ class SpecialitiesCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure() {
-        layer.cornerRadius = 10
-        layer.borderWidth = 1
-        layer.borderColor = lightGrayColor.cgColor
-        backgroundColor = .white
-        
-        addSubviews(specialityLabel, checkmarkImage)
-
+    private func configure() {
+        backgroundColor = primaryColor
+        addSubview(specialityLabel)
         NSLayoutConstraint.activate([
-            specialityLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
-            specialityLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
-            specialityLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            
-            checkmarkImage.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            checkmarkImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            checkmarkImage.heightAnchor.constraint(equalToConstant: 20),
-            checkmarkImage.widthAnchor.constraint(equalToConstant: 20)
+            specialityLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            specialityLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            specialityLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
 }

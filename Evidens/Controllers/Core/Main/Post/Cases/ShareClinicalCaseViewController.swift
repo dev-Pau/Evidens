@@ -9,12 +9,17 @@ import UIKit
 import PhotosUI
 
 private let casesCellReuseIdentifier = "CasesCellReuseIdentifier"
+private let specialityCellReuseIdentifier = "SpecialityCellReuseIdentifier"
 
 class ShareClinicalCaseViewController: UIViewController {
     
     //MARK: - Properties
     
     private var user: User?
+    
+    private var specialitiesSelected: [String] = []
+    
+    private var cellSizes: [CGFloat] = []
     
     private var collectionImages = [UIImage]() {
         didSet {
@@ -84,6 +89,20 @@ class ShareClinicalCaseViewController: UIViewController {
         return collectionView
     }()
     
+    private let specialitiesCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceHorizontal = true
+        return collectionView
+    }()
+    
+    
+    
     private lazy var attributedImageInfo: NSMutableAttributedString = {
         let aString = NSMutableAttributedString(string: "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.")
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 12, weight: .bold), range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
@@ -111,9 +130,8 @@ class ShareClinicalCaseViewController: UIViewController {
         return label
     }()
     
-    
     private lazy var titleTextField: UITextField = {
-        let tf = METextField(placeholder: "Add a title")
+        let tf = METextField(placeholder: "Add a title", withSpacer: false)
         tf.delegate = self
         tf.font = .systemFont(ofSize: 17, weight: .semibold)
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -148,15 +166,7 @@ class ShareClinicalCaseViewController: UIViewController {
         return tv
     }()
     
-    private lazy var specialitiesLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Specialities"
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAddSpecialities)))
-        return label
-    }()
+    private lazy var specialitiesView = SpecialitiesView()
     
     private lazy var descriptionIndicator = MECharacterIndicatorView(maxChar: 2500)
    
@@ -167,6 +177,7 @@ class ShareClinicalCaseViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCaseCollectionView()
+        configureSpecialityCollectionView()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillShowNotification,
@@ -212,10 +223,11 @@ class ShareClinicalCaseViewController: UIViewController {
         
         titleIndicator.isHidden = true
         descriptionIndicator.isHidden = true
+        specialitiesView.delegate = self
         
         scrollView.keyboardDismissMode = .onDrag
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, titleLabel, titleIndicator, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator, specialitiesLabel)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, titleLabel, titleIndicator, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator, specialitiesView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -264,10 +276,10 @@ class ShareClinicalCaseViewController: UIViewController {
             descriptionIndicator.heightAnchor.constraint(equalToConstant: 30),
             descriptionIndicator.widthAnchor.constraint(equalToConstant: 60),
             
-            specialitiesLabel.topAnchor.constraint(equalTo: descriptionIndicator.bottomAnchor),
-            specialitiesLabel.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
-            specialitiesLabel.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor),
-            specialitiesLabel.heightAnchor.constraint(equalToConstant: 35)
+            specialitiesView.topAnchor.constraint(equalTo: descriptionIndicator.bottomAnchor, constant: 4),
+            specialitiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            specialitiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            specialitiesView.heightAnchor.constraint(equalToConstant: 65)
         ])
         
         scrollView.resizeScrollViewContentSize()
@@ -277,6 +289,13 @@ class ShareClinicalCaseViewController: UIViewController {
         casesCollectionView.register(CasesCell.self, forCellWithReuseIdentifier: casesCellReuseIdentifier)
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
+    }
+    
+    func configureSpecialityCollectionView() {
+        specialitiesCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: specialityCellReuseIdentifier)
+        specialitiesCollectionView.delegate = self
+        specialitiesCollectionView.dataSource = self
+
     }
     
     func addCaseCollectionView() {
@@ -293,8 +312,10 @@ class ShareClinicalCaseViewController: UIViewController {
             
             infoImageLabel.topAnchor.constraint(equalTo: casesCollectionView.bottomAnchor, constant: 5),
         ])
-        
-        
+    }
+    
+    func addSpecialityCollectionView() {
+        specialitiesView.configure(collectionView: specialitiesCollectionView)
     }
     
     func addBackgroundImage() {
@@ -375,18 +396,6 @@ class ShareClinicalCaseViewController: UIViewController {
             scrollView.resizeScrollViewContentSize()
         }
     }
-    
-    @objc func handleAddSpecialities() {
-        let controller = SpecialitiesListViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = blackColor
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-
 }
 
 extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
@@ -432,21 +441,38 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
 
 extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return collectionImages.count
+        if collectionView == casesCollectionView {
+            return collectionImages.count
+        } else {
+            return specialitiesSelected.count
+        }
 
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = casesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
-        cell.delegate = self
-        cell.set(image: collectionImages[indexPath.row])
-        return cell
+        if collectionView == casesCollectionView {
+            let cell = casesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
+            cell.delegate = self
+            cell.set(image: collectionImages[indexPath.row])
+            return cell
+        } else {
+            let cell = specialitiesCollectionView.dequeueReusableCell(withReuseIdentifier: specialityCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            cell.specialityLabel.text = specialitiesSelected[indexPath.row]
+            cell.layer.cornerRadius = 10
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionImages.count == 1 {
-            return CGSize(width: casesCollectionView.frame.width - 10, height: casesCollectionView.frame.height)
-        } else { return CGSize(width: newCellWidth[indexPath.item], height: casesCollectionView.frame.height) }
+        if collectionView == casesCollectionView {
+            if collectionImages.count == 1 {
+                return CGSize(width: casesCollectionView.frame.width - 10, height: casesCollectionView.frame.height)
+            } else { return CGSize(width: newCellWidth[indexPath.item], height: casesCollectionView.frame.height) }
+        } else {
+            //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
+            //let width = cell.size(forHeight: 50).width
+            return CGSize(width: size(forHeight: 30, forText: specialitiesSelected[indexPath.item]).width, height: 30)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -507,6 +533,37 @@ extension ShareClinicalCaseViewController: UITextViewDelegate {
     
     func textViewDidEndEditing(_ textView: UITextView) {
         descriptionIndicator.isHidden = true
+    }
+}
+
+extension ShareClinicalCaseViewController: SpecialitiesViewDelegate {
+    func didTapAddSpecialities() {
+        let controller = SpecialitiesListViewController()
+        controller.delegate = self
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = blackColor
+        navigationItem.backBarButtonItem = backButton
+                
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension ShareClinicalCaseViewController: SpecialitiesListViewControllerDelegate {
+    func presentSpecialities(_ specialities: [String]) {
+        specialitiesSelected = specialities
+        addSpecialityCollectionView()
+
+    }
+    
+    func size(forHeight height: CGFloat, forText text: String) -> CGSize {
+        let label = UILabel()
+        label.numberOfLines = 2
+        label.text = text
+        label.lineBreakMode = .byWordWrapping
+        label.setHeight(height)
+        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
 }
 

@@ -9,9 +9,15 @@ import UIKit
 
 private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 
+protocol SpecialitiesListViewControllerDelegate: AnyObject {
+    func presentSpecialities(_ specialities: [String])
+}
+
 class SpecialitiesListViewController: UIViewController {
     
     enum Section { case main }
+    
+    weak var delegate: SpecialitiesListViewControllerDelegate?
     
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
@@ -47,7 +53,7 @@ class SpecialitiesListViewController: UIViewController {
         let searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        searchController.searchBar.placeholder = "Search for a speciality"
+        searchController.searchBar.placeholder = "Specialities"
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
     }
@@ -70,12 +76,12 @@ class SpecialitiesListViewController: UIViewController {
         collectionView.keyboardDismissMode = .interactive
         view.addSubview(collectionView)
         collectionView.delegate = self
-        collectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
+        collectionView.register(SpecialitiesDiffableCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
     }
     
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, Speciality>(collectionView: collectionView, cellProvider: { (collectionView, indexPath, speciality) -> UICollectionViewCell? in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: specialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: specialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesDiffableCell
             cell.specialityLabel.text = speciality.name
             return cell
         })
@@ -91,6 +97,7 @@ class SpecialitiesListViewController: UIViewController {
     }
     
     @objc func handleAddSpecialities() {
+        delegate?.presentSpecialities(specialitiesSelected)
         navigationController?.popViewController(animated: true)
     }
 }
@@ -116,7 +123,7 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
 
 extension SpecialitiesListViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? SpecialitiesCell else { return }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? SpecialitiesDiffableCell else { return }
         //var selected: Bool = false
         var selected = cell.cellIsHighlighted
         selected.toggle()

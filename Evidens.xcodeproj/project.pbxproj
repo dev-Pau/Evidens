@@ -103,7 +103,10 @@
 		5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */; };
 		5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */; };
 		5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4B2873FC48005094A5 /* Speciality.swift */; };
-		5F8B7C4E287401B8005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4D287401B8005094A5 /* SpecialitiesCell.swift */; };
+		5F8B7C4E287401B8005094A5 /* SpecialitiesDiffableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4D287401B8005094A5 /* SpecialitiesDiffableCell.swift */; };
+		5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */; };
+		5F8B7C5228758164005094A5 /* SpecialitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5128758164005094A5 /* SpecialitiesView.swift */; };
+		5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */; };
 		5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E528C2865F3A60053F011 /* PostAttachementHeader.swift */; };
 		5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E528E2865F5A10053F011 /* PostAttachementCell.swift */; };
 		5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E5290286605B90053F011 /* UploadPostViewModel.swift */; };
@@ -246,7 +249,10 @@
 		5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECharacterIndicatorView.swift; sourceTree = "<group>"; };
 		5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesListViewController.swift; sourceTree = "<group>"; };
 		5F8B7C4B2873FC48005094A5 /* Speciality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speciality.swift; sourceTree = "<group>"; };
-		5F8B7C4D287401B8005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
+		5F8B7C4D287401B8005094A5 /* SpecialitiesDiffableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesDiffableCell.swift; sourceTree = "<group>"; };
+		5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesViewController.swift; sourceTree = "<group>"; };
+		5F8B7C5128758164005094A5 /* SpecialitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesView.swift; sourceTree = "<group>"; };
+		5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
 		5F8E528C2865F3A60053F011 /* PostAttachementHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementHeader.swift; sourceTree = "<group>"; };
 		5F8E528E2865F5A10053F011 /* PostAttachementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementCell.swift; sourceTree = "<group>"; };
 		5F8E5290286605B90053F011 /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
@@ -534,6 +540,7 @@
 		5F598C1D2842777200189722 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
+				5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -734,7 +741,9 @@
 			isa = PBXGroup;
 			children = (
 				5F979C5D286DDB3D00C05D57 /* CasesCell.swift */,
-				5F8B7C4D287401B8005094A5 /* SpecialitiesCell.swift */,
+				5F8B7C4D287401B8005094A5 /* SpecialitiesDiffableCell.swift */,
+				5F8B7C5128758164005094A5 /* SpecialitiesView.swift */,
+				5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -1141,6 +1150,7 @@
 				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
 				5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */,
 				5FC4D88527071CB6006B7A34 /* HomeTextCell.swift in Sources */,
+				5F8B7C5228758164005094A5 /* SpecialitiesView.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
@@ -1152,7 +1162,7 @@
 				5F77BF7028587DBF00F31A75 /* MEUserPostView.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
 				5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */,
-				5F8B7C4E287401B8005094A5 /* SpecialitiesCell.swift in Sources */,
+				5F8B7C4E287401B8005094A5 /* SpecialitiesDiffableCell.swift in Sources */,
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */,
@@ -1203,6 +1213,7 @@
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
+				5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
@@ -1237,6 +1248,7 @@
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
+				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,
 				5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */,
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,

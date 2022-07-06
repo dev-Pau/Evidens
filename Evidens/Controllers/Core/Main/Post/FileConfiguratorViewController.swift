@@ -29,7 +29,7 @@ class FileConfiguratorViewController: UIViewController {
     }()
     
     private lazy var titleTextField: UITextField = {
-        let tf = METextField(placeholder: "Insert a title for your document")
+        let tf = METextField(placeholder: "Insert a title for your document", withSpacer: true)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         return tf
