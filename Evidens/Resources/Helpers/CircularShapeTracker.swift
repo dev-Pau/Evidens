@@ -10,7 +10,7 @@ import UIKit
 class CircularShapeTracker: NSObject {
     
     private var steps: CGFloat
-    private var padding: CGFloat = 35/2
+    private var lineWidth: CGFloat = 60
     
     private let shapeLayer: CAShapeLayer = {
         let shape = CAShapeLayer()
@@ -46,8 +46,10 @@ class CircularShapeTracker: NSObject {
     }
    
     func addShapeIndicator(in view: UIView) {
-        let center = CGPoint(x: padding, y: padding)
-        let circularPath = UIBezierPath(arcCenter: center, radius: 10, startAngle: -CGFloat.pi / 2, endAngle: CGFloat.pi * 2, clockwise: true)
+        let circularPath = UIBezierPath()
+        circularPath.move(to: CGPoint(x: 0, y: 0))
+        circularPath.addLine(to: CGPoint(x: 60, y: 0))
+        
         trackLayer.path = circularPath.cgPath
         shapeLayer.path = circularPath.cgPath
         view.layer.addSublayer(trackLayer)
@@ -58,6 +60,5 @@ class CircularShapeTracker: NSObject {
         basicAnimation.fromValue = CGFloat(previousValue) / steps
         basicAnimation.toValue = CGFloat(toValue) / steps
         shapeLayer.add(basicAnimation, forKey: "basic")
-        print("\(basicAnimation.fromValue!) to \(basicAnimation.toValue!)")
     }
 }

@@ -122,11 +122,35 @@ class ShareClinicalCaseViewController: UIViewController {
         return label
     }()
     
-    private let separatorView: UIView = {
+    private let imageTitleSeparatorLabel: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+    
+    private let descriptionSpecialitiesSeparatorLabel: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let titleDescriptionSeparatorLabel: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Title"
+        label.textColor = grayColor
+        label.isHidden = true
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     private var titleView: UIView = {
@@ -135,11 +159,18 @@ class ShareClinicalCaseViewController: UIViewController {
         return view
     }()
     
-    private var circularShapeTracker = CircularShapeTracker(withSteps: CGFloat(100))
+    private var descriptionView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
+    private var titleShapeTracker = CircularShapeTracker(withSteps: CGFloat(50))
+    
+    private var descriptionShapeTracker = CircularShapeTracker(withSteps: CGFloat(1000))
     
     private lazy var titleTextField: UITextField = {
-        let tf = METextField(placeholder: "Add a title", withSpacer: false)
+        let tf = METextField(placeholder: "Title", withSpacer: false)
         tf.delegate = self
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
@@ -150,17 +181,17 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Help others with a description"
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.text = "Description"
+        label.textColor = grayColor
+        label.isHidden = true
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private lazy var titleIndicator = MECharacterIndicatorView(maxChar: 100)
-    
     private lazy var descriptionTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Add a description"
+        tv.placeholderText = "Description"
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
@@ -176,8 +207,6 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private lazy var specialitiesView = SpecialitiesView()
-    
-    private lazy var descriptionIndicator = MECharacterIndicatorView(maxChar: 2500)
    
     //MARK: - Lifecycle
     
@@ -205,7 +234,8 @@ class ShareClinicalCaseViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        circularShapeTracker.addShapeIndicator(in: titleView)
+        titleShapeTracker.addShapeIndicator(in: titleView)
+        descriptionShapeTracker.addShapeIndicator(in: descriptionView)
     }
     
     
@@ -235,13 +265,13 @@ class ShareClinicalCaseViewController: UIViewController {
         view.backgroundColor = .white
         view.addSubview(scrollView)
         
-        titleIndicator.isHidden = true
-        descriptionIndicator.isHidden = true
         specialitiesView.delegate = self
         
+        titleView.isHidden = true
+        descriptionView.isHidden = true
         scrollView.keyboardDismissMode = .onDrag
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, separatorView, titleIndicator, titleView, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator, specialitiesView)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, descriptionSpecialitiesSeparatorLabel)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -263,48 +293,56 @@ class ShareClinicalCaseViewController: UIViewController {
             infoImageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoImageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            separatorView.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            /*
-            titleLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            */
+            imageTitleSeparatorLabel.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 20),
+            imageTitleSeparatorLabel.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
+            imageTitleSeparatorLabel.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
+            imageTitleSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
             
-            titleView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            titleView.widthAnchor.constraint(equalToConstant: 35),
-            titleView.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
-            titleView.heightAnchor.constraint(equalToConstant: 35),
-            
-            titleTextField.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            titleTextField.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
-            titleTextField.trailingAnchor.constraint(equalTo: titleView.leadingAnchor, constant: -10),
+            titleTextField.topAnchor.constraint(equalTo: imageTitleSeparatorLabel.bottomAnchor, constant: 20),
+            titleTextField.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
             titleTextField.heightAnchor.constraint(equalToConstant: 35),
             
-            titleIndicator.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 2),
-            titleIndicator.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
-            titleIndicator.heightAnchor.constraint(equalToConstant: 30),
-            titleIndicator.widthAnchor.constraint(equalToConstant: 60),
+            titleView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 4),
+            titleView.widthAnchor.constraint(equalToConstant: 70),
+            titleView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            titleView.heightAnchor.constraint(equalToConstant: 2),
             
-            descriptionLabel.topAnchor.constraint(equalTo: titleIndicator.bottomAnchor, constant: 5),
-            descriptionLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -2),
+            titleLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+         
+            titleDescriptionSeparatorLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
+            titleDescriptionSeparatorLabel.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
+            titleDescriptionSeparatorLabel.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
+            titleDescriptionSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+          
+            descriptionTextView.topAnchor.constraint(equalTo: titleDescriptionSeparatorLabel.bottomAnchor, constant: 20),
+            descriptionTextView.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
+            descriptionTextView.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
             
-            descriptionTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 4),
-            descriptionTextView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: titleView.trailingAnchor),
+            descriptionView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 4),
+            descriptionView.widthAnchor.constraint(equalToConstant: 70),
+            descriptionView.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
+            descriptionView.heightAnchor.constraint(equalToConstant: 2),
             
-            descriptionIndicator.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 2),
-            descriptionIndicator.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
-            descriptionIndicator.heightAnchor.constraint(equalToConstant: 30),
-            descriptionIndicator.widthAnchor.constraint(equalToConstant: 60),
+            descriptionLabel.bottomAnchor.constraint(equalTo: descriptionTextView.topAnchor, constant: -2),
+            descriptionLabel.leadingAnchor.constraint(equalTo: descriptionTextView.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
             
+            descriptionSpecialitiesSeparatorLabel.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 20),
+            descriptionSpecialitiesSeparatorLabel.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
+            descriptionSpecialitiesSeparatorLabel.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
+            descriptionSpecialitiesSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+
+            /*
             specialitiesView.topAnchor.constraint(equalTo: descriptionIndicator.bottomAnchor, constant: 4),
             specialitiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             specialitiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             specialitiesView.heightAnchor.constraint(equalToConstant: 65)
+             */
+            
+            
         ])
         
         scrollView.resizeScrollViewContentSize()
@@ -394,16 +432,22 @@ class ShareClinicalCaseViewController: UIViewController {
     @objc func textDidChange() {
         guard let text = titleTextField.text else { return }
         let count = text.count
-        if count > 100 {
+        
+        if count != 0 {
+            titleLabel.isHidden = false
+        } else {
+            titleLabel.isHidden = true
+        }
+        
+        if count > 50 {
             titleTextField.deleteBackward()
             return
         }
-        titleIndicator.characterCountLabel.text = "\(count)/100"
         
         if previousValue == 0 {
-            circularShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: 0)
+            titleShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: 0)
         } else {
-            circularShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: previousValue)
+            titleShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: previousValue)
         }
         
         previousValue = text.count
@@ -537,21 +581,33 @@ extension ShareClinicalCaseViewController: CasesCellDelegate {
 
 extension ShareClinicalCaseViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        titleIndicator.isHidden = false
+        titleView.isHidden = false
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        titleIndicator.isHidden = true
+        titleView.isHidden = true
     }
-    
-    
 }
 
 extension ShareClinicalCaseViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         checkMaxLength(textView)
         let count = textView.text.count
-        descriptionIndicator.characterCountLabel.text = "\(count)/2500"
+        
+        if count != 0 {
+            descriptionLabel.isHidden = false
+        } else {
+            descriptionLabel.isHidden = true
+        }
+        
+        if previousValue == 0 {
+            descriptionShapeTracker.updateShapeIndicator(toValue: count, previousValue: 0)
+        } else {
+            descriptionShapeTracker.updateShapeIndicator(toValue: count, previousValue: previousValue)
+        }
+        
+        previousValue = count
+        //descriptionIndicator.characterCountLabel.text = "\(count)/2500"
         
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)
@@ -565,11 +621,13 @@ extension ShareClinicalCaseViewController: UITextViewDelegate {
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        descriptionIndicator.isHidden = false
+        //descriptionIndicator.isHidden = false
+        descriptionView.isHidden = false
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        descriptionIndicator.isHidden = true
+        //descriptionIndicator.isHidden = true
+        descriptionView.isHidden = true
     }
 }
 
