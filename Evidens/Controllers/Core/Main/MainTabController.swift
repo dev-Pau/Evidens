@@ -106,7 +106,7 @@ class MainTabController: UITabBarController {
         let layout = UICollectionViewFlowLayout()
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
         
-        let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.fill")!, rootViewController: SearchViewController())
+        let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.fill")!, rootViewController: CasesViewController())
         
         let postController = ViewController()
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: postController)

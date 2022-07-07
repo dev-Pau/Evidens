@@ -100,8 +100,18 @@ class SpecialitiesListViewController: UIViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Speciality>()
         snapshot.appendSections([.main])
         snapshot.appendItems(specialities)
+        
+        let indexSelected = collectionView.indexPathsForSelectedItems
+        
+        specialitiesSelected.forEach { speciality in
+            if (snapshot.sectionIdentifier(containingItem: Speciality(name: speciality)) != nil) {
+            } else {
+                snapshot.appendItems([Speciality(name: speciality)])
+            }
+        }
+        
         DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+            self.dataSource.apply(snapshot, animatingDifferences: false)
         }
     }
     
@@ -125,6 +135,7 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
         }
         isSearching = true
         filteredSpecialities = specialities.filter{ $0.name.lowercased().contains(filter.lowercased()) }
+        
         updateData(on: filteredSpecialities)
     }
     
@@ -135,9 +146,12 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
 }
 
 extension SpecialitiesListViewController: UICollectionViewDelegate {
+    
+    
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? SpecialitiesDiffableCell else { return }
-        
+
         if let text = cell.specialityLabel.text {
             specialitiesSelected.append(text)
             navigationItem.rightBarButtonItem?.isEnabled = true
@@ -158,6 +172,9 @@ extension SpecialitiesListViewController: UICollectionViewDelegate {
     
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if specialitiesSelected.count == 5 {
+            return false
+        }
         return collectionView.indexPathsForSelectedItems!.count <= 4
     }
 }

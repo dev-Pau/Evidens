@@ -29,6 +29,8 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var newCellWidth: [CGFloat] = []
     
+    private var previousValue: Int = 0
+    
     private lazy var uploadButton: UIButton = {
         let button = UIButton()
         button.configuration = .gray()
@@ -109,8 +111,6 @@ class ShareClinicalCaseViewController: UIViewController {
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
         return aString
     }()
-
-    
     
     private lazy var infoImageLabel: UILabel = {
         let label = UILabel()
@@ -122,18 +122,27 @@ class ShareClinicalCaseViewController: UIViewController {
         return label
     }()
     
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Title your case"
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
+    
+    private var titleView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private var circularShapeTracker = CircularShapeTracker(withSteps: CGFloat(100))
+    
     
     private lazy var titleTextField: UITextField = {
         let tf = METextField(placeholder: "Add a title", withSpacer: false)
         tf.delegate = self
-        tf.font = .systemFont(ofSize: 17, weight: .semibold)
+        tf.tintColor = primaryColor
+        tf.font = .systemFont(ofSize: 17, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         return tf
@@ -194,6 +203,11 @@ class ShareClinicalCaseViewController: UIViewController {
         scrollView.resizeScrollViewContentSize()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        circularShapeTracker.addShapeIndicator(in: titleView)
+    }
+    
     
     init(user: User) {
         super.init(nibName: nil, bundle: nil)
@@ -227,7 +241,7 @@ class ShareClinicalCaseViewController: UIViewController {
         
         scrollView.keyboardDismissMode = .onDrag
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, titleLabel, titleIndicator, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator, specialitiesView)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, separatorView, titleIndicator, titleView, titleTextField, descriptionLabel, descriptionTextView, descriptionIndicator, specialitiesView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -249,13 +263,24 @@ class ShareClinicalCaseViewController: UIViewController {
             infoImageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoImageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            titleLabel.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 10),
+            separatorView.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 10),
+            separatorView.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            /*
+            titleLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            */
             
-            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            titleTextField.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            titleTextField.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            titleView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            titleView.widthAnchor.constraint(equalToConstant: 35),
+            titleView.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
+            titleView.heightAnchor.constraint(equalToConstant: 35),
+            
+            titleTextField.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            titleTextField.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: titleView.leadingAnchor, constant: -10),
             titleTextField.heightAnchor.constraint(equalToConstant: 35),
             
             titleIndicator.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 2),
@@ -264,12 +289,12 @@ class ShareClinicalCaseViewController: UIViewController {
             titleIndicator.widthAnchor.constraint(equalToConstant: 60),
             
             descriptionLabel.topAnchor.constraint(equalTo: titleIndicator.bottomAnchor, constant: 5),
-            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            descriptionLabel.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
             
             descriptionTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 4),
             descriptionTextView.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
+            descriptionTextView.trailingAnchor.constraint(equalTo: titleView.trailingAnchor),
             
             descriptionIndicator.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 2),
             descriptionIndicator.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
@@ -374,6 +399,14 @@ class ShareClinicalCaseViewController: UIViewController {
             return
         }
         titleIndicator.characterCountLabel.text = "\(count)/100"
+        
+        if previousValue == 0 {
+            circularShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: 0)
+        } else {
+            circularShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: previousValue)
+        }
+        
+        previousValue = text.count
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -510,6 +543,8 @@ extension ShareClinicalCaseViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         titleIndicator.isHidden = true
     }
+    
+    
 }
 
 extension ShareClinicalCaseViewController: UITextViewDelegate {
