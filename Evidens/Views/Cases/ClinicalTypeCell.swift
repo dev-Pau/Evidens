@@ -7,18 +7,15 @@
 
 import UIKit
 
-class ClinicalTypeCell: UITableViewCell {
+class ClinicalTypeCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectedOptionButton.configuration?.image = isSelected ? UIImage(systemName: "smallcircle.fill.circle.fill") : UIImage(systemName: "circle")
-            if isSelected {
-                print("is selected")
-            }
+            selectedOptionButton.configuration?.image = isSelected ? UIImage(named: "checkmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "")
         }
     }
-    
-    private let typeTitle: UILabel = {
+
+    let typeTitle: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,16 +26,20 @@ class ClinicalTypeCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        
         button.configuration?.baseForegroundColor = primaryColor
-
         button.configuration?.cornerStyle = .capsule
-
         return button
     }()
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    private var separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         configure()
     }
     
@@ -46,11 +47,9 @@ class ClinicalTypeCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+   
     private func configure() {
-        selectionStyle = .none
-        backgroundColor = .white
-        
-        addSubviews(typeTitle, selectedOptionButton)
+        addSubviews(typeTitle, selectedOptionButton, separatorView)
         
         NSLayoutConstraint.activate([
             selectedOptionButton.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -61,8 +60,12 @@ class ClinicalTypeCell: UITableViewCell {
             typeTitle.centerYAnchor.constraint(equalTo: centerYAnchor),
             typeTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             typeTitle.trailingAnchor.constraint(equalTo: selectedOptionButton.leadingAnchor, constant: 10),
-            typeTitle.heightAnchor.constraint(equalToConstant: 20)
-
+            typeTitle.heightAnchor.constraint(equalToConstant: 20),
+            
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
     

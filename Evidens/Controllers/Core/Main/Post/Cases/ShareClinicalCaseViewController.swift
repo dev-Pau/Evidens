@@ -18,6 +18,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private var user: User?
     
     private var specialitiesSelected: [String] = []
+    private var caseTypesSelected: [String] = []
     
     private var cellSizes: [CGFloat] = []
     
@@ -376,6 +377,11 @@ class ShareClinicalCaseViewController: UIViewController {
         specialitiesCollectionView.reloadData()
     }
     
+    func addCaseTypeCollectionView() {
+        clinicalTypeView.configure(collectionView: casesCollectionView)
+        casesCollectionView.reloadData()
+    }
+    
     func addBackgroundImage() {
         casesCollectionView.removeFromSuperview()
         scrollView.addSubviews(imageBackgroundView, photoImage)
@@ -406,6 +412,7 @@ class ShareClinicalCaseViewController: UIViewController {
     @objc func handleCancel() {
         dismiss(animated: true)
     }
+    
     
     
     @objc func didTapUpload() {
@@ -538,10 +545,11 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == casesCollectionView {
             return collectionImages.count
-        } else {
+        } else if collectionView == specialitiesCollectionView {
             return specialitiesSelected.count
+        } else {
+            return caseTypesSelected.count
         }
-
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -571,13 +579,6 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 10
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == specialitiesCollectionView {
-            //let controller = SpecialitiesListViewController()
-            //navigationController?.pushViewController(controller, animated: true)
-        }
     }
 }
 
@@ -652,7 +653,6 @@ extension ShareClinicalCaseViewController: SpecialitiesListViewControllerDelegat
     func presentSpecialities(_ specialities: [String]) {
         specialitiesSelected = specialities
         addSpecialityCollectionView()
-
     }
     
     func size(forHeight height: CGFloat, forText text: String) -> CGSize {
@@ -662,6 +662,13 @@ extension ShareClinicalCaseViewController: SpecialitiesListViewControllerDelegat
         label.lineBreakMode = .byWordWrapping
         label.setHeight(height)
         return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+    }
+}
+
+extension ShareClinicalCaseViewController: ClinicalTypeViewControllerDelegate {
+    func didSelectCaseType(_ types: [String]) {
+        caseTypesSelected = types
+        addCaseTypeCollectionView()
     }
 }
 

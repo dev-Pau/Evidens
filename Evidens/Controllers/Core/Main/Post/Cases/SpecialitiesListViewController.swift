@@ -115,7 +115,7 @@ class SpecialitiesListViewController: UIViewController {
         }
         
         DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
     
