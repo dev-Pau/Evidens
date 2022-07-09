@@ -17,8 +17,6 @@ class SpecialitiesDiffableCell: UICollectionViewCell {
         }
     }
     
-    var cellIsHighlighted: Bool = false
-    
     var specialityLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .semibold)

@@ -11,9 +11,9 @@ class SpecialitiesCell: UICollectionViewCell {
     
     var specialityLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
         label.numberOfLines = 2
-        label.textColor = .white
+        label.textColor = blackColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -28,12 +28,15 @@ class SpecialitiesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = primaryColor
+        layer.cornerRadius = 15
+        layer.borderColor = primaryColor.cgColor
+        layer.borderWidth = 1
+        backgroundColor = .clear
         addSubview(specialityLabel)
         NSLayoutConstraint.activate([
             specialityLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             specialityLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            specialityLabel.heightAnchor.constraint(equalToConstant: 45)
+            specialityLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
 }

@@ -95,7 +95,7 @@ class ShareClinicalCaseViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.bounces = true
@@ -123,13 +123,6 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private let imageTitleSeparatorLabel: UIView = {
-        let view = UIView()
-        view.backgroundColor = lightGrayColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let descriptionSpecialitiesSeparatorLabel: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -206,7 +199,8 @@ class ShareClinicalCaseViewController: UIViewController {
         return tv
     }()
     
-    private lazy var specialitiesView = SpecialitiesView()
+    private lazy var specialitiesView = SpecialitiesView(title: "Specialities")
+    private lazy var clinicalTypeView = SpecialitiesView(title: "Type details")
    
     //MARK: - Lifecycle
     
@@ -225,6 +219,9 @@ class ShareClinicalCaseViewController: UIViewController {
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
+        
+        specialitiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSpecialitiesController)))
+        clinicalTypeView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToClinicalTypeController)))
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -265,13 +262,13 @@ class ShareClinicalCaseViewController: UIViewController {
         view.backgroundColor = .white
         view.addSubview(scrollView)
         
-        specialitiesView.delegate = self
-        
+
         titleView.isHidden = true
         descriptionView.isHidden = true
         scrollView.keyboardDismissMode = .onDrag
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, descriptionSpecialitiesSeparatorLabel)
+        
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -330,19 +327,15 @@ class ShareClinicalCaseViewController: UIViewController {
             descriptionLabel.leadingAnchor.constraint(equalTo: descriptionTextView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor),
             
-            descriptionSpecialitiesSeparatorLabel.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 20),
-            descriptionSpecialitiesSeparatorLabel.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
-            descriptionSpecialitiesSeparatorLabel.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
-            descriptionSpecialitiesSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
-
-            /*
-            specialitiesView.topAnchor.constraint(equalTo: descriptionIndicator.bottomAnchor, constant: 4),
+            specialitiesView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 20),
             specialitiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             specialitiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            specialitiesView.heightAnchor.constraint(equalToConstant: 65)
-             */
+            specialitiesView.heightAnchor.constraint(equalToConstant: 62),
             
-            
+            clinicalTypeView.topAnchor.constraint(equalTo: specialitiesView.bottomAnchor),
+            clinicalTypeView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            clinicalTypeView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            clinicalTypeView.heightAnchor.constraint(equalToConstant: 62)
         ])
         
         scrollView.resizeScrollViewContentSize()
@@ -357,6 +350,7 @@ class ShareClinicalCaseViewController: UIViewController {
     func configureSpecialityCollectionView() {
         specialitiesCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: specialityCellReuseIdentifier)
         specialitiesCollectionView.delegate = self
+        specialitiesCollectionView.backgroundColor = .clear
         specialitiesCollectionView.dataSource = self
 
     }
@@ -379,6 +373,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     func addSpecialityCollectionView() {
         specialitiesView.configure(collectionView: specialitiesCollectionView)
+        specialitiesCollectionView.reloadData()
     }
     
     func addBackgroundImage() {
@@ -473,6 +468,29 @@ class ShareClinicalCaseViewController: UIViewController {
             scrollView.resizeScrollViewContentSize()
         }
     }
+    
+    @objc func goToSpecialitiesController() {
+        let controller = SpecialitiesListViewController(specialitiesSelected: specialitiesSelected)
+        controller.delegate = self
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = blackColor
+        navigationItem.backBarButtonItem = backButton
+                
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func goToClinicalTypeController() {
+        let controller = ClinicalTypeViewController()
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = blackColor
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
@@ -535,7 +553,6 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
         } else {
             let cell = specialitiesCollectionView.dequeueReusableCell(withReuseIdentifier: specialityCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
             cell.specialityLabel.text = specialitiesSelected[indexPath.row]
-            cell.layer.cornerRadius = 10
             return cell
         }
     }
@@ -548,7 +565,7 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
         } else {
             //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
             //let width = cell.size(forHeight: 50).width
-            return CGSize(width: size(forHeight: 45, forText: specialitiesSelected[indexPath.item]).width, height: 45)
+            return CGSize(width: size(forHeight: 30, forText: specialitiesSelected[indexPath.item]).width + 30, height: 30)
         }
     }
     
@@ -558,8 +575,8 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == specialitiesCollectionView {
-            let controller = SpecialitiesListViewController()
-            navigationController?.pushViewController(controller, animated: true)
+            //let controller = SpecialitiesListViewController()
+            //navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
@@ -628,20 +645,6 @@ extension ShareClinicalCaseViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         //descriptionIndicator.isHidden = true
         descriptionView.isHidden = true
-    }
-}
-
-extension ShareClinicalCaseViewController: SpecialitiesViewDelegate {
-    func didTapAddSpecialities() {
-        let controller = SpecialitiesListViewController()
-        controller.delegate = self
-        
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = blackColor
-        navigationItem.backBarButtonItem = backButton
-                
-        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

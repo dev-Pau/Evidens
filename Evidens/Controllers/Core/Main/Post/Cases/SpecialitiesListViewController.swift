@@ -23,38 +23,41 @@ class SpecialitiesListViewController: UIViewController {
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
     
     private var specialities = Speciality.allSpecialities()
-    private var highlights: [Bool] = []
     
     private var filteredSpecialities: [Speciality] = []
     
     private var isSearching: Bool = false
     
     private let searchController = UISearchController()
-    private var specialitiesSelected: [String] = []
+    private var specialitiesSelected: [String]
     
     var previousSpecialities: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        highlights = Speciality.isHighlighted(speciality: specialities)
         configureNavigationBar()
         configureSearchBar()
         configureCollectionView()
         configureDataSource()
         updateData(on: specialities)
-        configurePreviousSpecialities()
-        print(highlights.count)
-        print(specialities.count)
     }
     
+    init(specialitiesSelected: [String]) {
+        self.specialitiesSelected = specialitiesSelected
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private func configureNavigationBar() {
         title = "Add specialities"
         navigationItem.hidesSearchBarWhenScrolling = false
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add 0/5", style: .done, target: self, action: #selector(handleAddSpecialities))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add \(specialitiesSelected.count)/5", style: .done, target: self, action: #selector(handleAddSpecialities))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = false
+        navigationItem.rightBarButtonItem?.isEnabled = specialitiesSelected.count > 0 ? true : false
     }
     
     private func configureSearchBar() {
@@ -92,6 +95,9 @@ class SpecialitiesListViewController: UIViewController {
         dataSource = UICollectionViewDiffableDataSource<Section, Speciality>(collectionView: collectionView, cellProvider: { (collectionView, indexPath, speciality) -> UICollectionViewCell? in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: specialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesDiffableCell
             cell.specialityLabel.text = speciality.name
+            if self.specialitiesSelected.contains(speciality.name) {
+                collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left)
+            }
             return cell
         })
     }
@@ -100,9 +106,7 @@ class SpecialitiesListViewController: UIViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Speciality>()
         snapshot.appendSections([.main])
         snapshot.appendItems(specialities)
-        
-        let indexSelected = collectionView.indexPathsForSelectedItems
-        
+
         specialitiesSelected.forEach { speciality in
             if (snapshot.sectionIdentifier(containingItem: Speciality(name: speciality)) != nil) {
             } else {
@@ -146,7 +150,6 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
 }
 
 extension SpecialitiesListViewController: UICollectionViewDelegate {
-    
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

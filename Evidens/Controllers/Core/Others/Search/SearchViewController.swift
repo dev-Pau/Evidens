@@ -43,7 +43,6 @@ class SearchViewController: UIViewController {
         return searchBar
     }()
     
-    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {

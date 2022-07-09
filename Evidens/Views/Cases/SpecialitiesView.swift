@@ -7,38 +7,70 @@
 
 import UIKit
 
-protocol SpecialitiesViewDelegate: AnyObject {
-    func didTapAddSpecialities()
-}
-
 class SpecialitiesView: UIView {
     
-    weak var delegate: SpecialitiesViewDelegate?
+    private var title: String?
+    
+    private lazy var specialitiesInfo: UILabel = {
+        let label = UILabel()
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     private lazy var specialitiesLabel: UILabel = {
         let label = UILabel()
-        label.text = "Specialities"
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    private lazy var specialitiesButton: UIButton = {
+    private lazy var chevronButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.image = UIImage(systemName: "plus")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.white)
-        button.configuration?.title = "Tap to add specialities"
-        button.configuration?.imagePadding = 5
-        button.configuration?.imagePlacement = .leading
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.alpha = 0.8
+        button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleAddSpecialities), for: .touchUpInside)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
         return button
     }()
     
+    private lazy var chevronEditButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        return button
+    }()
+    
+    private let topView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var editButton: UILabel = {
+        let label = UILabel()
+        label.text = "Edit"
+        label.textColor = primaryColor
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configure()
+    }
+    
+    init(title: String) {
+        super.init(frame: .zero)
+        self.title = title
         configure()
     }
     
@@ -53,33 +85,57 @@ class SpecialitiesView: UIView {
     
     
     private func configure() {
-        translatesAutoresizingMaskIntoConstraints = false
-        addSubviews(specialitiesLabel, specialitiesButton)
+        specialitiesInfo.text = title
         
+        translatesAutoresizingMaskIntoConstraints = false
+        addSubviews(topView, specialitiesInfo, chevronButton)
+
         NSLayoutConstraint.activate([
+            topView.topAnchor.constraint(equalTo: topAnchor),
+            topView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            topView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            topView.heightAnchor.constraint(equalToConstant: 1),
             
-            specialitiesLabel.topAnchor.constraint(equalTo: topAnchor),
-            specialitiesLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            specialitiesLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            chevronButton.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
+            chevronButton.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 20),
+            chevronButton.heightAnchor.constraint(equalToConstant: 20),
+            chevronButton.widthAnchor.constraint(equalToConstant: 20),
             
-            specialitiesButton.topAnchor.constraint(equalTo: specialitiesLabel.bottomAnchor, constant: 5),
-            specialitiesButton.leadingAnchor.constraint(equalTo: specialitiesLabel.leadingAnchor),
+            specialitiesInfo.centerYAnchor.constraint(equalTo: chevronButton.centerYAnchor),
+            specialitiesInfo.leadingAnchor.constraint(equalTo: topView.leadingAnchor),
+            specialitiesInfo.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -10),
+            specialitiesInfo.heightAnchor.constraint(equalToConstant: 20),
         ])
     }
     
     func configure(collectionView: UICollectionView) {
-        specialitiesButton.removeFromSuperview()
-        addSubview(collectionView)
+        specialitiesLabel.text = title
+
+        addSubviews(specialitiesLabel, collectionView, editButton, chevronEditButton)
+        specialitiesInfo.isHidden = true
+        chevronButton.isHidden = true
+        
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: specialitiesLabel.bottomAnchor, constant: 5),
+            
+            chevronEditButton.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
+            chevronEditButton.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 6),
+            chevronEditButton.heightAnchor.constraint(equalToConstant: 10),
+            chevronEditButton.widthAnchor.constraint(equalToConstant: 10),
+            
+            editButton.centerYAnchor.constraint(equalTo: chevronEditButton.centerYAnchor),
+            editButton.trailingAnchor.constraint(equalTo: chevronEditButton.leadingAnchor, constant: -20),
+            editButton.heightAnchor.constraint(equalToConstant: 10),
+            editButton.widthAnchor.constraint(equalToConstant: 25),
+        
+            specialitiesLabel.centerYAnchor.constraint(equalTo: chevronEditButton.centerYAnchor),
+            specialitiesLabel.leadingAnchor.constraint(equalTo: topView.leadingAnchor),
+            specialitiesLabel.trailingAnchor.constraint(equalTo: editButton.trailingAnchor),
+            specialitiesLabel.heightAnchor.constraint(equalToConstant: 20),
+             
+            collectionView.topAnchor.constraint(equalTo: specialitiesLabel.bottomAnchor, constant: 3),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 45)
-            
+            collectionView.heightAnchor.constraint(equalToConstant: 30),
         ])
-    }
-    
-    @objc func handleAddSpecialities() {
-        delegate?.didTapAddSpecialities()
     }
 }

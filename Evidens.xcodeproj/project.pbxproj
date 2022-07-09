@@ -108,6 +108,9 @@
 		5F8B7C5228758164005094A5 /* SpecialitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5128758164005094A5 /* SpecialitiesView.swift */; };
 		5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */; };
 		5F8B7C5628772982005094A5 /* CircularShapeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* CircularShapeTracker.swift */; };
+		5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */; };
+		5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */; };
+		5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5B28797C97005094A5 /* CaseType.swift */; };
 		5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E528C2865F3A60053F011 /* PostAttachementHeader.swift */; };
 		5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E528E2865F5A10053F011 /* PostAttachementCell.swift */; };
 		5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E5290286605B90053F011 /* UploadPostViewModel.swift */; };
@@ -255,6 +258,9 @@
 		5F8B7C5128758164005094A5 /* SpecialitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesView.swift; sourceTree = "<group>"; };
 		5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
 		5F8B7C5528772982005094A5 /* CircularShapeTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTracker.swift; sourceTree = "<group>"; };
+		5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeViewController.swift; sourceTree = "<group>"; };
+		5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeCell.swift; sourceTree = "<group>"; };
+		5F8B7C5B28797C97005094A5 /* CaseType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseType.swift; sourceTree = "<group>"; };
 		5F8E528C2865F3A60053F011 /* PostAttachementHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementHeader.swift; sourceTree = "<group>"; };
 		5F8E528E2865F5A10053F011 /* PostAttachementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementCell.swift; sourceTree = "<group>"; };
 		5F8E5290286605B90053F011 /* UploadPostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewModel.swift; sourceTree = "<group>"; };
@@ -682,6 +688,7 @@
 			children = (
 				5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */,
 				5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */,
+				5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -690,6 +697,7 @@
 			isa = PBXGroup;
 			children = (
 				5F8B7C4B2873FC48005094A5 /* Speciality.swift */,
+				5F8B7C5B28797C97005094A5 /* CaseType.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -747,6 +755,7 @@
 				5F8B7C4D287401B8005094A5 /* SpecialitiesDiffableCell.swift */,
 				5F8B7C5128758164005094A5 /* SpecialitiesView.swift */,
 				5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */,
+				5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -1140,6 +1149,7 @@
 				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
+				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F4493C227708A84008FD6ED /* EmailRegistrationViewController.swift in Sources */,
@@ -1219,6 +1229,7 @@
 				5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
+				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
@@ -1251,6 +1262,7 @@
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
+				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,
