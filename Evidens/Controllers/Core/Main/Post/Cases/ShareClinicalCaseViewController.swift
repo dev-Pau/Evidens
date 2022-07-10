@@ -10,6 +10,7 @@ import PhotosUI
 
 private let casesCellReuseIdentifier = "CasesCellReuseIdentifier"
 private let specialityCellReuseIdentifier = "SpecialityCellReuseIdentifier"
+private let caseTypeCellReuseIdentifier = "CaseTypeCellReuseIdentifier"
 
 class ShareClinicalCaseViewController: UIViewController {
     
@@ -24,7 +25,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var collectionImages = [UIImage]() {
         didSet {
-            casesCollectionView.reloadData()
+            caseImagesCollectionView.reloadData()
         }
     }
     
@@ -80,7 +81,7 @@ class ShareClinicalCaseViewController: UIViewController {
         return iv
     }()
     
-    private let casesCollectionView: UICollectionView = {
+    private let caseImagesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -93,6 +94,18 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private let specialitiesCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceHorizontal = true
+        return collectionView
+    }()
+    
+    private let caseTypeCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -131,6 +144,13 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private let titleDescriptionSeparatorLabel: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let bottomSeparatorLabel: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -200,8 +220,10 @@ class ShareClinicalCaseViewController: UIViewController {
         return tv
     }()
     
-    private lazy var specialitiesView = SpecialitiesView(title: "Specialities")
-    private lazy var clinicalTypeView = SpecialitiesView(title: "Type details")
+    private lazy var specialitiesView = CaseDetailsView(title: "Specialities")
+    private lazy var clinicalTypeView = CaseDetailsView(title: "Type details")
+    
+    private lazy var caseStageView = CaseStageView()
    
     //MARK: - Lifecycle
     
@@ -211,6 +233,7 @@ class ShareClinicalCaseViewController: UIViewController {
         configureUI()
         configureCaseCollectionView()
         configureSpecialityCollectionView()
+        configureCaseTypeCollectionView()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillShowNotification,
@@ -266,10 +289,12 @@ class ShareClinicalCaseViewController: UIViewController {
 
         titleView.isHidden = true
         descriptionView.isHidden = true
+        
+        caseStageView.delegate = self
         scrollView.keyboardDismissMode = .onDrag
         
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView, bottomSeparatorLabel, caseStageView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -292,8 +317,8 @@ class ShareClinicalCaseViewController: UIViewController {
             infoImageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             imageTitleSeparatorLabel.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 20),
-            imageTitleSeparatorLabel.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
-            imageTitleSeparatorLabel.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
+            imageTitleSeparatorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            imageTitleSeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             imageTitleSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
             
             titleTextField.topAnchor.constraint(equalTo: imageTitleSeparatorLabel.bottomAnchor, constant: 20),
@@ -311,8 +336,8 @@ class ShareClinicalCaseViewController: UIViewController {
             titleLabel.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor),
          
             titleDescriptionSeparatorLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
-            titleDescriptionSeparatorLabel.leadingAnchor.constraint(equalTo: imageBackgroundView.leadingAnchor),
-            titleDescriptionSeparatorLabel.trailingAnchor.constraint(equalTo: imageBackgroundView.trailingAnchor),
+            titleDescriptionSeparatorLabel.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
+            titleDescriptionSeparatorLabel.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
             titleDescriptionSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
           
             descriptionTextView.topAnchor.constraint(equalTo: titleDescriptionSeparatorLabel.bottomAnchor, constant: 20),
@@ -336,39 +361,54 @@ class ShareClinicalCaseViewController: UIViewController {
             clinicalTypeView.topAnchor.constraint(equalTo: specialitiesView.bottomAnchor),
             clinicalTypeView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             clinicalTypeView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            clinicalTypeView.heightAnchor.constraint(equalToConstant: 62)
+            clinicalTypeView.heightAnchor.constraint(equalToConstant: 62),
+            
+            bottomSeparatorLabel.topAnchor.constraint(equalTo: clinicalTypeView.bottomAnchor),
+            bottomSeparatorLabel.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
+            bottomSeparatorLabel.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
+            bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            
+            caseStageView.topAnchor.constraint(equalTo: bottomSeparatorLabel.bottomAnchor),
+            caseStageView.leadingAnchor.constraint(equalTo: bottomSeparatorLabel.leadingAnchor),
+            caseStageView.trailingAnchor.constraint(equalTo: bottomSeparatorLabel.trailingAnchor),
+            caseStageView.heightAnchor.constraint(equalToConstant: 70)
         ])
         
         scrollView.resizeScrollViewContentSize()
     }
     
     func configureCaseCollectionView() {
-        casesCollectionView.register(CasesCell.self, forCellWithReuseIdentifier: casesCellReuseIdentifier)
-        casesCollectionView.delegate = self
-        casesCollectionView.dataSource = self
+        caseImagesCollectionView.register(CasesCell.self, forCellWithReuseIdentifier: casesCellReuseIdentifier)
+        caseImagesCollectionView.delegate = self
+        caseImagesCollectionView.dataSource = self
     }
     
     func configureSpecialityCollectionView() {
         specialitiesCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: specialityCellReuseIdentifier)
         specialitiesCollectionView.delegate = self
-        specialitiesCollectionView.backgroundColor = .clear
         specialitiesCollectionView.dataSource = self
 
+    }
+    
+    func configureCaseTypeCollectionView() {
+        caseTypeCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: caseTypeCellReuseIdentifier)
+        caseTypeCollectionView.delegate = self
+        caseTypeCollectionView.dataSource = self
     }
     
     func addCaseCollectionView() {
         imageBackgroundView.removeFromSuperview()
         photoImage.removeFromSuperview()
         
-        scrollView.addSubview(casesCollectionView)
+        scrollView.addSubview(caseImagesCollectionView)
         
         NSLayoutConstraint.activate([
-            casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            casesCollectionView.heightAnchor.constraint(equalToConstant: 200),
+            caseImagesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            caseImagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            caseImagesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            caseImagesCollectionView.heightAnchor.constraint(equalToConstant: 200),
             
-            infoImageLabel.topAnchor.constraint(equalTo: casesCollectionView.bottomAnchor, constant: 5),
+            infoImageLabel.topAnchor.constraint(equalTo: caseImagesCollectionView.bottomAnchor, constant: 5),
         ])
     }
     
@@ -378,12 +418,12 @@ class ShareClinicalCaseViewController: UIViewController {
     }
     
     func addCaseTypeCollectionView() {
-        clinicalTypeView.configure(collectionView: casesCollectionView)
-        casesCollectionView.reloadData()
+        clinicalTypeView.configure(collectionView: caseTypeCollectionView)
+        caseTypeCollectionView.reloadData()
     }
     
     func addBackgroundImage() {
-        casesCollectionView.removeFromSuperview()
+        caseImagesCollectionView.removeFromSuperview()
         scrollView.addSubviews(imageBackgroundView, photoImage)
         
         NSLayoutConstraint.activate([
@@ -489,7 +529,8 @@ class ShareClinicalCaseViewController: UIViewController {
     }
     
     @objc func goToClinicalTypeController() {
-        let controller = ClinicalTypeViewController()
+        let controller = ClinicalTypeViewController(selectedTypes: caseTypesSelected)
+        controller.delegate = self
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
@@ -543,37 +584,47 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
 
 extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == casesCollectionView {
+        if collectionView == caseImagesCollectionView {
             return collectionImages.count
         } else if collectionView == specialitiesCollectionView {
+            print(specialitiesSelected.count)
             return specialitiesSelected.count
         } else {
+            print(caseTypesSelected.count)
             return caseTypesSelected.count
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == casesCollectionView {
-            let cell = casesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
+        if collectionView == caseImagesCollectionView {
+            let cell = caseImagesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
             cell.delegate = self
             cell.set(image: collectionImages[indexPath.row])
             return cell
-        } else {
+            
+        } else if collectionView == specialitiesCollectionView {
             let cell = specialitiesCollectionView.dequeueReusableCell(withReuseIdentifier: specialityCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
             cell.specialityLabel.text = specialitiesSelected[indexPath.row]
+            return cell
+            
+        } else {
+            let cell = caseTypeCollectionView.dequeueReusableCell(withReuseIdentifier: caseTypeCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            cell.specialityLabel.text = caseTypesSelected[indexPath.row]
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == casesCollectionView {
+        if collectionView == caseImagesCollectionView {
             if collectionImages.count == 1 {
-                return CGSize(width: casesCollectionView.frame.width - 10, height: casesCollectionView.frame.height)
-            } else { return CGSize(width: newCellWidth[indexPath.item], height: casesCollectionView.frame.height) }
-        } else {
+                return CGSize(width: caseImagesCollectionView.frame.width - 10, height: caseImagesCollectionView.frame.height)
+            } else { return CGSize(width: newCellWidth[indexPath.item], height: caseImagesCollectionView.frame.height) }
+        } else if collectionView == specialitiesCollectionView {
             //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
             //let width = cell.size(forHeight: 50).width
             return CGSize(width: size(forHeight: 30, forText: specialitiesSelected[indexPath.item]).width + 30, height: 30)
+        } else {
+            return CGSize(width: size(forHeight: 30, forText: caseTypesSelected[indexPath.item]).width + 30, height: 30)
         }
     }
     
@@ -584,11 +635,11 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
 
 extension ShareClinicalCaseViewController: CasesCellDelegate {
     func delete(_ cell: CasesCell) {
-        if let indexPath = casesCollectionView.indexPath(for: cell) {
-            casesCollectionView.performBatchUpdates {
+        if let indexPath = caseImagesCollectionView.indexPath(for: cell) {
+            caseImagesCollectionView.performBatchUpdates {
                 newCellWidth.remove(at: indexPath.item)
                 collectionImages.remove(at: indexPath.item)
-                casesCollectionView.deleteItems(at: [indexPath])
+                caseImagesCollectionView.deleteItems(at: [indexPath])
                 if collectionImages.isEmpty {
                     addBackgroundImage()
                 }
@@ -669,6 +720,19 @@ extension ShareClinicalCaseViewController: ClinicalTypeViewControllerDelegate {
     func didSelectCaseType(_ types: [String]) {
         caseTypesSelected = types
         addCaseTypeCollectionView()
+    }
+}
+
+extension ShareClinicalCaseViewController: CaseStageViewDelegate {
+    func didTapResolved() {
+        let controller = CaseDiagnosisViewController()
+        let navController = UINavigationController(rootViewController: controller)
+
+        if let presentationController = navController.presentationController as? UISheetPresentationController {
+            presentationController.detents = [.medium()]
+        }
+        
+        present(navController, animated: true)
     }
 }
 

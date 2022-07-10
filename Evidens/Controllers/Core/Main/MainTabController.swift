@@ -109,7 +109,7 @@ class MainTabController: UITabBarController {
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.fill")!, rootViewController: CasesViewController())
         
         let postController = ViewController()
-        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus")!, selectedImage: UIImage(systemName: "plus.app.fill")!, rootViewController: postController)
+        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "plus.app")!, selectedImage: UIImage(named: "plus.app")!, rootViewController: postController)
         
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "bell")!, selectedImage: UIImage(named: "bell.fill")!, rootViewController: NotificationViewController())
         
@@ -125,7 +125,7 @@ class MainTabController: UITabBarController {
         nav.tabBarItem.title = title
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
         nav.tabBarItem.selectedImage = selectedImage
-        nav.navigationBar.tintColor = .black
+        nav.navigationBar.tintColor = blackColor
         
         return nav
     }

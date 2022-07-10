@@ -119,10 +119,6 @@ class SpecialitiesListViewController: UIViewController {
         }
     }
     
-    private func configurePreviousSpecialities() {
-        
-    }
-    
     @objc func handleAddSpecialities() {
         delegate?.presentSpecialities(specialitiesSelected)
         navigationController?.popViewController(animated: true)

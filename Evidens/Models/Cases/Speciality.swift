@@ -15,73 +15,97 @@ extension Speciality {
     static func allSpecialities() -> [Speciality] {
         var speciality: [Speciality] = []
         
-        let s1 = Speciality(name: "Phisiotherapist")
-        let s2 = Speciality(name: "Nurse in the house wedding")
-        speciality.append(s1)
-        speciality.append(s2)
+        //MARK: - Allergy and Immunology
         
-        let s3 = Speciality(name: "Nurse in the house fdswedding")
-        speciality.append(s3)
+        let ai1 = Speciality(name: "Allergy & Immunology")
+        speciality.append(ai1)
         
-        let s4 = Speciality(name: "Nurse in fdsthe house wedding")
-        speciality.append(s4)
+        let ai2 = Speciality(name: "Otolaryngic Allergy")
+        speciality.append(ai2)
         
-        let s5 = Speciality(name: "Nurse fdsdin the house wedding")
-        speciality.append(s5)
+        let ai3 = Speciality(name: "Pediatric Allergy & Immunology")
+        speciality.append(ai3)
+
+        //MARK: - Anesthesiology
         
-        let s6 = Speciality(name: "Nurse in tdfdhe house wedding")
-        speciality.append(s6)
+        let a1 = Speciality(name: "Critical Care Medicine")
+        speciality.append(a1)
         
-        let s7 = Speciality(name: "Nursdfse in the house wedding")
-        speciality.append(s7)
+        let a2 = Speciality(name: "Hospice and Palliative Care")
+        speciality.append(a2)
         
-        let s8 = Speciality(name: "Nurse in the house weddifsdfng")
-        speciality.append(s8)
+        let a3 = Speciality(name: "Pain Medicine")
+        speciality.append(a3)
+                             
+        let a4 = Speciality(name: "Pediatric Anesthesiology")
+        speciality.append(a4)
         
-        let s9 = Speciality(name: "Nusddsfrse in the house weddsdfing")
-        speciality.append(s9)
+        let a5 = Speciality(name: "Sleep Medicine")
+        speciality.append(a5)
         
-        let s10 = Speciality(name: "Nurse infdsfds the house wedding")
-        speciality.append(s10)
+        //MARK: - Dermatology
         
-        let s11 = Speciality(name: "Nursssdse fdsdin the house wedding")
-        speciality.append(s11)
+        let d1 = Speciality(name: "Dermatopathology")
+        speciality.append(d1)
         
-        let s12 = Speciality(name: "Nurse insdfds tdfdhe house wedding")
-        speciality.append(s12)
+        let d2 = Speciality(name: "Pediatric Dermatology")
+        speciality.append(d2)
         
-        let s13 = Speciality(name: "Nursdfse fdsfdsin the house wedding")
-        speciality.append(s13)
+        let d3 = Speciality(name: "Procedural Dermatology")
+        speciality.append(d3)
         
-        let s14 = Speciality(name: "Nurse in d house weddifsdfng")
-        speciality.append(s14)
+        //MARK: - Diagnostic radiology
         
-        let s15 = Speciality(name: "Nusddsfrse xd xD the house weddsdfing")
-        speciality.append(s15)
+        let dr1 = Speciality(name: "Abdominal Radiology")
+        speciality.append(dr1)
         
-        let s16 = Speciality(name: "XD infdsfds the house weddsdddfing")
-        speciality.append(s16)
+        let dr2 = Speciality(name: "Breast imaging")
+        speciality.append(dr2)
         
-        let s17 = Speciality(name: "Nurdfdfse infdssdsdfds the house weddsdddfing")
-        speciality.append(s17)
+        let dr3 = Speciality(name: "Cardiothoracic Radiology")
+        speciality.append(dr3)
         
-        let s18 = Speciality(name: "ndinfdsfds the house weddsdddfing")
-        speciality.append(s18)
+        let dr4 = Speciality(name: "Cardiovascular radiology")
+        speciality.append(dr4)
         
-        let s19 = Speciality(name: "Nurdfdfse infdsfds the house weding planet")
-        speciality.append(s19)
+        let dr5 = Speciality(name: "Chest radiology")
+        speciality.append(dr5)
         
-        let s20 = Speciality(name: "urivulno infdsfds the house weddsdddfing")
-        speciality.append(s20)
+        let dr6 = Speciality(name: "Emergency radiology")
+        speciality.append(dr6)
         
-        let s21 = Speciality(name: "Nurdfdfse buba kokes the house weddsdddfing")
-        speciality.append(s21)
+        let dr7 = Speciality(name: "Endovascular surgical neuroradiology")
+        speciality.append(dr7)
         
-        let s22 = Speciality(name: "Nurdfdfse infdsfds the house weddsdddfing")
-        speciality.append(s22)
+        let dr8 = Speciality(name: "Gastrointestinal radiology")
+        speciality.append(dr8)
         
-        let s23 = Speciality(name: "Nurdfdfse infdsfds the house navulno")
-        speciality.append(s23)
+        let dr9 = Speciality(name: "Genitourinary radiology")
+        speciality.append(dr9)
+        
+        let dr10 = Speciality(name: "Head and neck radiology")
+        speciality.append(dr10)
+        
+        let dr11 = Speciality(name: "Interventional radiology")
+        speciality.append(dr11)
+        
+        let dr12 = Speciality(name: "Musculoskeletal radiology")
+        speciality.append(dr12)
+        
+        let dr13 = Speciality(name: "Neuroradiology")
+        speciality.append(dr13)
+        
+        let dr14 = Speciality(name: "Nuclear radiology")
+        speciality.append(dr14)
+        
+        let dr15 = Speciality(name: "Pediatric radiology")
+        speciality.append(dr15)
+        
+        let dr16 = Speciality(name: "Radiation oncology")
+        speciality.append(dr16)
+        
+        let dr17 = Speciality(name: "Vascular and interventional radiology")
+        speciality.append(dr17)
         
         return speciality
     }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SpecialitiesView: UIView {
+class CaseDetailsView: UIView {
     
     private var title: String?
     

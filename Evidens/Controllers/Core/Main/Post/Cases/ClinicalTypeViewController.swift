@@ -17,7 +17,7 @@ class ClinicalTypeViewController: UIViewController {
     
     weak var delegate: ClinicalTypeViewControllerDelegate?
     
-    private var selectedTypes: [String] = []
+    private var selectedTypes: [String]
     
     private var clinicalTypes = CaseType.allCaseTypes()
     
@@ -40,11 +40,21 @@ class ClinicalTypeViewController: UIViewController {
         configureTableView()
     }
     
+    init(selectedTypes: [String]) {
+        self.selectedTypes = selectedTypes
+        super.init(nibName: nil, bundle: nil)
+
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private func configureNavigationBar() {
         title = "Type details"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        view.backgroundColor = .white
+        navigationItem.rightBarButtonItem?.isEnabled = selectedTypes.count > 0 ? true : false
     }
     
     private func configureTableView() {
@@ -70,6 +80,11 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: clinicalTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
         cell.set(title: clinicalTypes[indexPath.row].type)
+        if let text = cell.typeTitle.text {
+            if selectedTypes.contains(text) {
+                collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+            }
+        }
         return cell
     }
     
@@ -81,6 +96,7 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
         guard let cell = collectionView.cellForItem(at: indexPath) as? ClinicalTypeCell else { return }
         if let text = cell.typeTitle.text {
             selectedTypes.append(text)
+            navigationItem.rightBarButtonItem?.isEnabled = true
         }
     }
     
@@ -89,6 +105,7 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
         if let text = cell.typeTitle.text {
             if let index = selectedTypes.firstIndex(where: { $0 == text }) {
                 selectedTypes.remove(at: index)
+                navigationItem.rightBarButtonItem?.isEnabled = selectedTypes.count > 0 ? true : false
             }
         }
     }
