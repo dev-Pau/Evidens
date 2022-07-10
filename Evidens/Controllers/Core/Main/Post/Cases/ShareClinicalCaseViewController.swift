@@ -179,9 +179,9 @@ class ShareClinicalCaseViewController: UIViewController {
         return view
     }()
     
-    private var titleShapeTracker = CircularShapeTracker(withSteps: CGFloat(50))
+    private var titleShapeTracker = LinearShapeTextTracker(withSteps: CGFloat(50))
     
-    private var descriptionShapeTracker = CircularShapeTracker(withSteps: CGFloat(1000))
+    private var descriptionShapeTracker = LinearShapeTextTracker(withSteps: CGFloat(1000))
     
     private lazy var titleTextField: UITextField = {
         let tf = METextField(placeholder: "Title", withSpacer: false)
@@ -726,13 +726,20 @@ extension ShareClinicalCaseViewController: ClinicalTypeViewControllerDelegate {
 extension ShareClinicalCaseViewController: CaseStageViewDelegate {
     func didTapResolved() {
         let controller = CaseDiagnosisViewController()
+        controller.delegate = self
         let navController = UINavigationController(rootViewController: controller)
-
+        
         if let presentationController = navController.presentationController as? UISheetPresentationController {
             presentationController.detents = [.medium()]
         }
         
         present(navController, animated: true)
+    }
+}
+
+extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
+    func handleAddDiagnosis(_ text: String) {
+        print(text)
     }
 }
 

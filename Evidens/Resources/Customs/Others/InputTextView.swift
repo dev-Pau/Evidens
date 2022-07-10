@@ -39,6 +39,7 @@ class InputTextView: UITextView {
         super.init(frame: frame, textContainer: textContainer)
         
         addSubview(placeholderLabel)
+        
     
         //Observer on textDidChange to update placeholder
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChange), name: UITextView.textDidChangeNotification, object: nil)

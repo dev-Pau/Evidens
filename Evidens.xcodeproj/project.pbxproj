@@ -107,7 +107,7 @@
 		5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */; };
 		5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5128758164005094A5 /* CaseDetailsView.swift */; };
 		5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */; };
-		5F8B7C5628772982005094A5 /* CircularShapeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* CircularShapeTracker.swift */; };
+		5F8B7C5628772982005094A5 /* LinearShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* LinearShapeTextTracker.swift */; };
 		5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */; };
 		5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */; };
 		5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5B28797C97005094A5 /* CaseType.swift */; };
@@ -124,6 +124,7 @@
 		5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* CasesCell.swift */; };
 		5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E427E287ABB2700C2153B /* CaseStageView.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
+		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
 		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */; };
@@ -259,7 +260,7 @@
 		5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesViewController.swift; sourceTree = "<group>"; };
 		5F8B7C5128758164005094A5 /* CaseDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDetailsView.swift; sourceTree = "<group>"; };
 		5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
-		5F8B7C5528772982005094A5 /* CircularShapeTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTracker.swift; sourceTree = "<group>"; };
+		5F8B7C5528772982005094A5 /* LinearShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearShapeTextTracker.swift; sourceTree = "<group>"; };
 		5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeViewController.swift; sourceTree = "<group>"; };
 		5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeCell.swift; sourceTree = "<group>"; };
 		5F8B7C5B28797C97005094A5 /* CaseType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseType.swift; sourceTree = "<group>"; };
@@ -276,6 +277,7 @@
 		5F979C5D286DDB3D00C05D57 /* CasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCell.swift; sourceTree = "<group>"; };
 		5F9E427E287ABB2700C2153B /* CaseStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageView.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
+		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
 		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeartAnimation.swift; sourceTree = "<group>"; };
@@ -578,7 +580,8 @@
 		5F6607F02854DB3D00FCF895 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				5F8B7C5528772982005094A5 /* CircularShapeTracker.swift */,
+				5F8B7C5528772982005094A5 /* LinearShapeTextTracker.swift */,
+				5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */,
 				5F6607F12854DB6800FCF895 /* PostBottomMenuLauncher.swift */,
 				5F9F089F286306430069FD2C /* PostPrivacyMenuLauncher.swift */,
 				5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */,
@@ -1185,6 +1188,7 @@
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */,
+				5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */,
 				5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
 				5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */,
@@ -1261,7 +1265,7 @@
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
-				5F8B7C5628772982005094A5 /* CircularShapeTracker.swift in Sources */,
+				5F8B7C5628772982005094A5 /* LinearShapeTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,

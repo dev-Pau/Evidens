@@ -14,7 +14,7 @@ class CasesViewController: UIViewController {
     
     private var circularView = UIView()
     
-    private var circularShapeTracker = CircularShapeTracker(withSteps: CGFloat(10))
+    private var circularShapeTracker = LinearShapeTextTracker(withSteps: CGFloat(10))
     
     override func viewDidLoad() {
         super.viewDidLoad()

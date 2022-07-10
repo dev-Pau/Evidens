@@ -1,14 +1,13 @@
 //
-//  CircularShapeTracker.swift
+//  CircularShapeTextTracker.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 7/7/22.
+//  Created by Pau Fernández Solà on 10/7/22.
 //
 
 import UIKit
 
-class CircularShapeTracker: NSObject {
-    
+class CircularShapeTextTracker: NSObject {
     private var steps: CGFloat
     private var lineWidth: CGFloat = 60
     
@@ -46,12 +45,11 @@ class CircularShapeTracker: NSObject {
     }
    
     func addShapeIndicator(in view: UIView) {
-        let circularPath = UIBezierPath()
-        circularPath.move(to: CGPoint(x: 0, y: 0))
-        circularPath.addLine(to: CGPoint(x: 60, y: 0))
-        
+        let circularPath = UIBezierPath(arcCenter: CGPoint(x: view.frame.width / 2, y: view.frame.height / 2), radius: view.frame.height / 2, startAngle: -CGFloat.pi / 2, endAngle: CGFloat.pi * 2, clockwise: true)
+   
         trackLayer.path = circularPath.cgPath
         shapeLayer.path = circularPath.cgPath
+        
         view.layer.addSublayer(trackLayer)
         view.layer.addSublayer(shapeLayer)
     }
