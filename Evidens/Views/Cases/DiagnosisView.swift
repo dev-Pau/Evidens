@@ -21,18 +21,20 @@ class DiagnosisView: UIView {
         let label = UILabel()
         label.text = "Diagnosis added"
         label.textColor = blackColor
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let editLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Edit"
-        label.textColor = primaryColor
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var editButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(named: "pencil")?.scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16)).withTintColor(blackColor)
+        button.configuration?.baseBackgroundColor = lightGrayColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleEdit), for: .touchUpInside)
+        return button
     }()
     
     var diagnosisLabel: UILabel = {
@@ -55,7 +57,7 @@ class DiagnosisView: UIView {
     }
     
     private func configure() {
-        addSubviews(diagnosisLabel, diagnosisTitle, editLabel)
+        addSubviews(diagnosisLabel, diagnosisTitle, editButton)
         translatesAutoresizingMaskIntoConstraints = false
         
         layer.borderColor = lightGrayColor.cgColor
@@ -63,17 +65,22 @@ class DiagnosisView: UIView {
         layer.cornerRadius = 7
         
         NSLayoutConstraint.activate([
-            editLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            editLabel.heightAnchor.constraint(equalToConstant: 20),
-            editLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            editButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            editButton.heightAnchor.constraint(equalToConstant: 30),
+            editButton.widthAnchor.constraint(equalToConstant: 30),
+            editButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             
-            diagnosisTitle.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            diagnosisTitle.centerYAnchor.constraint(equalTo: editButton.centerYAnchor),
             diagnosisTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
             diagnosisTitle.heightAnchor.constraint(equalToConstant: 20),
             
-            diagnosisLabel.topAnchor.constraint(equalTo: diagnosisTitle.bottomAnchor, constant: 10),
+            diagnosisLabel.topAnchor.constraint(equalTo: diagnosisTitle.bottomAnchor, constant: 15),
             diagnosisLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
             diagnosisLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
         ])
+    }
+    
+    @objc func handleEdit() {
+        
     }
 }

@@ -17,11 +17,13 @@ class CaseDiagnosisViewController: UIViewController {
     
     private var previousValue: Int = 0
     
+    private var diagnosisText: String
+    
     private let textLabel: UILabel = {
         let label = UILabel()
         label.text = "Help the community and get more engagement by adding a diagnose about your conclusions"
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.textColor = blackColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -29,11 +31,12 @@ class CaseDiagnosisViewController: UIViewController {
     
     private lazy var diagnosisTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Add a diagnosis here..."
+        tv.placeholderText = "Add your diagnosis here..."
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
-        tv.font = .systemFont(ofSize: 15, weight: .regular)
+        tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = blackColor
+        tv.tintColor = primaryColor
         tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
         tv.placeHolderShouldCenter = false
@@ -44,6 +47,13 @@ class CaseDiagnosisViewController: UIViewController {
     private var diagnosisView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = lightColor
         return view
     }()
     
@@ -61,7 +71,16 @@ class CaseDiagnosisViewController: UIViewController {
         super.viewDidLayoutSubviews()
         circularShapeTracker.addShapeIndicator(in: diagnosisView)
     }
-
+    
+    init(diagnosisText: String) {
+        self.diagnosisText = diagnosisText
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
 
     private func configureNavigationBar() {
         title = "Diagnosis details"
@@ -71,23 +90,34 @@ class CaseDiagnosisViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddDiagnosis))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = false
+        navigationItem.rightBarButtonItem?.isEnabled = diagnosisText.count > 0 ? true : false
     }
     
     private func configureUI() {
-        view.addSubviews(textLabel, diagnosisTextView, diagnosisView)
+        view.addSubviews(textLabel, diagnosisTextView, diagnosisView, separatorView)
+        
+        circularShapeTracker.updateShapeIndicator(toValue: diagnosisText.count, previousValue: diagnosisText.count)
+        previousValue = diagnosisText.count
 
         diagnosisTextView.delegate = self
         diagnosisView.isHidden = true
+        
+        diagnosisTextView.placeholderLabel.text = diagnosisText.count > 0 ? "" : "Add your diagnosis here..."
+        diagnosisTextView.text = diagnosisText
         
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             textLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 13),
             textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -13),
             
-            diagnosisTextView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 10),
-            diagnosisTextView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor, constant: -2),
-            diagnosisTextView.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            separatorView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
+            separatorView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            diagnosisTextView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            diagnosisTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            diagnosisTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             diagnosisTextView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height / 2 - 200),
 
             diagnosisView.topAnchor.constraint(equalTo: diagnosisTextView.bottomAnchor, constant: 3),

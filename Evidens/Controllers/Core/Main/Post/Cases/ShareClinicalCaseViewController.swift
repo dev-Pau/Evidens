@@ -34,6 +34,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private var previousValue: Int = 0
     
     var diagnosisHeight: CGFloat = 0
+    var diagnosisText: String = ""
     
     private lazy var uploadButton: UIButton = {
         let button = UIButton()
@@ -295,13 +296,14 @@ class ShareClinicalCaseViewController: UIViewController {
 
         titleView.isHidden = true
         descriptionView.isHidden = true
+        diagnosisView.isHidden = true
 
         caseStageView.delegate = self
         
         scrollView.keyboardDismissMode = .onDrag
         
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView, bottomSeparatorLabel, caseStageView)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView, bottomSeparatorLabel, caseStageView, diagnosisView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -455,15 +457,21 @@ class ShareClinicalCaseViewController: UIViewController {
     }
     
     func configureDiagnosisView(height: CGFloat) {
-        diagnosisView.removeFromSuperview()
-        scrollView.addSubview(diagnosisView)
+        
+        diagnosisView.constraints.forEach { constraint in
+            if constraint.firstAttribute == .height {
+                constraint.constant = height + 20
+            }
+        }
         
         NSLayoutConstraint.activate([
             diagnosisView.topAnchor.constraint(equalTo: caseStageView.bottomAnchor, constant: 5),
             diagnosisView.leadingAnchor.constraint(equalTo: caseStageView.leadingAnchor),
             diagnosisView.trailingAnchor.constraint(equalTo: caseStageView.trailingAnchor),
-            diagnosisView.heightAnchor.constraint(equalToConstant: height + 10)
+            diagnosisView.heightAnchor.constraint(equalToConstant: height + 20)
         ])
+        
+        diagnosisView.isHidden = false
         
         scrollView.resizeScrollViewContentSize()
     }
@@ -745,15 +753,18 @@ extension ShareClinicalCaseViewController: ClinicalTypeViewControllerDelegate {
 }
 
 extension ShareClinicalCaseViewController: CaseStageViewDelegate {
+    func didTapUnresolved() {
+        diagnosisView.isHidden = true
+    }
+    
     func didTapResolved() {
-        let controller = CaseDiagnosisViewController()
+        let controller = CaseDiagnosisViewController(diagnosisText: diagnosisText)
         controller.delegate = self
         let navController = UINavigationController(rootViewController: controller)
         
         if let presentationController = navController.presentationController as? UISheetPresentationController {
             presentationController.detents = [.medium()]
         }
-        
         present(navController, animated: true)
     }
 }
@@ -762,6 +773,7 @@ extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
     func handleAddDiagnosis(_ text: String) {
         diagnosisHeight = size(forWidth: view.frame.width, forText: text).height + 40
         diagnosisView.diagnosisLabel.text = text
+        diagnosisText = text
         configureDiagnosisView(height: diagnosisHeight)
     }
     
