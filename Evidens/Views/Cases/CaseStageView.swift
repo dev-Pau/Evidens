@@ -14,24 +14,22 @@ protocol CaseStageViewDelegate: AnyObject {
 class CaseStageView: UIView {
     
     weak var delegate: CaseStageViewDelegate?
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Stage"
-        label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.textColor = grayColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
+
     private lazy var unresolvedButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
-        button.configuration?.title = "Unresolved"
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("Unresolved", attributes: container)
+        
         button.configuration?.baseForegroundColor = grayColor
         button.configuration?.baseBackgroundColor = .white
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.background.strokeColor = grayColor
+        button.configuration?.imagePadding = 10
+        button.configuration?.image = UIImage(named: "magnifyingglass")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.imagePlacement = .leading
+        button.configuration?.background.strokeColor = lightGrayColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleUnresolvedTap), for: .touchUpInside)
         return button
@@ -40,11 +38,18 @@ class CaseStageView: UIView {
     private lazy var resolvedButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
-        button.configuration?.title = "Resolved"
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("Resolved", attributes: container)
+        
         button.configuration?.baseForegroundColor = grayColor
         button.configuration?.baseBackgroundColor = .white
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.background.strokeColor = grayColor
+        button.configuration?.imagePadding = 10
+        button.configuration?.image = UIImage(named: "checkmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.imagePlacement = .leading
+        button.configuration?.background.strokeColor = lightGrayColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleResolvedTap), for: .touchUpInside)
         return button
@@ -52,7 +57,7 @@ class CaseStageView: UIView {
     
     private let stackView: UIStackView = {
         let stack = UIStackView()
-        stack.distribution = .fillProportionally
+        stack.distribution = .fillEqually
         stack.spacing = 10
         stack.axis = .horizontal
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -73,28 +78,24 @@ class CaseStageView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         stackView.addArrangedSubview(unresolvedButton)
         stackView.addArrangedSubview(resolvedButton)
-        addSubviews(titleLabel, stackView)
+        addSubviews(stackView)
         
         NSLayoutConstraint.activate([
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: 20),
-            titleLabel.widthAnchor.constraint(equalToConstant: 50),
-            
-            stackView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.heightAnchor.constraint(equalToConstant: 30)
-            
+            stackView.heightAnchor.constraint(equalToConstant: 35)
         ])
     }
     
     @objc func handleResolvedTap() {
-        resolvedButton.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
+        
+        resolvedButton.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.3)
         resolvedButton.configuration?.background.strokeColor = primaryColor
-        resolvedButton.configuration?.baseForegroundColor = .white
-        resolvedButton.configuration?.image = UIImage(named: "checkmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.white)
+        resolvedButton.configuration?.baseForegroundColor = blackColor
+        resolvedButton.configuration?.image = UIImage(named: "checkmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(blackColor)
         resolvedButton.configuration?.imagePadding = 10
+        resolvedButton.configuration?.background.strokeWidth = 2
         
         delegate?.didTapResolved()
     }
@@ -102,8 +103,9 @@ class CaseStageView: UIView {
     @objc func handleUnresolvedTap() {
         unresolvedButton.configuration?.baseBackgroundColor = lightColor
         unresolvedButton.configuration?.background.strokeColor = grayColor
-        unresolvedButton.configuration?.baseForegroundColor = grayColor
-        unresolvedButton.configuration?.image = UIImage(systemName: "magnifyingglass")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        unresolvedButton.configuration?.baseForegroundColor = blackColor
+        unresolvedButton.configuration?.image = UIImage(named: "magnifyingglass")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(blackColor)
         unresolvedButton.configuration?.imagePadding = 10
+        unresolvedButton.configuration?.background.strokeWidth = 2
     }
 }

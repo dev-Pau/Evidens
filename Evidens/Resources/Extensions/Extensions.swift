@@ -325,3 +325,30 @@ extension UIScrollView {
     }
     
 }
+
+extension UILabel {
+    func countLines() -> Int {
+      guard let myText = self.text as NSString? else {
+        return 0
+      }
+      self.layoutIfNeeded()
+      let rect = CGSize(width: self.bounds.width, height: CGFloat.greatestFiniteMagnitude)
+      let labelSize = myText.boundingRect(with: rect, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: self.font as Any], context: nil)
+      return Int(ceil(CGFloat(labelSize.height) / self.font.lineHeight))
+    }
+    
+    var maxNumberOfLines: Int {
+            let maxSize = CGSize(width: frame.size.width, height: CGFloat(MAXFLOAT))
+            let text = (self.text ?? "") as NSString
+            let textHeight = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil).height
+            let lineHeight = font.lineHeight
+            return Int(ceil(textHeight / lineHeight))
+        }
+    
+    var numberOfVisibleLines: Int {
+        let maxSize = CGSize(width: frame.size.width, height: CGFloat(MAXFLOAT))
+        let textHeight = sizeThatFits(maxSize).height
+        let lineHeight = font.lineHeight
+        return Int(ceil(textHeight / lineHeight))
+    }
+}

@@ -33,6 +33,8 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var previousValue: Int = 0
     
+    var diagnosisHeight: CGFloat = 0
+    
     private lazy var uploadButton: UIButton = {
         let button = UIButton()
         button.configuration = .gray()
@@ -224,7 +226,11 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var clinicalTypeView = CaseDetailsView(title: "Type details")
     
     private lazy var caseStageView = CaseStageView()
-   
+    
+    private lazy var diagnosisView = DiagnosisView()
+    
+    
+       
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -289,8 +295,9 @@ class ShareClinicalCaseViewController: UIViewController {
 
         titleView.isHidden = true
         descriptionView.isHidden = true
-        
+
         caseStageView.delegate = self
+        
         scrollView.keyboardDismissMode = .onDrag
         
         
@@ -445,6 +452,20 @@ class ShareClinicalCaseViewController: UIViewController {
         if textView.text.count > 2500 {
             textView.deleteBackward()
         }
+    }
+    
+    func configureDiagnosisView(height: CGFloat) {
+        diagnosisView.removeFromSuperview()
+        scrollView.addSubview(diagnosisView)
+        
+        NSLayoutConstraint.activate([
+            diagnosisView.topAnchor.constraint(equalTo: caseStageView.bottomAnchor, constant: 5),
+            diagnosisView.leadingAnchor.constraint(equalTo: caseStageView.leadingAnchor),
+            diagnosisView.trailingAnchor.constraint(equalTo: caseStageView.trailingAnchor),
+            diagnosisView.heightAnchor.constraint(equalToConstant: height + 10)
+        ])
+        
+        scrollView.resizeScrollViewContentSize()
     }
     
     //MARK: - Actions
@@ -739,8 +760,20 @@ extension ShareClinicalCaseViewController: CaseStageViewDelegate {
 
 extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
     func handleAddDiagnosis(_ text: String) {
-        print(text)
+        diagnosisHeight = size(forWidth: view.frame.width, forText: text).height + 40
+        diagnosisView.diagnosisLabel.text = text
+        configureDiagnosisView(height: diagnosisHeight)
+    }
+    
+    func size(forWidth width: CGFloat, forText text: String) ->CGSize {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.text = text
+        label.lineBreakMode = .byWordWrapping
+        label.setWidth(width)
+        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
 }
+
 
 

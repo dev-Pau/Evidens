@@ -125,6 +125,7 @@
 		5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E427E287ABB2700C2153B /* CaseStageView.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
+		5F9E4285287BE5C700C2153B /* DiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4284287BE5C700C2153B /* DiagnosisView.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
 		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */; };
@@ -278,6 +279,7 @@
 		5F9E427E287ABB2700C2153B /* CaseStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageView.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
+		5F9E4284287BE5C700C2153B /* DiagnosisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisView.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
 		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeartAnimation.swift; sourceTree = "<group>"; };
@@ -765,6 +767,7 @@
 				5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */,
 				5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */,
 				5F9E427E287ABB2700C2153B /* CaseStageView.swift */,
+				5F9E4284287BE5C700C2153B /* DiagnosisView.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -1259,6 +1262,7 @@
 				5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */,
 				5F598C0C28376C5700189722 /* UserProfileHeader.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
+				5F9E4285287BE5C700C2153B /* DiagnosisView.swift in Sources */,
 				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
 				5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */,
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
