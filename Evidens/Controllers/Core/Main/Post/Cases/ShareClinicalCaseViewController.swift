@@ -545,6 +545,7 @@ class ShareClinicalCaseViewController: UIViewController {
         }
     }
     
+    
     @objc func goToSpecialitiesController() {
         let controller = SpecialitiesListViewController(specialitiesSelected: specialitiesSelected)
         controller.delegate = self

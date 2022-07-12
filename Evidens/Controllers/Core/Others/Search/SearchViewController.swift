@@ -40,6 +40,7 @@ class SearchViewController: UIViewController {
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.searchTextField.tintColor = primaryColor
         return searchBar
     }()
     

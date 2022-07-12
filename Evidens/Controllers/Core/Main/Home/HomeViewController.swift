@@ -23,7 +23,7 @@ class HomeViewController: UICollectionViewController {
     var selectedImage: UIImageView!
     
     private var zoomTransitioning = ZoomTransitioning()
-    
+        
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
@@ -42,6 +42,7 @@ class HomeViewController: UICollectionViewController {
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.searchTextField.tintColor = primaryColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -98,11 +99,12 @@ class HomeViewController: UICollectionViewController {
     
     func configureNavigationItemButtons() {
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "messages"),
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane.fill"),
                                                             style: .plain,
                                                             target: self,
                                                             action: #selector(didTapChat))
-        navigationItem.rightBarButtonItem?.tintColor = .black
+        
+        navigationItem.rightBarButtonItem?.tintColor = .darkGray
         
         let profileImageItem = UIBarButtonItem(customView: profileImageView)
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
