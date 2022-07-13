@@ -15,7 +15,8 @@ class CustomLabel: UILabel {
         font = .systemFont(ofSize: 35, weight: .heavy)
         textColor = blackColor
         numberOfLines = 0
-        sizeToFit()
+        //sizeToFit()
+        translatesAutoresizingMaskIntoConstraints = false
     }
     
     required init?(coder: NSCoder) {

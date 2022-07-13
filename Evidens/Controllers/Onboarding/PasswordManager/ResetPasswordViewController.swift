@@ -23,7 +23,16 @@ class ResetPasswordViewController: UIViewController {
     
     weak var delegate: ResetPasswordViewControllerDelegate?
     
-    private let resetPassword: UILabel = {
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
+        scrollView.keyboardDismissMode = .interactive
+        return scrollView
+    }()
+    
+    private let resetPasswordLabel: UILabel = {
         let label = CustomLabel(placeholder: "Reset your password")
         return label
     }()
@@ -31,16 +40,18 @@ class ResetPasswordViewController: UIViewController {
     private let instructionsPassword: UILabel = {
         let label = UILabel()
         label.text = "Enter the email associated with your account and we'll send an email with instructions to reset your password."
-        label.font = .systemFont(ofSize: 11, weight: .regular)
-        label.textColor = .black
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = grayColor
         label.numberOfLines = 0
         label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let emailTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Email")
         tf.keyboardType = .emailAddress
+        tf.tintColor = primaryColor
         return tf
     }()
     
@@ -49,11 +60,11 @@ class ResetPasswordViewController: UIViewController {
         button.setTitle("Reset password", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        button.setHeight(50)
         button.isEnabled = false
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(resetButtonPressed), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -65,8 +76,6 @@ class ResetPasswordViewController: UIViewController {
         setUpDelegates()
         configureNotificationsObservers()
         configureNavigationItemButton()
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -78,22 +87,40 @@ class ResetPasswordViewController: UIViewController {
     
     func configureUI() {
         view.backgroundColor = .white
-
-        emailTextField.text = email
-        viewModel.email = email
-        updateForm()
-
-        let stack = UIStackView(arrangedSubviews: [resetPassword, instructionsPassword, emailTextField, resetButton])
-        stack.axis = .vertical
-        stack.spacing = 20
-        view.addSubview(stack)
-        stack.centerX(inView: view)
-        stack.centerY(inView: view)
-        stack.anchor(left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 30)
-        stack.anchor(right: view.safeAreaLayoutGuide.leftAnchor, paddingRight: 20)
+        navigationItem.title = "Forgot password"
+        
+        scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        view.addSubview(scrollView)
+        
+        scrollView.addSubviews(resetPasswordLabel, instructionsPassword, emailTextField, resetButton)
+        
+        NSLayoutConstraint.activate([
+            resetPasswordLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            resetPasswordLabel.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
+            resetPasswordLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            
+            instructionsPassword.topAnchor.constraint(equalTo: resetPasswordLabel.bottomAnchor, constant: 5),
+            instructionsPassword.leadingAnchor.constraint(equalTo: resetPasswordLabel.leadingAnchor),
+            instructionsPassword.trailingAnchor.constraint(equalTo: resetPasswordLabel.trailingAnchor),
+            
+            emailTextField.topAnchor.constraint(equalTo: instructionsPassword.bottomAnchor, constant: 10),
+            emailTextField.leadingAnchor.constraint(equalTo: resetPasswordLabel.leadingAnchor),
+            emailTextField.trailingAnchor.constraint(equalTo: resetPasswordLabel.trailingAnchor),
+            
+            resetButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
+            resetButton.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
+            resetButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
+            resetButton.heightAnchor.constraint(equalToConstant: 50)
+             
+            
+        ])
         
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ResetPasswordViewController.keyboardDismiss))
         view.addGestureRecognizer(tap)
+        
+        emailTextField.text = email
+        viewModel.email = email
+        updateForm()
     }
     
     func setUpDelegates() {
@@ -117,7 +144,9 @@ class ResetPasswordViewController: UIViewController {
     
     @objc func resetButtonPressed() {
         guard let email = emailTextField.text else { return }
+        showLoadingView()
         AuthService.resetPassword(withEmail: email) { error in
+            self.dismissLoadingView()
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return
@@ -134,23 +163,6 @@ class ResetPasswordViewController: UIViewController {
     
     @objc func keyboardDismiss() {
         view.endEditing(true)
-    }
-    
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            self.view.frame.origin.y = 0 - keyboardSize.height * 0.5
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        if self.view.frame.origin.y != 0 {
-            self.view.frame.origin.y = 0
-        }
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardDidShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 }
 
@@ -181,3 +193,5 @@ extension ResetPasswordViewController: FormViewModel {
         resetButton.isEnabled = viewModel.formIsValid
     }
 }
+
+

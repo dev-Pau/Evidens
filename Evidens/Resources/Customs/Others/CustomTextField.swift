@@ -18,6 +18,7 @@ class CustomTextField: UITextField {
         leftViewMode = .always
         borderStyle = .roundedRect
         textColor = .black
+        translatesAutoresizingMaskIntoConstraints = false
         keyboardAppearance = .dark
         keyboardType = .emailAddress
         autocorrectionType = .no
@@ -25,7 +26,7 @@ class CustomTextField: UITextField {
         layer.cornerRadius = 5
         layer.borderColor = UIColor.white.cgColor
         layer.borderWidth = 1.0
-        setDimensions(height: 40, width: 100)
+        //setDimensions(height: 40, width: 100)
         attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(white: 0.2, alpha: 0.7)])
     }
     

@@ -169,7 +169,7 @@ class InfoRegistrationViewController: UIViewController {
             //Succesfully registrates user and present a "Welcome Screen" with email instructions
             //After user registrates, signOut to avoid retention cycle
             AuthService.logout()
-            let controller = EmailRegistrationViewController()
+            let controller = WelcomeRegistrationViewController()
             controller.firstName = self.firstName
             self.navigationController?.navigationBar.isHidden = true
             self.navigationController?.pushViewController(controller, animated: true)

@@ -8,6 +8,8 @@
 import UIKit
 import AVKit
 
+fileprivate var containerView: UIView!
+
 extension UIButton {
     func attributedTitle(buttonInfo: String, buttonContent: String) {
         let atts: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(rgb: 0x1E1E1E), .font: UIFont.systemFont(ofSize: 16)]
@@ -215,8 +217,40 @@ extension UIViewController {
     
     func displayAlert(withTitle title: String, withMessage message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    func showLoadingView() {
+        containerView = UIView(frame: view.bounds)
+        view.addSubview(containerView)
+        
+        containerView.backgroundColor = .white
+        containerView.alpha = 0
+        
+        UIView.animate(withDuration: 0.25) {
+            containerView.alpha = 0.8
+        }
+        
+        let activityIndicator = UIActivityIndicatorView(style: .large)
+        activityIndicator.color = blackColor
+        containerView.addSubview(activityIndicator)
+        
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: containerView.centerXAnchor)
+        ])
+        
+        activityIndicator.startAnimating()
+    }
+    
+    func dismissLoadingView() {
+        DispatchQueue.main.async {
+            containerView.removeFromSuperview()
+            containerView = nil
+        }
     }
 }
 

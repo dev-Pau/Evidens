@@ -36,7 +36,7 @@
 		5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */; };
 		5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */; };
 		5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BF27620415008FD6ED /* DatabaseManager.swift */; };
-		5F4493C227708A84008FD6ED /* EmailRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */; };
+		5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C127708A84008FD6ED /* WelcomeRegistrationViewController.swift */; };
 		5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */; };
 		5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */; };
@@ -126,6 +126,8 @@
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
 		5F9E4285287BE5C700C2153B /* DiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4284287BE5C700C2153B /* DiagnosisView.swift */; };
+		5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */; };
+		5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
 		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */; };
@@ -159,7 +161,6 @@
 		5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */; };
 		5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */; };
 		5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */; };
-		5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8992709938D006B7A34 /* InstructionsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -191,7 +192,7 @@
 		5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCellViewModel.swift; sourceTree = "<group>"; };
 		5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		5F4493BF27620415008FD6ED /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
-		5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F4493C127708A84008FD6ED /* WelcomeRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBlurEffect.swift; sourceTree = "<group>"; };
 		5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTypeCell.swift; sourceTree = "<group>"; };
@@ -280,6 +281,8 @@
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
 		5F9E4284287BE5C700C2153B /* DiagnosisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisView.swift; sourceTree = "<group>"; };
+		5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
 		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeartAnimation.swift; sourceTree = "<group>"; };
@@ -316,7 +319,6 @@
 		5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLabel.swift; sourceTree = "<group>"; };
 		5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordViewController.swift; sourceTree = "<group>"; };
-		5FC4D8992709938D006B7A34 /* InstructionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionsViewController.swift; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
 		ED9965EF6173BC44853D0886 /* Pods-Evidens.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.release.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.release.xcconfig"; sourceTree = "<group>"; };
@@ -807,9 +809,11 @@
 		5FBC2D9D272D938D004F92CE /* Registration */ = {
 			isa = PBXGroup;
 			children = (
+				5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */,
+				5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */,
 				5FC4D88C27072B60006B7A34 /* RegistrationViewController.swift */,
 				5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */,
-				5F4493C127708A84008FD6ED /* EmailRegistrationViewController.swift */,
+				5F4493C127708A84008FD6ED /* WelcomeRegistrationViewController.swift */,
 			);
 			path = Registration;
 			sourceTree = "<group>";
@@ -979,7 +983,6 @@
 			isa = PBXGroup;
 			children = (
 				5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */,
-				5FC4D8992709938D006B7A34 /* InstructionsViewController.swift */,
 			);
 			path = PasswordManager;
 			sourceTree = "<group>";
@@ -1157,6 +1160,7 @@
 				5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */,
 				5F77BF7528587ED400F31A75 /* MEProfileImageView.swift in Sources */,
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
+				5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */,
 				5F05207627C63A35001E7D8F /* SearchResult.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
@@ -1164,7 +1168,7 @@
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
-				5F4493C227708A84008FD6ED /* EmailRegistrationViewController.swift in Sources */,
+				5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
 				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
 				5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */,
@@ -1219,7 +1223,6 @@
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
-				5FC4D89A2709938D006B7A34 /* InstructionsViewController.swift in Sources */,
 				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
@@ -1232,6 +1235,7 @@
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
+				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
 				5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */,

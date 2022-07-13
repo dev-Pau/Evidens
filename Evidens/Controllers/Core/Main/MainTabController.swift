@@ -42,8 +42,8 @@ class MainTabController: UITabBarController {
             
             
         }
-        //GIDSignIn.sharedInstance.signOut()
-        //AuthService.logout()
+        GIDSignIn.sharedInstance.signOut()
+        AuthService.logout()
         view.backgroundColor = primaryColor
         self.tabBar.isHidden = true
         postMenuLauncher.delegate = self

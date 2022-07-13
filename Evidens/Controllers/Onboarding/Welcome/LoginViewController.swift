@@ -11,9 +11,7 @@ import JGProgressHUD
 class LoginViewController: UIViewController {
     
     //MARK: - Properties
-    
-    private let spinner = JGProgressHUD(style: .dark)
-    
+  
     private var viewModel = LoginViewModel()
     
     var displayEmailPlaceholder: Bool = false
@@ -27,35 +25,47 @@ class LoginViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
+        scrollView.keyboardDismissMode = .interactive
         return scrollView
+    }()
+    
+    private let loginText: UILabel = {
+        let label = CustomLabel(placeholder: "Nice to have you back again!")
+        return label
     }()
     
     private let emailTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Email")
+        tf.tintColor = primaryColor
         tf.keyboardType = .emailAddress
+        tf.clearButtonMode = .whileEditing
         return tf
     }()
     
     private let passwordTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Password")
         tf.isSecureTextEntry = true
+        tf.tintColor = primaryColor
         return tf
     }()
     
-    private let loginButton: UIButton = {
+    private lazy var loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Log In", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        button.setHeight(50)
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
         button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private let forgotPasswordButton: UIButton = {
+    private lazy var forgotPasswordButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Trouble logging in?", for: .normal)
         button.setTitleColor(primaryColor, for: .normal)
@@ -71,47 +81,52 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        configureEye()
         setUpDelegates()
         configureNavigationItemButton()
         configureNotificationsObservers()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         emailTextField.becomeFirstResponder()
     }
-
+    
     //MARK: - Helpers
     
     func configureUI() {
-        
-        //appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-        //navigationItem.standardAppearance = appearance
         navigationItem.title = "Log In"
-        //navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+     
         view.backgroundColor = .white
-        
+
         view.addSubview(scrollView)
         
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 2.75 * topbarHeight)
-        
-        //view.backgroundColor = .white
-        //navigationController?.navigationBar.isHidden = false
-        //navigationController?.navigationBar.barStyle = .black
-
-        let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, loginButton, forgotPasswordButton])
+        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
+      
+        let stack = UIStackView(arrangedSubviews: [loginText, emailTextField, passwordTextField, loginButton, forgotPasswordButton])
         stack.axis = .vertical
         stack.spacing = 20
+        stack.translatesAutoresizingMaskIntoConstraints = false
         
         scrollView.addSubview(stack)
-        stack.centerX(inView: scrollView)
-        stack.anchor(top: scrollView.topAnchor, paddingTop: 20)
-        stack.setWidth(UIScreen.main.bounds.width * 0.8)
-       
+        
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            stack.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8)
+        
+        ])
+
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(LoginViewController.keyboardDismiss))
         view.addGestureRecognizer(tap)
-        
+    }
+    
+    func configureEye() {
         imageIcon.image = UIImage(systemName: "eye.fill")
         imageIcon.tintColor = primaryColor
         
@@ -128,7 +143,6 @@ class LoginViewController: UIViewController {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
         imageIcon.isUserInteractionEnabled = true
         imageIcon.addGestureRecognizer(tapGestureRecognizer)
-        
     }
     
     func configureNavigationItemButton() {
@@ -142,9 +156,9 @@ class LoginViewController: UIViewController {
     }
     
     func configureNotificationsObservers() {
-            emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-            passwordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        }
+        emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+    }
     
     
     
@@ -193,14 +207,11 @@ class LoginViewController: UIViewController {
     @objc func handleLogin() {
         guard let email = emailTextField.text else { return }
         guard let password = passwordTextField.text else { return }
-        
-        spinner.show(in: view)
+        showLoadingView()
         
         AuthService.logUserIn(withEmail: email, password: password) { result, error in
 
-            DispatchQueue.main.async {
-                self.spinner.dismiss()
-            }
+            self.dismissLoadingView()
             
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
@@ -213,13 +224,6 @@ class LoginViewController: UIViewController {
             controller.modalPresentationStyle = .fullScreen
             self.present(controller, animated: false, completion: nil)
         }
-    }
-    
-
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardDidShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 }
 
@@ -251,7 +255,7 @@ extension LoginViewController: UITextFieldDelegate {
 extension LoginViewController: FormViewModel {
     func updateForm() {
         loginButton.backgroundColor = viewModel.buttonBackgroundColor
-        loginButton.isEnabled = viewModel.formIsValid
+        loginButton.isUserInteractionEnabled = viewModel.formIsValid
     }  
 }
 
@@ -263,12 +267,3 @@ extension LoginViewController: ResetPasswordViewControllerDelegate {
         self.displayAlert(withTitle: "Success", withMessage: "We have sent password recover instruction to your email.")
     }
 }
-
-extension LoginViewController {
-    //Get height of status bar + navigation bar
-    var topbarHeight: CGFloat {
-        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
-            (self.navigationController?.navigationBar.frame.height ?? 0.0)
-    }
-}
-

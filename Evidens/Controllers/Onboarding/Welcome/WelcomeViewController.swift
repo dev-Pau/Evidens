@@ -8,8 +8,6 @@
 import UIKit
 import Firebase
 import GoogleSignIn
-import RealmSwift
-
 
 class WelcomeViewController: UIViewController {
     
@@ -18,6 +16,9 @@ class WelcomeViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
         return scrollView
     }()
     
@@ -33,8 +34,7 @@ class WelcomeViewController: UIViewController {
         
         button.configuration?.background.strokeColor = lightGrayColor
         button.configuration?.background.strokeWidth = 1.5
-        
-        
+         
         button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.configuration?.imagePadding = 15
         
@@ -46,6 +46,8 @@ class WelcomeViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString("Continue with Google", attributes: container)
         
         button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
     }()
@@ -59,7 +61,6 @@ class WelcomeViewController: UIViewController {
         button.configuration?.background.strokeColor = lightGrayColor
         button.configuration?.background.strokeWidth = 1.5
         
-        
         button.configuration?.image = UIImage(systemName: "applelogo")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.configuration?.imagePadding = 15
         
@@ -69,6 +70,8 @@ class WelcomeViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .heavy)
         button.configuration?.attributedTitle = AttributedString("Continue with Apple", attributes: container)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
     }()
@@ -85,13 +88,26 @@ class WelcomeViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString("Log In", attributes: container)
         
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
         return button
     }()
     
-    private let separatorLabel: UILabel = {
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let orLabel: UILabel = {
         let label = UILabel()
-        label.setDimensions(height: 1, width: 310)
-        label.backgroundColor = lightGrayColor
+        label.text = " OR "
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.textColor = grayColor
+        label.backgroundColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -104,20 +120,25 @@ class WelcomeViewController: UIViewController {
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(signupButtonPressed), for: .touchUpInside)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
         return button
     }()
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.text = "Have an account already?"
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = grayColor
+        label.text = "Already a member?"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
         return label
     }()
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
-
         super.viewDidLoad()
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
@@ -132,6 +153,11 @@ class WelcomeViewController: UIViewController {
         configureUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
     
     //MARK: - Helpers
     func configureUI() {
@@ -139,46 +165,47 @@ class WelcomeViewController: UIViewController {
         view.backgroundColor = .white
         
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 2.75 * topbarHeight)
-        
+      
         navigationController?.navigationBar.barStyle = .black
         
-        //navigationController?.navigationBar.isHidden = true
-        
-        scrollView.addSubview(welcomeText)
-        welcomeText.anchor(top: scrollView.topAnchor, paddingTop: 200)
-        welcomeText.centerX(inView: scrollView)
-        welcomeText.setWidth(UIScreen.main.bounds.width * 0.8)
-        
-        scrollView.addSubview(googleSingInButton)
-        googleSingInButton.anchor(top: welcomeText.bottomAnchor, paddingTop: 60)
-        googleSingInButton.centerX(inView: scrollView)
-        googleSingInButton.setHeight(50)
-        googleSingInButton.setWidth(UIScreen.main.bounds.width * 0.8)
-        
-        scrollView.addSubview(appleSingInButton)
-        appleSingInButton.anchor(top: googleSingInButton.bottomAnchor, paddingTop: 6)
-        appleSingInButton.centerX(inView: scrollView)
-        appleSingInButton.setHeight(50)
-        appleSingInButton.setWidth(UIScreen.main.bounds.width * 0.8)
-        
-        scrollView.addSubview(separatorLabel)
-        separatorLabel.anchor(top: appleSingInButton.bottomAnchor, paddingTop: 10)
-        separatorLabel.centerX(inView: scrollView)
-        
-        scrollView.addSubview(signUpButton)
-        signUpButton.anchor(top: separatorLabel.bottomAnchor, paddingTop: 10)
-        signUpButton.centerX(inView: scrollView)
-        signUpButton.setHeight(50)
-        signUpButton.setWidth(UIScreen.main.bounds.width * 0.8)
-        
         let stackLogin = UIStackView(arrangedSubviews: [haveAccountlabel, loginButton])
+        stackLogin.translatesAutoresizingMaskIntoConstraints = false
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
+       
+        scrollView.addSubviews(welcomeText, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin)
         
-        scrollView.addSubview(stackLogin)
-        stackLogin.centerX(inView: scrollView)
-        stackLogin.anchor(top: signUpButton.bottomAnchor, paddingTop: 20)
+        NSLayoutConstraint.activate([
+            welcomeText.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: UIScreen.main.bounds.height * 0.2),
+            welcomeText.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            welcomeText.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
+            
+            googleSingInButton.topAnchor.constraint(equalTo: welcomeText.bottomAnchor, constant: 60),
+            googleSingInButton.leadingAnchor.constraint(equalTo: welcomeText.leadingAnchor),
+            googleSingInButton.trailingAnchor.constraint(equalTo: welcomeText.trailingAnchor),
+            googleSingInButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            appleSingInButton.topAnchor.constraint(equalTo: googleSingInButton.bottomAnchor, constant: 10),
+            appleSingInButton.leadingAnchor.constraint(equalTo: googleSingInButton.leadingAnchor),
+            appleSingInButton.trailingAnchor.constraint(equalTo: googleSingInButton.trailingAnchor),
+            appleSingInButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            orLabel.topAnchor.constraint(equalTo: appleSingInButton.bottomAnchor, constant: 10),
+            orLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            
+            separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            signUpButton.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
+            signUpButton.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
+            signUpButton.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
+            signUpButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            stackLogin.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 20),
+            stackLogin.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor)
+        ])
     }
     
     //MARK: - Handlers
@@ -191,7 +218,7 @@ class WelcomeViewController: UIViewController {
     }
     
     @objc func signupButtonPressed() {
-        let controller = RegistrationViewController()
+        let controller = EmailRegistrationViewController()
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -215,9 +242,7 @@ class WelcomeViewController: UIViewController {
             
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: authentication.accessToken)
-            
-            
-            
+
             // Firebase Auth
             Auth.auth().signIn(with: credential) { result, error in
                 if let error = error {
@@ -233,14 +258,6 @@ class WelcomeViewController: UIViewController {
                 
             }
         }
-    }
-}
-
-extension WelcomeViewController {
-    //Get height of status bar + navigation bar
-    var topbarHeight: CGFloat {
-        return (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0) +
-            (self.navigationController?.navigationBar.frame.height ?? 0.0)
     }
 }
 

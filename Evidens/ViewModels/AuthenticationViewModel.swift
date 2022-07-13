@@ -46,6 +46,24 @@ struct LoginViewModel: AuthenticationViewModel {
     }
 }
 
+struct EmailRegistrationViewModel: AuthenticationViewModel {
+    var email: String?
+
+    var formIsValid: Bool {
+        return emailIsValid
+    }
+    
+    var buttonBackgroundColor: UIColor {
+        return emailIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
+    }
+    
+    var emailIsValid: Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: email)
+    }
+}
+
 struct RegistrationViewModel: AuthenticationViewModel {
    
     var email: String?
