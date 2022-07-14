@@ -16,11 +16,14 @@ let blackColor = UIColor(rgb: 0x2B2D42)
 let grayColor = UIColor(rgb: 0x677987)
 let lightGrayColor = UIColor(rgb: 0xDCE4EA)
 let pinkColor = UIColor(rgb: 0xEC7480)
+let leafGreenColor = UIColor(rgb: 0x55B684)
 
 // Firebase collections
 let COLLECTION_USERS = Firestore.firestore().collection("users")
 let COLLECTION_FOLLOWERS = Firestore.firestore().collection("followers")
 let COLLECTION_FOLLOWING = Firestore.firestore().collection("following")
+let COLLECTION_CONNECTIONS = Firestore.firestore().collection("connections")
 let COLLECTION_POSTS = Firestore.firestore().collection("posts")
+let COLLECTION_CASES = Firestore.firestore().collection("cases")
 let COLLECTION_NOTIFICATIONS = Firestore.firestore().collection("notifications")
 

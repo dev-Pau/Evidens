@@ -128,6 +128,10 @@
 		5F9E4285287BE5C700C2153B /* DiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4284287BE5C700C2153B /* DiagnosisView.swift */; };
 		5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */; };
 		5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */; };
+		5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E428A287F19E600C2153B /* CategoryRegistrationViewController.swift */; };
+		5F9E428E288017E000C2153B /* CommunityRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E428D288017E000C2153B /* CommunityRegistrationViewController.swift */; };
+		5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E428F2880186B00C2153B /* MECategoryView.swift */; };
+		5F9E429328802FBD00C2153B /* SpecialityRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
 		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */; };
@@ -283,6 +287,10 @@
 		5F9E4284287BE5C700C2153B /* DiagnosisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisView.swift; sourceTree = "<group>"; };
 		5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F9E428A287F19E600C2153B /* CategoryRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F9E428D288017E000C2153B /* CommunityRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F9E428F2880186B00C2153B /* MECategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECategoryView.swift; sourceTree = "<group>"; };
+		5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialityRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
 		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeartAnimation.swift; sourceTree = "<group>"; };
@@ -406,9 +414,11 @@
 		5F4493B92761F9B1008FD6ED /* Customs */ = {
 			isa = PBXGroup;
 			children = (
+				5F9E42912880187100C2153B /* Registration */,
 				5F9F0891285F6E140069FD2C /* Others */,
 				5F77BF67285753D100F31A75 /* Home */,
 				5F6607FB2855BB9600FCF895 /* Post */,
+				5F9E428F2880186B00C2153B /* MECategoryView.swift */,
 			);
 			path = Customs;
 			sourceTree = "<group>";
@@ -774,6 +784,31 @@
 			path = Cases;
 			sourceTree = "<group>";
 		};
+		5F9E428C288017C400C2153B /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				5F4493C127708A84008FD6ED /* WelcomeRegistrationViewController.swift */,
+				5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */,
+				5FC4D88C27072B60006B7A34 /* RegistrationViewController.swift */,
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
+		5F9E42912880187100C2153B /* Registration */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Registration;
+			sourceTree = "<group>";
+		};
+		5F9E4294288031EB00C2153B /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				5F9E428D288017E000C2153B /* CommunityRegistrationViewController.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
 		5F9F0891285F6E140069FD2C /* Others */ = {
 			isa = PBXGroup;
 			children = (
@@ -809,11 +844,12 @@
 		5FBC2D9D272D938D004F92CE /* Registration */ = {
 			isa = PBXGroup;
 			children = (
+				5F9E4294288031EB00C2153B /* Support */,
 				5F9E4286287EB8C300C2153B /* EmailRegistrationViewController.swift */,
 				5F9E4288287ED50E00C2153B /* PasswordRegistrationViewController.swift */,
-				5FC4D88C27072B60006B7A34 /* RegistrationViewController.swift */,
-				5F4493EC27820779008FD6ED /* InfoRegistrationViewController.swift */,
-				5F4493C127708A84008FD6ED /* WelcomeRegistrationViewController.swift */,
+				5F9E428A287F19E600C2153B /* CategoryRegistrationViewController.swift */,
+				5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */,
+				5F9E428C288017C400C2153B /* Others */,
 			);
 			path = Registration;
 			sourceTree = "<group>";
@@ -873,6 +909,7 @@
 		5FC4D87227070315006B7A34 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5F5888D2271022E6005E5B4F /* Fonts */,
 				5FC4D85D27070274006B7A34 /* AppDelegate.swift */,
 				5FC4D85F27070274006B7A34 /* SceneDelegate.swift */,
 				5F6607F02854DB3D00FCF895 /* Helpers */,
@@ -880,7 +917,6 @@
 				5F4493BB2761F9E5008FD6ED /* K */,
 				5F4493BA2761F9C9008FD6ED /* Extensions */,
 				5F4493B92761F9B1008FD6ED /* Customs */,
-				5F5888D2271022E6005E5B4F /* Fonts */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1235,6 +1271,7 @@
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
+				5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */,
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
@@ -1250,6 +1287,7 @@
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
+				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
@@ -1278,11 +1316,13 @@
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
 				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,
+				5F9E429328802FBD00C2153B /* SpecialityRegistrationViewController.swift in Sources */,
 				5F77BF6D2857564400F31A75 /* MECategoryPostButton.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
+				5F9E428E288017E000C2153B /* CommunityRegistrationViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,

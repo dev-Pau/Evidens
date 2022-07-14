@@ -31,8 +31,9 @@ struct TopPeopleCellViewModel {
         return user.firstName! + " " + user.lastName!
     }
     
-    var userType: String {
-        return user.category!
+    var userType: Int {
+        // retornar la categoría bé com a notification perquè no pot ser un int, ha de ser string
+        return user.category.rawValue
     }
     
     var userProfileImageUrl: URL? {

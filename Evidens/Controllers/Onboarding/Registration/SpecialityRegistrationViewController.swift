@@ -9,14 +9,15 @@ import UIKit
 
 class SpecialityRegistrationViewController: UIViewController {
     
-    private let category: User.UserCategory
+    private let user: User
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print(user.category.userCategoryString)
     }
     
-    init(category: User.UserCategory) {
-        self.category = category
+    init(user: User) {
+        self.user = user
         super.init(nibName: nil, bundle: nil)
     }
     

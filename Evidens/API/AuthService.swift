@@ -15,8 +15,20 @@ struct AuthCredentials {
     let email: String
     let password: String
     let profileImageUrl: String
-    var isVerified: Bool
-    var category: String
+    var type: User.UserRegistrationPhase
+    var category: User.UserCategory
+    var speciality: String
+    
+    /*
+     let firstName: String?
+     let lastName: String?
+     let email: String?
+     let uid: String?
+     var profileImageUrl: String?
+     var phase: UserRegistrationPhase
+     var category: UserCategory
+     var speciality: String?
+     */
 }
 
 struct AuthService {
@@ -39,8 +51,9 @@ struct AuthService {
                                            "email": credentials.email,
                                            "uid": uid,
                                            "profileImageUrl": "",
-                                           "category": credentials.category,
-                                           "isVerified": credentials.isVerified]
+                                           "type": credentials.type.rawValue,
+                                           "category": credentials.category.rawValue,
+                                           "speciality": credentials.speciality]
                 
 
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)

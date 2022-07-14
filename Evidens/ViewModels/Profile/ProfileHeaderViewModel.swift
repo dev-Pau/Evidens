@@ -22,8 +22,9 @@ struct ProfileHeaderViewModel {
         return URL(string: user.profileImageUrl!)
     }
     
-    var userCategory: String {
-        return user.category!
+    var userCategory: Int {
+        // en funció de l'int tornar el text de categoría. mira rnotificacions que està fet així
+        return user.category.rawValue
     }
     
     var pointsMessageText: String {

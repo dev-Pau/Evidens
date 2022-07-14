@@ -42,10 +42,13 @@ class MainTabController: UITabBarController {
             
             
         }
-        GIDSignIn.sharedInstance.signOut()
-        AuthService.logout()
-        view.backgroundColor = primaryColor
+        
+        //GIDSignIn.sharedInstance.signOut()
+        //AuthService.logout()
+
+        view.backgroundColor = .white
         self.tabBar.isHidden = true
+        
         postMenuLauncher.delegate = self
         checkIfUserIsLoggedIn()
         fetchUser()
@@ -55,17 +58,35 @@ class MainTabController: UITabBarController {
     
     func fetchUser() {
         //Get the uid of current user
+        print("user is logged in")
         guard let uid = Auth.auth().currentUser?.uid else { return }
         //Fetch user with user uid
         UserService.fetchUser(withUid: uid) { user in
             //Set user property
             self.user = user
     
-            //Save uid to UserDefaults
-            UserDefaults.standard.set(user.uid, forKey: "uid")
-            UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-            UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
-
+            switch user.phase {
+            case .initialPhase:
+                // User created account without giving any details
+                print("User is created without giving any details yet")
+                let controller = CategoryRegistrationViewController(user: user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: false)
+                
+            case .fullNamePhase:
+                print("Full Name Phase")
+            case .documentationPhase:
+                print("Documentation Phase")
+            case .verified:
+                print("Verified Phase")
+                //Save uid to UserDefaults
+                UserDefaults.standard.set(user.uid, forKey: "uid")
+                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+            }
+            
+            /*
             //Change to == false for real use app, != false for testing welcome
             if (user.isVerified != true) {
                 //If user is not verified, present WelcomeViewController()
@@ -82,12 +103,14 @@ class MainTabController: UITabBarController {
             self.tabBar.isTranslucent = true
             self.tabBar.backgroundColor = .white
             self.tabBar.standardAppearance = appearance
+             */
         }
     }
     
     func checkIfUserIsLoggedIn() {
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
+                print("User is not logged in")
                 let controller = WelcomeViewController()
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen

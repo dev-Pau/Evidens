@@ -18,7 +18,7 @@ class InfoRegistrationViewController: UIViewController {
     
     var credentials: AuthCredentials
     
-    var dataSource = ["Healthcare professional", "Research scientist", "Teacher", "Student"]
+    var dataSource = ["Healthcare professional", "Research scientist", "Professor", "Student"]
     
     public var firstName: String = ""
     
