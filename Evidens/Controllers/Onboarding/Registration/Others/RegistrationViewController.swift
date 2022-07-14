@@ -191,6 +191,7 @@ class RegistrationViewController: UIViewController {
     }
     
     @objc func createAccountButtonPressed() {
+        /*
         guard let firstName = firstNameTextField.text else { return }
         guard let lastName = lastNameTextField.text else { return }
         guard let email = emailTextField.text else { return }
@@ -204,6 +205,7 @@ class RegistrationViewController: UIViewController {
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
+         */
     
     }
     
