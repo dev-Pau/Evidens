@@ -55,8 +55,8 @@ struct User {
     
     
     
-    let firstName: String?
-    let lastName: String?
+    var firstName: String?
+    var lastName: String?
     let email: String?
     let uid: String?
     var profileImageUrl: String?

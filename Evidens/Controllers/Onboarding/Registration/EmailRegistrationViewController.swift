@@ -100,6 +100,7 @@ class EmailRegistrationViewController: UIViewController {
             
             instructionsEmailLabel.topAnchor.constraint(equalTo: emailTextLabel.bottomAnchor, constant: 10),
             instructionsEmailLabel.leadingAnchor.constraint(equalTo: emailTextLabel.leadingAnchor),
+            instructionsEmailLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             
             emailTextField.topAnchor.constraint(equalTo: instructionsEmailLabel.bottomAnchor, constant: 10),
             emailTextField.leadingAnchor.constraint(equalTo: emailTextLabel.leadingAnchor),

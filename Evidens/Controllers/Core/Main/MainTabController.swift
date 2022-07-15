@@ -77,7 +77,7 @@ class MainTabController: UITabBarController {
                 
             case .userDetailsPhase:
                 print("User gave category, profession & speciality but not name and photo")
-                let controller = FullNameViewController(user: user)
+                let controller = FullNameRegistrationViewController(user: user)
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen
                 self.present(nav, animated: false)

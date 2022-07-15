@@ -158,7 +158,7 @@ class SpecialityRegistrationViewController: UIViewController {
                 return
             }
             
-            let controller = FullNameViewController(user: self.user)
+            let controller = FullNameRegistrationViewController(user: self.user)
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             self.present(nav, animated: true)
