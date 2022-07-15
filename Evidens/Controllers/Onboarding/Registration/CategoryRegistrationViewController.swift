@@ -91,6 +91,8 @@ class CategoryRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Configure account"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
+        navigationItem.rightBarButtonItem?.tintColor = blackColor
     }
     
     private func configureUI() {
@@ -137,8 +139,12 @@ class CategoryRegistrationViewController: UIViewController {
     }
     
     @objc func handleNext() {
-        let controller = SpecialityRegistrationViewController(user: user)
+        let controller = ProfessionRegistrationViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func handleHelp() {
+        
     }
 }
 

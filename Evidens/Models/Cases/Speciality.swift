@@ -109,10 +109,33 @@ extension Speciality {
         
         return speciality
     }
-    
+    /*
     static func isHighlighted(speciality: [Speciality]) -> [Bool] {
         var highlight: [Bool] = []
         speciality.forEach { _ in highlight.append(false) }
         return highlight
+    }
+     */
+    
+    //MARK: - Student Specialities
+    
+    static func odontologySpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Odontology")
+        let os2 = Speciality(name: "Paediatric Odontology")
+        let os3 = Speciality(name: "Endodontics")
+        let os4 = Speciality(name: "Orthodontics")
+        let os5 = Speciality(name: "Prosthodontics")
+        let os6 = Speciality(name: "Periodontics")
+        let os7 = Speciality(name: "Maxillofacial and Oral Surgery")
+        let os8 = Speciality(name: "Maxillofacial and Oral Radiology")
+        let os9 = Speciality(name: "Oral and Maxillofacial pathology")
+        let os10 = Speciality(name: "Dental Prothesis")
+        let os11 = Speciality(name: "Dental Aesthetics")
+
+        specialities.append(contentsOf: [os1, os2, os3, os4, os5, os6, os7, os8, os9, os10, os11])
+        
+        return specialities
     }
 }

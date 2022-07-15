@@ -321,7 +321,7 @@ class PasswordRegistrationViewController: UIViewController {
         guard let password = passwordTextField.text else { return }
         
         showLoadingView()
-        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: password, profileImageUrl: "", type: .initialPhase, category: .none, speciality: "")
+        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: password, profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
     
         AuthService.registerUser(withCredential: credentials) { error in
             if let _ = error {

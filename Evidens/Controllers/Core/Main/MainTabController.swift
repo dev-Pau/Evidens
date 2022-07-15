@@ -64,8 +64,36 @@ class MainTabController: UITabBarController {
         UserService.fetchUser(withUid: uid) { user in
             //Set user property
             self.user = user
-    
+            print(User.UserRegistrationPhase.userDetailsPhase)
+            
+            
             switch user.phase {
+            case .categoryPhase:
+                print("User created account without giving any details")
+                let controller = CategoryRegistrationViewController(user: user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: false)
+                
+            case .userDetailsPhase:
+                print("User gave category, profession & speciality but not name and photo")
+                let controller = FullNameViewController(user: user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: false)
+                break
+            case .verificationPhase:
+                print("User gave all information except for the personal identification")
+                break
+            case .verified:
+                break
+            }
+    
+            
+            /*
+            switch user.phase {
+                
+                
             case .initialPhase:
                 // User created account without giving any details
                 print("User is created without giving any details yet")
@@ -103,6 +131,7 @@ class MainTabController: UITabBarController {
             self.tabBar.isTranslucent = true
             self.tabBar.backgroundColor = .white
             self.tabBar.standardAppearance = appearance
+             */
              */
         }
     }

@@ -134,7 +134,7 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
             return
         }
         isSearching = true
-        filteredSpecialities = specialities.filter{ $0.name.lowercased().contains(filter.lowercased()) }
+        filteredSpecialities = specialities.filter { $0.name.lowercased().contains(filter.lowercased()) }
         
         updateData(on: filteredSpecialities)
     }
@@ -146,7 +146,6 @@ extension SpecialitiesListViewController: UISearchResultsUpdating, UISearchBarDe
 }
 
 extension SpecialitiesListViewController: UICollectionViewDelegate {
-    
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? SpecialitiesDiffableCell else { return }
@@ -168,7 +167,6 @@ extension SpecialitiesListViewController: UICollectionViewDelegate {
             }
         }
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if specialitiesSelected.count == 5 {

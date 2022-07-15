@@ -12,9 +12,9 @@ import FirebaseAuth
 struct User {
     
     enum UserRegistrationPhase: Int {
-        case initialPhase
-        case fullNamePhase
-        case documentationPhase
+        case categoryPhase
+        case userDetailsPhase
+        case verificationPhase
         case verified
     }
     
@@ -62,6 +62,7 @@ struct User {
     var profileImageUrl: String?
     var phase: UserRegistrationPhase
     var category: UserCategory
+    var profession: String?
     var speciality: String?
     
     //Track if a user is followed
@@ -79,7 +80,8 @@ struct User {
         self.uid = dictionary["uid"] as? String ?? ""
         self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
         self.category = UserCategory(rawValue: dictionary["category"] as? Int ?? 00) ?? .professional
-        self.phase = UserRegistrationPhase(rawValue: dictionary["phase"] as? Int ?? 00) ?? .initialPhase
+        self.phase = UserRegistrationPhase(rawValue: dictionary["phase"] as? Int ?? 00) ?? .categoryPhase
+        self.profession = dictionary["profession"] as? String ?? ""
         self.speciality = dictionary["speciality"] as? String ?? ""
     
         self.stats = UserStats(connections: 0, followers: 0, following: 0, posts: 0, cases: 0)
