@@ -85,7 +85,7 @@ class ImageRegistrationViewController: UIViewController {
         button.backgroundColor = primaryColor.withAlphaComponent(0.5)
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
         button.layer.cornerRadius = 26
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -129,7 +129,7 @@ class ImageRegistrationViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Account details"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = blackColor
     }
     
     private func configureUI() {

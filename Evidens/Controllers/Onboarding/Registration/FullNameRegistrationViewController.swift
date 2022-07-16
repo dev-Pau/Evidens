@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MessageUI
 
 class FullNameRegistrationViewController: UIViewController {
     
@@ -85,8 +86,7 @@ class FullNameRegistrationViewController: UIViewController {
         title = "Account details"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
-        navigationItem.rightBarButtonItem?.tintColor = grayColor
-        
+        navigationItem.rightBarButtonItem?.tintColor = blackColor
     }
     
     private func configureNotificationObservers() {
@@ -138,7 +138,13 @@ class FullNameRegistrationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        
+        DispatchQueue.main.async {
+            let controller = HelperRegistrationViewController()
+            controller.delegate = self
+            controller.modalPresentationStyle = .overFullScreen
+            controller.modalTransitionStyle = .crossDissolve
+            self.present(controller, animated: true)
+        }
     }
     
     @objc func handleNext() {
@@ -163,6 +169,28 @@ extension FullNameRegistrationViewController: UITextFieldDelegate {
         textField.backgroundColor = lightColor
         textField.layer.borderColor = UIColor.white.cgColor
         textField.layer.borderWidth = 1.0
+    }
+}
+
+extension FullNameRegistrationViewController: HelperRegistrationViewControllerDelegate {
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        }
+    }
+}
+
+extension FullNameRegistrationViewController: MFMailComposeViewControllerDelegate {
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        
+        controller.dismiss(animated: true)
     }
 }
 

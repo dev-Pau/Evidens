@@ -191,18 +191,9 @@ class MainTabController: UITabBarController {
 
 extension MainTabController: UITabBarControllerDelegate {
     
-    //Check pressed tab
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController == tabBarController.viewControllers?[2] {
             postMenuLauncher.showPostSettings(in: view)
-            
-            //guard let user = user else { return false }
-            //let postController = UploadPostViewController(user: user)
-            
-            //let nav = UINavigationController(rootViewController: postController)
-            //nav.modalPresentationStyle = .fullScreen
-            //present(nav, animated: true, completion: nil)
-            
             return false
         }
         return true
@@ -210,9 +201,10 @@ extension MainTabController: UITabBarControllerDelegate {
 }
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
+    
     func didTapUploadPost() {
-
         guard let user = user else { return }
+        
         let postController = UploadPostViewController(user: user)
         
         let nav = UINavigationController(rootViewController: postController)
@@ -225,8 +217,8 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
         guard let user = user else { return }
 
         let clinicalCaseController = ShareClinicalCaseViewController(user: user)
-        let nav = UINavigationController(rootViewController: clinicalCaseController)
         
+        let nav = UINavigationController(rootViewController: clinicalCaseController)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true, completion: nil)
     }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MessageUI
 
 class VerificationRegistrationViewController: UIViewController {
     
@@ -30,7 +31,7 @@ class VerificationRegistrationViewController: UIViewController {
         title = "Verification"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
-        navigationItem.rightBarButtonItem?.tintColor = grayColor
+        navigationItem.rightBarButtonItem?.tintColor = blackColor
         
     }
     
@@ -39,7 +40,37 @@ class VerificationRegistrationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        
+        DispatchQueue.main.async {
+            let controller = HelperRegistrationViewController()
+            controller.delegate = self
+            controller.modalPresentationStyle = .overFullScreen
+            controller.modalTransitionStyle = .crossDissolve
+            self.present(controller, animated: true)
+        }
     }
+}
+
+extension VerificationRegistrationViewController: HelperRegistrationViewControllerDelegate {
     
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        } else {
+            print("Device cannot send email")
+        }
+    }
+}
+
+extension FullNameRegistrationViewController: MFMailComposeViewControllerDelegate {
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        
+        controller.dismiss(animated: true)
+    }
 }
