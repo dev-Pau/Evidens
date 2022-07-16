@@ -53,15 +53,25 @@ struct AuthService {
         }
     }
     
-    static func updateUserRegistrationData(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
+    static func updateUserRegistrationCategoryDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
         
         let data: [String: Any] = ["phase": credentials.phase.rawValue,
-                                    "category": credentials.category.rawValue,
+                                   "category": credentials.category.rawValue,
                                    "profession": credentials.profession,
                                    "speciality": credentials.speciality]
         
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
-        }
+        
+    }
+    
+    static func updateUserRegistrationNameDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
+        
+        let data: [String: Any] = ["phase": credentials.phase.rawValue,
+                                   "firstName": credentials.firstName,
+                                   "lastName": credentials.lastName]
+        
+        COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+    }
     
     
     static func resetPassword(withEmail email: String, completion: SendPasswordResetCallback?) {

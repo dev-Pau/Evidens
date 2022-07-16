@@ -48,9 +48,10 @@
 		5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */; };
 		5F4DBCB2274793320005AEC3 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCB1274793320005AEC3 /* Post.swift */; };
 		5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4DBCB3274799080005AEC3 /* PostViewModel.swift */; };
-		5F527D8928817CFB009D5027 /* SummaryRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8828817CFB009D5027 /* SummaryRegistrationViewController.swift */; };
+		5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */; };
 		5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */; };
 		5F527D8D2881DCF4009D5027 /* ImageRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */; };
+		5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8E288291DE009D5027 /* RegisterBottomMenuLauncher.swift */; };
 		5F5888E927102599005E5B4F /* Raleway-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D727102598005E5B4F /* Raleway-Italic.ttf */; };
 		5F5888EA27102599005E5B4F /* Raleway-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */; };
 		5F5888EB27102599005E5B4F /* Raleway-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */; };
@@ -213,9 +214,10 @@
 		5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageViewController.swift; sourceTree = "<group>"; };
 		5F4DBCB1274793320005AEC3 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		5F4DBCB3274799080005AEC3 /* PostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostViewModel.swift; sourceTree = "<group>"; };
-		5F527D8828817CFB009D5027 /* SummaryRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullNameRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F527D8E288291DE009D5027 /* RegisterBottomMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterBottomMenuLauncher.swift; sourceTree = "<group>"; };
 		5F5888D727102598005E5B4F /* Raleway-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Italic.ttf"; sourceTree = "<group>"; };
 		5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -614,6 +616,7 @@
 				5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */,
 				5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */,
 				5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */,
+				5F527D8E288291DE009D5027 /* RegisterBottomMenuLauncher.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -873,7 +876,7 @@
 				5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */,
 				5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */,
 				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
-				5F527D8828817CFB009D5027 /* SummaryRegistrationViewController.swift */,
+				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
 				5F9E428C288017C400C2153B /* Others */,
 			);
 			path = Registration;
@@ -1310,7 +1313,7 @@
 				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
-				5F527D8928817CFB009D5027 /* SummaryRegistrationViewController.swift in Sources */,
+				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
@@ -1353,6 +1356,7 @@
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
+				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
 				5F9E428E288017E000C2153B /* CommunityRegistrationViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,

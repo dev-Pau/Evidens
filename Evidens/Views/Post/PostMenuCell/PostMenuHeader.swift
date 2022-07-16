@@ -20,7 +20,7 @@ class PostMenuHeader: UICollectionReusableView {
         return view
     }()
     
-    private let titleLabel: UILabel = {
+    var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Create"
         label.font = .systemFont(ofSize: 15, weight: .bold)

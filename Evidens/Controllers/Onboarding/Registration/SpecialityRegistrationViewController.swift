@@ -152,7 +152,7 @@ class SpecialityRegistrationViewController: UIViewController {
         
         let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: "", profileImageUrl: "", phase: .userDetailsPhase, category: user.category, profession: profession, speciality: speciality)
         
-        AuthService.updateUserRegistrationData(withUid: uid, withCredentials: credentials) { error in
+        AuthService.updateUserRegistrationCategoryDetails(withUid: uid, withCredentials: credentials) { error in
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return

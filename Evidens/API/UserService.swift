@@ -23,6 +23,11 @@ struct UserService {
         }
     }
     
+    static func updateProfileImageUrl(profileImageUrl: String, completion: @escaping(Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).updateData(["profileImageUrl": profileImageUrl], completion: completion)
+    }
+    
     static func fetchUser(withUid uid: String, completion: @escaping(User) -> Void) {
         COLLECTION_USERS.document(uid).getDocument { snapshot, error in
             

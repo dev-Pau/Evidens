@@ -1,5 +1,5 @@
 //
-//  SummaryRegistrationViewController.swift
+//  VerificationRegistrationViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 15/7/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SummaryRegistrationViewController: UIViewController {
+class VerificationRegistrationViewController: UIViewController {
     
     private var user: User
     
@@ -27,12 +27,10 @@ class SummaryRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Account summary"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
+        title = "Verification"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
-        navigationItem.rightBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem?.tintColor = grayColor
         
     }
     
@@ -44,7 +42,4 @@ class SummaryRegistrationViewController: UIViewController {
         
     }
     
-    @objc func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
 }

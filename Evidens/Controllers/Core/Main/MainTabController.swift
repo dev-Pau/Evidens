@@ -84,6 +84,10 @@ class MainTabController: UITabBarController {
                 break
             case .verificationPhase:
                 print("User gave all information except for the personal identification")
+                let controller = VerificationRegistrationViewController(user: user)
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: false)
                 break
             case .verified:
                 break

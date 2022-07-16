@@ -38,7 +38,7 @@ class FullNameRegistrationViewController: UIViewController {
     }()
     
     private let firstNameTextField: UITextField = {
-        let tf = CustomTextField(placeholder: "First Name")
+        let tf = CustomTextField(placeholder: "First name")
         tf.tintColor = primaryColor
         tf.keyboardType = .emailAddress
         tf.clearButtonMode = .whileEditing
@@ -46,7 +46,7 @@ class FullNameRegistrationViewController: UIViewController {
     }()
     
     private let lastNameTextField: UITextField = {
-        let tf = CustomTextField(placeholder: "Last Name")
+        let tf = CustomTextField(placeholder: "Last name")
         tf.tintColor = primaryColor
         tf.keyboardType = .emailAddress
         tf.clearButtonMode = .whileEditing
@@ -85,7 +85,7 @@ class FullNameRegistrationViewController: UIViewController {
         title = "Account details"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
-        navigationItem.rightBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem?.tintColor = grayColor
         
     }
     

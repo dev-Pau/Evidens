@@ -19,7 +19,7 @@ class PostMenuCell: UICollectionViewCell {
         return image
     }()
     
-    private lazy var postTyeButton: UIButton = {
+    lazy var postTyeButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.baseForegroundColor = grayColor
