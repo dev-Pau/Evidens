@@ -135,18 +135,12 @@ extension UserProfileViewController: UserProfileHeaderDelegate {
         let controller = ProfileImageViewController(user: user)
         controller.hidesBottomBarWhenPushed = true
         
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = blackColor
-        
         if user.isCurrentUser {
-            
-            controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-            controller.modalPresentationStyle = .fullScreen
-            present(controller, animated: true)
-            
-            
+            DispatchQueue.main.async {
+                controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+                controller.modalPresentationStyle = .overFullScreen
+                self.present(controller, animated: true)
+            }
         } else {
             print("Is not current user")
         }

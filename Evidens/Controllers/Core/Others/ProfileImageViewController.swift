@@ -24,28 +24,49 @@ class ProfileImageViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public let profileImageView: UIImageView = {
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
+    lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = .lightGray
+        iv.isUserInteractionEnabled = true
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        iv.addGestureRecognizer(pan)
         return iv
+    }()
+    
+    private lazy var dismissButon: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
+        button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
+        button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
+        return button
     }()
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        modalPresentationCapturesStatusBarAppearance = true
         configureUI()
     }
     
     //MARK: - Actions
 
+    /*
     @objc func didTapShare() {
         let activityVC = UIActivityViewController(activityItems: [self.profileImageView.image as Any], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         self.present(activityVC, animated: true, completion: nil)
     }
+     */
     
     @objc func didTapEditProfile() {
         let picker = UIImagePickerController()
@@ -61,9 +82,18 @@ class ProfileImageViewController: UIViewController {
     func configureUI() {
         view.backgroundColor = .black
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
+        //navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         
-        view.addSubview(profileImageView)
+        view.addSubviews(profileImageView, dismissButon)
+        
+        NSLayoutConstraint.activate([
+            dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
+            dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dismissButon.heightAnchor.constraint(equalToConstant: 35),
+            dismissButon.widthAnchor.constraint(equalToConstant: 35)
+        
+        ])
+        
         profileImageView.centerY(inView: view)
         profileImageView.centerX(inView: view)
         
@@ -72,6 +102,45 @@ class ProfileImageViewController: UIViewController {
         profileImageView.setDimensions(height: height, width: height)
         profileImageView.layer.cornerRadius = height/2
         
+    }
+    
+    @objc func handlePan(sender: UIPanGestureRecognizer) {
+        let translation = sender.translation(in: profileImageView)
+
+        
+        let velocity = sender.velocity(in: profileImageView)
+        
+        let alpha = max(1 - (abs(translation.y) / 1000), 0.85)
+        
+        profileImageView.frame.origin = CGPoint(x: profileImageView.frame.origin.x , y: view.frame.height / 2 - profileImageView.frame.height / 2 + translation.y)
+        view.backgroundColor = .black.withAlphaComponent(alpha)
+        
+        
+        if sender.state == .ended {
+            if abs(velocity.y) > 2000 {
+                
+                UIView.animate(withDuration: 0.2) {
+                    if velocity.y < 0 {
+                        self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: -self.profileImageView.frame.height)
+                        self.view.backgroundColor = .clear
+                    } else {
+                        self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: self.view.frame.height + self.profileImageView.frame.height)
+                        self.view.backgroundColor = .clear
+                    }
+                } completion: { _ in
+                    self.dismiss(animated: false)
+                }
+            } else {
+                UIView.animate(withDuration: 0.5) {
+                    self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: self.view.frame.height / 2 - self.profileImageView.frame.height / 2)
+                    self.view.backgroundColor = .black
+                }
+            }
+        }
+    }
+    
+    @objc func handleDismiss() {
+        dismiss(animated: true)
     }
 }
 
