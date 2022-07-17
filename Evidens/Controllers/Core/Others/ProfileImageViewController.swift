@@ -29,20 +29,7 @@ class ProfileImageViewController: UIViewController {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = .lightGray
-        iv.image = UIImage(systemName: "person.circle")
         return iv
-    }()
-    
-    public lazy var editProfileButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Edit", for: .normal)
-        button.layer.cornerRadius = 5
-        button.layer.borderColor = UIColor.lightGray.cgColor
-        button.layer.borderWidth = 0.5
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
-        button.setTitleColor(.black, for: .normal)
-        button.addTarget(self, action: #selector(didTapEditProfile), for: .touchUpInside)
-        return button
     }()
     
     //MARK: - Lifecycle
@@ -72,7 +59,7 @@ class ProfileImageViewController: UIViewController {
     //MARK: - Helpers
     
     func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .black
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         
@@ -85,8 +72,6 @@ class ProfileImageViewController: UIViewController {
         profileImageView.setDimensions(height: height, width: height)
         profileImageView.layer.cornerRadius = height/2
         
-        view.addSubview(editProfileButton)
-        editProfileButton.anchor(left: view.safeAreaLayoutGuide.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingLeft: 20, paddingBottom: 20)
     }
 }
 

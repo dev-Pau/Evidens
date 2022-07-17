@@ -53,6 +53,7 @@
 		5F527D8D2881DCF4009D5027 /* ImageRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */; };
 		5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D8E288291DE009D5027 /* RegisterBottomMenuLauncher.swift */; };
 		5F527D9528831EA6009D5027 /* HelperRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D9428831EA6009D5027 /* HelperRegistrationViewController.swift */; };
+		5F527D9728845006009D5027 /* RegistrationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F527D9628845006009D5027 /* RegistrationListView.swift */; };
 		5F5888E927102599005E5B4F /* Raleway-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D727102598005E5B4F /* Raleway-Italic.ttf */; };
 		5F5888EA27102599005E5B4F /* Raleway-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */; };
 		5F5888EB27102599005E5B4F /* Raleway-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */; };
@@ -220,6 +221,7 @@
 		5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F527D8E288291DE009D5027 /* RegisterBottomMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterBottomMenuLauncher.swift; sourceTree = "<group>"; };
 		5F527D9428831EA6009D5027 /* HelperRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperRegistrationViewController.swift; sourceTree = "<group>"; };
+		5F527D9628845006009D5027 /* RegistrationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationListView.swift; sourceTree = "<group>"; };
 		5F5888D727102598005E5B4F /* Raleway-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-Italic.ttf"; sourceTree = "<group>"; };
 		5F5888D827102598005E5B4F /* Raleway-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		5F5888D927102598005E5B4F /* Raleway-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Raleway-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -815,6 +817,7 @@
 		5F9E42912880187100C2153B /* Registration */ = {
 			isa = PBXGroup;
 			children = (
+				5F527D9628845006009D5027 /* RegistrationListView.swift */,
 			);
 			path = Registration;
 			sourceTree = "<group>";
@@ -1232,6 +1235,7 @@
 				5F05207627C63A35001E7D8F /* SearchResult.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
+				5F527D9728845006009D5027 /* RegistrationListView.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,

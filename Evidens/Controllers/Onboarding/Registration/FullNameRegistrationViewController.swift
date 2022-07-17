@@ -78,11 +78,7 @@ class FullNameRegistrationViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
-        
-        button.configuration?.image = UIImage(systemName: "questionmark.circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(blackColor)
-        button.configuration?.imagePlacement = .trailing
-        button.configuration?.imagePadding = 5
-        
+     
         button.isUserInteractionEnabled = true
 
         button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
@@ -169,8 +165,9 @@ class FullNameRegistrationViewController: UIViewController {
         DispatchQueue.main.async {
             let controller = HelperRegistrationViewController()
             controller.delegate = self
-            controller.modalPresentationStyle = .overFullScreen
-            controller.modalTransitionStyle = .crossDissolve
+            if let sheet = controller.sheetPresentationController {
+                sheet.detents = [.medium()]
+            }
             self.present(controller, animated: true)
         }
     }

@@ -16,21 +16,47 @@ class HelperRegistrationViewController: UIViewController {
     
     weak var delegate: HelperRegistrationViewControllerDelegate?
     
-    private let containerView: UIView = {
+    private lazy var dismissButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.baseBackgroundColor = lightColor
+        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(primaryColor)
+        button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let separator: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 20
+        view.backgroundColor = lightGrayColor
+        view.layer.cornerRadius = 3
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
+    private let separatorView : UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.layer.cornerRadius = 1
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let bottomSeparatorView : UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "We're here to help"
-        label.font = .systemFont(ofSize: 19, weight: .semibold)
-        label.textColor = blackColor
         label.numberOfLines = 0
         label.textAlignment = .center
+        label.textColor = blackColor
+        label.font = .systemFont(ofSize: 18, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -52,19 +78,12 @@ class HelperRegistrationViewController: UIViewController {
         button.setTitle("Contact support", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor
-        button.layer.cornerRadius = 18
+        button.layer.cornerRadius = 16
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(handleContact), for: .touchUpInside)
         button.isUserInteractionEnabled = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-    }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = lightGrayColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     private let orLabel: UILabel = {
@@ -82,7 +101,7 @@ class HelperRegistrationViewController: UIViewController {
         label.text = "Log out"
         label.sizeToFit()
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         let textRange = NSRange(location: 0, length: label.text!.count)
         let attributedText = NSMutableAttributedString(string: label.text!)
         attributedText.addAttribute(.underlineStyle,
@@ -104,51 +123,52 @@ class HelperRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissViewController)))
-        
-        containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(blockerGesture)))
-        containerView.isUserInteractionEnabled = true
-        
-        containerView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(didPan)))
-        
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.75)
-        view.addSubview(containerView)
-        containerView.addSubviews(titleLabel, descriptionLabel, separatorView, orLabel, contactButton, logOutLabel)
-        
+
+        view.backgroundColor = .white
+        view.addSubviews(separator, dismissButton, titleLabel, separatorView, descriptionLabel, contactButton, bottomSeparatorView, orLabel, logOutLabel )
+      
         NSLayoutConstraint.activate([
-            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            containerView.heightAnchor.constraint(equalToConstant: 250),
-            containerView.widthAnchor.constraint(equalToConstant: 280),
+            separator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            separator.topAnchor.constraint(equalTo: view.topAnchor, constant: 7),
+            separator.heightAnchor.constraint(equalToConstant: 5),
+            separator.widthAnchor.constraint(equalToConstant: 50),
             
-            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 15),
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            dismissButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 10),
+            dismissButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            dismissButton.heightAnchor.constraint(equalToConstant: 30),
+            dismissButton.widthAnchor.constraint(equalToConstant: 30),
+            
+            titleLabel.topAnchor.constraint(equalTo: dismissButton.bottomAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            separatorView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            separatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            separatorView.widthAnchor.constraint(equalToConstant: view.frame.width - 20),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
             
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            contactButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            contactButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 30),
             contactButton.heightAnchor.constraint(equalToConstant: 35),
-            contactButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            contactButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contactButton.widthAnchor.constraint(equalToConstant: 200),
             
-            orLabel.topAnchor.constraint(equalTo: contactButton.bottomAnchor, constant: 10),
-            orLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            orLabel.topAnchor.constraint(equalTo: contactButton.bottomAnchor, constant: 13),
+            orLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: contactButton.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: contactButton.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            bottomSeparatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: contactButton.leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: contactButton.trailingAnchor),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            logOutLabel.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
+            logOutLabel.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 13),
             logOutLabel.widthAnchor.constraint(equalToConstant: 100),
-            logOutLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            logOutLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             logOutLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
-        
-        
     }
     
     @objc func handleContact() {
@@ -158,21 +178,12 @@ class HelperRegistrationViewController: UIViewController {
     }
     
     @objc func handleLogout() {
-        print("Did logout")
         dismiss(animated: true) {
             self.delegate?.didTapLogout()
         }
     }
     
-    @objc func dismissViewController() {
+    @objc func handleDismiss() {
         dismiss(animated: true)
-    }
-    
-    @objc func blockerGesture() {
-        print("no dismiss")
-    }
-    
-    @objc func didPan() {
-        print("did pan")
     }
 }

@@ -65,7 +65,7 @@ struct EmailRegistrationViewModel: AuthenticationViewModel {
 }
 
 struct PasswordRegistrationViewModel: AuthenticationViewModel {
-    var password: String?
+    var password: String = ""
     var privacySelected: Bool = false
     
     var formIsValid: Bool {
@@ -79,7 +79,7 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
     var passwordHasLowerCaseLetter: Bool {
         var lowerCaseLetter: Bool = false
         
-        for char in password!.unicodeScalars {
+        for char in password.unicodeScalars {
             if !lowerCaseLetter {
                 lowerCaseLetter = CharacterSet.lowercaseLetters.contains(char)
             }
@@ -90,7 +90,7 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
     var passwordHasUpperCaseLetter: Bool {
         var upperCaseLetter: Bool = false
         
-        for char in password!.unicodeScalars {
+        for char in password.unicodeScalars {
             if !upperCaseLetter {
                 upperCaseLetter = CharacterSet.uppercaseLetters.contains(char)
             }
@@ -101,7 +101,7 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
     var passwordHasDigit: Bool {
         var hasDigit: Bool = false
         
-        for char in password!.unicodeScalars {
+        for char in password.unicodeScalars {
             if !hasDigit {
                 hasDigit = CharacterSet.decimalDigits.contains(char)
             }
@@ -112,7 +112,7 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
     var passwordHasSpecialChar: Bool {
         var hasSpecialChar: Bool = false
         
-        for char in password!.unicodeScalars {
+        for char in password.unicodeScalars {
             if !hasSpecialChar {
                 hasSpecialChar = CharacterSet.punctuationCharacters.contains(char)
             }
@@ -121,7 +121,7 @@ struct PasswordRegistrationViewModel: AuthenticationViewModel {
     }
     
     var passwordMinChar: Bool {
-        if password?.count ?? 0 >= 8 {
+        if password.count >= 8 {
             return true
         }
         return false

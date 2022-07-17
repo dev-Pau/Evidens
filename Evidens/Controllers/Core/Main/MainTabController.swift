@@ -31,6 +31,7 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
@@ -39,10 +40,9 @@ class MainTabController: UITabBarController {
             //appearance.shadowColor = .black    // navigationbar 1 px bottom border.
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
-            
-            
         }
-        
+         
+
         //GIDSignIn.sharedInstance.signOut()
         //AuthService.logout()
 
@@ -69,26 +69,32 @@ class MainTabController: UITabBarController {
             case .categoryPhase:
                 print("User created account without giving any details")
                 let controller = CategoryRegistrationViewController(user: user)
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: false)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
                 
             case .userDetailsPhase:
                 print("User gave category, profession & speciality but not name and photo")
                 let controller = FullNameRegistrationViewController(user: user)
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: false)
-                break
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+
             case .verificationPhase:
                 print("User gave all information except for the personal identification")
                 let controller = VerificationRegistrationViewController(user: user)
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: false)
-                break
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
             case .verified:
-                break
+                print("main tab bar controller")
+                //let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                //sceneDelegate?.updateRootViewController(self)
+                let appearance = UITabBarAppearance()
+                appearance.configureWithOpaqueBackground()
+                appearance.shadowColor = grayColor
+                self.tabBar.isHidden = false
+                self.tabBar.isTranslucent = true
+                self.tabBar.backgroundColor = .white
+                self.tabBar.standardAppearance = appearance
             }
     
             
@@ -141,11 +147,9 @@ class MainTabController: UITabBarController {
     func checkIfUserIsLoggedIn() {
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
-                print("User is not logged in")
                 let controller = WelcomeViewController()
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: false, completion: nil)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
             }
         }
     }

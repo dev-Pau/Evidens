@@ -27,6 +27,14 @@ struct ProfileHeaderViewModel {
         return user.category.rawValue
     }
     
+    var profession: String {
+        return user.profession!
+    }
+    
+    var speciality: String {
+        return user.speciality!
+    }
+    
     var pointsMessageText: String {
         return user.isCurrentUser ? "149 points" : "Message"
         // Implement user.isCurrentUser ? "FETCH POINTS" : "Message"
@@ -43,6 +51,10 @@ struct ProfileHeaderViewModel {
     
     var followButtonBackgroundColor: UIColor {
         return user.isCurrentUser ? lightGrayColor : primaryColor
+    }
+    
+    var editBannerButton: Bool {
+        return user.isCurrentUser ? false : true
     }
     
     var followButtonImage: UIImage? {

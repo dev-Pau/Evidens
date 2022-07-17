@@ -98,13 +98,14 @@ class HomeViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane.fill"),
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane",
+                                                                           withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)),
                                                             style: .plain,
                                                             target: self,
                                                             action: #selector(didTapChat))
         
-        navigationItem.rightBarButtonItem?.tintColor = .darkGray
+        navigationItem.rightBarButtonItem?.tintColor = blackColor
         
         let profileImageItem = UIBarButtonItem(customView: profileImageView)
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))

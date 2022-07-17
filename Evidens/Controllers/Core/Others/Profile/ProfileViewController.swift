@@ -232,7 +232,7 @@ extension ProfileViewController: ProfileHeaderDelegate {
         } else {
             print("DEBUG: Is not current user, let change profile image here")
             //button is public, implement with private!
-            controller.editProfileButton.isHidden = true
+            //controller.editProfileButton.isHidden = true
             navigationController?.pushViewController(controller, animated: true)
             controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }

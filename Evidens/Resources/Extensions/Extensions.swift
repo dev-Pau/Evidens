@@ -386,3 +386,9 @@ extension UILabel {
         return Int(ceil(textHeight / lineHeight))
     }
 }
+
+extension UIWindow {
+    func switchRootViewController(_ viewController: UIViewController) {
+        rootViewController = viewController
+    }
+}

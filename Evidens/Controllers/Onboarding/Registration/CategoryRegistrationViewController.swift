@@ -26,33 +26,7 @@ class CategoryRegistrationViewController: UIViewController {
         return label
     }()
     
-    private let conditionsCategoryString: NSMutableAttributedString = {
-        let aString = NSMutableAttributedString(string: "Your category helps us verify you faster. At MyEvidens we verify our entire community. Who can join MyEvidens?")
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: (aString.string as NSString).range(of: "Your category helps us verify you faster. At MyEvidens we verify our entire community. Who can join MyEvidens?"))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "Your category helps us verify you faster. At MyEvidens we verify our entire community. Who can join MyEvidens?"))
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .semibold), range: (aString.string as NSString).range(of: "Who can join MyEvidens?"))
-        
-        aString.addAttribute(NSAttributedString.Key.link, value: "presentCommunityInformation", range: (aString.string as NSString).range(of: "Who can join MyEvidens?"))
-        
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Who can join MyEvidens?"))
-        
-        return aString
-    }()
-    
-    lazy var instructionsCategoryLabel: UITextView = {
-        let tv = UITextView()
-        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
-        tv.attributedText = conditionsCategoryString
-        tv.isSelectable = true
-        tv.isUserInteractionEnabled = true
-        tv.delegate = self
-        tv.isEditable = false
-        tv.delaysContentTouches = false
-        tv.isScrollEnabled = false
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        return tv
-    }()
-    
+
     private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -77,10 +51,6 @@ class CategoryRegistrationViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
-        
-        button.configuration?.image = UIImage(systemName: "questionmark.circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(blackColor)
-        button.configuration?.imagePlacement = .trailing
-        button.configuration?.imagePadding = 5
         
         button.isUserInteractionEnabled = true
 
@@ -123,18 +93,14 @@ class CategoryRegistrationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(categoryLabel, instructionsCategoryLabel, professionalCategory, investigatorCategory, professorCategory, studentCategory, nextButton)
+        scrollView.addSubviews(categoryLabel, professionalCategory, investigatorCategory, professorCategory, studentCategory, nextButton)
         
         NSLayoutConstraint.activate([
             categoryLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             categoryLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             categoryLabel.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
             
-            instructionsCategoryLabel.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor),
-            instructionsCategoryLabel.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
-            instructionsCategoryLabel.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
-            
-            professionalCategory.topAnchor.constraint(equalTo: instructionsCategoryLabel.bottomAnchor, constant: 20),
+            professionalCategory.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
             professionalCategory.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
             professionalCategory.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8 / 2 - 5),
             professionalCategory.heightAnchor.constraint(equalToConstant: 120),
@@ -170,8 +136,9 @@ class CategoryRegistrationViewController: UIViewController {
         DispatchQueue.main.async {
             let controller = HelperRegistrationViewController()
             controller.delegate = self
-            controller.modalPresentationStyle = .overFullScreen
-            controller.modalTransitionStyle = .crossDissolve
+            if let sheet = controller.sheetPresentationController {
+                sheet.detents = [.medium()]
+            }
             self.present(controller, animated: true)
         }
     }

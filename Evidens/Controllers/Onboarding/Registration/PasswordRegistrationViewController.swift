@@ -306,7 +306,7 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     @objc func passwordDidChange() {
-        viewModel.password = passwordTextField.text
+        viewModel.password = passwordTextField.text!
         updateForm()
     }
     

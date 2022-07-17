@@ -57,6 +57,33 @@ class EmailRegistrationViewController: UIViewController {
         return button
     }()
     
+    private let conditionsCategoryString: NSMutableAttributedString = {
+        let aString = NSMutableAttributedString(string: "At MyEvidens we verify our entire community. Who can join MyEvidens?")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: (aString.string as NSString).range(of: "At MyEvidens we verify our entire community. Who can join MyEvidens?"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "At MyEvidens we verify our entire community. Who can join MyEvidens?"))
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .semibold), range: (aString.string as NSString).range(of: "Who can join MyEvidens?"))
+        
+        aString.addAttribute(NSAttributedString.Key.link, value: "presentCommunityInformation", range: (aString.string as NSString).range(of: "Who can join MyEvidens?"))
+        
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Who can join MyEvidens?"))
+        
+        return aString
+    }()
+    
+    lazy var instructionsJoin: UITextView = {
+        let tv = UITextView()
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.attributedText = conditionsCategoryString
+        tv.isSelectable = true
+        tv.isUserInteractionEnabled = true
+        tv.delegate = self
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -91,7 +118,7 @@ class EmailRegistrationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(emailTextLabel, emailTextField, instructionsEmailLabel, nextButton)
+        scrollView.addSubviews(emailTextLabel, emailTextField, instructionsEmailLabel, nextButton, instructionsJoin)
         
         NSLayoutConstraint.activate([
             emailTextLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -100,13 +127,17 @@ class EmailRegistrationViewController: UIViewController {
             
             instructionsEmailLabel.topAnchor.constraint(equalTo: emailTextLabel.bottomAnchor, constant: 10),
             instructionsEmailLabel.leadingAnchor.constraint(equalTo: emailTextLabel.leadingAnchor),
-            instructionsEmailLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
+            instructionsEmailLabel.trailingAnchor.constraint(equalTo: emailTextLabel.trailingAnchor),
             
             emailTextField.topAnchor.constraint(equalTo: instructionsEmailLabel.bottomAnchor, constant: 10),
             emailTextField.leadingAnchor.constraint(equalTo: emailTextLabel.leadingAnchor),
             emailTextField.trailingAnchor.constraint(equalTo: emailTextLabel.trailingAnchor),
             
-            nextButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
+            instructionsJoin.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 5),
+            instructionsJoin.leadingAnchor.constraint(equalTo: emailTextLabel.leadingAnchor, constant: -5),
+            instructionsJoin.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor, constant: 5),
+            
+            nextButton.topAnchor.constraint(equalTo: instructionsJoin.bottomAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 30),
             nextButton.heightAnchor.constraint(equalToConstant: 30),
@@ -150,6 +181,31 @@ extension EmailRegistrationViewController: FormViewModel {
     func updateForm() {
         nextButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
         nextButton.isUserInteractionEnabled = viewModel.formIsValid
+    }
+}
+
+extension EmailRegistrationViewController: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        if URL.absoluteString == "presentCommunityInformation" {
+            
+            let destVC = CommunityRegistrationViewController()
+
+            if let sheet = destVC.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+            }
+            present(destVC, animated: true)
+            emailTextField.resignFirstResponder()
+            return false
+        }
+        return true
+    }
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        if textView.selectedTextRange != nil {
+            textView.delegate = nil
+            textView.selectedTextRange = nil
+            textView.delegate = self
+        }
     }
 }
 

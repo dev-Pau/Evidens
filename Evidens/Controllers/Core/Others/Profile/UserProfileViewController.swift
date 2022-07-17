@@ -49,8 +49,11 @@ class UserProfileViewController: UIViewController {
     
     func configureNavigationItemButton() {
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "gear"), style: .plain, target: self, action: #selector(didTapSettings))
-        navigationItem.rightBarButtonItem?.tintColor = .black
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)),
+                                                            style: .plain,
+                                                            target: self, action: #selector(didTapSettings))
+        
+        navigationItem.rightBarButtonItem?.tintColor = blackColor
         
         navigationItem.titleView = searchBar
         
@@ -138,10 +141,11 @@ extension UserProfileViewController: UserProfileHeaderDelegate {
         backItem.tintColor = blackColor
         
         if user.isCurrentUser {
-            print("Is current user")
+            
             controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-            controller.editProfileButton.isHidden = false
-            navigationController?.pushViewController(controller, animated: true)
+            controller.modalPresentationStyle = .fullScreen
+            present(controller, animated: true)
+            
             
         } else {
             print("Is not current user")

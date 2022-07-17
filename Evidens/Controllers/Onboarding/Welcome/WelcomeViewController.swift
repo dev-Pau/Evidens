@@ -158,7 +158,6 @@ class WelcomeViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
-    
     //MARK: - Helpers
     func configureUI() {
         view.addSubview(scrollView)
@@ -272,9 +271,8 @@ class WelcomeViewController: UIViewController {
                             UserService.fetchUser(withUid: googleUser.uid) { user in
                                 let controller = MainTabController()
                                 controller.user = user
-                                let nav = UINavigationController(rootViewController: controller)
-                                nav.modalPresentationStyle = .fullScreen
-                                self.present(nav, animated: false)
+                                controller.modalPresentationStyle = .fullScreen
+                                self.present(controller, animated: false)
                             }
                         }
                     } else {
@@ -282,9 +280,8 @@ class WelcomeViewController: UIViewController {
                         UserService.fetchUser(withUid: uid) { user in
                             let controller = MainTabController()
                             controller.user = user
-                            let nav = UINavigationController(rootViewController: controller)
-                            nav.modalPresentationStyle = .fullScreen
-                            self.present(nav, animated: false)
+                            controller.modalPresentationStyle = .fullScreen
+                            self.present(controller, animated: false)
                         }
                     }
                 }
