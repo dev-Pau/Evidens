@@ -7,6 +7,7 @@
 
 import UIKit
 import PhotosUI
+import MessageUI
 
 class ImageRegistrationViewController: UIViewController {
     
@@ -29,17 +30,6 @@ class ImageRegistrationViewController: UIViewController {
     private let imageTextLabel: UILabel = {
         let label = CustomLabel(placeholder: "Pick a profile picture")
         return label
-    }()
-    
-    private lazy var profileImageButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(named: "user")?.scalePreservingAspectRatio(targetSize: CGSize(width: 48, height: 68)).withTintColor(grayColor)
-        button.configuration?.baseBackgroundColor = lightColor
-        button.addTarget(self, action: #selector(handleUploadPicture), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
     }()
     
     private lazy var profileImageView: UIImageView = {
@@ -107,7 +97,32 @@ class ImageRegistrationViewController: UIViewController {
         label.numberOfLines = 0
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleContinue)))
         return label
+    }()
+    
+    private lazy var helpButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .gray()
+
+        button.configuration?.baseBackgroundColor = lightGrayColor
+        button.configuration?.baseForegroundColor = blackColor
+
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
+        
+        button.configuration?.image = UIImage(systemName: "questionmark.circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(blackColor)
+        button.configuration?.imagePlacement = .trailing
+        button.configuration?.imagePadding = 5
+        
+        button.isUserInteractionEnabled = true
+
+        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        return button
     }()
     
     override func viewDidLoad() {
@@ -130,6 +145,7 @@ class ImageRegistrationViewController: UIViewController {
         title = "Account details"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
         navigationController?.navigationBar.tintColor = blackColor
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
     private func configureUI() {
@@ -170,29 +186,25 @@ class ImageRegistrationViewController: UIViewController {
         ])
     }
     
-    @objc func handleSkip() {
-        // Present Verification Phase VC
-    }
-    
     @objc func handleUploadPicture() {
         imageSelected ? registerBottomMenuLauncher.showImageSettings(in: view) : registerBottomMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleContinue() {
-        if imageSelected {
-            guard let image = profileImageView.image,
-                  let uid = user.uid,
-                  let firstName = user.firstName,
-                  let lastName = user.lastName else { return }
-            
-            let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "")
-            
-            showLoadingView()
-            
-            AuthService.updateUserRegistrationNameDetails(withUid: uid, withCredentials: credentials) { error in
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
+        guard let uid = user.uid,
+              let firstName = user.firstName,
+              let lastName = user.lastName else { return }
+        
+        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "")
+        
+        showLoadingView()
+        
+        AuthService.updateUserRegistrationNameDetails(withUid: uid, withCredentials: credentials) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                if self.imageSelected {
+                    guard let image = self.profileImageView.image else { return }
                     StorageManager.uploadProfileImage(image: image, uid: uid) { url in
                         UserService.updateProfileImageUrl(profileImageUrl: url) { error in
                             self.dismissLoadingView()
@@ -206,6 +218,12 @@ class ImageRegistrationViewController: UIViewController {
                             }
                         }
                     }
+                } else {
+                    self.dismissLoadingView()
+                    let controller = VerificationRegistrationViewController(user: self.user)
+                    let nav = UINavigationController(rootViewController: controller)
+                    nav.modalPresentationStyle = .fullScreen
+                    self.present(nav, animated: true)
                 }
             }
         }
@@ -213,6 +231,16 @@ class ImageRegistrationViewController: UIViewController {
     
     @objc func didTapBack() {
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc func handleHelp() {
+        DispatchQueue.main.async {
+            let controller = HelperRegistrationViewController()
+            controller.delegate = self
+            controller.modalPresentationStyle = .overFullScreen
+            controller.modalTransitionStyle = .crossDissolve
+            self.present(controller, animated: true)
+        }
     }
 }
 
@@ -229,11 +257,11 @@ extension ImageRegistrationViewController: RegisterBottomMenuLauncherDelegate {
     }
     
     func didTapImportFromCamera() {
-        let controller = UIImagePickerController()
-        controller.allowsEditing = true
-        controller.sourceType = .camera
-        controller.delegate = self
-        present(controller, animated: true)
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
     }
 }
 
@@ -241,7 +269,7 @@ extension ImageRegistrationViewController: UIImagePickerControllerDelegate, UINa
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        profileImageButton.configuration?.image = selectedImage
+        profileImageView.image = selectedImage
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -269,5 +297,38 @@ extension ImageRegistrationViewController: PHPickerViewControllerDelegate {
             }
         }
     }
-
 }
+
+extension ImageRegistrationViewController: HelperRegistrationViewControllerDelegate {
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        } else {
+            print("Device cannot send email")
+        }
+    }
+}
+
+extension ImageRegistrationViewController: MFMailComposeViewControllerDelegate {
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        controller.dismiss(animated: true)
+    }
+}
+

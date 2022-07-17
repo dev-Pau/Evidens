@@ -8,10 +8,11 @@
 import UIKit
 import Firebase
 import FirebaseFirestore
+import GoogleSignIn
 
 struct AuthCredentials {
-    let firstName: String
-    let lastName: String
+    var firstName: String
+    var lastName: String
     let email: String
     let password: String
     let profileImageUrl: String
@@ -31,7 +32,10 @@ struct AuthService {
         
             Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { (result, error) in
                 
-                if let _ = error { return }
+                if let error = error {
+                    print(error)
+                    return
+                }
                 
                 //Unique identifier of user
                 guard let uid = result?.user.uid else { return }
@@ -51,6 +55,23 @@ struct AuthService {
                 
                 DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))    
         }
+    }
+    
+    static func registerGoogleUser(withCredential credentials: AuthCredentials, withUid uid: String, completion: @escaping(Error?) -> Void) {
+        
+        let data: [String: Any] = ["firstName": credentials.firstName,
+                                   "lastName": credentials.lastName,
+                                   "email": credentials.email,
+                                   "uid": uid,
+                                   "profileImageUrl": "",
+                                   "phase": credentials.phase.rawValue,
+                                   "category": credentials.category.rawValue,
+                                   "profession": credentials.profession,
+                                   "speciality": credentials.speciality]
+        
+        COLLECTION_USERS.document(uid).setData(data, completion: completion)
+        
+        DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
     }
     
     static func updateUserRegistrationCategoryDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
@@ -84,6 +105,10 @@ struct AuthService {
         } catch {
             print("DEBUG: Failed to logout")
         }
+    }
+    
+    static func googleLogout() {
+        GIDSignIn.sharedInstance.signOut()
     }
     
 }

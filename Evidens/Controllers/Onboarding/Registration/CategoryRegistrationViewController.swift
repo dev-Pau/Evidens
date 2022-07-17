@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MessageUI
 
 class CategoryRegistrationViewController: UIViewController {
     
@@ -64,6 +65,29 @@ class CategoryRegistrationViewController: UIViewController {
         return button
     }()
     
+    private lazy var helpButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .gray()
+
+        button.configuration?.baseBackgroundColor = lightGrayColor
+        button.configuration?.baseForegroundColor = blackColor
+
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
+        
+        button.configuration?.image = UIImage(systemName: "questionmark.circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(blackColor)
+        button.configuration?.imagePlacement = .trailing
+        button.configuration?.imagePadding = 5
+        
+        button.isUserInteractionEnabled = true
+
+        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        return button
+    }()
+    
     private let professionalCategory = MECategoryView(title: "Professional")
     private let professorCategory = MECategoryView(title: "Professor")
     private let investigatorCategory = MECategoryView(title: "Research scientist")
@@ -91,8 +115,7 @@ class CategoryRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Configure account"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
-        navigationItem.rightBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
     private func configureUI() {
@@ -144,7 +167,13 @@ class CategoryRegistrationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        
+        DispatchQueue.main.async {
+            let controller = HelperRegistrationViewController()
+            controller.delegate = self
+            controller.modalPresentationStyle = .overFullScreen
+            controller.modalTransitionStyle = .crossDissolve
+            self.present(controller, animated: true)
+        }
     }
 }
 
@@ -194,6 +223,39 @@ extension CategoryRegistrationViewController: MECategoryViewDelegate {
             user.category = .none
         }
         completion(true)
+    }
+}
+
+extension CategoryRegistrationViewController: HelperRegistrationViewControllerDelegate {
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        }
+    }
+}
+
+extension CategoryRegistrationViewController: MFMailComposeViewControllerDelegate {
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        
+        controller.dismiss(animated: true)
     }
 }
 

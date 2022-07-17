@@ -228,35 +228,67 @@ class WelcomeViewController: UIViewController {
         let config = GIDConfiguration(clientID: clientID)
         // Start the sign in flow!
         GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
+
             if let error = error {
                 print(error.localizedDescription)
                 return
             }
             
-            guard
-                let authentication = user?.authentication,
-                let idToken = authentication.idToken
-            else {
-                return
-            }
+            guard let authentication = user?.authentication, let idToken = authentication.idToken else { return }
             
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: authentication.accessToken)
+            
+            
 
             // Firebase Auth
+            
             Auth.auth().signIn(with: credential) { result, error in
                 if let error = error {
                     print(error.localizedDescription)
                     return
                 }
+                
+                if let newUser = result?.additionalUserInfo?.isNewUser {
+                    if newUser {
+                        print("IS NEW USER")
+                        // Displaying user data
+                        guard let googleUser = result?.user,
+                              let email = googleUser.email,
+                              let firstName = user?.profile?.givenName  else { return }
 
-                // Displaying user data
-                guard let googleUser = result?.user else { return }
-                
-                print(googleUser.displayName ?? "Success!")
-                print(googleUser.email ?? "No email")
-                
-            }
+                        
+                        var credentials = AuthCredentials(firstName: firstName, lastName: "", email: email, password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+                          
+                        if let lastName = user?.profile?.familyName {
+                            credentials.lastName = lastName
+                        }
+                        
+                        AuthService.registerGoogleUser(withCredential: credentials, withUid: googleUser.uid) { error in
+                            if let error = error {
+                                print(error.localizedDescription)
+                                return
+                            }
+                            UserService.fetchUser(withUid: googleUser.uid) { user in
+                                let controller = MainTabController()
+                                controller.user = user
+                                let nav = UINavigationController(rootViewController: controller)
+                                nav.modalPresentationStyle = .fullScreen
+                                self.present(nav, animated: false)
+                            }
+                        }
+                    } else {
+                        guard let uid = result?.user.uid else { return }
+                        UserService.fetchUser(withUid: uid) { user in
+                            let controller = MainTabController()
+                            controller.user = user
+                            let nav = UINavigationController(rootViewController: controller)
+                            nav.modalPresentationStyle = .fullScreen
+                            self.present(nav, animated: false)
+                        }
+                    }
+                }
+            } 
         }
     }
 }

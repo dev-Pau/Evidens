@@ -37,8 +37,6 @@ class SpecialityRegistrationViewController: UIViewController {
     private var isSearching: Bool = false
     
     private let searchController = UISearchController()
-
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -64,9 +64,7 @@ class MainTabController: UITabBarController {
         UserService.fetchUser(withUid: uid) { user in
             //Set user property
             self.user = user
-            print(User.UserRegistrationPhase.userDetailsPhase)
-            
-            
+                        
             switch user.phase {
             case .categoryPhase:
                 print("User created account without giving any details")

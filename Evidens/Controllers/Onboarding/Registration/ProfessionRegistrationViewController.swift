@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MessageUI
 
 private let registerProfessionCellReuseIdentifier = "RegisterProfessionCellReuseIdentifier"
 
@@ -178,3 +179,35 @@ extension ProfessionRegistrationViewController: UICollectionViewDelegateFlowLayo
     }
 }
 
+extension ProfessionRegistrationViewController: HelperRegistrationViewControllerDelegate {
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        }
+    }
+}
+
+extension ProfessionRegistrationViewController: MFMailComposeViewControllerDelegate {
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        
+        controller.dismiss(animated: true)
+    }
+}

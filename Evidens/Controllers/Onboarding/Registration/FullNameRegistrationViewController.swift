@@ -66,6 +66,31 @@ class FullNameRegistrationViewController: UIViewController {
         return button
     }()
     
+    private lazy var helpButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .gray()
+
+        button.configuration?.baseBackgroundColor = lightGrayColor
+        button.configuration?.baseForegroundColor = blackColor
+
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
+        
+        button.configuration?.image = UIImage(systemName: "questionmark.circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(blackColor)
+        button.configuration?.imagePlacement = .trailing
+        button.configuration?.imagePadding = 5
+        
+        button.isUserInteractionEnabled = true
+
+        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        return button
+    }()
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -84,9 +109,8 @@ class FullNameRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Account details"
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle.fill"), style: .done, target: self, action: #selector(handleHelp))
-        navigationItem.rightBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+
     }
     
     private func configureNotificationObservers() {
@@ -100,6 +124,10 @@ class FullNameRegistrationViewController: UIViewController {
         view.backgroundColor = .white
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
+        
+        firstNameTextField.text = user.firstName
+        lastNameTextField.text = user.lastName
+        textDidChange()
         
         scrollView.addSubviews(nameTextLabel, instructionsNameLabel, firstNameTextField, lastNameTextField, nextButton)
         
@@ -173,6 +201,17 @@ extension FullNameRegistrationViewController: UITextFieldDelegate {
 }
 
 extension FullNameRegistrationViewController: HelperRegistrationViewControllerDelegate {
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
     func didTapContactSupport() {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()

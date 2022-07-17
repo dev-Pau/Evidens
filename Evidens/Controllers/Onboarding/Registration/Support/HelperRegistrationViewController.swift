@@ -9,6 +9,7 @@ import UIKit
 
 protocol HelperRegistrationViewControllerDelegate: AnyObject {
     func didTapContactSupport()
+    func didTapLogout()
 }
 
 class HelperRegistrationViewController: UIViewController {
@@ -91,6 +92,8 @@ class HelperRegistrationViewController: UIViewController {
         label.numberOfLines = 0
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLogout)))
         return label
     }()
     
@@ -103,7 +106,7 @@ class HelperRegistrationViewController: UIViewController {
     private func configureUI() {
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissViewController)))
         
-        containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(test)))
+        containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(blockerGesture)))
         containerView.isUserInteractionEnabled = true
         
         containerView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(didPan)))
@@ -141,7 +144,8 @@ class HelperRegistrationViewController: UIViewController {
             
             logOutLabel.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
             logOutLabel.widthAnchor.constraint(equalToConstant: 100),
-            logOutLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor)
+            logOutLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            logOutLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
         
         
@@ -153,11 +157,18 @@ class HelperRegistrationViewController: UIViewController {
         }
     }
     
+    @objc func handleLogout() {
+        print("Did logout")
+        dismiss(animated: true) {
+            self.delegate?.didTapLogout()
+        }
+    }
+    
     @objc func dismissViewController() {
         dismiss(animated: true)
     }
     
-    @objc func test() {
+    @objc func blockerGesture() {
         print("no dismiss")
     }
     

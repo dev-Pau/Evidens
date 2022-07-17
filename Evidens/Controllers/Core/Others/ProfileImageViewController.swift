@@ -5,7 +5,6 @@
 //  Created by Pau Fernández Solà on 14/11/21.
 //
 
-import Foundation
 import UIKit
 
 class ProfileImageViewController: UIViewController {

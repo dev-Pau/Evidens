@@ -669,8 +669,7 @@ extension UploadPostViewController: UITextViewDelegate {
     }
 }
 
-//MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
-
+//MARK: - PHPickerViewControllerDelegate
 
 extension UploadPostViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
