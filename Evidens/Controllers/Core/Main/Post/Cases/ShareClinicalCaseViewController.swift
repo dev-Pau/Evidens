@@ -33,7 +33,8 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var newCellWidth: [CGFloat] = []
     
-    private var previousValue: Int = 0
+    private var previousValueTitle: Int = 0
+    private var previousValueDescription: Int = 0
     
     var diagnosisHeight: CGFloat = 0
     var diagnosisText: String = ""
@@ -215,7 +216,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "Description"
-        label.textColor = grayColor
+        label.textColor = blackColor
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -589,13 +590,13 @@ class ShareClinicalCaseViewController: UIViewController {
             return
         }
         
-        if previousValue == 0 {
+        if previousValueTitle == 0 {
             titleShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: 0)
         } else {
-            titleShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: previousValue)
+            titleShapeTracker.updateShapeIndicator(toValue: text.count, previousValue: previousValueTitle)
         }
         
-        previousValue = text.count
+        previousValueTitle = text.count
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -800,13 +801,13 @@ extension ShareClinicalCaseViewController: UITextViewDelegate {
             descriptionLabel.isHidden = true
         }
         
-        if previousValue == 0 {
+        if previousValueDescription == 0 {
             descriptionShapeTracker.updateShapeIndicator(toValue: count, previousValue: 0)
         } else {
-            descriptionShapeTracker.updateShapeIndicator(toValue: count, previousValue: previousValue)
+            descriptionShapeTracker.updateShapeIndicator(toValue: count, previousValue: previousValueDescription)
         }
         
-        previousValue = count
+        previousValueDescription = count
         //descriptionIndicator.characterCountLabel.text = "\(count)/2500"
         
         let size = CGSize(width: view.frame.width, height: .infinity)

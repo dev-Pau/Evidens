@@ -808,7 +808,7 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)
-
+            
             postAttachementsMenuLauncher.handleDismissMenu()
         }
     }
