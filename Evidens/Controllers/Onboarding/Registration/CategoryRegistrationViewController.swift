@@ -221,7 +221,6 @@ extension CategoryRegistrationViewController: MFMailComposeViewControllerDelegat
         if let _ = error {
             controller.dismiss(animated: true)
         }
-        
         controller.dismiss(animated: true)
     }
 }

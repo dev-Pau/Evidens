@@ -7,7 +7,6 @@
 
 import UIKit
 import Firebase
-import GoogleSignIn
 import FirebaseAuth
 
 class MainTabController: UITabBarController {
@@ -88,6 +87,11 @@ class MainTabController: UITabBarController {
                 print("main tab bar controller")
                 //let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 //sceneDelegate?.updateRootViewController(self)
+                UserDefaults.standard.set(user.uid, forKey: "uid")
+                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+                
+                
                 let appearance = UITabBarAppearance()
                 appearance.configureWithOpaqueBackground()
                 appearance.shadowColor = grayColor
@@ -96,51 +100,6 @@ class MainTabController: UITabBarController {
                 self.tabBar.backgroundColor = .white
                 self.tabBar.standardAppearance = appearance
             }
-    
-            
-            /*
-            switch user.phase {
-                
-                
-            case .initialPhase:
-                // User created account without giving any details
-                print("User is created without giving any details yet")
-                let controller = CategoryRegistrationViewController(user: user)
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: false)
-                
-            case .fullNamePhase:
-                print("Full Name Phase")
-            case .documentationPhase:
-                print("Documentation Phase")
-            case .verified:
-                print("Verified Phase")
-                //Save uid to UserDefaults
-                UserDefaults.standard.set(user.uid, forKey: "uid")
-                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
-            }
-            
-            /*
-            //Change to == false for real use app, != false for testing welcome
-            if (user.isVerified != true) {
-                //If user is not verified, present WelcomeViewController()
-                let controller = WelcomeViewController()
-                let nav = UINavigationController(rootViewController: controller)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: false, completion: nil)
-            }
-            
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.shadowColor = grayColor
-            self.tabBar.isHidden = false
-            self.tabBar.isTranslucent = true
-            self.tabBar.backgroundColor = .white
-            self.tabBar.standardAppearance = appearance
-             */
-             */
         }
     }
     

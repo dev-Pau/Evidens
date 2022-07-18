@@ -345,16 +345,21 @@ extension UIImage {
 extension UIScrollView {
     
     func resizeScrollViewContentSize() {
-        
         var contentRect = CGRect.zero
-        
         for view in self.subviews {
-            
             contentRect = contentRect.union(view.frame)
-            
         }
-        
         self.contentSize = contentRect.size
+        
+    }
+    
+    func resizeScrollViewContentSize(_ height: CGFloat) {
+        var contentRect = CGRect.zero
+        for view in self.subviews {
+            contentRect = contentRect.union(view.frame)
+        }
+        //self.contentSize = contentRect.size - CGSize(width: 0, height: height)
+        self.contentSize = CGSize(width: contentRect.size.width, height: contentRect.size.height - height)
         
     }
     

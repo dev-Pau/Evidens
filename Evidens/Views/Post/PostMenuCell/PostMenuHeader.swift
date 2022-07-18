@@ -14,18 +14,10 @@ class PostMenuHeader: UICollectionReusableView {
     
     private let separator: UIView = {
         let view = UIView()
-        view.backgroundColor = grayColor
+        view.backgroundColor = lightGrayColor
         view.layer.cornerRadius = 3
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
-    }()
-    
-    var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Create"
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
     }()
     
     override init(frame: CGRect) {
@@ -38,7 +30,6 @@ class PostMenuHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubview(titleLabel)
         addSubview(separator)
         
         NSLayoutConstraint.activate([
@@ -47,11 +38,6 @@ class PostMenuHeader: UICollectionReusableView {
             separator.topAnchor.constraint(equalTo: topAnchor, constant: 7),
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 50),
-            
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: padding),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            titleLabel.heightAnchor.constraint(equalToConstant: 40) 
         ])
     }
 }

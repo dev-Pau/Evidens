@@ -96,7 +96,7 @@ class CaseDetailsView: UIView {
             topView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             topView.heightAnchor.constraint(equalToConstant: 1),
             
-            chevronButton.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
+            chevronButton.trailingAnchor.constraint(equalTo: topView.trailingAnchor, constant: 5),
             chevronButton.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 20),
             chevronButton.heightAnchor.constraint(equalToConstant: 20),
             chevronButton.widthAnchor.constraint(equalToConstant: 20),

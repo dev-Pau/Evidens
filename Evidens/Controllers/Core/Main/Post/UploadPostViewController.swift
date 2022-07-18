@@ -194,16 +194,7 @@ class UploadPostViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
     }()
-    
-    private lazy var pollTableView: UITableView = {
-        let tableView = UITableView()
-        tableView.isScrollEnabled = false
-        tableView.layer.cornerRadius = 10
-        tableView.layer.borderWidth = 1
-        tableView.layer.borderColor = blackColor.cgColor
-        return tableView
-    }()
-    
+ 
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -309,20 +300,6 @@ class UploadPostViewController: UIViewController {
         toolbar.setItems([flexibleSpace, attachementButton], animated: true)
         
         postTextView.inputAccessoryView = toolbar //postTextView.textView
-    }
-    
-    func configurePollTableView() {
-        pollTableView.register(PostPollCell.self, forCellReuseIdentifier: pollCellReuseIdentifier)
-        pollTableView.delegate = self
-        pollTableView.dataSource = self
-        pollTableView.backgroundColor = .systemPink
-        scrollView.addSubview(pollTableView)
-        pollTableView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
-        pollTableView.setHeight(150)
-        
-        postTextView.placeholderText = "Ask a question..."
-        
-        
     }
     
     func addSinglePostImageToView(image: UIImage) {
@@ -826,8 +803,12 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
             navigationController?.present(picker, animated: true)
             
         case .poll:
-            print("Poll")
-            configurePollTableView()
+            let controller = PollConfigurationViewController()
+            
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true, completion: nil)
+
             postAttachementsMenuLauncher.handleDismissMenu()
         }
     }
@@ -872,7 +853,21 @@ extension UploadPostViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: pollCellReuseIdentifier, for: indexPath) as! PostPollCell
+        cell.titlePollOption.placeholder = "Choice \(indexPath.row + 1)"
+        cell.titlePollOption.delegate = self
+        cell.selectionStyle = .none
+        cell.contentView.isUserInteractionEnabled = false
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+}
+
+extension UploadPostViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        print(textField)
     }
     
     

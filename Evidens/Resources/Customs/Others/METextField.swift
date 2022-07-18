@@ -21,7 +21,7 @@ class METextField: UITextField {
         leftViewMode = .always
         borderStyle = .roundedRect
         textColor = .black
-        keyboardAppearance = .dark
+        keyboardAppearance = .light
         keyboardType = .emailAddress
         autocorrectionType = .no
         backgroundColor = lightColor

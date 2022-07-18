@@ -21,6 +21,7 @@ class CaseStageView: UIView {
         label.text = "Is this case resolved?"
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = grayColor
+        label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -32,14 +33,14 @@ class CaseStageView: UIView {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .regular)
-        //button.configuration?.attributedTitle = AttributedString("Unresolved", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Unresolved", attributes: container)
         
         button.configuration?.baseForegroundColor = grayColor
         button.configuration?.baseBackgroundColor = .white
         button.configuration?.background.strokeWidth = 1
 
-        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        button.configuration?.imagePlacement = .leading
+        //button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        //button.configuration?.imagePlacement = .leading
         button.configuration?.background.strokeColor = lightGrayColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleUnresolvedTap), for: .touchUpInside)
@@ -53,14 +54,14 @@ class CaseStageView: UIView {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .regular)
-        //button.configuration?.attributedTitle = AttributedString("Resolved", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Resolved", attributes: container)
         
         button.configuration?.baseForegroundColor = grayColor
         button.configuration?.baseBackgroundColor = .white
         button.configuration?.background.strokeWidth = 1
 
-        button.configuration?.image = UIImage(named: "checkmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        button.configuration?.imagePlacement = .leading
+        //button.configuration?.image = UIImage(named: "checkmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        //button.configuration?.imagePlacement = .leading
         button.configuration?.background.strokeColor = lightGrayColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleResolvedTap), for: .touchUpInside)
@@ -93,31 +94,36 @@ class CaseStageView: UIView {
         addSubviews(titleLabel, stackView)
         
         NSLayoutConstraint.activate([
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.heightAnchor.constraint(equalToConstant: 35),
-            titleLabel.widthAnchor.constraint(equalToConstant: 200),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            stackView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.heightAnchor.constraint(equalToConstant: 35)
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stackView.heightAnchor.constraint(equalToConstant: 35),
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10)
         ])
     }
     
     @objc func handleResolvedTap() {
         
-        resolvedButton.configuration?.baseBackgroundColor = primaryColor
-        //resolvedButton.configuration?.background.strokeColor = primaryColor
-        resolvedButton.configuration?.image = UIImage(named: "checkmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.white)
-        resolvedButton.configuration?.imagePadding = 10
-        resolvedButton.configuration?.background.strokeWidth = 0
+        resolvedButton.configuration?.background.strokeColor = lightGrayColor
+        resolvedButton.configuration?.baseBackgroundColor = lightGrayColor
+        resolvedButton.configuration?.baseForegroundColor = blackColor
         
-        unresolvedButton.configuration?.baseBackgroundColor = .white
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 17, weight: .bold)
+        resolvedButton.configuration?.attributedTitle = AttributedString("Resolved", attributes: container)
+        
         unresolvedButton.configuration?.background.strokeColor = lightGrayColor
+        unresolvedButton.configuration?.baseBackgroundColor = .white
         unresolvedButton.configuration?.baseForegroundColor = grayColor
-        unresolvedButton.configuration?.image = UIImage(named: "xmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        unresolvedButton.configuration?.background.strokeWidth = 1
+        
+        var container2 = AttributeContainer()
+        container2.font = .systemFont(ofSize: 17, weight: .regular)
+        unresolvedButton.configuration?.attributedTitle = AttributedString("Unresolved", attributes: container2)
+  
         
         resolvedButton.isUserInteractionEnabled = false
         unresolvedButton.isUserInteractionEnabled = true
@@ -126,18 +132,22 @@ class CaseStageView: UIView {
     }
     
     @objc func handleUnresolvedTap() {
-        //unresolvedButton.configuration?.baseBackgroundColor = lightColor
-        unresolvedButton.configuration?.background.strokeColor = .systemYellow
+
+        unresolvedButton.configuration?.background.strokeColor = lightGrayColor
+        unresolvedButton.configuration?.baseBackgroundColor = lightGrayColor
         unresolvedButton.configuration?.baseForegroundColor = blackColor
-        unresolvedButton.configuration?.image = UIImage(named: "xmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(blackColor)
-        unresolvedButton.configuration?.background.strokeWidth = 2
         
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 17, weight: .bold)
+        unresolvedButton.configuration?.attributedTitle = AttributedString("Unresolved", attributes: container)
         
-        resolvedButton.configuration?.baseForegroundColor = grayColor
-        resolvedButton.configuration?.baseBackgroundColor = .white
-        resolvedButton.configuration?.background.strokeWidth = 1
-        resolvedButton.configuration?.image = UIImage(named: "checkmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
         resolvedButton.configuration?.background.strokeColor = lightGrayColor
+        resolvedButton.configuration?.baseBackgroundColor = .white
+        resolvedButton.configuration?.baseForegroundColor = grayColor
+        
+        var container2 = AttributeContainer()
+        container2.font = .systemFont(ofSize: 17, weight: .regular)
+        resolvedButton.configuration?.attributedTitle = AttributedString("Resolved", attributes: container2)
         
         resolvedButton.isUserInteractionEnabled = true
         unresolvedButton.isUserInteractionEnabled = false

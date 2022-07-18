@@ -11,6 +11,7 @@ import PhotosUI
 private let casesCellReuseIdentifier = "CasesCellReuseIdentifier"
 private let specialityCellReuseIdentifier = "SpecialityCellReuseIdentifier"
 private let caseTypeCellReuseIdentifier = "CaseTypeCellReuseIdentifier"
+private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 
 class ShareClinicalCaseViewController: UIViewController {
     
@@ -20,6 +21,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var specialitiesSelected: [String] = []
     private var caseTypesSelected: [String] = []
+    private var caseStageSelected: String = ""
     
     private var cellSizes: [CGFloat] = []
     
@@ -36,31 +38,33 @@ class ShareClinicalCaseViewController: UIViewController {
     var diagnosisHeight: CGFloat = 0
     var diagnosisText: String = ""
     
-    private lazy var uploadButton: UIButton = {
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
+        return scrollView
+    }()
+    
+    private lazy var shareButton: UIButton = {
         let button = UIButton()
+
         button.configuration = .gray()
 
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
+        button.isUserInteractionEnabled = false
         button.configuration?.baseForegroundColor = .white
 
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = .systemFont(ofSize: 17, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Share", attributes: container)
         
-        button.isUserInteractionEnabled = false
-        button.alpha = 0.5
-        
-        button.addTarget(self, action: #selector(didTapUpload), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleShareCase), for: .touchUpInside)
         return button
-    }()
-    
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsVerticalScrollIndicator = false
-        return scrollView
     }()
     
     private lazy var imageBackgroundView: UIView = {
@@ -109,6 +113,18 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private let caseTypeCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceHorizontal = true
+        return collectionView
+    }()
+    
+    private let stageCaseCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -225,10 +241,32 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private lazy var specialitiesView = CaseDetailsView(title: "Specialities")
     private lazy var clinicalTypeView = CaseDetailsView(title: "Type details")
+    private lazy var caseStageView = CaseDetailsView(title: "Is this case resolved?")
     
-    private lazy var caseStageView = CaseStageView()
+    //private lazy var caseStageView = CaseStageView()
     
-    private lazy var diagnosisView = DiagnosisView()
+    private lazy var diagnosisView = DiagnosisResolvedView()
+    private lazy var diagnosisUnresolvedView = DiagnosisUnresolvedView()
+    private lazy var diagnosisGenericView = DiagnosisGenericView()
+    
+    private lazy var shareCaseButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.baseBackgroundColor = primaryColor
+        
+        button.configuration?.baseForegroundColor = .white
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 16, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Share Case", attributes: container)
+        
+        button.addTarget(self, action: #selector(handleShareCase), for: .touchUpInside)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        return button
+    }()
     
     
        
@@ -241,6 +279,7 @@ class ShareClinicalCaseViewController: UIViewController {
         configureCaseCollectionView()
         configureSpecialityCollectionView()
         configureCaseTypeCollectionView()
+        configureCaseStageCollectionView()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillShowNotification,
@@ -251,14 +290,16 @@ class ShareClinicalCaseViewController: UIViewController {
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
         
+        NotificationCenter.default.addObserver(self,
+                                              selector: #selector(keyboardWillHide(notification:)),
+                                              name: UIResponder.keyboardWillHideNotification,
+                                              object:nil)
+        
         specialitiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSpecialitiesController)))
         clinicalTypeView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToClinicalTypeController)))
+        caseStageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToCaseStageController)))
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        scrollView.resizeScrollViewContentSize()
-    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -283,27 +324,34 @@ class ShareClinicalCaseViewController: UIViewController {
         title = "Share a Case"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: uploadButton)
-        
         navigationItem.leftBarButtonItem?.tintColor = .black
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
     }
     
     
     func configureUI() {
         view.backgroundColor = .white
         view.addSubview(scrollView)
-        
 
         titleView.isHidden = true
         descriptionView.isHidden = true
         diagnosisView.isHidden = true
+        diagnosisUnresolvedView.isHidden = true
+        diagnosisGenericView.isHidden = true
+        
+        
 
-        caseStageView.delegate = self
+        //caseStageView.delegate = self
+        diagnosisView.delegate = self
+        diagnosisGenericView.delegate = self
         
         scrollView.keyboardDismissMode = .onDrag
         
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView, bottomSeparatorLabel, caseStageView, diagnosisView)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView, caseStageView, diagnosisView, diagnosisUnresolvedView, diagnosisGenericView)
+        
+        //view.addSubview(shareCaseButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -321,7 +369,7 @@ class ShareClinicalCaseViewController: UIViewController {
             photoImage.widthAnchor.constraint(equalToConstant: 50),
             photoImage.heightAnchor.constraint(equalToConstant: 50),
             
-            infoImageLabel.topAnchor.constraint(equalTo: imageBackgroundView.bottomAnchor, constant: 5),
+            infoImageLabel.topAnchor.constraint(equalTo: imageBackgroundView.bottomAnchor, constant: 10),
             infoImageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoImageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
@@ -372,15 +420,12 @@ class ShareClinicalCaseViewController: UIViewController {
             clinicalTypeView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             clinicalTypeView.heightAnchor.constraint(equalToConstant: 62),
             
-            bottomSeparatorLabel.topAnchor.constraint(equalTo: clinicalTypeView.bottomAnchor),
-            bottomSeparatorLabel.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
-            bottomSeparatorLabel.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
-            bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            caseStageView.topAnchor.constraint(equalTo: clinicalTypeView.bottomAnchor),
+            caseStageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            caseStageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            caseStageView.heightAnchor.constraint(equalToConstant: 62),
             
-            caseStageView.topAnchor.constraint(equalTo: bottomSeparatorLabel.bottomAnchor),
-            caseStageView.leadingAnchor.constraint(equalTo: bottomSeparatorLabel.leadingAnchor),
-            caseStageView.trailingAnchor.constraint(equalTo: bottomSeparatorLabel.trailingAnchor),
-            caseStageView.heightAnchor.constraint(equalToConstant: 70)
+            
         ])
         
         scrollView.resizeScrollViewContentSize()
@@ -403,6 +448,12 @@ class ShareClinicalCaseViewController: UIViewController {
         caseTypeCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: caseTypeCellReuseIdentifier)
         caseTypeCollectionView.delegate = self
         caseTypeCollectionView.dataSource = self
+    }
+    
+    func configureCaseStageCollectionView() {
+        stageCaseCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: caseStageCellReuseIdentifier)
+        stageCaseCollectionView.delegate = self
+        stageCaseCollectionView.dataSource = self
     }
     
     func addCaseCollectionView() {
@@ -431,6 +482,15 @@ class ShareClinicalCaseViewController: UIViewController {
         caseTypeCollectionView.reloadData()
     }
     
+    func addStageCaseCollectionView() {
+        caseStageView.configure(collectionView: stageCaseCollectionView)
+        stageCaseCollectionView.reloadData()
+        
+        if diagnosisText == "" {
+            addGenericDiagnosisView()
+        }
+    }
+    
     func addBackgroundImage() {
         caseImagesCollectionView.removeFromSuperview()
         scrollView.addSubviews(imageBackgroundView, photoImage)
@@ -456,23 +516,42 @@ class ShareClinicalCaseViewController: UIViewController {
         }
     }
     
-    func configureDiagnosisView(height: CGFloat) {
-        
-        diagnosisView.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = height + 20
-            }
-        }
-        
+    func configureDiagnosisView() {
         NSLayoutConstraint.activate([
             diagnosisView.topAnchor.constraint(equalTo: caseStageView.bottomAnchor, constant: 5),
             diagnosisView.leadingAnchor.constraint(equalTo: caseStageView.leadingAnchor),
             diagnosisView.trailingAnchor.constraint(equalTo: caseStageView.trailingAnchor),
-            diagnosisView.heightAnchor.constraint(equalToConstant: height + 20)
+            diagnosisView.heightAnchor.constraint(equalToConstant: 65)
         ])
         
-        diagnosisView.isHidden = false
+        diagnosisGenericView.isHidden = true
+        diagnosisView.isHidden = false        
+        scrollView.resizeScrollViewContentSize()
+    }
+    
+    func addDiagnosisUnresolvedView() {
+        NSLayoutConstraint.activate([
+            diagnosisUnresolvedView.topAnchor.constraint(equalTo: caseStageView.bottomAnchor, constant: 5),
+            diagnosisUnresolvedView.leadingAnchor.constraint(equalTo: caseStageView.leadingAnchor),
+            diagnosisUnresolvedView.trailingAnchor.constraint(equalTo: caseStageView.trailingAnchor),
+            diagnosisUnresolvedView.heightAnchor.constraint(equalToConstant: 85)
+        ])
         
+        diagnosisGenericView.isHidden = true
+        diagnosisUnresolvedView.isHidden = false
+        
+        scrollView.resizeScrollViewContentSize()
+    }
+    
+    func addGenericDiagnosisView() {
+        NSLayoutConstraint.activate([
+            diagnosisGenericView.topAnchor.constraint(equalTo: caseStageView.bottomAnchor, constant: 5),
+            diagnosisGenericView.leadingAnchor.constraint(equalTo: caseStageView.leadingAnchor),
+            diagnosisGenericView.trailingAnchor.constraint(equalTo: caseStageView.trailingAnchor),
+            diagnosisGenericView.heightAnchor.constraint(equalToConstant: 65)
+        ])
+        
+        diagnosisGenericView.isHidden = false
         scrollView.resizeScrollViewContentSize()
     }
     
@@ -482,11 +561,6 @@ class ShareClinicalCaseViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    
-    
-    @objc func didTapUpload() {
-        print("DEBUG: Upload clinical case here")
-    }
     
     @objc func handlePhotoTap() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
@@ -545,6 +619,11 @@ class ShareClinicalCaseViewController: UIViewController {
         }
     }
     
+    @objc func keyboardWillHide(notification: NSNotification) {
+       let keyboardHeight = (notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
+        scrollView.resizeScrollViewContentSize(keyboardHeight)
+    }
+    
     
     @objc func goToSpecialitiesController() {
         let controller = SpecialitiesListViewController(specialitiesSelected: specialitiesSelected)
@@ -560,6 +639,18 @@ class ShareClinicalCaseViewController: UIViewController {
     
     @objc func goToClinicalTypeController() {
         let controller = ClinicalTypeViewController(selectedTypes: caseTypesSelected)
+        controller.delegate = self
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = blackColor
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func goToCaseStageController() {
+        let controller = CaseStageViewController(selectedType: caseStageSelected)
         controller.delegate = self
         
         let backButton = UIBarButtonItem()
@@ -610,6 +701,10 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             self.addCaseCollectionView()
         }
     }
+    
+    @objc func handleShareCase() {
+        
+    }
 }
 
 extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -617,11 +712,11 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
         if collectionView == caseImagesCollectionView {
             return collectionImages.count
         } else if collectionView == specialitiesCollectionView {
-            print(specialitiesSelected.count)
             return specialitiesSelected.count
-        } else {
-            print(caseTypesSelected.count)
+        } else if collectionView == caseTypeCollectionView {
             return caseTypesSelected.count
+        } else {
+            return 1
         }
     }
     
@@ -637,9 +732,13 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
             cell.specialityLabel.text = specialitiesSelected[indexPath.row]
             return cell
             
-        } else {
+        } else if collectionView == caseTypeCollectionView {
             let cell = caseTypeCollectionView.dequeueReusableCell(withReuseIdentifier: caseTypeCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
             cell.specialityLabel.text = caseTypesSelected[indexPath.row]
+            return cell
+        } else {
+            let cell = stageCaseCollectionView.dequeueReusableCell(withReuseIdentifier: caseStageCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            cell.specialityLabel.text = caseStageSelected
             return cell
         }
     }
@@ -653,8 +752,10 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
             //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
             //let width = cell.size(forHeight: 50).width
             return CGSize(width: size(forHeight: 30, forText: specialitiesSelected[indexPath.item]).width + 30, height: 30)
-        } else {
+        } else if collectionView == caseTypeCollectionView {
             return CGSize(width: size(forHeight: 30, forText: caseTypesSelected[indexPath.item]).width + 30, height: 30)
+        } else {
+            return CGSize(width: size(forHeight: 30, forText: caseStageSelected).width + 30, height: 30)
         }
     }
     
@@ -753,6 +854,30 @@ extension ShareClinicalCaseViewController: ClinicalTypeViewControllerDelegate {
     }
 }
 
+extension ShareClinicalCaseViewController: CaseStageViewControllerDelegate {
+    func didSelectStage(_ stage: String) {
+        caseStageSelected = stage
+        addStageCaseCollectionView()
+        
+        if stage == "Resolved" {
+            diagnosisUnresolvedView.isHidden = true
+            let controller = CaseDiagnosisViewController(diagnosisText: diagnosisText)
+            controller.delegate = self
+            let navController = UINavigationController(rootViewController: controller)
+            
+            if let presentationController = navController.presentationController as? UISheetPresentationController {
+                presentationController.detents = [.medium()]
+            }
+            present(navController, animated: true)
+            
+        } else {
+            
+            diagnosisView.isHidden = true
+            addDiagnosisUnresolvedView()
+        }
+    }
+}
+
 extension ShareClinicalCaseViewController: CaseStageViewDelegate {
     func didTapUnresolved() {
         diagnosisView.isHidden = true
@@ -772,10 +897,10 @@ extension ShareClinicalCaseViewController: CaseStageViewDelegate {
 
 extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
     func handleAddDiagnosis(_ text: String) {
-        diagnosisHeight = size(forWidth: view.frame.width, forText: text).height + 40
-        diagnosisView.diagnosisLabel.text = text
+        //diagnosisHeight = size(forWidth: view.frame.width, forText: text).height + 40
+        //diagnosisView.diagnosisLabel.text = text
         diagnosisText = text
-        configureDiagnosisView(height: diagnosisHeight)
+        configureDiagnosisView()
     }
     
     func size(forWidth width: CGFloat, forText text: String) ->CGSize {
@@ -788,5 +913,30 @@ extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
     }
 }
 
+extension ShareClinicalCaseViewController: DiagnosisResolvedViewDelegate {
+    func didTapEdit() {
+        let controller = CaseDiagnosisViewController(diagnosisText: diagnosisText)
+        controller.delegate = self
+        let navController = UINavigationController(rootViewController: controller)
+        
+        if let presentationController = navController.presentationController as? UISheetPresentationController {
+            presentationController.detents = [.medium()]
+        }
+        present(navController, animated: true)
+    }
+}
+
+extension ShareClinicalCaseViewController: DiagnosisGenericViewDelegate {
+    func handleAdd() {
+        let controller = CaseDiagnosisViewController(diagnosisText: diagnosisText)
+        controller.delegate = self
+        let navController = UINavigationController(rootViewController: controller)
+        
+        if let presentationController = navController.presentationController as? UISheetPresentationController {
+            presentationController.detents = [.medium()]
+        }
+        present(navController, animated: true)
+    }
+}
 
 
