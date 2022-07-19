@@ -96,7 +96,7 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
             // Append new label to labels array
             labels.append(label)
         }
-        labels[0].textColor = blackColor
+        labels[0].textColor = .black
     }
                             
     /// Configure labels into a StackView to display them
@@ -156,7 +156,7 @@ extension CustomSegmentedButtonsView {
                         // Depending on distance of the origin.x it changes the colors accordingly
                         switch self.selectorView.frame.origin.x {
                         case 0..<(minUnit):
-                            firstLabel.textColor = blackColor
+                            firstLabel.textColor = .black
                             secondLabel.textColor = grayColor
                             thirdLabel.textColor = grayColor
                             fourLabel.textColor = grayColor
@@ -164,7 +164,7 @@ extension CustomSegmentedButtonsView {
                             
                         case (minUnit)..<(minUnit * 2):
                             firstLabel.textColor = grayColor
-                            secondLabel.textColor = blackColor
+                            secondLabel.textColor = .black
                             thirdLabel.textColor = grayColor
                             fourLabel.textColor = grayColor
                             pastIndex = 1
@@ -172,7 +172,7 @@ extension CustomSegmentedButtonsView {
                         case (minUnit * 2)..<(minUnit * 3):
                             firstLabel.textColor = grayColor
                             secondLabel.textColor = grayColor
-                            thirdLabel.textColor = blackColor
+                            thirdLabel.textColor = .black
                             fourLabel.textColor = grayColor
                             pastIndex = 2
                             
@@ -180,7 +180,7 @@ extension CustomSegmentedButtonsView {
                             firstLabel.textColor = grayColor
                             secondLabel.textColor = grayColor
                             thirdLabel.textColor = grayColor
-                            fourLabel.textColor = blackColor
+                            fourLabel.textColor = .black
                             pastIndex = 3
                             
                         default:

@@ -233,7 +233,7 @@ extension UIViewController {
         }
         
         let activityIndicator = UIActivityIndicatorView(style: .large)
-        activityIndicator.color = blackColor
+        activityIndicator.color = .black
         containerView.addSubview(activityIndicator)
         
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false

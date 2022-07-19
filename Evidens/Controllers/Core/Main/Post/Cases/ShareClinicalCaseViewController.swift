@@ -17,7 +17,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     //MARK: - Properties
     
-    private var user: User?
+    private var user: User
     
     private var specialitiesSelected: [String] = []
     private var caseTypesSelected: [String] = []
@@ -55,7 +55,8 @@ class ShareClinicalCaseViewController: UIViewController {
         button.configuration = .gray()
 
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
-        button.isUserInteractionEnabled = false
+        //Change this
+        button.isUserInteractionEnabled = true
         button.configuration?.baseForegroundColor = .white
 
         button.configuration?.cornerStyle = .capsule
@@ -249,27 +250,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var diagnosisView = DiagnosisResolvedView()
     private lazy var diagnosisUnresolvedView = DiagnosisUnresolvedView()
     private lazy var diagnosisGenericView = DiagnosisGenericView()
-    
-    private lazy var shareCaseButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseBackgroundColor = primaryColor
-        
-        button.configuration?.baseForegroundColor = .white
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 16, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Share Case", attributes: container)
-        
-        button.addTarget(self, action: #selector(handleShareCase), for: .touchUpInside)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
-        return button
-    }()
-    
-    
+
        
     //MARK: - Lifecycle
     
@@ -310,8 +291,8 @@ class ShareClinicalCaseViewController: UIViewController {
     
     
     init(user: User) {
-        super.init(nibName: nil, bundle: nil)
         self.user = user
+        super.init(nibName: nil, bundle: nil)
     }
     
     
@@ -704,7 +685,36 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
     }
     
     @objc func handleShareCase() {
+
+        guard let title = titleTextField.text, let description = descriptionTextView.text else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
+        if collectionImages.isEmpty {
+            print("no images")
+            CaseService.uploadCase(caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: .unresolved, diagnosis: nil, type: .text, user: self.user) { error in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    print("case with text succesffully uploaded")
+                }
+            }
+        }
+        
+        else {
+            print("Post has images")
+            StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
+                CaseService.uploadCase(caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: .unresolved, diagnosis: nil, type: .textWithImage, user: self.user) { error in
+                    if let error = error {
+                        print("DEBUG: \(error.localizedDescription)")
+                        return
+                    } else {
+                        // Post is uploaded to Firebase
+                        print("Case with text and image uploaded to Firebase with \(imageUrl.count) images")
+                    }
+                }
+            }
+        }
+
     }
 }
 

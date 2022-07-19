@@ -155,7 +155,7 @@ class UploadPostViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString(" Delete", attributes: container)
         
         //button.configuration?.baseForegroundColor = .red
-        button.configuration?.baseBackgroundColor = blackColor.withAlphaComponent(0.7)
+        button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.7)
         
         button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -171,7 +171,7 @@ class UploadPostViewController: UIViewController {
         button.configuration?.imagePlacement = .leading
         
         button.configuration?.baseForegroundColor = .white
-        button.configuration?.baseBackgroundColor = blackColor.withAlphaComponent(0.7)
+        button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.7)
         
         button.addTarget(self, action: #selector(didTapPlayPostVideo), for: .touchUpInside)
         return button
@@ -363,7 +363,7 @@ class UploadPostViewController: UIViewController {
         gridImagesView.translatesAutoresizingMaskIntoConstraints = false
         gridImagesView.layer.cornerRadius = 10
         gridImagesView.layer.borderWidth = 1
-        gridImagesView.layer.borderColor = blackColor.cgColor
+        gridImagesView.layer.borderColor = UIColor.black.cgColor
         
         scrollView.addSubview(gridImagesView)
         
@@ -803,11 +803,13 @@ extension UploadPostViewController: PostAttachementsMenuLauncherDelegate {
             navigationController?.present(picker, animated: true)
             
         case .poll:
+            /*
             let controller = PollConfigurationViewController()
             
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)
+             */
             
             postAttachementsMenuLauncher.handleDismissMenu()
         }

@@ -26,9 +26,9 @@ class MEHeaderPostView: UIView {
     
     weak var delegate: MEHeaderPostViewDelegate?
     
-    private lazy var categoryPostButton = MECategoryPostButton(title: "", color: blackColor, titleColor: .white)
+    private lazy var categoryPostButton = MECategoryPostButton(title: "", color: .black, titleColor: .white)
     
-    private lazy var subCategoryPostButton = MECategoryPostButton(title: "", color: lightGrayColor, titleColor: blackColor)
+    private lazy var subCategoryPostButton = MECategoryPostButton(title: "", color: lightGrayColor, titleColor: .black)
     
     private var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
@@ -37,7 +37,7 @@ class MEHeaderPostView: UIView {
         button.configuration?.image = UIImage(systemName: "ellipsis")
         
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseForegroundColor = .black
         
         button.configuration?.cornerStyle = .capsule
         

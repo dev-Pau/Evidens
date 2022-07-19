@@ -23,7 +23,7 @@ class MEUserPostView: UIView {
     lazy var usernameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = blackColor
+        label.textColor = .black
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))

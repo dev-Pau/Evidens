@@ -1,13 +1,13 @@
 //
-//  TextField.swift
+//  MECaseLabel.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 14/6/22.
+//  Created by Pau Fernández Solà on 19/7/22.
 //
 
 import UIKit
 
-class MEPostLabel: UILabel {
+class METitleCaseLabel: UILabel {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,9 +23,9 @@ class MEPostLabel: UILabel {
         
         textColor = .black
         
-        font = .systemFont(ofSize: 16, weight: .regular)
+        font = .systemFont(ofSize: 18, weight: .semibold)
         
-        numberOfLines = 10
+        numberOfLines = 1
         
         lineBreakMode = .byTruncatingTail
         

@@ -53,7 +53,7 @@ class UserProfileViewController: UIViewController {
                                                             style: .plain,
                                                             target: self, action: #selector(didTapSettings))
         
-        navigationItem.rightBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem?.tintColor = .black
         
         navigationItem.titleView = searchBar
         

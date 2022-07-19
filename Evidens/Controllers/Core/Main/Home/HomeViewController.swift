@@ -100,7 +100,7 @@ class HomeViewController: UICollectionViewController {
     func configureNavigationItemButtons() {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane",
-                                                                           withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)),
+                                                                           withConfiguration: UIImage.SymbolConfiguration(weight: .medium)),
                                                             style: .plain,
                                                             target: self,
                                                             action: #selector(didTapChat))
@@ -147,7 +147,7 @@ class HomeViewController: UICollectionViewController {
 
         controller.hidesBottomBarWhenPushed = true
         
-        navigationController?.pushViewController(controller, animated: false)
+        navigationController?.pushViewController(controller, animated: true)
     }
 
     
@@ -552,7 +552,7 @@ extension HomeViewController: UISearchBarDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = blackColor
+        backItem.tintColor = .black
         
         let controller = SearchViewController()
         navigationController?.pushViewController(controller, animated: true)

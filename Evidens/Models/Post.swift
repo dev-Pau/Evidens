@@ -66,9 +66,6 @@ struct Post {
     var didLike = false
     var didBookmark = false
     
-    //For future development, different types of posts + images, links, etc.
-    //let imageUrl: String?
-    
     init(postId: String, dictionary: [String: Any]) {
         self.postId = postId
         self.postText = dictionary["post"] as? String ?? ""

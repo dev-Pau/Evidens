@@ -65,6 +65,39 @@ struct StorageManager {
         }
     }
     
+    static func uploadCaseImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
+
+        var postImagesUrl: [String] = []
+        var index = 0
+        var order = 0
+        
+        images.forEach { image in
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            
+            
+            let filename = "\(order) \(uid) \(NSUUID().uuidString)"
+            print(filename)
+            let ref = Storage.storage().reference(withPath: "/case_images/\(filename)")
+            order += 1
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    index += 1
+                    guard let imageUrl = url?.absoluteString else { return }
+                    postImagesUrl.append(imageUrl)
+                    if images.count == index {
+                        completion(postImagesUrl)
+                    }
+                }
+            }
+        }
+    }
+    
     
     /// Uploads a PDF file to storage with url string to download
     static func uploadPostFile(fileName: String, url: URL, completion: @escaping(Result<String, Error>) -> Void) {

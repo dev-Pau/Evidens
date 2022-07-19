@@ -25,7 +25,7 @@ class RegistrationListView: UIView {
     private let categoryLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = blackColor
+        label.textColor = .black
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
