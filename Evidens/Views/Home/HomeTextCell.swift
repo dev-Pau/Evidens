@@ -18,8 +18,6 @@ class HomeTextCell: UICollectionViewCell {
     
     weak var delegate: HomeCellDelegate?
     
-    private var headerPostView = MEHeaderPostView(category: "  Nutrition  ", subCategory: "  Vegetables  ")
-    
     private var userPostView = MEUserPostView()
     
     private var postTextLabel = MEPostLabel()
@@ -36,22 +34,16 @@ class HomeTextCell: UICollectionViewCell {
         super.init(frame: frame)
         
         backgroundColor = .white
-        
-        headerPostView.delegate = self
+    
         userPostView.delegate = self
         postStatsView.delegate = self
         
         actionButtonsView.delegate = self
 
-        addSubviews(headerPostView, userPostView, postTextLabel, postStatsView, postInfoView, actionButtonsView)
+        addSubviews(userPostView, postTextLabel, postStatsView, postInfoView, actionButtonsView)
         
         NSLayoutConstraint.activate([
-            headerPostView.topAnchor.constraint(equalTo: topAnchor),
-            headerPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            headerPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            headerPostView.heightAnchor.constraint(equalToConstant: 50),
-            
-            userPostView.topAnchor.constraint(equalTo: headerPostView.bottomAnchor),
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),

@@ -13,7 +13,7 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 class CasesViewController: UIViewController {
     
     private var cases = [Case]() {
-        didSet { tableView.reloadData() }
+        didSet { collectionView.reloadData() }
     }
     
     private let userImageView: UIImageView = {
@@ -39,23 +39,22 @@ class CasesViewController: UIViewController {
         layout.scrollDirection = .vertical
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = lightColor
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
     
-    private let tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = lightColor
-        return tableView
-    }()
-    
- 
+
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchCases()
         configureNavigationBar()
         configureCollectionView()
         configureUI()
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.refreshControl = refresher
         
     }
     
@@ -68,6 +67,7 @@ class CasesViewController: UIViewController {
     private func fetchCases() {
         CaseService.fetchCases { cases in
             self.cases = cases
+            self.collectionView.refreshControl?.endRefreshing()
         }
     }
     
@@ -92,19 +92,12 @@ class CasesViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        //collectionView.register(<#T##cellClass: AnyClass?##AnyClass?#>, forCellWithReuseIdentifier: <#T##String#>)
-        
-        
-        
-         tableView.register(CaseTextCell.self, forCellReuseIdentifier: caseTextCellReuseIdentifier)
-         tableView.register(CaseTextImageCell.self, forCellReuseIdentifier: caseTextImageCellReuseIdentifier)
-         tableView.delegate = self
-         tableView.dataSource = self
-         tableView.rowHeight = UITableView.automaticDimension
-         tableView.estimatedRowHeight = 400
-         tableView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
-         view.addSubview(tableView)
-         
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        view.addSubview(collectionView)
     }
     
     @objc func didTapChat() {
@@ -118,35 +111,40 @@ class CasesViewController: UIViewController {
         controller.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+    @objc func handleRefresh() {
+        HapticsManager.shared.vibrate(for: .success)
+        cases.removeAll()
+        fetchCases()
+    }
 }
 
-extension CasesViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return cases.count
     }
     
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if cases[indexPath.row].type.rawValue == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-            cell.selectionStyle = .none
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-            cell.selectionStyle = .none
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             return cell
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if cases[indexPath.row].type.rawValue == 0 {
-            return 500
+            return CGSize(width: view.frame.width, height: 500)
         } else {
-            return 500
+            return CGSize(width: view.frame.width, height: 600)
         }
     }
+    
     
 }
 

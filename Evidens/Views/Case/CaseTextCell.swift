@@ -10,12 +10,11 @@ import UIKit
 private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 
-class CaseTextCell: UITableViewCell {
+class CaseTextCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
         didSet { configure() }
     }
-    
     
     private var caseDetails: [String] = []
     private var specialitiesDetails: [String] = []
@@ -68,16 +67,15 @@ class CaseTextCell: UITableViewCell {
     private var caseInfoView = MECaseInfoView(comments: 0, commentText: "", views: 0, viewText: "")
     private var caseActionButtons = MECaseActionButtons()
     
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
         caseStageCollectionView.delegate = self
         caseStageCollectionView.dataSource = self
         specialitiesCollectionView.delegate = self
         specialitiesCollectionView.dataSource = self
         
-        contentView.addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
+        addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
         
         backgroundColor = .white
         
@@ -127,6 +125,13 @@ class CaseTextCell: UITableViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
+        
+        caseDetails = []
+        
+        if viewModel.caseResolvedWithDiagnosis {
+            // Here add diagnosis view
+        }
+
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
@@ -140,7 +145,9 @@ class CaseTextCell: UITableViewCell {
         caseActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
         caseActionButtons.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
-        caseStatsView.likesLabel.text = "\(viewModel.caseLikes)"
+        //caseStatsView.likesIndicatorImage
+        caseStatsView.likesIndicatorImage.isHidden = viewModel.isLikesHidden
+        caseStatsView.likesLabel.text = viewModel.likesLabelText
         
         specialitiesDetails = viewModel.caseSpecialities
         
@@ -189,7 +196,7 @@ extension CaseTextCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLa
         } else {
             return CGSize(width: size(forHeight: 30, forText: specialitiesDetails[indexPath.item]).width + 30, height: 30)
         }
-      
+        
     }
 }
 

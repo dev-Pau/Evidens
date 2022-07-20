@@ -23,6 +23,9 @@ class ShareClinicalCaseViewController: UIViewController {
     private var caseTypesSelected: [String] = []
     private var caseStageSelected: String = ""
     
+    private var caseStage: Case.CaseStage = .unresolved
+    private var diagnosisText: String = ""
+    
     private var cellSizes: [CGFloat] = []
     
     private var collectionImages = [UIImage]() {
@@ -36,8 +39,6 @@ class ShareClinicalCaseViewController: UIViewController {
     private var previousValueTitle: Int = 0
     private var previousValueDescription: Int = 0
     
-    var diagnosisHeight: CGFloat = 0
-    var diagnosisText: String = ""
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -691,7 +692,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         
         if collectionImages.isEmpty {
             print("no images")
-            CaseService.uploadCase(caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: .unresolved, diagnosis: nil, type: .text, user: self.user) { error in
+            CaseService.uploadCase(caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user) { error in
                 if let error = error {
                     print(error.localizedDescription)
                 } else {
@@ -703,7 +704,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         else {
             print("Post has images")
             StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
-                CaseService.uploadCase(caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: .unresolved, diagnosis: nil, type: .textWithImage, user: self.user) { error in
+                CaseService.uploadCase(caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user) { error in
                     if let error = error {
                         print("DEBUG: \(error.localizedDescription)")
                         return
@@ -871,6 +872,8 @@ extension ShareClinicalCaseViewController: CaseStageViewControllerDelegate {
         addStageCaseCollectionView()
         
         if stage == "Resolved" {
+            caseStage = Case.CaseStage.resolved
+            print(caseStage)
             diagnosisUnresolvedView.isHidden = true
             let controller = CaseDiagnosisViewController(diagnosisText: diagnosisText)
             controller.delegate = self
@@ -882,7 +885,8 @@ extension ShareClinicalCaseViewController: CaseStageViewControllerDelegate {
             present(navController, animated: true)
             
         } else {
-            
+            caseStage = Case.CaseStage.unresolved
+            print(caseStage)
             diagnosisView.isHidden = true
             addDiagnosisUnresolvedView()
         }

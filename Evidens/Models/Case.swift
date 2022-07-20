@@ -49,7 +49,7 @@ struct Case {
     let timestamp: Timestamp
     let caseId: String
     let type: CaseType
-    let stage: CaseStage
+    var stage: CaseStage
     let ownerProfession: String
     let ownerCategory: User.UserCategory
     var diagnosis: String

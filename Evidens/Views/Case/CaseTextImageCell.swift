@@ -11,7 +11,7 @@ private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
 
-class CaseTextImageCell: UITableViewCell {
+class CaseTextImageCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
         didSet { configure() }
@@ -20,6 +20,7 @@ class CaseTextImageCell: UITableViewCell {
     
     private var caseDetails: [String] = []
     private var specialitiesDetails: [String] = []
+    private var urlImages: [URL] = []
     
     private var userPostView = MEUserPostView()
     
@@ -66,6 +67,7 @@ class CaseTextImageCell: UITableViewCell {
     private let caseImagesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isUserInteractionEnabled = true
         collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
@@ -81,8 +83,9 @@ class CaseTextImageCell: UITableViewCell {
     private var caseActionButtons = MECaseActionButtons()
     
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
         
         caseStageCollectionView.delegate = self
         caseStageCollectionView.dataSource = self
@@ -91,7 +94,7 @@ class CaseTextImageCell: UITableViewCell {
         caseImagesCollectionView.delegate = self
         caseImagesCollectionView.dataSource = self
         
-        contentView.addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, caseImagesCollectionView, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
+        addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, caseImagesCollectionView, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
         
         backgroundColor = .white
         
@@ -120,7 +123,7 @@ class CaseTextImageCell: UITableViewCell {
             caseImagesCollectionView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
             caseImagesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseImagesCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseImagesCollectionView.heightAnchor.constraint(equalToConstant: 100),
+            caseImagesCollectionView.heightAnchor.constraint(equalToConstant: 300),
             
             specialitiesCollectionView.topAnchor.constraint(equalTo: caseImagesCollectionView.bottomAnchor, constant: 5),
             specialitiesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -145,6 +148,8 @@ class CaseTextImageCell: UITableViewCell {
     }
     
     private func configure() {
+        caseDetails = []
+        
         guard let viewModel = viewModel else { return }
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
@@ -166,8 +171,11 @@ class CaseTextImageCell: UITableViewCell {
         caseDetails.append(viewModel.caseStage)
         viewModel.caseTypeDetails.forEach {  caseDetails.append($0) }
         
+        urlImages = viewModel.caseImageUrl!
+        
         caseStageCollectionView.reloadData()
         specialitiesCollectionView.reloadData()
+        caseImagesCollectionView.reloadData()
         
         
     }
@@ -188,7 +196,8 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
         } else if collectionView == specialitiesCollectionView {
             return specialitiesDetails.count
         } else {
-            return 2
+            return urlImages.count
+
         }
     }
     
@@ -203,6 +212,8 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+            cell.caseImageView.sd_setImage(with: urlImages[indexPath.row])
+            cell.backgroundColor = .systemPink
             //cell.specialityLabel.text = specialitiesDetails[indexPath.row]
             return cell
         }
@@ -214,10 +225,33 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
         } else if collectionView == specialitiesCollectionView {
             return CGSize(width: size(forHeight: 30, forText: specialitiesDetails[indexPath.item]).width + 30, height: 30)
         } else {
-            return CGSize(width: UIScreen.main.bounds.width, height: 400)
+            return CGSize(width: UIScreen.main.bounds.width, height: 300)
         }
-      
     }
+    
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if caseImagesCollectionView == scrollView {
+            if scrollView.contentOffset.x > UIScreen.main.bounds.width / 2 {
+                print("now")
+                
+                let frame: CGRect = CGRect(x : UIScreen.main.bounds.width, y : self.caseImagesCollectionView.contentOffset.y ,width : UIScreen.main.bounds.width, height: self.caseImagesCollectionView.frame.height)
+                
+                caseImagesCollectionView.scrollRectToVisible(frame, animated: true)
+            }
+            
+            
+            //print(scrollView.contentOffset.x)
+            //guard scrollView.contentOffset.x <= caseImagesCollectionView.contentSize.width - caseImagesCollectionView.bounds.size.width else { return }
+            //guard scrollView.contentOffset.x >= 0 else { return }
+            //caseImagesCollectionView.setContentOffset(CGPoint(x: scrollView.contentOffset.x, y: caseImagesCollectionView.contentOffset.y), animated: true)
+            
+        } else {
+            return
+        }
+
+    }
+    
 }
 
 extension CaseTextImageCell {

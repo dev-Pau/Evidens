@@ -30,6 +30,17 @@ class HomeImageViewController: UIViewController {
     
     var singleTap: UITapGestureRecognizer!
     
+    private lazy var dismissButon: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 17, height: 17)).withTintColor(.white)
+        button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
+        button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
+        return button
+    }()
+
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.isHidden = true
@@ -49,6 +60,10 @@ class HomeImageViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
 
     private var postInfoView =  MEPostInfoView(comments: 1, commentText: "", shares: 1, shareText: "")
     
@@ -56,10 +71,12 @@ class HomeImageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setNeedsStatusBarAppearanceUpdate()
         configureNavigationBar()
         pagingScrollView.delegate = self
         singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
         view.addGestureRecognizer(singleTap)
+        view.backgroundColor = .black
         navigationItem.titleView = searchBar
         navigationController?.delegate = zoomTransitioning
         
@@ -107,22 +124,52 @@ class HomeImageViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.tabBarController?.tabBar.isHidden = true
-        navigationController?.navigationBar.alpha = 0.7
+        navigationController?.navigationBar.isHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.tabBarController?.tabBar.isHidden = false
-        navigationController?.navigationBar.alpha = 1
+        navigationController?.navigationBar.isHidden = false
         pagingScrollView.backgroundColor = .clear
-        containerView.removeFromSuperview()
+        //containerView.removeFromSuperview()
     }
+    
     
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
+ 
     }
     
     private func configure() {
+        
+        let pagingScrollViewFrame = pagingScrollViewFrame()
+        pagingScrollView = UIScrollView(frame: pagingScrollViewFrame)
+        pagingScrollView.showsVerticalScrollIndicator = false
+        pagingScrollView.showsHorizontalScrollIndicator = false
+        pagingScrollView.isPagingEnabled = true
+        pagingScrollView.contentSize = contentSizeScrollView()
+        pagingScrollView.contentInsetAdjustmentBehavior = .never
+        view.addSubview(pagingScrollView)
+        
+        for index in 0..<imageCount {
+            let page = MEScrollImageView()
+            configure(page, for: index)
+            pagingScrollView.addSubview(page)
+            pageImages.append(page)
+        }
+        
+        view.addSubview(dismissButon)
+        
+        NSLayoutConstraint.activate([
+            dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
+            dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dismissButon.heightAnchor.constraint(equalToConstant: 27),
+            dismissButon.widthAnchor.constraint(equalToConstant: 27)
+        
+        ])
+        
+        /*
         if let keyWindow = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
             keyWindow.addSubview(containerView)
             containerView.addSubview(whiteView)
@@ -159,27 +206,8 @@ class HomeImageViewController: UIViewController {
                 postStatsView.heightAnchor.constraint(equalToConstant: 50),
             ])
         }
-        
-        
-        let pagingScrollViewFrame = pagingScrollViewFrame()
-        pagingScrollView = UIScrollView(frame: pagingScrollViewFrame)
-        pagingScrollView.showsVerticalScrollIndicator = false
-        pagingScrollView.showsHorizontalScrollIndicator = false
-        pagingScrollView.isPagingEnabled = true
-        pagingScrollView.contentSize = contentSizeScrollView()
-        pagingScrollView.contentInsetAdjustmentBehavior = .never
-        view.addSubview(pagingScrollView)
-        
-        for index in 0..<imageCount {
-            let page = MEScrollImageView()
-            configure(page, for: index)
-            pagingScrollView.addSubview(page)
-            pageImages.append(page)
-        }
-        
-        
-        
-        
+         */
+
     }
     
     func configure(_ page: MEScrollImageView, for index: Int) {
@@ -212,6 +240,7 @@ class HomeImageViewController: UIViewController {
         let duration: TimeInterval = 0.2
         
         if navigationController != nil {
+            /*
             
             if !navigationBarIsHidden {
                 
@@ -236,6 +265,7 @@ class HomeImageViewController: UIViewController {
                     self.updateBackgroundColor()
                 }
             }
+            */
         }
     }
     
@@ -243,6 +273,10 @@ class HomeImageViewController: UIViewController {
         let activityVC = UIActivityViewController(activityItems: [self.postImage[0] as Any], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         self.present(activityVC, animated: true, completion: nil)
+    }
+    
+    @objc func handleDismiss() {
+        navigationController?.popViewController(animated: true)
     }
     
     func updateBackgroundColor() {

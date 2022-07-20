@@ -40,7 +40,11 @@ struct CaseViewModel {
     }
     
     var caseStage: String {
-        return clinicalCase.stage.rawValue == 0 ? "Unresolved" : "Resolved"
+        return clinicalCase.stage.rawValue == 0 ? "Resolved" : "Unresolved"
+    }
+    
+    var caseResolvedWithDiagnosis: Bool {
+        return clinicalCase.stage.rawValue == 0 && !diagnosisText.isEmpty ? true : false
     }
     
     var diagnosisText: String {
@@ -94,6 +98,22 @@ struct CaseViewModel {
     var caseImageUrl: [URL]? {
         clinicalCase.caseImageUrl.map { image in
             URL(string: image)!
+        }
+    }
+    
+    var isLikesHidden: Bool {
+        if clinicalCase.likes == 0 {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    var likesLabelText: String {
+        if clinicalCase.likes > 0 {
+            return "\(clinicalCase.likes)"
+        } else {
+            return ""
         }
     }
     

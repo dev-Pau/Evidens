@@ -39,7 +39,6 @@ class HomeImageTextCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
-        iv.isUserInteractionEnabled = true
         return iv
     }()
     

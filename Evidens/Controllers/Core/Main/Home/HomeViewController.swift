@@ -341,7 +341,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if posts[indexPath.row].type.postType == 1 {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage[0] + 200
+                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage[0] + 205
                 return CGSize(width: view.frame.width, height: height)
                 
             } else if posts[indexPath.row].type.postType == 2  {
@@ -370,7 +370,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + 205
+                let height = viewModel.size(forWidth: view.frame.width).height + 155
                 return CGSize(width: view.frame.width, height: height)
             }
         }
@@ -406,7 +406,7 @@ extension HomeViewController: HomeCellDelegate {
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         controller.customDelegate = self
-        
+
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
