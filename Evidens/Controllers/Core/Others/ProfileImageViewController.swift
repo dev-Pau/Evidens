@@ -67,6 +67,7 @@ class ProfileImageViewController: UIViewController {
         self.present(activityVC, animated: true, completion: nil)
     }
      */
+     
     
     @objc func didTapEditProfile() {
         let picker = UIImagePickerController()

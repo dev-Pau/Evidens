@@ -10,8 +10,7 @@ import UIKit
 protocol MEPostActionButtonsDelegate: AnyObject {
     func handleLikes()
     func handleComments()
-    func handleShare()
-    func handleSend()
+    func handleBookmark()
 }
 
 class MEPostActionButtons: UIView {
@@ -30,8 +29,8 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        
-        button.configuration?.baseBackgroundColor = .white
+
+        button.configuration?.baseForegroundColor = .black
         
         button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return button
@@ -42,35 +41,23 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        
-        button.configuration?.baseBackgroundColor = .white
 
-        button.configuration?.image = UIImage(named: "comment")?.withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "bubble.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 26, height: 26))
+        button.configuration?.baseForegroundColor = .black
         
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
-        
         return button
     }()
-    
-    private lazy var sendButton: UIButton = {
+
+    lazy var bookmarkButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        
-        button.configuration?.baseBackgroundColor = .white
 
-        button.configuration?.image = UIImage(named: "paperplane")?.withTintColor(grayColor)
-        return button
-    }()
-    
-    lazy var shareButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        button.configuration?.baseForegroundColor = .black
         
-        button.configuration?.baseBackgroundColor = .white
-
-        button.configuration?.image = UIImage(named: "share")?.withTintColor(grayColor)
+        button.addTarget(self, action: #selector(handleBookmark), for: .touchUpInside)
         return button
     }()
     
@@ -91,12 +78,8 @@ class MEPostActionButtons: UIView {
 
         translatesAutoresizingMaskIntoConstraints = false
         
-        let stackView = UIStackView(arrangedSubviews: [likeButton, commentButton, shareButton, sendButton])
-        stackView.axis = .horizontal
-        stackView.distribution = .equalSpacing
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubviews(bottomSeparatorLabel, stackView)
+
+        addSubviews(bottomSeparatorLabel, likeButton, commentButton, bookmarkButton)
         
         NSLayoutConstraint.activate([
            
@@ -105,9 +88,20 @@ class MEPostActionButtons: UIView {
             bottomSeparatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
             
-            stackView.topAnchor.constraint(equalTo: bottomSeparatorLabel.bottomAnchor),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            likeButton.topAnchor.constraint(equalTo: bottomSeparatorLabel.bottomAnchor, constant: 5),
+            likeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            likeButton.heightAnchor.constraint(equalToConstant: 30),
+            likeButton.widthAnchor.constraint(equalToConstant: 30),
+            
+            commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            commentButton.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
+            commentButton.heightAnchor.constraint(equalToConstant: 30),
+            commentButton.widthAnchor.constraint(equalToConstant: 30),
+            
+            bookmarkButton.topAnchor.constraint(equalTo: bottomSeparatorLabel.bottomAnchor, constant: 5),
+            bookmarkButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            bookmarkButton.heightAnchor.constraint(equalToConstant: 30),
+            bookmarkButton.widthAnchor.constraint(equalToConstant: 30),
         ])
     }
     
@@ -119,5 +113,9 @@ class MEPostActionButtons: UIView {
     
     @objc func handleComment() {
         delegate?.handleComments()
+    }
+    
+    @objc func handleBookmark() {
+        delegate?.handleBookmark()
     }
 }

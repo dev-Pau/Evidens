@@ -28,6 +28,8 @@ class UploadPostViewController: UIViewController {
     
     private var postImages: [UIImage] = []
     
+    private var privacyType: Post.PrivacyOptions = .all
+    
     private var postDocumentUrl: URL?
     private var postDocumentPages: Int?
     private var postDocumentTitle: String?
@@ -37,7 +39,7 @@ class UploadPostViewController: UIViewController {
     
     var videoUrl: URL?
     
-    var newHeights: [CGFloat] = []
+    var newHeight: CGFloat = 0.0
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -311,8 +313,8 @@ class UploadPostViewController: UIViewController {
         
         
         let ratio = image.size.width / image.size.height
-        newHeights.append(view.bounds.width / ratio)
-        postImageView.setHeight(newHeights[0])
+        newHeight = view.bounds.width / ratio
+        postImageView.setHeight(newHeight)
 
         addCancelButtonImagePost(to: postImageView)
         
@@ -334,8 +336,8 @@ class UploadPostViewController: UIViewController {
         
         
         let ratio = image.size.width / image.size.height
-        newHeights.append(view.bounds.width / ratio)
-        postImageView.setHeight(newHeights[0])
+        newHeight = view.bounds.width / ratio
+        postImageView.setHeight(newHeight)
 
         addCancelButtonImagePost(to: postImageView)
         
@@ -352,10 +354,6 @@ class UploadPostViewController: UIViewController {
     func addPostImagesToView(images: [UIImage]) {
         gridImagesView.images = images
 
-        images.forEach { image in
-            let ratio = image.size.width / image.size.height
-            newHeights.append(view.bounds.width / ratio)
-        }
         gridImagesView.screenWidth = postTextView.bounds.size.width
         
         gridImagesView.configure()
@@ -382,7 +380,6 @@ class UploadPostViewController: UIViewController {
         viewModel.hasImage = true
         updateForm()
        
-        print(newHeights)
         scrollView.resizeScrollViewContentSize()
         
     }
@@ -441,7 +438,7 @@ class UploadPostViewController: UIViewController {
         }
         
         postImages.removeAll()
-        newHeights.removeAll()
+        newHeight = 0.0
         
         group.notify(queue: .main) {
             self.scrollView.resizeScrollViewContentSize()
@@ -516,7 +513,6 @@ class UploadPostViewController: UIViewController {
         guard let postTextView = postTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        
         if viewModel.hasDocument {
             print("has document")
             guard let docUrl = postDocumentUrl else {
@@ -556,7 +552,7 @@ class UploadPostViewController: UIViewController {
                 
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithImage, user: self.user) { error in
+                    PostService.uploadSingleImagePost(post: postTextView, postImageUrl: imageUrl, imageHeight: self.newHeight, type: .textWithImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -569,7 +565,7 @@ class UploadPostViewController: UIViewController {
             case 2:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithTwoImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithTwoImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -582,7 +578,7 @@ class UploadPostViewController: UIViewController {
             case 3:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithThreeImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithThreeImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -595,7 +591,7 @@ class UploadPostViewController: UIViewController {
             case 4:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, imagesHeight: self.newHeights, type: .textWithFourImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithFourImage, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -610,7 +606,7 @@ class UploadPostViewController: UIViewController {
             }
         } else {
             // Post has text only
-            PostService.uploadPost(post: postTextView, postImageUrl: nil, imagesHeight: nil, type: .plainText, user: user) { error in
+            PostService.uploadTextPost(post: postTextView, type: .plainText, privacy: privacyType, user: user) { error in
                 if let error = error {
                     print("DEBUG: \(error.localizedDescription)")
                     return
@@ -752,11 +748,13 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
 
 
 extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
-    func didTapPrivacyOption(_ option: String, _ image: UIImage) {
+    func didTapPrivacyOption(_ option: Post.PrivacyOptions, _ image: UIImage, _ privacyText: String) {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
-        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option)", attributes: container)
+        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(privacyText)", attributes: container)
         settingsPostButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        privacyType = option
+        
     }
     
     func didDissmisMenu() {

@@ -32,6 +32,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     
     private var actionButtonsView = MEPostActionButtons()
     
+    private var appended: [Int] = []
+    
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -63,9 +65,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
-        headerPostView.delegate = self
         userPostView.delegate = self
-        postStatsView.delegate = self
+        postInfoView.delegate = self
         
         actionButtonsView.delegate = self
         
@@ -130,52 +131,44 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         postTextLabel.text = viewModel.postText
         
         postStatsView.likesLabel.text = viewModel.likesLabelText
-        postStatsView.likesIndicatorImage.isHidden = viewModel.isLikesHidden
+       
         
         postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
-        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
-        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+        viewModel.post.postImageUrl.forEach { url in
+            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
+            appended.append(Int(currentURL[0..<1])!)
+
+            if appended.count == viewModel.postImageUrl.count {
+
+                postImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 0)!])
+                postTwoImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 1)!])
+                appended.removeAll()
+            }
+        }
     }
     
     
     @objc func handleImageTap(gesture: UITapGestureRecognizer) {
         guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
         if image == postImageView {
-            //delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight.first!)
+            delegate?.cell(self, didTapImage: [postImageView, postTwoImageView], index: 0)
         } else {
-            //delegate?.cell(self, didTapImage: image, withHeight: viewModel.post.imagesHeight[1])
+            delegate?.cell(self, didTapImage: [postImageView, postTwoImageView], index: 1)
         }
     }
 }
 
 
-extension HomeTwoImageTextCell: MEHeaderPostViewDelegate {
-    
-    func didTapSubCategory(for subCategory: String) {
-        print("Home cell received sub category \(subCategory) to show")
-        delegate?.cell(wantsToSeePostsFor: subCategory)
-    }
-    
-    
-    func didTapCategory(for category: String) {
-        print("Home cell received \(category) to show")
-        delegate?.cell(wantsToSeePostsFor: category)
-    }
-    
-    
-    func didTapThreeDots(withAction action: String) {
-        print("Home cell received")
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
-    }
-}
-
-
 extension HomeTwoImageTextCell: MEUserPostViewDelegate {
+    func didTapThreeDots() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+    }
+    
     func didTapProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
@@ -183,7 +176,7 @@ extension HomeTwoImageTextCell: MEUserPostViewDelegate {
 }
 
 
-extension HomeTwoImageTextCell: MEPostStatsViewDelegate {
+extension HomeTwoImageTextCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
@@ -199,14 +192,10 @@ extension HomeTwoImageTextCell: MEPostActionButtonsDelegate {
     }
     
     
-    func handleShare() {
-        print("Did tap share")
+    func handleBookmark() {
+        print("bookarmk")
     }
     
-    
-    func handleSend() {
-        print("Did tap send")
-    }
     
     
     func handleLikes() {

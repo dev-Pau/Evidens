@@ -14,6 +14,7 @@ class MainTabController: UITabBarController {
     //MARK: Properties
     
     private var postMenuLauncher = PostBottomMenuLauncher()
+    var menu = PostPrivacyMenuLauncher()
     
     var user: User? {
         didSet {

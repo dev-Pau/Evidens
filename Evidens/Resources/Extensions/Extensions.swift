@@ -397,3 +397,16 @@ extension UIWindow {
         rootViewController = viewController
     }
 }
+
+extension UIView {
+    func constrainHeight(constant: CGFloat) {
+        constraints.forEach {
+            if $0.firstAttribute == .height {
+                self.removeConstraint($0)
+            }
+        }
+        heightAnchor.constraint(equalToConstant: constant).isActive = true
+        layoutIfNeeded()
+    }
+}
+

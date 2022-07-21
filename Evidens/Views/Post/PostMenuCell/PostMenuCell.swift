@@ -21,9 +21,8 @@ class PostMenuCell: UICollectionViewCell {
     
     lazy var postTyeButton: UIButton = {
         let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.baseForegroundColor = grayColor
-        button.configuration?.baseBackgroundColor = lightGrayColor
+        button.configuration = .plain()
+        button.configuration?.baseForegroundColor = .black
 
         button.configuration?.cornerStyle = .capsule
         
@@ -35,9 +34,9 @@ class PostMenuCell: UICollectionViewCell {
     
     private let postTypeLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = blackColor
+        label.textColor = .black
         return label
     }()
     
@@ -75,5 +74,9 @@ class PostMenuCell: UICollectionViewCell {
     func set(withText text: String, withImage image: UIImage) {
         postTyeButton.configuration?.image = image
         postTypeLabel.text = text
+        if text == "Delete" || text == "Report this post" {
+            postTypeLabel.textColor = .red
+            postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        }
     }
 }

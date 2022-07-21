@@ -49,9 +49,8 @@ class HomeImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
-        headerPostView.delegate = self
         userPostView.delegate = self
-        postStatsView.delegate = self
+        postInfoView.delegate = self
         
         actionButtonsView.delegate = self
 
@@ -110,50 +109,29 @@ class HomeImageTextCell: UICollectionViewCell {
         postTextLabel.text = viewModel.postText
         
         postStatsView.likesLabel.text = viewModel.likesLabelText
-        postStatsView.likesIndicatorImage.isHidden = viewModel.isLikesHidden
+    
         
         postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         
-        postImageView.setHeight(viewModel.post.imagesHeight.first!)
+        postImageView.setHeight(viewModel.post.imagesHeight)
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
     }
     
     @objc func handleImageTap() {
-        guard let viewModel = viewModel else {
-            return
-        }
-
         delegate?.cell(self, didTapImage: [postImageView], index: 0)
     }
 }
 
 
-extension HomeImageTextCell: MEHeaderPostViewDelegate {
-    
-    func didTapSubCategory(for subCategory: String) {
-        print("Home cell received sub category \(subCategory) to show")
-        delegate?.cell(wantsToSeePostsFor: subCategory)
-    }
-    
-
-    func didTapCategory(for category: String) {
-        print("Home cell received \(category) to show")
-        delegate?.cell(wantsToSeePostsFor: category)
-    }
-    
-    
-    func didTapThreeDots(withAction action: String) {
-        print("Home cell received")
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
-    }
-}
-
-
 extension HomeImageTextCell: MEUserPostViewDelegate {
+    func didTapThreeDots() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+    }
+    
     func didTapProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
@@ -161,7 +139,7 @@ extension HomeImageTextCell: MEUserPostViewDelegate {
 }
 
 
-extension HomeImageTextCell: MEPostStatsViewDelegate {
+extension HomeImageTextCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
@@ -177,14 +155,10 @@ extension HomeImageTextCell: MEPostActionButtonsDelegate {
     }
     
     
-    func handleShare() {
-        print("Did tap share")
+    func handleBookmark() {
+        print("bookarmk")
     }
     
-    
-    func handleSend() {
-        print("Did tap send")
-    }
     
     
     func handleLikes() {

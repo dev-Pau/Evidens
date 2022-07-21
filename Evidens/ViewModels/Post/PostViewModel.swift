@@ -10,7 +10,6 @@ import UIKit
 struct PostViewModel {
     var post: Post
     
-    
     var postType: Int {
         return post.type.postType
     }
@@ -78,12 +77,12 @@ struct PostViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return post.didLike ? pinkColor : grayColor
+        return post.didLike ? pinkColor : .black
     }
     
     var likeButtonImage: UIImage? {
         let imageName = post.didLike ? "heart.fill" : "heart"
-        return UIImage(systemName: imageName)
+        return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
     }
     
     var bookMarkImage: UIImage? {
@@ -92,21 +91,28 @@ struct PostViewModel {
     }
     
     var likesLabelText: String {
-        if post.likes > 0 {
-            return "\(post.likes)"
+        if post.likes == 1 {
+            return "\(post.likes) like"
+        } else if post.likes > 1 {
+            return "\(post.likes) likes"
         } else {
             return ""
         }
     }
     
-    var isLikesHidden: Bool {
-        if post.likes == 0 {
-            return true
-        } else {
-            return false
-        }
+    var profession: String {
+        return post.ownerProfession
     }
     
+    var category: String {
+        return post.ownerCategory
+    }
+    
+    var speciality: String {
+        return post.ownerSpeciality
+    }
+    
+
     var timestampString: String? {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
@@ -115,8 +121,29 @@ struct PostViewModel {
         return formatter.string(from: post.timestamp.dateValue(), to: Date())
     }
     
-    var sizeOfImage: [CGFloat] {
+    var privacyImage: UIImage {
+        switch post.privacyOptions.rawValue {
+        case 0:
+            return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        case 1:
+            return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        case 2:
+            return UIImage(systemName: "lock.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        default:
+            return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        }
+    }
+    
+    var sizeOfImage: CGFloat {
         return post.imagesHeight
+    }
+    
+    var postHasInfo: Bool {
+        return  post.likes == 0 && post.numberOfComments == 0 && post.numberOfShares == 0 ? false : true
+    }
+    
+    var additionalPostHeight: CGFloat {
+        return  post.likes == 0 && post.numberOfComments == 0 && post.numberOfShares == 0 ? 0 : 20
     }
     
     init(post: Post) {
@@ -126,9 +153,9 @@ struct PostViewModel {
     //Return the height for dynamic cell height
     func size(forWidth width: CGFloat) ->CGSize {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.numberOfLines = 3
         label.text = post.postText
-        label.lineBreakMode = .byWordWrapping
+        label.lineBreakMode = .byTruncatingTail
         label.setWidth(width)
         return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }

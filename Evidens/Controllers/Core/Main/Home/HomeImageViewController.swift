@@ -26,7 +26,7 @@ class HomeImageViewController: UIViewController {
     
     var pagingScrollView: UIScrollView!
     
-    var navigationBarIsHidden: Bool = false
+    var statusBarIsHidden: Bool = false
     
     var singleTap: UITapGestureRecognizer!
     
@@ -38,6 +38,18 @@ class HomeImageViewController: UIViewController {
         button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 17, height: 17)).withTintColor(.white)
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var threeDotsButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(systemName: "ellipsis")?.scalePreservingAspectRatio(targetSize: CGSize(width: 17, height: 17))
+        button.configuration?.baseForegroundColor = .red
+        button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
+        button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
         return button
     }()
 
@@ -71,18 +83,12 @@ class HomeImageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNeedsStatusBarAppearanceUpdate()
-        configureNavigationBar()
         pagingScrollView.delegate = self
         singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
+        navigationItem.titleView = searchBar
         view.addGestureRecognizer(singleTap)
         view.backgroundColor = .black
-        navigationItem.titleView = searchBar
         navigationController?.delegate = zoomTransitioning
-        
-        if navigationController != nil, !(navigationController?.navigationBar.isHidden)! {
-            navigationBarIsHidden = false
-        }
     }
     
     init(image: [UIImage], imageCount: Int, index: Int) {
@@ -135,12 +141,6 @@ class HomeImageViewController: UIViewController {
         //containerView.removeFromSuperview()
     }
     
-    
-    private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
- 
-    }
-    
     private func configure() {
         
         let pagingScrollViewFrame = pagingScrollViewFrame()
@@ -159,14 +159,18 @@ class HomeImageViewController: UIViewController {
             pageImages.append(page)
         }
         
-        view.addSubview(dismissButon)
+        view.addSubviews(dismissButon, threeDotsButton)
         
         NSLayoutConstraint.activate([
             dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
             dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             dismissButon.heightAnchor.constraint(equalToConstant: 27),
-            dismissButon.widthAnchor.constraint(equalToConstant: 27)
-        
+            dismissButon.widthAnchor.constraint(equalToConstant: 27),
+            
+            threeDotsButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
+            threeDotsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            threeDotsButton.heightAnchor.constraint(equalToConstant: 27),
+            threeDotsButton.widthAnchor.constraint(equalToConstant: 27)
         ])
         
         /*
@@ -237,9 +241,20 @@ class HomeImageViewController: UIViewController {
     }
     
     @objc func handleSingleTap() {
-        let duration: TimeInterval = 0.2
+        statusBarIsHidden.toggle()
+        if statusBarIsHidden {
+            UIView.animate(withDuration: 0.2) {
+                self.dismissButon.alpha = 0
+                self.threeDotsButton.alpha = 0
+            }
+        } else {
+            UIView.animate(withDuration: 0.2) {
+                self.dismissButon.alpha = 1
+                self.threeDotsButton.alpha = 1
+            }
+        }
         
-        if navigationController != nil {
+        
             /*
             
             if !navigationBarIsHidden {
@@ -263,29 +278,23 @@ class HomeImageViewController: UIViewController {
                     self.containerView.alpha = 1
                     self.navigationController!.navigationBar.isHidden = false
                     self.updateBackgroundColor()
-                }
-            }
-            */
-        }
-    }
-    
-    @objc func didTapShare() {
-        let activityVC = UIActivityViewController(activityItems: [self.postImage[0] as Any], applicationActivities: nil)
-        activityVC.popoverPresentationController?.sourceView = self.view
-        self.present(activityVC, animated: true, completion: nil)
+             }
+             }
+             */
+        
     }
     
     @objc func handleDismiss() {
         navigationController?.popViewController(animated: true)
     }
     
+    @objc func didTapThreeDots() {
+        let activityVC = UIActivityViewController(activityItems: [self.postImage[index] as Any], applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        self.present(activityVC, animated: true, completion: nil)
+    }
+    
     func updateBackgroundColor() {
-        if  !self.navigationBarIsHidden {
-            self.updateBackground(to: .white)
-        }
-        else {
-            self.updateBackground(to: .black)
-        }
     }
     
     

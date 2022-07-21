@@ -30,7 +30,7 @@ struct User {
             case .none:
                 return "none"
             case .professional:
-                return "Healthcare professional"
+                return "Professional"
             case .professor:
                 return "Professor"
             case .student:

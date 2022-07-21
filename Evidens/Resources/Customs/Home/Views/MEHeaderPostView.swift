@@ -35,8 +35,6 @@ class MEHeaderPostView: UIView {
         
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        
-        button.configuration?.baseBackgroundColor = .white
         button.configuration?.baseForegroundColor = .black
         
         button.configuration?.cornerStyle = .capsule

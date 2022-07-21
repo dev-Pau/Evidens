@@ -10,6 +10,23 @@ import Firebase
 
 struct Post {
     
+    enum PrivacyOptions: Int {
+        case all
+        case connections
+        case me
+        
+        var privacyOptions: Int {
+            switch self {
+            case .all:
+                return 0
+            case .connections:
+                return 1
+            case .me:
+                return 2
+            }
+        }
+    }
+    
     enum PostType: Int {
         case plainText
         case textWithImage
@@ -52,11 +69,15 @@ struct Post {
     let postId: String
     let type: PostType
     let ownerCategory: String
+    let ownerProfession: String
+    let ownerSpeciality: String
+    
     let ownerImageUrl: String
     let ownerFirstName: String
     let ownerLastName: String
     
-    let imagesHeight: [CGFloat]
+    let privacyOptions: PrivacyOptions
+    let imagesHeight: CGFloat
     let postImageUrl: [String]
     
     let postDocumentUrl: String
@@ -80,12 +101,16 @@ struct Post {
         self.ownerFirstName = dictionary["ownerFirstName"] as? String ?? ""
         self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""
+        self.ownerProfession = dictionary["profession"] as? String ?? ""
+        self.ownerSpeciality = dictionary["speciality"] as? String ?? ""
         
-        self.imagesHeight = dictionary["imagesHeight"] as? [CGFloat] ?? [0.0]
+        self.imagesHeight = dictionary["imagesHeight"] as? CGFloat ?? 0.0
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [""]
         
         self.postDocumentUrl = dictionary["postDocumentUrl"] as? String ?? ""
         self.documentPages = dictionary["documentPages"] as? Int ?? 0
         self.documentTitle = dictionary["documentTitle"] as? String ?? ""
+        
+        self.privacyOptions = PrivacyOptions(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .all
     }
 }

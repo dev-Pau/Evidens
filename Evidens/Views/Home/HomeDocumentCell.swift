@@ -63,9 +63,8 @@ class HomeDocumentCell: UICollectionViewCell {
         
         backgroundColor = .white
         
-        headerPostView.delegate = self
         userPostView.delegate = self
-        postStatsView.delegate = self
+        postInfoView.delegate = self
         
         actionButtonsView.delegate = self
 
@@ -154,29 +153,12 @@ class HomeDocumentCell: UICollectionViewCell {
 }
 
 
-extension HomeDocumentCell: MEHeaderPostViewDelegate {
-    
-    func didTapSubCategory(for subCategory: String) {
-        print("Home cell received sub category \(subCategory) to show")
-        delegate?.cell(wantsToSeePostsFor: subCategory)
-    }
-    
-
-    func didTapCategory(for category: String) {
-        print("Home cell received \(category) to show")
-        delegate?.cell(wantsToSeePostsFor: category)
-    }
-    
-    
-    func didTapThreeDots(withAction action: String) {
-        print("Home cell received")
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
-    }
-}
-
-
 extension HomeDocumentCell: MEUserPostViewDelegate {
+    func didTapThreeDots() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+    }
+    
     func didTapProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
@@ -184,7 +166,7 @@ extension HomeDocumentCell: MEUserPostViewDelegate {
 }
 
 
-extension HomeDocumentCell: MEPostStatsViewDelegate {
+extension HomeDocumentCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
@@ -200,14 +182,10 @@ extension HomeDocumentCell: MEPostActionButtonsDelegate {
     }
     
     
-    func handleShare() {
-        print("Did tap share")
+    func handleBookmark() {
+        print("bookarmk")
     }
     
-    
-    func handleSend() {
-        print("Did tap send")
-    }
     
     
     func handleLikes() {

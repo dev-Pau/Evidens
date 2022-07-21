@@ -35,7 +35,7 @@ class PostMenuHeader: UICollectionReusableView {
         NSLayoutConstraint.activate([
             
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            separator.topAnchor.constraint(equalTo: topAnchor, constant: 7),
+            separator.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 50),
         ])

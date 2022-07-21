@@ -88,9 +88,8 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
-        headerPostView.delegate = self
         userPostView.delegate = self
-        postStatsView.delegate = self
+        postInfoView.delegate = self
         
         actionButtonsView.delegate = self
         
@@ -167,7 +166,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         postTextLabel.text = viewModel.postText
         
         postStatsView.likesLabel.text = viewModel.likesLabelText
-        postStatsView.likesIndicatorImage.isHidden = viewModel.isLikesHidden
+      
         
         postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
         
@@ -213,30 +212,12 @@ class HomeFourImageTextCell: UICollectionViewCell {
     }
 }
 
-
-extension HomeFourImageTextCell: MEHeaderPostViewDelegate {
-    
-    func didTapSubCategory(for subCategory: String) {
-        print("Home cell received sub category \(subCategory) to show")
-        delegate?.cell(wantsToSeePostsFor: subCategory)
-    }
-    
-    
-    func didTapCategory(for category: String) {
-        print("Home cell received \(category) to show")
-        delegate?.cell(wantsToSeePostsFor: category)
-    }
-    
-    
-    func didTapThreeDots(withAction action: String) {
-        print("Home cell received")
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, withAction: action)
-    }
-}
-
-
 extension HomeFourImageTextCell: MEUserPostViewDelegate {
+    func didTapThreeDots() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+    }
+    
     func didTapProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
@@ -244,7 +225,7 @@ extension HomeFourImageTextCell: MEUserPostViewDelegate {
 }
 
 
-extension HomeFourImageTextCell: MEPostStatsViewDelegate {
+extension HomeFourImageTextCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
@@ -260,13 +241,8 @@ extension HomeFourImageTextCell: MEPostActionButtonsDelegate {
     }
     
     
-    func handleShare() {
-        print("Did tap share")
-    }
-    
-    
-    func handleSend() {
-        print("Did tap send")
+    func handleBookmark() {
+        print("bookarmk")
     }
     
     

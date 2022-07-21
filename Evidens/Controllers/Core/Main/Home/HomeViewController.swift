@@ -21,6 +21,7 @@ class HomeViewController: UICollectionViewController {
     
     var user: User?
     var selectedImage: UIImageView!
+    var homeMenuLauncher = HomeOptionsMenuLauncher()
     
     private var zoomTransitioning = ZoomTransitioning()
         
@@ -341,7 +342,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         } else {
             if posts[indexPath.row].type.postType == 1 {
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage[0] + 205
+                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.sizeOfImage + 205
                 return CGSize(width: view.frame.width, height: height)
                 
             } else if posts[indexPath.row].type.postType == 2  {
@@ -370,7 +371,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             else {
                 //Array of posts
                 let viewModel = PostViewModel(post: posts[indexPath.row])
-                let height = viewModel.size(forWidth: view.frame.width).height + 155
+                let height = viewModel.size(forWidth: view.frame.width).height + viewModel.additionalPostHeight + 155
                 return CGSize(width: view.frame.width, height: height)
             }
         }
@@ -420,11 +421,6 @@ extension HomeViewController: HomeCellDelegate {
             let controller = PostLikesViewController(uid: uids)
             self.navigationController?.pushViewController(controller, animated: true)
         }
-    }
-    
-    
-    func cell(wantsToSeePostsFor topic: String) {
-        // Preset new VC with topic title to fetch Posts & Clinical cases regarding the topic
     }
     
 
@@ -509,15 +505,25 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
         UserService.fetchUser(withUid: uid) { user in
             let controller = UserProfileViewController(user: user)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            self.navigationItem.backBarButtonItem = backItem
+            
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, withAction action: String) {
-        print("Action received in HomeViewController for \(action) with post text \(post.postText)")
-        //print(action)
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post) {
+        
+        homeMenuLauncher.uid = post.ownerUid
+        homeMenuLauncher.showImageSettings(in: view)
+        //let privacyMenu = PostPrivacyMenuLauncher()
+        //privacyMenu.showPostSettings(in: view)
     }
     
+
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let _ = tab.user else { return }

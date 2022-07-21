@@ -10,7 +10,32 @@ import Firebase
 
 struct PostService {
     
-    static func uploadPost(post: String, postImageUrl: [String]?, imagesHeight: [CGFloat]?, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadTextPost(post: String, type: Post.PostType, privacy: Post.PrivacyOptions, user: User, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let data = ["post": post,
+                    "timestamp": Timestamp(date: Date()),
+                    "likes": 0,
+                    "ownerUid": uid,
+                    "comments": 0,
+                    "shares": 0,
+                    "type": type.rawValue,
+                    "privacy": privacy.rawValue,
+                    "bookmarks": 0,
+                    "profession": user.profession as Any,
+                    "speciality": user.speciality as Any,
+                    "ownerFirstName": user.firstName as Any,
+                    "ownerCategory": user.category.userCategoryString as Any,
+                    "ownerLastName": user.lastName as Any,
+                    "ownerImageUrl": user.profileImageUrl as Any]
+                   
+        
+        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+        
+        self.updateUserFeedAfterPost(postId: docRef.documentID)
+    }
+    
+    static func uploadSingleImagePost(post: String, postImageUrl: [String]?, imageHeight: CGFloat, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
@@ -25,7 +50,31 @@ struct PostService {
                     "ownerCategory": user.category.userCategoryString as Any,
                     "ownerLastName": user.lastName as Any,
                     "ownerImageUrl": user.profileImageUrl as Any,
-                    "imagesHeight" : imagesHeight as Any,
+                    "imagesHeight" : imageHeight as Any,
+                    "postImageUrl": postImageUrl as Any] as [String : Any]
+                   
+        
+        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+        
+        self.updateUserFeedAfterPost(postId: docRef.documentID)
+    }
+    
+    
+    static func uploadPost(post: String, postImageUrl: [String]?, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let data = ["post": post,
+                    "timestamp": Timestamp(date: Date()),
+                    "likes": 0,
+                    "ownerUid": uid,
+                    "comments": 0,
+                    "shares": 0,
+                    "type": type.rawValue,
+                    "bookmarks": 0,
+                    "ownerFirstName": user.firstName as Any,
+                    "ownerCategory": user.category.userCategoryString as Any,
+                    "ownerLastName": user.lastName as Any,
+                    "ownerImageUrl": user.profileImageUrl as Any,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
                    
         
