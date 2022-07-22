@@ -426,6 +426,11 @@ extension HomeViewController: HomeCellDelegate {
 
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
         let controller = CommentViewController(post: post)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+
         navigationController?.pushViewController(controller, animated: true)
     }
     

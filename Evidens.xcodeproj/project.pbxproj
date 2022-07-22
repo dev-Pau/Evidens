@@ -165,6 +165,7 @@
 		5FB290282886FD43002FBAE1 /* CaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290272886FD43002FBAE1 /* CaseImageCell.swift */; };
 		5FB2902A2887DF27002FBAE1 /* MEDiagnosisResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290292887DF27002FBAE1 /* MEDiagnosisResultView.swift */; };
 		5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */; };
+		5FB2902F288AF186002FBAE1 /* CommentInputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -348,6 +349,7 @@
 		5FB290272886FD43002FBAE1 /* CaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseImageCell.swift; sourceTree = "<group>"; };
 		5FB290292887DF27002FBAE1 /* MEDiagnosisResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEDiagnosisResultView.swift; sourceTree = "<group>"; };
 		5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeOptionsMenuLauncher.swift; sourceTree = "<group>"; };
+		5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputTextView.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -892,6 +894,7 @@
 				5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */,
 				5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */,
 				5F8E52AF286846A20053F011 /* METextField.swift */,
+				5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -1441,6 +1444,7 @@
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FB2901D2886A6AA002FBAE1 /* MECaseLabel.swift in Sources */,
 				5F77BF7A2858E6A200F31A75 /* MEPostStatsView.swift in Sources */,
+				5FB2902F288AF186002FBAE1 /* CommentInputTextView.swift in Sources */,
 				5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */,
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
 				5F8E52AE28671D070053F011 /* FileConfiguratorViewController.swift in Sources */,

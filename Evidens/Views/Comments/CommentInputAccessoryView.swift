@@ -23,30 +23,52 @@ class CommentInputAccessoryView: UIView {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = .lightGray
+        iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
     
-    private let commentTextView: InputTextView = {
-        let tv = InputTextView()
-        tv.placeholderText = "Add a comment..."
+    private let commentTextView: CommentInputTextView = {
+        let tv = CommentInputTextView()
+        tv.placeholderText = "Share your thoughts here..."
+        tv.placeholderLabel.font = .systemFont(ofSize: 13, weight: .regular)
         tv.font = UIFont.systemFont(ofSize: 15)
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
-        tv.layer.cornerRadius = 15
-        tv.layer.borderColor = UIColor.lightGray.cgColor
-        tv.layer.borderWidth = 0.5
+        tv.layer.cornerRadius = 16
+        tv.layer.borderColor = lightGrayColor.cgColor
+        tv.layer.borderWidth = 1
+        tv.isScrollEnabled = false
+        tv.tintColor = primaryColor
         tv.placeHolderShouldCenter = true
+        tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
     
     private lazy var postButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Post", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
+        button.configuration = .plain()
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Post", attributes: container)
+
+        button.configuration?.cornerStyle = .fixed
+        button.isEnabled = false
+        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.titleAlignment = .trailing
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.sizeToFit()
         return button
     }()
+    
+    private lazy var topView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     
     //MARK: - Lifecycle
     
@@ -55,39 +77,51 @@ class CommentInputAccessoryView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        //To overlap the main UI
         backgroundColor = .white
         
         translatesAutoresizingMaskIntoConstraints = false
         
         autoresizingMask = .flexibleHeight
         
-        addSubview(profileImageView)
-        profileImageView.anchor(top: topAnchor, left: leftAnchor, paddingTop: 8 ,paddingLeft: 8)
-        profileImageView.setDimensions(height: 40, width: 40)
+        commentTextView.delegate = self
+        
+        commentTextView.maxHeight = 120
+        
+        addSubviews(profileImageView, postButton, commentTextView, topView)
+        
+        NSLayoutConstraint.activate([
+            profileImageView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -7),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            profileImageView.heightAnchor.constraint(equalToConstant: 40),
+            profileImageView.widthAnchor.constraint(equalToConstant: 40),
+            
+            postButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            postButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            //postButton.widthAnchor.constraint(equalToConstant: 80),
+            //postButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            commentTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            commentTextView.trailingAnchor.constraint(equalTo: postButton.leadingAnchor, constant: -10),
+            commentTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -7),
+            
+            topView.topAnchor.constraint(equalTo: topAnchor),
+            topView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            topView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topView.heightAnchor.constraint(equalToConstant: 1)
+
+        ])
+        
         profileImageView.layer.cornerRadius = 40 / 2
-        
-        addSubview(postButton)
-        postButton.centerY(inView: profileImageView)
-        postButton.anchor(right: rightAnchor, paddingRight: 8)
-        postButton.setDimensions(height:  50, width: 50)
-        
-        addSubview(commentTextView)
-        commentTextView.centerY(inView: profileImageView, leftAnchor: profileImageView.rightAnchor, paddingLeft: 8, constant: 0)
-        commentTextView.anchor(right: postButton.leftAnchor, paddingRight: 8)
-        
-        let divider = UIView()
-        divider.backgroundColor = .lightGray
-        addSubview(divider)
-        divider.anchor(top: topAnchor, left: leftAnchor, right: rightAnchor, height: 0.5)
-        
+        guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
+        profileImageView.sd_setImage(with: URL(string: uid))
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
+  
     //MARK: - Actions
     
     @objc func didTapPostButton() {
@@ -97,8 +131,16 @@ class CommentInputAccessoryView: UIView {
     func clearCommentTextView() {
         commentTextView.text = nil
         commentTextView.placeholderLabel.isHidden = false
+        postButton.isEnabled = false
     }
     
-    //MARK: - Helpers
-    
+    override var intrinsicContentSize: CGSize {
+            return CGSize.zero
+    }
+}
+
+extension CommentInputAccessoryView: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        postButton.isEnabled = commentTextView.text.isEmpty ? false : true
+    }
 }

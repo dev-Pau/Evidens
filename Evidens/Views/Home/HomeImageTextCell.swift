@@ -104,7 +104,7 @@ class HomeImageTextCell: UICollectionViewCell {
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userCategoryLabel.text = "Physiotherapist"
+        userPostView.userInfoCategoryLabel.text = "Physiotherapist"
         
         postTextLabel.text = viewModel.postText
         

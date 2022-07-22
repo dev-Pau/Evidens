@@ -15,19 +15,54 @@ class CommentViewController: UICollectionViewController {
     
     private var post: Post
     private var comments = [Comment]()
+    /*
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .white
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+     */
     
     private lazy var commentInputView: CommentInputAccessoryView = {
-        let frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 70)
-        let cv = CommentInputAccessoryView(frame: frame)
+        let cv = CommentInputAccessoryView()
         cv.delegate = self
         return cv
+    }()
+    
+    private lazy var emptyCommentLabel: UILabel = {
+        let label = UILabel()
+        label.text = "No comments yet."
+        label.textAlignment = .center
+        label.textColor = .black
+        label.font = .systemFont(ofSize: 21, weight: .bold)
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var startTheConversationLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Start the conversation."
+        label.textAlignment = .center
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     //MARK: - Lifecycle
     
     init(post: Post) {
         self.post = post
-        super.init(collectionViewLayout: UICollectionViewFlowLayout())
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+        super.init(collectionViewLayout: layout)
     }
     
     required init?(coder: NSCoder) {
@@ -36,8 +71,13 @@ class CommentViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
+        configureUI()
         configureCollectionView()
         fetchComments()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override var inputAccessoryView: UIView? {
@@ -64,8 +104,35 @@ class CommentViewController: UICollectionViewController {
     
     func fetchComments() {
         CommentService.fetchComments(forPost: post.postId) { comments in
-            self.comments = comments
-            self.collectionView.reloadData()
+            self.comments.removeAll()
+            // If user post has text, append it as first element
+            if !self.post.postText.isEmpty {
+                self.comments.append(Comment(dictionary: [
+                    "comment": self.post.postText,
+                    "timestamp": self.post.timestamp,
+                    "firstName": self.post.ownerFirstName as Any,
+                    "category": self.post.ownerCategory as Any,
+                    "speciality": self.post.ownerSpeciality as Any,
+                    "profession": self.post.ownerProfession as Any,
+                    "lastName": self.post.ownerLastName as Any,
+                    "profileImageUrl": self.post.ownerImageUrl as Any]))
+            }
+            // Append the fetched comments
+            self.comments.append(contentsOf: comments)
+            // Post has no text from the owner & no comments
+            if comments.isEmpty && self.post.postText.isEmpty {
+                self.emptyCommentLabel.isHidden = false
+                self.startTheConversationLabel.isHidden = false
+                self.collectionView.isHidden = true
+                return
+            }
+            self.emptyCommentLabel.isHidden = true
+            self.startTheConversationLabel.isHidden = true
+            self.collectionView.isHidden = false
+            
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
         }
     }
     
@@ -73,15 +140,46 @@ class CommentViewController: UICollectionViewController {
     
     func configureCollectionView() {
         navigationItem.title = "Comments"
+        collectionView.delegate = self
+        collectionView.dataSource = self
         collectionView.backgroundColor = .white
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        view.addSubview(collectionView)
+
+        
+        //collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height - commentInputView.frame.height)
         
         //To dismiss the keyboard and hide when scrolling
+        collectionView.backgroundColor = .white
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .interactive
         
     }
+    
+    private func configureUI() {
+        view.addSubviews(emptyCommentLabel, startTheConversationLabel)
+        NSLayoutConstraint.activate([
+            emptyCommentLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            emptyCommentLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            startTheConversationLabel.topAnchor.constraint(equalTo: emptyCommentLabel.bottomAnchor, constant: 10),
+            startTheConversationLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            //collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height - 70, right: 0)
+        }
+    }
+    
+    @objc func keyboardWillHide() {
+        //collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
+     
+    
 }
+
 
 //MARK: - UICollectionViewDataSource
 
@@ -91,35 +189,27 @@ extension CommentViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         return cell
+        
     }
-}
-
-//MARK: - UICollectionViewDelegateFlowLayout
-
-extension CommentViewController: UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        //Dynamic cell height
-        let viewModel = CommentViewModel(comment: comments[indexPath.row])
-        let height = viewModel.size(forWidth: view.frame.width).height + 32
-        return CGSize(width: view.frame.width, height: height)
-    }
-}
-
-//MARK: - UICollectionViewDelegate
-
-extension CommentViewController {
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    /*
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let uid = comments[indexPath.row].uid
         UserService.fetchUser(withUid: uid) { user in
             let controller = ProfileViewController(user: user)
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
+    */
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 10
+    }
 }
+
 
 //MARK: - CommentInputAccesoryViewDelegate
 
@@ -137,6 +227,9 @@ extension CommentViewController: CommentInputAccessoryViewDelegate {
             //Unshow loader
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
+            
+            let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .comment, post: self.post, withComment: comment)
             self.view.isUserInteractionEnabled = true

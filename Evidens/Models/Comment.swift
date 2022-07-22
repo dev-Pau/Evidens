@@ -15,6 +15,9 @@ struct Comment {
     let profileImageUrl: String
     let timestamp: Timestamp
     let commentText: String
+    let category: String
+    let speciality: String
+    let profession: String
     
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
@@ -23,5 +26,14 @@ struct Comment {
         self.commentText = dictionary["comment"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
+        self.category = dictionary["category"] as? String ?? ""
+        self.profession = dictionary["profession"] as? String ?? ""
+        self.speciality = dictionary["speciality"] as? String ?? ""
     }
 }
+
+/*
+ "category": user.category.userCategoryString as Any,
+ "speciality": user.speciality as Any,
+ "profession": user.profession as Any,
+ */

@@ -43,7 +43,7 @@ class MEUserPostView: UIView {
         return button
     }()
     
-    let userCategoryLabel: UILabel = {
+    let userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = grayColor
@@ -105,7 +105,7 @@ class MEUserPostView: UIView {
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         
-        addSubviews(profileImageView, usernameLabel, dotsImageButton, userCategoryLabel, clockImage, postTimeLabel, privacyImage)
+        addSubviews(profileImageView, usernameLabel, dotsImageButton, userInfoCategoryLabel, clockImage, postTimeLabel, privacyImage)
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -125,13 +125,13 @@ class MEUserPostView: UIView {
             usernameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -paddingLeft),
             usernameLabel.heightAnchor.constraint(equalToConstant: 15),
             
-            userCategoryLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 2),
-            userCategoryLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
-            userCategoryLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
+            userInfoCategoryLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 2),
+            userInfoCategoryLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
+            userInfoCategoryLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
             //userCategoryLabel.heightAnchor.constraint(equalToConstant: 20),
             
-            clockImage.topAnchor.constraint(equalTo: userCategoryLabel.bottomAnchor, constant: 2),
-            clockImage.leadingAnchor.constraint(equalTo: userCategoryLabel.leadingAnchor),
+            clockImage.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor, constant: 2),
+            clockImage.leadingAnchor.constraint(equalTo: userInfoCategoryLabel.leadingAnchor),
             clockImage.heightAnchor.constraint(equalToConstant: 9.6),
             clockImage.widthAnchor.constraint(equalToConstant: 9.6),
             

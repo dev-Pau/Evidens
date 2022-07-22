@@ -15,6 +15,9 @@ struct CommentService {
                                    "comment": comment,
                                    "timestamp": Timestamp(date: Date()),
                                    "firstName": user.firstName as Any,
+                                   "category": user.category.userCategoryString as Any,
+                                   "speciality": user.speciality as Any,
+                                   "profession": user.profession as Any,
                                    "lastName": user.lastName as Any,
                                    "profileImageUrl": user.profileImageUrl as Any]
         
@@ -28,7 +31,7 @@ struct CommentService {
         var comments = [Comment]()
         
         let query = COLLECTION_POSTS.document(postID).collection("comments")
-            .order(by: "timestamp", descending: true)
+            .order(by: "timestamp", descending: false)
         
         //Listener to update UI with new comments
         query.addSnapshotListener { (snapshot, error) in

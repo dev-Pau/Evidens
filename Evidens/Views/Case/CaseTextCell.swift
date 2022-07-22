@@ -135,7 +135,7 @@ class CaseTextCell: UICollectionViewCell {
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userCategoryLabel.text = viewModel.ownerProfession
+        userPostView.userInfoCategoryLabel.text = viewModel.ownerProfession
         
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription

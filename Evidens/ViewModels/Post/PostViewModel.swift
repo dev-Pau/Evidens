@@ -112,6 +112,14 @@ struct PostViewModel {
         return post.ownerSpeciality
     }
     
+    var userInfo: NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: "\(profession), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        attributedText.append(NSAttributedString(string: "\(speciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+        attributedText.append(NSAttributedString(string: category, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+        
+        return attributedText
+    }
+    
 
     var timestampString: String? {
         let formatter = DateComponentsFormatter()

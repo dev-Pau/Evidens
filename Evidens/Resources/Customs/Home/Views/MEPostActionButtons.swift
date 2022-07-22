@@ -93,7 +93,7 @@ class MEPostActionButtons: UIView {
             likeButton.heightAnchor.constraint(equalToConstant: 30),
             likeButton.widthAnchor.constraint(equalToConstant: 30),
             
-            commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor, constant: 1),
             commentButton.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
             commentButton.heightAnchor.constraint(equalToConstant: 30),
             commentButton.widthAnchor.constraint(equalToConstant: 30),

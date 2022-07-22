@@ -77,7 +77,7 @@ class HomeTextCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
         
-        userPostView.userCategoryLabel.text =  viewModel.profession + ", " + viewModel.speciality + ", " + viewModel.category
+        userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
         
         postTextLabel.text = viewModel.postText
         

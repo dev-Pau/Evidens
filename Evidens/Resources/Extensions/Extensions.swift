@@ -7,6 +7,7 @@
 
 import UIKit
 import AVKit
+import Firebase
 
 fileprivate var containerView: UIView!
 
@@ -409,4 +410,5 @@ extension UIView {
         layoutIfNeeded()
     }
 }
+
 

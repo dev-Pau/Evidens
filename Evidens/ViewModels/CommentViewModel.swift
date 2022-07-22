@@ -14,24 +14,45 @@ struct CommentViewModel {
         return URL(string: comment.profileImageUrl)
     }
     
-    init(comment: Comment) {
-        self.comment = comment
+    var fullName: String {
+        return comment.firstName + " " + comment.lastName
     }
     
-    func commentLabelText() -> NSAttributedString {
-        let attributedString = NSMutableAttributedString(string: "\(comment.firstName) ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
-        attributedString.append(NSAttributedString(string: comment.commentText, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+    var commentText: String {
+        return comment.commentText
+    }
+    
+    var speciality: String {
+        return comment.speciality
+    }
+    
+    var profession: String {
+        return comment.profession
+    }
+    
+    var category: String {
+        return comment.category
+    }
+
+    
+    func userLabelText() -> NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: "\(fullName) · ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+        attributedString.append(NSAttributedString(string: category, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
         
         return attributedString
     }
+     
     
-    //Return the height for dynamic cell height
-    func size(forWidth width: CGFloat) ->CGSize {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.text = comment.commentText
-        label.lineBreakMode = .byWordWrapping
-        label.setWidth(width)
-        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+    var timestampString: String? {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.maximumUnitCount = 1
+        formatter.unitsStyle = .abbreviated
+        return formatter.string(from: comment.timestamp.dateValue(), to: Date())
+    }
+    
+    
+    init(comment: Comment) {
+        self.comment = comment
     }
 }
