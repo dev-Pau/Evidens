@@ -17,19 +17,15 @@ class HomeImageTextCell: UICollectionViewCell {
         }
     }
     
-    weak var delegate: HomeCellDelegate?
+    private let cellContentView = UIView()
     
-    private var headerPostView = MEHeaderPostView(category: "  Nutrition  ", subCategory: "  Vegetables  ")
+    weak var delegate: HomeCellDelegate?
     
     private var userPostView = MEUserPostView()
     
     private var postTextLabel = MEPostLabel()
     
-    private var postStatsView = MEPostStatsView()
-    
-    private var postInfoView = MEPostInfoView(comments: 0, commentText: "", shares: 0, shareText: "")
-    
-    private var actionButtonsView = MEPostActionButtons()
+    var actionButtonsView = MEPostActionButtons()
     
     lazy var postImageView: UIImageView = {
         let iv = UIImageView()
@@ -50,45 +46,41 @@ class HomeImageTextCell: UICollectionViewCell {
         backgroundColor = .white
         
         userPostView.delegate = self
-        postInfoView.delegate = self
-        
+      
         actionButtonsView.delegate = self
-
-        addSubviews(headerPostView, userPostView, postTextLabel, postImageView, postStatsView, postInfoView, actionButtonsView)
+        
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(cellContentView)
         
         NSLayoutConstraint.activate([
-            headerPostView.topAnchor.constraint(equalTo: topAnchor),
-            headerPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            headerPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            headerPostView.heightAnchor.constraint(equalToConstant: 50),
-            
-            userPostView.topAnchor.constraint(equalTo: headerPostView.bottomAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+         
+
+        cellContentView.addSubviews(userPostView, postTextLabel, postImageView, actionButtonsView)
+        
+        NSLayoutConstraint.activate([
+          
+            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
-            postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
+            postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
             postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             postImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            
-            postStatsView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 10),
-            postStatsView.leadingAnchor.constraint(equalTo: postImageView.leadingAnchor, constant: 10),
-            postStatsView.widthAnchor.constraint(equalToConstant: 150),
-            postStatsView.heightAnchor.constraint(equalToConstant: 20),
-            
-            postInfoView.centerYAnchor.constraint(equalTo: postStatsView.centerYAnchor),
-            postInfoView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            postInfoView.heightAnchor.constraint(equalToConstant: 25),
-            postInfoView.widthAnchor.constraint(equalToConstant: 150),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: postInfoView.bottomAnchor, constant: 5),
-            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor)
+    
+            actionButtonsView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 10),
+            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
     
@@ -103,25 +95,39 @@ class HomeImageTextCell: UICollectionViewCell {
 
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userInfoCategoryLabel.text = "Physiotherapist"
+        userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
+        
+        userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
         
         postTextLabel.text = viewModel.postText
         
-        postStatsView.likesLabel.text = viewModel.likesLabelText
-    
-        
-        postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
+        actionButtonsView.likesLabel.text = viewModel.likesLabelText
+        actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        postImageView.setHeight(viewModel.post.imagesHeight)
+        let imageHeight = min(viewModel.sizeOfImage, UIScreen.main.bounds.height * 0.7)
+        postImageView.heightAnchor.constraint(equalToConstant: imageHeight).isActive = true
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
+        
     }
     
     @objc func handleImageTap() {
         delegate?.cell(self, didTapImage: [postImageView], index: 0)
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
 }
 
@@ -154,15 +160,18 @@ extension HomeImageTextCell: MEPostActionButtonsDelegate {
         delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
     }
     
-    
     func handleBookmark() {
-        print("bookarmk")
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didBookmark: viewModel.post)
     }
-    
-    
     
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didLike: viewModel.post)
+    }
+    
+    func handleShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
     }
 }

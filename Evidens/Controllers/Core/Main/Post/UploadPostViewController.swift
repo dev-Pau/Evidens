@@ -549,19 +549,21 @@ class UploadPostViewController: UIViewController {
 
             switch imagesToUpload.count {
             case 1:
-                
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadSingleImagePost(post: postTextView, postImageUrl: imageUrl, imageHeight: self.newHeight, type: .textWithImage, user: self.user) { error in
+                    // post: postTextView, type: .plainText, privacy: privacyType, user: user
+                    PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
                         } else {
                             // Post is uploaded to Firebase
-                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                            // Dismiss VC Here
+
                         }
                     }
                 }
+                
             case 2:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images

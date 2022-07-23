@@ -143,15 +143,7 @@ struct PostViewModel {
     }
     
     var sizeOfImage: CGFloat {
-        return post.imagesHeight
-    }
-    
-    var postHasInfo: Bool {
-        return  post.likes == 0 && post.numberOfComments == 0 && post.numberOfShares == 0 ? false : true
-    }
-    
-    var additionalPostHeight: CGFloat {
-        return  post.likes == 0 && post.numberOfComments == 0 && post.numberOfShares == 0 ? 0 : 20
+        return post.imageHeight
     }
     
     init(post: Post) {

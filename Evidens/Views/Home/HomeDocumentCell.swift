@@ -175,6 +175,11 @@ extension HomeDocumentCell: MEPostInfoViewDelegate {
 
 
 extension HomeDocumentCell: MEPostActionButtonsDelegate {
+    func handleShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
+    }
+    
     
     func handleComments() {
         guard let viewModel = viewModel else { return }

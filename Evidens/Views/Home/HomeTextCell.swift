@@ -1,12 +1,11 @@
 //
-//  FeedCell.swift
+//  HomeTextCell.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 1/10/21.
 //
 
 import UIKit
-import SwiftUI
 
 class HomeTextCell: UICollectionViewCell {
     
@@ -26,8 +25,6 @@ class HomeTextCell: UICollectionViewCell {
     
     private var postTextLabel = MEPostLabel()
     
-    private var postInfoView = MEPostInfoView(comments: 0, commentText: "", shares: 0, shareText: "")
-    
     var actionButtonsView = MEPostActionButtons()
     
     // MARK: - Lifecycle
@@ -38,12 +35,10 @@ class HomeTextCell: UICollectionViewCell {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         
         userPostView.delegate = self
-        postInfoView.delegate = self
         actionButtonsView.delegate = self
         
         backgroundColor = .white
 
-        
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
         
@@ -55,7 +50,7 @@ class HomeTextCell: UICollectionViewCell {
         ])
          
     
-        cellContentView.addSubviews(userPostView, postTextLabel, postInfoView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextLabel, actionButtonsView)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -66,16 +61,10 @@ class HomeTextCell: UICollectionViewCell {
             postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
             postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            //postTextLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: 10),
             
-            postInfoView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
-            postInfoView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            postInfoView.heightAnchor.constraint(equalToConstant: 20),
-            postInfoView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: postInfoView.bottomAnchor, constant: 10),
+            actionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: 10),
+            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
@@ -98,25 +87,17 @@ class HomeTextCell: UICollectionViewCell {
         
         postTextLabel.text = viewModel.postText
         
-        postInfoView.likesLabel.text = viewModel.likesLabelText
-       
-        postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
+        actionButtonsView.likesLabel.text = viewModel.likesLabelText
+        actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        
-        
-        if viewModel.postHasInfo {
-            postInfoView.constrainHeight(constant: 20)
-        } else {
-            postInfoView.constrainHeight(constant: 0)
-        }
     }
     
     @objc func didTapPost() {
         guard let viewModel = viewModel else { return }
-        delegate?.wantsToSeePostsFor(post: viewModel.post)
+        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -144,15 +125,6 @@ extension HomeTextCell: MEUserPostViewDelegate {
     }
 }
 
-
-extension HomeTextCell: MEPostInfoViewDelegate {
-    func wantsToShowLikes() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
-    }
-}
-
-
 extension HomeTextCell: MEPostActionButtonsDelegate {
     
     func handleComments() {
@@ -170,5 +142,10 @@ extension HomeTextCell: MEPostActionButtonsDelegate {
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didLike: viewModel.post)
+    }
+    
+    func handleShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(wantsToSeeLikesFor: viewModel.post)
     }
 }

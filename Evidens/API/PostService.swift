@@ -35,7 +35,7 @@ struct PostService {
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
-    static func uploadSingleImagePost(post: String, postImageUrl: [String]?, imageHeight: CGFloat, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadSingleImagePost(post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, imageHeight: CGFloat, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
@@ -45,15 +45,17 @@ struct PostService {
                     "comments": 0,
                     "shares": 0,
                     "type": type.rawValue,
+                    "privacy": privacy.rawValue,
                     "bookmarks": 0,
+                    "profession": user.profession as Any,
+                    "speciality": user.speciality as Any,
                     "ownerFirstName": user.firstName as Any,
                     "ownerCategory": user.category.userCategoryString as Any,
                     "ownerLastName": user.lastName as Any,
+                    "imageHeight": imageHeight,
                     "ownerImageUrl": user.profileImageUrl as Any,
-                    "imagesHeight" : imageHeight as Any,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
-                   
-        
+
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
         self.updateUserFeedAfterPost(postId: docRef.documentID)

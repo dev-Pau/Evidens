@@ -148,8 +148,6 @@ class MEUserPostView: UIView {
         
         profileImageView.layer.cornerRadius = 53 / 2
         
-        
-        
     }
     
     @objc func didTapProfile() {

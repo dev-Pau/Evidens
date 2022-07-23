@@ -225,9 +225,18 @@ extension HomeViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        /*
+        if post != nil {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+            cell.viewModel = PostViewModel(post: post!)
+            return cell
+        }
+         */
         
         if posts[indexPath.row].type.postType == 0 {
-
+            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
             
             cell.delegate = self
@@ -313,7 +322,7 @@ extension HomeViewController {
         
 
         else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
             if let post = post {
@@ -400,15 +409,17 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
-    func wantsToSeePostsFor(post: Post) {
-        
-        let controller = DetailsPostViewController(post: post)
+    func cell(_ cell: UICollectionViewCell, wantstoSeePostsFor post: Post) {
+        /*
+        let height = cell.frame.height
+        let controller = DetailsPostViewController(post: post, height: height)
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
+         */
     }
     
 
@@ -548,6 +559,20 @@ extension HomeViewController: HomeCellDelegate {
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            if post.didBookmark {
+                //Unbookmark post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                }
+            } else {
+                //Bookmark post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                }
+            }
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
             currentCell.viewModel?.post.didBookmark.toggle()
             if post.didBookmark {
                 //Unbookmark post here

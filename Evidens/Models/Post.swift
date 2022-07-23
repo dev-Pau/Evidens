@@ -77,7 +77,7 @@ struct Post {
     let ownerLastName: String
     
     let privacyOptions: PrivacyOptions
-    let imagesHeight: CGFloat
+    let imageHeight: CGFloat
     let postImageUrl: [String]
     
     let postDocumentUrl: String
@@ -104,7 +104,7 @@ struct Post {
         self.ownerProfession = dictionary["profession"] as? String ?? ""
         self.ownerSpeciality = dictionary["speciality"] as? String ?? ""
         
-        self.imagesHeight = dictionary["imagesHeight"] as? CGFloat ?? 0.0
+        self.imageHeight = dictionary["imageHeight"] as? CGFloat ?? 0.0
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [""]
         
         self.postDocumentUrl = dictionary["postDocumentUrl"] as? String ?? ""
