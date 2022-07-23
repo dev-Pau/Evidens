@@ -116,6 +116,7 @@ class MEPostActionButtons: UIView {
     }
     
     @objc func handleBookmark() {
+        HomeHeartAnimation.shared.animateLikeTap(bookmarkButton)
         delegate?.handleBookmark()
     }
 }

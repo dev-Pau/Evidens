@@ -15,18 +15,7 @@ class CommentViewController: UICollectionViewController {
     
     private var post: Post
     private var comments = [Comment]()
-    /*
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .white
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-     */
-    
+ 
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.delegate = self
@@ -61,6 +50,8 @@ class CommentViewController: UICollectionViewController {
         self.post = post
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
         super.init(collectionViewLayout: layout)
     }
@@ -75,9 +66,6 @@ class CommentViewController: UICollectionViewController {
         configureUI()
         configureCollectionView()
         fetchComments()
-
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override var inputAccessoryView: UIView? {
@@ -146,9 +134,6 @@ class CommentViewController: UICollectionViewController {
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         view.addSubview(collectionView)
 
-        
-        //collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height - commentInputView.frame.height)
-        
         //To dismiss the keyboard and hide when scrolling
         collectionView.backgroundColor = .white
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -166,18 +151,6 @@ class CommentViewController: UICollectionViewController {
             startTheConversationLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
-    
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            //collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height - 70, right: 0)
-        }
-    }
-    
-    @objc func keyboardWillHide() {
-        //collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    }
-     
-    
 }
 
 
@@ -206,7 +179,7 @@ extension CommentViewController {
     */
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 10
+        return 0
     }
 }
 

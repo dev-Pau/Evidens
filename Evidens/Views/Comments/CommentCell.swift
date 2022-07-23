@@ -99,7 +99,7 @@ class CommentCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 40),
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
             
@@ -155,7 +155,7 @@ class CommentCell: UICollectionViewCell {
 
         // Calculate the size (height) using Auto Layout
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 10))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 15))
 
         // Assign the new size to the layout attributes
         autoLayoutAttributes.frame = autoLayoutFrame

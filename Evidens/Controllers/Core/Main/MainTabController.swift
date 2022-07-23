@@ -122,6 +122,14 @@ class MainTabController: UITabBarController {
         self.delegate = self
     
         let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
+        /*
+         let layout = UICollectionViewFlowLayout()
+         layout.scrollDirection = .vertical
+         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+         super.init(collectionViewLayout: layout)
+         */
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
         
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.fill")!, rootViewController: CasesViewController())

@@ -47,14 +47,12 @@ class CommentInputAccessoryView: UIView {
     private lazy var postButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Post", attributes: container)
-
-        button.configuration?.cornerStyle = .fixed
         button.isEnabled = false
         button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = .black
         button.configuration?.titleAlignment = .trailing
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -90,20 +88,21 @@ class CommentInputAccessoryView: UIView {
         addSubviews(profileImageView, postButton, commentTextView, topView)
         
         NSLayoutConstraint.activate([
-            profileImageView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -7),
+            
+            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
+            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
+            commentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -15),
+            
+            profileImageView.centerYAnchor.constraint(equalTo: commentTextView.centerYAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 40),
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
             
-            postButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            postButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             postButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             //postButton.widthAnchor.constraint(equalToConstant: 80),
             //postButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            commentTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            commentTextView.trailingAnchor.constraint(equalTo: postButton.leadingAnchor, constant: -10),
-            commentTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -7),
             
             topView.topAnchor.constraint(equalTo: topAnchor),
             topView.leadingAnchor.constraint(equalTo: leadingAnchor),

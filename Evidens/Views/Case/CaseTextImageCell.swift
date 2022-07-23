@@ -228,30 +228,6 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
             return CGSize(width: UIScreen.main.bounds.width, height: 300)
         }
     }
-    
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if caseImagesCollectionView == scrollView {
-            if scrollView.contentOffset.x > UIScreen.main.bounds.width / 2 {
-                print("now")
-                
-                let frame: CGRect = CGRect(x : UIScreen.main.bounds.width, y : self.caseImagesCollectionView.contentOffset.y ,width : UIScreen.main.bounds.width, height: self.caseImagesCollectionView.frame.height)
-                
-                caseImagesCollectionView.scrollRectToVisible(frame, animated: true)
-            }
-            
-            
-            //print(scrollView.contentOffset.x)
-            //guard scrollView.contentOffset.x <= caseImagesCollectionView.contentSize.width - caseImagesCollectionView.bounds.size.width else { return }
-            //guard scrollView.contentOffset.x >= 0 else { return }
-            //caseImagesCollectionView.setContentOffset(CGPoint(x: scrollView.contentOffset.x, y: caseImagesCollectionView.contentOffset.y), animated: true)
-            
-        } else {
-            return
-        }
-
-    }
-    
 }
 
 extension CaseTextImageCell {

@@ -77,8 +77,8 @@ extension PostLikesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = likesTableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! HomeLikesCell
-        cell.profileImageView.sd_setImage(with: URL(string: (users[indexPath.row].profileImageUrl)!))
-        cell.nameLabel.text = users[indexPath.row].firstName! + " " + users[indexPath.row].lastName!
+        cell.selectionStyle = .none
+        cell.set(profileImageUrl: users[indexPath.row].profileImageUrl!, name: users[indexPath.row].firstName!, lastName: users[indexPath.row].lastName!, profession: users[indexPath.row].profession!, speciality: users[indexPath.row].speciality!, category: users[indexPath.row].category.userCategoryString)
         return cell
     }
     

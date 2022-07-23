@@ -166,6 +166,7 @@
 		5FB2902A2887DF27002FBAE1 /* MEDiagnosisResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290292887DF27002FBAE1 /* MEDiagnosisResultView.swift */; };
 		5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */; };
 		5FB2902F288AF186002FBAE1 /* CommentInputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */; };
+		5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -350,6 +351,7 @@
 		5FB290292887DF27002FBAE1 /* MEDiagnosisResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEDiagnosisResultView.swift; sourceTree = "<group>"; };
 		5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeOptionsMenuLauncher.swift; sourceTree = "<group>"; };
 		5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputTextView.swift; sourceTree = "<group>"; };
+		5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsPostViewController.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -604,6 +606,7 @@
 			children = (
 				5FC4D87A2707058D006B7A34 /* HomeViewController.swift */,
 				5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */,
+				5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */,
 				5F9F0892285F7A830069FD2C /* Others */,
 			);
 			path = Home;
@@ -1482,6 +1485,7 @@
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,
 				5FB2902A2887DF27002FBAE1 /* MEDiagnosisResultView.swift in Sources */,
+				5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */,
 				5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */,
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,
 			);

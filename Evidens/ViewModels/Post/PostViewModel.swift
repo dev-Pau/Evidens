@@ -87,7 +87,7 @@ struct PostViewModel {
     
     var bookMarkImage: UIImage? {
         let imageName = post.didBookmark ? "bookmark.fill" : "bookmark"
-        return UIImage(systemName: imageName)
+        return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
     }
     
     var likesLabelText: String {

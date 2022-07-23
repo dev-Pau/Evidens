@@ -71,6 +71,7 @@ class HomeViewController: UICollectionViewController {
 
         if post != nil {
             checkIfUserLikedPosts()
+            checkIfUserBookmarkedPost()
         }
     }
     
@@ -227,7 +228,6 @@ extension HomeViewController {
         
         if posts[indexPath.row].type.postType == 0 {
 
-            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
             
             cell.delegate = self
@@ -242,7 +242,6 @@ extension HomeViewController {
             return cell
 
         } else if posts[indexPath.row].type.postType == 1 {
-            //print("post type 1")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
@@ -256,7 +255,6 @@ extension HomeViewController {
             return cell
             
         } else if posts[indexPath.row].type.postType == 2 {
-            //print("post type 1")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
@@ -322,7 +320,6 @@ extension HomeViewController {
                 cell.viewModel = PostViewModel(post: post)
             } else {
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
             }
             return cell
         }
@@ -334,8 +331,9 @@ extension HomeViewController {
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
     
-    
+    /*
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
         if post != nil {
             //Single cell display
             return CGSize(width: view.frame.width, height: 300)
@@ -375,8 +373,9 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
                 return CGSize(width: view.frame.width, height: height)
             }
         }
+         
     }
-     
+     */
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
           return 14.0
@@ -401,6 +400,18 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    func wantsToSeePostsFor(post: Post) {
+        
+        let controller = DetailsPostViewController(post: post)
+
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         //guard let newImage = image.image else { return }
         let map: [UIImage] = image.compactMap { $0.image }
@@ -419,6 +430,11 @@ extension HomeViewController: HomeCellDelegate {
     func cell(wantsToSeeLikesFor post: Post) {
         PostService.getAllLikesFor(post: post) { uids in
             let controller = PostLikesViewController(uid: uids)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            self.navigationItem.backBarButtonItem = backItem
+            
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -438,14 +454,12 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        
+
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell
-            
-            
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
@@ -457,8 +471,8 @@ extension HomeViewController: HomeCellDelegate {
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
-                    }
                 }
+            }
             
         case is HomeImageTextCell:
             let currentCell = cell as! HomeImageTextCell
@@ -476,6 +490,7 @@ extension HomeViewController: HomeCellDelegate {
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
+
                     currentCell.viewModel?.post.likes = post.likes + 1
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
@@ -521,11 +536,8 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post) {
-        
         homeMenuLauncher.uid = post.ownerUid
         homeMenuLauncher.showImageSettings(in: view)
-        //let privacyMenu = PostPrivacyMenuLauncher()
-        //privacyMenu.showPostSettings(in: view)
     }
     
 
@@ -540,13 +552,11 @@ extension HomeViewController: HomeCellDelegate {
             if post.didBookmark {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
-                    //currentCell.bookmarkButton.setImage(UIImage(named: "bookmark"), for: .normal)
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
-                    //currentCell.bookmarkButton.setImage(UIImage(named: "bookmark.fill"), for: .normal)
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
                 }
             }

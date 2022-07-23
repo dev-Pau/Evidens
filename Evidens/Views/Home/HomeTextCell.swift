@@ -13,8 +13,12 @@ class HomeTextCell: UICollectionViewCell {
     // MARK: - Properties
     
     var viewModel: PostViewModel? {
-        didSet { configure() }
+        didSet {
+            configure()
+        }
     }
+    
+    private let cellContentView = UIView()
     
     weak var delegate: HomeCellDelegate?
     
@@ -31,34 +35,48 @@ class HomeTextCell: UICollectionViewCell {
     override init (frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .white
-    
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
+        
         userPostView.delegate = self
         postInfoView.delegate = self
-        
         actionButtonsView.delegate = self
+        
+        backgroundColor = .white
 
-        addSubviews(userPostView, postTextLabel, postInfoView, actionButtonsView)
+        
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(cellContentView)
         
         NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: topAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+         
+    
+        cellContentView.addSubviews(userPostView, postTextLabel, postInfoView, actionButtonsView)
+        
+        NSLayoutConstraint.activate([
+            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
             postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
-            postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            //postTextLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: 10),
             
             postInfoView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
-            postInfoView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postInfoView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             postInfoView.heightAnchor.constraint(equalToConstant: 20),
-            postInfoView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            postInfoView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             
             actionButtonsView.topAnchor.constraint(equalTo: postInfoView.bottomAnchor, constant: 10),
-            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: 10),
+            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
     
@@ -69,7 +87,6 @@ class HomeTextCell: UICollectionViewCell {
     // MARK: - Helpers
     
     func configure() {
-        
         guard let viewModel = viewModel else { return }
         
         userPostView.usernameLabel.text = viewModel.fullName
@@ -87,7 +104,7 @@ class HomeTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
-        
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         
         if viewModel.postHasInfo {
@@ -96,9 +113,26 @@ class HomeTextCell: UICollectionViewCell {
             postInfoView.constrainHeight(constant: 0)
         }
     }
+    
+    @objc func didTapPost() {
+        guard let viewModel = viewModel else { return }
+        delegate?.wantsToSeePostsFor(post: viewModel.post)
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
+    }
 }
 
 extension HomeTextCell: MEUserPostViewDelegate {
+    
     func didTapThreeDots() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
@@ -128,7 +162,8 @@ extension HomeTextCell: MEPostActionButtonsDelegate {
     
     
     func handleBookmark() {
-        print("bookarmk")
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didBookmark: viewModel.post)
     }
     
     

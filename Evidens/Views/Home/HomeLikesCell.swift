@@ -9,37 +9,38 @@ import UIKit
 
 class HomeLikesCell: UITableViewCell {
     
-    lazy var profileImageView: UIImageView = {
-       let iv = UIImageView()
+    private lazy var profileImageView: UIImageView = {
+        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "home.fill")
-        iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.backgroundColor = .lightGray
         return iv
     }()
     
-    var nameLabel: UILabel = {
+    private let nameLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 1
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .black
+        label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .bold)
         return label
     }()
-
-    var userCategoryLabel: UILabel = {
+    
+    private let professionLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 1
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = grayColor
+        label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Physiotherapist"
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
         return label
     }()
-    
-    
     
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
         configure()
     }
     
@@ -50,28 +51,30 @@ class HomeLikesCell: UITableViewCell {
     
     
     private func configure() {
-        let stack = UIStackView(arrangedSubviews: [nameLabel, userCategoryLabel])
-        stack.axis = .vertical
-        stack.distribution = .fillEqually
-
-        stack.translatesAutoresizingMaskIntoConstraints = false
         
-        
-        addSubviews(profileImageView, stack)
+        addSubviews(profileImageView, nameLabel, professionLabel)
         
         NSLayoutConstraint.activate([
-            profileImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.widthAnchor.constraint(equalToConstant: 40),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 40),
+            profileImageView.widthAnchor.constraint(equalToConstant: 40),
+          
+            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            stack.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stack.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            stack.heightAnchor.constraint(equalToConstant: 40),
-            stack.widthAnchor.constraint(equalToConstant: 300)
-        
+            professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
+            professionLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            professionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
         ])
         
         profileImageView.layer.cornerRadius = 40 / 2
+    }
+    
+    func set(profileImageUrl: String, name: String, lastName: String, profession: String, speciality: String, category: String) {
+        profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        nameLabel.text = name + " " + lastName + " · " + category
+        professionLabel.text = profession + " · " + speciality
     }
 }

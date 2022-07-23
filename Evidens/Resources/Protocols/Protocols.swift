@@ -15,4 +15,5 @@ protocol HomeCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post)
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
     func cell(wantsToSeeLikesFor post: Post)
+    func wantsToSeePostsFor(post: Post)
 }
