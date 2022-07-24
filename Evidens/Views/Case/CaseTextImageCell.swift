@@ -25,6 +25,24 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
     
+    private lazy var caseStateButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.configuration?.imagePadding = 5
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = lightGrayColor
+        return view
+    }()
+    
     private var caseTags: [String] = []
     private var urlImages: [URL] = []
     
@@ -32,18 +50,6 @@ class CaseTextImageCell: UICollectionViewCell {
     private var descriptionCaseLabel = MEPostLabel()
     private var titleCaseLabel = METitleCaseLabel()
     private var actionButtonsView = MEPostActionButtons()
-    
-    private lazy var dotsImageButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = .black
-        button.configuration?.baseBackgroundColor = .white
-        button.configuration?.cornerStyle = .capsule
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
-        return button
-    }()
     
     private var compositionalCollectionView: UICollectionView!
     /*
@@ -95,7 +101,7 @@ class CaseTextImageCell: UICollectionViewCell {
             
             if sectionNumber == 0 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(500)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(400)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .paging
                 
@@ -127,6 +133,8 @@ class CaseTextImageCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        backgroundColor = .white
     
 
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
@@ -136,7 +144,6 @@ class CaseTextImageCell: UICollectionViewCell {
         compositionalCollectionView.dataSource = self
         compositionalCollectionView.delegate = self
         compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        compositionalCollectionView.backgroundColor = lightGrayColor
         /*
         caseStageCollectionView.delegate = self
         caseStageCollectionView.dataSource = self
@@ -145,14 +152,18 @@ class CaseTextImageCell: UICollectionViewCell {
         caseImagesCollectionView.delegate = self
         caseImagesCollectionView.dataSource = self
          */
-        addSubviews(userPostView, compositionalCollectionView, titleCaseLabel)
+        addSubviews(caseStateButton, separatorView, userPostView, compositionalCollectionView, titleCaseLabel, descriptionCaseLabel)
         //addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, caseImagesCollectionView, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
         NSLayoutConstraint.activate([
+            caseStateButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            caseStateButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
-            //dotsImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 13),
-            //dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: caseStateButton.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            userPostView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
@@ -164,7 +175,11 @@ class CaseTextImageCell: UICollectionViewCell {
             compositionalCollectionView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
             compositionalCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             compositionalCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            compositionalCollectionView.heightAnchor.constraint(equalToConstant: 700)
+            compositionalCollectionView.heightAnchor.constraint(equalToConstant: 460),
+            
+            descriptionCaseLabel.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
+            descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
             /*
             caseStageCollectionView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
@@ -176,9 +191,7 @@ class CaseTextImageCell: UICollectionViewCell {
             titleCaseLabel.leadingAnchor.constraint(equalTo: caseStageCollectionView.leadingAnchor, constant: 10),
             titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            
             
             caseImagesCollectionView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
             caseImagesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -209,14 +222,22 @@ class CaseTextImageCell: UICollectionViewCell {
     }
     private func configure() {
         guard let viewModel = viewModel else { return }
+        
+        caseStateButton.configuration?.image = viewModel.caseImageStage
+        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
+        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
+        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
+        
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
         userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         
+        descriptionCaseLabel.text = viewModel.caseDescription
+        
         /*
 
-        descriptionCaseLabel.text = viewModel.caseDescription
+        
         
         caseInfoView.configure(comments: viewModel.caseComments, commentText: viewModel.commentsText, views: viewModel.caseViews, viewText: viewModel.viewsText)
         

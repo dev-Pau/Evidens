@@ -151,7 +151,7 @@ class CaseTextCell: UICollectionViewCell {
         
         specialitiesDetails = viewModel.caseSpecialities
         
-        caseDetails.append(viewModel.caseStage)
+        //caseDetails.append(viewModel.caseStage)
         viewModel.caseTypeDetails.forEach {  caseDetails.append($0) }
         
         caseStageCollectionView.reloadData()

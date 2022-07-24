@@ -37,6 +37,7 @@ class CasesViewController: UIViewController {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing  = 10
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = lightColor
         collectionView.bounces = true
@@ -144,8 +145,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             return CGSize(width: view.frame.width, height: 1000)
         }
     }
-    
-    
 }
 
 //MARK: - UISearchBarDelegate

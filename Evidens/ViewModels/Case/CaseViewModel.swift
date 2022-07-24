@@ -43,8 +43,23 @@ struct CaseViewModel {
         return clinicalCase.numberOfViews
     }
     
-    var caseStage: String {
-        return clinicalCase.stage.rawValue == 0 ? "Resolved" : "Unresolved"
+    var caseStage: AttributedString {
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 13, weight: .bold)
+        
+        return clinicalCase.stage.rawValue == 0 ? AttributedString("Solved", attributes: container) : AttributedString("Unsolved", attributes: container)
+    }
+    
+    var caseImageStage: UIImage {
+        return clinicalCase.stage.rawValue == 0 ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))! : UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+    }
+    
+    var caseStageTextColor: UIColor {
+        return clinicalCase.stage.rawValue == 0 ? .white : grayColor
+    }
+    
+    var caseStageBackgroundColor: UIColor {
+        return clinicalCase.stage.rawValue == 0 ? leafGreenColor : lightGrayColor
     }
     
     var caseResolvedWithDiagnosis: Bool {
@@ -62,7 +77,7 @@ struct CaseViewModel {
     var userInfo: NSAttributedString {
         let attributedText = NSMutableAttributedString(string: "\(ownerProfession), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         attributedText.append(NSAttributedString(string: "\(ownerSpeciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-        attributedText.append(NSAttributedString(string: ownerCategory, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+        attributedText.append(NSAttributedString(string: ownerCategory, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .semibold), .foregroundColor: primaryColor]))
         
         return attributedText
     }
