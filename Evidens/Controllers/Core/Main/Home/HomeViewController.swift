@@ -319,7 +319,6 @@ extension HomeViewController {
             return cell
             
         }
-        
 
         else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
@@ -514,10 +513,6 @@ extension HomeViewController: HomeCellDelegate {
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
-                    //currentCell.actionButtonsView.likeButton.setImage(UIImage(named: "heart"), for: .normal)
-                    //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-                    //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
-                    
                     currentCell.viewModel?.post.likes = post.likes - 1
                 }
             } else {
@@ -525,8 +520,43 @@ extension HomeViewController: HomeCellDelegate {
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
-                    }
                 }
+            }
+            
+        case is HomeThreeImageTextCell:
+            let currentCell = cell as! HomeThreeImageTextCell
+            
+            currentCell.viewModel?.post.didLike.toggle()
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is HomeFourImageTextCell:
+            let currentCell = cell as! HomeFourImageTextCell
+            
+            currentCell.viewModel?.post.didLike.toggle()
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
             
         default:
             print("No cell registered")
@@ -586,6 +616,50 @@ extension HomeViewController: HomeCellDelegate {
                 }
             }
             
+        case is HomeTwoImageTextCell:
+            let currentCell = cell as! HomeTwoImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            if post.didBookmark {
+                //Unbookmark post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                }
+            } else {
+                //Bookmark post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                }
+            }
+            
+        case is HomeThreeImageTextCell:
+            let currentCell = cell as! HomeThreeImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            if post.didBookmark {
+                //Unbookmark post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                }
+            } else {
+                //Bookmark post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                }
+            }
+            
+        case is HomeFourImageTextCell:
+            let currentCell = cell as! HomeFourImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            if post.didBookmark {
+                //Unbookmark post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                }
+            } else {
+                //Bookmark post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                }
+            }
         default:
             print("No cell registered")
         }

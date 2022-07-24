@@ -13,7 +13,7 @@ class SpecialitiesCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.numberOfLines = 2
-        label.textColor = blackColor
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -33,10 +33,19 @@ class SpecialitiesCell: UICollectionViewCell {
         layer.borderWidth = 1
         backgroundColor = .clear
         addSubview(specialityLabel)
+        /*
         NSLayoutConstraint.activate([
             specialityLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             specialityLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             specialityLabel.heightAnchor.constraint(equalToConstant: 30)
+        ])
+         */
+        NSLayoutConstraint.activate([
+            specialityLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            specialityLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            specialityLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            specialityLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5)
+            //specialityLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
 }

@@ -20,11 +20,12 @@ class CaseImageCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(caseImageView)
+        
         NSLayoutConstraint.activate([
             caseImageView.topAnchor.constraint(equalTo: topAnchor),
             caseImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseImageView.heightAnchor.constraint(equalToConstant: 300)
+            caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
     

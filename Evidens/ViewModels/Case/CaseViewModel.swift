@@ -27,6 +27,10 @@ struct CaseViewModel {
         return clinicalCase.caseTypeDetails
     }
     
+    var caseTags: [String] {
+        return caseTypeDetails + caseSpecialities
+    }
+    
     var caseLikes: Int {
         return clinicalCase.likes
     }
@@ -55,6 +59,14 @@ struct CaseViewModel {
         return clinicalCase.ownerCategory.userCategoryString
     }
     
+    var userInfo: NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: "\(ownerProfession), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        attributedText.append(NSAttributedString(string: "\(ownerSpeciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+        attributedText.append(NSAttributedString(string: ownerCategory, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+        
+        return attributedText
+    }
+    
     var timestampString: String? {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
@@ -66,15 +78,7 @@ struct CaseViewModel {
     var caseType: Int {
         return clinicalCase.type.rawValue
     }
-    
-    var firstName: String {
-        return clinicalCase.ownerFirstName
-    }
-    
-    var lastName: String {
-        return clinicalCase.ownerLastName
-    }
-    
+        
     var fullName: String {
         return clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName
     }

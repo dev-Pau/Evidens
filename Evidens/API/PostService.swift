@@ -62,7 +62,8 @@ struct PostService {
     }
     
     
-    static func uploadPost(post: String, postImageUrl: [String]?, type: Post.PostType, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadPost(post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
+        
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
@@ -72,7 +73,10 @@ struct PostService {
                     "comments": 0,
                     "shares": 0,
                     "type": type.rawValue,
+                    "privacy": privacy.rawValue,
                     "bookmarks": 0,
+                    "profession": user.profession as Any,
+                    "speciality": user.speciality as Any,
                     "ownerFirstName": user.firstName as Any,
                     "ownerCategory": user.category.userCategoryString as Any,
                     "ownerLastName": user.lastName as Any,

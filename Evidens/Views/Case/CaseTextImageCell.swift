@@ -6,10 +6,16 @@
 //
 
 import UIKit
+import Combine
 
 private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
+private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
+
+struct PagingInfo: Equatable, Hashable {
+    let currentPage: Int
+}
 
 class CaseTextImageCell: UICollectionViewCell {
     
@@ -17,12 +23,15 @@ class CaseTextImageCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
     
-    private var caseDetails: [String] = []
-    private var specialitiesDetails: [String] = []
+    private var caseTags: [String] = []
     private var urlImages: [URL] = []
     
     private var userPostView = MEUserPostView()
+    private var descriptionCaseLabel = MEPostLabel()
+    private var titleCaseLabel = METitleCaseLabel()
+    private var actionButtonsView = MEPostActionButtons()
     
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
@@ -36,6 +45,8 @@ class CaseTextImageCell: UICollectionViewCell {
         return button
     }()
     
+    private var compositionalCollectionView: UICollectionView!
+    /*
     private let caseStageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -75,38 +86,87 @@ class CaseTextImageCell: UICollectionViewCell {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+     */
     
-    private var titleCaseLabel = METitleCaseLabel()
-    private var descriptionCaseLabel = MEPostLabel()
-    private var caseStatsView = MEPostStatsView()
-    private var caseInfoView = MECaseInfoView(comments: 0, commentText: "", views: 0, viewText: "")
-    private var caseActionButtons = MECaseActionButtons()
+   
+    
+    private func createCellLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            
+            if sectionNumber == 0 {
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(500)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .paging
+                
+                let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+
+                section.boundarySupplementaryItems = [footer]
+                
+                section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
+                    guard let self = self else { return }
+                    let page = round(offset.x / UIScreen.main.bounds.width)
+                    // Send the page of the visible image to the PagingInfoSubject
+                    self.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
+                }
+                return section
+            } else {
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                return section
+                
+            }
+        }
+        return layout
+    }
     
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        
+    
+
+        compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
+        compositionalCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
+        compositionalCollectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
+        compositionalCollectionView.register(CaseTagCell.self, forCellWithReuseIdentifier: caseStageCellReuseIdentifier)
+        compositionalCollectionView.dataSource = self
+        compositionalCollectionView.delegate = self
+        compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        compositionalCollectionView.backgroundColor = lightGrayColor
+        /*
         caseStageCollectionView.delegate = self
         caseStageCollectionView.dataSource = self
         specialitiesCollectionView.delegate = self
         specialitiesCollectionView.dataSource = self
         caseImagesCollectionView.delegate = self
         caseImagesCollectionView.dataSource = self
-        
-        addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, caseImagesCollectionView, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
-        
-        backgroundColor = .white
-        
+         */
+        addSubviews(userPostView, compositionalCollectionView, titleCaseLabel)
+        //addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, caseImagesCollectionView, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
         NSLayoutConstraint.activate([
-            dotsImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 13),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            userPostView.centerYAnchor.constraint(equalTo: dotsImageButton.centerYAnchor),
+            //dotsImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 13),
+            //dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor, constant: -10),
+            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
+            titleCaseLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
+            titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
+            
+            compositionalCollectionView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
+            compositionalCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            compositionalCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            compositionalCollectionView.heightAnchor.constraint(equalToConstant: 700)
+            
+            /*
             caseStageCollectionView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             caseStageCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseStageCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -144,19 +204,18 @@ class CaseTextImageCell: UICollectionViewCell {
             caseActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
             caseActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor)
+             */
         ])
     }
-    
     private func configure() {
-        caseDetails = []
-        
         guard let viewModel = viewModel else { return }
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userInfoCategoryLabel.text = viewModel.ownerProfession
+        userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         
-        titleCaseLabel.text = viewModel.caseTitle
+        /*
+
         descriptionCaseLabel.text = viewModel.caseDescription
         
         caseInfoView.configure(comments: viewModel.caseComments, commentText: viewModel.commentsText, views: viewModel.caseViews, viewText: viewModel.viewsText)
@@ -166,18 +225,23 @@ class CaseTextImageCell: UICollectionViewCell {
         
         caseStatsView.likesLabel.text = "\(viewModel.caseLikes)"
         
-        specialitiesDetails = viewModel.caseSpecialities
         
-        caseDetails.append(viewModel.caseStage)
-        viewModel.caseTypeDetails.forEach {  caseDetails.append($0) }
+         specialitiesDetails = viewModel.caseSpecialities
+        
         
         urlImages = viewModel.caseImageUrl!
         
         caseStageCollectionView.reloadData()
         specialitiesCollectionView.reloadData()
         caseImagesCollectionView.reloadData()
+         */
+        
+        titleCaseLabel.text = viewModel.caseTitle
+        caseTags = viewModel.caseTags
         
         
+        urlImages = viewModel.caseImageUrl!
+        compositionalCollectionView.reloadData()
     }
     
     required init?(coder: NSCoder) {
@@ -190,6 +254,42 @@ class CaseTextImageCell: UICollectionViewCell {
 }
 
 extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if section == 0 {
+            return urlImages.count
+        } else {
+            return caseTags.count
+        }
+
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+            cell.caseImageView.sd_setImage(with: urlImages[indexPath.row])
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseStageCellReuseIdentifier, for: indexPath) as! CaseTagCell
+            cell.tagsLabel.text = caseTags[indexPath.row]
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier, for: indexPath) as! PagingSectionFooterView
+        let itemCount = urlImages.count
+        footer.configure(with: itemCount)
+        footer.subscribeTo(subject: pagingInfoSubject)
+        return footer
+    }
+    
+   
+    /*
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == caseStageCollectionView {
             return caseDetails.count
@@ -228,6 +328,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
             return CGSize(width: UIScreen.main.bounds.width, height: 300)
         }
     }
+     */
 }
 
 extension CaseTextImageCell {

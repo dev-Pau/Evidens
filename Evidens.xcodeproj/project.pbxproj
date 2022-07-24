@@ -167,6 +167,8 @@
 		5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */; };
 		5FB2902F288AF186002FBAE1 /* CommentInputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */; };
 		5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */; };
+		5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */; };
+		5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -352,6 +354,8 @@
 		5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeOptionsMenuLauncher.swift; sourceTree = "<group>"; };
 		5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputTextView.swift; sourceTree = "<group>"; };
 		5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsPostViewController.swift; sourceTree = "<group>"; };
+		5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingSectionFooterView.swift; sourceTree = "<group>"; };
+		5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTagCell.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -693,6 +697,8 @@
 				5F719B362886800B002666C0 /* CaseTextCell.swift */,
 				5FB290252886F843002FBAE1 /* CaseTextImageCell.swift */,
 				5FB290272886FD43002FBAE1 /* CaseImageCell.swift */,
+				5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */,
+				5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1429,6 +1435,7 @@
 				5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */,
 				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
+				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
@@ -1488,6 +1495,7 @@
 				5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */,
 				5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */,
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,
+				5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

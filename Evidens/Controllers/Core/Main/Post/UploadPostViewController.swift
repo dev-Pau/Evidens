@@ -530,7 +530,6 @@ class UploadPostViewController: UIViewController {
                             
                         } else {
                             print("Document uploaded to firebase")
-
                         }
                     }
                 case .failure(let error):
@@ -541,8 +540,7 @@ class UploadPostViewController: UIViewController {
             return
         }
         
-        
-        
+
         if postImages.count > 0 {
             print("Has images")
             let imagesToUpload = postImages.compactMap { $0 }
@@ -559,7 +557,7 @@ class UploadPostViewController: UIViewController {
                         } else {
                             // Post is uploaded to Firebase
                             // Dismiss VC Here
-
+                            
                         }
                     }
                 }
@@ -567,7 +565,7 @@ class UploadPostViewController: UIViewController {
             case 2:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithTwoImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -580,7 +578,7 @@ class UploadPostViewController: UIViewController {
             case 3:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithThreeImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -593,7 +591,7 @@ class UploadPostViewController: UIViewController {
             case 4:
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, postImageUrl: imageUrl, type: .textWithFourImage, user: self.user) { error in
+                    PostService.uploadPost(post: postTextView, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return

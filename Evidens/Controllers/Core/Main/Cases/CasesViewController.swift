@@ -141,7 +141,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         if cases[indexPath.row].type.rawValue == 0 {
             return CGSize(width: view.frame.width, height: 500)
         } else {
-            return CGSize(width: view.frame.width, height: 600)
+            return CGSize(width: view.frame.width, height: 1000)
         }
     }
     

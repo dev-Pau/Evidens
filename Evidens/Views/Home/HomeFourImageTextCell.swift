@@ -19,17 +19,13 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     weak var delegate: HomeCellDelegate?
     
-    private var headerPostView = MEHeaderPostView(category: "  Nutrition  ", subCategory: "  Vegetables  ")
+    private let cellContentView = UIView()
     
     private var userPostView = MEUserPostView()
     
     private var postTextLabel = MEPostLabel()
     
-    private var postStatsView = MEPostStatsView()
-    
-    private var postInfoView = MEPostInfoView(comments: 0, commentText: "", shares: 0, shareText: "")
-    
-    private var actionButtonsView = MEPostActionButtons()
+    var actionButtonsView = MEPostActionButtons()
     
     private var appended: [Int] = []
     
@@ -88,42 +84,43 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
-        userPostView.delegate = self
-        postInfoView.delegate = self
-        
-        actionButtonsView.delegate = self
-        
-        addSubviews(headerPostView, userPostView, postTextLabel, postImageView, postTwoImageView, postThreeImageView, postFourImageView, postStatsView, postInfoView, actionButtonsView)
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(cellContentView)
         
         NSLayoutConstraint.activate([
-            headerPostView.topAnchor.constraint(equalTo: topAnchor),
-            headerPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            headerPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            headerPostView.heightAnchor.constraint(equalToConstant: 50),
-            
-            userPostView.topAnchor.constraint(equalTo: headerPostView.bottomAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+        
+        userPostView.delegate = self
+        actionButtonsView.delegate = self
+        
+        cellContentView.addSubviews(userPostView, postTextLabel, postImageView, postTwoImageView, postThreeImageView, postFourImageView, actionButtonsView)
+        
+        NSLayoutConstraint.activate([
+            userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
-            postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            //350
+            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
+            postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
             postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
-            postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 200),
             postImageView.widthAnchor.constraint(equalToConstant: frame.width),
             
             postTwoImageView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 2),
-            postTwoImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            postTwoImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postTwoImageView.widthAnchor.constraint(equalToConstant: frame.width / 3 - 4),
             postTwoImageView.heightAnchor.constraint(equalToConstant: 150),
             
             postFourImageView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 2),
-            postFourImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            postFourImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             postFourImageView.heightAnchor.constraint(equalToConstant: 150),
             postFourImageView.widthAnchor.constraint(equalToConstant: frame.width / 3 - 4),
             
@@ -132,20 +129,10 @@ class HomeFourImageTextCell: UICollectionViewCell {
             postThreeImageView.trailingAnchor.constraint(equalTo: postFourImageView.leadingAnchor, constant: -2),
             postThreeImageView.heightAnchor.constraint(equalToConstant: 150),
             
-            postStatsView.topAnchor.constraint(equalTo: postTwoImageView.bottomAnchor, constant: 10),
-            postStatsView.leadingAnchor.constraint(equalTo: postTwoImageView.leadingAnchor, constant: 10),
-            postStatsView.widthAnchor.constraint(equalToConstant: 150),
-            postStatsView.heightAnchor.constraint(equalToConstant: 20),
-            
-            postInfoView.centerYAnchor.constraint(equalTo: postStatsView.centerYAnchor),
-            postInfoView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            postInfoView.heightAnchor.constraint(equalToConstant: 25),
-            postInfoView.widthAnchor.constraint(equalToConstant: 150),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: postInfoView.bottomAnchor, constant: 5),
-            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            actionButtonsView.topAnchor.constraint(equalTo: postThreeImageView.bottomAnchor, constant: 10),
+            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
     
@@ -160,45 +147,51 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userInfoCategoryLabel.text = "Physiotherapist"
+        userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
+        
+        userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
         
         postTextLabel.text = viewModel.postText
         
-        postStatsView.likesLabel.text = viewModel.likesLabelText
-      
-        
-        postInfoView.configure(comments: viewModel.comments, commentText: viewModel.commentsLabelText, shares: viewModel.shares, shareText: viewModel.shareLabelText)
+        actionButtonsView.likesLabel.text = viewModel.likesLabelText
+        actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         viewModel.post.postImageUrl.forEach { url in
             let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
-
-           
+      
             appended.append(Int(currentURL[0..<1])!)
 
             if appended.count == viewModel.postImageUrl.count {
-                print("DONE")
-                print(appended)
-                var sortedURL = appended.sorted()
-                var index = appended.firstIndex(of: 0)
+
                 postImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 0)!])
                 postTwoImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 1)!])
                 postThreeImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 2)!])
                 postFourImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 3)!])
                 
-                //appended.removeAll()
+                appended.removeAll()
             }
         }
-        
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
     
     
     @objc func handleImageTap(gesture: UITapGestureRecognizer) {
-        guard let image = gesture.view as? UIImageView, let viewModel = viewModel else { return }
+        guard let image = gesture.view as? UIImageView else { return }
         let images = [postImageView, postTwoImageView, postThreeImageView,postFourImageView]
         if image == postImageView {
             delegate?.cell(self, didTapImage: images, index: 0)
@@ -247,27 +240,13 @@ extension HomeFourImageTextCell: MEPostActionButtonsDelegate {
     
     
     func handleBookmark() {
-        print("bookarmk")
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, didBookmark: viewModel.post)
     }
     
     
     func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(self, didLike: viewModel.post)
-    }
-}
-
-
-extension String {
-    subscript(_ range: CountableRange<Int>) -> String {
-        let start = index(startIndex, offsetBy: max(0, range.lowerBound))
-        let end = index(start, offsetBy: min(self.count - range.lowerBound,
-                                             range.upperBound - range.lowerBound))
-        return String(self[start..<end])
-    }
-
-    subscript(_ range: CountablePartialRangeFrom<Int>) -> String {
-        let start = index(startIndex, offsetBy: max(0, range.lowerBound))
-         return String(self[start...])
     }
 }
