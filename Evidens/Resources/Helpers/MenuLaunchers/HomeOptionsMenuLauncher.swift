@@ -116,7 +116,7 @@ class HomeOptionsMenuLauncher: NSObject {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if uid == currentUid {
             menuOptionsText = ["Edit", "Delete"]
-            menuOptionsImages = [UIImage(named: "pencil.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.black),
+            menuOptionsImages = [UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
                                  UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
             
         } else {

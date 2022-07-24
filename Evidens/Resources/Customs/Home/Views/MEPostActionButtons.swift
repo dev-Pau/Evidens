@@ -30,9 +30,7 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-
         button.configuration?.baseForegroundColor = .black
-
         button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return button
     }()
@@ -64,10 +62,8 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-
-        button.configuration?.image = UIImage(systemName: "bubble.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        button.configuration?.image = UIImage(systemName: "text.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         button.configuration?.baseForegroundColor = .black
-
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -76,10 +72,8 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-
         button.configuration?.image = UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         button.configuration?.baseForegroundColor = .black
-        
         button.addTarget(self, action: #selector(handleBookmark), for: .touchUpInside)
         return button
     }()
@@ -98,34 +92,28 @@ class MEPostActionButtons: UIView {
     }
     
     func configure() {
-
         translatesAutoresizingMaskIntoConstraints = false
-        commentLabel.text = "2 comments"
-        
-        let likesStackView = UIStackView(arrangedSubviews: [likeButton, likesLabel])
-        likesStackView.axis = .horizontal
-        likesStackView.spacing = 0
-        
-        let commentStackView = UIStackView(arrangedSubviews: [commentButton, commentLabel])
-        commentStackView.axis = .horizontal
-        commentStackView.spacing = 0
-        
-        let stack = UIStackView(arrangedSubviews: [likesStackView, commentStackView])
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.spacing = 5
-        stack.distribution = .fillEqually
 
-        addSubviews(bottomSeparatorLabel, bookmarkButton, stack)
+        addSubviews(likeButton, likesLabel, commentButton, commentLabel, bottomSeparatorLabel, bookmarkButton)
         
         NSLayoutConstraint.activate([
+            likeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
+            likeButton.topAnchor.constraint(equalTo: topAnchor),
+            
+            likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: -10),
+            likesLabel.widthAnchor.constraint(equalToConstant: 30),
+            
+            commentButton.leadingAnchor.constraint(equalTo: likesLabel.trailingAnchor, constant: 5),
+            commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            
+            commentLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: -10),
+            
             bookmarkButton.topAnchor.constraint(equalTo: topAnchor, constant: 4),
             bookmarkButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             bookmarkButton.heightAnchor.constraint(equalToConstant: 30),
             bookmarkButton.widthAnchor.constraint(equalToConstant: 30),
-            
-            stack.topAnchor.constraint(equalTo: topAnchor),
-            stack.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: bookmarkButton.leadingAnchor, constant: -50),
             
             bottomSeparatorLabel.topAnchor.constraint(equalTo: topAnchor),
             bottomSeparatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

@@ -47,8 +47,8 @@ class CaseTextImageCell: UICollectionViewCell {
     private var urlImages: [URL] = []
     
     private var userPostView = MEUserPostView()
-    private var descriptionCaseLabel = MEPostLabel()
     private var titleCaseLabel = METitleCaseLabel()
+    private var descriptionCaseLabel = MEPostLabel()
     private var actionButtonsView = MEPostActionButtons()
     
     private var compositionalCollectionView: UICollectionView!

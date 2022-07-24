@@ -36,7 +36,7 @@ class MEUserPostView: UIView {
         button.configuration?.image = UIImage(systemName: "ellipsis")
         button.configuration?.baseForegroundColor = .black
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)

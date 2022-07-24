@@ -23,14 +23,10 @@ struct PostViewModel {
     }
     
     var commentsLabelText: String {
-        if post.numberOfComments > 1 {
-            return "\(post.numberOfComments) comments"
-        }
-        else if post.numberOfComments == 1 {
-            return "\(post.numberOfComments) comment"
-        }
-        else {
+        if comments == 0 {
             return ""
+        } else {
+            return "\(comments)"
         }
     }
     
@@ -91,14 +87,13 @@ struct PostViewModel {
     }
     
     var likesLabelText: String {
-        if post.likes == 1 {
-            return "\(post.likes) like"
-        } else if post.likes > 1 {
-            return "\(post.likes) likes"
-        } else {
+        if likes == 0 {
             return ""
+        } else {
+            return "\(post.likes)"
         }
     }
+    
     
     var profession: String {
         return post.ownerProfession

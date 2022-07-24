@@ -23,7 +23,7 @@ class METitleCaseLabel: UILabel {
         
         textColor = .black
         
-        font = .systemFont(ofSize: 18, weight: .semibold)
+        font = .systemFont(ofSize: 16, weight: .medium)
         
         numberOfLines = 1
         

@@ -130,14 +130,14 @@ class MainTabController: UITabBarController {
          layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
          super.init(collectionViewLayout: layout)
          */
-        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
+        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house.fill")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
         
-        let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.fill")!, rootViewController: CasesViewController())
+        let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(systemName: "heart.text.square.fill")!, selectedImage: UIImage(systemName: "heart.text.square.fill")!, rootViewController: CasesViewController())
         
         let postController = ViewController()
-        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "plus.app")!, selectedImage: UIImage(named: "plus.app")!, rootViewController: postController)
+        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus.circle.fill")!, selectedImage: UIImage(systemName: "plus.circle.fill")!, rootViewController: postController)
         
-        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "bell")!, selectedImage: UIImage(named: "bell.fill")!, rootViewController: NotificationViewController())
+        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell.fill")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationViewController())
         
         viewControllers = [home, search, post, notifications]
         
@@ -151,7 +151,7 @@ class MainTabController: UITabBarController {
         nav.tabBarItem.title = title
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
         nav.tabBarItem.selectedImage = selectedImage
-        nav.navigationBar.tintColor = blackColor
+        nav.navigationBar.tintColor = .black
         
         return nav
     }
