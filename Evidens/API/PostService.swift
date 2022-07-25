@@ -130,7 +130,7 @@ struct PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         var posts = [Post]()
         
-        COLLECTION_USERS.document(uid).collection("user-feed").getDocuments { snapshot, error in
+        COLLECTION_USERS.document(uid).collection("user-home-feed").getDocuments { snapshot, error in
             snapshot?.documents.forEach({ document in
                 fetchPost(withPostId: document.documentID) { post in
                     posts.append(post)
@@ -179,7 +179,7 @@ struct PostService {
         //Update posts likes collection to track likes for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
             //Update user likes collection to track likes for a particular user
-            COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).setData([:], completion: completion)
         }
     }
     
@@ -191,7 +191,7 @@ struct PostService {
         //Update post bookmark collection to track bookmarks for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-bookmarks").document(post.postId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData([:], completion: completion)
         }
     }
     
@@ -202,7 +202,7 @@ struct PostService {
         COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes - 1])
 
         COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).delete() { _ in
-            COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).delete(completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete(completion: completion)
         }
     }
     
@@ -213,7 +213,7 @@ struct PostService {
         COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks - 1])
         
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
-            COLLECTION_USERS.document(uid).collection("user-bookmarks").document(post.postId).delete(completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).delete(completion: completion)
         }
         
         
@@ -221,7 +221,7 @@ struct PostService {
     
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Bool) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).collection("user-likes").document(post.postId).getDocument { (snapshot, _) in
+        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { (snapshot, _) in
             
             //If the snapshot (document) exists, means current user did like the post
             guard let didLike = snapshot?.exists else { return }
@@ -231,7 +231,7 @@ struct PostService {
     
     static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Bool) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).collection("user-bookmarks").document(post.postId).getDocument { (snapshot, _) in
+        COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).getDocument { (snapshot, _) in
             
             //If the snapshot (document) exists, means current user did like the post
             guard let didBookmark = snapshot?.exists else { return }
@@ -240,7 +240,6 @@ struct PostService {
     }
     
     static func getAllLikesFor(post: Post, completion: @escaping([String]) -> Void) {
-        print("Called")
         COLLECTION_POSTS.document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
             guard let uid = snapshot?.documents else { return }
             let docIDs = uid.map({ $0.documentID })
@@ -261,9 +260,9 @@ struct PostService {
             //Use docIDs to update user feed structure
             docIDs.forEach { id in
                 if didFollow {
-                    COLLECTION_USERS.document(uid).collection("user-feed").document(id).setData([:])
+                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).setData([:])
                 } else {
-                    COLLECTION_USERS.document(uid).collection("user-feed").document(id).delete()
+                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
                 }
                 
             }
@@ -275,10 +274,10 @@ struct PostService {
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, _ in
             guard let documents = snapshot?.documents else { return }
             documents.forEach { document in
-                COLLECTION_USERS.document(document.documentID).collection("user-feed").document(postId).setData([:])
+                COLLECTION_USERS.document(document.documentID).collection("user-home-feed").document(postId).setData([:])
             }
             
-            COLLECTION_USERS.document(uid).collection("user-feed").document(postId).setData([:])
+            COLLECTION_USERS.document(uid).collection("user-home-feed").document(postId).setData([:])
         }
     }
 }

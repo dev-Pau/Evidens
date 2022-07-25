@@ -20,7 +20,7 @@ class MEProfileImageView: UIImageView {
     
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
-        contentMode = .scaleAspectFit
+        contentMode = .scaleAspectFill
         clipsToBounds = true
         isUserInteractionEnabled = true
         backgroundColor = primaryColor

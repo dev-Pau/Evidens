@@ -17,3 +17,11 @@ protocol HomeCellDelegate: AnyObject {
     func cell(wantsToSeeLikesFor post: Post)
     func cell(_ cell: UICollectionViewCell, wantstoSeePostsFor post: Post)
 }
+
+protocol CaseCellDelegate: AnyObject {
+    func clinicalCase(wantsToSeeLikesFor clinicalCase: Case)
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case)
+    func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case)
+    func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case)
+    //func clinicalCase(
+}

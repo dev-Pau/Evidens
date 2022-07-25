@@ -80,6 +80,13 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = lightGrayColor
+        return view
+    }()
+    
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
@@ -94,8 +101,7 @@ class CommentCell: UICollectionViewCell {
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-        //contentView.addSubviews(profileImageView, dotsImageButton, timeStampLabel, nameLabel, commentLabel)
-        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, timeStampLabel, nameLabel, professionLabel)
+        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, timeStampLabel, nameLabel, professionLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -122,7 +128,13 @@ class CommentCell: UICollectionViewCell {
             commentLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             commentLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             commentLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            //commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            
+            separatorView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 3),
+            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
         
         profileImageView.layer.cornerRadius = 40 / 2
@@ -149,15 +161,9 @@ class CommentCell: UICollectionViewCell {
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
-        // Specify you want _full width_
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
-        // Calculate the size (height) using Auto Layout
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 15))
-
-        // Assign the new size to the layout attributes
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

@@ -23,6 +23,10 @@ class CaseTextImageCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    weak var delegate: CaseCellDelegate?
+    
+    private let cellContentView = UIView()
+    
     private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
     
     private lazy var caseStateButton: UIButton = {
@@ -43,6 +47,15 @@ class CaseTextImageCell: UICollectionViewCell {
         return view
     }()
     
+    private let viewsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = grayColor
+        label.text = "15 views"
+        return label
+    }()
+    
     private var caseTags: [String] = []
     private var urlImages: [URL] = []
     
@@ -52,49 +65,6 @@ class CaseTextImageCell: UICollectionViewCell {
     private var actionButtonsView = MEPostActionButtons()
     
     private var compositionalCollectionView: UICollectionView!
-    /*
-    private let caseStageCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.bounces = true
-        collectionView.alwaysBounceHorizontal = true
-        collectionView.isUserInteractionEnabled = true
-        collectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: caseStageCellReuseIdentifier)
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-    
-    private let specialitiesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.bounces = true
-        collectionView.alwaysBounceHorizontal = true
-        collectionView.isUserInteractionEnabled = true
-        collectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-    
-    private let caseImagesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 0
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.isUserInteractionEnabled = true
-        collectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-     */
-    
-   
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
@@ -135,8 +105,9 @@ class CaseTextImageCell: UICollectionViewCell {
         super.init(frame: frame)
         
         backgroundColor = .white
+        
+        actionButtonsView.delegate = self
     
-
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         compositionalCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
         compositionalCollectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
@@ -144,28 +115,34 @@ class CaseTextImageCell: UICollectionViewCell {
         compositionalCollectionView.dataSource = self
         compositionalCollectionView.delegate = self
         compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        /*
-        caseStageCollectionView.delegate = self
-        caseStageCollectionView.dataSource = self
-        specialitiesCollectionView.delegate = self
-        specialitiesCollectionView.dataSource = self
-        caseImagesCollectionView.delegate = self
-        caseImagesCollectionView.dataSource = self
-         */
-        addSubviews(caseStateButton, separatorView, userPostView, compositionalCollectionView, titleCaseLabel, descriptionCaseLabel)
-        //addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, caseImagesCollectionView, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
+        
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(cellContentView)
+        
         NSLayoutConstraint.activate([
-            caseStateButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            caseStateButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+       
+        cellContentView.addSubviews(caseStateButton, viewsLabel, separatorView, userPostView, compositionalCollectionView, titleCaseLabel, descriptionCaseLabel, actionButtonsView)
+       
+        NSLayoutConstraint.activate([
+            caseStateButton.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            caseStateButton.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            
+            viewsLabel.centerYAnchor.constraint(equalTo: caseStateButton.centerYAnchor),
+            viewsLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
             separatorView.leadingAnchor.constraint(equalTo: caseStateButton.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             separatorView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
             userPostView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
             titleCaseLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
@@ -173,53 +150,21 @@ class CaseTextImageCell: UICollectionViewCell {
             titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
             
             compositionalCollectionView.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
-            compositionalCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            compositionalCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            compositionalCollectionView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            compositionalCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             compositionalCollectionView.heightAnchor.constraint(equalToConstant: 460),
             
             descriptionCaseLabel.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            /*
-            caseStageCollectionView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseStageCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseStageCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseStageCollectionView.heightAnchor.constraint(equalToConstant: 40),
-            
-            titleCaseLabel.topAnchor.constraint(equalTo: caseStageCollectionView.bottomAnchor, constant: 5),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: caseStageCollectionView.leadingAnchor, constant: 10),
-            titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            
-            
-            caseImagesCollectionView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
-            caseImagesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseImagesCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseImagesCollectionView.heightAnchor.constraint(equalToConstant: 300),
-            
-            specialitiesCollectionView.topAnchor.constraint(equalTo: caseImagesCollectionView.bottomAnchor, constant: 5),
-            specialitiesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            specialitiesCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            specialitiesCollectionView.heightAnchor.constraint(equalToConstant: 40),
-            
-            caseStatsView.topAnchor.constraint(equalTo: specialitiesCollectionView.bottomAnchor, constant: 10),
-            caseStatsView.leadingAnchor.constraint(equalTo: descriptionCaseLabel.leadingAnchor),
-            caseStatsView.widthAnchor.constraint(equalToConstant: 150),
-            caseStatsView.heightAnchor.constraint(equalToConstant: 20),
-            
-            caseInfoView.centerYAnchor.constraint(equalTo: caseStatsView.centerYAnchor),
-            caseInfoView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            caseInfoView.heightAnchor.constraint(equalToConstant: 25),
-            caseInfoView.widthAnchor.constraint(equalToConstant: 150),
-            
-            caseActionButtons.topAnchor.constraint(equalTo: caseInfoView.bottomAnchor, constant: 5),
-            caseActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            caseActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor)
-             */
+            actionButtonsView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
+            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
+    
     private func configure() {
         guard let viewModel = viewModel else { return }
         
@@ -235,6 +180,7 @@ class CaseTextImageCell: UICollectionViewCell {
         
         descriptionCaseLabel.text = viewModel.caseDescription
         
+        viewsLabel.text = viewModel.viewsText
         /*
 
         
@@ -257,9 +203,15 @@ class CaseTextImageCell: UICollectionViewCell {
         caseImagesCollectionView.reloadData()
          */
         
+        actionButtonsView.likesLabel.text = viewModel.likesText
+        actionButtonsView.commentLabel.text = viewModel.commentsText
+        
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
+        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+        
         titleCaseLabel.text = viewModel.caseTitle
         caseTags = viewModel.caseTags
-        
         
         urlImages = viewModel.caseImageUrl!
         compositionalCollectionView.reloadData()
@@ -271,6 +223,17 @@ class CaseTextImageCell: UICollectionViewCell {
     
     @objc func handleThreeDots() {
         
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
 }
 
@@ -352,14 +315,25 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
      */
 }
 
-extension CaseTextImageCell {
-    func size(forHeight height: CGFloat, forText text: String) -> CGSize {
-        let label = UILabel()
-        label.numberOfLines = 2
-        label.text = text
-        label.lineBreakMode = .byWordWrapping
-        label.setHeight(height)
-        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+extension CaseTextImageCell: MEPostActionButtonsDelegate {
+    func handleLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, didLike: viewModel.clinicalCase)
+    }
+    
+    func handleComments() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(wantsToShowCommentsFor: viewModel.clinicalCase)
+    }
+    
+    func handleBookmark() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, didBookmark: viewModel.clinicalCase)
+    }
+    
+    func handleShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(wantsToSeeLikesFor: viewModel.clinicalCase)
     }
 }
 

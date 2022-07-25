@@ -46,7 +46,7 @@ class UserProfileHeader: UITableViewHeaderFooterView {
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.layer.borderWidth = 3

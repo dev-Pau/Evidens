@@ -30,6 +30,7 @@ class HomeViewController: UICollectionViewController {
         iv.layer.masksToBounds = true
         iv.setDimensions(height: 35, width: 35)
         iv.layer.cornerRadius = 35/2
+        iv.contentMode = .scaleAspectFill
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
         iv.addGestureRecognizer(tap)
@@ -451,7 +452,7 @@ extension HomeViewController: HomeCellDelegate {
     
 
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
-        let controller = CommentViewController(post: post)
+        let controller = CommentPostViewController(post: post)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -583,9 +584,6 @@ extension HomeViewController: HomeCellDelegate {
     
 
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let _ = tab.user else { return }
-        
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell

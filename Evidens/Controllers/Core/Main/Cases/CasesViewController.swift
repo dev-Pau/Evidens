@@ -38,6 +38,7 @@ class CasesViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing  = 10
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = lightColor
         collectionView.bounces = true
@@ -68,7 +69,32 @@ class CasesViewController: UIViewController {
     private func fetchCases() {
         CaseService.fetchCases { cases in
             self.cases = cases
+            self.checkIfUserLikedCase()
+            self.checkIfUserBookmarkedCase()
             self.collectionView.refreshControl?.endRefreshing()
+        }
+    }
+    
+    func checkIfUserLikedCase() {
+        self.cases.forEach { clinicalCase in
+            //Check if user did like
+            CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
+                //Check the postId of the current post looping
+                if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId}) {
+                    //Change the didLike according if user did like post
+                    self.cases[index].didLike = didLike
+                }
+            }
+        }
+    }
+    
+    func checkIfUserBookmarkedCase() {
+        self.cases.forEach { clinicalCase in
+            CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
+                if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId}) {
+                    self.cases[index].didBookmark = didBookmark
+                }
+            }
         }
     }
     
@@ -134,17 +160,20 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+            cell.delegate = self
             return cell
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if cases[indexPath.row].type.rawValue == 0 {
-            return CGSize(width: view.frame.width, height: 500)
+    /*
+     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+     if cases[indexPath.row].type.rawValue == 0 {
+     return CGSize(width: view.frame.width, height: 500)
         } else {
             return CGSize(width: view.frame.width, height: 1000)
         }
     }
+     */
 }
 
 //MARK: - UISearchBarDelegate
@@ -159,7 +188,107 @@ extension CasesViewController: UISearchBarDelegate {
         
         let controller = SearchViewController()
         navigationController?.pushViewController(controller, animated: true)
-
+        
         return true
     }
+}
+
+extension CasesViewController: CaseCellDelegate {
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
+        HapticsManager.shared.vibrate(for: .success)
+        
+        switch cell {
+        case is CaseTextCell:
+            let currentCell = cell as! CaseTextCell
+            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
+            if clinicalCase.didBookmark {
+                //Unlike post here
+                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                }
+            } else {
+                //Like post here
+                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is CaseTextImageCell:
+            let currentCell = cell as! CaseTextImageCell
+            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
+            if clinicalCase.didBookmark {
+                //Unlike post here
+                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                }
+            } else {
+                //Like post here
+                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+        default:
+            print("Cell not registered")
+        }
+        
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
+        HapticsManager.shared.vibrate(for: .success)
+        
+        switch cell {
+        case is CaseTextCell:
+            let currentCell = cell as! CaseTextCell
+            currentCell.viewModel?.clinicalCase.didLike.toggle()
+            if clinicalCase.didLike {
+                //Unlike post here
+                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                }
+            } else {
+                //Like post here
+                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is CaseTextImageCell:
+            let currentCell = cell as! CaseTextImageCell
+            currentCell.viewModel?.clinicalCase.didLike.toggle()
+            if clinicalCase.didLike {
+                //Unlike post here
+                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                }
+            } else {
+                //Like post here
+                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+        default:
+            print("Cell not registered")
+        }
+    }
+    
+    func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        
+    }
+    
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case) {
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    
 }

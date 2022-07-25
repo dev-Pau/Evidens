@@ -45,4 +45,41 @@ struct CommentService {
             completion(comments)
         }
     }
+    
+    static func uploadCaseComment(comment: String, clinicalCase: Case, user: User, completion: @escaping(FirestoreCompletion)) {
+
+        let data: [String: Any] = ["uid": user.uid as Any,
+                                   "comment": comment,
+                                   "timestamp": Timestamp(date: Date()),
+                                   "firstName": user.firstName as Any,
+                                   "category": user.category.userCategoryString as Any,
+                                   "speciality": user.speciality as Any,
+                                   "profession": user.profession as Any,
+                                   "lastName": user.lastName as Any,
+                                   "profileImageUrl": user.profileImageUrl as Any]
+        
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").addDocument(data: data, completion: completion)
+        
+        //Update number of comments for the post
+        COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
+    }
+    
+    static func fetchCaseComments(forCase caseID: String, completion: @escaping([Comment]) -> Void) {
+        var comments = [Comment]()
+        
+        let query = COLLECTION_CASES.document(caseID).collection("comments")
+            .order(by: "timestamp", descending: false)
+        
+        //Listener to update UI with new comments
+        query.addSnapshotListener { (snapshot, error) in
+            snapshot?.documentChanges.forEach({ change in
+                if change.type == .added {
+                    let data = change.document.data()
+                    let comment = Comment(dictionary: data)
+                    comments.append(comment)
+                }
+            })
+            completion(comments)
+        }
+    }
 }

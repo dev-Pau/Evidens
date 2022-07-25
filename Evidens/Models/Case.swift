@@ -45,6 +45,7 @@ struct Case {
     var likes: Int
     var numberOfComments: Int
     var numberOfViews: Int
+    var numberOfBookmarks: Int
     let ownerUid: String
     let timestamp: Timestamp
     let caseId: String
@@ -70,6 +71,7 @@ struct Case {
         self.caseSpecialities = dictionary["specialities"] as? [String] ?? [""]
         self.caseTypeDetails = dictionary["details"] as? [String] ?? [""]
         self.likes = dictionary["likes"] as? Int ?? 0
+        self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0
         self.stage = CaseStage(rawValue: dictionary["stage"] as? Int ?? 0) ?? .unresolved
         self.numberOfComments = dictionary["comments"] as? Int ?? 0
         self.numberOfViews = dictionary["views"] as? Int ?? 0

@@ -1,19 +1,19 @@
 //
-//  CommentViewController.swift
+//  CommentCaseViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 25/11/21.
+//  Created by Pau Fernández Solà on 25/7/22.
 //
 
 import UIKit
 
 private let reuseIdentifier = "CommentCell"
 
-class CommentViewController: UICollectionViewController {
+class CommentCaseViewController: UICollectionViewController {
     
     //MARK: - Properties
     
-    private var post: Post
+    private var clinicalCase: Case
     private var comments = [Comment]()
  
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -21,33 +21,11 @@ class CommentViewController: UICollectionViewController {
         cv.delegate = self
         return cv
     }()
-    
-    private lazy var emptyCommentLabel: UILabel = {
-        let label = UILabel()
-        label.text = "No comments yet."
-        label.textAlignment = .center
-        label.textColor = .black
-        label.font = .systemFont(ofSize: 21, weight: .bold)
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var startTheConversationLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Start the conversation."
-        label.textAlignment = .center
-        label.textColor = grayColor
-        label.font = .systemFont(ofSize: 17, weight: .medium)
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
+        
     //MARK: - Lifecycle
     
-    init(post: Post) {
-        self.post = post
+    init(clinicalCase: Case) {
+        self.clinicalCase = clinicalCase
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -63,7 +41,6 @@ class CommentViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        configureUI()
         configureCollectionView()
         fetchComments()
     }
@@ -91,33 +68,22 @@ class CommentViewController: UICollectionViewController {
     //MARK: - API
     
     func fetchComments() {
-        CommentService.fetchComments(forPost: post.postId) { comments in
+        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { comments in
             self.comments.removeAll()
-            // If user post has text, append it as first element
-            if !self.post.postText.isEmpty {
-                self.comments.append(Comment(dictionary: [
-                    "comment": self.post.postText,
-                    "timestamp": self.post.timestamp,
-                    "firstName": self.post.ownerFirstName as Any,
-                    "category": self.post.ownerCategory as Any,
-                    "speciality": self.post.ownerSpeciality as Any,
-                    "profession": self.post.ownerProfession as Any,
-                    "lastName": self.post.ownerLastName as Any,
-                    "profileImageUrl": self.post.ownerImageUrl as Any]))
-            }
-            // Append the fetched comments
-            self.comments.append(contentsOf: comments)
-            // Post has no text from the owner & no comments
-            if comments.isEmpty && self.post.postText.isEmpty {
-                self.emptyCommentLabel.isHidden = false
-                self.startTheConversationLabel.isHidden = false
-                self.collectionView.isHidden = true
-                return
-            }
-            self.emptyCommentLabel.isHidden = true
-            self.startTheConversationLabel.isHidden = true
-            self.collectionView.isHidden = false
+            // Append the description of the case as comment
+            self.comments.append(Comment(dictionary: [
+                "comment": self.clinicalCase.caseDescription,
+                "timestamp": self.clinicalCase.timestamp,
+                "firstName": self.clinicalCase.ownerFirstName as Any,
+                "category": self.clinicalCase.ownerCategory.userCategoryString as Any,
+                "speciality": self.clinicalCase.ownerSpeciality as Any,
+                "profession": self.clinicalCase.ownerProfession as Any,
+                "lastName": self.clinicalCase.ownerLastName as Any,
+                "profileImageUrl": self.clinicalCase.ownerImageUrl as Any]))
             
+            // Append the fetched comments
+            
+            self.comments.append(contentsOf: comments)
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }
@@ -141,22 +107,12 @@ class CommentViewController: UICollectionViewController {
         collectionView.keyboardDismissMode = .interactive
         
     }
-    
-    private func configureUI() {
-        view.addSubviews(emptyCommentLabel, startTheConversationLabel)
-        NSLayoutConstraint.activate([
-            emptyCommentLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            emptyCommentLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startTheConversationLabel.topAnchor.constraint(equalTo: emptyCommentLabel.bottomAnchor, constant: 10),
-            startTheConversationLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
-    }
 }
 
 
 //MARK: - UICollectionViewDataSource
 
-extension CommentViewController {
+extension CommentCaseViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return comments.count
     }
@@ -186,25 +142,24 @@ extension CommentViewController {
 
 //MARK: - CommentInputAccesoryViewDelegate
 
-extension CommentViewController: CommentInputAccessoryViewDelegate {
+extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
-        
         //Get user from MainTabController
         guard let tab = self.tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
-        
         //Show loader to block user interactions
         self.view.isUserInteractionEnabled = false
         //Upload commento to Firebase
-        CommentService.uploadComment(comment: comment, post: post, user: currentUser) { error in
+        CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { error in
             //Unshow loader
-            self.post.numberOfComments += 1
+            self.clinicalCase.numberOfComments += 1
             inputView.clearCommentTextView()
             
             let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
             
-            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .comment, post: self.post, withComment: comment)
+            
+            //NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .comment, post: self.post, withComment: comment)
             self.view.isUserInteractionEnabled = true
             //self.view.activityStopAnimating()
         }

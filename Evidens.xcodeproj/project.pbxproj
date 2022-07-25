@@ -105,7 +105,7 @@
 		5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF7D2858EF5B00F31A75 /* MEPostActionButtons.swift */; };
 		5F77BF802858F3BF00F31A75 /* MEPostInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF7F2858F3BF00F31A75 /* MEPostInfoView.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
-		5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentViewController.swift */; };
+		5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
 		5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */; };
 		5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F92754D658009B26E6 /* CommentService.swift */; };
@@ -169,6 +169,7 @@
 		5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */; };
 		5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */; };
 		5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */; };
+		5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -292,7 +293,7 @@
 		5F77BF7D2858EF5B00F31A75 /* MEPostActionButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPostActionButtons.swift; sourceTree = "<group>"; };
 		5F77BF7F2858F3BF00F31A75 /* MEPostInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPostInfoView.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
-		5F8666F1274FAD30009B26E6 /* CommentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewController.swift; sourceTree = "<group>"; };
+		5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentPostViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputAccessoryView.swift; sourceTree = "<group>"; };
 		5F8666F92754D658009B26E6 /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
@@ -356,6 +357,7 @@
 		5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsPostViewController.swift; sourceTree = "<group>"; };
 		5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingSectionFooterView.swift; sourceTree = "<group>"; };
 		5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTagCell.swift; sourceTree = "<group>"; };
+		5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseViewController.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -759,7 +761,8 @@
 				5F4493FA27942802008FD6ED /* Chat */,
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
 				5F4DBCAF27410B300005AEC3 /* ProfileImageViewController.swift */,
-				5F8666F1274FAD30009B26E6 /* CommentViewController.swift */,
+				5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */,
+				5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -1357,6 +1360,7 @@
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
+				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
 				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
 				5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */,
@@ -1389,7 +1393,7 @@
 				5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */,
 				5F05206D27BD5461001E7D8F /* Conversation.swift in Sources */,
 				5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */,
-				5F8666F2274FAD30009B26E6 /* CommentViewController.swift in Sources */,
+				5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */,
 				5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,

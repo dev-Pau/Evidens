@@ -146,15 +146,24 @@ struct CaseViewModel {
     }
     
     var commentsText: String {
-        if clinicalCase.numberOfComments > 1 {
-            return "\(clinicalCase.numberOfComments) comments"
-        }
-        else if clinicalCase.numberOfComments == 1 {
-            return "\(clinicalCase.numberOfComments) comment"
-        }
-        else {
+        if clinicalCase.numberOfComments != 0 {
+            return "\(caseComments)"
+        } else {
             return ""
         }
+    }
+    
+    var likesText: String {
+        if clinicalCase.likes != 0 {
+            return "\(caseLikes)"
+        } else {
+            return ""
+        }
+    }
+    
+    var bookMarkImage: UIImage? {
+        let imageName = clinicalCase.didBookmark ? "bookmark.fill" : "bookmark"
+        return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
     }
     
     var viewsText: String {
