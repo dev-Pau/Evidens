@@ -7,17 +7,17 @@
 
 import UIKit
 
-protocol UserProfileHeaderDelegate: AnyObject {
-    func header(_ userProfileHeader: UserProfileHeader, didTapProfilePictureFor user: User)
+protocol UserProfileHeaderCellDelegate: AnyObject {
+    func header(_ userProfileHeader: UserProfileHeaderCell, didTapProfilePictureFor user: User)
 }
 
-class UserProfileHeader: UITableViewHeaderFooterView {
+class UserProfileHeaderCell: UICollectionViewCell {
     
     //MARK: - Properties
     
     let screenSize = UIScreen.main.bounds.size.width
     
-    weak var delegate: UserProfileHeaderDelegate?
+    weak var delegate: UserProfileHeaderCellDelegate?
     
     var viewModel: ProfileHeaderViewModel? {
         didSet {
@@ -72,8 +72,9 @@ class UserProfileHeader: UITableViewHeaderFooterView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.numberOfLines = 0
+        label.textAlignment = .left
+        label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
         label.textColor = blackColor
         return label
     }()
@@ -275,10 +276,8 @@ class UserProfileHeader: UITableViewHeaderFooterView {
     
     //MARK: - Lifecycle
     
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
-        
-        contentView.backgroundColor = .white
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
         let stack = UIStackView(arrangedSubviews: [numberOfContacts, numberOfPosts, numberOfCases])
         stack.axis = .horizontal
@@ -306,49 +305,51 @@ class UserProfileHeader: UITableViewHeaderFooterView {
             editBannerButton.widthAnchor.constraint(equalToConstant: 40),
             editBannerButton.heightAnchor.constraint(equalToConstant: 40),
             
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 70),
-            profileImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 60),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 140),
             profileImageView.heightAnchor.constraint(equalToConstant: 140),
             
+            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            nameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
-            professionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
+            professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
+            professionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
             
             
             //userTypeButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 5),
             //userTypeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             /*
-            userDescriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
-            userDescriptionLabel.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
-            userDescriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            
-            currentUserProfessionLabel.topAnchor.constraint(equalTo: userDescriptionLabel.bottomAnchor, constant: 10),
-            currentUserProfessionLabel.leadingAnchor.constraint(equalTo: userDescriptionLabel.leadingAnchor),
-            currentUserProfessionLabel.trailingAnchor.constraint(equalTo: userDescriptionLabel.trailingAnchor),
-            
-            editFollowProfileButton.topAnchor.constraint(equalTo: currentUserProfessionLabel.bottomAnchor, constant: 20),
-            editFollowProfileButton.leadingAnchor.constraint(equalTo: currentUserProfessionLabel.leadingAnchor),
-            editFollowProfileButton.widthAnchor.constraint(equalToConstant: screenSize * 0.45),
-            editFollowProfileButton.heightAnchor.constraint(equalToConstant: 40),
-            
-            pointsMessageButton.topAnchor.constraint(equalTo: editFollowProfileButton.topAnchor),
-            pointsMessageButton.leadingAnchor.constraint(equalTo: editFollowProfileButton.trailingAnchor, constant: 10),
-            pointsMessageButton.widthAnchor.constraint(equalToConstant: screenSize * 0.33),
-            pointsMessageButton.bottomAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor),
-            
-            otherProfileInfoButton.topAnchor.constraint(equalTo: pointsMessageButton.topAnchor),
-            otherProfileInfoButton.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
-            otherProfileInfoButton.bottomAnchor.constraint(equalTo: pointsMessageButton.bottomAnchor),
-            otherProfileInfoButton.leadingAnchor.constraint(equalTo: pointsMessageButton.trailingAnchor, constant: 10),
-            
-            //stack.topAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor, constant: 10),
-            //stack.leadingAnchor.constraint(equalTo: editFollowProfileButton.leadingAnchor),
-            //stack.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
-            //stack.heightAnchor.constraint(equalToConstant: 70)
+             userDescriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
+             userDescriptionLabel.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
+             userDescriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+             
+             currentUserProfessionLabel.topAnchor.constraint(equalTo: userDescriptionLabel.bottomAnchor, constant: 10),
+             currentUserProfessionLabel.leadingAnchor.constraint(equalTo: userDescriptionLabel.leadingAnchor),
+             currentUserProfessionLabel.trailingAnchor.constraint(equalTo: userDescriptionLabel.trailingAnchor),
+             
+             editFollowProfileButton.topAnchor.constraint(equalTo: currentUserProfessionLabel.bottomAnchor, constant: 20),
+             editFollowProfileButton.leadingAnchor.constraint(equalTo: currentUserProfessionLabel.leadingAnchor),
+             editFollowProfileButton.widthAnchor.constraint(equalToConstant: screenSize * 0.45),
+             editFollowProfileButton.heightAnchor.constraint(equalToConstant: 40),
+             
+             pointsMessageButton.topAnchor.constraint(equalTo: editFollowProfileButton.topAnchor),
+             pointsMessageButton.leadingAnchor.constraint(equalTo: editFollowProfileButton.trailingAnchor, constant: 10),
+             pointsMessageButton.widthAnchor.constraint(equalToConstant: screenSize * 0.33),
+             pointsMessageButton.bottomAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor),
+             
+             otherProfileInfoButton.topAnchor.constraint(equalTo: pointsMessageButton.topAnchor),
+             otherProfileInfoButton.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
+             otherProfileInfoButton.bottomAnchor.constraint(equalTo: pointsMessageButton.bottomAnchor),
+             otherProfileInfoButton.leadingAnchor.constraint(equalTo: pointsMessageButton.trailingAnchor, constant: 10),
+             
+             //stack.topAnchor.constraint(equalTo: editFollowProfileButton.bottomAnchor, constant: 10),
+             //stack.leadingAnchor.constraint(equalTo: editFollowProfileButton.leadingAnchor),
+             //stack.trailingAnchor.constraint(equalTo: userTypeButton.trailingAnchor),
+             //stack.heightAnchor.constraint(equalToConstant: 70)
              */
         ])
         

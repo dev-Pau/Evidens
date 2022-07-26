@@ -114,22 +114,21 @@ class MEUserPostView: UIView {
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: paddingLeft),
             profileImageView.heightAnchor.constraint(equalToConstant: 53),
             profileImageView.widthAnchor.constraint(equalToConstant: 53),
-            
-            dotsImageButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 20),
-            
+ 
             usernameLabel.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
             usernameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
             usernameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -paddingLeft),
             usernameLabel.heightAnchor.constraint(equalToConstant: 15),
             
+            dotsImageButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor),
+            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
+            dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
+            dotsImageButton.widthAnchor.constraint(equalToConstant: 20),
+            
             userInfoCategoryLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 2),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
-            //userCategoryLabel.heightAnchor.constraint(equalToConstant: 20),
-            
+           
             clockImage.topAnchor.constraint(equalTo: userInfoCategoryLabel.bottomAnchor, constant: 2),
             clockImage.leadingAnchor.constraint(equalTo: userInfoCategoryLabel.leadingAnchor),
             clockImage.heightAnchor.constraint(equalToConstant: 9.6),
@@ -138,7 +137,6 @@ class MEUserPostView: UIView {
             postTimeLabel.centerYAnchor.constraint(equalTo: clockImage.centerYAnchor),
             postTimeLabel.leadingAnchor.constraint(equalTo: clockImage.trailingAnchor, constant: 5),
             postTimeLabel.heightAnchor.constraint(equalToConstant: 20),
-            //postTimeLabel.trailingAnchor.constraint(equalTo: userCategoryLabel.trailingAnchor),
             
             privacyImage.centerYAnchor.constraint(equalTo: postTimeLabel.centerYAnchor),
             privacyImage.leadingAnchor.constraint(equalTo: postTimeLabel.trailingAnchor),

@@ -12,6 +12,8 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 
 class CasesViewController: UIViewController {
     
+    var caseMenuLauncher = CaseOptionsMenuLauncher()
+    
     private var cases = [Case]() {
         didSet { collectionView.reloadData() }
     }
@@ -156,6 +158,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         if cases[indexPath.row].type.rawValue == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+            cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
@@ -164,16 +167,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             return cell
         }
     }
-    
-    /*
-     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-     if cases[indexPath.row].type.rawValue == 0 {
-     return CGSize(width: view.frame.width, height: 500)
-        } else {
-            return CGSize(width: view.frame.width, height: 1000)
-        }
-    }
-     */
 }
 
 //MARK: - UISearchBarDelegate
@@ -194,6 +187,25 @@ extension CasesViewController: UISearchBarDelegate {
 }
 
 extension CasesViewController: CaseCellDelegate {
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) {
+        caseMenuLauncher.uid = clinicalCase.ownerUid
+        caseMenuLauncher.showImageSettings(in: view)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            let controller = UserProfileViewController(user: user)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            self.navigationItem.backBarButtonItem = backItem
+            
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
         HapticsManager.shared.vibrate(for: .success)
@@ -277,7 +289,16 @@ extension CasesViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        
+        CaseService.getAllLikesFor(clinicalCase: clinicalCase) { uids in
+            
+            let controller = PostLikesViewController(uid: uids)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            self.navigationItem.backBarButtonItem = backItem
+            
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case) {
@@ -289,6 +310,4 @@ extension CasesViewController: CaseCellDelegate {
 
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    
 }

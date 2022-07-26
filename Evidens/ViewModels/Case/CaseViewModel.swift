@@ -66,6 +66,10 @@ struct CaseViewModel {
         return clinicalCase.stage.rawValue == 0 && !diagnosisText.isEmpty ? true : false
     }
     
+    var caseHasUpdates: Bool {
+        return clinicalCase.caseUpdates.count == 1 && clinicalCase.caseUpdates[0] == "" ? false : true
+    }
+    
     var diagnosisText: String {
         return clinicalCase.diagnosis
     }

@@ -77,6 +77,9 @@ class PostMenuCell: UICollectionViewCell {
         if text == "Delete" || text == "Report this post" {
             postTypeLabel.textColor = .red
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        } else {
+            postTypeLabel.textColor = .black
+            postTypeLabel.font = .systemFont(ofSize: 16, weight: .regular)
         }
     }
 }

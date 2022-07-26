@@ -110,7 +110,9 @@ class HomeImageTextCell: UICollectionViewCell {
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         let imageHeight = min(viewModel.sizeOfImage, UIScreen.main.bounds.height * 0.7)
-        postImageView.heightAnchor.constraint(equalToConstant: imageHeight).isActive = true
+        postImageView.setHeightConstraint(toConstant: imageHeight)
+        
+        //postImageView.heightAnchor.constraint(equalToConstant: imageHeight).isActive = true
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
         
     }

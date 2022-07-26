@@ -1,21 +1,20 @@
 //
-//  HomeOptionsMenuLauncher.swift
+//  CaseOptionsMenuLauncher.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 21/7/22.
+//  Created by Pau Fernández Solà on 25/7/22.
 //
 
 import UIKit
 
 private let cellReuseIdentifier = "PostMenuCellReuseIdentifier"
 private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
-
-
-protocol HomeOptionsMenuLauncherDelegate: AnyObject {
+ 
+protocol CaseOptionsMenuLauncherDelegate: AnyObject {
 
 }
 
-class HomeOptionsMenuLauncher: NSObject {
+class CaseOptionsMenuLauncher: NSObject {
     
     var uid: String? {
         didSet {
@@ -29,9 +28,9 @@ class HomeOptionsMenuLauncher: NSObject {
         return view
     }()
     
-    weak var delegate: HomeOptionsMenuLauncherDelegate?
+    weak var delegate: CaseOptionsMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 160
+    private var menuHeight: CGFloat = 225
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -116,14 +115,14 @@ class HomeOptionsMenuLauncher: NSObject {
     private func configureCollectionViewData() {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if uid == currentUid {
-            menuOptionsText = ["Edit", "Delete"]
-            menuOptionsImages = [UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
-                                 UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuOptionsText = ["Add an update", "Change to solved", "Delete"]
+            menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                 UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
             
         } else {
-            menuOptionsText = ["Save", "Unfollow", "Remove connection", "Report this post"]
-            menuOptionsImages = [UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "xmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
-            menuHeight = 300
+            menuOptionsText = ["Report this case"]
+            menuOptionsImages = [UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuHeight = 70
         }
         collectionView.reloadData()
     }
@@ -156,7 +155,7 @@ class HomeOptionsMenuLauncher: NSObject {
     }
 }
 
-extension HomeOptionsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+extension CaseOptionsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader

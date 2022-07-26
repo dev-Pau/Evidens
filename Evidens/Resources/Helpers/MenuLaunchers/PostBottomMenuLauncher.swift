@@ -28,14 +28,14 @@ class PostBottomMenuLauncher: NSObject {
     
     weak var delegate: PostBottomMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 200
+    private let menuHeight: CGFloat = 165
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Create a Post", "Share a Clinical Case"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus")!,
-                                                UIImage(systemName: "waveform.path.ecg")!]
+    private var menuOptionsText: [String] = ["Create a post", "Share a clinical case"]
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                                UIImage(systemName: "heart.text.square", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!]
     
     
     private let collectionView: UICollectionView = {
@@ -65,9 +65,9 @@ class PostBottomMenuLauncher: NSObject {
         } completion: { completed in
             
             switch selectedOption {
-            case "Create a Post":
+            case "Create a post":
                 self.delegate?.didTapUploadPost()
-            case "Share a Clinical Case":
+            case "Share a clinical case":
                 self.delegate?.didTapUploadClinicalCase()
             default:
                 break
@@ -154,11 +154,13 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.backgroundColor = lightColor
+        cell.layer.cornerRadius = 15
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: screenWidth, height: 50)
+        return CGSize(width: screenWidth - 60, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

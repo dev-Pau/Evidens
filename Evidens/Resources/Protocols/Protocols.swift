@@ -23,5 +23,7 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case)
+    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case)
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String)
     //func clinicalCase(
 }

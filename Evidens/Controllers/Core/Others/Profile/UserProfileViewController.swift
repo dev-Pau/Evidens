@@ -10,7 +10,7 @@ import UIKit
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let test = "testIdentifier"
 
-class UserProfileViewController: UIViewController {
+class UserProfileViewController: UICollectionViewController {
     
 
     //MARK: - Properties
@@ -21,24 +21,40 @@ class UserProfileViewController: UIViewController {
         return searchBar
     }()
     
-    private let tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        return tableView
-    }()
-    
-    
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationItemButton()
-        configureTableView()
-        configureUI()
+        configureCollectionView()
     }
-    
-    // Initialize the controller with a User
+        
     init(user: User) {
         self.user = user
-        super.init(nibName: nil, bundle: nil)
+        
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            if sectionNumber == 0 {
+                // Profile Header
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(400)))
+                //item.contentInsets.bottom = 16
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(400)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
+                return section
+            } else {
+                // About section
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(50), heightDimension: .absolute(50)))
+                //item.contentInsets.bottom = 16
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                //section.orthogonalScrollingBehavior = .continuous
+                //section.interGroupSpacing = 10
+                //section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                return section
+            }
+            
+        }
+
+        super.init(collectionViewLayout: layout)
     }
     
     required init?(coder: NSCoder) {
@@ -63,16 +79,13 @@ class UserProfileViewController: UIViewController {
         searchBar.searchTextField.clearButtonMode = .never
     }
     
-    func configureTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(UserProfileHeader.self, forHeaderFooterViewReuseIdentifier: profileHeaderReuseIdentifier)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: test)
-    }
-    
-    func configureUI() {
-        view.addSubview(tableView)
-        tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
+    func configureCollectionView() {
+        collectionView.backgroundColor = lightGrayColor
+        collectionView.register(UserProfileHeaderCell.self, forCellWithReuseIdentifier: profileHeaderReuseIdentifier)
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: test)
+        
+        //tableView.register(UserProfileHeader.self, forHeaderFooterViewReuseIdentifier: profileHeaderReuseIdentifier)
+        //tableView.register(UITableViewCell.self, forCellReuseIdentifier: test)
     }
     
     
@@ -84,8 +97,39 @@ class UserProfileViewController: UIViewController {
     }
 }
 
-extension UserProfileViewController: UITableViewDelegate, UITableViewDataSource {
+extension UserProfileViewController {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
     
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if section == 0 {
+            return 1
+        }
+        return 2
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! UserProfileHeaderCell
+            cell.viewModel = ProfileHeaderViewModel(user: user)
+            cell.backgroundColor = .systemCyan
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! UserProfileHeaderCell
+            cell.viewModel = ProfileHeaderViewModel(user: user)
+            cell.backgroundColor = .systemCyan
+            return cell
+        }
+        
+    }
+}
+
+
+
+/*
+ extension UserProfileViewController: UITableViewDelegate, UITableViewDataSource {
+ 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == 0 {
             let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: profileHeaderReuseIdentifier) as! UserProfileHeader
@@ -146,3 +190,4 @@ extension UserProfileViewController: UserProfileHeaderDelegate {
         }
     }
 }
+ */

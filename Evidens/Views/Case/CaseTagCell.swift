@@ -18,8 +18,8 @@ class CaseTagCell: UICollectionViewCell {
     
     var tagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
-        label.numberOfLines = 2
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.numberOfLines = 0
         label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -36,8 +36,6 @@ class CaseTagCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 15
-        //layer.borderColor = primaryColor.cgColor
-        //layer.borderWidth = 1
         backgroundColor = primaryColor
         addSubview(tagsLabel)
         

@@ -450,7 +450,6 @@ extension HomeViewController: HomeCellDelegate {
         }
     }
     
-
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
         let controller = CommentPostViewController(post: post)
         

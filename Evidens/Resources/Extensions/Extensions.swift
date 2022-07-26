@@ -400,7 +400,7 @@ extension UIWindow {
 }
 
 extension UIView {
-    func constrainHeight(constant: CGFloat) {
+    func setHeightConstraint(toConstant constant: CGFloat) {
         constraints.forEach {
             if $0.firstAttribute == .height {
                 self.removeConstraint($0)

@@ -16,6 +16,7 @@ struct CaseService {
                     "description": caseDescription,
                     "specialities": specialities,
                     "details": details,
+                    "updates": "",
                     "likes": 0,
                     "stage": stage.caseStage,
                     "comments": 0,
@@ -77,15 +78,7 @@ struct CaseService {
             completion(didLike)
         }
     }
-    
-    static func getAllLikesFor(clinicalCase: Case, completion: @escaping([String]) -> Void) {
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
-            guard let uid = snapshot?.documents else { return }
-            let docIDs = uid.map({ $0.documentID })
-            completion(docIDs)
-        }
-    }
-    
+
     static func bookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -115,6 +108,14 @@ struct CaseService {
             //If the snapshot (document) exists, means current user did like the post
             guard let didBookmark = snapshot?.exists else { return }
             completion(didBookmark)
+        }
+    }
+    
+    static func getAllLikesFor(clinicalCase: Case, completion: @escaping([String]) -> Void) {
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
+            guard let uid = snapshot?.documents else { return }
+            let docIDs = uid.map({ $0.documentID })
+            completion(docIDs)
         }
     }
 }

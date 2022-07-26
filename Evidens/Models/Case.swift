@@ -42,6 +42,7 @@ struct Case {
     var caseDescription: String
     var caseSpecialities: [String]
     var caseTypeDetails: [String]
+    var caseUpdates: [String]
     var likes: Int
     var numberOfComments: Int
     var numberOfViews: Int
@@ -69,6 +70,7 @@ struct Case {
         self.caseTitle = dictionary["title"] as? String ?? ""
         self.caseDescription = dictionary["description"] as? String ?? ""
         self.caseSpecialities = dictionary["specialities"] as? [String] ?? [""]
+        self.caseUpdates = dictionary["updates"] as? [String] ?? [""]
         self.caseTypeDetails = dictionary["details"] as? [String] ?? [""]
         self.likes = dictionary["likes"] as? Int ?? 0
         self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0

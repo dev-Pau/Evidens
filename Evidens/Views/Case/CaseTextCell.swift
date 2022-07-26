@@ -8,7 +8,6 @@
 import UIKit
 
 private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
-private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 
 class CaseTextCell: UICollectionViewCell {
     
@@ -16,22 +15,43 @@ class CaseTextCell: UICollectionViewCell {
         didSet { configure() }
     }
     
-    private var caseDetails: [String] = []
-    private var specialitiesDetails: [String] = []
+    weak var delegate: CaseCellDelegate?
+    private let cellContentView = UIView()
     
-    private var userPostView = MEUserPostView()
-    
-    private lazy var dotsImageButton: UIButton = {
+    private lazy var caseStateButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
-        button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = .black
-        button.configuration?.baseBackgroundColor = .white
-        button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .mini
+        button.configuration?.imagePadding = 5
+        
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
         return button
     }()
+    
+    private lazy var separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = lightGrayColor
+        return view
+    }()
+    
+    private let viewsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = grayColor
+        return label
+    }()
+    
+    private var caseTags: [String] = []
+    private var urlImages: [URL] = []
+    
+    private var userPostView = MEUserPostView()
+    private var titleCaseLabel = METitleCaseLabel()
+    private var descriptionCaseLabel = MEPostLabel()
+    private var updateView = MECaseUpdateView()
+    private var actionButtonsView = MEPostActionButtons()
+    
     
     private let caseStageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -46,167 +66,200 @@ class CaseTextCell: UICollectionViewCell {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+ 
+    private var compositionalCollectionView: UICollectionView!
     
-    private let specialitiesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.bounces = true
-        collectionView.alwaysBounceHorizontal = true
-        collectionView.isUserInteractionEnabled = true
-        collectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: specialitiesCellReuseIdentifier)
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
+    private func createCellLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                return section
+        }
+        return layout
+    }
     
-    private var titleCaseLabel = METitleCaseLabel()
-    private var descriptionCaseLabel = MEPostLabel()
-    private var caseStatsView = MEPostStatsView()
-    private var caseInfoView = MECaseInfoView(comments: 0, commentText: "", views: 0, viewText: "")
-    private var caseActionButtons = MECaseActionButtons()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        caseStageCollectionView.delegate = self
-        caseStageCollectionView.dataSource = self
-        specialitiesCollectionView.delegate = self
-        specialitiesCollectionView.dataSource = self
-        
-        addSubviews(userPostView, dotsImageButton, caseStageCollectionView, titleCaseLabel, descriptionCaseLabel, specialitiesCollectionView, caseStatsView, caseInfoView, caseActionButtons)
-        
         backgroundColor = .white
         
+        actionButtonsView.delegate = self
+        userPostView.delegate = self
+    
+        compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
+        compositionalCollectionView.register(CaseTagCell.self, forCellWithReuseIdentifier: caseStageCellReuseIdentifier)
+        compositionalCollectionView.dataSource = self
+        compositionalCollectionView.delegate = self
+        compositionalCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(cellContentView)
+        
         NSLayoutConstraint.activate([
-            dotsImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 13),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+       
+        cellContentView.addSubviews(caseStateButton, viewsLabel, separatorView, userPostView, compositionalCollectionView, titleCaseLabel, descriptionCaseLabel, updateView, actionButtonsView)
+       
+        
+        NSLayoutConstraint.activate([
+            caseStateButton.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            caseStateButton.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             
-            userPostView.centerYAnchor.constraint(equalTo: dotsImageButton.centerYAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: dotsImageButton.trailingAnchor, constant: -10),
+            viewsLabel.centerYAnchor.constraint(equalTo: caseStateButton.centerYAnchor),
+            viewsLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            
+            separatorView.leadingAnchor.constraint(equalTo: caseStateButton.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            separatorView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            userPostView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
+            userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            caseStageCollectionView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseStageCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseStageCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseStageCollectionView.heightAnchor.constraint(equalToConstant: 40),
-            
-            titleCaseLabel.topAnchor.constraint(equalTo: caseStageCollectionView.bottomAnchor, constant: 5),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: caseStageCollectionView.leadingAnchor, constant: 10),
-            titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
+            titleCaseLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
+            titleCaseLabel.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
+          
+            descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 10),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            specialitiesCollectionView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
-            specialitiesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            specialitiesCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            specialitiesCollectionView.heightAnchor.constraint(equalToConstant: 40),
+            updateView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
+            updateView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            updateView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            updateView.heightAnchor.constraint(equalToConstant: 20),
             
-            caseStatsView.topAnchor.constraint(equalTo: specialitiesCollectionView.bottomAnchor, constant: 10),
-            caseStatsView.leadingAnchor.constraint(equalTo: descriptionCaseLabel.leadingAnchor),
-            caseStatsView.widthAnchor.constraint(equalToConstant: 150),
-            caseStatsView.heightAnchor.constraint(equalToConstant: 20),
+            compositionalCollectionView.topAnchor.constraint(equalTo: updateView.bottomAnchor, constant: 10),
+            compositionalCollectionView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            compositionalCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            compositionalCollectionView.heightAnchor.constraint(equalToConstant: 50),
             
-            caseInfoView.centerYAnchor.constraint(equalTo: caseStatsView.centerYAnchor),
-            caseInfoView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            caseInfoView.heightAnchor.constraint(equalToConstant: 25),
-            caseInfoView.widthAnchor.constraint(equalToConstant: 150),
             
-            caseActionButtons.topAnchor.constraint(equalTo: caseInfoView.bottomAnchor, constant: 5),
-            caseActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            caseActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor)
+            actionButtonsView.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
+            actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
     
     private func configure() {
         guard let viewModel = viewModel else { return }
         
-        caseDetails = []
+        caseStateButton.configuration?.image = viewModel.caseImageStage
+        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
+        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
+        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
-        if viewModel.caseResolvedWithDiagnosis {
-            // Here add diagnosis view
-        }
-
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userInfoCategoryLabel.text = viewModel.ownerProfession
+        userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         
-        titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription
         
-        caseInfoView.configure(comments: viewModel.caseComments, commentText: viewModel.commentsText, views: viewModel.caseViews, viewText: viewModel.viewsText)
+        viewsLabel.text = viewModel.viewsText
         
-        caseActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
-        caseActionButtons.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        if viewModel.caseResolvedWithDiagnosis {
+            updateView.isHidden = false
+            updateView.diagnosisLabel.text = "The author has added a diagnosis"
+            updateView.setHeightConstraint(toConstant: 20)
+        } else if viewModel.caseHasUpdates {
+            updateView.isHidden = false
+            updateView.diagnosisLabel.text = "An update has been made by the author"
+            updateView.setHeightConstraint(toConstant: 20)
+        } else {
+            updateView.setHeightConstraint(toConstant: 0)
+            updateView.isHidden = true
+        }
         
-        //caseStatsView.likesIndicatorImage
-        caseStatsView.likesIndicatorImage.isHidden = viewModel.isLikesHidden
-        caseStatsView.likesLabel.text = viewModel.likesLabelText
+        actionButtonsView.likesLabel.text = viewModel.likesText
+        actionButtonsView.commentLabel.text = viewModel.commentsText
         
-        specialitiesDetails = viewModel.caseSpecialities
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
+        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        //caseDetails.append(viewModel.caseStage)
-        viewModel.caseTypeDetails.forEach {  caseDetails.append($0) }
+        titleCaseLabel.text = viewModel.caseTitle
+        caseTags = viewModel.caseTags
         
-        caseStageCollectionView.reloadData()
-        specialitiesCollectionView.reloadData()
-        
-        
+        compositionalCollectionView.reloadData()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func handleThreeDots() {
-        
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
 }
 
 extension CaseTextCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == caseStageCollectionView {
-            return caseDetails.count
-        } else {
-            return specialitiesDetails.count
-        }
+        return caseTags.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == caseStageCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseStageCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
-            cell.specialityLabel.text = caseDetails[indexPath.row]
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: specialitiesCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
-            cell.specialityLabel.text = specialitiesDetails[indexPath.row]
-            return cell
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == caseStageCollectionView {
-            return CGSize(width: size(forHeight: 30, forText: caseDetails[indexPath.item]).width + 30, height: 30)
-        } else {
-            return CGSize(width: size(forHeight: 30, forText: specialitiesDetails[indexPath.item]).width + 30, height: 30)
-        }
-        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseStageCellReuseIdentifier, for: indexPath) as! CaseTagCell
+        cell.tagsLabel.text = caseTags[indexPath.row]
+        return cell
     }
 }
 
-extension CaseTextCell {
-    func size(forHeight height: CGFloat, forText text: String) -> CGSize {
-        let label = UILabel()
-        label.numberOfLines = 2
-        label.text = text
-        label.lineBreakMode = .byWordWrapping
-        label.setHeight(height)
-        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+extension CaseTextCell: MEUserPostViewDelegate {
+    func didTapProfile() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, wantsToShowProfileFor: viewModel.clinicalCase.ownerUid)
+    }
+    
+    func didTapThreeDots() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, didPressThreeDotsFor: viewModel.clinicalCase)
+    }
+    
+    
+}
+
+extension CaseTextCell: MEPostActionButtonsDelegate {
+    func handleLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, didLike: viewModel.clinicalCase)
+    }
+    
+    func handleComments() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(wantsToShowCommentsFor: viewModel.clinicalCase)
+    }
+    
+    func handleBookmark() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, didBookmark: viewModel.clinicalCase)
+    }
+    
+    func handleShowLikes() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(wantsToSeeLikesFor: viewModel.clinicalCase)
     }
 }
+
+

@@ -83,7 +83,7 @@
 		5F598C052836569400189722 /* TopPostHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C042836569400189722 /* TopPostHeader.swift */; };
 		5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0628368E3B00189722 /* TopCaseHeader.swift */; };
 		5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C092836912400189722 /* UserProfileViewController.swift */; };
-		5F598C0C28376C5700189722 /* UserProfileHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0B28376C5700189722 /* UserProfileHeader.swift */; };
+		5F598C0C28376C5700189722 /* UserProfileHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0B28376C5700189722 /* UserProfileHeaderCell.swift */; };
 		5F598C10283CDD4B00189722 /* HomeImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0F283CDD4B00189722 /* HomeImageTextCell.swift */; };
 		5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C13283D2E8C00189722 /* PostImageViewModel.swift */; };
 		5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607EE2854D36500FCF895 /* ViewController.swift */; };
@@ -170,6 +170,8 @@
 		5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */; };
 		5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */; };
 		5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */; };
+		5FB2903B288ED674002FBAE1 /* CaseOptionsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2903A288ED673002FBAE1 /* CaseOptionsMenuLauncher.swift */; };
+		5FB2903D288FBCA2002FBAE1 /* MECaseUpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2903C288FBCA2002FBAE1 /* MECaseUpdateView.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationCell.swift */; };
@@ -271,7 +273,7 @@
 		5F598C042836569400189722 /* TopPostHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostHeader.swift; sourceTree = "<group>"; };
 		5F598C0628368E3B00189722 /* TopCaseHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCaseHeader.swift; sourceTree = "<group>"; };
 		5F598C092836912400189722 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
-		5F598C0B28376C5700189722 /* UserProfileHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileHeader.swift; sourceTree = "<group>"; };
+		5F598C0B28376C5700189722 /* UserProfileHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileHeaderCell.swift; sourceTree = "<group>"; };
 		5F598C0F283CDD4B00189722 /* HomeImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeImageTextCell.swift; sourceTree = "<group>"; };
 		5F598C13283D2E8C00189722 /* PostImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostImageViewModel.swift; sourceTree = "<group>"; };
 		5F6607EE2854D36500FCF895 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -358,6 +360,8 @@
 		5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingSectionFooterView.swift; sourceTree = "<group>"; };
 		5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTagCell.swift; sourceTree = "<group>"; };
 		5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseViewController.swift; sourceTree = "<group>"; };
+		5FB2903A288ED673002FBAE1 /* CaseOptionsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseOptionsMenuLauncher.swift; sourceTree = "<group>"; };
+		5FB2903C288FBCA2002FBAE1 /* MECaseUpdateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECaseUpdateView.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -416,7 +420,7 @@
 			children = (
 				5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */,
 				5F0A4F3A271C29E800700304 /* ProfileCell.swift */,
-				5F598C0B28376C5700189722 /* UserProfileHeader.swift */,
+				5F598C0B28376C5700189722 /* UserProfileHeaderCell.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -951,6 +955,7 @@
 				5FB290212886D04D002FBAE1 /* MECaseInfoView.swift */,
 				5FB290232886E9E6002FBAE1 /* MECaseActionButtons.swift */,
 				5FB290292887DF27002FBAE1 /* MEDiagnosisResultView.swift */,
+				5FB2903C288FBCA2002FBAE1 /* MECaseUpdateView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -971,6 +976,7 @@
 				5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */,
 				5F527D8E288291DE009D5027 /* RegisterBottomMenuLauncher.swift */,
 				5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */,
+				5FB2903A288ED673002FBAE1 /* CaseOptionsMenuLauncher.swift */,
 			);
 			path = MenuLaunchers;
 			sourceTree = "<group>";
@@ -1455,6 +1461,7 @@
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,
 				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
+				5FB2903B288ED674002FBAE1 /* CaseOptionsMenuLauncher.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FB2901D2886A6AA002FBAE1 /* MECaseLabel.swift in Sources */,
 				5F77BF7A2858E6A200F31A75 /* MEPostStatsView.swift in Sources */,
@@ -1465,7 +1472,7 @@
 				5F8E52B0286846A20053F011 /* METextField.swift in Sources */,
 				5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */,
 				5FC4D87F270705B0006B7A34 /* NotificationViewController.swift in Sources */,
-				5F598C0C28376C5700189722 /* UserProfileHeader.swift in Sources */,
+				5F598C0C28376C5700189722 /* UserProfileHeaderCell.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
 				5F9E4285287BE5C700C2153B /* DiagnosisResolvedView.swift in Sources */,
 				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
@@ -1499,6 +1506,7 @@
 				5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */,
 				5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */,
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,
+				5FB2903D288FBCA2002FBAE1 /* MECaseUpdateView.swift in Sources */,
 				5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
