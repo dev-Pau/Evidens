@@ -19,7 +19,7 @@ class CustomTextField: UITextField {
         borderStyle = .roundedRect
         textColor = .black
         translatesAutoresizingMaskIntoConstraints = false
-        keyboardAppearance = .dark
+        keyboardAppearance = .light
         keyboardType = .emailAddress
         autocorrectionType = .no
         backgroundColor = lightColor

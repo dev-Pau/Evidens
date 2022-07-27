@@ -132,7 +132,7 @@ class ProfileImageViewController: UIViewController {
                     self.dismiss(animated: false)
                 }
             } else {
-                UIView.animate(withDuration: 0.5) {
+                UIView.animate(withDuration: 0.3) {
                     self.profileImageView.frame.origin = CGPoint(x: self.profileImageView.frame.origin.x, y: self.view.frame.height / 2 - self.profileImageView.frame.height / 2)
                     self.view.backgroundColor = .black
                 }
@@ -141,7 +141,12 @@ class ProfileImageViewController: UIViewController {
     }
     
     @objc func handleDismiss() {
-        dismiss(animated: true)
+        UIView.animate(withDuration: 0.2) {
+            self.view.backgroundColor = .clear
+            self.profileImageView.alpha = 0
+        } completion: { _ in
+            self.dismiss(animated: false)
+        }
     }
 }
 

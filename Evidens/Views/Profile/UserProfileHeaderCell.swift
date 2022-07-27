@@ -8,7 +8,8 @@
 import UIKit
 
 protocol UserProfileHeaderCellDelegate: AnyObject {
-    func header(_ userProfileHeader: UserProfileHeaderCell, didTapProfilePictureFor user: User)
+    func headerCell(didTapProfilePictureFor user: User)
+    func headerCell(didTapEditProfileFor user: User)
 }
 
 class UserProfileHeaderCell: UICollectionViewCell {
@@ -34,16 +35,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return iv
     }()
     
-    private lazy var editBannerButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23)).withTintColor(grayColor)
-        button.configuration?.baseBackgroundColor = .white
-        button.configuration?.cornerStyle = .capsule
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -59,23 +50,34 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return iv
     }()
     
+    private lazy var editProfileButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        button.configuration?.buttonSize = .medium
+        button.configuration?.baseForegroundColor = .black
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleEditProfile), for: .touchUpInside)
+        return button
+    }()
+    
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 27, weight: .bold)
+        label.font = .systemFont(ofSize: 27, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
-        label.textColor = blackColor
+        label.textColor = .black
         return label
     }()
     
     private let professionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
-        label.textColor = blackColor
+        label.textColor = .black
         return label
     }()
     /*
@@ -279,12 +281,14 @@ class UserProfileHeaderCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        backgroundColor = .white
+        
         let stack = UIStackView(arrangedSubviews: [numberOfContacts, numberOfPosts, numberOfCases])
         stack.axis = .horizontal
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.spacing = 10
         
-        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, editBannerButton)
+        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, editProfileButton)
         
         //addSubview(userTypeButton)
         //addSubview(userDescriptionLabel)
@@ -300,10 +304,8 @@ class UserProfileHeaderCell: UICollectionViewCell {
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: 120),
             
-            editBannerButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            editBannerButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            editBannerButton.widthAnchor.constraint(equalToConstant: 40),
-            editBannerButton.heightAnchor.constraint(equalToConstant: 40),
+            editProfileButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 5),
+            editProfileButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 60),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -317,7 +319,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             professionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
             
             
             //userTypeButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 5),
@@ -371,8 +373,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         nameLabel.text = "\(viewModel.firstName ) \(viewModel.lastName)"
         professionLabel.text = "\(viewModel.profession ) · \( viewModel.speciality)"
-        editBannerButton.isHidden = viewModel.editBannerButton
-        
         
         //userTypeButton.setTitle("  \(viewModel.userCategory)  ", for: .normal)
         
@@ -389,9 +389,14 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     //MARK: - Actions
     
+    @objc func handleEditProfile() {
+        guard let viewModel = viewModel else { return }
+        delegate?.headerCell(didTapEditProfileFor: viewModel.user)
+    }
+    
     @objc func didTapProfilePicture() {
         guard let viewModel = viewModel else { return }
-        delegate?.header(self, didTapProfilePictureFor: viewModel.user)
+        delegate?.headerCell(didTapProfilePictureFor: viewModel.user)
     }
     
     //MARK: - API
