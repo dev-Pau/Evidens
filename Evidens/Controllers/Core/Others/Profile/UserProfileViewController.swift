@@ -11,6 +11,9 @@ private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
 private let profileHeaderTitleReuseIdentifier = "ProfileHeaderTitleReuseIdentifier"
 private let profileFooterTitleReuseIdentifier = "ProfileFooterTitleReuseIdentifier"
+private let postImageCellReuseIdentifier = "ProfileImageCellReuseIdentifier"
+private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
+private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 private let test = "testIdentifier"
 
 struct ElementKind {
@@ -30,6 +33,7 @@ class UserProfileViewController: UICollectionViewController {
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
+        searchBar.searchTextField.backgroundColor = lightColor
         return searchBar
     }()
     
@@ -38,6 +42,7 @@ class UserProfileViewController: UICollectionViewController {
         super.viewDidLoad()
         configureNavigationItemButton()
         //PostService.fetchPosts(forUser: <#T##String#>, completion: <#T##([Post]) -> Void#>)
+        //CaseService fetch 3 last psts
         configureCollectionView()
     }
         
@@ -47,11 +52,10 @@ class UserProfileViewController: UICollectionViewController {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             if sectionNumber == 0 {
                 // Profile Header
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(400)))
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)))
                 //item.contentInsets.bottom = 16
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(400)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
                 return section
             } else if sectionNumber == 1 {
                 // About section
@@ -60,19 +64,32 @@ class UserProfileViewController: UICollectionViewController {
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 //section.orthogonalScrollingBehavior = .continuous
-                //section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 10, trailing: 0)
-                
                 return section
-            } else {
+            } else if sectionNumber == 2 {
                 // Posts
-
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                //item.contentInsets.bottom = 16
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                
+                let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionFooter,
+                                                                         alignment: .bottom)
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header, footer]
+                return section
+                
+            } else {
+            // Cases
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+    
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -82,11 +99,14 @@ class UserProfileViewController: UICollectionViewController {
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header, footer]
                     
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-                
                 return section
             }
+
         }
+        
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.interSectionSpacing = 10
+        layout.configuration = config
 
         super.init(collectionViewLayout: layout)
     }
@@ -119,6 +139,9 @@ class UserProfileViewController: UICollectionViewController {
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
+        collectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
+        collectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: test)
         
         //tableView.register(UserProfileHeader.self, forHeaderFooterViewReuseIdentifier: profileHeaderReuseIdentifier)
@@ -135,7 +158,7 @@ class UserProfileViewController: UICollectionViewController {
 
 extension UserProfileViewController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return 4
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -154,9 +177,11 @@ extension UserProfileViewController {
                 return 1
             }
              */
-        } else {
+        } else if section == 2 {
             // Posts
             return 3 // return 3 which is the max or return the minimum between posts and 3. if user has 0 posts, display cell with no activity data
+        } else {
+            return 3
         }
     }
     
@@ -166,11 +191,28 @@ extension UserProfileViewController {
             cell.viewModel = ProfileHeaderViewModel(user: user)
             cell.delegate = self
             return cell
+            
         } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
-            // change for viewModel
+            // change for viewModel, fetch the information in the viewModel
             cell.set(body: "I have an extensive professional career of more than 30 years. I'm a speaker in various congresses of the speciality for my important research and education task. I'm currently 1st Vice-president of the Spanish Laser Medical-Surgery Society")
             return cell
+            
+        } else if indexPath.section == 2 {
+            // Post
+            // posar un if en funció de si té imatge o no per presentar una cel·la o una altre.
+            // ja hi ha creada la UserProfilePostCell.self que només té text
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
+            return cell
+            
+        } else if indexPath.section == 3 {
+            // Cases
+            // posar un if en funció de si té imatge o no per presentar una cel·la o una altre.
+            // ja hi ha creada la UserProfilePostCell.self que només té text
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath)
+            return cell
+
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
             cell.backgroundColor = .systemPink
@@ -183,11 +225,21 @@ extension UserProfileViewController {
         switch kind {
         case ElementKind.sectionHeader:
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! UserProfileTitleHeader
-            header.set(title: "Posts")
+            if indexPath.section == 2 {
+                header.set(title: "Posts")
+            } else {
+                header.set(title: "Cases")
+            }
             return header
             
         case ElementKind.sectionFooter:
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileFooterTitleReuseIdentifier, for: indexPath) as! UserProfileTitleFooter
+            if indexPath.section == 2 {
+                footer.set(title: "Show all posts")
+            } else {
+                footer.set(title: "Show all cases")
+            }
+
             return footer
         default:
             print("No Kind registered")

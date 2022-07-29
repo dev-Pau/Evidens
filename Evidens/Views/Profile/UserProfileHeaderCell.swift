@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AudioToolbox
 
 protocol UserProfileHeaderCellDelegate: AnyObject {
     func headerCell(didTapProfilePictureFor user: User)
@@ -80,6 +81,77 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.textColor = .black
         return label
     }()
+    
+    private let otherProfileInfoButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = lightGrayColor
+        button.configuration?.image = UIImage(systemName: "ellipsis")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 20))
+        button.configuration?.baseForegroundColor = .black
+        button.configuration?.cornerStyle = .capsule
+        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
+        return button
+    }()
+    
+    private let sendMessageButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = lightGrayColor
+        
+        //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        //button.configuration?.imagePadding = 15
+        button.configuration?.baseForegroundColor = .black
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("Message", attributes: container)
+        
+        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
+        
+        return button
+    }()
+    
+    private let connectButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = primaryColor
+        
+        //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        //button.configuration?.imagePadding = 15
+        button.configuration?.baseForegroundColor = .white
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("   Connect   ", attributes: container)
+        
+        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
+        
+        return button
+    }()
+    
+    private let connectionsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "24 connections"
+        label.textColor = primaryColor
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+ 
+    private let followersLabel: UILabel = {
+        let label = UILabel()
+        label.text = "129 followers"
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     /*
      --------------
      */
@@ -107,26 +179,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return label
     }()
     
-    private let editFollowProfileButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .white
-        
-        //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        button.configuration?.imagePadding = 15
-        
-        button.configuration?.baseForegroundColor = blackColor
-        button.configuration?.cornerStyle = .capsule
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .heavy)
-        button.configuration?.attributedTitle = AttributedString("Loading...", attributes: container)
-        
-        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
-        
-        return button
-    }()
+
     
     private let currentUserProfessionLabel: UILabel = {
         let label = UILabel()
@@ -144,14 +197,14 @@ class UserProfileHeaderCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.background.strokeColor = grayColor
-        button.configuration?.background.strokeWidth = 1
+        //button.configuration?.background.strokeColor = grayColor
+        //button.configuration?.background.strokeWidth = 1
         
         
         //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         //button.configuration?.imagePadding = 15
         
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseForegroundColor = lightGrayColor
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
@@ -163,27 +216,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return button
     }()
     
-    private let otherProfileInfoButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .white
-        
-        button.configuration?.background.strokeColor = grayColor
-        button.configuration?.background.strokeWidth = 1
-        
-        button.configuration?.image = UIImage(named: "vertical.dots")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        //button.configuration?.imagePadding = 15
-        
-        
-        
-        button.configuration?.baseForegroundColor = grayColor
-        button.configuration?.cornerStyle = .capsule
-        
-        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
-        
-        return button
-    }()
     
     private let numberOfContacts: UIButton = {
         let button = UIButton()
@@ -288,7 +320,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.spacing = 10
         
-        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, editProfileButton)
+        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, connectButton, sendMessageButton, connectionsLabel, followersLabel)
         
         //addSubview(userTypeButton)
         //addSubview(userDescriptionLabel)
@@ -302,15 +334,15 @@ class UserProfileHeaderCell: UICollectionViewCell {
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bannerImageView.heightAnchor.constraint(equalToConstant: 120),
+            bannerImageView.heightAnchor.constraint(equalToConstant: 100),
             
-            editProfileButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 5),
-            editProfileButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            //editProfileButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
+            //editProfileButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 60),
+            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.widthAnchor.constraint(equalToConstant: 140),
-            profileImageView.heightAnchor.constraint(equalToConstant: 140),
+            profileImageView.widthAnchor.constraint(equalToConstant: 110),
+            profileImageView.heightAnchor.constraint(equalToConstant: 110),
             
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
@@ -319,8 +351,33 @@ class UserProfileHeaderCell: UICollectionViewCell {
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             professionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            //professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -100),
             
+            connectionsLabel.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 5),
+            connectionsLabel.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
+            connectionsLabel.trailingAnchor.constraint(equalTo: professionLabel.trailingAnchor),
+            
+            followersLabel.topAnchor.constraint(equalTo: connectionsLabel.bottomAnchor, constant: 5),
+            followersLabel.leadingAnchor.constraint(equalTo: connectionsLabel.leadingAnchor),
+            followersLabel.trailingAnchor.constraint(equalTo: professionLabel.trailingAnchor),
+            followersLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            /*
+            otherProfileInfoButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
+            otherProfileInfoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            otherProfileInfoButton.widthAnchor.constraint(equalToConstant: 25),
+            otherProfileInfoButton.heightAnchor.constraint(equalToConstant: 25),
+            
+            
+            */
+            
+            connectButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
+            connectButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            connectButton.heightAnchor.constraint(equalToConstant: 30),
+            
+            sendMessageButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
+            sendMessageButton.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
+            sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
             
             //userTypeButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 5),
             //userTypeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -355,8 +412,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
              */
         ])
         
-        
-        profileImageView.layer.cornerRadius = 140 / 2
+        profileImageView.layer.cornerRadius = 110 / 2
     }
     
     

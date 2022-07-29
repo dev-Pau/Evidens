@@ -203,7 +203,9 @@
 		5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */; };
 		5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */; };
 		5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */; };
-		5FE8DE8F28918E83009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostCell.swift */; };
+		5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */; };
+		5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */; };
+		5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -404,7 +406,9 @@
 		5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLabel.swift; sourceTree = "<group>"; };
 		5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordViewController.swift; sourceTree = "<group>"; };
 		5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleFooter.swift; sourceTree = "<group>"; };
-		5FE8DE8E28918E83009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
+		5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostImageCell.swift; sourceTree = "<group>"; };
+		5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
+		5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseImageCell.swift; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
 		ED9965EF6173BC44853D0886 /* Pods-Evidens.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.release.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.release.xcconfig"; sourceTree = "<group>"; };
@@ -434,6 +438,8 @@
 		5F0A4F39271C29D700700304 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				5FE8DE9028928506009F08F9 /* Posts */,
+				5FE8DE932893A561009F08F9 /* Cases */,
 				5FE8DE8D28918E5F009F08F9 /* General */,
 				5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */,
 				5F0A4F3A271C29E800700304 /* ProfileCell.swift */,
@@ -1215,9 +1221,25 @@
 			children = (
 				5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */,
 				5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */,
-				5FE8DE8E28918E83009F08F9 /* UserProfilePostCell.swift */,
 			);
 			path = General;
+			sourceTree = "<group>";
+		};
+		5FE8DE9028928506009F08F9 /* Posts */ = {
+			isa = PBXGroup;
+			children = (
+				5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */,
+				5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */,
+			);
+			path = Posts;
+			sourceTree = "<group>";
+		};
+		5FE8DE932893A561009F08F9 /* Cases */ = {
+			isa = PBXGroup;
+			children = (
+				5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */,
+			);
+			path = Cases;
 			sourceTree = "<group>";
 		};
 		77AAA27F2190F53DB61FB2FC /* Pods */ = {
@@ -1430,6 +1452,7 @@
 				5F77BF802858F3BF00F31A75 /* MEPostInfoView.swift in Sources */,
 				5FB290222886D04D002FBAE1 /* MECaseInfoView.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
+				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5F78D30128913F1900FE0C99 /* EditAboutCell.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5F9E42962880583D00C2153B /* ProfessionRegistrationViewController.swift in Sources */,
@@ -1480,7 +1503,7 @@
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
 				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
 				5FB2903F289025CF002FBAE1 /* UserProfileAboutCell.swift in Sources */,
-				5FE8DE8F28918E83009F08F9 /* UserProfilePostCell.swift in Sources */,
+				5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */,
 				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
@@ -1550,6 +1573,7 @@
 				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
+				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
 				5F527D9B288567C4009D5027 /* DiagnosisUnresolvedView.swift in Sources */,
 				5F9E428E288017E000C2153B /* CommunityRegistrationViewController.swift in Sources */,

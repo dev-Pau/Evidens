@@ -11,10 +11,18 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     private var sectionAboutTitle: UILabel = {
         let label = UILabel()
-        label.text = "View all posts"
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private let buttonImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFit
+        iv.image = UIImage(systemName: "arrow.forward", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
     override init(frame: CGRect) {
@@ -28,11 +36,16 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = .white
-        addSubview(sectionAboutTitle)
+        addSubviews(sectionAboutTitle, buttonImageView)
         
         NSLayoutConstraint.activate([
+            buttonImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            buttonImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            buttonImageView.heightAnchor.constraint(equalToConstant: 20),
+            buttonImageView.widthAnchor.constraint(equalToConstant: 20),
+
             sectionAboutTitle.centerYAnchor.constraint(equalTo: centerYAnchor),
-            sectionAboutTitle.centerXAnchor.constraint(equalTo: centerXAnchor)
+            sectionAboutTitle.trailingAnchor.constraint(equalTo: buttonImageView.leadingAnchor, constant: -5)
         ])
     }
     
