@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01C1E9DC631A7F3CE12E4108 /* Pods_Evidens.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */; };
+		5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F010AB628958B5D004CA9C9 /* UserProfileEducationCell.swift */; };
 		5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05206A27BD4D9C001E7D8F /* ChatCell.swift */; };
 		5F05206D27BD5461001E7D8F /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05206C27BD5461001E7D8F /* Conversation.swift */; };
 		5F05206F27C3AF1A001E7D8F /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F05206E27C3AF19001E7D8F /* PhotoViewController.swift */; };
@@ -206,9 +207,11 @@
 		5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */; };
 		5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */; };
 		5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */; };
+		5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5F010AB628958B5D004CA9C9 /* UserProfileEducationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileEducationCell.swift; sourceTree = "<group>"; };
 		5F05206A27BD4D9C001E7D8F /* ChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCell.swift; sourceTree = "<group>"; };
 		5F05206C27BD5461001E7D8F /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		5F05206E27C3AF19001E7D8F /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
@@ -409,6 +412,7 @@
 		5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostImageCell.swift; sourceTree = "<group>"; };
 		5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
 		5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseImageCell.swift; sourceTree = "<group>"; };
+		5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileExperienceCell.swift; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
 		ED9965EF6173BC44853D0886 /* Pods-Evidens.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.release.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.release.xcconfig"; sourceTree = "<group>"; };
@@ -426,6 +430,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5F010AB828958B61004CA9C9 /* Education */ = {
+			isa = PBXGroup;
+			children = (
+				5F010AB628958B5D004CA9C9 /* UserProfileEducationCell.swift */,
+			);
+			path = Education;
+			sourceTree = "<group>";
+		};
 		5F05206927BD4D88001E7D8F /* Chat */ = {
 			isa = PBXGroup;
 			children = (
@@ -440,6 +452,8 @@
 			children = (
 				5FE8DE9028928506009F08F9 /* Posts */,
 				5FE8DE932893A561009F08F9 /* Cases */,
+				5FE8DE98289578CD009F08F9 /* Experience */,
+				5F010AB828958B61004CA9C9 /* Education */,
 				5FE8DE8D28918E5F009F08F9 /* General */,
 				5F0A4F3E271C2BC300700304 /* ProfileHeader.swift */,
 				5F0A4F3A271C29E800700304 /* ProfileCell.swift */,
@@ -1242,6 +1256,14 @@
 			path = Cases;
 			sourceTree = "<group>";
 		};
+		5FE8DE98289578CD009F08F9 /* Experience */ = {
+			isa = PBXGroup;
+			children = (
+				5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */,
+			);
+			path = Experience;
+			sourceTree = "<group>";
+		};
 		77AAA27F2190F53DB61FB2FC /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1508,6 +1530,7 @@
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
+				5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */,
 				5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */,
 				5FB290282886FD43002FBAE1 /* CaseImageCell.swift in Sources */,
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
@@ -1531,6 +1554,7 @@
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
+				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */,

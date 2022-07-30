@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseDatabase
-import RealmSwift
 import MessageKit
 
 /// Manager object to read and write data to real time firebase database

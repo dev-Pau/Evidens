@@ -31,8 +31,5 @@ target 'Evidens' do
 
 	#Progression
 	pod 'JGProgressHUD'
-
-	#Realm
-	pod 'RealmSwift'
 	
 end
