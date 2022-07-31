@@ -51,6 +51,13 @@ class EditAboutCell: UICollectionViewCell {
         return view
     }()
     
+    private let bottomView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -72,7 +79,7 @@ class EditAboutCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(titleLabel, editAboutTextView, placeholderLabel, separatorView)
+        cellContentView.addSubviews(titleLabel, editAboutTextView, separatorView)
         
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -85,16 +92,23 @@ class EditAboutCell: UICollectionViewCell {
             titleLabel.widthAnchor.constraint(equalToConstant: 97),
             
             editAboutTextView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            editAboutTextView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            editAboutTextView.heightAnchor.constraint(equalToConstant: 100),
+            //editAboutTextView.heightAnchor.constraint(equalToConstant: 100),
             editAboutTextView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 8),
             editAboutTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -5),
+            editAboutTextView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
             
-            placeholderLabel.topAnchor.constraint(equalTo: editAboutTextView.topAnchor, constant: 5),
-            placeholderLabel.leadingAnchor.constraint(equalTo: editAboutTextView.leadingAnchor, constant: 5),
-            placeholderLabel.trailingAnchor.constraint(equalTo: editAboutTextView.trailingAnchor),
+            //bottomView.topAnchor.constraint(equalTo: editAboutTextView.bottomAnchor, constant: 10),
+            //bottomView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            //bottomView.heightAnchor.constraint(equalToConstant: 1)
+            
+            //placeholderLabel.topAnchor.constraint(equalTo: editAboutTextView.topAnchor, constant: 5),
+            //placeholderLabel.leadingAnchor.constraint(equalTo: editAboutTextView.leadingAnchor, constant: 5),
+            //placeholderLabel.trailingAnchor.constraint(equalTo: editAboutTextView.trailingAnchor),
             //placeholderLabel.bottomAnchor.constraint(equalTo: editAboutTextView.bottomAnchor)
         ])
+        
+        editAboutTextView.addSubview(placeholderLabel)
+        placeholderLabel.frame = editAboutTextView.frame
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

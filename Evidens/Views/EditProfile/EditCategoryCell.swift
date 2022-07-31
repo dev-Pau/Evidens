@@ -1,13 +1,13 @@
 //
-//  EditNameCell.swift
+//  EditCategoryCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 27/7/22.
+//  Created by Pau Fernández Solà on 31/7/22.
 //
 
 import UIKit
 
-class EditNameCell: UICollectionViewCell {
+class EditCategoryCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
     
@@ -19,15 +19,24 @@ class EditNameCell: UICollectionViewCell {
         return label
     }()
     
-    private let firstNameTextField: UITextField = {
-        let tf = UITextField()
-        tf.font = .systemFont(ofSize: 15, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.clearButtonMode = .whileEditing
-        tf.tintColor = primaryColor
-        return tf
+    private let subtitleLabel: UILabel = {
+        let tf = UILabel()
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.numberOfLines = 1
+        label.textColor = primaryColor
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
+    private let chevronImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+        
     private let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
@@ -60,7 +69,7 @@ class EditNameCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(titleLabel, firstNameTextField, separatorView)
+        cellContentView.addSubviews(titleLabel, subtitleLabel, chevronImageView, separatorView)
         
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -73,10 +82,16 @@ class EditNameCell: UICollectionViewCell {
             titleLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             titleLabel.widthAnchor.constraint(equalToConstant: 100),
             
-            firstNameTextField.topAnchor.constraint(equalTo: titleLabel.topAnchor),
-            firstNameTextField.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-            firstNameTextField.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
-            firstNameTextField.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -5)
+            chevronImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            chevronImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            chevronImageView.widthAnchor.constraint(equalToConstant: 15),
+            chevronImageView.heightAnchor.constraint(equalToConstant: 15),
+            
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
+            subtitleLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
+            subtitleLabel.trailingAnchor.constraint(equalTo: chevronImageView.leadingAnchor, constant: -5)
+
         ])
     }
     
@@ -91,8 +106,10 @@ class EditNameCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func set(title: String, placeholder: String) {
+    func set(title: String, subtitle: String, image: String) {
         titleLabel.text = title
-        firstNameTextField.placeholder = placeholder
+        subtitleLabel.text = subtitle
+        chevronImageView.image = UIImage(systemName: image)?.withRenderingMode(.alwaysOriginal).withTintColor(lightGrayColor)
     }
 }
+

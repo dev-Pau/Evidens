@@ -9,7 +9,11 @@ import UIKit
 
 private let profilePictureReuseIdentifier = "ProfilePictureReuseIdentifier"
 private let nameCellReuseIdentifier = "NameCellReuseIdentifier"
+private let categoryCellReuseIdentifier = "CategoryCellReuseIdentifier"
+private let customSectionCellReuseIdentifier = "CustomSectionsCellReuseIdentifier"
+
 private let aboutCellReuseIdentifier = "AboutCellReuseIdentifier"
+
 
 class EditProfileViewController: UICollectionViewController {
     
@@ -44,12 +48,20 @@ class EditProfileViewController: UICollectionViewController {
         let rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        
+        navigationItem.title = "Edit Profile"
     }
     
     private func configureCollectionView() {
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: profilePictureReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: nameCellReuseIdentifier)
-        collectionView.register(EditAboutCell.self, forCellWithReuseIdentifier: aboutCellReuseIdentifier)
+        collectionView.register(EditCategoryCell.self, forCellWithReuseIdentifier: categoryCellReuseIdentifier)
+        collectionView.register(CustomSectionCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
+
+        //collectionView.register(EditAboutCell.self, forCellWithReuseIdentifier: aboutCellReuseIdentifier)
     }
     
     private func configureUI() {
@@ -81,14 +93,39 @@ extension EditProfileViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.set(title: "Last name", placeholder: "Enter your last name")
             return cell
+        } else if indexPath.row == 3 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
+            cell.set(title: "Category", subtitle: "Professional", image: "lock")
+            return cell
+        } else if indexPath.row == 4 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
+            cell.set(title: "Profession", subtitle: "Odontology", image: "chevron.right")
+            return cell
+        } else if indexPath.row == 5 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
+            cell.set(title: "Speciality", subtitle: "General Odontology", image: "chevron.right")
+            return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: aboutCellReuseIdentifier, for: indexPath) as! EditAboutCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! CustomSectionCell
+            cell.delegate = self
             return cell
         }
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 4
+        return 7
     }
-    
+}
+
+extension EditProfileViewController: CustomSectionCellDelegate {
+    func didTapConfigureSections() {
+        let controller = ConfigureSectionViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        backItem.tintColor = .black
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }

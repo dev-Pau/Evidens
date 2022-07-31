@@ -51,17 +51,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return iv
     }()
     
-    private lazy var editProfileButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        button.configuration?.buttonSize = .medium
-        button.configuration?.baseForegroundColor = .black
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleEditProfile), for: .touchUpInside)
-        return button
-    }()
-    
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 27, weight: .semibold)
@@ -129,7 +118,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         container.font = .systemFont(ofSize: 14, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("   Connect   ", attributes: container)
         
-        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleFollowEditProfile), for: .touchUpInside)
         
         return button
     }()
@@ -445,7 +434,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     //MARK: - Actions
     
-    @objc func handleEditProfile() {
+    @objc func handleFollowEditProfile() {
         guard let viewModel = viewModel else { return }
         delegate?.headerCell(didTapEditProfileFor: viewModel.user)
     }

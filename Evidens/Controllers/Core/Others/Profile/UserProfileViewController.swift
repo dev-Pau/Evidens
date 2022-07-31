@@ -156,7 +156,7 @@ class UserProfileViewController: UICollectionViewController {
                 section.boundarySupplementaryItems = [header, footer]
                     
                 return section
-            } else {
+            } else if sectionNumber == 7 {
                 // Patents
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
                                                                          elementKind: ElementKind.sectionHeader,
@@ -175,6 +175,22 @@ class UserProfileViewController: UICollectionViewController {
                 
                 return section
                     
+            } else {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+    
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                item.contentInsets.leading = 10
+
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.25), heightDimension: .absolute(100)), subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header]
+                section.orthogonalScrollingBehavior = .continuous
+                
+                
+                return section
             }
         }
         
@@ -233,7 +249,7 @@ class UserProfileViewController: UICollectionViewController {
 
 extension UserProfileViewController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 8
+        return 9
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -261,6 +277,8 @@ extension UserProfileViewController {
         } else if section == 4 {
             // Comments
             return 3
+        } else if section == 8 {
+            return 20
         } else {
             return 3
         }
@@ -304,6 +322,10 @@ extension UserProfileViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
             return cell
             
+        } else if indexPath.section == 7 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
+            cell.backgroundColor = .systemPink
+            return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
             cell.backgroundColor = .systemPink
@@ -410,6 +432,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     func headerCell(didTapEditProfileFor user: User) {
         let controller = EditProfileViewController(user: user)
         let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
         present(navVC, animated: true)
     }
     
