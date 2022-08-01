@@ -11,7 +11,7 @@ private let configureSectionTitleCellReuseIdentifier = "ConfigureSectionTitleCel
 
 class ConfigureSectionViewController: UIViewController {
     
-    private let dataSource: [String] = ["Add about", "Add highlight", "Add experience", "Add education", "Add patent", "Add language"]
+    private let dataSource: [String] = ["Add about", "Add experience", "Add education", "Add patent", "Add publication", "Add language"]
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -71,8 +71,25 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
             controller.title = "Section"
             navigationController?.pushViewController(controller, animated: true)
             
+        } else if indexPath.row == 1 {
+            let controller = AddExperienceViewController()
+            controller.title = "Experience"
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.row == 2 {
+            let controller = AddEducationViewController()
+            controller.title = "Education"
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.row == 3 {
+            let controller = AddPatentViewController()
+            controller.title = "Patent"
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.row == 4 {
+            let controller = AddPublicationViewController()
+            controller.title = "Publication"
+            navigationController?.pushViewController(controller, animated: true)
         } else {
-            let controller = AddSectionViewController()
+            let controller = AddLanguageViewController()
+            controller.title = "Language"
             navigationController?.pushViewController(controller, animated: true)
         }
     }

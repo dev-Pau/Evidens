@@ -78,7 +78,7 @@ class AddSectionViewController: UIViewController {
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
-            aboutTextView.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 10),
+            aboutTextView.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
             aboutTextView.leadingAnchor.constraint(equalTo: infoLabel.leadingAnchor),
             aboutTextView.trailingAnchor.constraint(equalTo: infoLabel.trailingAnchor),
             aboutTextView.heightAnchor.constraint(equalToConstant: 200)

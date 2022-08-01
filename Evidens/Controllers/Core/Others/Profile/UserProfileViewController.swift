@@ -16,6 +16,7 @@ private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
+private let seeOthersCellReuseIdentifier = "SeeOthersCellReuseIdentifier"
 private let test = "testIdentifier"
 
 struct ElementKind {
@@ -175,15 +176,49 @@ class UserProfileViewController: UICollectionViewController {
                 
                 return section
                     
+            } else if sectionNumber == 8 {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+    
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                item.contentInsets.bottom = 5
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                
+                let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionFooter,
+                                                                         alignment: .bottom)
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header, footer]
+                    
+                return section
+            } else if sectionNumber == 9 {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+    
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                item.contentInsets.bottom = 5
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                
+                let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
+                                                                         elementKind: ElementKind.sectionFooter,
+                                                                         alignment: .bottom)
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header, footer]
+                
+                return section
+                    
             } else {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                item.contentInsets.leading = 10
 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.25), heightDimension: .absolute(100)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.30), heightDimension: .absolute(120)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
@@ -234,6 +269,8 @@ class UserProfileViewController: UICollectionViewController {
         collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
+        
+        collectionView.register(UserProfileSeeOthersCell.self, forCellWithReuseIdentifier: seeOthersCellReuseIdentifier)
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: test)
 
     }
@@ -249,7 +286,7 @@ class UserProfileViewController: UICollectionViewController {
 
 extension UserProfileViewController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 9
+        return 11
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -277,10 +314,23 @@ extension UserProfileViewController {
         } else if section == 4 {
             // Comments
             return 3
-        } else if section == 8 {
-            return 20
-        } else {
+        } else if section == 5 {
+            // Comments
             return 3
+        } else if section == 6 {
+            // Comments
+            return 3
+        } else if section == 7 {
+            // Comments
+            return 3
+        } else if section == 8 {
+            // Comments
+            return 3
+        } else if section == 9 {
+            return 3
+            
+        } else {
+            return 20
         }
     }
     
@@ -311,7 +361,12 @@ extension UserProfileViewController {
             // ja hi ha creada la UserProfilePostCell.self que només té text
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath)
             return cell
-
+            
+        } else if indexPath.section == 4 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
+            cell.backgroundColor = .systemPink
+            return cell
+            
         } else if indexPath.section == 5 {
             // Experience
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
@@ -326,9 +381,24 @@ extension UserProfileViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
             cell.backgroundColor = .systemPink
             return cell
-        } else {
+            
+        } else if indexPath.section == 8 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
             cell.backgroundColor = .systemPink
+            return cell
+            
+        } else if indexPath.section == 8 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
+            cell.backgroundColor = .systemPink
+            return cell
+            
+        } else if indexPath.section == 9 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
+            cell.backgroundColor = .systemPink
+            return cell
+            
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: seeOthersCellReuseIdentifier, for: indexPath)
             return cell
         }
     }
@@ -350,6 +420,10 @@ extension UserProfileViewController {
                 header.set(title: "Education")
             } else if indexPath.section == 7 {
                 header.set(title: "Patents")
+            } else if indexPath.section == 8 {
+                header.set(title: "Publications")
+            } else if indexPath.section == 9 {
+                header.set(title: "Languages")
             } else {
                 header.set(title: "See Others")
             }
@@ -367,10 +441,13 @@ extension UserProfileViewController {
                 footer.set(title: "Show all experience")
             } else if indexPath.section == 6 {
                 footer.set(title: "Show all education")
-            } else {
+            } else if indexPath.section == 7 {
                 footer.set(title: "Show all patents")
+            } else if indexPath.section == 8 {
+                footer.set(title: "Show all publications")
+            } else if indexPath.section == 9 {
+                footer.set(title: "Show all languages")
             }
-
             return footer
         default:
             print("No Kind registered")
