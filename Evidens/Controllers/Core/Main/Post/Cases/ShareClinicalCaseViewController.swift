@@ -24,6 +24,10 @@ class ShareClinicalCaseViewController: UIViewController {
     private var caseStageSelected: String = ""
     
     private var caseStage: Case.CaseStage = .unresolved
+    private var casePrivacy: Case.Privacy = .none
+    
+    private var casePrivacyMenuLauncher = CasePrivacyMenuLauncher()
+    
     private var diagnosisText: String = ""
     
     private var cellSizes: [CGFloat] = []
@@ -179,6 +183,44 @@ class ShareClinicalCaseViewController: UIViewController {
         return view
     }()
     
+    private let privacySeparatorLabel: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var privacyTypeImage: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(systemName: "globe.europe.africa.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
+        return iv
+    }()
+    
+    private lazy var attributedPrivacyString: NSMutableAttributedString = {
+        let aString = NSMutableAttributedString(string: "Sharing publicily. Your profile information will be shared.")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: "Sharing publicily"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Sharing publicily"))
+        return aString
+    }()
+    
+    
+    private lazy var privacyLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = grayColor
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.attributedText = attributedPrivacyString
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Title"
@@ -283,6 +325,10 @@ class ShareClinicalCaseViewController: UIViewController {
         caseStageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToCaseStageController)))
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        casePrivacyMenuLauncher.showPostSettings(in: view)
+    }
+    
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -328,11 +374,12 @@ class ShareClinicalCaseViewController: UIViewController {
         //caseStageView.delegate = self
         diagnosisView.delegate = self
         diagnosisGenericView.delegate = self
+        casePrivacyMenuLauncher.delegate = self
         
         scrollView.keyboardDismissMode = .onDrag
         
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, specialitiesView, clinicalTypeView, caseStageView, diagnosisView, diagnosisUnresolvedView, diagnosisGenericView)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, privacyTypeImage, privacyLabel, titleLabel, titleView, titleTextField, descriptionTextView, descriptionLabel, descriptionView, privacySeparatorLabel, specialitiesView, clinicalTypeView, caseStageView, diagnosisView, diagnosisUnresolvedView, diagnosisGenericView)
         
         //view.addSubview(shareCaseButton)
         
@@ -361,9 +408,23 @@ class ShareClinicalCaseViewController: UIViewController {
             imageTitleSeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             imageTitleSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
             
-            titleTextField.topAnchor.constraint(equalTo: imageTitleSeparatorLabel.bottomAnchor, constant: 20),
-            titleTextField.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
-            titleTextField.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
+            privacyTypeImage.topAnchor.constraint(equalTo: imageTitleSeparatorLabel.bottomAnchor, constant: 20),
+            privacyTypeImage.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
+            privacyTypeImage.heightAnchor.constraint(equalToConstant: 23),
+            privacyTypeImage.widthAnchor.constraint(equalToConstant: 23),
+            
+            privacyLabel.centerYAnchor.constraint(equalTo: privacyTypeImage.centerYAnchor),
+            privacyLabel.leadingAnchor.constraint(equalTo: privacyTypeImage.trailingAnchor, constant: 10),
+            privacyLabel.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
+         
+            privacySeparatorLabel.topAnchor.constraint(equalTo: privacyTypeImage.bottomAnchor, constant: 20),
+            privacySeparatorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            privacySeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            privacySeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            
+            titleTextField.topAnchor.constraint(equalTo: privacySeparatorLabel.bottomAnchor, constant: 20),
+            titleTextField.leadingAnchor.constraint(equalTo: privacySeparatorLabel.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: privacySeparatorLabel.trailingAnchor),
             titleTextField.heightAnchor.constraint(equalToConstant: 35),
             
             titleView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 4),
@@ -407,10 +468,7 @@ class ShareClinicalCaseViewController: UIViewController {
             caseStageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             caseStageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             caseStageView.heightAnchor.constraint(equalToConstant: 62),
-            
-            
         ])
-        
         scrollView.resizeScrollViewContentSize()
     }
     
@@ -600,6 +658,10 @@ class ShareClinicalCaseViewController: UIViewController {
 
             scrollView.resizeScrollViewContentSize()
         }
+    }
+    
+    @objc func handleOpenPrivacyMenu() {
+        casePrivacyMenuLauncher.showPostSettings(in: view)
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -951,6 +1013,21 @@ extension ShareClinicalCaseViewController: DiagnosisGenericViewDelegate {
             presentationController.detents = [.medium()]
         }
         present(navController, animated: true)
+    }
+}
+
+extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
+
+    func didTapPrivacyOption(_ option: Case.Privacy, _ image: UIImage, _ privacyText: String) {
+        casePrivacy = option
+        
+        let aString = NSMutableAttributedString(string: "\(option.privacyTypeString). \(privacyText).")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: option.privacyTypeString))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: option.privacyTypeString))
+        
+        privacyTypeImage.image = image.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        privacyLabel.attributedText = aString
+        casePrivacyMenuLauncher.handleDismissMenu()
     }
 }
 

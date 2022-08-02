@@ -28,7 +28,7 @@ class PostPrivacyHeader: UICollectionReusableView {
         return label
     }()
     
-    private let subtitleLabel: UILabel = {
+    var subtitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Your post will show up on the feed, on your profile and in search results"
         label.font = .systemFont(ofSize: 12, weight: .regular)

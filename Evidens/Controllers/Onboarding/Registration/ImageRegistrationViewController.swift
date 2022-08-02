@@ -140,7 +140,7 @@ class ImageRegistrationViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Account details"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = blackColor
+        navigationController?.navigationBar.tintColor = .black
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     

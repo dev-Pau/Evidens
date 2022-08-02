@@ -44,7 +44,7 @@ class PostPrivacyCell: UICollectionViewCell {
     
     private let postTypeSubLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .bold)
+        label.font = .systemFont(ofSize: 12, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = grayColor
         return label
@@ -97,9 +97,8 @@ class PostPrivacyCell: UICollectionViewCell {
             
             stack.centerYAnchor.constraint(equalTo: postTyeButton.centerYAnchor),
             stack.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: padding),
-            stack.trailingAnchor.constraint(equalTo: selectedOptionButton.leadingAnchor, constant: padding),
+            stack.trailingAnchor.constraint(equalTo: selectedOptionButton.leadingAnchor, constant: -padding),
             stack.heightAnchor.constraint(equalToConstant: 35)
-            
         ])
         
         postTypeImage.layer.cornerRadius = postTypeImage.frame.size.height / 2

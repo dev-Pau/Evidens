@@ -38,6 +38,29 @@ struct Case {
         }
     }
     
+    enum Privacy: Int {
+        case none
+        case yes
+        
+        var privacyType: Int {
+            switch self {
+            case .none:
+                return 0
+            case .yes:
+                return 1
+            }
+        }
+        
+        var privacyTypeString: String {
+            switch self {
+            case .none:
+                return "Sharing publicily"
+            case .yes:
+                return "Sharing anonymously"
+            }
+        }
+    }
+    
     var caseTitle: String
     var caseDescription: String
     var caseSpecialities: [String]
@@ -52,6 +75,7 @@ struct Case {
     let caseId: String
     let type: CaseType
     var stage: CaseStage
+    let privacyOptions: Privacy
     let ownerProfession: String
     let ownerCategory: User.UserCategory
     var diagnosis: String
@@ -88,5 +112,7 @@ struct Case {
         self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""       
         self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
+        
+        self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .none
     }
 }

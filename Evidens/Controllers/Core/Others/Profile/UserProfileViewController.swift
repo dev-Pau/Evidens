@@ -14,10 +14,13 @@ private let profileFooterTitleReuseIdentifier = "ProfileFooterTitleReuseIdentifi
 private let postImageCellReuseIdentifier = "ProfileImageCellReuseIdentifier"
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
+private let commentsCellReuseIdentifier = "CommentsCellReuseIdentifier"
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
+private let patentCellReuseIdentifier = "PatentCellReuseIdentifier"
+private let publicationsCellReuseIdentifier = "PublicationCellReuseIdentifier"
+private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 private let seeOthersCellReuseIdentifier = "SeeOthersCellReuseIdentifier"
-private let test = "testIdentifier"
 
 struct ElementKind {
     //static let badge = "badge-element-kind"
@@ -267,12 +270,13 @@ class UserProfileViewController: UICollectionViewController {
         collectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         collectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
-        
+        collectionView.register(UserProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
+        collectionView.register(UserProfilePublicationCell.self, forCellWithReuseIdentifier: publicationsCellReuseIdentifier)
+        collectionView.register(UserProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
         collectionView.register(UserProfileSeeOthersCell.self, forCellWithReuseIdentifier: seeOthersCellReuseIdentifier)
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: test)
-
     }
     
     //MARK: - API
@@ -359,12 +363,12 @@ extension UserProfileViewController {
             // Cases
             // posar un if en funció de si té imatge o no per presentar una cel·la o una altre.
             // ja hi ha creada la UserProfilePostCell.self que només té text
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath)
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
             return cell
             
         } else if indexPath.section == 4 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
-            cell.backgroundColor = .systemPink
+            // Comments
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
             return cell
             
         } else if indexPath.section == 5 {
@@ -378,23 +382,15 @@ extension UserProfileViewController {
             return cell
             
         } else if indexPath.section == 7 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
-            cell.backgroundColor = .systemPink
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
             return cell
             
         } else if indexPath.section == 8 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
-            cell.backgroundColor = .systemPink
-            return cell
-            
-        } else if indexPath.section == 8 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
-            cell.backgroundColor = .systemPink
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
             return cell
             
         } else if indexPath.section == 9 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: test, for: indexPath)
-            cell.backgroundColor = .systemPink
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
             return cell
             
         } else {
@@ -458,50 +454,6 @@ extension UserProfileViewController {
 }
 
 
-
-/*
- extension UserProfileViewController: UITableViewDelegate, UITableViewDataSource {
- 
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if section == 0 {
-            let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: profileHeaderReuseIdentifier) as! UserProfileHeader
-            header.viewModel = ProfileHeaderViewModel(user: user)
-            header.delegate = self
-            return header
-        } else {
-            let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: profileHeaderReuseIdentifier) as! UserProfileHeader
-            header.viewModel = ProfileHeaderViewModel(user: user)
-            return header
-        }
-
-
-    }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 410
-    }
-    
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 0
-        } else {
-            return 5
-        }
-        
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: test, for: indexPath)
-        cell.backgroundColor = .white
-        return cell
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-}
-*/
 //MARK: - UserProfileHeaderDelegate
 
 extension UserProfileViewController: UserProfileHeaderCellDelegate {
