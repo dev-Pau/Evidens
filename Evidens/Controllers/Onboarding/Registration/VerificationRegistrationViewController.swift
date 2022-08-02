@@ -95,6 +95,10 @@ class VerificationRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
+        driverView.delegate = self
+        idCardView.delegate = self
+        passportView.delegate = self
+        
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
     
@@ -175,5 +179,29 @@ extension VerificationRegistrationViewController: MFMailComposeViewControllerDel
             controller.dismiss(animated: true)
         }
         controller.dismiss(animated: true)
+    }
+}
+
+extension VerificationRegistrationViewController: MERegistrationDocumentViewDelegate {
+    func didTapVerificationOption(option: String) {
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        navigationItem.backBarButtonItem = backItem
+        
+        switch option {
+        case "ID Card":
+            let controller = IDCardViewController(user: user)
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case "Driver's license":
+            let controller = DriverLicenseViewController(user: user)
+            navigationController?.pushViewController(controller, animated: true)
+            
+        default:
+            let controller = PassportViewController(user: user)
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }

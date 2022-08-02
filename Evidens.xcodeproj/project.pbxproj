@@ -154,6 +154,9 @@
 		5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F9F2898FA1D00A25152 /* UserProfileCommentCell.swift */; };
 		5F9A9FA22899048200A25152 /* CasePrivacyMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FA12899048200A25152 /* CasePrivacyMenuLauncher.swift */; };
 		5F9A9FA42899433A00A25152 /* MERegistrationDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FA32899433900A25152 /* MERegistrationDocumentView.swift */; };
+		5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FA72899603900A25152 /* IDCardViewController.swift */; };
+		5F9A9FAA2899843F00A25152 /* DriverLicenseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FA92899843F00A25152 /* DriverLicenseViewController.swift */; };
+		5F9A9FAC2899854500A25152 /* PassportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FAB2899854500A25152 /* PassportViewController.swift */; };
 		5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E427E287ABB2700C2153B /* CaseStageView.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
@@ -373,6 +376,9 @@
 		5F9A9F9F2898FA1D00A25152 /* UserProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCommentCell.swift; sourceTree = "<group>"; };
 		5F9A9FA12899048200A25152 /* CasePrivacyMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasePrivacyMenuLauncher.swift; sourceTree = "<group>"; };
 		5F9A9FA32899433900A25152 /* MERegistrationDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MERegistrationDocumentView.swift; sourceTree = "<group>"; };
+		5F9A9FA72899603900A25152 /* IDCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDCardViewController.swift; sourceTree = "<group>"; };
+		5F9A9FA92899843F00A25152 /* DriverLicenseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverLicenseViewController.swift; sourceTree = "<group>"; };
+		5F9A9FAB2899854500A25152 /* PassportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassportViewController.swift; sourceTree = "<group>"; };
 		5F9E427E287ABB2700C2153B /* CaseStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageView.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
@@ -994,6 +1000,16 @@
 			path = Comments;
 			sourceTree = "<group>";
 		};
+		5F9A9FA52899601A00A25152 /* Verification */ = {
+			isa = PBXGroup;
+			children = (
+				5F9A9FA72899603900A25152 /* IDCardViewController.swift */,
+				5F9A9FA92899843F00A25152 /* DriverLicenseViewController.swift */,
+				5F9A9FAB2899854500A25152 /* PassportViewController.swift */,
+			);
+			path = Verification;
+			sourceTree = "<group>";
+		};
 		5F9E428C288017C400C2153B /* Others */ = {
 			isa = PBXGroup;
 			children = (
@@ -1149,6 +1165,7 @@
 				5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */,
 				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
 				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
+				5F9A9FA52899601A00A25152 /* Verification */,
 				5F9E428C288017C400C2153B /* Others */,
 			);
 			path = Registration;
@@ -1553,6 +1570,7 @@
 				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
 				5F719B322885B534002666C0 /* PollConfiguratorViewController.swift in Sources */,
 				5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */,
+				5F9A9FAA2899843F00A25152 /* DriverLicenseViewController.swift in Sources */,
 				5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */,
 				5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
@@ -1572,6 +1590,7 @@
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */,
+				5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */,
 				5F9A9F912898111800A25152 /* AddPublicationViewController.swift in Sources */,
 				5F39B49C283005890079F8CF /* RecentUserCell.swift in Sources */,
 				5F77BF802858F3BF00F31A75 /* MEPostInfoView.swift in Sources */,
@@ -1675,6 +1694,7 @@
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F9A9F8B2897E38A00A25152 /* AddEducationViewController.swift in Sources */,
 				5FB2903B288ED674002FBAE1 /* CaseOptionsMenuLauncher.swift in Sources */,
+				5F9A9FAC2899854500A25152 /* PassportViewController.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FB2901D2886A6AA002FBAE1 /* MECaseLabel.swift in Sources */,
 				5F77BF7A2858E6A200F31A75 /* MEPostStatsView.swift in Sources */,

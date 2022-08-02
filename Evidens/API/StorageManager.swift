@@ -31,6 +31,29 @@ struct StorageManager {
         }
     }
     
+    /// Uploads an image for a specific user to firebase storage to verify eligibility
+    static func uploadDocumentationImage(images: [UIImage], type: String, uid: String, completion: @escaping(Bool) -> Void) {
+        var index = 0
+        
+        images.forEach { image in
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
+            let filename = "\(index)_\(type)_\(uid)"
+            
+            let ref = Storage.storage().reference(withPath: "/verification_images/\(uid)/\(filename)")
+            index += 1
+            
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
+                    return
+                }
+                if images.count == index {
+                    completion(true)
+                }
+            }
+        }
+    }
+    
     /// Uploads a profile image for a specific user to firebase storage with url string to download
     static func uploadPostImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
 

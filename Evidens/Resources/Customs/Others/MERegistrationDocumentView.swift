@@ -7,10 +7,16 @@
 
 import UIKit
 
+protocol MERegistrationDocumentViewDelegate: AnyObject {
+    func didTapVerificationOption(option: String)
+}
+
 class MERegistrationDocumentView: UIView {
     
     private var title: String
     private var image: String
+    
+    weak var delegate: MERegistrationDocumentViewDelegate?
     
     private let identityImageView: UIImageView = {
         let iv = UIImageView()
@@ -42,6 +48,9 @@ class MERegistrationDocumentView: UIView {
     }
     
     private func configure() {
+        isUserInteractionEnabled = true
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleVerificationTap)))
+        
         translatesAutoresizingMaskIntoConstraints = false
         layer.borderWidth = 1
         layer.borderColor = lightGrayColor.cgColor
@@ -62,7 +71,11 @@ class MERegistrationDocumentView: UIView {
         
         identityImageView.image = UIImage(systemName: image)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         identityLabel.text = title
-        
+    }
+    
+    @objc func handleVerificationTap() {
+        guard let text = identityLabel.text else { return }
+        delegate?.didTapVerificationOption(option: text)
     }
     
 }

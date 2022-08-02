@@ -15,6 +15,7 @@ struct User {
         case categoryPhase
         case userDetailsPhase
         case verificationPhase
+        case awaitingVerification
         case verified
     }
     
