@@ -85,6 +85,12 @@ class MainTabController: UITabBarController {
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
                 
+            case .awaitingVerification:
+                print("awaiting verification")
+                let controller = VerificationRegistrationViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
             case .verified:
                 print("main tab bar controller")
                 //let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate

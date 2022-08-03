@@ -16,6 +16,7 @@ class IDCardViewController: UIViewController {
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
     private var backSelected: Bool = false
+    private var hasCode: Bool = false
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -103,8 +104,8 @@ class IDCardViewController: UIViewController {
     
     private let frontIDLabel: UILabel = {
         let label = UILabel()
-        label.text = "Upload Identity Document (Front)"
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.text = "Identity Document (Front)"
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = .black
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -114,8 +115,8 @@ class IDCardViewController: UIViewController {
     
     private let backIDLabel: UILabel = {
         let label = UILabel()
-        label.text = "Upload Identity Document (Back)"
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.text = "Identity Document (Back)"
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = .black
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -134,9 +135,40 @@ class IDCardViewController: UIViewController {
         return iv
     }()
     
+    private let membershipCodeConditionsString: NSMutableAttributedString = {
+        let aString = NSMutableAttributedString(string: "I acknowledge that I am able to provide my membership code. If not, press Next to continue.")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: (aString.string as NSString).range(of: "I acknowledge that I am able to provide my membership code. If not, press Next to continue."))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "I acknowledge that I am able to provide my membership code. If not, press Next to continue."))
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .semibold), range: (aString.string as NSString).range(of: "membership code"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "membership code"))
+        return aString
+    }()
+    
+    private lazy var squareButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
+        button.configuration?.baseForegroundColor = primaryColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleMembershipConditions), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var membershipCodeTextView: UITextView = {
+        let tv = UITextView()
+        tv.attributedText = membershipCodeConditionsString
+        //tv.delegate = self
+        tv.isSelectable = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
+    
     private lazy var submitButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Submit", for: .normal)
+        button.setTitle("Next", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor.withAlphaComponent(0.5)
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -148,6 +180,30 @@ class IDCardViewController: UIViewController {
         return button
     }()
     
+    private lazy var membershipCodeTextField: UITextField = {
+        let tf = CustomTextField(placeholder: "Membership code")
+        tf.tintColor = primaryColor
+        tf.keyboardType = .numberPad
+        tf.isHidden = true
+        tf.clearButtonMode = .whileEditing
+        tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        return tf
+    }()
+    
+    /*
+    
+    private let professionalVerificationLabel: UILabel = {
+        let label = UILabel()
+        label.text = "To verify you as a professional, upload one of the following."
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.textColor = .black
+        label.isHidden = true
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+     */
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -175,7 +231,7 @@ class IDCardViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(idCardVerificationTitle, idCardVerificationSubtitle, frontImageBackgroundView, topIdCardButton, backImageBackgroundView, bottomIdCardButton, submitButton, frontIDLabel, backIDLabel)
+        scrollView.addSubviews(idCardVerificationTitle, idCardVerificationSubtitle, frontImageBackgroundView, backImageBackgroundView, topIdCardButton, bottomIdCardButton, frontIDLabel, backIDLabel, squareButton, membershipCodeTextView, membershipCodeTextField, submitButton)
         
         NSLayoutConstraint.activate([
             idCardVerificationTitle.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -188,8 +244,8 @@ class IDCardViewController: UIViewController {
             
             frontImageBackgroundView.topAnchor.constraint(equalTo: idCardVerificationSubtitle.bottomAnchor, constant: 20),
             frontImageBackgroundView.leadingAnchor.constraint(equalTo: idCardVerificationTitle.leadingAnchor),
-            frontImageBackgroundView.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor),
-            frontImageBackgroundView.heightAnchor.constraint(equalToConstant: 180),
+            frontImageBackgroundView.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 15),
+            frontImageBackgroundView.heightAnchor.constraint(equalToConstant: 130),
             
             topIdCardButton.centerXAnchor.constraint(equalTo: frontImageBackgroundView.centerXAnchor),
             topIdCardButton.centerYAnchor.constraint(equalTo: frontImageBackgroundView.centerYAnchor),
@@ -201,10 +257,10 @@ class IDCardViewController: UIViewController {
             frontIDLabel.leadingAnchor.constraint(equalTo: frontImageBackgroundView.leadingAnchor),
             frontIDLabel.trailingAnchor.constraint(equalTo: frontImageBackgroundView.trailingAnchor),
             
-            backImageBackgroundView.topAnchor.constraint(equalTo: frontImageBackgroundView.bottomAnchor, constant: 10),
-            backImageBackgroundView.leadingAnchor.constraint(equalTo: idCardVerificationTitle.leadingAnchor),
+            backImageBackgroundView.topAnchor.constraint(equalTo: idCardVerificationSubtitle.bottomAnchor, constant: 20),
+            backImageBackgroundView.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 15),
             backImageBackgroundView.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor),
-            backImageBackgroundView.heightAnchor.constraint(equalToConstant: 180),
+            backImageBackgroundView.heightAnchor.constraint(equalToConstant: 130),
             
             bottomIdCardButton.centerXAnchor.constraint(equalTo: backImageBackgroundView.centerXAnchor),
             bottomIdCardButton.centerYAnchor.constraint(equalTo: backImageBackgroundView.centerYAnchor),
@@ -216,18 +272,43 @@ class IDCardViewController: UIViewController {
             backIDLabel.leadingAnchor.constraint(equalTo: backImageBackgroundView.leadingAnchor),
             backIDLabel.trailingAnchor.constraint(equalTo: backImageBackgroundView.trailingAnchor),
             
-            submitButton.topAnchor.constraint(equalTo: backImageBackgroundView.bottomAnchor, constant: 20),
-            submitButton.leadingAnchor.constraint(equalTo: backImageBackgroundView.leadingAnchor),
-            submitButton.trailingAnchor.constraint(equalTo: backImageBackgroundView.trailingAnchor)
+            squareButton.topAnchor.constraint(equalTo: frontImageBackgroundView.bottomAnchor, constant: 20),
+            squareButton.leadingAnchor.constraint(equalTo: frontImageBackgroundView.leadingAnchor),
+            squareButton.heightAnchor.constraint(equalToConstant: 24),
+            squareButton.widthAnchor.constraint(equalToConstant: 24),
+            
+            membershipCodeTextView.centerYAnchor.constraint(equalTo: squareButton.centerYAnchor),
+            membershipCodeTextView.leadingAnchor.constraint(equalTo: squareButton.trailingAnchor, constant: 4),
+            membershipCodeTextView.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor),
+            
+            membershipCodeTextField.topAnchor.constraint(equalTo: squareButton.bottomAnchor, constant: 13),
+            membershipCodeTextField.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
+            membershipCodeTextField.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor),
+            
+            submitButton.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+            submitButton.leadingAnchor.constraint(equalTo: idCardVerificationTitle.leadingAnchor),
+            submitButton.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor)
         ])
     }
     
     private func uploadSubmitButtonState() {
         if backSelected && frontSelected {
-            submitButton.isUserInteractionEnabled = true
-            submitButton.backgroundColor = primaryColor
-            return
+            
+            if !hasCode {
+                submitButton.isUserInteractionEnabled = true
+                submitButton.backgroundColor = primaryColor
+                submitButton.setTitle("Next", for: .normal)
+            } else {
+                guard let text = membershipCodeTextField.text else { return }
+                submitButton.isUserInteractionEnabled = text.isEmpty ? false : true
+                submitButton.backgroundColor = text.isEmpty ? primaryColor.withAlphaComponent(0.5) : primaryColor
+                submitButton.setTitle("Submit", for: .normal)
+            }
         }
+    }
+    
+    @objc func textDidChange() {
+        uploadSubmitButtonState()
     }
     
     @objc func handleHelp() {
@@ -250,21 +331,40 @@ class IDCardViewController: UIViewController {
         registerBottomMenuLauncher.showImageSettings(in: view)
     }
     
+    @objc func handleMembershipConditions() {
+        hasCode.toggle()
+        squareButton.configuration?.image = hasCode ? UIImage(systemName: "checkmark.square.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor) : UIImage(systemName: "square")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
+        membershipCodeTextField.isHidden = hasCode ? false : true
+        uploadSubmitButtonState()
+    }
+    
     @objc func handleSubmit() {
-        //Pujar les fotos i quan fa completion
-        guard let uid = user.uid else { return }
-        
-        AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
-            if let error = error {
-                print(error.localizedDescription)
-            } else {
-                // User uploaded verification photos & stage is awaiting for approval
-                // Present waiting to get verified controller
+        if hasCode {
+            guard let frontImage = frontImageBackgroundView.image, let backImage = backImageBackgroundView.image, let uid = user.uid else { return }
+            showLoadingView()
+            StorageManager.uploadDocumentationImage(images: [frontImage, backImage], type: "id", uid: uid) { uploaded in
+                if uploaded {
+                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
+                        self.dismissLoadingView()
+                        if let error = error {
+                            print(error.localizedDescription)
+                        }
+                    }
+                }
             }
+        } else {
+            let controller = HealthDocumentationViewController(user: user)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)  
         }
     }
 }
-
+       
 
 extension IDCardViewController: HelperRegistrationViewControllerDelegate {
     func didTapLogout() {

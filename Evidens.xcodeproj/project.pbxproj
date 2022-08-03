@@ -223,6 +223,7 @@
 		5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */; };
 		5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */; };
 		5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */; };
+		5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */; };
 		5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */; };
 		5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */; };
 		5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */; };
@@ -448,6 +449,7 @@
 		5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLabel.swift; sourceTree = "<group>"; };
 		5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordViewController.swift; sourceTree = "<group>"; };
+		5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDocumentationViewController.swift; sourceTree = "<group>"; };
 		5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleFooter.swift; sourceTree = "<group>"; };
 		5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostImageCell.swift; sourceTree = "<group>"; };
 		5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
@@ -1166,6 +1168,7 @@
 				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
 				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
 				5F9A9FA52899601A00A25152 /* Verification */,
+				5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */,
 				5F9E428C288017C400C2153B /* Others */,
 			);
 			path = Registration;
@@ -1599,6 +1602,7 @@
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5F78D30128913F1900FE0C99 /* EditAboutCell.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
+				5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */,
 				5F9E42962880583D00C2153B /* ProfessionRegistrationViewController.swift in Sources */,
 				5F77BF7028587DBF00F31A75 /* MEUserPostView.swift in Sources */,
 				5F9A9F8F2897F28A00A25152 /* AddLanguageViewController.swift in Sources */,
