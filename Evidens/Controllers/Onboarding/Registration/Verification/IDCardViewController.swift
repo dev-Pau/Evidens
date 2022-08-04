@@ -12,7 +12,10 @@ import PhotosUI
 class IDCardViewController: UIViewController {
     
     private var user: User
+    
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
+    
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
     private var backSelected: Bool = false
@@ -97,7 +100,7 @@ class IDCardViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = UIColor.init(rgb: 0xD5DBE7)
+        iv.backgroundColor = lightColor
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -130,7 +133,7 @@ class IDCardViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = UIColor.init(rgb: 0xD5DBE7)
+        iv.backgroundColor = lightColor
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -209,6 +212,7 @@ class IDCardViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+        helperBottomRegistrationMenuLauncher.delegate = self
     }
     
     init(user: User) {
@@ -312,14 +316,7 @@ class IDCardViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
-        }
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handlePhotoAction(_ sender: UIButton) {
@@ -339,13 +336,14 @@ class IDCardViewController: UIViewController {
     }
     
     @objc func handleSubmit() {
+        guard let frontImage = frontImageBackgroundView.image, let backImage = backImageBackgroundView.image else { return }
         if hasCode {
-            guard let frontImage = frontImageBackgroundView.image, let backImage = backImageBackgroundView.image, let uid = user.uid else { return }
-            showLoadingView()
+            guard let uid = user.uid, let membershipCode = membershipCodeTextField.text else { return }
+            //showLoadingView()
             StorageManager.uploadDocumentationImage(images: [frontImage, backImage], type: "id", uid: uid) { uploaded in
                 if uploaded {
-                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
-                        self.dismissLoadingView()
+                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
+                        //self.dismissLoadingView()
                         if let error = error {
                             print(error.localizedDescription)
                         }
@@ -353,7 +351,7 @@ class IDCardViewController: UIViewController {
                 }
             }
         } else {
-            let controller = HealthDocumentationViewController(user: user)
+            let controller = HealthDocumentationViewController(user: user, image: [frontImage, backImage], type: "id")
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -366,17 +364,7 @@ class IDCardViewController: UIViewController {
 }
        
 
-extension IDCardViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    
+extension IDCardViewController: HelperBottomMenuLauncherDelegate {
     func didTapContactSupport() {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()
@@ -386,6 +374,15 @@ extension IDCardViewController: HelperRegistrationViewControllerDelegate {
         } else {
             print("Device cannot send email")
         }
+    }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 

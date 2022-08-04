@@ -11,6 +11,7 @@ import MessageUI
 class VerificationRegistrationViewController: UIViewController {
     
     private var user: User
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -78,6 +79,7 @@ class VerificationRegistrationViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+        helperBottomRegistrationMenuLauncher.delegate = self
     }
     
     init(user: User) {
@@ -138,28 +140,11 @@ class VerificationRegistrationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
-        }
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
 }
 
-extension VerificationRegistrationViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    
+extension VerificationRegistrationViewController: HelperBottomMenuLauncherDelegate {
     func didTapContactSupport() {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()
@@ -169,6 +154,15 @@ extension VerificationRegistrationViewController: HelperRegistrationViewControll
         } else {
             print("Device cannot send email")
         }
+    }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 

@@ -11,18 +11,11 @@ import UIKit
 class PostMenuCell: UICollectionViewCell {
     
     private let padding: CGFloat = 10
-    
-    private let postTypeImage: UIImageView = {
-        let image = UIImageView()
-        image.clipsToBounds = true
-        image.translatesAutoresizingMaskIntoConstraints = false
-        return image
-    }()
-    
+
     lazy var postTyeButton: UIButton = {
         let button = UIButton()
-        button.configuration = .plain()
-        button.configuration?.baseForegroundColor = .black
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = lightColor
 
         button.configuration?.cornerStyle = .capsule
         
@@ -34,9 +27,8 @@ class PostMenuCell: UICollectionViewCell {
     
     private let postTypeLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
         return label
     }()
     
@@ -53,33 +45,32 @@ class PostMenuCell: UICollectionViewCell {
     
     
     private func configure() {
+        backgroundColor = .white
         addSubview(postTyeButton)
         addSubview(postTypeLabel)
         
         NSLayoutConstraint.activate([
             postTyeButton.topAnchor.constraint(equalTo: topAnchor, constant: padding),
             postTyeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            postTyeButton.widthAnchor.constraint(equalToConstant: 30),
-            postTyeButton.heightAnchor.constraint(equalToConstant: 30),
+            postTyeButton.widthAnchor.constraint(equalToConstant: 35),
+            postTyeButton.heightAnchor.constraint(equalToConstant: 35),
             
             postTypeLabel.centerYAnchor.constraint(equalTo: postTyeButton.centerYAnchor),
-            postTypeLabel.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: padding),
+            postTypeLabel.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: 2 * padding),
             postTypeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
             postTypeLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
-        
-        postTypeImage.layer.cornerRadius = postTypeImage.frame.size.height / 2
     }
     
     func set(withText text: String, withImage image: UIImage) {
-        postTyeButton.configuration?.image = image
+        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(interactiveColor)
         postTypeLabel.text = text
         if text == "Delete" || text == "Report this post" {
             postTypeLabel.textColor = .red
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         } else {
-            postTypeLabel.textColor = .black
-            postTypeLabel.font = .systemFont(ofSize: 16, weight: .regular)
+            postTypeLabel.textColor = interactiveColor
+            postTypeLabel.font = .systemFont(ofSize: 16, weight: .medium)
         }
     }
 }

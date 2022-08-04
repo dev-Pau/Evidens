@@ -11,6 +11,7 @@ import MessageUI
 class FullNameRegistrationViewController: UIViewController {
     
     private var user: User
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -110,6 +111,7 @@ class FullNameRegistrationViewController: UIViewController {
     }
     
     private func configureNotificationObservers() {
+        helperBottomRegistrationMenuLauncher.delegate = self
         firstNameTextField.delegate = self
         firstNameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         lastNameTextField.delegate = self
@@ -162,14 +164,7 @@ class FullNameRegistrationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
-        }
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleNext() {
@@ -197,25 +192,25 @@ extension FullNameRegistrationViewController: UITextFieldDelegate {
     }
 }
 
-extension FullNameRegistrationViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
+extension FullNameRegistrationViewController: HelperBottomMenuLauncherDelegate {
     func didTapContactSupport() {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()
             controller.setToRecipients(["support@myevidens.com"])
             controller.mailComposeDelegate = self
             present(controller, animated: true)
+        } else {
+            print("Device cannot send email")
         }
+    }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 

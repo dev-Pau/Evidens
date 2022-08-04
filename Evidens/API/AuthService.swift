@@ -94,6 +94,12 @@ struct AuthService {
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
     }
     
+    static func updateUserRegistrationDocumentationDetails(withUid uid: String, withMembershipCode membershipCode: String, completion: @escaping(Error?) -> Void) {
+        let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue,
+                                   "membershipCode": membershipCode]
+        COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+    }
+    
     static func updateUserRegistrationDocumentationDetails(withUid uid: String, completion: @escaping(Error?) -> Void) {
         let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue]
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)

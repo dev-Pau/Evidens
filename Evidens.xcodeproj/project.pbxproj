@@ -224,11 +224,14 @@
 		5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */; };
 		5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */; };
 		5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */; };
+		5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11D1289BA6810079463F /* WaitingVerificationViewController.swift */; };
+		5FDB11D4289BCABD0079463F /* HelperBottomMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11D3289BCABD0079463F /* HelperBottomMenuLauncher.swift */; };
 		5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */; };
 		5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */; };
 		5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */; };
 		5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */; };
 		5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */; };
+		5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -450,11 +453,14 @@
 		5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLabel.swift; sourceTree = "<group>"; };
 		5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordViewController.swift; sourceTree = "<group>"; };
 		5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDocumentationViewController.swift; sourceTree = "<group>"; };
+		5FDB11D1289BA6810079463F /* WaitingVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingVerificationViewController.swift; sourceTree = "<group>"; };
+		5FDB11D3289BCABD0079463F /* HelperBottomMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperBottomMenuLauncher.swift; sourceTree = "<group>"; };
 		5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleFooter.swift; sourceTree = "<group>"; };
 		5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostImageCell.swift; sourceTree = "<group>"; };
 		5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
 		5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseImageCell.swift; sourceTree = "<group>"; };
 		5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileExperienceCell.swift; sourceTree = "<group>"; };
+		5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuTitleHeader.swift; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
 		ED9965EF6173BC44853D0886 /* Pods-Evidens.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.release.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.release.xcconfig"; sourceTree = "<group>"; };
@@ -770,6 +776,7 @@
 			children = (
 				5F6607F52854EB5500FCF895 /* PostMenuCell.swift */,
 				5F6607F72854F34400FCF895 /* PostMenuHeader.swift */,
+				5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */,
 			);
 			path = PostMenuCell;
 			sourceTree = "<group>";
@@ -1127,6 +1134,7 @@
 				5FB2902C28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift */,
 				5FB2903A288ED673002FBAE1 /* CaseOptionsMenuLauncher.swift */,
 				5F9A9FA12899048200A25152 /* CasePrivacyMenuLauncher.swift */,
+				5FDB11D3289BCABD0079463F /* HelperBottomMenuLauncher.swift */,
 			);
 			path = MenuLaunchers;
 			sourceTree = "<group>";
@@ -1169,6 +1177,7 @@
 				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
 				5F9A9FA52899601A00A25152 /* Verification */,
 				5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */,
+				5FDB11D1289BA6810079463F /* WaitingVerificationViewController.swift */,
 				5F9E428C288017C400C2153B /* Others */,
 			);
 			path = Registration;
@@ -1592,6 +1601,7 @@
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
+				5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */,
 				5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */,
 				5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */,
 				5F9A9F912898111800A25152 /* AddPublicationViewController.swift in Sources */,
@@ -1690,6 +1700,7 @@
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
+				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddSectionViewController.swift in Sources */,
 				5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
@@ -1728,6 +1739,7 @@
 				5F8B7C5628772982005094A5 /* LinearShapeTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
+				5FDB11D4289BCABD0079463F /* HelperBottomMenuLauncher.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
 				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,
 				5F9E429328802FBD00C2153B /* SpecialityRegistrationViewController.swift in Sources */,

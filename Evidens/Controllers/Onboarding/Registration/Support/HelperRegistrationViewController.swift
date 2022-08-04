@@ -55,7 +55,7 @@ class HelperRegistrationViewController: UIViewController {
         label.text = "We're here to help"
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.textColor = blackColor
+        label.textColor = .black
         label.font = .systemFont(ofSize: 18, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -65,7 +65,7 @@ class HelperRegistrationViewController: UIViewController {
         let label = UILabel()
         label.text = "Our support team is here to help you. Contact us at support@myevidens.com if you need any assistance during the registration process."
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = blackColor
+        label.textColor = .black
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -125,7 +125,7 @@ class HelperRegistrationViewController: UIViewController {
     private func configureUI() {
 
         view.backgroundColor = .white
-        view.addSubviews(separator, dismissButton, titleLabel, separatorView, descriptionLabel, contactButton, bottomSeparatorView, orLabel, logOutLabel )
+        view.addSubviews(separator, dismissButton, titleLabel, separatorView, descriptionLabel, contactButton, bottomSeparatorView, logOutLabel )
       
         NSLayoutConstraint.activate([
             separator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -156,15 +156,15 @@ class HelperRegistrationViewController: UIViewController {
             contactButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contactButton.widthAnchor.constraint(equalToConstant: 200),
             
-            orLabel.topAnchor.constraint(equalTo: contactButton.bottomAnchor, constant: 13),
-            orLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            //orLabel.topAnchor.constraint(equalTo: contactButton.bottomAnchor, constant: 13),
+            //orLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            bottomSeparatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
-            bottomSeparatorView.leadingAnchor.constraint(equalTo: contactButton.leadingAnchor),
-            bottomSeparatorView.trailingAnchor.constraint(equalTo: contactButton.trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            //bottomSeparatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
+            //bottomSeparatorView.leadingAnchor.constraint(equalTo: contactButton.leadingAnchor),
+            //bottomSeparatorView.trailingAnchor.constraint(equalTo: contactButton.trailingAnchor),
+            //bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            logOutLabel.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 13),
+            logOutLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
             logOutLabel.widthAnchor.constraint(equalToConstant: 100),
             logOutLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             logOutLabel.heightAnchor.constraint(equalToConstant: 20)

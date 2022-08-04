@@ -12,6 +12,9 @@ import PhotosUI
 class HealthDocumentationViewController: UIViewController {
     
     private let user: User
+    private let image: [UIImage]
+    private let type: String
+    
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
@@ -125,7 +128,19 @@ class HealthDocumentationViewController: UIViewController {
         return button
     }()
     
-
+    private lazy var submitButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Submit", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.layer.cornerRadius = 26
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.addTarget(self, action: #selector(handleSubmit), for: .touchUpInside)
+        button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -133,8 +148,10 @@ class HealthDocumentationViewController: UIViewController {
         configureUI()
     }
     
-    init(user: User) {
+    init(user: User, image: [UIImage], type: String) {
         self.user = user
+        self.image = image
+        self.type = type
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -153,7 +170,7 @@ class HealthDocumentationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(verificationTitle, verificationTextView, tuitionTextView, frontImageBackgroundView, topIdCardButton)
+        scrollView.addSubviews(verificationTitle, verificationTextView, tuitionTextView, frontImageBackgroundView, topIdCardButton, submitButton)
         
         NSLayoutConstraint.activate([
             verificationTitle.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -178,12 +195,28 @@ class HealthDocumentationViewController: UIViewController {
             topIdCardButton.centerYAnchor.constraint(equalTo: frontImageBackgroundView.centerYAnchor),
             topIdCardButton.heightAnchor.constraint(equalToConstant: 35),
             topIdCardButton.widthAnchor.constraint(equalToConstant: 35),
+            
+            submitButton.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+            submitButton.leadingAnchor.constraint(equalTo: verificationTitle.leadingAnchor),
+            submitButton.trailingAnchor.constraint(equalTo: verificationTitle.trailingAnchor)
         ])
         
     }
     
+    private func uploadSubmitButtonState() {
+        if frontSelected {
+            submitButton.isUserInteractionEnabled = true
+            submitButton.backgroundColor = primaryColor
+        }
+        else {
+            submitButton.isUserInteractionEnabled = false
+            submitButton.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        }
+    }
+    
+    
     @objc func handlePhotoAction() {
-        
+        registerBottomMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleHelp() {
@@ -197,7 +230,26 @@ class HealthDocumentationViewController: UIViewController {
         }
     }
     
-    
+    @objc func handleSubmit() {
+        guard let customImage = frontImageBackgroundView.image, let uid = user.uid else { return }
+        StorageManager.uploadDocumentationImage(images: image, type: type, uid: uid) { uploaded in
+            if uploaded {
+                StorageManager.uploadDocumentationImage(images: [customImage], type: "custom", uid: uid) { uploaded in
+                    if uploaded {
+
+                        AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
+                            if let error = error {
+                                print(error.localizedDescription)
+                                return
+                            }
+                            // All documentation uploaded present Waiting VC
+                            print("Doc uploaded")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension HealthDocumentationViewController: HelperRegistrationViewControllerDelegate {
@@ -259,12 +311,9 @@ extension HealthDocumentationViewController: UIImagePickerControllerDelegate, UI
 
         picker.dismiss(animated: true)
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        /*
         frontImageBackgroundView.image = selectedImage
-        frontIDLabel.isHidden = true
         frontSelected = true
         uploadSubmitButtonState()
-         */
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -275,13 +324,20 @@ extension HealthDocumentationViewController: UIImagePickerControllerDelegate, UI
 extension HealthDocumentationViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
-        //guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        /*
-        frontImageBackgroundView.image = selectedImage
-        frontIDLabel.isHidden = true
-        frontSelected = true
-        uploadSubmitButtonState()
-         */
+        if results.count == 0 { return }
+        showLoadingView()
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                guard let image = reading as? UIImage, error == nil else { return }
+                DispatchQueue.main.async {
+                    self.dismissLoadingView()
+                    self.frontImageBackgroundView.image = image
+                    self.frontSelected = true
+                    self.uploadSubmitButtonState()
+                }
+                
+            }
+        }
     }
 }
 

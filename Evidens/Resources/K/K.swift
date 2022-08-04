@@ -15,8 +15,9 @@ let lightColor = UIColor(rgb: 0xF1F4F7)
 let blackColor = UIColor(rgb: 0x2B2D42)
 let grayColor = UIColor(rgb: 0x677987)
 let lightGrayColor = UIColor(rgb: 0xDCE4EA)
-let pinkColor = UIColor(rgb: 0xFD1D1D)
+let pinkColor = UIColor(rgb: 0xEC7480)
 let leafGreenColor = UIColor(rgb: 0x55B684)
+let interactiveColor = UIColor(rgb: 0x2176FF)
 
 // Firebase collections
 let COLLECTION_USERS = Firestore.firestore().collection("users")

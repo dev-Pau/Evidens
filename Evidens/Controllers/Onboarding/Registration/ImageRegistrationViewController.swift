@@ -16,6 +16,7 @@ class ImageRegistrationViewController: UIViewController {
     private var imageSelected: Bool = false
     
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
                                                                                                                                 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -126,6 +127,8 @@ class ImageRegistrationViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         registerBottomMenuLauncher.delegate = self
+        helperBottomRegistrationMenuLauncher.delegate = self
+        
     }
     
     init(user: User) {
@@ -230,14 +233,30 @@ class ImageRegistrationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
+    }
+         
+}
+
+extension ImageRegistrationViewController: HelperBottomMenuLauncherDelegate {
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        } else {
+            print("Device cannot send email")
         }
+    }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 
@@ -292,29 +311,6 @@ extension ImageRegistrationViewController: PHPickerViewControllerDelegate {
                     self.imageSelected = true
                 }
             }
-        }
-    }
-}
-
-extension ImageRegistrationViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
         }
     }
 }

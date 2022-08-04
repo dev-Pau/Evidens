@@ -31,13 +31,16 @@ class RegisterBottomMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Import from Camera", "Import from Photo Gallery"]
+    private var menuOptionsText: [String] = ["Import from Camera", "Choose from Gallery"]
     private var menuOptionsImages: [UIImage] = [UIImage(systemName: "camera.fill")!,
                                                 UIImage(systemName: "photo")!]
     
     private let collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = .white
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = lightColor
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -152,12 +155,24 @@ extension RegisterBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
-        cell.postTyeButton.configuration?.baseBackgroundColor = .white
+        cell.backgroundColor = .white
+        //cell.postTyeButton.configuration?.baseBackgroundColor = .white
+        
+        if indexPath.row == 0 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        }
+        
+        if indexPath.row == menuOptionsText.count - 1 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+        }
+        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: screenWidth, height: 50)
+        return CGSize(width: screenWidth - 40, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

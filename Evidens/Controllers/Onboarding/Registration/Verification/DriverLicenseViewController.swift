@@ -325,12 +325,13 @@ class DriverLicenseViewController: UIViewController {
     }
     
     @objc func handleSubmit() {
+        guard let frontImage = frontImageBackgroundView.image, let backImage = backImageBackgroundView.image else { return }
         if hasCode {
-            guard let frontImage = frontImageBackgroundView.image, let backImage = backImageBackgroundView.image, let uid = user.uid else { return }
+            guard let uid = user.uid, let membershipCode = membershipCodeTextField.text else { return }
             showLoadingView()
             StorageManager.uploadDocumentationImage(images: [frontImage, backImage], type: "driver", uid: uid) { uploaded in
                 if uploaded {
-                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
+                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
                         self.dismissLoadingView()
                         if let error = error {
                             print(error.localizedDescription)
@@ -339,7 +340,7 @@ class DriverLicenseViewController: UIViewController {
                 }
             }
         } else {
-            let controller = HealthDocumentationViewController(user: user)
+            let controller = HealthDocumentationViewController(user: user, image: [frontImage, backImage], type: "dirver")
             
             let backItem = UIBarButtonItem()
             backItem.title = ""

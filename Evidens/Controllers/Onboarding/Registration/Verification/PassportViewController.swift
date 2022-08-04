@@ -259,13 +259,14 @@ class PassportViewController: UIViewController {
     }
     
     @objc func handleSubmit() {
+        guard let frontImage = frontImageBackgroundView.image else { return }
         if hasCode {
-            guard let frontImage = frontImageBackgroundView.image, let uid = user.uid else { return }
+            guard let uid = user.uid, let membershipCode = membershipCodeTextField.text else { return }
             showLoadingView()
             StorageManager.uploadDocumentationImage(images: [frontImage], type: "passport", uid: uid) { uploaded in
                 if uploaded {
-                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
-                        self.dismissLoadingView()
+                    self.dismissLoadingView()
+                    AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
                         if let error = error {
                             print(error.localizedDescription)
                         }
@@ -273,7 +274,7 @@ class PassportViewController: UIViewController {
                 }
             }
         } else {
-            let controller = HealthDocumentationViewController(user: user)
+            let controller = HealthDocumentationViewController(user: user, image: [frontImage], type: "passport")
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
