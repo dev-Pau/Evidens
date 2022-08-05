@@ -222,7 +222,7 @@ extension ProfileViewController: ProfileHeaderDelegate {
     
     func updateProfileImage(_ profileHeader: ProfileHeader, didTapChangeProfilePicFor user: User) {
         
-        let controller = ProfileImageViewController(user: user)
+        let controller = ProfileImageViewController(user: user, isBanner: true)
         controller.hidesBottomBarWhenPushed = true
 
         if user.isCurrentUser {

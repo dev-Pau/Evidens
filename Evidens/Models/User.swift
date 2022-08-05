@@ -61,6 +61,7 @@ struct User {
     let email: String?
     let uid: String?
     var profileImageUrl: String?
+    var bannerImageUrl: String?
     var phase: UserRegistrationPhase
     var category: UserCategory
     var profession: String?
@@ -80,17 +81,17 @@ struct User {
         self.email = dictionary["email"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
         self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
+        self.bannerImageUrl = dictionary["bannerImageUrl"] as? String ?? ""
         self.category = UserCategory(rawValue: dictionary["category"] as? Int ?? 00) ?? .professional
         self.phase = UserRegistrationPhase(rawValue: dictionary["phase"] as? Int ?? 00) ?? .categoryPhase
         self.profession = dictionary["profession"] as? String ?? ""
         self.speciality = dictionary["speciality"] as? String ?? ""
     
-        self.stats = UserStats(connections: 0, followers: 0, following: 0, posts: 0, cases: 0)
+        self.stats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
     }
 }
 
 struct UserStats {
-    let connections: Int
     let followers: Int
     let following: Int
     let posts: Int

@@ -160,10 +160,10 @@ class ProfileHeader: UICollectionReusableView {
         editProfileButton.setTitleColor(viewModel.followButtonTextColor, for: .normal)
         editProfileButton.backgroundColor = viewModel.followButtonBackgroundColor
         
-        postsLabel.attributedText = viewModel.numberOfPosts
-        followersLabel.attributedText = viewModel.numberOfFollowers
-        followingLabel.attributedText = viewModel.numberOfFollowing
-        profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2
+        //p//ostsLabel.attributedText = viewModel.numberOfPosts
+        //followersLabel.attributedText = viewModel.numberOfFollowers
+        //followingLabel.attributedText = viewModel.numberOfFollowing
+        //profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2
         profileImageView.layer.masksToBounds = true
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
     }

@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol EditNameCellDelegate: AnyObject {
+    func textDidChange(_ cell: UICollectionViewCell, text: String)
+}
+
 class EditNameCell: UICollectionViewCell {
+    
+    weak var delegate: EditNameCellDelegate?
     
     private let cellContentView = UIView()
     
@@ -19,11 +25,12 @@ class EditNameCell: UICollectionViewCell {
         return label
     }()
     
-    private let firstNameTextField: UITextField = {
+    private lazy var firstNameTextField: UITextField = {
         let tf = UITextField()
         tf.font = .systemFont(ofSize: 15, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .whileEditing
+        tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         tf.tintColor = primaryColor
         return tf
     }()
@@ -91,8 +98,14 @@ class EditNameCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func set(title: String, placeholder: String) {
+    func set(title: String, placeholder: String, name: String) {
         titleLabel.text = title
+        firstNameTextField.text = name
         firstNameTextField.placeholder = placeholder
+    }
+    
+    @objc func textDidChange() {
+        guard let text = firstNameTextField.text else { return }
+        delegate?.textDidChange(self, text: text)
     }
 }

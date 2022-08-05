@@ -27,6 +27,7 @@ class PostMenuCell: UICollectionViewCell {
     
     private let postTypeLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -58,7 +59,7 @@ class PostMenuCell: UICollectionViewCell {
             postTypeLabel.centerYAnchor.constraint(equalTo: postTyeButton.centerYAnchor),
             postTypeLabel.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: 2 * padding),
             postTypeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            postTypeLabel.heightAnchor.constraint(equalToConstant: 30)
+            //postTypeLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     
@@ -68,6 +69,7 @@ class PostMenuCell: UICollectionViewCell {
         if text == "Delete" || text == "Report this post" {
             postTypeLabel.textColor = .red
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+            postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.red)
         } else {
             postTypeLabel.textColor = interactiveColor
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .medium)

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import PhotosUI
 
 private let profilePictureReuseIdentifier = "ProfilePictureReuseIdentifier"
 private let nameCellReuseIdentifier = "NameCellReuseIdentifier"
@@ -17,11 +18,27 @@ private let aboutCellReuseIdentifier = "AboutCellReuseIdentifier"
 
 class EditProfileViewController: UICollectionViewController {
     
-    private let user: User
+    private var user: User
+    private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
     
+    private var userDidChangeProfilePicture: Bool = false
+    private var userDidChangeBannerPicture: Bool = false
+    
+    private var newUserProfilePicture = UIImage()
+    private var newUserProfileBanner = UIImage()
+    
+    private var firstNameDidChange: Bool = false
+    private var firstName: String = ""
+    
+    private var lastNameDidChange: Bool = false
+    private var lastName: String = ""
+    
+    private var isProfile: Bool = false
+    private var isBanner: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        imageBottomMenuLanucher.delegate = self
         configureNavigationBar()
         configureCollectionView()
         configureUI()
@@ -48,6 +65,7 @@ class EditProfileViewController: UICollectionViewController {
         let rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
         
         navigationItem.title = "Edit Profile"
     }
@@ -71,12 +89,66 @@ class EditProfileViewController: UICollectionViewController {
     //MARK: - Actions
     
     @objc func handleDone() {
-        print("update profile with information")
+        if userDidChangeProfilePicture {
+            updateProfileImage(image: newUserProfilePicture)
+        }
+        
+        if userDidChangeBannerPicture {
+            updateBannerImage(image: newUserProfileBanner)
+        }
+        
+        if firstNameDidChange {
+            updateUserFirstName()
+            
+        }
+        
+        if lastNameDidChange {
+           updateUserLastName()
+        }
         
     }
     
     @objc func handleDismiss() {
         dismiss(animated: true)
+    }
+    
+    //MARK: - API
+    private func updateProfileImage(image: UIImage) {
+        guard let uid = user.uid else { return }
+        //showLoadingView()
+        StorageManager.uploadProfileImage(image: image, uid: uid) { imageUrl in
+            UserService.updateProfileUrl(profileImageUrl: imageUrl) { user in
+                //self.dismissLoadingView()
+                self.user.profileImageUrl = imageUrl
+                self.collectionView.reloadData()
+            }
+        }
+    }
+    
+    private func updateBannerImage(image: UIImage) {
+        guard let uid = user.uid else { return }
+        StorageManager.uploadBannerImage(image: image, uid: uid) { bannerUrl in
+            UserService.updateBannerUrl(bannerImageUrl: bannerUrl) { user in
+                self.user.bannerImageUrl = bannerUrl
+                self.collectionView.reloadData()
+            }
+        }
+    }
+    
+    private func updateUserFirstName() {
+        UserService.updateUserFirstName(firstName: firstName) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func updateUserLastName() {
+        UserService.updateUserLastName(lastName: lastName) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -84,14 +156,24 @@ extension EditProfileViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profilePictureReuseIdentifier, for: indexPath) as! EditProfilePictureCell
+            cell.delegate = self
+            if let imageUrl = user.profileImageUrl {
+                cell.set(profileImageUrl: imageUrl)
+            }
+            if let bannerUrl = user.bannerImageUrl {
+                cell.set(bannerImageUrl: bannerUrl)
+            }
             return cell
+            
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
-            cell.set(title: "First name", placeholder: "Enter your first name")
+            cell.delegate = self
+            cell.set(title: "First name", placeholder: "Enter your first name", name: user.firstName!)
             return cell
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: nameCellReuseIdentifier, for: indexPath) as! EditNameCell
-            cell.set(title: "Last name", placeholder: "Enter your last name")
+            cell.delegate = self
+            cell.set(title: "Last name", placeholder: "Enter your last name", name: user.lastName!)
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
@@ -117,6 +199,37 @@ extension EditProfileViewController {
     }
 }
 
+extension EditProfileViewController: EditProfilePictureCellDelegate {
+    func didTapChangeProfilePicture() {
+        isProfile = true
+        isBanner = false
+        imageBottomMenuLanucher.showImageSettings(in: view)
+    }
+    
+    func didTapChangeBannerPicture() {
+        isProfile = false
+        isBanner = true
+        imageBottomMenuLanucher.showImageSettings(in: view)
+    }
+}
+
+extension EditProfileViewController: EditNameCellDelegate {
+    func textDidChange(_ cell: UICollectionViewCell, text: String) {
+        navigationItem.rightBarButtonItem?.isEnabled = true
+        if let indexPath = collectionView.indexPath(for: cell) {
+            if indexPath.row == 1 {
+                // First name edited
+                firstNameDidChange = true
+                firstName = text
+            } else {
+                // Last name edited
+                lastNameDidChange = true
+                lastName = text
+            }
+        }
+    }
+}
+
 extension EditProfileViewController: CustomSectionCellDelegate {
     func didTapConfigureSections() {
         let controller = ConfigureSectionViewController()
@@ -127,5 +240,76 @@ extension EditProfileViewController: CustomSectionCellDelegate {
         backItem.tintColor = .black
         
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension EditProfileViewController: RegisterBottomMenuLauncherDelegate {
+    func didTapImportFromGallery() {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.preferredAssetRepresentationMode = .current
+        config.filter = PHPickerFilter.any(of: [.images])
+        
+        
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func didTapImportFromCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
+    }
+}
+
+extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        guard let selectedImage = info[.editedImage] as? UIImage else { return }
+        let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+        
+        if isProfile {
+            cell.profileImageView.image = selectedImage
+            newUserProfilePicture = selectedImage
+            userDidChangeProfilePicture = true
+        } else {
+            cell.bannerImageView.image = selectedImage
+            newUserProfileBanner = selectedImage
+            userDidChangeBannerPicture = true
+        }
+        navigationItem.rightBarButtonItem?.isEnabled = true
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        if results.count == 0 { return }
+        showLoadingView()
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                guard let image = reading as? UIImage, error == nil else { return }
+                DispatchQueue.main.async {
+                    self.dismissLoadingView()
+                    let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+                    
+                    if self.isProfile {
+                        cell.profileImageView.image = image
+                        self.newUserProfilePicture = image
+                        self.userDidChangeProfilePicture = true
+                    } else {
+                        cell.bannerImageView.image = image
+                        self.newUserProfileBanner = image
+                        self.userDidChangeBannerPicture = true
+                    }
+                    self.navigationItem.rightBarButtonItem?.isEnabled = true
+                }
+            }
+        }
     }
 }

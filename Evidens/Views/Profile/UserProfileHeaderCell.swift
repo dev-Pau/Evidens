@@ -7,9 +7,11 @@
 
 import UIKit
 import AudioToolbox
+import SwiftUI
 
 protocol UserProfileHeaderCellDelegate: AnyObject {
     func headerCell(didTapProfilePictureFor user: User)
+    func headerCell(didTapBannerPictureFor user: User)
     func headerCell(didTapEditProfileFor user: User)
 }
 
@@ -32,7 +34,10 @@ class UserProfileHeaderCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.image = UIImage(named: "banner")
+        
+        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapBannerPicture)))
+        iv.isUserInteractionEnabled = true
         return iv
     }()
     
@@ -103,7 +108,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return button
     }()
     
-    private let connectButton: UIButton = {
+    private lazy var followButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
@@ -114,25 +119,20 @@ class UserProfileHeaderCell: UICollectionViewCell {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("   Connect   ", attributes: container)
-        
         button.addTarget(self, action: #selector(handleFollowEditProfile), for: .touchUpInside)
         
         return button
     }()
     
-    private let connectionsLabel: UILabel = {
+    private let followersLabel: UILabel = {
         let label = UILabel()
-        label.text = "24 connections"
         label.textColor = primaryColor
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
- 
+ /*
     private let followersLabel: UILabel = {
         let label = UILabel()
         label.text = "129 followers"
@@ -141,6 +141,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+  */
     /*
      --------------
      */
@@ -309,7 +310,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.spacing = 10
         
-        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, connectButton, sendMessageButton, connectionsLabel, followersLabel)
+        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, followButton, sendMessageButton, followersLabel)
         
         //addSubview(userTypeButton)
         //addSubview(userDescriptionLabel)
@@ -342,15 +343,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
             professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             //professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -100),
             
-            connectionsLabel.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 5),
-            connectionsLabel.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
-            connectionsLabel.trailingAnchor.constraint(equalTo: professionLabel.trailingAnchor),
-            
-            followersLabel.topAnchor.constraint(equalTo: connectionsLabel.bottomAnchor, constant: 5),
-            followersLabel.leadingAnchor.constraint(equalTo: connectionsLabel.leadingAnchor),
+            followersLabel.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 5),
+            followersLabel.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
             followersLabel.trailingAnchor.constraint(equalTo: professionLabel.trailingAnchor),
             followersLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
+
             /*
             otherProfileInfoButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
             otherProfileInfoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -360,12 +358,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
             
             */
             
-            connectButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
-            connectButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            connectButton.heightAnchor.constraint(equalToConstant: 30),
+            followButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
+            followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            followButton.heightAnchor.constraint(equalToConstant: 30),
             
             sendMessageButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
-            sendMessageButton.trailingAnchor.constraint(equalTo: connectButton.leadingAnchor, constant: -5),
+            sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
             sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
             
             //userTypeButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 5),
@@ -416,18 +414,23 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         // Configure with user info
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+        bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
         nameLabel.text = "\(viewModel.firstName ) \(viewModel.lastName)"
         professionLabel.text = "\(viewModel.profession ) · \( viewModel.speciality)"
         
-        //userTypeButton.setTitle("  \(viewModel.userCategory)  ", for: .normal)
+        // Edit Profile/Follow/Unfollow button
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+        followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
+        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
+        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
         
-        //editFollowProfileButton.configuration?.image = viewModel.followButtonImage?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        //var container = AttributeContainer()
-        //container.font = .systemFont(ofSize: 15, weight: .bold)
+        // Message
+        sendMessageButton.isUserInteractionEnabled = viewModel.user.isCurrentUser ? false : true
+        sendMessageButton.isHidden = viewModel.user.isCurrentUser ? true : false
         
-        //editFollowProfileButton.configuration?.attributedTitle = AttributedString(viewModel.followButtonText, attributes: container)
-        //editFollowProfileButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-        //editFollowProfileButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        // Followers & Following information
+        followersLabel.attributedText = viewModel.followingFollowersText
         
         //pointsMessageButton.configuration?.attributedTitle = AttributedString(viewModel.pointsMessageText, attributes: container)
     }
@@ -444,5 +447,9 @@ class UserProfileHeaderCell: UICollectionViewCell {
         delegate?.headerCell(didTapProfilePictureFor: viewModel.user)
     }
     
-    //MARK: - API
+    @objc func didTapBannerPicture() {
+        guard let viewModel = viewModel else { return }
+        delegate?.headerCell(didTapBannerPictureFor: viewModel.user)
+    }
+    
 }

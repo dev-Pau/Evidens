@@ -90,6 +90,7 @@ class FullNameRegistrationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        hideKeyboardOnViewTap()
         configureNavigationBar()
         configureUI()
         configureNotificationObservers()

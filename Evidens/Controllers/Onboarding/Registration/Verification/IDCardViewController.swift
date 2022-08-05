@@ -108,7 +108,7 @@ class IDCardViewController: UIViewController {
     private let frontIDLabel: UILabel = {
         let label = UILabel()
         label.text = "Identity Document (Front)"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .black
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -119,7 +119,7 @@ class IDCardViewController: UIViewController {
     private let backIDLabel: UILabel = {
         let label = UILabel()
         label.text = "Identity Document (Back)"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .black
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -347,6 +347,10 @@ class IDCardViewController: UIViewController {
                         if let error = error {
                             print(error.localizedDescription)
                         }
+                        let controller = WaitingVerificationViewController(user: self.user)
+                        let navigationController = UINavigationController(rootViewController: controller)
+                        navigationController.modalPresentationStyle = .fullScreen
+                        self.present(navigationController, animated: true)
                     }
                 }
             }

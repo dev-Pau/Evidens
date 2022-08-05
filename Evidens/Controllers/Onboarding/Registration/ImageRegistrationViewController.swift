@@ -206,6 +206,7 @@ class ImageRegistrationViewController: UIViewController {
                     guard let image = self.profileImageView.image else { return }
                     StorageManager.uploadProfileImage(image: image, uid: uid) { url in
                         UserService.updateProfileImageUrl(profileImageUrl: url) { error in
+                            DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
                             self.dismissLoadingView()
                             if let error = error {
                                 print(error.localizedDescription)

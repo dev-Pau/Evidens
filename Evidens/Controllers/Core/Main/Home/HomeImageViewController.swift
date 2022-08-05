@@ -35,7 +35,7 @@ class HomeImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 17, height: 17)).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button
@@ -46,7 +46,7 @@ class HomeImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.scalePreservingAspectRatio(targetSize: CGSize(width: 17, height: 17))
+        button.configuration?.image = UIImage(systemName: "ellipsis")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseForegroundColor = .red
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
@@ -59,30 +59,13 @@ class HomeImageViewController: UIViewController {
         return searchBar
     }()
     
-    private let containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let whiteView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     override var prefersStatusBarHidden: Bool {
         return true
     }
 
-    private var postInfoView =  MEPostInfoView(comments: 1, commentText: "", shares: 1, shareText: "")
-    
-    private var postStatsView = MEPostStatsView()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         pagingScrollView.delegate = self
         singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
         navigationItem.titleView = searchBar
@@ -108,6 +91,7 @@ class HomeImageViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
         
         var offset = 0.0
         
@@ -130,15 +114,14 @@ class HomeImageViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.tabBarController?.tabBar.isHidden = true
-        navigationController?.navigationBar.isHidden = true
+        navigationController?.isNavigationBarHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.tabBarController?.tabBar.isHidden = false
-        navigationController?.navigationBar.isHidden = false
+        navigationController?.isNavigationBarHidden = false
         pagingScrollView.backgroundColor = .clear
-        //containerView.removeFromSuperview()
     }
     
     private func configure() {
@@ -164,13 +147,13 @@ class HomeImageViewController: UIViewController {
         NSLayoutConstraint.activate([
             dismissButon.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
             dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            dismissButon.heightAnchor.constraint(equalToConstant: 27),
-            dismissButon.widthAnchor.constraint(equalToConstant: 27),
+            dismissButon.heightAnchor.constraint(equalToConstant: 33),
+            dismissButon.widthAnchor.constraint(equalToConstant: 33),
             
             threeDotsButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 45),
             threeDotsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            threeDotsButton.heightAnchor.constraint(equalToConstant: 27),
-            threeDotsButton.widthAnchor.constraint(equalToConstant: 27)
+            threeDotsButton.heightAnchor.constraint(equalToConstant: 33),
+            threeDotsButton.widthAnchor.constraint(equalToConstant: 33)
         ])
         
         /*

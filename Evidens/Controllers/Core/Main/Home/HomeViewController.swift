@@ -79,8 +79,13 @@ class HomeViewController: UICollectionViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(false)
         // To resign first responder
+        //navigationController?.navigationBar.isHidden = false
         searchBar.resignFirstResponder()
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        //navigationController?.navigationBar.isHidden = false
     }
     
     
@@ -432,7 +437,9 @@ extension HomeViewController: HomeCellDelegate {
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .clear
         navigationItem.backBarButtonItem = backItem
+
         
         navigationController?.pushViewController(controller, animated: true)
     }

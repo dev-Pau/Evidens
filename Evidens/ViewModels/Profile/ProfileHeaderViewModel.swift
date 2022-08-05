@@ -22,6 +22,10 @@ struct ProfileHeaderViewModel {
         return URL(string: user.profileImageUrl!)
     }
     
+    var bannerImageUrl: URL? {
+        return URL(string: user.bannerImageUrl!)
+    }
+    
     var userCategory: Int {
         // en funció de l'int tornar el text de categoría. mira rnotificacions que està fet així
         return user.category.rawValue
@@ -53,6 +57,10 @@ struct ProfileHeaderViewModel {
         return user.isCurrentUser ? lightGrayColor : primaryColor
     }
     
+    var followButtonTextColor: UIColor {
+        return user.isCurrentUser ? .black : .white
+    }
+    
     var editBannerButton: Bool {
         return user.isCurrentUser ? false : true
     }
@@ -61,28 +69,37 @@ struct ProfileHeaderViewModel {
         return user.isCurrentUser ? UIImage(named: "pencil") : UIImage(named: "")
     }
     
-    var followButtonTextColor: UIColor {
-        return user.isCurrentUser ? blackColor : .white
+
+    var numberOfFollowers: Int {
+        return user.stats.followers
     }
     
-    var numberOfFollowers: NSAttributedString {
-        return attributedStatText(value: user.stats.followers, label: "followers")
+    var numberOfFollowing: Int {
+        return user.stats.following
     }
     
-    var numberOfFollowing: NSAttributedString {
-        return attributedStatText(value: user.stats.following, label: "following")
+    var followingFollowersText: NSAttributedString {
+        return followersString(valueFollowers: numberOfFollowers, valueFollowing: numberOfFollowing)
     }
     
-    var numberOfPosts: NSAttributedString {
-        return attributedStatText(value: user.stats.posts, label: "posts")
+    var numberOfPosts: String {
+        return String(user.stats.posts)
     }
     
-    func attributedStatText(value: Int, label: String) -> NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: "\(value) ", attributes: [.font: UIFont(name: "Raleway-SemiBold", size: 15)!])
-        attributedText.append(NSAttributedString(string: label, attributes: [.font: UIFont(name: "Raleway-SemiBold", size: 15)!, .foregroundColor : UIColor.lightGray]))
-        return attributedText
+    func followersString(valueFollowers: Int, valueFollowing: Int) -> NSAttributedString {
+        let aString = NSMutableAttributedString(string: "\(valueFollowers) followers     \(valueFollowing) following")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .regular), range: (aString.string as NSString).range(of: "\(valueFollowers) followers     \(valueFollowing) following"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "\(valueFollowers) followers     \(valueFollowing) following"))
+
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: "\(valueFollowers)"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: "\(valueFollowers)"))
+        
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: "\(valueFollowing)"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: "\(valueFollowing)"))
+
+        return aString
     }
-    
+ 
     init(user: User) {
         self.user = user
     }

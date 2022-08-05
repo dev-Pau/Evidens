@@ -23,6 +23,39 @@ struct UserService {
         }
     }
     
+    static func updateBannerUrl(bannerImageUrl: String, completion: @escaping(User) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).setData(["bannerImageUrl" : bannerImageUrl], merge: true) { err in
+            if let err = err {
+                print("Error writing document: \(err)")
+            } else {
+                print("Document succesfully written!")
+            }
+        }
+    }
+    
+    static func updateUserFirstName(firstName: String, completion: @escaping(Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).setData(["firstName": firstName], merge: true) { err in
+            if let err = err {
+                print("Error writing document: \(err)")
+            } else {
+                print("Document succesfully written!")
+            }
+        }
+    }
+    
+    static func updateUserLastName(lastName: String, completion: @escaping(Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_USERS.document(uid).setData(["lastName": lastName], merge: true) { err in
+            if let err = err {
+                print("Error writing document: \(err)")
+            } else {
+                print("Document succesfully written!")
+            }
+        }
+    }
+    
     static func updateProfileImageUrl(profileImageUrl: String, completion: @escaping(Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).updateData(["profileImageUrl": profileImageUrl], completion: completion)
@@ -80,19 +113,14 @@ struct UserService {
             COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments { snapshot, error in
                 let following = snapshot?.documents.count ?? 0
                 
-                COLLECTION_CONNECTIONS.document(uid).collection("user-connections").getDocuments { snapshot, error in
-                    let connections = snapshot?.documents.count ?? 0
+                COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments { (snapshot, _) in
+                    let posts = snapshot?.documents.count ?? 0
                     
                     
-                    COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments { (snapshot, _) in
-                        let posts = snapshot?.documents.count ?? 0
+                    COLLECTION_CASES.whereField("onerUid", isEqualTo: uid).getDocuments { snapshot, _ in
+                        let cases = snapshot?.documents.count ?? 0
                         
-                        
-                        COLLECTION_CASES.whereField("onerUid", isEqualTo: uid).getDocuments { snapshot, _ in
-                            let cases = snapshot?.documents.count ?? 0
-                            
-                            completion(UserStats(connections: connections, followers: followers, following: following, posts: posts, cases: cases))
-                        }
+                        completion(UserStats(followers: followers, following: following, posts: posts, cases: cases))
                     }
                 }
             }

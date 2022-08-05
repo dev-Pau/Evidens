@@ -16,9 +16,10 @@ class HealthDocumentationViewController: UIViewController {
     private let type: String
     
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
+    
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
-    private var backSelected: Bool = false
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -112,7 +113,7 @@ class HealthDocumentationViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = UIColor.init(rgb: 0xD5DBE7)
+        iv.backgroundColor = lightColor
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -144,6 +145,7 @@ class HealthDocumentationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        helperBottomRegistrationMenuLauncher.delegate = self
         configureNavigationBar()
         configureUI()
     }
@@ -185,11 +187,10 @@ class HealthDocumentationViewController: UIViewController {
             tuitionTextView.leadingAnchor.constraint(equalTo: verificationTextView.leadingAnchor),
             tuitionTextView.trailingAnchor.constraint(equalTo: verificationTextView.trailingAnchor),
             
-            
             frontImageBackgroundView.topAnchor.constraint(equalTo: tuitionTextView.bottomAnchor, constant: 10),
             frontImageBackgroundView.leadingAnchor.constraint(equalTo: verificationTitle.leadingAnchor),
             frontImageBackgroundView.trailingAnchor.constraint(equalTo: verificationTitle.trailingAnchor),
-            frontImageBackgroundView.heightAnchor.constraint(equalToConstant: 180),
+            frontImageBackgroundView.heightAnchor.constraint(equalToConstant: 200),
             
             topIdCardButton.centerXAnchor.constraint(equalTo: frontImageBackgroundView.centerXAnchor),
             topIdCardButton.centerYAnchor.constraint(equalTo: frontImageBackgroundView.centerYAnchor),
@@ -220,14 +221,7 @@ class HealthDocumentationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
-        }
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleSubmit() {
@@ -252,17 +246,7 @@ class HealthDocumentationViewController: UIViewController {
     }
 }
 
-extension HealthDocumentationViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    
+extension HealthDocumentationViewController: HelperBottomMenuLauncherDelegate {
     func didTapContactSupport() {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()
@@ -273,7 +257,17 @@ extension HealthDocumentationViewController: HelperRegistrationViewControllerDel
             print("Device cannot send email")
         }
     }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
 }
+
 
 extension HealthDocumentationViewController: MFMailComposeViewControllerDelegate {
     

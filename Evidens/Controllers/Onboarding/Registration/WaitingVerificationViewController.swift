@@ -11,7 +11,7 @@ import PhotosUI
 
 class WaitingVerificationViewController: UIViewController {
     private let user: User
-
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -20,6 +20,11 @@ class WaitingVerificationViewController: UIViewController {
         scrollView.backgroundColor = .white
         scrollView.keyboardDismissMode = .interactive
         return scrollView
+    }()
+    
+    private let welcomeText: UILabel = {
+        let label = CustomLabel(placeholder: "Welcome!")
+        return label
     }()
     
     private lazy var helpButton: UIButton = {
@@ -43,7 +48,7 @@ class WaitingVerificationViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Congratulations! You just finished the registration process to join the MyEvidens community."
+        label.text = "You just finished the registration process to join the MyEvidens community."
         label.font = .systemFont(ofSize: 19, weight: .semibold)
         label.textColor = .black
         label.textAlignment = .left
@@ -68,6 +73,7 @@ class WaitingVerificationViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+        helperBottomRegistrationMenuLauncher.delegate = self
     }
     
     init(user: User) {
@@ -89,10 +95,14 @@ class WaitingVerificationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(titleLabel, subtitleLabel)
+        scrollView.addSubviews(welcomeText, titleLabel, subtitleLabel)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            welcomeText.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            welcomeText.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            welcomeText.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
+            
+            titleLabel.topAnchor.constraint(equalTo: welcomeText.bottomAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
@@ -103,27 +113,11 @@ class WaitingVerificationViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
-        }
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
 }
 
-extension WaitingVerificationViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
+extension WaitingVerificationViewController: HelperBottomMenuLauncherDelegate {
     func didTapContactSupport() {
         if MFMailComposeViewController.canSendMail() {
             let controller = MFMailComposeViewController()
@@ -133,6 +127,15 @@ extension WaitingVerificationViewController: HelperRegistrationViewControllerDel
         } else {
             print("Device cannot send email")
         }
+    }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 

@@ -60,6 +60,13 @@ extension DatabaseManager {
             }
         }
     }
+    /*
+    public func updateUserCredentials(with user: ChatUser) {
+        database.child("\(user.uid)/firstName").setValue(user.firstName)
+        database.child("\(user.uid)/firstName").setValue(user.firstName)
+    }
+     */
+    
     
     /// Get all users from database
     public func getAllUsers(completion: @escaping(Result<[[String: String]], Error>) -> Void) {
@@ -105,7 +112,14 @@ extension DatabaseManager {
                     completion(false)
                     return
                 }
-                recentSearches.append(searchedTopic)
+
+                if recentSearches.count == 3 {
+                    recentSearches.removeFirst()
+                    recentSearches.append(searchedTopic)
+                } else {
+                    recentSearches.append(searchedTopic)
+                }
+               
                 ref.setValue(recentSearches) { error, _ in
                     if let _ = error {
                         completion(false)
@@ -136,11 +150,116 @@ extension DatabaseManager {
             }
             
             if let recentSearches = snapshot.value as? [String] {
-                completion(.success(recentSearches))
+                completion(.success(recentSearches.reversed()))
             }
         }
     }
 }
+
+//MARK: - User Recent Posts
+extension DatabaseManager {
+    
+    public func uploadRecentPosts(withUid postUid: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("\(uid)/recentPosts")
+        
+        // Check if user has recent searches
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var recentPosts = snapshot.value as? [String] {
+                // Recent searches document exists, append new search
+                
+                if recentPosts.count == 3 {
+                    recentPosts.removeFirst()
+                    recentPosts.append(postUid)
+                } else {
+                    recentPosts.append(postUid)
+                }
+                
+                ref.setValue(recentPosts) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                // First time user searches, create a new document
+                ref.setValue([postUid]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+}
+
+//MARK: - User Sections
+
+extension DatabaseManager {
+    public func uploadAboutSection(with aboutText: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("\(uid)/sections/about")
+        ref.setValue(aboutText) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchAboutSection(forUid uid: String, completion: @escaping(Result<String, Error>) -> Void) {
+        let ref = database.child("\(uid)/sections/about")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let section = snapshot.value as? String {
+                completion(.success(section))
+            }
+        }
+    }
+}
+    
+    
+        
+        //ref.observeSingleEvent(of: <#T##DataEventType#>, with: <#T##(DataSnapshot) -> Void#>)
+        
+        /*
+         // Check if user has recent searches
+         ref.observeSingleEvent(of: .value) { snapshot in
+             if var recentSearches = snapshot.value as? [String] {
+                 // Recent searches document exists, append new search
+                 
+                 // Check if the searched topic is already saved from the past
+                 if recentSearches.contains(searchedTopic) {
+                     completion(false)
+                     return
+                 }
+                 recentSearches.append(searchedTopic)
+                 ref.setValue(recentSearches) { error, _ in
+                     if let _ = error {
+                         completion(false)
+                         return
+                     }
+                 }
+             } else {
+                 // First time user searches, create a new document
+                 ref.setValue([searchedTopic]) { error, _ in
+                     if let _ = error {
+                         completion(false)
+                         return
+                     }
+                 }
+             }
+             completion(true)
+         }
+         */
+
 
 //MARK: - Sending messages & Conversations
 extension DatabaseManager {

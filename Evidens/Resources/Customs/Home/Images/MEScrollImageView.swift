@@ -119,6 +119,8 @@ class MEScrollImageView: UIScrollView {
             return;
         }
         
+        
+        
         let toScale = maxScale
         let finalScale = (currentScale == minScale) ? toScale : minScale
         
@@ -129,6 +131,7 @@ class MEScrollImageView: UIScrollView {
     func zoomRect(for scale: CGFloat, withCenter center: CGPoint) -> CGRect {
         var zoomRect = CGRect.zero
         let bounds = self.bounds
+        
         
         // the zoom rect is in the content view's coordinates.
         //At a zoom scale of 1.0, it would be the size of the imageScrollView's bounds.
@@ -141,8 +144,6 @@ class MEScrollImageView: UIScrollView {
         zoomRect.origin.y = center.y - (zoomRect.size.height / 2.0)
         return zoomRect
     }
-    
-    
     
     @objc func handleZoomingTap(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: sender.view)
@@ -158,8 +159,6 @@ extension MEScrollImageView: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         centerImage()
+    
     }
 }
-
-
-

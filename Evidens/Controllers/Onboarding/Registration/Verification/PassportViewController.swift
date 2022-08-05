@@ -12,7 +12,10 @@ import PhotosUI
 class PassportViewController: UIViewController {
     
     private var user: User
+    
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
+    
     private var hasCode: Bool = false
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
@@ -86,7 +89,7 @@ class PassportViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = UIColor.init(rgb: 0xD5DBE7)
+        iv.backgroundColor = lightColor
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -94,7 +97,7 @@ class PassportViewController: UIViewController {
     private let frontIDLabel: UILabel = {
         let label = UILabel()
         label.text = "Passport"
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .medium)
         label.textColor = .black
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -161,6 +164,7 @@ class PassportViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+        helperBottomRegistrationMenuLauncher.delegate = self
     }
     
     init(user: User) {
@@ -197,7 +201,7 @@ class PassportViewController: UIViewController {
             frontImageBackgroundView.topAnchor.constraint(equalTo: idCardVerificationSubtitle.bottomAnchor, constant: 20),
             frontImageBackgroundView.leadingAnchor.constraint(equalTo: idCardVerificationTitle.leadingAnchor),
             frontImageBackgroundView.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor),
-            frontImageBackgroundView.heightAnchor.constraint(equalToConstant: 130),
+            frontImageBackgroundView.heightAnchor.constraint(equalToConstant: 200),
             
             squareButton.topAnchor.constraint(equalTo: frontImageBackgroundView.bottomAnchor, constant: 20),
             squareButton.leadingAnchor.constraint(equalTo: frontImageBackgroundView.leadingAnchor),
@@ -244,14 +248,7 @@ class PassportViewController: UIViewController {
     }
     
     @objc func handleHelp() {
-        DispatchQueue.main.async {
-            let controller = HelperRegistrationViewController()
-            controller.delegate = self
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium()]
-            }
-            self.present(controller, animated: true)
-        }
+        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handlePhotoAction() {
@@ -270,6 +267,10 @@ class PassportViewController: UIViewController {
                         if let error = error {
                             print(error.localizedDescription)
                         }
+                        let controller = WaitingVerificationViewController(user: self.user)
+                        let navigationController = UINavigationController(rootViewController: controller)
+                        navigationController.modalPresentationStyle = .fullScreen
+                        self.present(navigationController, animated: true)
                     }
                 }
             }
@@ -299,38 +300,6 @@ class PassportViewController: UIViewController {
 }
 
 
-extension PassportViewController: HelperRegistrationViewControllerDelegate {
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
-        }
-    }
-}
-
-extension PassportViewController: MFMailComposeViewControllerDelegate {
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if let _ = error {
-            controller.dismiss(animated: true)
-        }
-        controller.dismiss(animated: true)
-    }
-}
-
 extension PassportViewController: RegisterBottomMenuLauncherDelegate {
     func didTapImportFromGallery() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
@@ -349,6 +318,38 @@ extension PassportViewController: RegisterBottomMenuLauncherDelegate {
         picker.sourceType = .camera
         picker.allowsEditing = true
         present(picker, animated: true, completion: nil)
+    }
+}
+
+
+extension PassportViewController: MFMailComposeViewControllerDelegate {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        controller.dismiss(animated: true)
+    }
+}
+
+extension PassportViewController: HelperBottomMenuLauncherDelegate {
+    func didTapContactSupport() {
+        if MFMailComposeViewController.canSendMail() {
+            let controller = MFMailComposeViewController()
+            controller.setToRecipients(["support@myevidens.com"])
+            controller.mailComposeDelegate = self
+            present(controller, animated: true)
+        } else {
+            print("Device cannot send email")
+        }
+    }
+    
+    func didTapLogout() {
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 

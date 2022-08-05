@@ -18,7 +18,7 @@ enum TransitionState {
 
 class ZoomTransitioning: NSObject {
     
-    var transitionDuration = 0.2
+    var transitionDuration = 0.5
     var operation: UINavigationController.Operation = .none
 
     private let backgroundScale: CGFloat = 0.7
@@ -30,19 +30,13 @@ class ZoomTransitioning: NSObject {
         
         switch state {
         case .initial:
-            print("initial")
-            //let startingFrame = viewsInBackground.imageView.superview?.convert(viewsInBackground.imageView.frame, from: nil)
-            //let cellRect = cell.photoImageView.convert(cell.photoImageView.bounds,
-              //                             to: view)
             let startingFrame = viewsInBackground.imageView.convert(viewsInBackground.imageView.bounds, to: nil)
             
             backgroundViewController.view.transform = CGAffineTransform.identity
             backgroundViewController.view.alpha = 1
             snapshotViews.imageView.frame = startingFrame
-            //snapshotViews.imageView.frame = containerView.convert(viewsInBackground.imageView.frame, to: viewsInBackground.imageView.superview)
-
+            
         case .final:
-            print("final")
             backgroundViewController.view.transform = CGAffineTransform.identity
             backgroundViewController.view.alpha = 0
             snapshotViews.imageView.frame = viewsInForeground.imageView.convert(viewsInForeground.imageView.bounds, to: nil)
@@ -121,7 +115,6 @@ extension ZoomTransitioning: UIViewControllerAnimatedTransitioning {
         return transitionDuration
     }
 }
-
 
 //MARK: - UINavigationControllerDelegate
 

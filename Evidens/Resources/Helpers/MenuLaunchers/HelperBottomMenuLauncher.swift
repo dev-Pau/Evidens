@@ -31,7 +31,7 @@ class HelperBottomMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Contact support", "Log out"]
+    private var menuOptionsText: [String] = ["Contact Support", "Log out"]
     private var menuOptionsImages: [UIImage] = [UIImage(systemName: "tray.fill")!,
                                                 UIImage(systemName: "arrow.right.to.line")!]
     
@@ -146,7 +146,7 @@ extension HelperBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 60)
+        return CGSize(width: screenWidth - 40, height: 60)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

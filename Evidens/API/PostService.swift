@@ -115,6 +115,8 @@ struct PostService {
     
     
     
+    
+    
     static func fetchPosts(completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp
         COLLECTION_POSTS.order(by: "timestamp", descending: true).getDocuments { (snapshot, error) in
@@ -123,6 +125,8 @@ struct PostService {
             //Mapping that creates an array for each post
             let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
             completion(posts)
+            
+        
         }
     }
     

@@ -45,6 +45,7 @@ struct AuthService {
                                            "email": credentials.email,
                                            "uid": uid,
                                            "profileImageUrl": "",
+                                           "bannerImageUrl": "",
                                            "phase": credentials.phase.rawValue,
                                            "category": credentials.category.rawValue,
                                            "profession": credentials.profession,
@@ -52,8 +53,6 @@ struct AuthService {
                 
 
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)
-                
-                DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))    
         }
     }
     
@@ -92,6 +91,7 @@ struct AuthService {
                                    "lastName": credentials.lastName]
         
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+
     }
     
     static func updateUserRegistrationDocumentationDetails(withUid uid: String, withMembershipCode membershipCode: String, completion: @escaping(Error?) -> Void) {

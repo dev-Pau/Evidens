@@ -30,7 +30,7 @@ class CaseOptionsMenuLauncher: NSObject {
     
     weak var delegate: CaseOptionsMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 225
+    private var menuHeight: CGFloat = 220
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -39,11 +39,13 @@ class CaseOptionsMenuLauncher: NSObject {
     private var menuOptionsImages: [UIImage] = []
     
     private let collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = .white
-        collectionView.layer.cornerRadius = 15
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = lightColor
+        collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
-
         return collectionView
     }()
                                                 
@@ -118,6 +120,7 @@ class CaseOptionsMenuLauncher: NSObject {
             menuOptionsText = ["Add an update", "Change to solved", "Delete"]
             menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
                                  UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            collectionView.reloadData()
             
         } else {
             menuOptionsText = ["Report this case"]
@@ -173,9 +176,16 @@ extension CaseOptionsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
-        cell.backgroundColor = lightColor
-        cell.layer.cornerRadius = 15
-        //cell.postTyeButton.configuration?.baseBackgroundColor = .white
+        cell.backgroundColor = .white
+        if indexPath.row == 0 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        }
+        
+        if indexPath.row == menuOptionsText.count - 1 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+        }
         return cell
     }
     

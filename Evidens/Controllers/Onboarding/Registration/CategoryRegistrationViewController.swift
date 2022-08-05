@@ -12,6 +12,7 @@ class CategoryRegistrationViewController: UIViewController {
     
     private var user: User
     private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
+    private var whoCanJoinMenuLauncher = WhoCanJoinMenuLauncher()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -142,13 +143,7 @@ class CategoryRegistrationViewController: UIViewController {
 extension CategoryRegistrationViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         if URL.absoluteString == "presentCommunityInformation" {
-            let controller = CommunityRegistrationViewController()
-            let navController = UINavigationController(rootViewController: controller)
-            
-            if let presentationController = navController.presentationController as? UISheetPresentationController {
-                presentationController.detents = [.medium(), .large()]
-            }
-            present(navController, animated: true)
+            whoCanJoinMenuLauncher.showImageSettings(in: view)
             return false
         }
         return true

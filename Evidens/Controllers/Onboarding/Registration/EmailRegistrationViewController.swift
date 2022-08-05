@@ -10,6 +10,7 @@ import UIKit
 class EmailRegistrationViewController: UIViewController {
     
     private var viewModel = EmailRegistrationViewModel()
+    private var whoCanJoinMenuLauncher = WhoCanJoinMenuLauncher()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -86,6 +87,7 @@ class EmailRegistrationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        hideKeyboardOnViewTap()
         configureNavigationBar()
         configureUI()
         configureNotificationObservers()
@@ -187,14 +189,8 @@ extension EmailRegistrationViewController: FormViewModel {
 extension EmailRegistrationViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         if URL.absoluteString == "presentCommunityInformation" {
-            
-            let destVC = CommunityRegistrationViewController()
-
-            if let sheet = destVC.sheetPresentationController {
-                sheet.detents = [.medium(), .large()]
-            }
-            present(destVC, animated: true)
             emailTextField.resignFirstResponder()
+            whoCanJoinMenuLauncher.showImageSettings(in: view)
             return false
         }
         return true

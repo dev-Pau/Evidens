@@ -37,6 +37,10 @@ class UserProfileViewController: UICollectionViewController {
     //MARK: - Properties
     private var user: User
     
+    // Sections
+    private var hasAbout: Bool = false
+    private var aboutText: String = ""
+    
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.searchTextField.backgroundColor = lightColor
@@ -50,6 +54,10 @@ class UserProfileViewController: UICollectionViewController {
         //PostService.fetchPosts(forUser: <#T##String#>, completion: <#T##([Post]) -> Void#>)
         //CaseService fetch 3 last psts
         configureCollectionView()
+        fetchRecentPosts()
+        fetchSections()
+        checkIfUserIsFollowed()
+        fetchUserStats()
     }
         
     init(user: User) {
@@ -95,7 +103,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -113,7 +120,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -131,7 +137,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -149,7 +154,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -167,7 +171,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -185,7 +188,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -202,7 +204,6 @@ class UserProfileViewController: UICollectionViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                item.contentInsets.bottom = 5
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)),
@@ -281,6 +282,39 @@ class UserProfileViewController: UICollectionViewController {
     
     //MARK: - API
     
+    func fetchRecentPosts() {
+        
+    }
+    
+    func fetchSections() {
+        // About Section
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
+            switch result {
+            case .success(let sectionText):
+                self.aboutText = sectionText
+                self.hasAbout = true
+                self.collectionView.reloadSections(IndexSet(integer: 1))
+            case .failure(_):
+                print("No section")
+            }
+        }
+    }
+    
+    func fetchUserStats() {
+        UserService.fetchUserStats(uid: user.uid!) { stats in
+            self.user.stats = stats
+            self.collectionView.reloadData()
+        }
+    }
+    
+    func checkIfUserIsFollowed() {
+        UserService.checkIfUserIsFollowed(uid: user.uid!) { isFollowed in
+            self.user.isFollowed = isFollowed
+            self.collectionView.reloadData()
+        }
+    }
+    
     
     //MARK: - Actions
     @objc func didTapSettings() {
@@ -300,18 +334,25 @@ extension UserProfileViewController {
         }
         //About
         else if section == 1 {
-            return 1
+            if hasAbout {
+                return 1
+            } else {
+                return 0
+            }
             /*
             if user.firstName == "Pau" { if user has no about information return 0 (hide) if not return 1 and you can see about
                 print("user has no about")
                 return 0
-            } else {
-                return 1
-            }
+             } else {
+             return 1
+             }
              */
         } else if section == 2 {
             // Posts
-            return 3 // return 3 which is the max or return the minimum between posts and 3. if user has 0 posts, display cell with no activity data
+            
+            return min(user.stats.posts, 3)
+            
+            //return 3 // return 3 which is the max or return the minimum between posts and 3. if user has 0 posts, display cell with no activity data
         } else if section == 3 {
             // Cases
             return 3
@@ -348,7 +389,7 @@ extension UserProfileViewController {
         } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
             // change for viewModel, fetch the information in the viewModel
-            cell.set(body: "I have an extensive professional career of more than 30 years. I'm a speaker in various congresses of the speciality for my important research and education task. I'm currently 1st Vice-president of the Spanish Laser Medical-Surgery Society")
+            cell.set(body: aboutText)
             return cell
             
         } else if indexPath.section == 2 {
@@ -459,24 +500,55 @@ extension UserProfileViewController {
 extension UserProfileViewController: UserProfileHeaderCellDelegate {
     
     func headerCell(didTapEditProfileFor user: User) {
-        let controller = EditProfileViewController(user: user)
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        if user.isCurrentUser {
+            let controller = EditProfileViewController(user: user)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        } else {
+            guard let uid = user.uid else { return }
+            if user.isFollowed {
+                // Handle unfollow user
+                UserService.unfollow(uid: uid) { error in
+                    self.user.isFollowed = false
+                    self.fetchUserStats()
+                    // Delete user feed posts related to the unfollowed user
+                    PostService.updateUserFeedAfterFollowing(user: user, didFollow: false)
+                }
+            } else {
+                // Handle follow user
+                UserService.follow(uid: uid) { error in
+                    self.user.isFollowed = true
+                    self.fetchUserStats()
+                    NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)
+                    //Update user feed posts related to the followed user
+                    PostService.updateUserFeedAfterFollowing(user: user, didFollow: true)
+                }
+            }
+        }
+    }
+    
+    func headerCell(didTapBannerPictureFor user: User) {
+        let controller = ProfileImageViewController(user: user, isBanner: true)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            controller.profileImageView.sd_setImage(with: URL(string: user.bannerImageUrl!))
+            controller.modalPresentationStyle = .overFullScreen
+            self.present(controller, animated: true)
+        }
     }
     
     func headerCell(didTapProfilePictureFor user: User) {
-        let controller = ProfileImageViewController(user: user)
+        let controller = ProfileImageViewController(user: user, isBanner: false)
         controller.hidesBottomBarWhenPushed = true
-        if user.isCurrentUser {
-            DispatchQueue.main.async {
-                controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-                controller.modalPresentationStyle = .overFullScreen
-                self.present(controller, animated: true)
-            }
-        } else {
-            print("Is not current user")
+        DispatchQueue.main.async {
+            controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            controller.modalPresentationStyle = .overFullScreen
+            self.present(controller, animated: true)
         }
     }
 }
- 
+

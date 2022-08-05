@@ -38,7 +38,7 @@ class AddSectionViewController: UIViewController {
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 15, weight: .regular)
         tv.textColor = .black
-        //tv.delegate = self
+        tv.delegate = self
         tv.isScrollEnabled = true
         tv.backgroundColor = lightColor
         tv.layer.cornerRadius = 5
@@ -51,13 +51,29 @@ class AddSectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchSection()
         configureNavigationBar()
         configureUI()
+    }
+    
+    private func fetchSection() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
+            switch result {
+            case .success(let aboutText):
+                self.aboutTextView.text = aboutText
+                self.aboutTextView.handleTextDidChange()
+                
+            case .failure(_):
+                print("Error fetching")
+            }
+        }
     }
     
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureUI() {
@@ -87,5 +103,17 @@ class AddSectionViewController: UIViewController {
     
     @objc func handleDone() {
         print("Update About")
+        guard let text = aboutTextView.text else { return }
+        DatabaseManager.shared.uploadAboutSection(with: text) { completed in
+            if completed {
+                print("Text uploaded")
+            }
+        }
+    }
+}
+
+extension AddSectionViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        navigationItem.rightBarButtonItem?.isEnabled = true
     }
 }

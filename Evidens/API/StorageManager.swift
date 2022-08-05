@@ -31,6 +31,24 @@ struct StorageManager {
         }
     }
     
+    static func uploadBannerImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        let filename = uid
+        let ref = Storage.storage().reference(withPath: "/banners/\(filename)")
+        
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                print("DEBUG: Failed to upload image \(error.localizedDescription)")
+                return
+            }
+            
+            ref.downloadURL { url, error in
+                guard let bannerUrl = url?.absoluteString else { return }
+                completion(bannerUrl)
+            }
+        }
+    }
+    
     /// Uploads an image for a specific user to firebase storage to verify eligibility
     static func uploadDocumentationImage(images: [UIImage], type: String, uid: String, completion: @escaping(Bool) -> Void) {
         var index = 0

@@ -15,8 +15,11 @@ class ProfileImageViewController: UIViewController {
     
     private var user: User
     
-    init (user: User) {
+    private var isBanner: Bool
+    
+    init (user: User, isBanner: Bool) {
         self.user = user
+        self.isBanner = isBanner
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -57,33 +60,11 @@ class ProfileImageViewController: UIViewController {
         modalPresentationCapturesStatusBarAppearance = true
         configureUI()
     }
-    
-    //MARK: - Actions
 
-    /*
-    @objc func didTapShare() {
-        let activityVC = UIActivityViewController(activityItems: [self.profileImageView.image as Any], applicationActivities: nil)
-        activityVC.popoverPresentationController?.sourceView = self.view
-        self.present(activityVC, animated: true, completion: nil)
-    }
-     */
-     
-    
-    @objc func didTapEditProfile() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.allowsEditing = true
-        
-        present(picker, animated: true, completion: nil)
-    }
-    
-    
     //MARK: - Helpers
     
     func configureUI() {
         view.backgroundColor = .black
-        
-        //navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(didTapShare))
         
         view.addSubviews(profileImageView, dismissButon)
         
@@ -98,11 +79,17 @@ class ProfileImageViewController: UIViewController {
         profileImageView.centerY(inView: view)
         profileImageView.centerX(inView: view)
         
-        let height = view.frame.width * 0.8
+        if !isBanner {
+            let height = view.frame.width * 0.8
 
-        profileImageView.setDimensions(height: height, width: height)
-        profileImageView.layer.cornerRadius = height/2
-        
+            profileImageView.setDimensions(height: height, width: height)
+            profileImageView.layer.cornerRadius = height/2
+        } else {
+            let height = 100.0
+            profileImageView.setDimensions(height: height, width: UIScreen.main.bounds.width)
+            //profileImageView.layer.cornerRadius = height/2
+        }
+       
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -150,30 +137,3 @@ class ProfileImageViewController: UIViewController {
     }
 }
 
-//MARK: - UIImagePickerControllerDelegate
-
-extension ProfileImageViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        
-        profileImage = selectedImage
-        
-        profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
-        profileImageView.layer.masksToBounds = true
-        profileImageView.image = selectedImage.withRenderingMode(.alwaysOriginal)
-        
-        //Upload image to Firestore
-        StorageManager.uploadProfileImage(image: profileImage!, uid: user.uid!) { imageUrl in
-            UserService.updateProfileUrl(profileImageUrl: imageUrl) { user in
-                //self.user.profileImageUrl = imageUrl
-            }
-        }
-        
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true, completion: nil)
-    }
-}

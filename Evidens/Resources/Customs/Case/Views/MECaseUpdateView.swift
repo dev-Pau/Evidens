@@ -39,6 +39,7 @@ class MECaseUpdateView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         addSubviews(profileImageView, diagnosisLabel)
     
+        // change for the profile image of the user, not the current user of app
         guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
         profileImageView.sd_setImage(with: URL(string: imageUrl))
 

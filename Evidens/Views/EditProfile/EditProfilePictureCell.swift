@@ -8,27 +8,38 @@
 import UIKit
 import SwiftUI
 
+protocol EditProfilePictureCellDelegate: AnyObject {
+    func didTapChangeProfilePicture()
+    func didTapChangeBannerPicture()
+}
+
 class EditProfilePictureCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
     
-    private let bannerImageView: UIImageView = {
+    weak var delegate: EditProfilePictureCellDelegate?
+    
+    lazy var bannerImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditBannerImage)))
         return iv
     }()
     
-    private let profileImageView: UIImageView = {
+    lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = primaryColor
         iv.layer.borderWidth = 2
         iv.layer.borderColor = UIColor.white.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditProfileImage)))
         return iv
     }()
     
@@ -61,9 +72,9 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             bannerImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            bannerImageView.heightAnchor.constraint(equalToConstant: 150),
+            bannerImageView.heightAnchor.constraint(equalToConstant: 100),
             
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 75),
+            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
             profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
@@ -82,5 +93,21 @@ class EditProfilePictureCell: UICollectionViewCell {
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
+    }
+    
+    func set(profileImageUrl: String) {
+        profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+    }
+    
+    func set(bannerImageUrl: String) {
+        bannerImageView.sd_setImage(with: URL(string: bannerImageUrl))
+    }
+    
+    @objc func handleEditProfileImage() {
+        delegate?.didTapChangeProfilePicture()
+    }
+    
+    @objc func handleEditBannerImage() {
+        delegate?.didTapChangeBannerPicture()
     }
 }

@@ -179,6 +179,7 @@ class PasswordRegistrationViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        hideKeyboardOnViewTap()
         configureNavigationBar()
         configureUI()
         setUpDelegates()
