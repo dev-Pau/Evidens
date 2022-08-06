@@ -193,6 +193,22 @@ extension DatabaseManager {
             completion(true)
         }
     }
+    
+    public func fetchRecentPosts(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
+        let ref = database.child("\(uid)/recentPosts")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let recentPosts = snapshot.value as? [String] {
+                print(recentPosts)
+                completion(.success(recentPosts.reversed()))
+            }
+        }
+    }
 }
 
 //MARK: - User Sections

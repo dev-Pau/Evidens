@@ -17,7 +17,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
+        //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
         label.textColor = .black
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 3
@@ -30,8 +30,8 @@ class UserProfilePostImageCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = .gray
+        iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = lightGrayColor
         return iv
     }()
     
@@ -57,7 +57,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
     
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.text = "3h ago"
+        //label.text = "3h ago"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textColor = grayColor
@@ -126,6 +126,12 @@ class UserProfilePostImageCell: UICollectionViewCell {
     }
     
     private func configure() {
+        guard let viewModel = viewModel else { return }
+        postTextLabel.text = viewModel.postText
+        postImage.sd_setImage(with: viewModel.postImageUrl.first)
+        timeLabel.text = viewModel.timestampString! + " ago"
+        likesCommentsLabel.text = viewModel.likesCommentsText
+        likesButton.isHidden = viewModel.likesButtonIsHidden
         
     }
 }

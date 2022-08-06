@@ -224,6 +224,7 @@
 		5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */; };
 		5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11D1289BA6810079463F /* WaitingVerificationViewController.swift */; };
 		5FDB11D4289BCABD0079463F /* HelperBottomMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11D3289BCABD0079463F /* HelperBottomMenuLauncher.swift */; };
+		5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDE4A79289E412A00206BE5 /* UserProfileNoPostCell.swift */; };
 		5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */; };
 		5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */; };
 		5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */; };
@@ -452,6 +453,7 @@
 		5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDocumentationViewController.swift; sourceTree = "<group>"; };
 		5FDB11D1289BA6810079463F /* WaitingVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingVerificationViewController.swift; sourceTree = "<group>"; };
 		5FDB11D3289BCABD0079463F /* HelperBottomMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperBottomMenuLauncher.swift; sourceTree = "<group>"; };
+		5FDE4A79289E412A00206BE5 /* UserProfileNoPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoPostCell.swift; sourceTree = "<group>"; };
 		5FE8DE8B28918415009F08F9 /* UserProfileTitleFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleFooter.swift; sourceTree = "<group>"; };
 		5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostImageCell.swift; sourceTree = "<group>"; };
 		5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfilePostCell.swift; sourceTree = "<group>"; };
@@ -1359,6 +1361,7 @@
 		5FE8DE9028928506009F08F9 /* Posts */ = {
 			isa = PBXGroup;
 			children = (
+				5FDE4A79289E412A00206BE5 /* UserProfileNoPostCell.swift */,
 				5FE8DE8E28918E83009F08F9 /* UserProfilePostImageCell.swift */,
 				5FE8DE912892D1E5009F08F9 /* UserProfilePostCell.swift */,
 			);
@@ -1666,6 +1669,7 @@
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
+				5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */,
 				5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
 				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,

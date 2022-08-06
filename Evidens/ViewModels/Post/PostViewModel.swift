@@ -94,6 +94,27 @@ struct PostViewModel {
         }
     }
     
+    var commentText: String {
+        if comments > 1 { return "comments" }
+        else { return "comment" }
+    }
+    
+    var likesButtonIsHidden: Bool {
+        return likes > 0 ? false : true
+    }
+    
+    var likesCommentsText: String {
+        if likes == 0 && comments == 0 {
+            return ""
+        } else if likes != 0 && comments == 0 {
+            return "\(likes)"
+        } else if likes == 0 && comments != 0 {
+            return "\(comments) \( commentText)"
+        } else {
+            return "\(likes) · \(comments) \(commentText)"
+        }
+    }
+    
     
     var profession: String {
         return post.ownerProfession

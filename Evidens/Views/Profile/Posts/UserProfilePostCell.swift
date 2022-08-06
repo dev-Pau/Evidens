@@ -36,7 +36,6 @@ class UserProfilePostCell: UICollectionViewCell {
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        label.text = "24 · 36 comments"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
@@ -109,7 +108,11 @@ class UserProfilePostCell: UICollectionViewCell {
     }
     
     private func configure() {
-        
+        guard let viewModel = viewModel else { return }
+        postTextLabel.text = viewModel.postText
+        timeLabel.text = viewModel.timestampString! + " ago"
+        likesCommentsLabel.text = viewModel.likesCommentsText
+        likesButton.isHidden = viewModel.likesButtonIsHidden
     }
 }
 

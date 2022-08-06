@@ -11,6 +11,7 @@ private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
 private let profileHeaderTitleReuseIdentifier = "ProfileHeaderTitleReuseIdentifier"
 private let profileFooterTitleReuseIdentifier = "ProfileFooterTitleReuseIdentifier"
+private let noRecentPostsCellReuseIdentifier = "NoRecentPostsCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "ProfileImageCellReuseIdentifier"
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
@@ -37,6 +38,13 @@ class UserProfileViewController: UICollectionViewController {
     //MARK: - Properties
     private var user: User
     
+    var recentPosts = [Post]() {
+        didSet {
+            collectionView.reloadData()
+            //collectionView.reloadSections(IndexSet(integer: 2))
+        }
+    }
+    
     // Sections
     private var hasAbout: Bool = false
     private var aboutText: String = ""
@@ -50,14 +58,15 @@ class UserProfileViewController: UICollectionViewController {
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureNavigationItemButton()
-        //PostService.fetchPosts(forUser: <#T##String#>, completion: <#T##([Post]) -> Void#>)
-        //CaseService fetch 3 last psts
-        configureCollectionView()
         fetchRecentPosts()
         fetchSections()
         checkIfUserIsFollowed()
         fetchUserStats()
+        configureNavigationItemButton()
+        //PostService.fetchPosts(forUser: <#T##String#>, completion: <#T##([Post]) -> Void#>)
+        //CaseService fetch 3 last psts
+        configureCollectionView()
+
     }
         
     init(user: User) {
@@ -268,6 +277,7 @@ class UserProfileViewController: UICollectionViewController {
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
+        collectionView.register(UserProfileNoPostCell.self, forCellWithReuseIdentifier: noRecentPostsCellReuseIdentifier)
         collectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         collectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
@@ -283,7 +293,18 @@ class UserProfileViewController: UICollectionViewController {
     //MARK: - API
     
     func fetchRecentPosts() {
-        
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchRecentPosts(forUid: uid) { result in
+            switch result {
+            case .success(let postUids):
+                PostService.fetchRecentPosts(withPostId: postUids) { recentPosts in
+                    self.recentPosts = recentPosts
+                    
+                }
+            case .failure(_):
+                print("Failure fetching posts")
+            }
+        }
     }
     
     func fetchSections() {
@@ -294,7 +315,8 @@ class UserProfileViewController: UICollectionViewController {
             case .success(let sectionText):
                 self.aboutText = sectionText
                 self.hasAbout = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
+                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.collectionView.reloadData()
             case .failure(_):
                 print("No section")
             }
@@ -318,7 +340,12 @@ class UserProfileViewController: UICollectionViewController {
     
     //MARK: - Actions
     @objc func didTapSettings() {
-        
+        AuthService.logout()
+        AuthService.googleLogout()
+        let controller = WelcomeViewController()
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
 }
 
@@ -349,13 +376,15 @@ extension UserProfileViewController {
              */
         } else if section == 2 {
             // Posts
-            
-            return min(user.stats.posts, 3)
-            
+            if user.stats.posts == 0 {
+                return 1
+            } else {
+                return min(recentPosts.count, 3)
+            }
             //return 3 // return 3 which is the max or return the minimum between posts and 3. if user has 0 posts, display cell with no activity data
         } else if section == 3 {
             // Cases
-            return 3
+            return 0
         } else if section == 4 {
             // Comments
             return 3
@@ -394,12 +423,26 @@ extension UserProfileViewController {
             
         } else if indexPath.section == 2 {
             // Post
-            // posar un if en funció de si té imatge o no per presentar una cel·la o una altre.
-            // ja hi ha creada la UserProfilePostCell.self que només té text
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
-            return cell
-            
+            if user.stats.posts == 0 {
+                // User has no recent posts, display no activity
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentPostsCellReuseIdentifier, for: indexPath) as! UserProfileNoPostCell
+                cell.configure(name: user.firstName!)
+                return cell
+                
+            } else {
+                
+                if recentPosts[indexPath.row].type.postType == 0 {
+                    // Text Post
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
+                    cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
+                    cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
+                    return cell
+                }
+            }
+
         } else if indexPath.section == 3 {
             // Cases
             // posar un if en funció de si té imatge o no per presentar una cel·la o una altre.
@@ -469,21 +512,21 @@ extension UserProfileViewController {
         case ElementKind.sectionFooter:
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileFooterTitleReuseIdentifier, for: indexPath) as! UserProfileTitleFooter
             if indexPath.section == 2 {
-                footer.set(title: "Show all posts")
+                footer.set(title: "Show posts")
             } else if indexPath.section == 3 {
-                footer.set(title: "Show all cases")
+                footer.set(title: "Show cases")
             } else if indexPath.section == 4 {
-                footer.set(title: "Show all comments")
+                footer.set(title: "Show comments")
             } else if indexPath.section == 5 {
-                footer.set(title: "Show all experience")
+                footer.set(title: "Show experiences")
             } else if indexPath.section == 6 {
-                footer.set(title: "Show all education")
+                footer.set(title: "Show education")
             } else if indexPath.section == 7 {
-                footer.set(title: "Show all patents")
+                footer.set(title: "Show patents")
             } else if indexPath.section == 8 {
-                footer.set(title: "Show all publications")
+                footer.set(title: "Show publications")
             } else if indexPath.section == 9 {
-                footer.set(title: "Show all languages")
+                footer.set(title: "Show languages")
             }
             return footer
         default:

@@ -32,6 +32,10 @@ struct PostService {
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
+        DatabaseManager.shared.uploadRecentPosts(withUid: docRef.documentID) { uploaded in
+            print("Post uploaded to recents")
+        }
+        
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
@@ -57,6 +61,10 @@ struct PostService {
                     "postImageUrl": postImageUrl as Any] as [String : Any]
 
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+        
+        DatabaseManager.shared.uploadRecentPosts(withUid: docRef.documentID) { uploaded in
+            print("Post uploaded to recents")
+        }
         
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
@@ -86,6 +94,11 @@ struct PostService {
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
+        DatabaseManager.shared.uploadRecentPosts(withUid: docRef.documentID) { uploaded in
+            print("Post uploaded to recents")
+        }
+        
+        
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
@@ -109,6 +122,10 @@ struct PostService {
                     "postDocumentUrl": documentURL as Any] as [String : Any]
                    
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+        
+        DatabaseManager.shared.uploadRecentPosts(withUid: docRef.documentID) { uploaded in
+            print("Post uploaded to recents")
+        }
         
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
@@ -144,6 +161,21 @@ struct PostService {
                     completion(posts)
                 }
             })
+        }
+    }
+    
+    static func fetchRecentPosts(withPostId postId: [String], completion: @escaping([Post]) -> Void) {
+        var posts = [Post]()
+        
+        postId.forEach { id in
+            fetchPost(withPostId: id) { post in
+                posts.append(post)
+                
+                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                
+                completion(posts)
+                
+            }
         }
     }
     

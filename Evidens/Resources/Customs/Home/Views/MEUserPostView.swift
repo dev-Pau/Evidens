@@ -118,7 +118,6 @@ class MEUserPostView: UIView {
             usernameLabel.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
             usernameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
             usernameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -paddingLeft),
-            usernameLabel.heightAnchor.constraint(equalToConstant: 15),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
