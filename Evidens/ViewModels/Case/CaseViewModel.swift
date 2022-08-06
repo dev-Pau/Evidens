@@ -140,6 +140,23 @@ struct CaseViewModel {
         }
     }
     
+    var commentText: String {
+        if caseComments > 1 { return "comments" }
+        else { return "comment" }
+    }
+    
+    var likesCommentsText: String {
+        if caseLikes == 0 && caseComments == 0 {
+            return ""
+        } else if caseLikes != 0 && caseComments == 0 {
+            return "\(caseLikes)"
+        } else if caseLikes == 0 && caseComments != 0 {
+            return "\(caseLikes) \( commentText)"
+        } else {
+            return "\(caseLikes) · \(caseComments) \(commentText)"
+        }
+    }
+    
     var likeButtonTintColor: UIColor {
         return clinicalCase.didLike ? pinkColor : blackColor
     }
@@ -163,6 +180,10 @@ struct CaseViewModel {
         } else {
             return ""
         }
+    }
+    
+    var likesButtonIsHidden: Bool {
+        return caseLikes > 0 ? false : true
     }
     
     var bookMarkImage: UIImage? {

@@ -39,23 +39,23 @@ struct Case {
     }
     
     enum Privacy: Int {
-        case none
-        case yes
+        case visible
+        case nonVisible
         
         var privacyType: Int {
             switch self {
-            case .none:
+            case .visible:
                 return 0
-            case .yes:
+            case .nonVisible:
                 return 1
             }
         }
         
         var privacyTypeString: String {
             switch self {
-            case .none:
+            case .visible:
                 return "Sharing publicily"
-            case .yes:
+            case .nonVisible:
                 return "Sharing anonymously"
             }
         }
@@ -113,6 +113,6 @@ struct Case {
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""       
         self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
         
-        self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .none
+        self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .visible
     }
 }

@@ -10,7 +10,7 @@ import Firebase
 
 struct CaseService {
     
-    static func uploadCase(caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, completion: @escaping(Error?) -> Void) {
+    static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, completion: @escaping(Error?) -> Void) {
         
         let data = ["title": caseTitle,
                     "description": caseDescription,
@@ -25,6 +25,7 @@ struct CaseService {
                     "diagnosis": diagnosis as Any,
                     "ownerUid": user.uid as Any,
                     "ownerCategory": user.category.rawValue,
+                    "privacy": privacy.rawValue,
                     "timestamp": Timestamp(date: Date()),
                     "type": type.rawValue,
                     "ownerFirstName": user.firstName as Any,
@@ -35,7 +36,13 @@ struct CaseService {
                     "caseImageUrl": caseImageUrl as Any
         ]
         
-        COLLECTION_CASES.addDocument(data: data, completion: completion)
+        let caseRef = COLLECTION_CASES.addDocument(data: data, completion: completion)
+        
+        if privacy == .visible {
+            DatabaseManager.shared.uploadRecentCase(withUid: caseRef.documentID) { uploaded in
+                print("Case uploaded to recents")
+            }
+        }
     }
     
     static func fetchCases(completion: @escaping([Case]) -> Void) {
@@ -43,6 +50,30 @@ struct CaseService {
             guard let documents = snapshot?.documents else { return }
             let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             completion(cases)
+        }
+    }
+    
+    static func fetchRecentCases(withCaseId caseId: [String], completion: @escaping([Case]) -> Void) {
+        var cases = [Case]()
+        
+        caseId.forEach { id in
+            fetchCase(withCaseId: id) { post in
+                cases.append(post)
+                
+                cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+
+                completion(cases)
+                
+            }
+        }
+    }
+    
+    static func fetchCase(withCaseId caseId: String, completion: @escaping(Case) -> Void) {
+        COLLECTION_CASES.document(caseId).getDocument { snapshot, _ in
+            guard let snapshot = snapshot else { return }
+            guard let data = snapshot.data() else { return }
+            let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+            completion(clinicalCase)
         }
     }
     

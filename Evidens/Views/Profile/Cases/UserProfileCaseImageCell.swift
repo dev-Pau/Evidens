@@ -32,7 +32,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         label.textColor = .black
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.numberOfLines = 1
-        label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
+        //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -42,7 +42,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         label.textColor = .black
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 3
-        label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
+        //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -52,7 +52,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.backgroundColor = .gray
         return iv
     }()
@@ -68,7 +68,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        label.text = "24 · 36 comments"
+        //label.text = "24 · 36 comments"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
@@ -79,7 +79,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.text = "3h ago"
+        //label.text = "3h ago"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textColor = grayColor
@@ -146,6 +146,17 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     }
     
     private func configure() {
+        guard let viewModel = viewModel else { return }
+        titleCaseLabel.text = viewModel.caseTitle
+        descriptionCaseLabel.text = viewModel.caseDescription
+        caseImageView.sd_setImage(with: viewModel.caseImageUrl?.first)
+        timeLabel.text = viewModel.timestampString
+        likesCommentsLabel.text = viewModel.likesCommentsText
+        likesButton.isHidden = viewModel.likesButtonIsHidden
+        
+        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
+        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
+        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
     }
 }

@@ -18,7 +18,7 @@ protocol CasePrivacyMenuLauncherDelegate: AnyObject {
 
 class CasePrivacyMenuLauncher: NSObject {
     
-    private var privacyOption: Case.Privacy = .none
+    private var privacyOption: Case.Privacy = .visible
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -168,9 +168,9 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
         let image = menuOptionsImages[indexPath.row]
         collectionView.reloadData()
         if selectedOption == 0 {
-            privacyOption = .none
+            privacyOption = .visible
         } else {
-            privacyOption = .yes
+            privacyOption = .nonVisible
         }
         
         delegate?.didTapPrivacyOption(privacyOption, image, option)

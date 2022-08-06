@@ -72,6 +72,7 @@ class AddLanguageViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureUI() {
@@ -110,7 +111,12 @@ class AddLanguageViewController: UIViewController {
     }
     
     @objc func handleDone() {
-        print("Update experience")
+        guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
+        DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency) { uploaded in
+            if uploaded {
+                self.navigationController?.popToRootViewController(animated: true)
+            }
+        }
     }
     
     @objc func textDidChange(_ textField: UITextField) {
@@ -131,6 +137,10 @@ class AddLanguageViewController: UIViewController {
                 languageProficiencyLabel.isHidden = true
             }
         }
+        
+        guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
+        navigationItem.rightBarButtonItem?.isEnabled = !language.isEmpty && !proficiency.isEmpty ? true : false
+
     }
     
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {

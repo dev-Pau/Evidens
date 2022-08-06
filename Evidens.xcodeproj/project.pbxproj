@@ -108,6 +108,8 @@
 		5F78D30128913F1900FE0C99 /* EditAboutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F78D30028913F1900FE0C99 /* EditAboutCell.swift */; };
 		5F78D30728917B3900FE0C99 /* UserProfileTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */; };
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
+		5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */; };
+		5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */; };
 		5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */; };
 		5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F427529AF5009B26E6 /* CommentCell.swift */; };
 		5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */; };
@@ -334,6 +336,8 @@
 		5F78D30028913F1900FE0C99 /* EditAboutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAboutCell.swift; sourceTree = "<group>"; };
 		5F78D30628917B3900FE0C99 /* UserProfileTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileTitleHeader.swift; sourceTree = "<group>"; };
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
+		5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCaseCell.swift; sourceTree = "<group>"; };
+		5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseTextCell.swift; sourceTree = "<group>"; };
 		5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentPostViewController.swift; sourceTree = "<group>"; };
 		5F8666F427529AF5009B26E6 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		5F8666F7275389C6009B26E6 /* CommentInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputAccessoryView.swift; sourceTree = "<group>"; };
@@ -963,8 +967,8 @@
 				5F9A9F882897A0F600A25152 /* AddExperienceViewController.swift */,
 				5F9A9F8A2897E38900A25152 /* AddEducationViewController.swift */,
 				5F9A9F8C2897ECF900A25152 /* AddPatentViewController.swift */,
-				5F9A9F8E2897F28A00A25152 /* AddLanguageViewController.swift */,
 				5F9A9F902898111800A25152 /* AddPublicationViewController.swift */,
+				5F9A9F8E2897F28A00A25152 /* AddLanguageViewController.swift */,
 			);
 			path = Section;
 			sourceTree = "<group>";
@@ -1372,6 +1376,8 @@
 			isa = PBXGroup;
 			children = (
 				5FE8DE942893A5B3009F08F9 /* UserProfileCaseImageCell.swift */,
+				5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */,
+				5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -1565,6 +1571,7 @@
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
+				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
@@ -1646,6 +1653,7 @@
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
+				5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */,
 				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
 				5F527D8D2881DCF4009D5027 /* ImageRegistrationViewController.swift in Sources */,
 				5F9A9F9A2898448E00A25152 /* UserProfilePublicationCell.swift in Sources */,

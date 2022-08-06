@@ -157,9 +157,10 @@ extension DatabaseManager {
 }
 
 //MARK: - User Recent Posts
+
 extension DatabaseManager {
     
-    public func uploadRecentPosts(withUid postUid: String, completion: @escaping (Bool) -> Void) {
+    public func uploadRecentPost(withUid postUid: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("\(uid)/recentPosts")
         
@@ -204,8 +205,116 @@ extension DatabaseManager {
             }
             
             if let recentPosts = snapshot.value as? [String] {
-                print(recentPosts)
                 completion(.success(recentPosts.reversed()))
+            }
+        }
+    }
+}
+
+//MARK: - User Languages
+
+extension DatabaseManager {
+    
+    public func uploadLanguage(language: String, proficiency: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("\(uid)/languages")
+        
+        let languageData = ["languageName": language,
+                             "languageProficiency": proficiency]
+        
+        // Check if user has recent searches
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var languages = snapshot.value as? [[String: String]] {
+                // Recent searches document exists, append new search
+                languages.append(languageData)
+                
+                ref.setValue(languages) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                // First time user searches, create a new document
+                ref.setValue([languageData]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("\(uid)/languages")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let languages = snapshot.value as? [[String: String]] {
+                completion(.success(languages))
+            }
+        }
+    }
+}
+
+//MARK: - User Recent Cases
+
+extension DatabaseManager {
+    
+    public func uploadRecentCase(withUid caseUid: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("\(uid)/recentCases")
+        
+        // Check if user has recent searches
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var recentCases = snapshot.value as? [String] {
+                // Recent searches document exists, append new search
+                
+                if recentCases.count == 3 {
+                    recentCases.removeFirst()
+                    recentCases.append(caseUid)
+                } else {
+                    recentCases.append(caseUid)
+                }
+                
+                ref.setValue(recentCases) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                // First time user searches, create a new document
+                ref.setValue([caseUid]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchRecentCases(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
+        let ref = database.child("\(uid)/recentCases")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let recentCases = snapshot.value as? [String] {
+                print(recentCases)
+                completion(.success(recentCases.reversed()))
             }
         }
     }

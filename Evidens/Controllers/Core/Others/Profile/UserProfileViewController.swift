@@ -14,6 +14,8 @@ private let profileFooterTitleReuseIdentifier = "ProfileFooterTitleReuseIdentifi
 private let noRecentPostsCellReuseIdentifier = "NoRecentPostsCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "ProfileImageCellReuseIdentifier"
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
+private let noRecentCasesCellReuseIdentifier = "NoRecentCasesCellReuseIdentifier"
+private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 private let commentsCellReuseIdentifier = "CommentsCellReuseIdentifier"
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
@@ -45,9 +47,20 @@ class UserProfileViewController: UICollectionViewController {
         }
     }
     
+    var recentCases = [Case]() {
+        didSet {
+            collectionView.reloadData()
+            //collectionView.reloadSections(IndexSet(integer: 3))
+        }
+    }
+        
     // Sections
     private var hasAbout: Bool = false
     private var aboutText: String = ""
+    
+    //Languages
+    private var hasLanguages: Bool = false
+    private var languages = [[String: String]]()
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -58,10 +71,12 @@ class UserProfileViewController: UICollectionViewController {
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchUserStats()
         fetchRecentPosts()
+        fetchRecentCases()
+        fetchLanguages()
         fetchSections()
         checkIfUserIsFollowed()
-        fetchUserStats()
         configureNavigationItemButton()
         //PostService.fetchPosts(forUser: <#T##String#>, completion: <#T##([Post]) -> Void#>)
         //CaseService fetch 3 last psts
@@ -280,6 +295,8 @@ class UserProfileViewController: UICollectionViewController {
         collectionView.register(UserProfileNoPostCell.self, forCellWithReuseIdentifier: noRecentPostsCellReuseIdentifier)
         collectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         collectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        collectionView.register(UserProfileNoCaseCell.self, forCellWithReuseIdentifier: noRecentCasesCellReuseIdentifier)
+        collectionView.register(UserProfileCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
@@ -296,9 +313,24 @@ class UserProfileViewController: UICollectionViewController {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchRecentPosts(forUid: uid) { result in
             switch result {
-            case .success(let postUids):
-                PostService.fetchRecentPosts(withPostId: postUids) { recentPosts in
+            case .success(let postIDs):
+                PostService.fetchRecentPosts(withPostId: postIDs) { recentPosts in
                     self.recentPosts = recentPosts
+                    
+                }
+            case .failure(_):
+                print("Failure fetching posts")
+            }
+        }
+    }
+    
+    func fetchRecentCases() {
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchRecentCases(forUid: uid) { result in
+            switch result {
+            case .success(let caseIDs):
+                CaseService.fetchRecentCases(withCaseId: caseIDs) { recentCases in
+                    self.recentCases = recentCases
                     
                 }
             case .failure(_):
@@ -319,6 +351,22 @@ class UserProfileViewController: UICollectionViewController {
                 self.collectionView.reloadData()
             case .failure(_):
                 print("No section")
+            }
+        }
+    }
+    
+    func fetchLanguages() {
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchLanguages(forUid: uid) { result in
+            switch result {
+            case .success(let languages):
+                //self.aboutText = sectionText
+                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.hasLanguages = true
+                self.languages = languages
+                self.collectionView.reloadData()
+            case .failure(_):
+                print("No languages ")
             }
         }
     }
@@ -366,14 +414,6 @@ extension UserProfileViewController {
             } else {
                 return 0
             }
-            /*
-            if user.firstName == "Pau" { if user has no about information return 0 (hide) if not return 1 and you can see about
-                print("user has no about")
-                return 0
-             } else {
-             return 1
-             }
-             */
         } else if section == 2 {
             // Posts
             if user.stats.posts == 0 {
@@ -384,7 +424,11 @@ extension UserProfileViewController {
             //return 3 // return 3 which is the max or return the minimum between posts and 3. if user has 0 posts, display cell with no activity data
         } else if section == 3 {
             // Cases
-            return 0
+            if user.stats.cases == 0 {
+                return 1
+            } else {
+                return min(recentCases.count, 3)
+            }
         } else if section == 4 {
             // Comments
             return 3
@@ -401,8 +445,11 @@ extension UserProfileViewController {
             // Comments
             return 3
         } else if section == 9 {
-            return 3
-            
+            if hasLanguages {
+                return min(languages.count, 3)
+            } else {
+                return 0
+            }
         } else {
             return 20
         }
@@ -442,13 +489,25 @@ extension UserProfileViewController {
                     return cell
                 }
             }
-
+            
         } else if indexPath.section == 3 {
             // Cases
-            // posar un if en funció de si té imatge o no per presentar una cel·la o una altre.
-            // ja hi ha creada la UserProfilePostCell.self que només té text
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
-            return cell
+            if user.stats.cases == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentCasesCellReuseIdentifier, for: indexPath) as! UserProfileNoCaseCell
+                cell.configure(name: user.firstName!)
+                return cell
+            } else {
+                
+                if recentCases[indexPath.row].type.caseType == 0 {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
+                    cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
+                    return cell
+                }
+            }
             
         } else if indexPath.section == 4 {
             // Comments
@@ -475,6 +534,7 @@ extension UserProfileViewController {
             
         } else if indexPath.section == 9 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
+            cell.set(languageInfo: languages[indexPath.row])
             return cell
             
         } else {

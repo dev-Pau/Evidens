@@ -68,4 +68,9 @@ class UserProfileLanguageCell: UICollectionViewCell {
  
         ])
     }
+    
+    func set(languageInfo: [String: String]) {
+        languageTitleLabel.text = languageInfo["languageName"]
+        languageLevelLabel.text = languageInfo["languageProficiency"]
+    }
 }

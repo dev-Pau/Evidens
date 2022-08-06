@@ -90,6 +90,8 @@ class UserProfilePostImageCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .white
         
+        
+        
         addSubviews(postTextLabel, postImage, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
@@ -103,7 +105,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
             
-            postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
+            postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 5),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
             
