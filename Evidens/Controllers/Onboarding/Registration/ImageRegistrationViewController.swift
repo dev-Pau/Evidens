@@ -11,7 +11,7 @@ import MessageUI
 
 class ImageRegistrationViewController: UIViewController {
     
-    private let user: User
+    private var user: User
     
     private var imageSelected: Bool = false
     
@@ -206,7 +206,8 @@ class ImageRegistrationViewController: UIViewController {
                     guard let image = self.profileImageView.image else { return }
                     StorageManager.uploadProfileImage(image: image, uid: uid) { url in
                         UserService.updateProfileImageUrl(profileImageUrl: url) { error in
-                            DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
+                            self.user.profileImageUrl = url
+                            //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
                             self.dismissLoadingView()
                             if let error = error {
                                 print(error.localizedDescription)
@@ -220,6 +221,7 @@ class ImageRegistrationViewController: UIViewController {
                     }
                 } else {
                     self.dismissLoadingView()
+                    self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
                     let controller = VerificationRegistrationViewController(user: self.user)
                     let nav = UINavigationController(rootViewController: controller)
                     nav.modalPresentationStyle = .fullScreen

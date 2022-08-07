@@ -44,7 +44,7 @@ struct AuthService {
                                            "lastName": credentials.lastName,
                                            "email": credentials.email,
                                            "uid": uid,
-                                           "profileImageUrl": "",
+                                           "profileImageUrl": "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f",
                                            "bannerImageUrl": "",
                                            "phase": credentials.phase.rawValue,
                                            "category": credentials.category.rawValue,
@@ -62,7 +62,7 @@ struct AuthService {
                                    "lastName": credentials.lastName,
                                    "email": credentials.email,
                                    "uid": uid,
-                                   "profileImageUrl": "",
+                                   "profileImageUrl": "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f",
                                    "phase": credentials.phase.rawValue,
                                    "category": credentials.category.rawValue,
                                    "profession": credentials.profession,
@@ -70,7 +70,9 @@ struct AuthService {
         
         COLLECTION_USERS.document(uid).setData(data, completion: completion)
         
-        DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
+        //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid, profilePictureUrl: "", profession: <#T##String#>, speciality: <#T##String#>, category: <#T##String#>))
+        
+        //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
     }
     
     static func updateUserRegistrationCategoryDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {

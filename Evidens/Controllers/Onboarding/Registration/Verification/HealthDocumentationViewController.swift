@@ -237,6 +237,7 @@ class HealthDocumentationViewController: UIViewController {
                                 return
                             }
                             // All documentation uploaded present Waiting VC
+                            DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString))
                             print("Doc uploaded")
                         }
                     }

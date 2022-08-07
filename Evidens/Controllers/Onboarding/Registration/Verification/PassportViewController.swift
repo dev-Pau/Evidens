@@ -259,14 +259,16 @@ class PassportViewController: UIViewController {
         guard let frontImage = frontImageBackgroundView.image else { return }
         if hasCode {
             guard let uid = user.uid, let membershipCode = membershipCodeTextField.text else { return }
-            showLoadingView()
+            //showLoadingView()
             StorageManager.uploadDocumentationImage(images: [frontImage], type: "passport", uid: uid) { uploaded in
                 if uploaded {
-                    self.dismissLoadingView()
+                    //self.dismissLoadingView()
                     AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
                         if let error = error {
                             print(error.localizedDescription)
                         }
+                        DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString))
+                        
                         let controller = WaitingVerificationViewController(user: self.user)
                         let navigationController = UINavigationController(rootViewController: controller)
                         navigationController.modalPresentationStyle = .fullScreen

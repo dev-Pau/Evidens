@@ -27,7 +27,6 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
         label.textAlignment = .center
         label.layer.contentsGravity = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Pau Fernández Solà"
         return label
     }()
     
@@ -58,7 +57,7 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     
     func set(userInfo: [String: String]) {
         nameLabel.text = userInfo["name"]
-        //profileImageView = 
+        profileImageView.sd_setImage(with: URL(string: userInfo["profileImageUrl"]!))
     }
      
 }

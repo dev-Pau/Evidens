@@ -36,8 +36,11 @@ extension DatabaseManager {
                 //append to user dictionary
                 let newUser = ["name": user.firstName + " " + user.lastName,
                                "emailAddress": user.emailAddress,
-                               "uid": user.uid
-                              ]
+                               "uid": user.uid,
+                               "profileImageUrl": user.profilePictureUrl,
+                               "profession": user.profession,
+                               "category": user.category,
+                               "speciality": user.speciality]
                 userCollection.append(newUser)
                 
                 self.database.child("users").setValue(userCollection) { error, _ in
@@ -1131,5 +1134,8 @@ struct ChatUser {
     let lastName: String
     let emailAddress: String
     let uid: String
-    //let profilePictureUrl: URL
+    let profilePictureUrl: String
+    let profession: String
+    let speciality: String
+    let category: String
 }

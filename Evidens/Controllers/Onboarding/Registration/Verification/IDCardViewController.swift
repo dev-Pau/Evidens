@@ -347,6 +347,9 @@ class IDCardViewController: UIViewController {
                         if let error = error {
                             print(error.localizedDescription)
                         }
+                        
+                        DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString))
+                        
                         let controller = WaitingVerificationViewController(user: self.user)
                         let navigationController = UINavigationController(rootViewController: controller)
                         navigationController.modalPresentationStyle = .fullScreen

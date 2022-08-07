@@ -195,12 +195,9 @@ class UserProfileViewController: UIViewController {
         
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
+                
                     let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
+                    section.boundarySupplementaryItems = [header]
                     return section
                 }
             } else if sectionNumber == 2 {
