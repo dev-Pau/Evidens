@@ -44,7 +44,7 @@ class AddLanguageViewController: UIViewController {
     
     private lazy var languageProficiencyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Proficiency"
+        label.text = "Proficiency *"
         label.textColor = grayColor
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
@@ -53,7 +53,9 @@ class AddLanguageViewController: UIViewController {
     }()
     
     private lazy var languageProficiencyTextField: UITextField = {
-        let attrString = NSMutableAttributedString(string: "Proficiency", attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
+        let text = "Proficiency *"
+        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
+        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor

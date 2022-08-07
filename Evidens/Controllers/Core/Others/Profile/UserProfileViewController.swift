@@ -55,12 +55,30 @@ class UserProfileViewController: UICollectionViewController {
     }
         
     // Sections
+    
+    //About
     private var hasAbout: Bool = false
     private var aboutText: String = ""
     
     //Languages
     private var hasLanguages: Bool = false
     private var languages = [[String: String]]()
+    
+    //Patents
+    private var hasPatents: Bool = false
+    private var patents = [[String: Any]]()
+    
+    //Publications
+    private var hasPublications: Bool = false
+    private var publications = [[String: String]]()
+    
+    //Education
+    private var hasEducation: Bool = false
+    private var education = [[String: String]]()
+    
+    //Profession
+    private var hasExperiences: Bool = false
+    private var experience = [[String: String]]()
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -75,6 +93,10 @@ class UserProfileViewController: UICollectionViewController {
         fetchRecentPosts()
         fetchRecentCases()
         fetchLanguages()
+        fetchPatents()
+        fetchPublications()
+        fetchEducation()
+        fetchExperience()
         fetchSections()
         checkIfUserIsFollowed()
         configureNavigationItemButton()
@@ -339,6 +361,21 @@ class UserProfileViewController: UICollectionViewController {
         }
     }
     
+    func fetchEducation() {
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchEducation(forUid: uid) { result in
+            switch result {
+            case .success(let education):
+                self.education = education
+                self.hasEducation = true
+                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.collectionView.reloadData()
+            case .failure(_):
+                print("No section")
+            }
+        }
+    }
+    
     func fetchSections() {
         // About Section
         guard let uid = user.uid else { return }
@@ -367,6 +404,54 @@ class UserProfileViewController: UICollectionViewController {
                 self.collectionView.reloadData()
             case .failure(_):
                 print("No languages ")
+            }
+        }
+    }
+    
+    func fetchExperience() {
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchExperience(forUid: uid) { result in
+            switch result {
+            case .success(let experiences):
+                //self.aboutText = sectionText
+                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.hasExperiences = true
+                self.experience = experiences
+                self.collectionView.reloadData()
+            case .failure(_):
+                print("No languages ")
+            }
+        }
+    }
+    
+    func fetchPatents() {
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchPatents(forUid: uid) { result in
+            switch result {
+            case .success(let languages):
+                //self.aboutText = sectionText
+                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.hasPatents = true
+                self.patents = languages
+                self.collectionView.reloadData()
+            case .failure(_):
+                print("No Patents")
+            }
+        }
+    }
+    
+    func fetchPublications() {
+        guard let uid = user.uid else { return }
+        DatabaseManager.shared.fetchPublications(forUid: uid) { result in
+            switch result {
+            case .success(let publications):
+                //self.aboutText = sectionText
+                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.hasPublications = true
+                self.publications = publications
+                self.collectionView.reloadData()
+            case .failure(_):
+                print("No publications")
             }
         }
     }
@@ -433,23 +518,40 @@ extension UserProfileViewController {
             // Comments
             return 3
         } else if section == 5 {
-            // Comments
-            return 3
+            if hasExperiences {
+                return min(experience.count, 3)
+            } else {
+                return 0
+            }
+            
         } else if section == 6 {
-            // Comments
-            return 3
+            if hasEducation {
+                return min(education.count, 3)
+            } else {
+                return 0
+            }
+            
         } else if section == 7 {
-            // Comments
-            return 3
+            if hasPatents {
+                return min(patents.count, 3)
+            } else {
+                return 0
+            }
+            
         } else if section == 8 {
-            // Comments
-            return 3
+            if hasPublications {
+                return min(publications.count, 3)
+            } else {
+                return 0
+            }
+
         } else if section == 9 {
             if hasLanguages {
                 return min(languages.count, 3)
             } else {
                 return 0
             }
+            
         } else {
             return 20
         }
@@ -517,19 +619,23 @@ extension UserProfileViewController {
         } else if indexPath.section == 5 {
             // Experience
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
+            cell.set(experienceInfo: experience[indexPath.row])
             return cell
             
         } else if indexPath.section == 6 {
             // Education
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
+            cell.set(educationInfo: education[indexPath.row])
             return cell
             
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
+            cell.set(patentInfo: patents[indexPath.row])
             return cell
             
         } else if indexPath.section == 8 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
+            cell.set(publicationInfo: publications[indexPath.row])
             return cell
             
         } else if indexPath.section == 9 {
@@ -555,7 +661,11 @@ extension UserProfileViewController {
             } else if indexPath.section == 4 {
                 header.set(title: "Comments")
             } else if indexPath.section == 5 {
-                header.set(title: "Experience")
+                if hasExperiences {
+                    header.set(title: "Experience")
+                } else {
+                    header.set(title: "")
+                }
             } else if indexPath.section == 6 {
                 header.set(title: "Education")
             } else if indexPath.section == 7 {
@@ -578,7 +688,11 @@ extension UserProfileViewController {
             } else if indexPath.section == 4 {
                 footer.set(title: "Show comments")
             } else if indexPath.section == 5 {
-                footer.set(title: "Show experiences")
+                if hasExperiences {
+                    footer.set(title: "Show experiences")
+                } else {
+                    footer.set(title: "")
+                }
             } else if indexPath.section == 6 {
                 footer.set(title: "Show education")
             } else if indexPath.section == 7 {

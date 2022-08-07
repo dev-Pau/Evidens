@@ -12,7 +12,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     private let educationCenterTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = "Universitat de Barcelona"
+        //label.text = "Universitat de Barcelona"
         label.textColor = .black
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 15, weight: .medium)
@@ -23,7 +23,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     private let educationTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = "Physiotherapy"
+        //label.text = "Physiotherapy"
         label.textAlignment = .left
         label.textColor = .black
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -44,7 +44,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.text = "2016 - Present"
+        //label.text = "2016 - Present"
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +64,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.text = "Master's degree"
+        //label.text = "Master's degree"
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -125,5 +125,12 @@ class UserProfileEducationCell: UICollectionViewCell {
             bottomView.leadingAnchor.constraint(equalTo: educationCenterTitleLabel.leadingAnchor),
             bottomView.trailingAnchor.constraint(equalTo: educationCenterTitleLabel.trailingAnchor)
         ])
+    }
+    
+    func set(educationInfo: [String: String]) {
+        educationCenterTitleLabel.text = educationInfo["school"]
+        educationTitleLabel.text = educationInfo["field"]
+        educationIntervalLabel.text = educationInfo["startDate"]! + " - " + educationInfo["endDate"]!
+        educationTypeLabel.text = educationInfo["degree"]
     }
 }

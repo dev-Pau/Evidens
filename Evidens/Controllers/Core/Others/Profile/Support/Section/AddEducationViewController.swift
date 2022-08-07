@@ -302,26 +302,40 @@ class AddEducationViewController: UIViewController {
         ])
     }
     
+    func updateEducationModel() {
+        guard let school = schoolTextField.text, let degree = degreeTypeTextField.text, let field = fieldOfStudyTextField.text, let startDate = startDateTextField.text, let endDate = endDateTextField.text else { return }
+           
+        navigationItem.rightBarButtonItem?.isEnabled = !school.isEmpty && !degree.isEmpty && !field.isEmpty && !startDate.isEmpty && (!endDate.isEmpty || conditionIsSelected) ? true : false
+    }
+    
     @objc func handleDone() {
-        print("Update experience")
+        guard let school = schoolTextField.text, let degree = degreeTypeTextField.text, let field = fieldOfStudyTextField.text, let startDate = startDateTextField.text, let endDate = endDateTextField.text else { return }
+        
+        let endDateText = conditionIsSelected ? "Present" : endDate
+        
+        DatabaseManager.shared.uploadEducation(school: school, degree: degree, field: field, startDate: startDate, endDate: endDateText) { uploaded in
+            print("Uploaded education")
+        }
     }
     
     @objc func handleAddStartDate() {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
-            
-            startDateTextField.text = formatter.string(from: startDatePicker.date)
-            view.endEditing(true)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        
+        startDateTextField.text = formatter.string(from: startDatePicker.date)
+        textDidChange(startDateTextField)
+        view.endEditing(true)
     }
     
     @objc func handleAddEndDate() {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
-            
-            endDateTextField.text = formatter.string(from: endDatePicker.date)
-            view.endEditing(true)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        
+        endDateTextField.text = formatter.string(from: endDatePicker.date)
+        textDidChange(endDateTextField)
+        view.endEditing(true)
     }
     
     @objc func handleProfessionConditions() {
@@ -339,6 +353,8 @@ class AddEducationViewController: UIViewController {
             endDateTextField.isHidden = false
             endDateTextField.isUserInteractionEnabled = true
         }
+        
+        updateEducationModel()
     }
     
     @objc func textDidChange(_ textField: UITextField) {
@@ -380,6 +396,8 @@ class AddEducationViewController: UIViewController {
                 endDateLabel.isHidden = true
             }
         }
+        
+        updateEducationModel()
     }
     
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {

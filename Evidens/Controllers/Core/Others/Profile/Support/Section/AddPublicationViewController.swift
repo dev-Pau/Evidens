@@ -45,58 +45,9 @@ class AddPublicationViewController: UIViewController {
         return tf
     }()
     
-    private let publisherLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Publisher title"
-        label.textColor = grayColor
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var publisherTextField: UITextField = {
-        let text = "Publisher title"
-        let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
-        let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
-        //tf.delegate = self
-        tf.tintColor = primaryColor
-        tf.font = .systemFont(ofSize: 17, weight: .regular)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
-        return tf
-    }()
-    
-    private lazy var publicationDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Description"
-        label.textColor = grayColor
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var publicationDescriptionTextView: InputTextView = {
-        let tv = InputTextView()
-        tv.placeholderText = "Description"
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .medium)
-        tv.placeholderLabel.textColor = .systemGray2
-        tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = .black
-        tv.delegate = self
-        tv.isScrollEnabled = false
-        tv.backgroundColor = lightColor
-        tv.layer.cornerRadius = 5
-        tv.autocorrectionType = .no
-        tv.placeHolderShouldCenter = false
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        return tv
-    }()
-    
     private let urlPublicationLabel: UILabel = {
         let label = UILabel()
-        label.text = "Publication URL"
+        //label.text = "Publication URL *"
         label.textColor = grayColor
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
@@ -105,8 +56,9 @@ class AddPublicationViewController: UIViewController {
     }()
     
     private lazy var urlPublicationTextField: UITextField = {
-        let text = "Publication URL"
+        let text = "Publication URL *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
+        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
@@ -118,7 +70,7 @@ class AddPublicationViewController: UIViewController {
     
     private let publicationDateLabel: UILabel = {
         let label = UILabel()
-        label.text = "Date"
+        //label.text = "Date"
         label.textColor = grayColor
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
@@ -127,8 +79,9 @@ class AddPublicationViewController: UIViewController {
     }()
     
     private lazy var publicationDateTextField: UITextField = {
-        let text = "Date"
+        let text = "Date *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .medium)])
+        attrString.setAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         let tf = METextField(attrPlaceholder: attrString, withSpacer: false)
         //tf.delegate = self
         tf.tintColor = primaryColor
@@ -198,6 +151,7 @@ class AddPublicationViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureDatePicker() {
@@ -208,19 +162,21 @@ class AddPublicationViewController: UIViewController {
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
         
         toolbar.setItems([flexibleSpace, doneButton], animated: true)
-       
+        
         publicationDateTextField.inputAccessoryView = toolbar
         publicationDateTextField.inputView = publicationDatePicker
-
+        
     }
     
     private func configureUI() {
         publicationTitleLabel.attributedText = generateSuperscriptFor(text: "Publication title")
+        urlPublicationLabel.attributedText = generateSuperscriptFor(text: "Publication URL")
+        publicationDateLabel.attributedText = generateSuperscriptFor(text: "Date")
         
         view.backgroundColor = .white
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(publicationTitleLabel, publicationTitleTextField, publisherLabel, publisherTextField, publicationDescriptionLabel, publicationDescriptionTextView, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField)
+        scrollView.addSubviews(publicationTitleLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -237,26 +193,9 @@ class AddPublicationViewController: UIViewController {
             publicationTitleLabel.leadingAnchor.constraint(equalTo: publicationTitleTextField.leadingAnchor),
             publicationTitleLabel.trailingAnchor.constraint(equalTo: publicationTitleTextField.trailingAnchor),
             
-            publisherTextField.topAnchor.constraint(equalTo: publicationTitleTextField.bottomAnchor, constant: 20),
-            publisherTextField.leadingAnchor.constraint(equalTo: publicationTitleTextField.leadingAnchor),
-            publisherTextField.trailingAnchor.constraint(equalTo: publicationTitleTextField.trailingAnchor),
-            publisherTextField.heightAnchor.constraint(equalToConstant: 35),
-            
-            publisherLabel.bottomAnchor.constraint(equalTo: publisherTextField.topAnchor, constant: -2),
-            publisherLabel.leadingAnchor.constraint(equalTo: publisherTextField.leadingAnchor),
-            publisherLabel.trailingAnchor.constraint(equalTo: publisherTextField.trailingAnchor),
-            
-            publicationDescriptionTextView.topAnchor.constraint(equalTo: publisherTextField.bottomAnchor, constant: 20),
-            publicationDescriptionTextView.leadingAnchor.constraint(equalTo: publisherTextField.leadingAnchor),
-            publicationDescriptionTextView.trailingAnchor.constraint(equalTo: publisherTextField.trailingAnchor),
-            
-            publicationDescriptionLabel.bottomAnchor.constraint(equalTo: publicationDescriptionTextView.topAnchor, constant: -2),
-            publicationDescriptionLabel.leadingAnchor.constraint(equalTo: publicationDescriptionTextView.leadingAnchor),
-            publicationDescriptionLabel.trailingAnchor.constraint(equalTo: publicationDescriptionTextView.trailingAnchor),
-            
-            urlPublicationTextField.topAnchor.constraint(equalTo: publicationDescriptionTextView.bottomAnchor, constant: 20),
-            urlPublicationTextField.leadingAnchor.constraint(equalTo: publicationDescriptionTextView.leadingAnchor),
-            urlPublicationTextField.trailingAnchor.constraint(equalTo: publicationDescriptionTextView.trailingAnchor),
+            urlPublicationTextField.topAnchor.constraint(equalTo: publicationTitleTextField.bottomAnchor, constant: 20),
+            urlPublicationTextField.leadingAnchor.constraint(equalTo: publicationTitleTextField.leadingAnchor),
+            urlPublicationTextField.trailingAnchor.constraint(equalTo: publicationTitleTextField.trailingAnchor),
             
             urlPublicationLabel.bottomAnchor.constraint(equalTo: urlPublicationTextField.topAnchor, constant: -2),
             urlPublicationLabel.leadingAnchor.constraint(equalTo: urlPublicationTextField.leadingAnchor),
@@ -288,8 +227,18 @@ class AddPublicationViewController: UIViewController {
         ])
     }
     
+    func updatePublicationForm() {
+        guard let title = publicationTitleTextField.text, let dateText = publicationDateTextField.text, let url = urlPublicationTextField.text  else { return }
+        navigationItem.rightBarButtonItem?.isEnabled = !title.isEmpty && !dateText.isEmpty && !url.isEmpty  ? true : false
+    }
+    
     @objc func handleDone() {
-        print("Update experience")
+        guard let title = publicationTitleTextField.text, let url = urlPublicationTextField.text, let date = publicationDateTextField.text else { return }
+        DatabaseManager.shared.uploadPublication(title: title, url: url, date: date) { uploaded in
+            if uploaded {
+                print("Publication uploaded")
+            }
+        }
     }
     
     @objc func handleAddDate() {
@@ -298,6 +247,7 @@ class AddPublicationViewController: UIViewController {
         formatter.timeStyle = .none
         
         publicationDateTextField.text = formatter.string(from: publicationDatePicker.date)
+        textDidChange(publicationDateTextField)
         view.endEditing(true)
     }
     
@@ -312,13 +262,26 @@ class AddPublicationViewController: UIViewController {
                 publicationTitleLabel.isHidden = true
             }
             
-        } else if textField == publisherTextField {
+            updatePublicationForm()
+        }
+        
+        if textField == publicationDateTextField {
             if count != 0 {
-                publisherLabel.isHidden = false
+                publicationDateLabel.isHidden = false
             } else {
-                publisherLabel.isHidden = true
+                publicationDateLabel.isHidden = true
             }
         }
+        
+        if textField == urlPublicationTextField {
+            if count != 0 {
+                urlPublicationLabel.isHidden = false
+            } else {
+                urlPublicationLabel.isHidden = true
+            }
+        }
+        
+        updatePublicationForm()
     }
     
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
@@ -328,16 +291,3 @@ class AddPublicationViewController: UIViewController {
         return attrString
     }
 }
-
-extension AddPublicationViewController: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        let count = textView.text.count
-        
-        if count != 0 {
-            publicationDescriptionLabel.isHidden = false
-        } else {
-            publicationDescriptionLabel.isHidden = true
-        }
-    }
-}
-

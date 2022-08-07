@@ -12,7 +12,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     private let professionCenterTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = "Kinevic"
+        //label.text = "Kinevic"
         label.textColor = .black
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 15, weight: .medium)
@@ -23,7 +23,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     private let professionJobTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = "Physiotherapist"
+        //label.text = "Physiotherapist"
         label.textAlignment = .left
         label.textColor = .black
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -44,20 +44,9 @@ class UserProfileExperienceCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.text = "2016 - Present"
+        //label.text = "2016 - Present"
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = grayColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let jobDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .left
-        label.numberOfLines = 3
-        label.text = "A registered nurse must go through specialty training in nursing, which can be done through a bachelor’s degree, an associate’s degree or an approved certificate program. The skills required vary from job to job, but it is common for nurses to have strong interpersonal skills. Reading job description examples provides you with additional information to help determine what to include in your own description."
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -80,7 +69,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
-        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, jobDescriptionLabel, bottomView)
+        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, bottomView)
         
         NSLayoutConstraint.activate([
             professionCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -91,11 +80,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
             professionJobTitleLabel.leadingAnchor.constraint(equalTo: professionCenterTitleLabel.leadingAnchor),
             professionJobTitleLabel.trailingAnchor.constraint(equalTo: professionCenterTitleLabel.trailingAnchor),
             
-            jobDescriptionLabel.topAnchor.constraint(equalTo: professionJobTitleLabel.bottomAnchor, constant: 10),
-            jobDescriptionLabel.leadingAnchor.constraint(equalTo: professionJobTitleLabel.leadingAnchor),
-            jobDescriptionLabel.trailingAnchor.constraint(equalTo: professionJobTitleLabel.trailingAnchor),
-            
-            calendarImage.topAnchor.constraint(equalTo: jobDescriptionLabel.bottomAnchor, constant: 10),
+            calendarImage.topAnchor.constraint(equalTo: professionJobTitleLabel.bottomAnchor, constant: 10),
             calendarImage.leadingAnchor.constraint(equalTo: professionJobTitleLabel.leadingAnchor),
             calendarImage.widthAnchor.constraint(equalToConstant: 15),
             calendarImage.heightAnchor.constraint(equalToConstant: 15),
@@ -111,6 +96,12 @@ class UserProfileExperienceCell: UICollectionViewCell {
             bottomView.leadingAnchor.constraint(equalTo: professionCenterTitleLabel.leadingAnchor),
             bottomView.trailingAnchor.constraint(equalTo: professionCenterTitleLabel.trailingAnchor)
         ])
+    }
+    
+    func set(experienceInfo: [String: String]) {
+        professionCenterTitleLabel.text = experienceInfo["company"]
+        professionJobTitleLabel.text = experienceInfo["role"]
+        jobIntervalLabel.text = experienceInfo["startDate"]! + " - " + experienceInfo["endDate"]!
     }
     
 }

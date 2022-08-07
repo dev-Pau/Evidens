@@ -264,6 +264,215 @@ extension DatabaseManager {
     }
 }
 
+//MARK: - User Patents
+
+extension DatabaseManager {
+    
+    public func uploadPatent(title: String, number: String, description: String?, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("\(uid)/patents")
+        
+        let patentData = ["title": title,
+                          "number": number,
+                          "description": description as Any]
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var patents = snapshot.value as? [[String: Any]] {
+                patents.append(patentData)
+                
+                ref.setValue(patents) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                ref.setValue([patentData]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+        let ref = database.child("\(uid)/patents")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let patents = snapshot.value as? [[String: Any]] {
+                completion(.success(patents))
+            }
+        }
+    }
+}
+
+//MARK: - User Publications
+
+extension DatabaseManager {
+    
+    public func uploadPublication(title: String, url: String, date: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("\(uid)/publications")
+        
+        let publicationData = ["title": title,
+                               "url": url,
+                               "date": date]
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var publications = snapshot.value as? [[String: String]] {
+                publications.append(publicationData)
+                
+                ref.setValue(publications) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                ref.setValue([publicationData]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("\(uid)/publications")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let publications = snapshot.value as? [[String: String]] {
+                completion(.success(publications))
+            }
+        }
+    }
+}
+
+//MARK: - User Education
+
+extension DatabaseManager {
+    
+    public func uploadEducation(school: String, degree: String, field: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("\(uid)/education")
+        
+        let educationData = ["school": school,
+                               "degree": degree,
+                               "field": field,
+                               "startDate": startDate,
+                               "endDate": endDate]
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var education = snapshot.value as? [[String: String]] {
+                education.append(educationData)
+                
+                ref.setValue(education) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                ref.setValue([educationData]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchEducation(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("\(uid)/education")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let education = snapshot.value as? [[String: String]] {
+                completion(.success(education))
+            }
+        }
+    }
+}
+
+
+//MARK: - User Experience
+
+extension DatabaseManager {
+    
+    public func uploadExperience(role: String, company: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("\(uid)/experience")
+        
+        let experienceData = ["role": role,
+                               "company": company,
+                               "startDate": startDate,
+                               "endDate": endDate]
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var experience = snapshot.value as? [[String: String]] {
+                experience.append(experienceData)
+                
+                ref.setValue(experience) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                ref.setValue([experienceData]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchExperience(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("\(uid)/experience")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let experience = snapshot.value as? [[String: String]] {
+                completion(.success(experience))
+            }
+        }
+    }
+}
+
+
 //MARK: - User Recent Cases
 
 extension DatabaseManager {

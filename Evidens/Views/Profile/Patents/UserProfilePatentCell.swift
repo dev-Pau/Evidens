@@ -84,4 +84,17 @@ class UserProfilePatentCell: UICollectionViewCell {
             bottomView.trailingAnchor.constraint(equalTo: patentTitleLabel.trailingAnchor)
         ])
     }
+    
+    func set(patentInfo: [String: Any]) {
+        patentTitleLabel.text = patentInfo["title"] as? String
+        patentNumberLabel.text = patentInfo["number"] as? String
+        
+        if let description = patentInfo["description"] as? String, description.count != 0 {
+            patentDescriptionLabel.text = description
+        } else {
+            patentDescriptionLabel.setHeightConstraint(toConstant: 0)
+            patentDescriptionLabel.removeFromSuperview()
+            patentNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10).isActive = true
+        }
+    }
 }

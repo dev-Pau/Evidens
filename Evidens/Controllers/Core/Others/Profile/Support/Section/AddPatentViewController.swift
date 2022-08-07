@@ -144,6 +144,7 @@ class AddPatentViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureUI() {
@@ -205,8 +206,20 @@ class AddPatentViewController: UIViewController {
         ])
     }
     
+    private func updatePatentForm() {
+        guard let text = patentTitleTextField.text, let number = patentNumberTextField.text else { return }
+        if !text.isEmpty && !number.isEmpty {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        } else {
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        }
+    }
+    
     @objc func handleDone() {
-        print("Update experience")
+        guard let title = patentTitleTextField.text, let number = patentNumberTextField.text else { return }
+        DatabaseManager.shared.uploadPatent(title: title, number: number, description: patentDescriptionTextView.text) { uploaded in
+            print("patent uploaded")
+        }
     }
     
     @objc func textDidChange(_ textField: UITextField) {
@@ -227,6 +240,8 @@ class AddPatentViewController: UIViewController {
                 patentNumberLabel.isHidden = true
             }
         }
+        
+        updatePatentForm()
     }
     
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
