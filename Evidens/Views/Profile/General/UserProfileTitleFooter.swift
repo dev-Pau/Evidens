@@ -12,19 +12,11 @@ class UserProfileTitleFooter: UICollectionReusableView {
     private var sectionAboutTitle: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let buttonImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.image = UIImage(systemName: "arrow.forward", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
+   
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -36,16 +28,13 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = .white
-        addSubviews(sectionAboutTitle, buttonImageView)
+        addSubviews(sectionAboutTitle)
         
         NSLayoutConstraint.activate([
-            buttonImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            buttonImageView.heightAnchor.constraint(equalToConstant: 20),
-            buttonImageView.widthAnchor.constraint(equalToConstant: 20),
-
-            sectionAboutTitle.centerYAnchor.constraint(equalTo: centerYAnchor),
-            sectionAboutTitle.trailingAnchor.constraint(equalTo: buttonImageView.leadingAnchor, constant: -5)
+            sectionAboutTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            sectionAboutTitle.leadingAnchor.constraint(equalTo: leadingAnchor),
+            sectionAboutTitle.trailingAnchor.constraint(equalTo: trailingAnchor),
+            sectionAboutTitle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     

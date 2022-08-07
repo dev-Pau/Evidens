@@ -55,11 +55,10 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    /*
-    func configure() {
-        guard let viewModel = viewModel else { return }
-        nameLabel.text = viewModel.firstName + " " + viewModel.lastName
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+    
+    func set(userInfo: [String: String]) {
+        nameLabel.text = userInfo["name"]
+        //profileImageView = 
     }
-     */
+     
 }
