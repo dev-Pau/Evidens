@@ -159,6 +159,84 @@ extension DatabaseManager {
     }
 }
 
+//MARK: - User Recent Comments
+
+enum CommentType {
+    case post
+    case clinlicalCase
+    
+    var commentType: Int {
+        switch self {
+        case .post:
+            return 0
+        case .clinlicalCase:
+            return 1
+        }
+    }
+}
+
+extension DatabaseManager {
+    
+    /// Uploads a comment to recents
+    ///     /// Parameters:
+    /// - `withUid`:   UID of the post or clinical case
+    public func uploadRecentComments(withUid refUid: String, title: String, comment: String, type: CommentType,  completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("\(uid)/recentComments")
+        
+        let newRecentComment = ["refUid": refUid,
+                                "title": title,
+                                "comment": comment,
+                                "type": type.commentType] as [String : Any]
+        
+        // Check if user has recent searches
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var recentComments = snapshot.value as? [[String: Any]] {
+                // Recent searches document exists, append new search
+                
+                if recentComments.count == 3 {
+                    recentComments.removeFirst()
+                    recentComments.append(newRecentComment)
+                } else {
+                    recentComments.append(newRecentComment)
+                }
+                
+                ref.setValue(recentComments) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                // First time user searches, create a new document
+                ref.setValue([newRecentComment]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+        let ref = database.child("\(uid)/recentComments")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                print("error")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let recentComments = snapshot.value as? [[String: Any]] {
+                completion(.success(recentComments.reversed()))
+            }
+        }
+    }
+}
+
+
 //MARK: - User Recent Posts
 
 extension DatabaseManager {

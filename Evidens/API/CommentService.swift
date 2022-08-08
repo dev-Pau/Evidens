@@ -9,7 +9,7 @@ import Firebase
 
 struct CommentService {
     
-    static func uploadComment(comment: String, post: Post, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadComment(comment: String, post: Post, user: User, completion: @escaping(String) -> Void) {
 
         let data: [String: Any] = ["uid": user.uid as Any,
                                    "comment": comment,
@@ -21,8 +21,12 @@ struct CommentService {
                                    "lastName": user.lastName as Any,
                                    "profileImageUrl": user.profileImageUrl as Any]
         
-        COLLECTION_POSTS.document(post.postId).collection("comments").addDocument(data: data, completion: completion)
+        let caseRef = COLLECTION_POSTS.document(post.postId).collection("comments").addDocument(data: data, completion: { _ in
+            print("case uploaded")
+        })
         
+        completion(caseRef.documentID)
+                                                                                         
         //Update number of comments for the post
         COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments + 1])
     }
@@ -46,7 +50,7 @@ struct CommentService {
         }
     }
     
-    static func uploadCaseComment(comment: String, clinicalCase: Case, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadCaseComment(comment: String, clinicalCase: Case, user: User, completion: @escaping(String) -> Void) {
 
         let data: [String: Any] = ["uid": user.uid as Any,
                                    "comment": comment,
@@ -58,9 +62,13 @@ struct CommentService {
                                    "lastName": user.lastName as Any,
                                    "profileImageUrl": user.profileImageUrl as Any]
         
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").addDocument(data: data, completion: completion)
+        let caseRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").addDocument(data: data, completion: { error in
+            print("comment case uploaded")
+        })
+        //Update recent comments for the user
+        completion(caseRef.documentID)
         
-        //Update number of comments for the post
+        //Update number of comments for the case
         COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
     }
     

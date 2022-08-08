@@ -23,6 +23,17 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.numberOfLines = 1
+        label.textAlignment = .center
+        label.layer.contentsGravity = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let professionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 10, weight: .medium)
+        label.textColor = primaryColor
         label.numberOfLines = 2
         label.textAlignment = .center
         label.layer.contentsGravity = .center
@@ -35,7 +46,7 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
-        addSubviews(profileImageView, nameLabel)
+        addSubviews(profileImageView, nameLabel, professionLabel)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -45,7 +56,11 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
             
             nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 3)
+            nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 3),
+            
+            professionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
         ])
         
         profileImageView.layer.cornerRadius = 60/2
@@ -56,8 +71,24 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     }
     
     func set(userInfo: [String: String]) {
+        guard let uid = userInfo["uid"] else { return }
         nameLabel.text = userInfo["name"]
-        profileImageView.sd_setImage(with: URL(string: userInfo["profileImageUrl"]!))
+        professionLabel.text = userInfo["profession"]
+        
+        
+        let path = "/profile_images/\(uid)"
+        StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
+            switch result {
+            case .success(let url):
+                
+                DispatchQueue.main.async {
+                    self?.profileImageView.sd_setImage(with: url, completed: nil)
+                }
+                
+            case.failure(let error):
+                print("failed to get image url: \(error)")
+            }
+        })
     }
      
 }

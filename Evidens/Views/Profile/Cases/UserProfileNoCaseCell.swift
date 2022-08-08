@@ -68,8 +68,14 @@ class UserProfileNoCaseCell: UICollectionViewCell {
         
     }
     
-    func configure(name: String) {
-        postTextLabel.text = "\(name) hasn't shared any case lately."
+    func configure(user: User) {
+        if user.isCurrentUser {
+            postTextLabel.text = "You havn't shared any case lately"
+            postTextSubLabel.text = "You will be able to see your cases here."
+        } else {
+            postTextLabel.text = "\(user.firstName!) hasn't shared any case lately."
+            postTextSubLabel.text = "You will be able to see their cases here."
+        }
     }
 }
 

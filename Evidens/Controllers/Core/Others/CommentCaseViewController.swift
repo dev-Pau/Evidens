@@ -122,7 +122,6 @@ extension CommentCaseViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         return cell
-        
     }
     /*
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -150,8 +149,14 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
         //Show loader to block user interactions
         self.view.isUserInteractionEnabled = false
         //Upload commento to Firebase
-        CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { error in
+        CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { caseDocID in
             //Unshow loader
+            
+            DatabaseManager.shared.uploadRecentComments(withUid: caseDocID, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase) { uploaded in
+                print("Comment uploaded to realtime recent comments")
+            }
+            
+            
             self.clinicalCase.numberOfComments += 1
             inputView.clearCommentTextView()
             

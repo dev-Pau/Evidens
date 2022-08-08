@@ -35,7 +35,7 @@ class ProfileImageViewController: UIViewController {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = primaryColor
         iv.isUserInteractionEnabled = true
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         iv.addGestureRecognizer(pan)

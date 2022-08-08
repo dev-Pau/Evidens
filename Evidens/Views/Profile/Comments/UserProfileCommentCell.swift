@@ -9,69 +9,49 @@ import UIKit
 
 class UserProfileCommentCell: UICollectionViewCell {
     
+    private var caseTitleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private var commentTextLabel: UILabel = {
         let label = UILabel()
-        label.text = "Pau Fernández Solà commented on this case"
         label.textColor = .black
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.numberOfLines = 3
+        label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private var commentUserLabel: UILabel = {
         let label = UILabel()
-        label.text = "This is clearly a main form of communication within health care"
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
+        label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let likesButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
-        //button.configuration?.baseForegroundColor = pinkColor
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    private var commentHeightView: UIView = {
+        let view = UIView()
+        view.backgroundColor = primaryColor
+        view.layer.cornerRadius = 3
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
-    
-    private let likesCommentsLabel: UILabel = {
-        let label = UILabel()
-        label.text = "24 · 36 comments"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.numberOfLines = 0
-        label.textAlignment = .left
-        label.textColor = grayColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let timeLabel: UILabel = {
-        let label = UILabel()
-        label.text = "3h ago"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.numberOfLines = 0
-        label.textColor = grayColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
+
     private let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    //image of post if it has
-    //text of post to show x lines
-    //time slot
-    
-    //likes and comments
-    
+   
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -84,29 +64,27 @@ class UserProfileCommentCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .white
         
-        addSubviews(commentTextLabel, commentUserLabel, likesButton, likesCommentsLabel, timeLabel, separatorView)
+        addSubviews(caseTitleLabel, commentTextLabel, commentUserLabel, separatorView, commentHeightView)
         
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
-            commentTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
+            commentTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             commentTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            commentUserLabel.topAnchor.constraint(equalTo: commentTextLabel.bottomAnchor, constant: 5),
-            commentUserLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseTitleLabel.topAnchor.constraint(equalTo: commentTextLabel.bottomAnchor, constant: 10),
+            caseTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            commentUserLabel.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 5),
+            commentUserLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             commentUserLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            likesButton.topAnchor.constraint(equalTo: commentUserLabel.bottomAnchor, constant: 10),
-            likesButton.leadingAnchor.constraint(equalTo: commentUserLabel.leadingAnchor),
-            likesButton.widthAnchor.constraint(equalToConstant: 12),
-            likesButton.heightAnchor.constraint(equalToConstant: 12),
-            
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            commentHeightView.topAnchor.constraint(equalTo: commentUserLabel.topAnchor),
+            commentHeightView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            commentHeightView.trailingAnchor.constraint(equalTo: commentUserLabel.leadingAnchor, constant: -5),
+            commentHeightView.bottomAnchor.constraint(equalTo: commentUserLabel.bottomAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -116,7 +94,23 @@ class UserProfileCommentCell: UICollectionViewCell {
         
     }
     
-    private func configure() {
+    func configure(commentInfo: [String: Any], user: User) {
         
+        let commentType = commentInfo["type"] as? Int
+        let firstName = user.isCurrentUser ? "You" : user.firstName
+        
+        if commentType == 0 {
+            // Post
+            commentTextLabel.text = firstName! + " commented on this post"
+        } else {
+            // Clinical case
+            commentTextLabel.text = firstName! + " commented on this case"
+        }
+        
+        commentUserLabel.text = commentInfo["comment"] as? String
+        caseTitleLabel.text = commentInfo["title"] as? String
+        //if user.isCurrentUser {
+            //label.text = "Pau Fernández Solà commented on this case"
+        //}
     }
 }

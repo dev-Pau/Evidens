@@ -1,13 +1,13 @@
 //
-//  UserProfileNoPostCell.swift
+//  UserProfileNoCommentsCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 6/8/22.
+//  Created by Pau Fernández Solà on 8/8/22.
 //
 
 import UIKit
 
-class UserProfileNoPostCell: UICollectionViewCell {
+class UserProfileNoCommentsCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
@@ -23,7 +23,6 @@ class UserProfileNoPostCell: UICollectionViewCell {
         label.textColor = grayColor
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
-       
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -70,12 +69,13 @@ class UserProfileNoPostCell: UICollectionViewCell {
     
     func configure(user: User) {
         if user.isCurrentUser {
-            postTextLabel.text = "You havn't posted lately"
-            postTextSubLabel.text = "You will be able to see your posts here."
+            postTextLabel.text = "You havn't commented on any case lately"
+            postTextSubLabel.text = "You will be able to see your comments here."
         } else {
-            postTextLabel.text = "\(user.firstName!) hasn't posted lately."
-            postTextSubLabel.text = "You will be able to see their posts here."
+            postTextLabel.text = "\(user.firstName!) hasn't commented on any case lately."
+            postTextSubLabel.text = "You will be able to see their comments here."
         }
     }
 }
+
 

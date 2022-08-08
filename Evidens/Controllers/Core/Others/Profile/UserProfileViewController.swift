@@ -17,6 +17,7 @@ private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let noRecentCasesCellReuseIdentifier = "NoRecentCasesCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
+private let noCommentsCellReuseIdentifier = "NoCommentsCellReuseIdentifier"
 private let commentsCellReuseIdentifier = "CommentsCellReuseIdentifier"
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
@@ -54,13 +55,20 @@ class UserProfileViewController: UIViewController {
         }
     }
     
+    var recentComments = [[String: Any]]() {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
+    
     var relatedUsers = [[String: String]]() {
         didSet {
-            collectionView.reloadSections(IndexSet(integer: 10))
+            collectionView.reloadData()
         }
     }
         
     // Sections
+    private var hasComments: Bool = false
     
     //About
     private var hasAbout: Bool = false
@@ -105,6 +113,7 @@ class UserProfileViewController: UIViewController {
         fetchLanguages()
         fetchPatents()
         fetchPublications()
+        fetchRecentComments()
         fetchEducation()
         fetchExperience()
         fetchSections()
@@ -160,6 +169,7 @@ class UserProfileViewController: UIViewController {
         collectionView.register(UserProfileNoCaseCell.self, forCellWithReuseIdentifier: noRecentCasesCellReuseIdentifier)
         collectionView.register(UserProfileCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        collectionView.register(UserProfileNoCommentsCell.self, forCellWithReuseIdentifier: noCommentsCellReuseIdentifier)
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
@@ -404,7 +414,7 @@ class UserProfileViewController: UIViewController {
                                                                          alignment: .top)
     
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-
+                item.contentInsets.leading = 10
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.30), heightDimension: .absolute(120)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
@@ -450,6 +460,20 @@ class UserProfileViewController: UIViewController {
                 }
             case .failure(_):
                 print("Failure fetching posts")
+            }
+        }
+    }
+    
+    func fetchRecentComments() {
+        guard let uid = user.uid else { return }
+        print("starting fetching comments")
+        DatabaseManager.shared.fetchRecentComments(forUid: uid) { result in
+            switch result {
+            case .success(let recentComments):
+                self.hasComments = true
+                self.recentComments = recentComments
+            case .failure(_):
+                print("Failure fetching recent comments")
             }
         }
     }
@@ -611,7 +635,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             } else {
                 return min(recentPosts.count, 3)
             }
-            //return 3 // return 3 which is the max or return the minimum between posts and 3. if user has 0 posts, display cell with no activity data
         } else if section == 3 {
             // Cases
             if user.stats.cases == 0 {
@@ -620,8 +643,11 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 return min(recentCases.count, 3)
             }
         } else if section == 4 {
-            // Comments
-            return 3
+            if hasComments {
+                return min(recentComments.count, 3)
+            } else {
+                return 1
+            }
         } else if section == 5 {
             if hasExperiences {
                 return min(experience.count, 3)
@@ -671,7 +697,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
-            // change for viewModel, fetch the information in the viewModel
             cell.set(body: aboutText)
             return cell
             
@@ -680,7 +705,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             if user.stats.posts == 0 {
                 // User has no recent posts, display no activity
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentPostsCellReuseIdentifier, for: indexPath) as! UserProfileNoPostCell
-                cell.configure(name: user.firstName!)
+                cell.configure(user: user)
                 return cell
                 
             } else {
@@ -701,7 +726,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Cases
             if user.stats.cases == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noRecentCasesCellReuseIdentifier, for: indexPath) as! UserProfileNoCaseCell
-                cell.configure(name: user.firstName!)
+                cell.configure(user: user)
                 return cell
             } else {
                 
@@ -718,8 +743,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 4 {
             // Comments
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
-            return cell
+            if hasComments {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
+                cell.configure(commentInfo: recentComments[indexPath.row], user: user)
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileNoCommentsCell
+                cell.configure(user: user)
+                return cell
+            }
+
             
         } else if indexPath.section == 5 {
             // Experience
