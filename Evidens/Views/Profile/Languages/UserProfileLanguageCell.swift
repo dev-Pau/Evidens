@@ -8,7 +8,7 @@
 import UIKit
 
 protocol UserProfileLanguageCellDelegate: AnyObject {
-    func didTapEditLanguage(languageName: String, languageProficiency: String)
+    func didTapEditLanguage(_ cell: UICollectionViewCell, languageName: String, languageProficiency: String)
 }
 
 class UserProfileLanguageCell: UICollectionViewCell {
@@ -94,7 +94,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     
     @objc func handleEditLanguage() {
         guard let languageName = languageTitleLabel.text, let languageProficiency = languageLevelLabel.text else { return }
-        delegate?.didTapEditLanguage(languageName: languageName, languageProficiency: languageProficiency)
+        delegate?.didTapEditLanguage(self, languageName: languageName, languageProficiency: languageProficiency)
     }
     
     func set(languageInfo: [String: String]) {

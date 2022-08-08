@@ -363,37 +363,54 @@ extension DatabaseManager {
         //print(myQuery)
     }
     
-    public func uploadLanguage(language: String, proficiency: String, completion: @escaping(Bool) -> Void) {
+    public func uploadLanguage(language: String, proficiency: String, languagePosition: Int?, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("users").child("\(uid)/languages")
+        //let ref = database.child("users").child("\(uid)/languages")
         
         let languageData = ["languageName": language,
                              "languageProficiency": proficiency]
         
-        // Check if user has recent searches
-
+        let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language)
         ref.observeSingleEvent(of: .value) { snapshot in
-            if var languages = snapshot.value as? [[String: String]] {
-                // Recent searches document exists, append new search
-                languages.append(languageData)
+
+            if snapshot.exists() {
+                print(snapshot)
+                guard let languagePosition = languagePosition else { return }
+
+                let languageRef = self.database.child("users").child(uid).child("languages").child("\(languagePosition)")
+                languageRef.setValue(languageData)
                 
-                ref.setValue(languages) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
+                //languageRef.removeValue i així s'esborra el node
+                
             } else {
-                // First time user searches, create a new document
-                ref.setValue([languageData]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
+                print("Language doesn't exist, create new one")
+                
+                let ref = self.database.child("users").child("\(uid)/languages")
+                ref.observeSingleEvent(of: .value) { snapshot in
+                    if var languages = snapshot.value as? [[String: String]] {
+                        // Recent searches document exists, append new search
+                        
+                        languages.append(languageData)
+                        
+                        ref.setValue(languages) { error, _ in
+                            if let _ = error {
+                                completion(false)
+                                return
+                            }
+                        }
+                    } else {
+                        // First time user searches, create a new document
+                        ref.setValue([languageData]) { error, _ in
+                            if let _ = error {
+                                completion(false)
+                                return
+                            }
+                        }
                     }
+                    completion(true)
                 }
             }
-            completion(true)
         }
     }
     

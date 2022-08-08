@@ -9,6 +9,8 @@ import UIKit
 
 class AddLanguageViewController: UIViewController {
     
+    private var languagePosition: Int?
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
@@ -114,7 +116,7 @@ class AddLanguageViewController: UIViewController {
     
     @objc func handleDone() {
         guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
-        DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency) { uploaded in
+        DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency, languagePosition: languagePosition) { uploaded in
             if uploaded {
                 self.navigationController?.popToRootViewController(animated: true)
             }
@@ -152,11 +154,13 @@ class AddLanguageViewController: UIViewController {
         return attrString
     }
     
-    func configureWithLanguage(languageName: String, languageProficiency: String) {
+    func configureWithLanguage(languageName: String, languageProficiency: String, position: Int) {
         languageTextField.text = languageName
         languageProficiencyTextField.text = languageProficiency
         textDidChange(languageTextField)
         textDidChange(languageProficiencyTextField)
+        
+        languagePosition = position
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }
