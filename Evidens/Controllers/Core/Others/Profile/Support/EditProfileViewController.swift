@@ -103,7 +103,7 @@ class EditProfileViewController: UICollectionViewController {
         }
         
         if lastNameDidChange {
-           updateUserLastName()
+           //updateUserLastName()
         }
         
     }
@@ -135,18 +135,28 @@ class EditProfileViewController: UICollectionViewController {
         }
     }
     
-    private func updateUserFirstName() {
-        UserService.updateUserFirstName(firstName: firstName) { error in
-            if let error = error {
-                print(error.localizedDescription)
+    private func updateUserLastName() {
+        DatabaseManager.shared.updateUserLastName(lastName: lastName) { updated in
+            if updated {
+                UserService.updateUserLastName(lastName: self.lastName) { error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    }
+                    self.dismiss(animated: true)
+                }
             }
         }
     }
     
-    private func updateUserLastName() {
-        UserService.updateUserLastName(lastName: lastName) { error in
-            if let error = error {
-                print(error.localizedDescription)
+    private func updateUserFirstName() {
+        DatabaseManager.shared.updateUserFirstName(firstName: firstName) { updated in
+            if updated {
+                UserService.updateUserFirstName(firstName: self.firstName) { error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    }
+                    self.dismiss(animated: true)
+                }
             }
         }
     }

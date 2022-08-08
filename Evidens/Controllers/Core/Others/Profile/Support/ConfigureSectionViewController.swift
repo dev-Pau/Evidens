@@ -67,8 +67,8 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
         backItem.tintColor = .black
         
         if indexPath.row == 0 {
-            let controller = AddSectionViewController()
-            controller.title = "Section"
+            let controller = AddAboutViewController()
+            controller.title = "About"
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.row == 1 {

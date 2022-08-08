@@ -368,6 +368,7 @@ class UserProfileViewController: UIViewController {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
+                    
                     let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionFooter,
                                                                              alignment: .bottom)
@@ -397,17 +398,21 @@ class UserProfileViewController: UIViewController {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
-                    
-                    return section
+                    if self.languages.count < 4 {
                         
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header]
+                        return section
+                    } else {
+                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionFooter,
+                                                                                 alignment: .bottom)
+                        
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header, footer]
+                        return section
+                    }
                 }
-                
             } else {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                          elementKind: ElementKind.sectionHeader,
@@ -514,11 +519,12 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchLanguages(forUid: uid) { result in
             switch result {
             case .success(let languages):
-                //self.aboutText = sectionText
-                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                
                 self.hasLanguages = true
                 self.languages = languages
-                self.collectionView.reloadData()
+                print(languages)
+                //self.collectionView.reloadData()
+                break
             case .failure(_):
                 print("No languages ")
             }
@@ -542,6 +548,7 @@ class UserProfileViewController: UIViewController {
     }
     
     func fetchRelated() {
+        /*
         DatabaseManager.shared.getAllUsers { result in
             switch result {
                 
@@ -551,6 +558,7 @@ class UserProfileViewController: UIViewController {
                 print("Failed to fetch users")
             }
         }
+         */
     }
     
     func fetchPatents() {
@@ -793,13 +801,21 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         switch kind {
         case ElementKind.sectionHeader:
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! UserProfileTitleHeader
+            header.delegate = self
+            
+            header.buttonImage.isHidden = user.isCurrentUser ? false : true
+            header.buttonImage.isEnabled = user.isCurrentUser ? true : false
+            
             if indexPath.section == 1 {
                 header.set(title: "About")
             }else if indexPath.section == 2 {
+                header.buttonImage.isHidden = true
                 header.set(title: "Posts")
             } else if indexPath.section == 3 {
+                header.buttonImage.isHidden = true
                 header.set(title: "Cases")
             } else if indexPath.section == 4 {
+                header.buttonImage.isHidden = true
                 header.set(title: "Comments")
             } else if indexPath.section == 5 {
                 header.set(title: "Experience")
@@ -812,6 +828,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             } else if indexPath.section == 9 {
                 header.set(title: "Languages")
             } else {
+                header.buttonImage.isHidden = true
                 header.set(title: "Related")
             }
             return header
@@ -841,6 +858,21 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             //assert(true)
             return UICollectionReusableView()
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 1 {
+            let controller = AboutSectionViewController(section: aboutText)
+            controller.title = "About"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
+        // Pending open cases, comments & posts
     }
 }
 
@@ -900,5 +932,40 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
             self.present(controller, animated: true)
         }
     }
+}
+
+extension UserProfileViewController: UserProfileTitleHeaderDelegate {
+    func didTapEditSection(sectionTitle: String) {
+        switch sectionTitle {
+        case "About":
+            let controller = AddAboutViewController()
+            controller.title = "About"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case "Languages":
+            let controller = LanguageSectionViewController(languages: languages)
+            controller.title = "Languages"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        default:
+            print("No cell registered")
+        }
+        
+
+    }
+    
+    
 }
 

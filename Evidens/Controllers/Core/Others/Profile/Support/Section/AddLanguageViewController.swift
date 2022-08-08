@@ -151,5 +151,13 @@ class AddLanguageViewController: UIViewController {
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         return attrString
     }
+    
+    func configureWithLanguage(languageName: String, languageProficiency: String) {
+        languageTextField.text = languageName
+        languageProficiencyTextField.text = languageProficiency
+        textDidChange(languageTextField)
+        textDidChange(languageProficiencyTextField)
+        navigationItem.rightBarButtonItem?.isEnabled = false
+    }
 }
 

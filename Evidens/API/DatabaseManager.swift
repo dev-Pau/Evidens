@@ -18,6 +18,7 @@ final class DatabaseManager {
     
 }
 
+
 //MARK: - Account Management
 
 extension DatabaseManager {
@@ -27,10 +28,10 @@ extension DatabaseManager {
     /// - `user`:   Target user to be inserted to database
     public func insertUser(with user: ChatUser) {
         //Create user entry based on UID
-        database.child(user.uid).setValue(["firstName": user.firstName,
+        database.child("users").child(user.uid).setValue(["firstName": user.firstName,
                                            "lastName": user.lastName,
                                            "emailAddress": user.emailAddress])
-        
+        /*
         self.database.child("users").observeSingleEvent(of: .value) { snapshot in
             if var userCollection = snapshot.value as? [[String: String]] {
                 //append to user dictionary
@@ -62,7 +63,32 @@ extension DatabaseManager {
                 //completion(true)
             }
         }
+         */
     }
+    
+    
+    public func updateUserFirstName(firstName: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child(uid)
+        ref.updateChildValues(["firstName": firstName]) { error, _ in
+            if let _ = error {
+                completion(false)
+            }
+            completion(true)
+        }
+    }
+    
+    public func updateUserLastName(lastName: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child(uid)
+        ref.updateChildValues(["lastName": lastName]) { error, _ in
+            if let _ = error {
+                completion(false)
+            }
+            completion(true)
+        }
+    }
+    
     /*
     public func updateUserCredentials(with user: ChatUser) {
         database.child("\(user.uid)/firstName").setValue(user.firstName)
@@ -70,6 +96,7 @@ extension DatabaseManager {
     }
      */
     
+    /*
     
     /// Get all users from database
     public func getAllUsers(completion: @escaping(Result<[[String: String]], Error>) -> Void) {
@@ -82,6 +109,7 @@ extension DatabaseManager {
             completion(.success(value))
         })
     }
+     */
     
     
     public enum DatabaseError: Error {
@@ -103,7 +131,7 @@ extension DatabaseManager {
     /// Uploads current user recent searches with the field searched
     public func uploadRecentSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("\(uid)/recentSearches")
+        let ref = database.child("users").child("\(uid)/recentSearches")
         
         // Check if user has recent searches
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -145,7 +173,7 @@ extension DatabaseManager {
     public func fetchRecentSearches(completion: @escaping(Result<[String], Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("\(uid)/recentSearches")
+        let ref = database.child("users").child("\(uid)/recentSearches")
         ref.getData { error, snapshot in
             guard error == nil else {
                 completion(.failure(DatabaseError.failedToFetch))
@@ -182,7 +210,7 @@ extension DatabaseManager {
     /// - `withUid`:   UID of the post or clinical case
     public func uploadRecentComments(withUid refUid: String, title: String, comment: String, type: CommentType,  completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("\(uid)/recentComments")
+        let ref = database.child("users").child("\(uid)/recentComments")
         
         let newRecentComment = ["refUid": refUid,
                                 "title": title,
@@ -221,7 +249,7 @@ extension DatabaseManager {
     }
     
     public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("\(uid)/recentComments")
+        let ref = database.child("users").child("\(uid)/recentComments")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -243,7 +271,7 @@ extension DatabaseManager {
     
     public func uploadRecentPost(withUid postUid: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("\(uid)/recentPosts")
+        let ref = database.child("users").child("\(uid)/recentPosts")
         
         // Check if user has recent searches
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -277,7 +305,7 @@ extension DatabaseManager {
     }
     
     public func fetchRecentPosts(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
-        let ref = database.child("\(uid)/recentPosts")
+        let ref = database.child("users").child("\(uid)/recentPosts")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -296,15 +324,55 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
+    public func filter() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: "English")
+        ref.observeSingleEvent(of: .value) { snapshot in
+            print(snapshot)
+            //rint(snapshot.children)
+            //ref.setV
+        
+            //ref.setValue(, forKey: )
+            //print(snapsh)
+            //ref.setValue()
+            
+        }
+        
+        /*
+        let ref = database.child("users").queryOrdered(byChild: "name").queryEqual(toValue: "Rita Book")
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            print(snapshot)
+            print(snapshot.children)
+        
+            ref.setValue(<#T##value: Any?##Any?#>, forKey: <#T##String#>)
+            //print(snapsh)
+            //ref.setValue()
+            
+        }
+        //print(ref)
+        //print("starting query")
+        //print(ref)
+         */
+/*
+ let query = Database.database().reference().child(ref).child(chatID).child("messages").queryOrdered(byChild: "timeStamp").queryLimited(toLast: 2000)
+             let d = try await query.getData()
+ */
+        
+        //print(myQuery)
+    }
+    
     public func uploadLanguage(language: String, proficiency: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("\(uid)/languages")
+        let ref = database.child("users").child("\(uid)/languages")
         
         let languageData = ["languageName": language,
                              "languageProficiency": proficiency]
         
         // Check if user has recent searches
+
         ref.observeSingleEvent(of: .value) { snapshot in
             if var languages = snapshot.value as? [[String: String]] {
                 // Recent searches document exists, append new search
@@ -330,14 +398,14 @@ extension DatabaseManager {
     }
     
     public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("\(uid)/languages")
+        let ref = database.child("users").child("\(uid)/languages")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            
+
             if let languages = snapshot.value as? [[String: String]] {
                 completion(.success(languages))
             }
@@ -352,7 +420,7 @@ extension DatabaseManager {
     public func uploadPatent(title: String, number: String, description: String?, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("\(uid)/patents")
+        let ref = database.child("users").child("\(uid)/patents")
         
         let patentData = ["title": title,
                           "number": number,
@@ -381,7 +449,7 @@ extension DatabaseManager {
     }
     
     public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("\(uid)/patents")
+        let ref = database.child("users").child("\(uid)/patents")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -403,7 +471,7 @@ extension DatabaseManager {
     public func uploadPublication(title: String, url: String, date: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("\(uid)/publications")
+        let ref = database.child("users").child("\(uid)/publications")
         
         let publicationData = ["title": title,
                                "url": url,
@@ -432,7 +500,7 @@ extension DatabaseManager {
     }
     
     public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("\(uid)/publications")
+        let ref = database.child("users").child("\(uid)/publications")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -454,7 +522,7 @@ extension DatabaseManager {
     public func uploadEducation(school: String, degree: String, field: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("\(uid)/education")
+        let ref = database.child("users").child("\(uid)/education")
         
         let educationData = ["school": school,
                                "degree": degree,
@@ -485,7 +553,7 @@ extension DatabaseManager {
     }
     
     public func fetchEducation(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("\(uid)/education")
+        let ref = database.child("users").child("\(uid)/education")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -508,7 +576,7 @@ extension DatabaseManager {
     public func uploadExperience(role: String, company: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("\(uid)/experience")
+        let ref = database.child("users").child("\(uid)/experience")
         
         let experienceData = ["role": role,
                                "company": company,
@@ -538,7 +606,7 @@ extension DatabaseManager {
     }
     
     public func fetchExperience(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("\(uid)/experience")
+        let ref = database.child("users").child("\(uid)/experience")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -560,7 +628,7 @@ extension DatabaseManager {
     
     public func uploadRecentCase(withUid caseUid: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("\(uid)/recentCases")
+        let ref = database.child("users").child("\(uid)/recentCases")
         
         // Check if user has recent searches
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -594,7 +662,7 @@ extension DatabaseManager {
     }
     
     public func fetchRecentCases(forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
-        let ref = database.child("\(uid)/recentCases")
+        let ref = database.child("users").child("\(uid)/recentCases")
         ref.getData { error, snapshot in
             guard error == nil else {
                 print("error")
@@ -615,7 +683,7 @@ extension DatabaseManager {
 extension DatabaseManager {
     public func uploadAboutSection(with aboutText: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("\(uid)/sections/about")
+        let ref = database.child("users").child("\(uid)/about")
         ref.setValue(aboutText) { error, _ in
             if let _ = error {
                 completion(false)
@@ -626,7 +694,7 @@ extension DatabaseManager {
     }
     
     public func fetchAboutSection(forUid uid: String, completion: @escaping(Result<String, Error>) -> Void) {
-        let ref = database.child("\(uid)/sections/about")
+        let ref = database.child("users").child("\(uid)/about")
         ref.getData { error, snapshot in
             guard error == nil else {
                 completion(.failure(DatabaseError.failedToFetch))

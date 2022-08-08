@@ -46,6 +46,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.white.cgColor
+        iv.backgroundColor = lightGrayColor
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapProfilePicture))
         iv.addGestureRecognizer(gesture)

@@ -138,6 +138,7 @@ extension NewConversationViewController: UISearchBarDelegate {
             filterUsers(with: query)
         } else {
             //Fetch and filter
+            /*
             DatabaseManager.shared.getAllUsers { [weak self] result in
                 switch result {
                 case .success(let userCollection):
@@ -148,6 +149,7 @@ extension NewConversationViewController: UISearchBarDelegate {
                     print("Failed to get users: \(error)")
                 }
             }
+            */
         }
         
     }

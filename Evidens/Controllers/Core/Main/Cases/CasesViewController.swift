@@ -18,11 +18,14 @@ class CasesViewController: UIViewController {
         didSet { collectionView.reloadData() }
     }
     
-    private let userImageView: UIImageView = {
+    private lazy var userImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
+        iv.addGestureRecognizer(tap)
+        iv.isUserInteractionEnabled = true
         return iv
     }()
     
@@ -127,6 +130,14 @@ class CasesViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(collectionView)
+    }
+    
+    @objc func didTapProfile() {
+        //DatabaseManager.shared.filter()
+        
+        UserService.fetchUsers { users in
+            print(users)
+        }
     }
     
     @objc func didTapChat() {

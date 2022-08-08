@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AddSectionViewController: UIViewController {
+class AddAboutViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -112,7 +112,7 @@ class AddSectionViewController: UIViewController {
     }
 }
 
-extension AddSectionViewController: UITextViewDelegate {
+extension AddAboutViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         navigationItem.rightBarButtonItem?.isEnabled = true
     }

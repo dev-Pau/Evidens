@@ -35,8 +35,9 @@ struct UserService {
     }
     
     static func updateUserFirstName(firstName: String, completion: @escaping(Error?) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["firstName": firstName], merge: true) { err in
+            
             if let err = err {
                 print("Error writing document: \(err)")
             } else {

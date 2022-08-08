@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol UserProfileLanguageCellDelegate: AnyObject {
+    func didTapEditLanguage(languageName: String, languageProficiency: String)
+}
+
 class UserProfileLanguageCell: UICollectionViewCell {
+    
+    weak var delegate: UserProfileLanguageCellDelegate?
     
     private let languageTitleLabel: UILabel = {
         let label = UILabel()
@@ -31,6 +37,18 @@ class UserProfileLanguageCell: UICollectionViewCell {
         return label
     }()
     
+    lazy var buttonImage: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.buttonSize = .mini
+        button.isHidden = true
+        button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleEditLanguage), for: .touchUpInside)
+        return button
+    }()
+    
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +67,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .white
-        addSubviews(languageTitleLabel, languageLevelLabel, separatorView)
+        addSubviews(languageTitleLabel, languageLevelLabel, buttonImage, separatorView)
         
         NSLayoutConstraint.activate([
             languageTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -64,9 +82,19 @@ class UserProfileLanguageCell: UICollectionViewCell {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: languageTitleLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: languageTitleLabel.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
+            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
+            
+            
  
         ])
+    }
+    
+    @objc func handleEditLanguage() {
+        guard let languageName = languageTitleLabel.text, let languageProficiency = languageLevelLabel.text else { return }
+        delegate?.didTapEditLanguage(languageName: languageName, languageProficiency: languageProficiency)
     }
     
     func set(languageInfo: [String: String]) {
