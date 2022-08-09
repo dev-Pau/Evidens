@@ -51,7 +51,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
         return label
     }()
     
-    private let bottomView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -69,7 +69,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
-        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, bottomView)
+        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, separatorView)
         
         NSLayoutConstraint.activate([
             professionCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -91,10 +91,10 @@ class UserProfileExperienceCell: UICollectionViewCell {
             jobIntervalLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
 
-            bottomView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomView.heightAnchor.constraint(equalToConstant: 1),
-            bottomView.leadingAnchor.constraint(equalTo: professionCenterTitleLabel.leadingAnchor),
-            bottomView.trailingAnchor.constraint(equalTo: professionCenterTitleLabel.trailingAnchor)
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: professionCenterTitleLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: professionCenterTitleLabel.trailingAnchor)
         ])
     }
     

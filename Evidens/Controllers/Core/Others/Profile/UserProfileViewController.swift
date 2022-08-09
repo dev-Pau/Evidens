@@ -314,19 +314,35 @@ class UserProfileViewController: UIViewController {
                     return section
                     
                 } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
                     
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                    if self.experience.count > 3 {
+                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionHeader,
+                                                                                 alignment: .top)
+                        
+                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                        
+                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionFooter,
+                                                                                 alignment: .bottom)
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header, footer]
+                        return section
+                    } else {
+                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionHeader,
+                                                                                 alignment: .top)
+                        
+                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                        
+                       
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header]
+                        return section
+                    }
                     
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
-                    return section
                 }
                 
             } else if sectionNumber == 6 {
@@ -421,7 +437,7 @@ class UserProfileViewController: UIViewController {
                 }
                
             } else if sectionNumber == 9 {
-                if self.hasLanguages == false {
+                if self.languages.count == 0 {
                     
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
@@ -444,6 +460,7 @@ class UserProfileViewController: UIViewController {
                         let section = NSCollectionLayoutSection(group: group)
                         section.boundarySupplementaryItems = [header]
                         return section
+                        
                     } else {
                         let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                                  elementKind: ElementKind.sectionFooter,
@@ -725,7 +742,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             }
 
         } else if section == 9 {
-            if hasLanguages {
+            if languages.count != 0 {
                 return min(languages.count, 3)
             } else {
                 return 0
@@ -762,9 +779,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     // Text Post
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
+                    if indexPath.row == recentPosts.count - 1 {
+                        cell.separatorView.isHidden = true
+                    }
+                    
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
+                    if indexPath.row == recentPosts.count - 1 {
+                        cell.separatorView.isHidden = true
+                    }
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
                     return cell
                 }
@@ -800,9 +824,14 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             if recentComments.count != 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
                 cell.configure(commentInfo: recentComments[indexPath.row], user: user)
+                if indexPath.row == recentComments.count - 1 {
+                    cell.separatorView.isHidden = true
+                }
+                
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileNoCommentsCell
+
                 cell.configure(user: user)
                 return cell
             }
@@ -812,17 +841,26 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Experience
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
             cell.set(experienceInfo: experience[indexPath.row])
+            if indexPath.row == experience.count - 1 {
+                cell.separatorView.isHidden = true
+            }
             return cell
             
         } else if indexPath.section == 6 {
             // Education
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
             cell.set(educationInfo: education[indexPath.row])
+            if indexPath.row == education.count - 1 {
+                cell.separatorView.isHidden = true
+            }
             return cell
             
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
             cell.set(patentInfo: patents[indexPath.row])
+            if indexPath.row == patents.count - 1 {
+                cell.separatorView.isHidden = true
+            }
             return cell
             
         } else if indexPath.section == 8 {

@@ -65,7 +65,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
         return label
     }()
     
-    private let separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false

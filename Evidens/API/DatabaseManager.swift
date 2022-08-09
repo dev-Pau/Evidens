@@ -279,7 +279,7 @@ extension DatabaseManager {
         }
     }
     
-    public func uploadLanguage(language: String, proficiency: String, languagePosition: Int?, completion: @escaping(Bool) -> Void) {
+    public func uploadLanguage(language: String, proficiency: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         //let ref = database.child("users").child("\(uid)/languages")
@@ -287,60 +287,55 @@ extension DatabaseManager {
         let languageData = ["languageName": language,
                              "languageProficiency": proficiency]
         
-        let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language)
-        ref.observeSingleEvent(of: .value) { snapshot in
-
-            if snapshot.exists() {
-                print(snapshot)
-                guard let languagePosition = languagePosition else { return }
-
-                let languageRef = self.database.child("users").child(uid).child("languages").child("\(languagePosition)")
-                languageRef.setValue(languageData)
-                
-                //languageRef.removeValue i així s'esborra el node
-                
-            } else {
-                print("Language doesn't exist, create new one")
-                
-                let ref = self.database.child("users").child("\(uid)/languages")
-                ref.observeSingleEvent(of: .value) { snapshot in
-                    if var languages = snapshot.value as? [[String: String]] {
-                        // Recent searches document exists, append new search
-                        
-                        languages.append(languageData)
-                        
-                        ref.setValue(languages) { error, _ in
-                            if let _ = error {
-                                completion(false)
-                                return
-                            }
-                        }
-                    } else {
-                        // First time user searches, create a new document
-                        ref.setValue([languageData]) { error, _ in
-                            if let _ = error {
-                                completion(false)
-                                return
-                            }
-                        }
-                    }
-                    completion(true)
-                }
+        let ref = database.child("users").child(uid).child("languages").childByAutoId()
+        
+        
+        
+        ref.setValue(languageData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
             }
+            completion(true)
         }
     }
     
     public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("users").child("\(uid)/languages")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                print("error")
-                completion(.failure(DatabaseError.failedToFetch))
-                return
+        var recentLanguages = [[String: String]]()
+        
+        let ref = database.child("users").child(uid).child("languages")
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: String] else { return }
+                recentLanguages.append(value)
             }
+            completion(.success(recentLanguages))
+        }
+    }
+    
 
-            if let languages = snapshot.value as? [[String: String]] {
-                completion(.success(languages))
+    public func updateLanguage(previousLanguage: String, languageName: String, languageProficiency: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let updatedLanguage = ["languageName": languageName,
+                               "languageProficiency": languageProficiency]
+        
+        
+        let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
+        
+        ref.getData { _, snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                
+                let newRef = self.database.child("users").child(uid).child("languages").child(key)
+                newRef.setValue(updatedLanguage) { error, _ in
+                    if let error = error {
+                        print(error)
+                        completion(false)
+                        return
+                    }
+                    completion(true)
+                }
             }
         }
     }

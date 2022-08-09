@@ -71,7 +71,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         return label
     }()
     
-    private let bottomView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -90,7 +90,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .white
         
-        addSubviews(educationCenterTitleLabel, educationTitleLabel, calendarImage, educationIntervalLabel, educationTypeImage, educationTypeLabel, bottomView)
+        addSubviews(educationCenterTitleLabel, educationTitleLabel, calendarImage, educationIntervalLabel, educationTypeImage, educationTypeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             educationCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -120,10 +120,10 @@ class UserProfileEducationCell: UICollectionViewCell {
             educationTypeLabel.trailingAnchor.constraint(equalTo: educationTitleLabel.trailingAnchor),
             educationTypeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            bottomView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomView.heightAnchor.constraint(equalToConstant: 1),
-            bottomView.leadingAnchor.constraint(equalTo: educationCenterTitleLabel.leadingAnchor),
-            bottomView.trailingAnchor.constraint(equalTo: educationCenterTitleLabel.trailingAnchor)
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: educationCenterTitleLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: educationCenterTitleLabel.trailingAnchor)
         ])
     }
     

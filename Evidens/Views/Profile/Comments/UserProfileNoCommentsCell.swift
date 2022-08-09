@@ -26,14 +26,7 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = lightGrayColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-  
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -46,7 +39,7 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .white
         
-        addSubviews(postTextLabel, postTextSubLabel, separatorView)
+        addSubviews(postTextLabel, postTextSubLabel)
         
         NSLayoutConstraint.activate([
 
@@ -58,11 +51,6 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
             postTextSubLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextSubLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postTextSubLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
     }

@@ -45,7 +45,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return view
     }()
 
-    private let separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false

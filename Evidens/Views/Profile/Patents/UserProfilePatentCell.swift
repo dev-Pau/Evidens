@@ -44,7 +44,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     }()
     
     
-    private let bottomView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -62,7 +62,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
-        addSubviews(patentTitleLabel, patentNumberLabel, patentDescriptionLabel, bottomView)
+        addSubviews(patentTitleLabel, patentNumberLabel, patentDescriptionLabel, separatorView)
         
         NSLayoutConstraint.activate([
             patentTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -78,10 +78,10 @@ class UserProfilePatentCell: UICollectionViewCell {
             patentDescriptionLabel.trailingAnchor.constraint(equalTo: patentNumberLabel.trailingAnchor),
             patentDescriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            bottomView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomView.heightAnchor.constraint(equalToConstant: 1),
-            bottomView.leadingAnchor.constraint(equalTo: patentTitleLabel.leadingAnchor),
-            bottomView.trailingAnchor.constraint(equalTo: patentTitleLabel.trailingAnchor)
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: patentTitleLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: patentTitleLabel.trailingAnchor)
         ])
     }
     

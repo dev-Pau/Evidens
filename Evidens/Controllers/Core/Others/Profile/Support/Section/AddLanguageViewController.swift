@@ -9,7 +9,8 @@ import UIKit
 
 class AddLanguageViewController: UIViewController {
     
-    private var languagePosition: Int?
+    private var userIsEditing = false
+    private var previousLanguage: String = ""
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -116,11 +117,19 @@ class AddLanguageViewController: UIViewController {
     
     @objc func handleDone() {
         guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
-        DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency, languagePosition: languagePosition) { uploaded in
-            if uploaded {
-                self.navigationController?.popToRootViewController(animated: true)
+        if userIsEditing == false {
+            DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency) { uploaded in
+                if uploaded {
+                    self.navigationController?.popToRootViewController(animated: true)
+                }
+            }
+        } else {
+            DatabaseManager.shared.updateLanguage(previousLanguage: previousLanguage, languageName: language, languageProficiency: proficiency) { uploaded in
+                self.navigationController?.popViewController(animated: true)
             }
         }
+       
+        
     }
     
     @objc func textDidChange(_ textField: UITextField) {
@@ -154,13 +163,16 @@ class AddLanguageViewController: UIViewController {
         return attrString
     }
     
-    func configureWithLanguage(languageName: String, languageProficiency: String, position: Int) {
+    func configureWithLanguage(languageName: String, languageProficiency: String) {
+        
+        userIsEditing = true
+        previousLanguage = languageName
+        
         languageTextField.text = languageName
         languageProficiencyTextField.text = languageProficiency
         textDidChange(languageTextField)
         textDidChange(languageProficiencyTextField)
         
-        languagePosition = position
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }
