@@ -134,10 +134,11 @@ class CasesViewController: UIViewController {
     
     @objc func didTapProfile() {
         //DatabaseManager.shared.filter()
-        
-        UserService.fetchUsers { users in
-            print(users)
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        DatabaseManager.shared.fetchRecentComments(forUid: uid) { _ in
+            print("done")
         }
+        //DatabaseManager.shared.fetchUsers()
     }
     
     @objc func didTapChat() {

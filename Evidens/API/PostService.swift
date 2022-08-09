@@ -32,7 +32,7 @@ struct PostService {
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID) { uploaded in
+        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withTimestamp: Date()) { uploaded in
             print("Post uploaded to recents")
         }
         
@@ -62,7 +62,7 @@ struct PostService {
 
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID) { uploaded in
+        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withTimestamp: Date()) { uploaded in
             print("Post uploaded to recents")
         }
         
@@ -94,7 +94,7 @@ struct PostService {
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID) { uploaded in
+        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withTimestamp: Date()) { uploaded in
             print("Post uploaded to recents")
         }
         
@@ -123,7 +123,7 @@ struct PostService {
                    
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
         
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID) { uploaded in
+        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withTimestamp: Date()) { uploaded in
             print("Post uploaded to recents")
         }
         

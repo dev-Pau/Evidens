@@ -87,7 +87,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         return label
     }()
     
-    private let separatorView: UIView = {
+    let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false

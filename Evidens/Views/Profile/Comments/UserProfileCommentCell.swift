@@ -101,7 +101,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         
         if commentType == 0 {
             // Post
-            commentTextLabel.text = firstName! + " commented on this post"
+            commentTextLabel.text = firstName! + " commented on a post"
         } else {
             // Clinical case
             commentTextLabel.text = firstName! + " commented on this case"

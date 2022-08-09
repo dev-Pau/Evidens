@@ -7,13 +7,21 @@
 
 import UIKit
 
+protocol UserProfileTitleFooterDelegate: AnyObject {
+    func didTapFooter(section: String)
+}
+
 class UserProfileTitleFooter: UICollectionReusableView {
     
-    private var sectionAboutTitle: UILabel = {
+    weak var delegate: UserProfileTitleFooterDelegate?
+    
+    private lazy var sectionAboutTitle: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleFooterTap)))
         return label
     }()
    
@@ -40,6 +48,11 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     func set(title: String) {
         sectionAboutTitle.text = title
+    }
+    
+    @objc func handleFooterTap() {
+        guard let text = sectionAboutTitle.text else { return }
+        delegate?.didTapFooter(section: text)
     }
 }
 

@@ -149,10 +149,12 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
         //Show loader to block user interactions
         self.view.isUserInteractionEnabled = false
         //Upload commento to Firebase
-        CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { caseDocID in
+        CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
             //Unshow loader
+            let commentUid = ids[0]
+            let caseUid = ids[1]
             
-            DatabaseManager.shared.uploadRecentComments(withUid: caseDocID, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase) { uploaded in
+            DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in
                 print("Comment uploaded to realtime recent comments")
             }
             

@@ -69,10 +69,10 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
     
     func configure(user: User) {
         if user.isCurrentUser {
-            postTextLabel.text = "You havn't commented on any case lately"
+            postTextLabel.text = "You havn't commented lately"
             postTextSubLabel.text = "You will be able to see your comments here."
         } else {
-            postTextLabel.text = "\(user.firstName!) hasn't commented on any case lately."
+            postTextLabel.text = "\(user.firstName!) hasn't commented lately."
             postTextSubLabel.text = "You will be able to see their comments here."
         }
     }

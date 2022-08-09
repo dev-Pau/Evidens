@@ -49,7 +49,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         return button
     }()
     
-    private let separatorView: UIView = {
+    let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = lightGrayColor

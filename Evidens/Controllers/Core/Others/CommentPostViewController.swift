@@ -196,8 +196,17 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
         //Show loader to block user interactions
         self.view.isUserInteractionEnabled = false
         //Upload commento to Firebase
-        CommentService.uploadComment(comment: comment, post: post, user: currentUser) { error in
+        CommentService.uploadPostComment(comment: comment, post: post, user: currentUser) { ids in
             //Unshow loader
+            let commentUid = ids[0]
+            let postUid = ids[1]
+            
+            DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: postUid, title: "", comment: comment, type: .post, withTimestamp: Date()) { uploaded in
+                print("Comment uploaded to realtime recent comments")
+            }
+            
+            
+            
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
