@@ -17,6 +17,7 @@ class PublicationSectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        title = "Publications"
     }
     
     init(publications: [[String: String]], isCurrentUser: Bool) {

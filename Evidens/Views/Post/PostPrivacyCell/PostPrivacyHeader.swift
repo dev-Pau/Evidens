@@ -22,7 +22,7 @@ class PostPrivacyHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Select Privacy"
+        label.text = "Privacy information"
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

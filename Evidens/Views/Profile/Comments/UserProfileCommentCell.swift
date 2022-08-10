@@ -68,6 +68,12 @@ class UserProfileCommentCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+
+            
             commentTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             commentTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -85,11 +91,6 @@ class UserProfileCommentCell: UICollectionViewCell {
             commentHeightView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentHeightView.trailingAnchor.constraint(equalTo: commentUserLabel.leadingAnchor, constant: -5),
             commentHeightView.bottomAnchor.constraint(equalTo: commentUserLabel.bottomAnchor),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
     }

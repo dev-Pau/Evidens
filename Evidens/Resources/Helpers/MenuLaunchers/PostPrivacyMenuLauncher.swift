@@ -31,16 +31,16 @@ class PostPrivacyMenuLauncher: NSObject {
     
     weak var delegate: PostPrivacyMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 280
+    private let menuHeight: CGFloat = 160
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Public", "Connections only", "Only me"]
-    private var menuOptionsSubText: [String] = ["Anyone on MyEvidens", "Your connections on MyEvidens", "Only visible to you"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!,
+    private var menuOptionsText: [String] = ["Public"/*, "Connections only", "Only me"*/]
+    private var menuOptionsSubText: [String] = ["Anyone on MyEvidens"/*, "Your connections on MyEvidens", "Only visible to you"*/]
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!/*,
                                                 UIImage(systemName: "person.2.fill")!,
-                                                UIImage(systemName: "lock.fill")!]
+                                                UIImage(systemName: "lock.fill")!*/]
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())

@@ -99,6 +99,12 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         addSubviews(caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
+            
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
             timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
@@ -122,11 +128,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
             likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+        
         ])
     }
     
@@ -141,6 +143,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         caseStateButton.configuration?.attributedTitle = viewModel.caseStage
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
+        
         
     }
 }

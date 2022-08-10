@@ -87,7 +87,6 @@ class UserProfileViewController: UIViewController {
     private var education = [[String: String]]()
     
     //Profession
-    private var hasExperiences: Bool = false
     private var experience = [[String: String]]()
     
     
@@ -304,45 +303,41 @@ class UserProfileViewController: UIViewController {
             } else if sectionNumber == 5 {
                 // Experience
                 
-                if self.hasExperiences == false {
+                if self.experience.count == 0 {
+                    
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                    
+                   
                     let section = NSCollectionLayoutSection(group: group)
                     
-                    
                     return section
-                    
+                        
                 } else {
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                             elementKind: ElementKind.sectionHeader,
+                                                                             alignment: .top)
+        
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    if self.experience.count > 3 {
-                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionHeader,
-                                                                                 alignment: .top)
+                    if self.experience.count < 4 {
                         
-                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                        
-                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionFooter,
-                                                                                 alignment: .bottom)
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header, footer]
-                        return section
-                    } else {
-                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionHeader,
-                                                                                 alignment: .top)
-                        
-                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                        
-                       
                         let section = NSCollectionLayoutSection(group: group)
                         section.boundarySupplementaryItems = [header]
                         return section
+                        
+                    } else {
+                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionFooter,
+                                                                                 alignment: .bottom)
+                        
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header, footer]
+                        return section
                     }
-                    
                 }
+ 
                 
             } else if sectionNumber == 6 {
                 // Education
@@ -613,7 +608,6 @@ class UserProfileViewController: UIViewController {
             case .success(let experiences):
                 //self.aboutText = sectionText
                 //self.collectionView.reloadSections(IndexSet(integer: 1))
-                self.hasExperiences = true
                 self.experience = experiences
                 self.collectionView.reloadData()
             case .failure(_):
@@ -732,21 +726,21 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 return 1
             }
         } else if section == 5 {
-            if hasExperiences {
+            if experience.count != 0 {
                 return min(experience.count, 3)
             } else {
                 return 0
             }
             
         } else if section == 6 {
-            if hasEducation {
+            if education.count != 0 {
                 return min(education.count, 3)
             } else {
                 return 0
             }
             
         } else if section == 7 {
-            if hasPatents {
+            if patents.count != 0 {
                 return min(patents.count, 3)
             } else {
                 return 0
@@ -816,16 +810,10 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 if recentCases[indexPath.row].type.caseType == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
-                    if indexPath.row == recentCases.count - 1 {
-                        cell.separatorView.isHidden = true
-                    }
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
-                    if indexPath.row == recentCases.count - 1 {
-                        cell.separatorView.isHidden = true
-                    }
                     return cell
                 }
             }
@@ -835,14 +823,9 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             if recentComments.count != 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
                 cell.configure(commentInfo: recentComments[indexPath.row], user: user)
-                if indexPath.row == recentComments.count - 1 {
-                    cell.separatorView.isHidden = true
-                }
-                
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileNoCommentsCell
-
                 cell.configure(user: user)
                 return cell
             }
@@ -1083,6 +1066,16 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
             
+        case "Experience":
+            let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+            controller.title = "Experience"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
             
         default:
             print("No cell registered")
@@ -1103,7 +1096,18 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             //let controller = HomeViewController(collectionViewLayout: layout)
             //controller.user = user
-            //navigationController?.pushViewController(controller, animated: true)
+            //navigationController?.pushViewController(controller, animated: true)ç
+        
+        case "Show experiences":
+            let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+
          
         case "Show education":
             let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
@@ -1115,9 +1119,6 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
             
-            navigationItem.title = "Education"
-            
-            
             
         case "Show patents":
             let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
@@ -1128,8 +1129,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
-            
-            navigationItem.title = "Patents"
+
             
         case "Show publications":
             let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
@@ -1138,8 +1138,6 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             backItem.title = ""
             backItem.tintColor = .black
             navigationItem.backBarButtonItem = backItem
-            
-            navigationItem.title = "Publications"
             
             navigationController?.pushViewController(controller, animated: true)
             
@@ -1150,9 +1148,8 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             backItem.title = ""
             backItem.tintColor = .black
             navigationItem.backBarButtonItem = backItem
-            
-            navigationItem.title = "Languages"
-            
+
+
             navigationController?.pushViewController(controller, animated: true)
             //co
         default:

@@ -545,47 +545,84 @@ extension DatabaseManager {
     
     public func uploadExperience(role: String, company: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+         
+        let experienceData = ["role": role,
+                              "company": company,
+                              "startDate": startDate,
+                              "endDate": endDate]
+    
+        let ref = database.child("users").child(uid).child("experience").childByAutoId()
         
-        let ref = database.child("users").child("\(uid)/experience")
+        ref.setValue(experienceData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+                
+            }
+        }
+        completion(true)
+    }
+    
+    public func fetchExperience(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("users").child(uid).child("experience")
+        var recentExperience = [[String: String]]()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: String] else { return }
+                recentExperience.append(value)
+            }
+            completion(.success(recentExperience.reversed()))
+        }
+    }
+    
+    public func updateExperience(previousCompany: String, previousRole: String, company: String, role: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let experienceData = ["role": role,
                               "company": company,
                               "startDate": startDate,
                               "endDate": endDate]
         
+        // Query to fetch based on previousDegree
+        let ref = database.child("users").child(uid).child("experience").queryOrdered(byChild: "role").queryEqual(toValue: previousRole)
+        
         ref.observeSingleEvent(of: .value) { snapshot in
-            if var experience = snapshot.value as? [[String: String]] {
-                experience.append(experienceData)
-                
-                ref.setValue(experience) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            } else {
-                ref.setValue([experienceData]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
+            // Check if the user has more than one child with the same degree type
+            if snapshot.children.allObjects.count > 1 {
+                // The user has more than one degree type compare every snapshot with previous school & field
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    guard let previousUserCompany = value["company"] as? String else { return }
+                    if previousUserCompany == previousCompany {
+                        // Found the exact child to update with the child.key
+                        let newRef = self.database.child("users").child(uid).child("experience").child(child.key)
+                        newRef.setValue(experienceData) { error, _ in
+                            if let error = error {
+                                print(error)
+                                completion(false)
+                                return
+                            }
+                            completion(true)
+                        }
                     }
                 }
             }
-            completion(true)
-        }
-    }
-    
-    public func fetchExperience(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("users").child("\(uid)/experience")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                print("error")
-                completion(.failure(DatabaseError.failedToFetch))
-                return
-            }
-            
-            if let experience = snapshot.value as? [[String: String]] {
-                completion(.success(experience))
+            else {
+                // The user has only one degree type
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    // Update education child with the key obtained
+                    let newRef = self.database.child("users").child(uid).child("experience").child(key)
+                    newRef.setValue(experienceData) { error, _ in
+                        if let error = error {
+                            print(error)
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    }
+                }
             }
         }
     }

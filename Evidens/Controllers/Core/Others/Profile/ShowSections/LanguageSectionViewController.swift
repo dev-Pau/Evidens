@@ -17,6 +17,7 @@ class LanguageSectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        title = "Languages"
     }
     
     init(languages: [[String: String]], isCurrentUser: Bool) {

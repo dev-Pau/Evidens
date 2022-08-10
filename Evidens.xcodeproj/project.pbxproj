@@ -113,6 +113,7 @@
 		5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */; };
 		5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */; };
 		5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */; };
+		5F85218F28A3CF620033AF67 /* ExperienceSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218E28A3CF620033AF67 /* ExperienceSectionViewController.swift */; };
 		5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */; };
 		5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */; };
 		5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */; };
@@ -347,6 +348,7 @@
 		5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationSectionViewController.swift; sourceTree = "<group>"; };
 		5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatentSectionViewController.swift; sourceTree = "<group>"; };
 		5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationSectionViewController.swift; sourceTree = "<group>"; };
+		5F85218E28A3CF620033AF67 /* ExperienceSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperienceSectionViewController.swift; sourceTree = "<group>"; };
 		5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCaseCell.swift; sourceTree = "<group>"; };
 		5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseTextCell.swift; sourceTree = "<group>"; };
 		5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCommentsCell.swift; sourceTree = "<group>"; };
@@ -875,6 +877,7 @@
 				5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */,
 				5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */,
 				5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */,
+				5F85218E28A3CF620033AF67 /* ExperienceSectionViewController.swift */,
 			);
 			path = ShowSections;
 			sourceTree = "<group>";
@@ -1589,6 +1592,7 @@
 				5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */,
 				5F77BF7528587ED400F31A75 /* MEProfileImageView.swift in Sources */,
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
+				5F85218F28A3CF620033AF67 /* ExperienceSectionViewController.swift in Sources */,
 				5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */,
 				5F05207627C63A35001E7D8F /* SearchResult.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationCell.swift in Sources */,

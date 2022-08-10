@@ -151,7 +151,7 @@ struct CaseViewModel {
         } else if caseLikes != 0 && caseComments == 0 {
             return "\(caseLikes)"
         } else if caseLikes == 0 && caseComments != 0 {
-            return "\(caseLikes) \( commentText)"
+            return "\(caseComments) \( commentText)"
         } else {
             return "\(caseLikes) · \(caseComments) \(commentText)"
         }

@@ -11,6 +11,11 @@ class AddExperienceViewController: UIViewController {
     
     private var conditionIsSelected: Bool = false
     
+    private var userIsEditing = false
+    private var previousExperience: String = ""
+    private var previousCompany: String = ""
+    private var previousRole: String = ""
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
@@ -282,9 +287,17 @@ class AddExperienceViewController: UIViewController {
         
         let dateText = conditionIsSelected ? "Present" : endDateText
         
-        DatabaseManager.shared.uploadExperience(role: role, company: company, startDate: startDateText, endDate: dateText) { uploaded in
-            print("experience uploaded")
+        if userIsEditing {
+            DatabaseManager.shared.updateExperience(previousCompany: previousCompany, previousRole: previousRole, company: company, role: role, startDate: startDateText, endDate: endDateText) { uploaded in
+                print("experience updated")
+            }
+        } else {
+            
+            DatabaseManager.shared.uploadExperience(role: role, company: company, startDate: startDateText, endDate: dateText) { uploaded in
+                print("experience uploaded")
+            }
         }
+
     }
     
     @objc func handleAddStartDate() {
@@ -365,5 +378,24 @@ class AddExperienceViewController: UIViewController {
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         return attrString
+    }
+    
+    func configureWithProfession(company: String, role: String, startDate: String, endDate: String) {
+        userIsEditing = true
+        previousCompany = company
+        previousRole = role
+
+        companyTextField.text = company
+        roleTextField.text = role
+
+        startDateTextField.text = startDate
+        endDateTextField.text = endDate
+    
+        textDidChange(companyTextField)
+        textDidChange(roleTextField)
+        textDidChange(startDateTextField)
+        textDidChange(endDateTextField)
+        
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }

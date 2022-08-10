@@ -113,8 +113,8 @@ class UserProfileEducationCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.leadingAnchor.constraint(equalTo: educationCenterTitleLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: educationCenterTitleLabel.trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             educationCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             educationCenterTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

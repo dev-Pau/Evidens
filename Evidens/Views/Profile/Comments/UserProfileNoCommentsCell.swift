@@ -26,7 +26,7 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -42,7 +42,6 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
         addSubviews(postTextLabel, postTextSubLabel)
         
         NSLayoutConstraint.activate([
-
             postTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

@@ -1,5 +1,5 @@
 //
-//  EducationSectionViewController.swift
+//  ExperienceSectionViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 10/8/22.
@@ -7,21 +7,21 @@
 
 import UIKit
 
-private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
+private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 
-class EducationSectionViewController: UICollectionViewController {
+class ExperienceSectionViewController: UICollectionViewController {
     
-    private var education = [[String: String]]()
+    private var experience = [[String: String]]()
     private var isCurrentUser: Bool
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        title = "Education"
+        title = "Experiences"
     }
     
-    init(education: [[String: String]], isCurrentUser: Bool) {
-        self.education = education
+    init(experience: [[String: String]], isCurrentUser: Bool) {
+        self.experience = experience
         self.isCurrentUser = isCurrentUser
         
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
@@ -47,7 +47,7 @@ class EducationSectionViewController: UICollectionViewController {
     }
     
     private func configureCollectionView() {
-        collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
+        collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -55,8 +55,8 @@ class EducationSectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
-        cell.set(educationInfo: education[indexPath.row])
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
+        cell.set(experienceInfo: experience[indexPath.row])
         cell.delegate = self
         cell.separatorView.isHidden = indexPath.row == 0 ? true : false
         
@@ -67,20 +67,22 @@ class EducationSectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return education.count
+        return experience.count
     }
 }
 
-extension EducationSectionViewController: UserProfileEducationCellDelegate {
-    func didTapEditEducation(_ cell: UICollectionViewCell, educationSchool: String, educationDegree: String, educationField: String, educationStartDate: String, educationEndDate: String) {
-        let controller = AddEducationViewController()
+extension ExperienceSectionViewController: UserProfileExperienceCellDelegate {
+    func didTapEditExperience(_ cell: UICollectionViewCell, company: String, role: String, startDate: String, endDate: String) {
+        let controller = AddExperienceViewController()
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
         navigationItem.backBarButtonItem = backItem
         
-        controller.configureWithPublication(school: educationSchool, degree: educationDegree, field: educationField, startDate: educationStartDate, endDate: educationEndDate)
+        controller.configureWithProfession(company: company, role: role, startDate: startDate, endDate: endDate)
         navigationController?.pushViewController(controller, animated: true)
     }
+
 }
+
 

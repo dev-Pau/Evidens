@@ -17,6 +17,7 @@ class PatentSectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        title = "Patents"
     }
     
     init(patents: [[String: String]], isCurrentUser: Bool) {
