@@ -14,7 +14,7 @@ class PostPrivacyHeader: UICollectionReusableView {
     
     private let separator: UIView = {
         let view = UIView()
-        view.backgroundColor = grayColor
+        view.backgroundColor = lightGrayColor
         view.layer.cornerRadius = 3
         view.translatesAutoresizingMaskIntoConstraints = false
         return view

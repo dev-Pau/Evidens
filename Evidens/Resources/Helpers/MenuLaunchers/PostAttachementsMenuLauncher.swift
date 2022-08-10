@@ -37,22 +37,25 @@ class PostAttachementsMenuLauncher: NSObject {
     
     var selectedOption = 0
     
-    private let menuHeight: CGFloat = 280
+    private let menuHeight: CGFloat = 165
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Add a photo", "Add a video", "Create a poll", "Add a document"]
+    private var menuOptionsText: [String] = ["Add a photo", "Add a video"/*, "Create a poll", "Add a document"*/]
 
     private var menuOptionsImages: [UIImage] = [UIImage(systemName: "photo")!,
-                                                UIImage(systemName: "video.fill")!,
+                                                UIImage(systemName: "video.fill")!/*,
                                                 UIImage(systemName: "doc.text.fill")!,
-                                                UIImage(systemName: "doc.text.fill")!]
+                                                UIImage(systemName: "doc.text.fill")!*/]
     
     
     private let collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = .white
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = lightColor
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -107,7 +110,7 @@ class PostAttachementsMenuLauncher: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(PostAttachementHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
+        collectionView.register(PostMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(PostAttachementCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
@@ -146,12 +149,12 @@ class PostAttachementsMenuLauncher: NSObject {
 extension PostAttachementsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostAttachementHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 20)
+        return CGSize(width: screenWidth, height: 30)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -161,11 +164,22 @@ extension PostAttachementsMenuLauncher: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostAttachementCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        
+        if indexPath.row == 0 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        }
+        
+        if indexPath.row == menuOptionsText.count - 1 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+        }
+        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: screenWidth, height: 50)
+        return CGSize(width: screenWidth - 40, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -174,10 +188,11 @@ extension PostAttachementsMenuLauncher: UICollectionViewDelegateFlowLayout, UICo
             delegate?.didTap(.photo)
         case 1:
             delegate?.didTap(.video)
-        case 2:
+            /*        case 2:
             delegate?.didTap(.poll)
         case 3:
             delegate?.didTap(.document)
+             */
         default:
             break
         }

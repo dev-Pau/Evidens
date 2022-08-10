@@ -29,6 +29,7 @@ class PostMenuCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16, weight: .medium)
+
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

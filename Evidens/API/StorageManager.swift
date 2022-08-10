@@ -139,33 +139,31 @@ struct StorageManager {
         }
     }
     
-    
-    /// Uploads a PDF file to storage with url string to download
-    static func uploadPostFile(fileName: String, url: URL, completion: @escaping(Result<String, Error>) -> Void) {
-        let ref = Storage.storage().reference().child("/post_files/\(fileName)")
-        do {
-        let data = try Data(contentsOf: url)
-            ref.putData(data, metadata: nil) { metadata, error in
-                guard let metadata = metadata else {
-                    //print(error?.localizedDescription)
-                    completion(.failure(StorageErrors.failedToUpload))
-                    return
+    static func uploadPostVideo(with fileUrl: URL, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let fileName = "\(uid) \(NSUUID().uuidString)"
+        
+        //let data = Data(contentsOf: fileUrl)
+        
+        let ref = Storage.storage().reference(withPath: "/post_videos/\(fileName)")
+        
+        ref.putFile(from: fileUrl, metadata: nil) { result, error in
+            if let error = error {
+                print("Failed to upload message video file \(error.localizedDescription)")
+                return
+            }
+            ref.downloadURL { url, error in
+                if let error = error {
+                    print(error.localizedDescription)
                 }
-                ref.downloadURL { url, error in
-                    guard let url = url?.absoluteString else {
-                        completion(.failure(StorageErrors.failedToGetDownloadUrl))
-                        return
-                    }
-                    completion(.success(url))
-                    print("put data completed")
-                }
+                guard let url = url else { return }
+                let urlString = url.absoluteString
+                print(urlString)
+                completion(.success(urlString))
             }
         }
-        catch {
-            print("error")
-            return
-        }
     }
+    
     
     public enum StorageErrors: Error {
         case failedToUpload
