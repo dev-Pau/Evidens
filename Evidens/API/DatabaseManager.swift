@@ -33,39 +33,6 @@ extension DatabaseManager {
         database.child("users").child(user.uid).setValue(["firstName": user.firstName,
                                            "lastName": user.lastName,
                                            "emailAddress": user.emailAddress])
-        /*
-        self.database.child("users").observeSingleEvent(of: .value) { snapshot in
-            if var userCollection = snapshot.value as? [[String: String]] {
-                //append to user dictionary
-                let newUser = ["name": user.firstName + " " + user.lastName,
-                               "emailAddress": user.emailAddress,
-                               "uid": user.uid,
-                               "profileImageUrl": user.profilePictureUrl,
-                               "profession": user.profession,
-                               "category": user.category,
-                               "speciality": user.speciality]
-                userCollection.append(newUser)
-                
-                self.database.child("users").setValue(userCollection) { error, _ in
-                    if let _ = error { return }
-                }
-                
-                //completion(true)
-                
-            } else {
-                //create the array - only the first user that gets created
-                let newCollection: [[String: String]] = [["name": user.firstName + " " + user.lastName,
-                                                          "emailAddress": user.emailAddress,
-                                                          "uid": user.uid
-                                                         ]]
-                self.database.child("users").setValue(newCollection) { error, _ in
-                    if let _ = error { return }
-                }
-                
-                //completion(true)
-            }
-        }
-         */
     }
     
     
@@ -193,13 +160,13 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/comments").childByAutoId()
         
-        let date = ChatViewController.dateFormatter.string(from: timestamp)
+        let timestamp = NSDate().timeIntervalSince1970
         
         let newRecentComment = ["commentUid": commentUid,
                                 "refUid": refUid,
                                 "title": title,
                                 "comment": comment,
-                                "timestamp": date,
+                                "timestamp": timestamp,
                                 "type": type.commentType] as [String : Any]
         
         ref.setValue(newRecentComment) { error, _ in
@@ -227,13 +194,13 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadRecentPost(withUid postUid: String, withTimestamp timestamp: Date, completion: @escaping (Bool) -> Void) {
+    public func uploadRecentPost(withUid postUid: String, withDate date: Date, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/posts/\(postUid)/timestamp")
         
-        let date = ChatViewController.dateFormatter.string(from: timestamp)
+        let timestamp = NSDate().timeIntervalSince1970
         
-        ref.setValue(date) { error, _ in
+        ref.setValue(timestamp) { error, _ in
             if let _ = error {
                 completion(false)
             }
@@ -250,6 +217,7 @@ extension DatabaseManager {
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if let values = snapshot.value as? [String: Any] {
+                print(values)
                 values.forEach { value in
                     uids.append(value.key)
                 }
@@ -267,15 +235,16 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         //let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: "Spanish")
-        let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryLimited(toFirst: 3)
+        let ref = database.child("users").child(uid).child("publications").queryOrdered(byChild: "title").queryEqual(toValue: "Publication 1")
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if let values = snapshot.value as? [String: Any] {
                 print(values)
                 print(values.keys)
   
-            }
+            } else{
             print("no snapshot in corret format")
+                }
         }
     }
     
@@ -345,48 +314,59 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadPatent(title: String, number: String, description: String?, completion: @escaping(Bool) -> Void) {
+    public func uploadPatent(title: String, number: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("users").child("\(uid)/patents")
-        
         let patentData = ["title": title,
-                          "number": number,
-                          "description": description as Any]
+                          "number": number]
         
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if var patents = snapshot.value as? [[String: Any]] {
-                patents.append(patentData)
-                
-                ref.setValue(patents) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            } else {
-                ref.setValue([patentData]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
+        let ref = database.child("users").child(uid).child("patents").childByAutoId()
+        
+        ref.setValue(patentData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
             }
             completion(true)
         }
     }
     
-    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("users").child("\(uid)/patents")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                print("error")
-                completion(.failure(DatabaseError.failedToFetch))
-                return
+    
+    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("users").child(uid).child("patents")
+        var recentPatents = [[String: String]]()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: String] else { return }
+                recentPatents.append(value)
             }
+            completion(.success(recentPatents))
+        }
+    }
+    
+    public func updatePatent(previousPatent: String, patentTitle: String, patentNumber: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let patentData = ["title": patentTitle,
+                          "number": patentNumber]
             
-            if let patents = snapshot.value as? [[String: Any]] {
-                completion(.success(patents))
+        
+        let ref = database.child("users").child(uid).child("patents").queryOrdered(byChild: "title").queryEqual(toValue: previousPatent)
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                
+                let newRef = self.database.child("users").child(uid).child("patents").child(key)
+                newRef.setValue(patentData) { error, _ in
+                    if let error = error {
+                        print(error)
+                        completion(false)
+                        return
+                    }
+                    completion(true)
+                }
             }
         }
     }
@@ -399,45 +379,63 @@ extension DatabaseManager {
     public func uploadPublication(title: String, url: String, date: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("users").child("\(uid)/publications")
-        
         let publicationData = ["title": title,
                                "url": url,
                                "date": date]
         
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if var publications = snapshot.value as? [[String: String]] {
-                publications.append(publicationData)
+        let ref = database.child("users").child(uid).child("publications").childByAutoId()
+        
+        
+        
+        ref.setValue(publicationData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
                 
-                ref.setValue(publications) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            } else {
-                ref.setValue([publicationData]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
             }
-            completion(true)
+        }
+        completion(true)
+    }
+    
+    
+    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+        let ref = database.child("users").child(uid).child("publications")
+        var recentPublications = [[String: String]]()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: String] else { return }
+                recentPublications.append(value)
+            }
+            completion(.success(recentPublications))
         }
     }
     
-    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("users").child("\(uid)/publications")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                print("error")
-                completion(.failure(DatabaseError.failedToFetch))
-                return
-            }
-            
-            if let publications = snapshot.value as? [[String: String]] {
-                completion(.success(publications))
+    public func updatePublication(previousPublication: String, publicationTitle: String, publicationUrl: String, publicationDate: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let publicationData = ["title": publicationTitle,
+                               "url": publicationUrl,
+                               "date": publicationDate]
+        
+        //let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
+        let ref = database.child("users").child(uid).child("publications").queryOrdered(byChild: "title").queryEqual(toValue: previousPublication)
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            print(snapshot)
+            if let value = snapshot.value as? [String: Any] {
+                
+                guard let key = value.first?.key else { return }
+
+                let newRef = self.database.child("users").child(uid).child("publications").child(key)
+                newRef.setValue(publicationData) { error, _ in
+                    if let error = error {
+                        print(error)
+                        completion(false)
+                        return
+                    }
+                    completion(true)
+                }
             }
         }
     }
@@ -449,48 +447,92 @@ extension DatabaseManager {
     
     public func uploadEducation(school: String, degree: String, field: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let ref = database.child("users").child("\(uid)/education")
-        
+
         let educationData = ["school": school,
                                "degree": degree,
                                "field": field,
                                "startDate": startDate,
                                "endDate": endDate]
+      
+        let ref = database.child("users").child(uid).child("education").childByAutoId()
         
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if var education = snapshot.value as? [[String: String]] {
-                education.append(educationData)
+        ref.setValue(educationData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
                 
-                ref.setValue(education) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
-            } else {
-                ref.setValue([educationData]) { error, _ in
-                    if let _ = error {
-                        completion(false)
-                        return
-                    }
-                }
             }
-            completion(true)
         }
+        completion(true)
     }
     
     public func fetchEducation(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("users").child("\(uid)/education")
-        ref.getData { error, snapshot in
-            guard error == nil else {
-                print("error")
-                completion(.failure(DatabaseError.failedToFetch))
-                return
+        let ref = database.child("users").child(uid).child("education")
+        var recentPublications = [[String: String]]()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: String] else { return }
+                recentPublications.append(value)
             }
-            
-            if let education = snapshot.value as? [[String: String]] {
-                completion(.success(education))
+            completion(.success(recentPublications.reversed()))
+        }
+    }
+    
+    /// Uploads education based on degree selected. In case the user has more than one degree, compares with school & field to find the exact child to update
+    ///     /// Parameters:
+    /// - `previousDegree`:     Degree to update by de user
+    /// - `previousSchool`:     School to update by de user
+    /// - `previousField`:       Field to update by de user
+    /// - `school, degree & type, field, startDate, endDate`:   New values of education details
+    public func updateEducation(previousDegree: String, previousSchool: String, previousField: String, school: String, degree: String, field: String, startDate: String, endDate: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let educationData = ["school": school,
+                             "degree": degree,
+                             "field": field,
+                             "startDate": startDate,
+                             "endDate": endDate]
+        
+        // Query to fetch based on previousDegree
+        let ref = database.child("users").child(uid).child("education").queryOrdered(byChild: "degree").queryEqual(toValue: previousDegree)
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            // Check if the user has more than one child with the same degree type
+            if snapshot.children.allObjects.count > 1 {
+                // The user has more than one degree type compare every snapshot with previous school & field
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    guard let previousUserField = value["field"] as? String, let previousUserSchool = value["school"] as? String else { return }
+                    if previousUserField == previousField && previousUserSchool == previousSchool {
+                        // Found the exact child to update with the child.key
+                        let newRef = self.database.child("users").child(uid).child("education").child(child.key)
+                        newRef.setValue(educationData) { error, _ in
+                            if let error = error {
+                                print(error)
+                                completion(false)
+                                return
+                            }
+                            completion(true)
+                        }
+                    }
+                }
+            }
+            else {
+                // The user has only one degree type
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    // Update education child with the key obtained
+                    let newRef = self.database.child("users").child(uid).child("education").child(key)
+                    newRef.setValue(educationData) { error, _ in
+                        if let error = error {
+                            print(error)
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    }
+                }
             }
         }
     }
@@ -507,9 +549,9 @@ extension DatabaseManager {
         let ref = database.child("users").child("\(uid)/experience")
         
         let experienceData = ["role": role,
-                               "company": company,
-                               "startDate": startDate,
-                               "endDate": endDate]
+                              "company": company,
+                              "startDate": startDate,
+                              "endDate": endDate]
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if var experience = snapshot.value as? [[String: String]] {
@@ -554,13 +596,13 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadRecentCase(withUid caseUid: String, withTimestamp timestamp: Date, completion: @escaping (Bool) -> Void) {
+    public func uploadRecentCase(withUid caseUid: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("cases").child(caseUid).child("timestamp")
         
-        let date = ChatViewController.dateFormatter.string(from: timestamp)
+        let timestamp = NSDate().timeIntervalSince1970
         
-        ref.setValue(date) { error, _ in
+        ref.setValue(timestamp) { error, _ in
             if let _ = error {
                 completion(false)
             }

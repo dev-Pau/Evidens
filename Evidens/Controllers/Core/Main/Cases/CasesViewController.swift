@@ -133,7 +133,9 @@ class CasesViewController: UIViewController {
     }
     
     @objc func didTapProfile() {
-        //DatabaseManager.shared.filter()
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
+        DatabaseManager.shared.filter()
         //guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //atabaseManager.shared.updateLanguage(languageName: "English", languageProficiency: "easy") { _ in
            

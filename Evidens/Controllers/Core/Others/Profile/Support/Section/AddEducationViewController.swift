@@ -11,6 +11,12 @@ class AddEducationViewController: UIViewController {
     
     private var conditionIsSelected: Bool = false
     
+    private var userIsEditing = false
+    private var previousDegree: String = ""
+    private var previousSchool: String = ""
+    private var previousField: String = ""
+    
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
@@ -199,6 +205,7 @@ class AddEducationViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureDatePicker() {
@@ -313,8 +320,15 @@ class AddEducationViewController: UIViewController {
         
         let endDateText = conditionIsSelected ? "Present" : endDate
         
-        DatabaseManager.shared.uploadEducation(school: school, degree: degree, field: field, startDate: startDate, endDate: endDateText) { uploaded in
-            print("Uploaded education")
+        if userIsEditing {
+            DatabaseManager.shared.updateEducation(previousDegree: previousDegree, previousSchool: previousSchool, previousField: previousField, school: school, degree: degree, field: field, startDate: startDate, endDate: endDate) { uploaded in
+                print("upldated education")
+            }
+        } else {
+            
+            DatabaseManager.shared.uploadEducation(school: school, degree: degree, field: field, startDate: startDate, endDate: endDateText) { uploaded in
+                print("Uploaded education")
+            }
         }
     }
     
@@ -405,5 +419,27 @@ class AddEducationViewController: UIViewController {
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         return attrString
+    }
+    
+    func configureWithPublication(school: String, degree: String, field: String, startDate: String, endDate: String) {
+        userIsEditing = true
+        previousDegree = degree
+        previousSchool = school
+        previousField = field
+        
+        schoolTextField.text = school
+        degreeTypeTextField.text = degree
+        fieldOfStudyTextField.text = field
+        
+        startDateTextField.text = startDate
+        endDateTextField.text = endDate
+    
+        textDidChange(schoolTextField)
+        textDidChange(degreeTypeTextField)
+        textDidChange(startDateTextField)
+        textDidChange(fieldOfStudyTextField)
+        textDidChange(endDateTextField)
+        
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }

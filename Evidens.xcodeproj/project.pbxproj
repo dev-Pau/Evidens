@@ -110,6 +110,9 @@
 		5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */; };
 		5F85218328A163430033AF67 /* AboutSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218228A163430033AF67 /* AboutSectionViewController.swift */; };
 		5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218428A168870033AF67 /* LanguageSectionViewController.swift */; };
+		5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */; };
+		5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */; };
+		5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */; };
 		5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */; };
 		5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */; };
 		5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */; };
@@ -341,6 +344,9 @@
 		5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		5F85218228A163430033AF67 /* AboutSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSectionViewController.swift; sourceTree = "<group>"; };
 		5F85218428A168870033AF67 /* LanguageSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSectionViewController.swift; sourceTree = "<group>"; };
+		5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicationSectionViewController.swift; sourceTree = "<group>"; };
+		5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatentSectionViewController.swift; sourceTree = "<group>"; };
+		5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationSectionViewController.swift; sourceTree = "<group>"; };
 		5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCaseCell.swift; sourceTree = "<group>"; };
 		5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseTextCell.swift; sourceTree = "<group>"; };
 		5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCommentsCell.swift; sourceTree = "<group>"; };
@@ -508,7 +514,6 @@
 		5F0A4F39271C29D700700304 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				5F85218128A1632B0033AF67 /* ShowSections */,
 				5FE8DE9028928506009F08F9 /* Posts */,
 				5FE8DE932893A561009F08F9 /* Cases */,
 				5F9A9F9E2898FA0200A25152 /* Comments */,
@@ -708,6 +713,7 @@
 			isa = PBXGroup;
 			children = (
 				5FB290402890FFF1002FBAE1 /* Support */,
+				5F85218128A1632B0033AF67 /* ShowSections */,
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
 				5F598C092836912400189722 /* UserProfileViewController.swift */,
 			);
@@ -866,6 +872,9 @@
 			children = (
 				5F85218228A163430033AF67 /* AboutSectionViewController.swift */,
 				5F85218428A168870033AF67 /* LanguageSectionViewController.swift */,
+				5F85218628A390E70033AF67 /* PublicationSectionViewController.swift */,
+				5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */,
+				5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */,
 			);
 			path = ShowSections;
 			sourceTree = "<group>";
@@ -1646,6 +1655,7 @@
 				5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
 				5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */,
+				5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */,
 				5F05206D27BD5461001E7D8F /* Conversation.swift in Sources */,
 				5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */,
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
@@ -1752,6 +1762,7 @@
 				5F527D9D28859D3A009D5027 /* DiagnosisGenericView.swift in Sources */,
 				5FB290142886851B002FBAE1 /* Case.swift in Sources */,
 				5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */,
+				5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */,
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
@@ -1772,6 +1783,7 @@
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
 				5F527D9B288567C4009D5027 /* DiagnosisUnresolvedView.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
+				5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,
 				5FB2902A2887DF27002FBAE1 /* MEDiagnosisResultView.swift in Sources */,

@@ -70,6 +70,12 @@ class UserProfileLanguageCell: UICollectionViewCell {
         addSubviews(languageTitleLabel, languageLevelLabel, buttonImage, separatorView)
         
         NSLayoutConstraint.activate([
+            
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
             languageTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             languageTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             languageTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -78,12 +84,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
             languageLevelLabel.leadingAnchor.constraint(equalTo: languageTitleLabel.leadingAnchor),
             languageLevelLabel.trailingAnchor.constraint(equalTo: languageTitleLabel.trailingAnchor),
             languageLevelLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: languageTitleLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: languageTitleLabel.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
+        
             buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
             

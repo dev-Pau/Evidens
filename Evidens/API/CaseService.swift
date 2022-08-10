@@ -39,7 +39,7 @@ struct CaseService {
         let caseRef = COLLECTION_CASES.addDocument(data: data, completion: completion)
         
         if privacy == .visible {
-            DatabaseManager.shared.uploadRecentCase(withUid: caseRef.documentID, withTimestamp: Date()) { uploaded in
+            DatabaseManager.shared.uploadRecentCase(withUid: caseRef.documentID) { uploaded in
                 print("Case uploaded to recents")
             }
         }

@@ -9,7 +9,8 @@ import UIKit
 
 class AddPatentViewController: UIViewController {
     
-    private var conditionIsSelected: Bool = false
+    private var userIsEditing = false
+    private var previousPatent: String = ""
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -67,34 +68,7 @@ class AddPatentViewController: UIViewController {
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
         return tf
     }()
-    
-    private lazy var patentDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Description"
-        label.textColor = grayColor
-        label.isHidden = true
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var patentDescriptionTextView: InputTextView = {
-        let tv = InputTextView()
-        tv.placeholderText = "Description"
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .medium)
-        tv.placeholderLabel.textColor = .systemGray2
-        tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = blackColor
-        tv.delegate = self
-        tv.isScrollEnabled = false
-        tv.backgroundColor = lightColor
-        tv.layer.cornerRadius = 5
-        tv.autocorrectionType = .no
-        tv.placeHolderShouldCenter = false
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        return tv
-    }()
-    
+
     private let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
@@ -154,7 +128,7 @@ class AddPatentViewController: UIViewController {
         view.backgroundColor = .white
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(patentTitleLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, patentDescriptionLabel, patentDescriptionTextView, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel)
+        scrollView.addSubviews(patentTitleLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -180,17 +154,9 @@ class AddPatentViewController: UIViewController {
             patentNumberLabel.leadingAnchor.constraint(equalTo: patentNumberTextField.leadingAnchor),
             patentNumberLabel.trailingAnchor.constraint(equalTo: patentNumberTextField.trailingAnchor),
             
-            patentDescriptionTextView.topAnchor.constraint(equalTo: patentNumberTextField.bottomAnchor, constant: 20),
-            patentDescriptionTextView.leadingAnchor.constraint(equalTo: patentNumberTextField.leadingAnchor),
-            patentDescriptionTextView.trailingAnchor.constraint(equalTo: patentNumberTextField.trailingAnchor),
-            
-            patentDescriptionLabel.bottomAnchor.constraint(equalTo: patentDescriptionTextView.topAnchor, constant: -2),
-            patentDescriptionLabel.leadingAnchor.constraint(equalTo: patentDescriptionTextView.leadingAnchor),
-            patentDescriptionLabel.trailingAnchor.constraint(equalTo: patentDescriptionTextView.trailingAnchor),
-            
-            separatorView.topAnchor.constraint(equalTo: patentDescriptionTextView.bottomAnchor, constant: 10),
-            separatorView.leadingAnchor.constraint(equalTo: patentDescriptionLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: patentDescriptionLabel.trailingAnchor),
+            separatorView.topAnchor.constraint(equalTo: patentNumberTextField.bottomAnchor, constant: 10),
+            separatorView.leadingAnchor.constraint(equalTo: patentNumberTextField.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: patentNumberTextField.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
             addContributorsButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
@@ -217,8 +183,15 @@ class AddPatentViewController: UIViewController {
     
     @objc func handleDone() {
         guard let title = patentTitleTextField.text, let number = patentNumberTextField.text else { return }
-        DatabaseManager.shared.uploadPatent(title: title, number: number, description: patentDescriptionTextView.text) { uploaded in
-            print("patent uploaded")
+        
+        if userIsEditing {
+            DatabaseManager.shared.updatePatent(previousPatent: previousPatent, patentTitle: title, patentNumber: number) { uploaded in
+                print("patent updated")
+            }
+        } else {
+            DatabaseManager.shared.uploadPatent(title: title, number: number) { uploaded in
+                print("patent uploaded")
+            }
         }
     }
     
@@ -250,16 +223,15 @@ class AddPatentViewController: UIViewController {
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         return attrString
     }
-}
-
-extension AddPatentViewController: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        let count = textView.text.count
+    
+    func configureWithPublication(patentTitle: String, patentNumber: String, patentDescription: String) {
+        userIsEditing = true
+        previousPatent = patentTitle
         
-        if count != 0 {
-            patentDescriptionLabel.isHidden = false
-        } else {
-            patentDescriptionLabel.isHidden = true
-        }
+        patentTitleTextField.text = patentTitle
+        patentNumberTextField.text = patentNumber
+     
+        textDidChange(patentTitleTextField)
+        textDidChange(patentNumberTextField)
     }
 }

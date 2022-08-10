@@ -165,14 +165,4 @@ struct PostViewModel {
     init(post: Post) {
         self.post = post
     }
-    
-    //Return the height for dynamic cell height
-    func size(forWidth width: CGFloat) ->CGSize {
-        let label = UILabel()
-        label.numberOfLines = 3
-        label.text = post.postText
-        label.lineBreakMode = .byTruncatingTail
-        label.setWidth(width)
-        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-    }
 }

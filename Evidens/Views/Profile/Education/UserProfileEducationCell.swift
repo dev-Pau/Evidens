@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol UserProfileEducationCellDelegate: AnyObject {
+    func didTapEditEducation(_ cell: UICollectionViewCell, educationSchool: String, educationDegree: String, educationField: String, educationStartDate: String, educationEndDate: String)
+}
+
 class UserProfileEducationCell: UICollectionViewCell {
+    
+    weak var delegate: UserProfileEducationCellDelegate?
     
     private let educationCenterTitleLabel: UILabel = {
         let label = UILabel()
@@ -51,6 +57,18 @@ class UserProfileEducationCell: UICollectionViewCell {
         return label
     }()
     
+    lazy var buttonImage: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.buttonSize = .mini
+        button.isHidden = true
+        button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleEditEducation), for: .touchUpInside)
+        return button
+    }()
+    
     private let educationTypeImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
@@ -90,9 +108,14 @@ class UserProfileEducationCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .white
         
-        addSubviews(educationCenterTitleLabel, educationTitleLabel, calendarImage, educationIntervalLabel, educationTypeImage, educationTypeLabel, separatorView)
+        addSubviews(educationCenterTitleLabel, educationTitleLabel, calendarImage, educationIntervalLabel, educationTypeImage, educationTypeLabel, separatorView, buttonImage)
         
         NSLayoutConstraint.activate([
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: educationCenterTitleLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: educationCenterTitleLabel.trailingAnchor),
+            
             educationCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             educationCenterTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             educationCenterTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -120,17 +143,23 @@ class UserProfileEducationCell: UICollectionViewCell {
             educationTypeLabel.trailingAnchor.constraint(equalTo: educationTitleLabel.trailingAnchor),
             educationTypeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.leadingAnchor.constraint(equalTo: educationCenterTitleLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: educationCenterTitleLabel.trailingAnchor)
+            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
+            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
         ])
     }
     
     func set(educationInfo: [String: String]) {
         educationCenterTitleLabel.text = educationInfo["school"]
-        educationTitleLabel.text = educationInfo["field"]
+        educationTitleLabel.text = educationInfo["degree"]
         educationIntervalLabel.text = educationInfo["startDate"]! + " - " + educationInfo["endDate"]!
-        educationTypeLabel.text = educationInfo["degree"]
+        educationTypeLabel.text = educationInfo["field"]
+    }
+    
+    @objc func handleEditEducation() {
+        guard let school = educationCenterTitleLabel.text, let degree = educationTitleLabel.text, let field = educationTypeLabel.text, let date = educationIntervalLabel.text else { return }
+        
+        let dateArray = date.split(separator: "-")
+
+        delegate?.didTapEditEducation(self, educationSchool: school, educationDegree: degree, educationField: field, educationStartDate: String(dateArray[0]), educationEndDate: String(dateArray[1]))
     }
 }

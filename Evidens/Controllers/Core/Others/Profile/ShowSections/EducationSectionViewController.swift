@@ -1,25 +1,27 @@
 //
-//  LanguageSectionViewController.swift
+//  EducationSectionViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 8/8/22.
+//  Created by Pau Fernández Solà on 10/8/22.
 //
 
 import UIKit
 
-private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
+private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
 
-class LanguageSectionViewController: UICollectionViewController {
+class EducationSectionViewController: UICollectionViewController {
     
-    private var languages = [[String: String]]()
+    private var education = [[String: String]]()
+    private var isCurrentUser: Bool
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
     }
     
-    init(languages: [[String: String]]) {
-        self.languages = languages
+    init(education: [[String: String]], isCurrentUser: Bool) {
+        self.education = education
+        self.isCurrentUser = isCurrentUser
         
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
@@ -44,7 +46,7 @@ class LanguageSectionViewController: UICollectionViewController {
     }
     
     private func configureCollectionView() {
-        collectionView.register(UserProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
+        collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -52,31 +54,32 @@ class LanguageSectionViewController: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
-        cell.set(languageInfo: languages[indexPath.row])
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
+        cell.set(educationInfo: education[indexPath.row])
         cell.delegate = self
-        cell.buttonImage.isHidden = false
-        cell.buttonImage.isUserInteractionEnabled = true
+        cell.separatorView.isHidden = indexPath.row == 0 ? true : false
+        
+        cell.buttonImage.isHidden = isCurrentUser ? false : true
+        cell.buttonImage.isUserInteractionEnabled = isCurrentUser ? true : false
+    
         return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return languages.count
+        return education.count
     }
 }
 
-extension LanguageSectionViewController: UserProfileLanguageCellDelegate {
-    func didTapEditLanguage(_ cell: UICollectionViewCell, languageName: String, languageProficiency: String) {
-        
-        let controller = AddLanguageViewController()
-        
+extension EducationSectionViewController: UserProfileEducationCellDelegate {
+    func didTapEditEducation(_ cell: UICollectionViewCell, educationSchool: String, educationDegree: String, educationField: String, educationStartDate: String, educationEndDate: String) {
+        let controller = AddEducationViewController()
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
         navigationItem.backBarButtonItem = backItem
         
-        controller.configureWithLanguage(languageName: languageName, languageProficiency: languageProficiency)
+        controller.configureWithPublication(school: educationSchool, degree: educationDegree, field: educationField, startDate: educationStartDate, endDate: educationEndDate)
         navigationController?.pushViewController(controller, animated: true)
-        
     }
 }
+

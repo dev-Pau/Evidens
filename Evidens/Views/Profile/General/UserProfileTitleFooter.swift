@@ -63,7 +63,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
     }
     
     @objc func handleFooterTap() {
-        guard let text = sectionAboutTitle.text else { return }
+        guard let text = sectionAboutTitle.text else { return }
         delegate?.didTapFooter(section: text)
     }
 }

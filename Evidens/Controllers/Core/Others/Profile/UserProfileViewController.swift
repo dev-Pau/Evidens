@@ -77,10 +77,9 @@ class UserProfileViewController: UIViewController {
     
     //Patents
     private var hasPatents: Bool = false
-    private var patents = [[String: Any]]()
+    private var patents = [[String: String]]()
     
     //Publications
-    private var hasPublications: Bool = false
     private var publications = [[String: String]]()
     
     //Education
@@ -347,15 +346,16 @@ class UserProfileViewController: UIViewController {
                 
             } else if sectionNumber == 6 {
                 // Education
-                if self.hasEducation == false {
+                if self.education.count == 0 {
                     
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    
+                   
                     let section = NSCollectionLayoutSection(group: group)
                     
                     return section
+                        
                 } else {
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionHeader,
@@ -364,30 +364,36 @@ class UserProfileViewController: UIViewController {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
+                    if self.education.count < 4 {
                         
-                    return section
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header]
+                        return section
+                        
+                    } else {
+                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionFooter,
+                                                                                 alignment: .bottom)
+                        
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header, footer]
+                        return section
+                    }
                 }
  
             } else if sectionNumber == 7 {
                 // Patents
-                if self.hasPatents == false {
+                if self.patents.count == 0 {
                     
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                    
                    
                     let section = NSCollectionLayoutSection(group: group)
-                  
+                    
                     return section
                         
                 } else {
-                    
-                    
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionHeader,
                                                                              alignment: .top)
@@ -395,28 +401,34 @@ class UserProfileViewController: UIViewController {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
-                    
-                    return section
+                    if self.patents.count < 4 {
                         
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header]
+                        return section
+                        
+                    } else {
+                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionFooter,
+                                                                                 alignment: .bottom)
+                        
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header, footer]
+                        return section
+                    }
                 }
                 
             } else if sectionNumber == 8 {
-                if self.hasPublications == false {
+                if self.publications.count == 0 {
                     
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    
+                   
                     let section = NSCollectionLayoutSection(group: group)
-                  
-                        
+                    
                     return section
+                        
                 } else {
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionHeader,
@@ -425,15 +437,21 @@ class UserProfileViewController: UIViewController {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
-                    
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
+                    if self.publications.count < 4 {
                         
-                    return section
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header]
+                        return section
+                        
+                    } else {
+                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                                 elementKind: ElementKind.sectionFooter,
+                                                                                 alignment: .bottom)
+                        
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.boundarySupplementaryItems = [header, footer]
+                        return section
+                    }
                 }
                
             } else if sectionNumber == 9 {
@@ -622,11 +640,11 @@ class UserProfileViewController: UIViewController {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchPatents(forUid: uid) { result in
             switch result {
-            case .success(let languages):
+            case .success(let patents):
                 //self.aboutText = sectionText
                 //self.collectionView.reloadSections(IndexSet(integer: 1))
                 self.hasPatents = true
-                self.patents = languages
+                self.patents = patents
                 self.collectionView.reloadData()
             case .failure(_):
                 print("No Patents")
@@ -641,7 +659,7 @@ class UserProfileViewController: UIViewController {
             case .success(let publications):
                 //self.aboutText = sectionText
                 //self.collectionView.reloadSections(IndexSet(integer: 1))
-                self.hasPublications = true
+
                 self.publications = publications
                 self.collectionView.reloadData()
             case .failure(_):
@@ -735,7 +753,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             }
             
         } else if section == 8 {
-            if hasPublications {
+            if publications.count != 0 {
                 return min(publications.count, 3)
             } else {
                 return 0
@@ -779,16 +797,9 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     // Text Post
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
-                    if indexPath.row == recentPosts.count - 1 {
-                        cell.separatorView.isHidden = true
-                    }
-                    
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
-                    if indexPath.row == recentPosts.count - 1 {
-                        cell.separatorView.isHidden = true
-                    }
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
                     return cell
                 }
@@ -850,17 +861,11 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Education
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
             cell.set(educationInfo: education[indexPath.row])
-            if indexPath.row == education.count - 1 {
-                cell.separatorView.isHidden = true
-            }
             return cell
             
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
             cell.set(patentInfo: patents[indexPath.row])
-            if indexPath.row == patents.count - 1 {
-                cell.separatorView.isHidden = true
-            }
             return cell
             
         } else if indexPath.section == 8 {
@@ -870,9 +875,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 9 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
-            if indexPath.row == languages.count - 1 {
-                cell.separatorView.isHidden = true
-            }
             cell.set(languageInfo: languages[indexPath.row])
             return cell
             
@@ -1037,8 +1039,30 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
             
+        case "Patents":
+            let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
+            controller.title = "Patents"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case "Education":
+            let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
+            controller.title = "Education"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
         case "Languages":
-            let controller = LanguageSectionViewController(languages: languages)
+            let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
             controller.title = "Languages"
             
             let backItem = UIBarButtonItem()
@@ -1047,6 +1071,18 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
+            
+        case "Publications":
+            let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
+            controller.title = "Publications"
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
             
         default:
             print("No cell registered")
@@ -1068,7 +1104,57 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             //let controller = HomeViewController(collectionViewLayout: layout)
             //controller.user = user
             //navigationController?.pushViewController(controller, animated: true)
-        
+         
+        case "Show education":
+            let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+            navigationItem.title = "Education"
+            
+            
+            
+        case "Show patents":
+            let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+            navigationItem.title = "Patents"
+            
+        case "Show publications":
+            let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationItem.title = "Publications"
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case "Show languages":
+            let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationItem.title = "Languages"
+            
+            navigationController?.pushViewController(controller, animated: true)
+            //co
         default:
             print("no footer registered")
         }

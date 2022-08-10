@@ -96,7 +96,12 @@ class UserProfilePostImageCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             
-            postImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            postImage.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             postImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postImage.widthAnchor.constraint(equalToConstant: 75),
             postImage.heightAnchor.constraint(equalToConstant: 75),
@@ -117,12 +122,8 @@ class UserProfilePostImageCell: UICollectionViewCell {
             likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
             likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+
         ])
         
     }

@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol UserProfilePublicationCellDelegate: AnyObject {
+    func didTapEditPublication(_ cell: UICollectionViewCell, publicationTitle: String, publicationDate: String, publicationUrl: String)
+}
+
 class UserProfilePublicationCell: UICollectionViewCell {
+    
+    weak var delegate: UserProfilePublicationCellDelegate?
     
     private let publicationTitleLabel: UILabel = {
         let label = UILabel()
@@ -27,6 +33,18 @@ class UserProfilePublicationCell: UICollectionViewCell {
         iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
+    }()
+    
+    lazy var buttonImage: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.buttonSize = .mini
+        button.isHidden = true
+        button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleEditPublication), for: .touchUpInside)
+        return button
     }()
     
     private let publicationDateLabel: UILabel = {
@@ -60,7 +78,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         return label
     }()
     
-    private let bottomView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -78,9 +96,15 @@ class UserProfilePublicationCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
-        addSubviews(publicationTitleLabel, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, bottomView)
+        addSubviews(publicationTitleLabel, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, buttonImage, separatorView)
         
         NSLayoutConstraint.activate([
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
+            
+            
             publicationTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             publicationTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             publicationTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -104,12 +128,17 @@ class UserProfilePublicationCell: UICollectionViewCell {
             publicationDateLabel.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
             publicationDateLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            bottomView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomView.heightAnchor.constraint(equalToConstant: 1),
-            bottomView.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
-            bottomView.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor)
+            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
+            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
         ])
     }
+    
+    @objc func handleEditPublication() {
+        guard let title = publicationTitleLabel.text, let date = publicationDateLabel.text, let url = publicationUrlLabel.text else { return }
+        delegate?.didTapEditPublication(self, publicationTitle: title, publicationDate: date, publicationUrl: url)
+    }
+    
+    
     
     func set(publicationInfo: [String: String]) {
         publicationTitleLabel.text = publicationInfo["title"]

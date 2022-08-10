@@ -9,7 +9,8 @@ import UIKit
 
 class AddPublicationViewController: UIViewController {
     
-    private var conditionIsSelected: Bool = false
+    private var userIsEditing = false
+    private var previousPublication: String = ""
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -234,11 +235,23 @@ class AddPublicationViewController: UIViewController {
     
     @objc func handleDone() {
         guard let title = publicationTitleTextField.text, let url = urlPublicationTextField.text, let date = publicationDateTextField.text else { return }
-        DatabaseManager.shared.uploadPublication(title: title, url: url, date: date) { uploaded in
-            if uploaded {
-                print("Publication uploaded")
+        
+        if userIsEditing {
+            print("user is editing calling to update")
+            print(previousPublication)
+            DatabaseManager.shared.updatePublication(previousPublication: previousPublication, publicationTitle: title, publicationUrl: url, publicationDate: date) { uploaded in
+                if uploaded {
+                    print("Publication updated")
+                }
+            }
+        } else {
+            DatabaseManager.shared.uploadPublication(title: title, url: url, date: date) { uploaded in
+                if uploaded {
+                    print("Publication uploaded")
+                }
             }
         }
+        
     }
     
     @objc func handleAddDate() {
@@ -289,5 +302,20 @@ class AddPublicationViewController: UIViewController {
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         attrString.setAttributes([.font: UIFont.systemFont(ofSize: 12, weight: .medium), .baselineOffset: 1], range: NSRange(location: text.count - 1, length: 1))
         return attrString
+    }
+    
+    func configureWithPublication(publicationTitle: String, publicationUrl: String, publicationDate: String) {
+        userIsEditing = true
+        previousPublication = publicationTitle
+        
+        publicationTitleTextField.text = publicationTitle
+        urlPublicationTextField.text = publicationUrl
+        publicationDateTextField.text = publicationDate
+
+        textDidChange(publicationTitleTextField)
+        textDidChange(urlPublicationTextField)
+        textDidChange(publicationDateTextField)
+        
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }
