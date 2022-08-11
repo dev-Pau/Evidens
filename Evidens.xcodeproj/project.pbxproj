@@ -114,6 +114,7 @@
 		5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */; };
 		5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */; };
 		5F85218F28A3CF620033AF67 /* ExperienceSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85218E28A3CF620033AF67 /* ExperienceSectionViewController.swift */; };
+		5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F85219028A4D2130033AF67 /* ShareCaseViewModel.swift */; };
 		5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */; };
 		5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */; };
 		5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */; };
@@ -130,7 +131,7 @@
 		5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */; };
 		5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5128758164005094A5 /* CaseDetailsView.swift */; };
 		5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */; };
-		5F8B7C5628772982005094A5 /* LinearShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* LinearShapeTextTracker.swift */; };
+		5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* CharacterTextTracker.swift */; };
 		5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */; };
 		5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */; };
 		5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5B28797C97005094A5 /* CaseType.swift */; };
@@ -349,6 +350,7 @@
 		5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatentSectionViewController.swift; sourceTree = "<group>"; };
 		5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationSectionViewController.swift; sourceTree = "<group>"; };
 		5F85218E28A3CF620033AF67 /* ExperienceSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperienceSectionViewController.swift; sourceTree = "<group>"; };
+		5F85219028A4D2130033AF67 /* ShareCaseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseViewModel.swift; sourceTree = "<group>"; };
 		5F8620F8289EAFE1004E6184 /* UserProfileNoCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCaseCell.swift; sourceTree = "<group>"; };
 		5F8620FA289ECA3C004E6184 /* UserProfileCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileCaseTextCell.swift; sourceTree = "<group>"; };
 		5F86210128A0E41D004E6184 /* UserProfileNoCommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileNoCommentsCell.swift; sourceTree = "<group>"; };
@@ -365,7 +367,7 @@
 		5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesViewController.swift; sourceTree = "<group>"; };
 		5F8B7C5128758164005094A5 /* CaseDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDetailsView.swift; sourceTree = "<group>"; };
 		5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
-		5F8B7C5528772982005094A5 /* LinearShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearShapeTextTracker.swift; sourceTree = "<group>"; };
+		5F8B7C5528772982005094A5 /* CharacterTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterTextTracker.swift; sourceTree = "<group>"; };
 		5F8B7C5728797808005094A5 /* ClinicalTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeViewController.swift; sourceTree = "<group>"; };
 		5F8B7C5928797B28005094A5 /* ClinicalTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicalTypeCell.swift; sourceTree = "<group>"; };
 		5F8B7C5B28797C97005094A5 /* CaseType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseType.swift; sourceTree = "<group>"; };
@@ -771,7 +773,7 @@
 			isa = PBXGroup;
 			children = (
 				5FB2902B28895C5F002FBAE1 /* MenuLaunchers */,
-				5F8B7C5528772982005094A5 /* LinearShapeTextTracker.swift */,
+				5F8B7C5528772982005094A5 /* CharacterTextTracker.swift */,
 				5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */,
 				5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */,
 				5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */,
@@ -1117,6 +1119,7 @@
 			isa = PBXGroup;
 			children = (
 				5FB29018288695D4002FBAE1 /* CaseViewModel.swift */,
+				5F85219028A4D2130033AF67 /* ShareCaseViewModel.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1735,6 +1738,7 @@
 				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
 				5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */,
+				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,
 				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,
@@ -1771,7 +1775,7 @@
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F9A9F832896CB0D00A25152 /* ConfigureSectionTitleCell.swift in Sources */,
-				5F8B7C5628772982005094A5 /* LinearShapeTextTracker.swift in Sources */,
+				5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
 				5FDB11D4289BCABD0079463F /* HelperBottomMenuLauncher.swift in Sources */,

@@ -30,7 +30,7 @@ class CasePrivacyMenuLauncher: NSObject {
     
     weak var delegate: CasePrivacyMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 280
+    private let menuHeight: CGFloat = 220
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0

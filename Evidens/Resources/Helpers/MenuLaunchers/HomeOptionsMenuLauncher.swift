@@ -19,6 +19,13 @@ class HomeOptionsMenuLauncher: NSObject {
     
     var uid: String? {
         didSet {
+            /*
+             UserService.checkIfUserIsFollowed(uid: uid) { isFollowed in
+                 if isFollowed {
+                     
+                 }
+             }
+             */
             configureCollectionViewData()
         }
     }
@@ -29,9 +36,11 @@ class HomeOptionsMenuLauncher: NSObject {
         return view
     }()
     
+    private var menuHeight: CGFloat = 160
+    
     weak var delegate: HomeOptionsMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 160
+
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -87,8 +96,6 @@ class HomeOptionsMenuLauncher: NSObject {
         }
     }
 
-    
-    
     func configureImageSettings(in view: UIView) {
         if let window = UIApplication.shared.keyWindow {
             window.addSubview(blackBackgroundView)
@@ -121,13 +128,17 @@ class HomeOptionsMenuLauncher: NSObject {
             menuOptionsText = ["Edit", "Delete"]
             menuOptionsImages = [UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
                                  UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuHeight = 160
+            collectionView.reloadData()
             
         } else {
-            menuOptionsText = ["Save", "Unfollow", "Remove connection", "Report this post"]
-            menuOptionsImages = [UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "xmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
-            menuHeight = 300
+            menuOptionsText = ["Save", "Unfollow", "Report this post"]
+            menuOptionsImages = [UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "xmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuHeight = 220
+            collectionView.reloadData()
+ 
         }
-        collectionView.reloadData()
+
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -177,17 +188,18 @@ extension HomeOptionsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
         cell.backgroundColor = .white
-        cell.layer.cornerRadius = 15
-        
+
         if indexPath.row == 0 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         }
         
-        if indexPath.row == menuOptionsText.count - 1 {
+         else if indexPath.row == menuOptionsText.count - 1 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
-        }
+         } else {
+             cell.layer.cornerRadius = 0
+         }
         
         return cell
         //cell.postTyeButton.configuration?.baseBackgroundColor = .white

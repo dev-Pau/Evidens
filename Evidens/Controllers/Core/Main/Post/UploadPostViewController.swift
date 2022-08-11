@@ -10,7 +10,6 @@ import Photos
 import PhotosUI
 import Firebase
 import SDWebImage
-import AVKit
 
 private let pollCellReuseIdentifier = "PollCellReuseIdentifier"
 
@@ -121,16 +120,9 @@ class UploadPostViewController: UIViewController {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .heavy)
-        container.foregroundColor = UIColor.red
-        
-        button.configuration?.attributedTitle = AttributedString(" Delete", attributes: container)
-        
-        //button.configuration?.baseForegroundColor = .red
-        button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.7)
-        
+        button.configuration?.buttonSize = .mini
+        button.configuration?.baseBackgroundColor = .red.withAlphaComponent(0.7)
+        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(.white)
         button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -349,8 +341,8 @@ class UploadPostViewController: UIViewController {
         scrollView.resizeScrollViewContentSize()
         
         viewModel.hasImage = false
-        viewModel.hasVideo = false
-        viewModel.hasDocument = false
+        //viewModel.hasVideo = false
+        //viewModel.hasDocument = false
         updateForm()
         
         attachementsButton.isUserInteractionEnabled = true
@@ -412,6 +404,8 @@ class UploadPostViewController: UIViewController {
         guard let postTextView = postTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
+        showLoadingView()
+        
         if postImages.count > 0 {
             print("Has images")
             let imagesToUpload = postImages.compactMap { $0 }
@@ -422,12 +416,13 @@ class UploadPostViewController: UIViewController {
                     // Post images saved to firebase. Upload post with images
                     // post: postTextView, type: .plainText, privacy: privacyType, user: user
                     PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
+                        self.dismissLoadingView()
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
+                            
                             return
                         } else {
-                            // Post is uploaded to Firebase
-                            // Dismiss VC Here
+                            self.dismiss(animated: true)
                             
                         }
                     }
@@ -437,12 +432,12 @@ class UploadPostViewController: UIViewController {
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
                     PostService.uploadPost(post: postTextView, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                        self.dismissLoadingView()
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
                         } else {
-                            // Post is uploaded to Firebase
-                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                            self.dismiss(animated: true)
                         }
                     }
                 }
@@ -450,12 +445,12 @@ class UploadPostViewController: UIViewController {
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
                     PostService.uploadPost(post: postTextView, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                        self.dismissLoadingView()
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
                         } else {
-                            // Post is uploaded to Firebase
-                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                            self.dismiss(animated: true)
                         }
                     }
                 }
@@ -463,12 +458,12 @@ class UploadPostViewController: UIViewController {
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                     // Post images saved to firebase. Upload post with images
                     PostService.uploadPost(post: postTextView, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                        self.dismissLoadingView()
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
                         } else {
-                            // Post is uploaded to Firebase
-                            print("Post with text and image uploaded to Firebase with \(imageUrl.count)")
+                            self.dismiss(animated: true)
                         }
                     }
                 }
@@ -479,11 +474,11 @@ class UploadPostViewController: UIViewController {
             // Post has text only
             PostService.uploadTextPost(post: postTextView, type: .plainText, privacy: privacyType, user: user) { error in
                 if let error = error {
+                    self.dismissLoadingView()
                     print("DEBUG: \(error.localizedDescription)")
                     return
                 } else {
-                    // Post is uploaded to Firebase
-                    print("Post with only text uploaded to FB")
+                    self.dismiss(animated: true)
                 }
             }
         }
@@ -527,6 +522,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         var asyncDict = [String:UIImage]()
         var images = [UIImage]()
         
+        showLoadingView()
         
         results.forEach { result in
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
@@ -554,6 +550,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                 self.postImages = images
                 self.addPostImagesToView(images: self.postImages)
             }
+            self.dismissLoadingView()
         }
     }
 

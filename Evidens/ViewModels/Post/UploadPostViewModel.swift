@@ -25,12 +25,12 @@ struct UploadPostViewModel: UploadViewModel {
     }
     
     var hasImage: Bool = false
-    var hasPoll: Bool = false
-    var hasDocument: Bool = false
-    var hasVideo: Bool = false
+    //var hasPoll: Bool = false
+    //var hasDocument: Bool = false
+    //var hasVideo: Bool = false
     
     var postIsValid: Bool {
-        if hasText || hasImage || hasPoll || hasDocument || hasVideo {
+        if hasText || hasImage /*|| hasPoll || hasDocument || hasVideo*/ {
             return true
         } else {
             return false

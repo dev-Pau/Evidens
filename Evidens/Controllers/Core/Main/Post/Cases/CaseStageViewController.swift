@@ -52,7 +52,7 @@ class CaseStageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Type details"
+        title = "Stage details"
     }
     
     private func configureTableView() {

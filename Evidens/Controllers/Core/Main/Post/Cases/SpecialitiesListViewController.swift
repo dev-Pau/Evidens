@@ -25,7 +25,7 @@ class SpecialitiesListViewController: UIViewController {
     private var specialities = Speciality.allSpecialities()
     
     private var filteredSpecialities: [Speciality] = []
-    
+
     private var isSearching: Bool = false
     
     private let searchController = UISearchController()

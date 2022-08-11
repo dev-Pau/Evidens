@@ -43,7 +43,7 @@ class PostPrivacyCell: UICollectionViewCell {
     
     private let postTypeSubLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.font = .systemFont(ofSize: 10, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = grayColor
         return label

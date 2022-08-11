@@ -32,7 +32,7 @@ class CaseDiagnosisViewController: UIViewController {
         label.text = "Help the community and get more engagement by adding a diagnose about your conclusions"
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textColor = blackColor
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -43,19 +43,13 @@ class CaseDiagnosisViewController: UIViewController {
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = blackColor
+        tv.textColor = .black
         tv.tintColor = primaryColor
         tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
         tv.placeHolderShouldCenter = false
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
-    }()
-    
-    private var diagnosisView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     private let separatorView: UIView = {
@@ -65,8 +59,7 @@ class CaseDiagnosisViewController: UIViewController {
         return view
     }()
     
-    
-    let circularShapeTracker = CircularShapeTextTracker(withSteps: 500)
+    let textTracker = CharacterTextTracker(withMaxCharacters: 1000)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,13 +68,9 @@ class CaseDiagnosisViewController: UIViewController {
         configureUI()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        circularShapeTracker.addShapeIndicator(in: diagnosisView)
-    }
-    
     init(diagnosisText: String) {
         self.diagnosisText = diagnosisText
+        textTracker.updateTextTracking(toValue: diagnosisText.count)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -98,20 +87,17 @@ class CaseDiagnosisViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddDiagnosis))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = diagnosisText.count > 0 ? true : false
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureUI() {
-        view.addSubviews(profileImageView, textLabel, diagnosisTextView, diagnosisView, separatorView)
+        view.addSubviews(profileImageView, textLabel, diagnosisTextView, textTracker, separatorView)
         
-        circularShapeTracker.updateShapeIndicator(toValue: diagnosisText.count, previousValue: diagnosisText.count)
-        previousValue = diagnosisText.count
-
-        diagnosisTextView.delegate = self
-        diagnosisView.isHidden = true
+        textTracker.isHidden = true
         
         diagnosisTextView.placeholderLabel.text = diagnosisText.count > 0 ? "" : "Add your diagnosis here..."
         diagnosisTextView.text = diagnosisText
+        diagnosisTextView.delegate = self
         
         profileImageView.layer.cornerRadius = 45 / 2
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
@@ -137,11 +123,10 @@ class CaseDiagnosisViewController: UIViewController {
             diagnosisTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             diagnosisTextView.heightAnchor.constraint(equalToConstant: 127),
 
-            diagnosisView.topAnchor.constraint(equalTo: diagnosisTextView.bottomAnchor, constant: 3),
-            diagnosisView.trailingAnchor.constraint(equalTo: diagnosisTextView.trailingAnchor),
-            diagnosisView.heightAnchor.constraint(equalToConstant: 27),
-            diagnosisView.widthAnchor.constraint(equalToConstant: 27)
-             
+            textTracker.topAnchor.constraint(equalTo: diagnosisTextView.bottomAnchor, constant: 3),
+            textTracker.trailingAnchor.constraint(equalTo: diagnosisTextView.trailingAnchor),
+            textTracker.leadingAnchor.constraint(equalTo: diagnosisTextView.leadingAnchor),
+            textTracker.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     
@@ -159,23 +144,15 @@ class CaseDiagnosisViewController: UIViewController {
 extension CaseDiagnosisViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         let count = textView.text.count
-        
         navigationItem.rightBarButtonItem?.isEnabled = count > 0 ? true : false
-        
-        if previousValue == 0 {
-            circularShapeTracker.updateShapeIndicator(toValue: count, previousValue: 0)
-        } else {
-            circularShapeTracker.updateShapeIndicator(toValue: count, previousValue: previousValue)
-        }
-        
-        previousValue = count
+        textTracker.updateTextTracking(toValue: count)
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        diagnosisView.isHidden = false
+        textTracker.isHidden = false
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        diagnosisView.isHidden = true
+        textTracker.isHidden = true
     }
 }
