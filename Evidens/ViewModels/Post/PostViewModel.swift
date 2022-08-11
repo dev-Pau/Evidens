@@ -46,6 +46,10 @@ struct PostViewModel {
         }
     }
     
+    var postIsEdited: Bool {
+        return post.edited
+    }
+    
     var userProfileImageUrl: URL? {
         return URL(string: post.ownerImageUrl)
     }

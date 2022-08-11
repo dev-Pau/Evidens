@@ -131,7 +131,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
+        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
         
         userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo

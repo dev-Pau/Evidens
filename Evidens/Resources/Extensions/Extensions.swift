@@ -222,6 +222,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func deletePostAlert(withPostUid uid: String) {
+        let alert = UIAlertController(title: "Delete post", message: "Are you sure you want to delete this post?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
+            print("Destroy here post")
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func showLoadingView() {
         containerView = UIView(frame: view.bounds)
         view.addSubview(containerView)

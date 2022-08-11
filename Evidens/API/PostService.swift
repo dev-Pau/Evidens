@@ -102,6 +102,24 @@ struct PostService {
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
+    static func editPost(withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+         
+        let postData = ["post": text,
+                        "edited": true] as [String : Any]
+        
+        COLLECTION_POSTS.document(postUid).setData(postData, merge: true) { err in
+            if let err = err {
+                print("Error writing document: \(err)")
+                completion(false)
+                return
+            } else {
+                completion(true)
+                return
+            }
+        }
+    }
+    
     static func uploadDocumentPost(post: String, documentURL: String, documentTitle: String, documentPages: Int, user: User, type: Post.PostType, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -130,10 +148,6 @@ struct PostService {
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
-    
-    
-    
-    
     static func fetchPosts(completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp
         COLLECTION_POSTS.order(by: "timestamp", descending: true).getDocuments { (snapshot, error) in
@@ -142,9 +156,11 @@ struct PostService {
             //Mapping that creates an array for each post
             let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
             completion(posts)
-            
-        
         }
+    }
+    
+    static func deletePost(withPostUid uid: String, completion: @escaping(Bool) -> Void) {
+        
     }
     
     static func fetchFeedPosts(completion: @escaping([Post]) -> Void) {

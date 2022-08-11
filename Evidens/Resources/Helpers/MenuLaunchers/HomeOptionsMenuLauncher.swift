@@ -12,12 +12,13 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 
 
 protocol HomeOptionsMenuLauncherDelegate: AnyObject {
-
+    func didTapDeletePost(forPostUid uid: String)
+    func didTapEditPost(forPost post: Post)
 }
 
 class HomeOptionsMenuLauncher: NSObject {
     
-    var uid: String? {
+    var post: Post? {
         didSet {
             /*
              UserService.checkIfUserIsFollowed(uid: uid) { isFollowed in
@@ -71,21 +72,26 @@ class HomeOptionsMenuLauncher: NSObject {
     
     
     @objc func handleDismiss(selectedOption: String?) {
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.ownerUid, let postId = post?.postId else { return }
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
         } completion: { completed in
             
-            switch selectedOption {
-            case self.menuOptionsText[0]:
-                print("")
-                //self.delegate?.didTapImportFromCamera()
-            case self.menuOptionsText[1]:
-                print("")
-                //self.delegate?.didTapImportFromGallery()
-            default:
-                break
+            if ownerUid == currentUid {
+                // User is tapping on property post
+                switch selectedOption {
+                case self.menuOptionsText[0]:
+                    self.delegate?.didTapEditPost(forPost: self.post!)
+                case self.menuOptionsText[1]:
+                    self.delegate?.didTapDeletePost(forPostUid: postId)
+                default:
+                    break
+                }
+            } else {
+                
             }
+            
         }
     }
     
@@ -123,8 +129,8 @@ class HomeOptionsMenuLauncher: NSObject {
     }
     
     private func configureCollectionViewData() {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if uid == currentUid {
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let post = post else { return }
+        if post.ownerUid == currentUid {
             menuOptionsText = ["Edit", "Delete"]
             menuOptionsImages = [UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
                                  UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]

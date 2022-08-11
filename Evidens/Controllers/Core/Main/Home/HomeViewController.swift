@@ -98,11 +98,13 @@ class HomeViewController: UICollectionViewController {
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        collectionView.register(HomeDocumentCell.self, forCellWithReuseIdentifier: homeDocumentCellReuseIdentifier)
+        //collectionView.register(HomeDocumentCell.self, forCellWithReuseIdentifier: homeDocumentCellReuseIdentifier)
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
+        
+        homeMenuLauncher.delegate = self
     }
     
     func configureNavigationItemButtons() {
@@ -310,22 +312,7 @@ extension HomeViewController {
             }
             return cell
             
-        } else if posts[indexPath.row].type.postType == 5 {
-            //print("post type 1")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeDocumentCellReuseIdentifier, for: indexPath) as! HomeDocumentCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-         
-            if let post = post {
-                cell.viewModel = DocumentPostViewModel(post: post)
-            } else {
-                cell.viewModel = DocumentPostViewModel(post: posts[indexPath.row])
-                
-            }
-            return cell
-            
         }
-
         else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
             cell.delegate = self
@@ -584,7 +571,7 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post) {
-        homeMenuLauncher.uid = post.ownerUid
+        homeMenuLauncher.post = post
         homeMenuLauncher.showImageSettings(in: view)
     }
     
@@ -695,5 +682,20 @@ extension HomeViewController: HomeImageViewControllerDelegate {
     func updateVisibleImageInScrollView(_ image: UIImageView) {
         selectedImage = image
     }
+}
+
+extension HomeViewController: HomeOptionsMenuLauncherDelegate {
+    func didTapDeletePost(forPostUid uid: String) {
+        deletePostAlert(withPostUid: uid)
+    }
+    
+    func didTapEditPost(forPost post: Post) {
+        let controller = EditPostViewController(post: post)
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        
+        present(nav, animated: true)
+    }
+    
 }
 

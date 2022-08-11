@@ -69,6 +69,7 @@ struct Post {
     let postId: String
     let type: PostType
     let ownerCategory: String
+    let edited: Bool
     let ownerProfession: String
     let ownerSpeciality: String
     
@@ -112,5 +113,6 @@ struct Post {
         self.documentTitle = dictionary["documentTitle"] as? String ?? ""
         
         self.privacyOptions = PrivacyOptions(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .all
+        self.edited = dictionary["edited"] as? Bool ?? false
     }
 }
