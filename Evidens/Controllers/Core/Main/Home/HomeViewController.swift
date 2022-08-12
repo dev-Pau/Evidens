@@ -108,23 +108,16 @@ class HomeViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane",
                                                                            withConfiguration: UIImage.SymbolConfiguration(weight: .medium)),
                                                             style: .plain,
                                                             target: self,
                                                             action: #selector(didTapChat))
-        
         navigationItem.rightBarButtonItem?.tintColor = blackColor
-        
         let profileImageItem = UIBarButtonItem(customView: profileImageView)
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
         navigationItem.leftBarButtonItem = profileImageItem
-        
-
-        
         navigationItem.titleView = searchBar
-        
     }
     
     //MARK: - Actions
@@ -685,16 +678,18 @@ extension HomeViewController: HomeImageViewControllerDelegate {
 }
 
 extension HomeViewController: HomeOptionsMenuLauncherDelegate {
-    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool) {
+    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
         if follow {
             // Unfollow user
             UserService.unfollow(uid: uid) { _ in
-                print("Unfollowed")
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                reportPopup.showTopPopup(inView: self.view)
             }
         } else {
             // Follow user
             UserService.follow(uid: uid) { _ in
-                print("Followed")
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                reportPopup.showTopPopup(inView: self.view)
             }
         }
     }
@@ -703,7 +698,8 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
         reportPostAlert {
             DatabaseManager.shared.reportPost(forUid: uid) { reported in
                 if reported {
-                    
+                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill")
+                    reportPopup.showTopPopup(inView: self.view)
                 }
             }
         }
@@ -712,20 +708,10 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
     func didTapDeletePost(forPostUid uid: String) {
         deletePostAlert {
             print("Delete post here")
-            let reportPopup = METopPopupView(title: "You followed Anne", image: "plus.circle.fill")
-            reportPopup.showTopPopup(inView: self.view)
-            
             //let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.fireTimer), userInfo: nil, repeats: true)
             //timer.fire()        }
         }
     }
-    /*
-     @objc func fireTimer() {
-     print("dlfksjljkdfs")
-     }
-     */
-    
-    
     
     func didTapEditPost(forPost post: Post) {
         let controller = EditPostViewController(post: post)

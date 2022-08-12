@@ -133,7 +133,8 @@ class CasesViewController: UIViewController {
     }
     
     @objc func didTapProfile() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        //guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        //let controller = UserProfileViewController(user: <#T##User#>)
 
         DatabaseManager.shared.filter()
         //guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }

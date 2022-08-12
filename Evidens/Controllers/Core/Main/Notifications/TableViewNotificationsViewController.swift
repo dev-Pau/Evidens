@@ -9,7 +9,7 @@ import UIKit
 
 private let reuseIdentifier = "NotificationCell"
 
-class NotificationViewController: UITableViewController {
+class TableViewNotificationsViewController: UITableViewController {
     
     //MARK: - Properties
     
@@ -102,7 +102,7 @@ class NotificationViewController: UITableViewController {
         view.backgroundColor = .white
         
         
-        tableView.register(NotificationCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(NotificationFollowCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.rowHeight = 150
         tableView.separatorStyle = .none
         
@@ -117,24 +117,25 @@ class NotificationViewController: UITableViewController {
 
 //MARK: - UITableViewDataSource
 
-extension NotificationViewController {
+extension TableViewNotificationsViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return notifications.count
     }
-    
+    /*
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! NotificationCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! NotificationFollowCell
         cell.delegate = self
         cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
         cell.backgroundColor = .white
         return cell
     }
+     */
 }
 
 //MARK: - UITableViewDelegate
 
-extension NotificationViewController {
+extension TableViewNotificationsViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let postId = notifications[indexPath.row].postId
         //Check if notification has a post associated
@@ -151,30 +152,30 @@ extension NotificationViewController {
 
 //MARK: - NotificationCellDelegate
 
-extension NotificationViewController: NotificationCellDelegate {
+extension TableViewNotificationsViewController: NotificationCellDelegate {
     
-    func cell(_ cell: NotificationCell, wantsToViewProfile uid: String) {
+    func cell(_ cell: NotificationFollowCell, wantsToViewProfile uid: String) {
         UserService.fetchUser(withUid: uid) { user in
             let controller = ProfileViewController(user: user)
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
     
-    func cell(_ cell: NotificationCell, wantsToFollow uid: String) {
+    func cell(_ cell: NotificationFollowCell, wantsToFollow uid: String) {
         UserService.follow(uid: uid) { _ in
             cell.viewModel?.notification.userIsFollowed.toggle()
         }
 
     }
     
-    func cell(_ cell: NotificationCell, wantsToUnfollow uid: String) {
+    func cell(_ cell: NotificationFollowCell, wantsToUnfollow uid: String) {
         UserService.unfollow(uid: uid) { _ in
             cell.viewModel?.notification.userIsFollowed.toggle()
         }
     }
     
     //TASK: - Search how to call this function on a generic cell click (if post is associated with the notification)
-    func cell(_ cell: NotificationCell, wantsToViewPost postId: String) {
+    func cell(_ cell: NotificationFollowCell, wantsToViewPost postId: String) {
         PostService.fetchPost(withPostId: postId) { post in
             let controller = HomeViewController(collectionViewLayout: UICollectionViewFlowLayout())
             controller.post = post

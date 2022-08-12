@@ -144,7 +144,12 @@ class MainTabController: UITabBarController {
         let postController = ViewController()
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus.circle.fill")!, selectedImage: UIImage(systemName: "plus.circle.fill")!, rootViewController: postController)
         
-        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell.fill")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationViewController())
+        
+        let notificationsLayout = UICollectionViewFlowLayout()
+        notificationsLayout.scrollDirection = .vertical
+        notificationsLayout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
+        
+        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell.fill")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationsViewController(collectionViewLayout: notificationsLayout))
         
         viewControllers = [home, search, post, notifications]
         

@@ -12,16 +12,18 @@ struct Notification {
     
     enum NotificationType: Int {
         case likePost
-        case likeReply
+        case likeCase
         case follow
-        case comment
+        case commentPost
+        case commentCase
         
         var notificationMessage: String {
             switch self {
             case .likePost: return " liked your post"
-            case .likeReply: return " liked your reply"
+            case .likeCase: return " liked your case"
             case .follow: return " followed you"
-            case .comment: return " commented on your post"
+            case .commentPost: return " commented on your post"
+            case .commentCase: return " commented on your case"
             }
         }
         
@@ -29,11 +31,13 @@ struct Notification {
             switch self {
             case .likePost:
                 return UIImage(systemName: "heart.fill")?.withTintColor(UIColor(rgb: 0x79CBBF), renderingMode: .alwaysOriginal)
-            case .likeReply:
-                return UIImage(systemName: "hands.clap.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
+            case .likeCase:
+                return UIImage(systemName: "heart.fill")?.withTintColor(UIColor(rgb: 0x79CBBF), renderingMode: .alwaysOriginal)
             case .follow:
                 return UIImage(systemName: "person.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
-            case .comment:
+            case .commentPost:
+                return UIImage(systemName: "plus.bubble.fill")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+            case .commentCase:
                 return UIImage(systemName: "plus.bubble.fill")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal)
             }
         }

@@ -14,7 +14,7 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 protocol HomeOptionsMenuLauncherDelegate: AnyObject {
     func didTapDeletePost(forPostUid uid: String)
     func didTapEditPost(forPost post: Post)
-    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool)
+    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String)
     func didTapReportPost(forPostUid uid: String)
 }
 
@@ -77,7 +77,7 @@ class HomeOptionsMenuLauncher: NSObject {
     
     
     @objc func handleDismiss(selectedOption: String?) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.ownerUid, let postId = post?.postId else { return }
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.ownerUid, let postId = post?.postId, let firstName = post?.ownerFirstName else { return }
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
@@ -96,7 +96,7 @@ class HomeOptionsMenuLauncher: NSObject {
             } else {
                 switch selectedOption {
                 case self.menuOptionsText[0]:
-                    self.delegate?.didTapFollowAction(forUid: ownerUid, isFollowing: self.isFollowed)
+                    self.delegate?.didTapFollowAction(forUid: ownerUid, isFollowing: self.isFollowed, forUserFirstName: firstName)
                 case self.menuOptionsText[1]:
                     self.delegate?.didTapReportPost(forPostUid: postId)
                 default:
