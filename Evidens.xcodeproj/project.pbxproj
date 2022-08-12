@@ -213,6 +213,8 @@
 		5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF227329316004F92CE /* NotificationService.swift */; };
 		5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */; };
 		5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF62732B1AA004F92CE /* InputTextView.swift */; };
+		5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F028A6422C007EF79D /* METopPopupView.swift */; };
+		5FBCB9F428A6521F007EF79D /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F328A6521F007EF79D /* PopupView.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -448,6 +450,8 @@
 		5FBC2DF227329316004F92CE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		5FBC2DF427329AAB004F92CE /* UploadPostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostViewController.swift; sourceTree = "<group>"; };
 		5FBC2DF62732B1AA004F92CE /* InputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTextView.swift; sourceTree = "<group>"; };
+		5FBCB9F028A6422C007EF79D /* METopPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METopPopupView.swift; sourceTree = "<group>"; };
+		5FBCB9F328A6521F007EF79D /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -1090,6 +1094,7 @@
 		5F9F0891285F6E140069FD2C /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5FBCB9F228A6520D007EF79D /* Popup */,
 				5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */,
 				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
 				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
@@ -1231,6 +1236,15 @@
 				5FBC2DEE273020BC004F92CE /* NotificationCell.swift */,
 			);
 			path = Notifications;
+			sourceTree = "<group>";
+		};
+		5FBCB9F228A6520D007EF79D /* Popup */ = {
+			isa = PBXGroup;
+			children = (
+				5FBCB9F028A6422C007EF79D /* METopPopupView.swift */,
+				5FBCB9F328A6521F007EF79D /* PopupView.swift */,
+			);
+			path = Popup;
 			sourceTree = "<group>";
 		};
 		5FC4D85127070274006B7A34 = {
@@ -1736,6 +1750,7 @@
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
+				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
@@ -1779,6 +1794,7 @@
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F9A9F832896CB0D00A25152 /* ConfigureSectionTitleCell.swift in Sources */,
+				5FBCB9F428A6521F007EF79D /* PopupView.swift in Sources */,
 				5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,

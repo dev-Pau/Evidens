@@ -14,20 +14,23 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 protocol HomeOptionsMenuLauncherDelegate: AnyObject {
     func didTapDeletePost(forPostUid uid: String)
     func didTapEditPost(forPost post: Post)
+    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool)
+    func didTapReportPost(forPostUid uid: String)
 }
 
 class HomeOptionsMenuLauncher: NSObject {
     
     var post: Post? {
         didSet {
-            /*
-             UserService.checkIfUserIsFollowed(uid: uid) { isFollowed in
-                 if isFollowed {
-                     
-                 }
-             }
-             */
-            configureCollectionViewData()
+            guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let post = post else { return }
+            if post.ownerUid == currentUid {
+                configureCollectionViewData(isCurrentUser: true, isFollowed: nil)
+            } else {
+                UserService.checkIfUserIsFollowed(uid: post.ownerUid) { isFollowed in
+                    self.isFollowed = isFollowed
+                    self.configureCollectionViewData(isCurrentUser: false, isFollowed: isFollowed)
+                }
+            }
         }
     }
     
@@ -36,6 +39,8 @@ class HomeOptionsMenuLauncher: NSObject {
         view.clipsToBounds = false
         return view
     }()
+    
+    private var isFollowed: Bool = false
     
     private var menuHeight: CGFloat = 160
     
@@ -89,7 +94,14 @@ class HomeOptionsMenuLauncher: NSObject {
                     break
                 }
             } else {
-                
+                switch selectedOption {
+                case self.menuOptionsText[0]:
+                    self.delegate?.didTapFollowAction(forUid: ownerUid, isFollowing: self.isFollowed)
+                case self.menuOptionsText[1]:
+                    self.delegate?.didTapReportPost(forPostUid: postId)
+                default:
+                    break
+                }
             }
             
         }
@@ -128,9 +140,9 @@ class HomeOptionsMenuLauncher: NSObject {
         collectionView.addGestureRecognizer(pan)
     }
     
-    private func configureCollectionViewData() {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let post = post else { return }
-        if post.ownerUid == currentUid {
+    private func configureCollectionViewData(isCurrentUser: Bool, isFollowed: Bool?) {
+        //guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let post = post else { return }
+        if isCurrentUser {
             menuOptionsText = ["Edit", "Delete"]
             menuOptionsImages = [UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
                                  UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
@@ -138,13 +150,16 @@ class HomeOptionsMenuLauncher: NSObject {
             collectionView.reloadData()
             
         } else {
-            menuOptionsText = ["Save", "Unfollow", "Report this post"]
-            menuOptionsImages = [UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "xmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
-            menuHeight = 220
-            collectionView.reloadData()
- 
-        }
+            guard let isFollowed = isFollowed, let firstName = post?.ownerFirstName else { return }
 
+            let followText = isFollowed ? "Unfollow" : "Follow"
+            let followImage = isFollowed ? "xmark.circle.fill" : "plus.circle.fill"
+            
+            menuOptionsText = [followText + " " + firstName, "Report this post"]
+            menuOptionsImages = [UIImage(systemName: followImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuHeight = 160
+            collectionView.reloadData()
+        }
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -167,7 +182,6 @@ class HomeOptionsMenuLauncher: NSObject {
             collectionView.frame.size.height = menuHeight - translation.y * 0.3
         }
     }
-    
     
     override init() {
         super.init()
@@ -208,7 +222,6 @@ extension HomeOptionsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
          }
         
         return cell
-        //cell.postTyeButton.configuration?.baseBackgroundColor = .white
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

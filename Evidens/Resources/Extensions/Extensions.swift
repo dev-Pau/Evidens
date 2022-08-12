@@ -222,11 +222,20 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
-    func deletePostAlert(withPostUid uid: String) {
+    func deletePostAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Delete post", message: "Are you sure you want to delete this post?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
-            print("Destroy here post")
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func reportPostAlert(completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Report post", message: "Are you sure you want to report this post to our moderation team?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Report", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
         }))
         self.present(alert, animated: true, completion: nil)
     }

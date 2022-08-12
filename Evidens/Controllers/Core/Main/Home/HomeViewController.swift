@@ -685,9 +685,47 @@ extension HomeViewController: HomeImageViewControllerDelegate {
 }
 
 extension HomeViewController: HomeOptionsMenuLauncherDelegate {
-    func didTapDeletePost(forPostUid uid: String) {
-        deletePostAlert(withPostUid: uid)
+    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool) {
+        if follow {
+            // Unfollow user
+            UserService.unfollow(uid: uid) { _ in
+                print("Unfollowed")
+            }
+        } else {
+            // Follow user
+            UserService.follow(uid: uid) { _ in
+                print("Followed")
+            }
+        }
     }
+    
+    func didTapReportPost(forPostUid uid: String) {
+        reportPostAlert {
+            DatabaseManager.shared.reportPost(forUid: uid) { reported in
+                if reported {
+                    
+                }
+            }
+        }
+    }
+    
+    func didTapDeletePost(forPostUid uid: String) {
+        deletePostAlert {
+            print("Delete post here")
+            let reportPopup = METopPopupView(title: "You followed Anne", image: "plus.circle.fill")
+            reportPopup.showTopPopup(inView: self.view)
+            
+            //let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.fireTimer), userInfo: nil, repeats: true)
+            //timer.fire()        }
+        }
+    }
+    /*
+     @objc func fireTimer() {
+     print("dlfksjljkdfs")
+     }
+     */
+    
+    
     
     func didTapEditPost(forPost post: Post) {
         let controller = EditPostViewController(post: post)
