@@ -11,14 +11,26 @@ private let cellReuseIdentifier = "PostMenuCellReuseIdentifier"
 private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
  
 protocol CaseOptionsMenuLauncherDelegate: AnyObject {
-
+    func didTapAddCaseUpdate(forCase clinicalCase: Case)
+    func didTapChangeStateToSolved()
+    func didTapDeleteCase()
+    func didTapFollowAction()
+    func didTapReportCase()
 }
 
 class CaseOptionsMenuLauncher: NSObject {
     
-    var uid: String? {
+    var clinicalCase: Case? {
         didSet {
-            configureCollectionViewData()
+            guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let clinicalCase = clinicalCase else { return }
+            if clinicalCase.ownerUid == currentUid {
+                configureCollectionViewData(isCurrentUser: true, isFollowed: nil)
+            } else {
+                UserService.checkIfUserIsFollowed(uid: clinicalCase.ownerUid) { isFollowed in
+                    self.isFollowed = isFollowed
+                    self.configureCollectionViewData(isCurrentUser: false, isFollowed: isFollowed)
+                }
+            }
         }
     }
     
@@ -30,7 +42,10 @@ class CaseOptionsMenuLauncher: NSObject {
     
     weak var delegate: CaseOptionsMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 220
+    private var isFollowed: Bool = false
+    
+    private var menuHeight: CGFloat = 160
+    
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -61,20 +76,45 @@ class CaseOptionsMenuLauncher: NSObject {
     
     
     @objc func handleDismiss(selectedOption: String?) {
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = clinicalCase?.ownerUid, let postId = clinicalCase?.caseId, let firstName = clinicalCase?.ownerFirstName else { return }
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
         } completion: { completed in
             
-            switch selectedOption {
-            case self.menuOptionsText[0]:
-                print("")
-                //self.delegate?.didTapImportFromCamera()
-            case self.menuOptionsText[1]:
-                print("")
-                //self.delegate?.didTapImportFromGallery()
-            default:
-                break
+            if ownerUid == currentUid {
+                // User is tapping on property case
+                
+                if self.clinicalCase?.stage == .unresolved {
+                    switch selectedOption {
+                    case self.menuOptionsText[0]:
+                        self.delegate?.didTapAddCaseUpdate(forCase: self.clinicalCase!)
+                    case self.menuOptionsText[1]:
+                        self.delegate?.didTapChangeStateToSolved()
+                    case self.menuOptionsText[2]:
+                        self.delegate?.didTapDeleteCase()
+                    default:
+                        break
+                    }
+                } else {
+                    switch selectedOption {
+                    case self.menuOptionsText[0]:
+                        self.delegate?.didTapAddCaseUpdate(forCase: self.clinicalCase!)
+                    case self.menuOptionsText[1]:
+                        self.delegate?.didTapDeleteCase()
+                    default:
+                        break
+                    }
+                }
+            } else {
+                switch selectedOption {
+                case self.menuOptionsText[0]:
+                    self.delegate?.didTapFollowAction()
+                case self.menuOptionsText[1]:
+                    self.delegate?.didTapReportCase()
+                default:
+                    break
+                }
             }
         }
     }
@@ -114,20 +154,34 @@ class CaseOptionsMenuLauncher: NSObject {
         collectionView.addGestureRecognizer(pan)
     }
     
-    private func configureCollectionViewData() {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if uid == currentUid {
-            menuOptionsText = ["Add an update", "Change to solved", "Delete"]
-            menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
-                                 UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+    private func configureCollectionViewData(isCurrentUser: Bool, isFollowed: Bool?) {
+        
+        if isCurrentUser {
+            if clinicalCase?.stage == .unresolved {
+                menuOptionsText = ["Add an update", "Change to solved", "Delete"]
+                menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                     UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+                menuHeight = 210
+            } else {
+                menuOptionsText = ["Add an update", "Delete"]
+                menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                     UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+                menuHeight = 160
+            }
+            
             collectionView.reloadData()
             
         } else {
-            menuOptionsText = ["Report this case"]
-            menuOptionsImages = [UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
-            menuHeight = 70
+            guard let isFollowed = isFollowed, let firstName = clinicalCase?.ownerFirstName else { return }
+
+            let followText = isFollowed ? "Unfollow" : "Follow"
+            let followImage = isFollowed ? "xmark.circle.fill" : "plus.circle.fill"
+            
+            menuOptionsText = [followText + " " + firstName, "Report this case"]
+            menuOptionsImages = [UIImage(systemName: followImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuHeight = 160
+            collectionView.reloadData()
         }
-        collectionView.reloadData()
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -177,15 +231,19 @@ extension CaseOptionsMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
         cell.backgroundColor = .white
+        
         if indexPath.row == 0 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         }
         
-        if indexPath.row == menuOptionsText.count - 1 {
+         else if indexPath.row == menuOptionsText.count - 1 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
-        }
+         } else {
+             cell.layer.cornerRadius = 0
+         }
+        
         return cell
     }
     

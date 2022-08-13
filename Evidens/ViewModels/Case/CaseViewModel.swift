@@ -15,6 +15,10 @@ struct CaseViewModel {
         return clinicalCase.caseTitle
     }
     
+    var caseIsAnonymous: Bool {
+        return clinicalCase.privacyOptions == .visible ? false : true
+    }
+    
     var caseDescription: String {
         return clinicalCase.caseDescription
     }
@@ -45,7 +49,7 @@ struct CaseViewModel {
     
     var caseStage: AttributedString {
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .bold)
+        container.font = .systemFont(ofSize: 11, weight: .semibold)
         
         return clinicalCase.stage.rawValue == 0 ? AttributedString("Solved", attributes: container) : AttributedString("Unsolved", attributes: container)
     }
@@ -99,7 +103,7 @@ struct CaseViewModel {
     }
         
     var fullName: String {
-        return clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName
+        return caseIsAnonymous ? "Shared anonymously" : clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName
     }
     
     var ownerProfession: String {
@@ -114,8 +118,8 @@ struct CaseViewModel {
         return clinicalCase.ownerProfession + " · " + clinicalCase.ownerSpeciality
     }
     
-    var userProfileImageUrl: URL? {
-        return URL(string: clinicalCase.ownerImageUrl)
+    var userProfileImageUrl: String? {
+        return caseIsAnonymous ? nil : clinicalCase.ownerImageUrl
     }
     
     var caseImageUrl: [URL]? {

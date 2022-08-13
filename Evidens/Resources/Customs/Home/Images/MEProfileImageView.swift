@@ -23,7 +23,7 @@ class MEProfileImageView: UIImageView {
         contentMode = .scaleAspectFill
         clipsToBounds = true
         isUserInteractionEnabled = true
-        backgroundColor = primaryColor
+        backgroundColor = lightColor
         
     }
 }

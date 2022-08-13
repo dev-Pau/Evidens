@@ -157,13 +157,19 @@ class CaseTextCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         
-        caseStateButton.configuration?.image = viewModel.caseImageStage
+        caseStateButton.configuration?.image = viewModel.caseImageStage.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(viewModel.caseStageTextColor)
         caseStateButton.configuration?.attributedTitle = viewModel.caseStage
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
         userPostView.usernameLabel.text = viewModel.fullName
-        userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        
+        if viewModel.userProfileImageUrl != nil {
+            userPostView.profileImageView.sd_setImage(with: URL(string: viewModel.userProfileImageUrl!))
+        } else {
+            userPostView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        }
+       
         userPostView.postTimeLabel.text = viewModel.timestampString
         userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         

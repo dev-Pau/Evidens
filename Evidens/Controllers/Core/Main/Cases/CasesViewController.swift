@@ -204,7 +204,8 @@ extension CasesViewController: UISearchBarDelegate {
 extension CasesViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) {
-        caseMenuLauncher.uid = clinicalCase.ownerUid
+        caseMenuLauncher.clinicalCase = clinicalCase
+        caseMenuLauncher.delegate = self
         caseMenuLauncher.showImageSettings(in: view)
     }
     
@@ -327,4 +328,31 @@ extension CasesViewController: CaseCellDelegate {
 
         navigationController?.pushViewController(controller, animated: true)
     }
+}
+
+extension CasesViewController: CaseOptionsMenuLauncherDelegate {
+    func didTapAddCaseUpdate(forCase clinicalCase: Case) {
+        let controller = AddUpdateCaseViewController(clinicalCase: clinicalCase)
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    func didTapChangeStateToSolved() {
+        print("go to solved")
+    }
+    
+    func didTapDeleteCase() {
+        print("delete case")
+    }
+    
+    func didTapFollowAction() {
+        print("follow")
+    }
+    
+    func didTapReportCase() {
+        print("report")
+    }
+    
+    
 }

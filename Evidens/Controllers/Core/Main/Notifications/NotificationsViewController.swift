@@ -174,6 +174,8 @@ extension NotificationsViewController: NotificationCellDelegate {
             if let _ = error {
                 return
             }
+            // Cast cell as both types to access to viewmodel
+            //cell.viewModel?.notification.userIsFollowed.toggle()
             let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
             reportPopup.showTopPopup(inView: self.view)
         }
@@ -184,13 +186,15 @@ extension NotificationsViewController: NotificationCellDelegate {
             if let _ = error {
                 return
             }
+            // Cast cell as both types to access to viewmodel
+            //cell.viewModel?.notification.userIsFollowed.toggle()
             let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
             reportPopup.showTopPopup(inView: self.view)
         }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String) {
-        print("view psot")
+        print("view post")
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewCase caseId: String) {

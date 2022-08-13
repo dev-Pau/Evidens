@@ -9,11 +9,12 @@ import UIKit
 
 class MECaseUpdateView: UIView {
     
-    private let profileImageView: UIImageView = {
+    var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.backgroundColor = lightColor
         return iv
     }()
     

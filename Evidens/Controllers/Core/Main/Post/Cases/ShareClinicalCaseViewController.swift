@@ -327,12 +327,6 @@ class ShareClinicalCaseViewController: UIViewController {
         titleTextField.resignFirstResponder()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        titleTextField.becomeFirstResponder()
-        titleTextField.resignFirstResponder()
-    }
-    
     init(user: User) {
         self.user = user
         super.init(nibName: nil, bundle: nil)
