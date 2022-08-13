@@ -216,6 +216,8 @@
 		5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F028A6422C007EF79D /* METopPopupView.swift */; };
 		5FBCB9F428A6521F007EF79D /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F328A6521F007EF79D /* PopupView.swift */; };
 		5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */; };
+		5FBCB9F828A7745A007EF79D /* NotificationsLikeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */; };
+		5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -454,6 +456,8 @@
 		5FBCB9F028A6422C007EF79D /* METopPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METopPopupView.swift; sourceTree = "<group>"; };
 		5FBCB9F328A6521F007EF79D /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
+		5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsLikeCell.swift; sourceTree = "<group>"; };
+		5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMenuLauncher.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -1178,6 +1182,7 @@
 				5F9A9FA12899048200A25152 /* CasePrivacyMenuLauncher.swift */,
 				5FDB11D3289BCABD0079463F /* HelperBottomMenuLauncher.swift */,
 				5FEB92E3289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift */,
+				5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */,
 			);
 			path = MenuLaunchers;
 			sourceTree = "<group>";
@@ -1237,6 +1242,7 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */,
+				5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -1695,6 +1701,7 @@
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
+				5FBCB9F828A7745A007EF79D /* NotificationsLikeCell.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */,
 				5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */,
@@ -1756,6 +1763,7 @@
 				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
+				5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */,
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,

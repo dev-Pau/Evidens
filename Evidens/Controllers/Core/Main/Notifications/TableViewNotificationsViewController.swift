@@ -151,8 +151,9 @@ extension TableViewNotificationsViewController {
 }
 
 //MARK: - NotificationCellDelegate
-
+/*
 extension TableViewNotificationsViewController: NotificationCellDelegate {
+
     
     func cell(_ cell: NotificationFollowCell, wantsToViewProfile uid: String) {
         UserService.fetchUser(withUid: uid) { user in
@@ -182,6 +183,6 @@ extension TableViewNotificationsViewController: NotificationCellDelegate {
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
+    */
     
-    
-}
+

@@ -35,6 +35,7 @@ struct NotificationViewModel {
         let attributedText = NSMutableAttributedString(string: firstName, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         attributedText.append(NSAttributedString(string: " \(lastName)", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: messageType, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         
         return attributedText
     }
@@ -48,8 +49,13 @@ struct NotificationViewModel {
         return timestampString ?? ""
     }
     
-    var notificationPostComment: String? {
-        return notification.postComment
+    var notificationComment: String? {
+        if notification.comment.isEmpty {
+            return ""
+        } else {
+            return ": \(notification.comment)"
+        }
+
     }
     
     var shouldShowFollowButton: Bool {
@@ -61,11 +67,21 @@ struct NotificationViewModel {
     }
     
     var followButtonBackgroundColor: UIColor {
-        return notification.userIsFollowed ? .white : .systemBlue
+        return notification.userIsFollowed ? lightGrayColor : primaryColor
     }
     
     var followButtonTextColor: UIColor {
         return notification.userIsFollowed ? .black : .white
+    }
+    
+    var notificationPostText: String? {
+        if notification.type == .likeCase {
+            return notification.caseText
+        } else if notification.type == .likePost {
+            return notification.postText
+        } else {
+            return ""
+        }
     }
 }
 

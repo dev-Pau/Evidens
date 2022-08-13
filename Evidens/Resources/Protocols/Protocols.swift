@@ -27,3 +27,13 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String)
     //func clinicalCase(
 }
+
+protocol NotificationCellDelegate: AnyObject {
+    func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String, firstName: String)
+    func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String, firstName: String)
+    func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String)
+    func cell(_ cell: UICollectionViewCell, wantsToViewCase caseId: String)
+    func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String)
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification)
+}
+

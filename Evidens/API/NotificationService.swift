@@ -11,7 +11,7 @@ import Firebase
 struct NotificationService {
     
     //Upload a notification to a specific user
-    static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, withComment: String? = nil) {
+    static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, clinicalCase: Case? = nil, withComment: String? = nil) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         //To avoid receiving user own notifications
         guard uid != currentUid else { return }
@@ -30,15 +30,34 @@ struct NotificationService {
         if let post = post {
             data["postId"] = post.postId
             //Put all the post information to navigate
-            data["postUrl"] = post.postText
+            data["postText"] = post.postText
+        }
+        
+        if let clinicalCase = clinicalCase {
+            data["caseId"] = clinicalCase.caseId
+            data["caseTitle"] = clinicalCase.caseTitle
         }
         
         //If notification is a reply
         if let comment = withComment {
-            data["postComment"] = comment
+            data["comment"] = comment
         }
         
         docRef.setData(data)
+    }
+    
+    static func deleteNotification(withUid notificationUid: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notificationUid)
+        query.delete() { error in
+            if let error = error {
+                print(error.localizedDescription)
+                completion(false)
+                return
+            }
+            completion(true)
+            
+        }
     }
     
     static func fetchNotifications(completion: @escaping([Notification]) -> Void) {

@@ -166,7 +166,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
             
             
-            //NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .comment, post: self.post, withComment: comment)
+            NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
             self.view.isUserInteractionEnabled = true
             //self.view.activityStopAnimating()
         }

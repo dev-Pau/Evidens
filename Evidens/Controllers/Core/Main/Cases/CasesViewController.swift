@@ -264,6 +264,8 @@ extension CasesViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
@@ -279,7 +281,7 @@ extension CasesViewController: CaseCellDelegate {
                 //Like post here
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
@@ -295,7 +297,7 @@ extension CasesViewController: CaseCellDelegate {
                 //Like post here
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
         default:

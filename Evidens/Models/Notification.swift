@@ -11,9 +11,9 @@ import Firebase
 struct Notification {
     
     enum NotificationType: Int {
-        case likePost
-        case likeCase
-        case follow
+        case likePost // done
+        case likeCase // done
+        case follow //done
         case commentPost
         case commentCase
         
@@ -44,15 +44,17 @@ struct Notification {
     }
     
     let uid: String
-    var postUrl: String?
+    var postText: String?
     var postId: String?
+    var caseText: String?
+    var caseId: String?
     let timestamp: Timestamp
     let type: NotificationType
     let id: String
     let userProfileImageUrl: String
     let firstName: String
     let lastName: String
-    let postComment: String
+    let comment: String
     var userIsFollowed = false
     
     init(dictionary: [String: Any]) {
@@ -60,11 +62,13 @@ struct Notification {
         self.id = dictionary["id"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
         self.postId = dictionary["postId"] as? String ?? ""
-        self.postUrl = dictionary["postUrl"] as? String ?? ""
+        self.postText = dictionary["postText"] as? String ?? ""
+        self.caseId = dictionary["caseId"] as? String ?? ""
+        self.caseText = dictionary["caseTitle"] as? String ?? ""
         self.type = NotificationType(rawValue: dictionary["type"] as? Int ?? 0) ?? .likePost
         self.userProfileImageUrl = dictionary["userProfileImageUrl"] as? String ?? ""
         self.firstName = dictionary["firstName"] as? String ?? ""
         self.lastName = dictionary["lastName"] as? String ?? ""
-        self.postComment = dictionary["postComment"] as? String ?? ""
+        self.comment = dictionary["comment"] as? String ?? ""
     }
 }
