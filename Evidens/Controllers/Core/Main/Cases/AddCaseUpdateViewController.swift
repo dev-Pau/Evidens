@@ -1,27 +1,21 @@
 //
-//  CaseResolvedViewController.swift
+//  AddCaseUpdateViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 10/7/22.
+//  Created by Pau Fernández Solà on 14/8/22.
 //
 
 import UIKit
 
-protocol CaseDiagnosisViewControllerDelegate: AnyObject {
-    func handleAddDiagnosis(_ text: String)
+protocol AddCaseUpdateViewControllerDelegate: AnyObject {
+    func didTapUploadCaseUpdate(withText text: String)
 }
 
-class CaseDiagnosisViewController: UIViewController {
-    
-    weak var delegate: CaseDiagnosisViewControllerDelegate?
+class AddCaseUpdateViewController: UIViewController {
     
     private var previousValue: Int = 0
     
-    var stageIsUpdating: Bool = false
-    var diagnosisIsUpdating: Bool = false
-    var caseId: String = ""
-    
-    private var diagnosisText: String
+    weak var delegate: AddCaseUpdateViewControllerDelegate?
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -33,7 +27,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.text = "Help the community and get more engagement by adding a diagnose about your conclusions"
+        label.text = "Add an update to your case and give more information on the progress"
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.textColor = .black
@@ -43,7 +37,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     private lazy var diagnosisTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Add your diagnosis here..."
+        tv.placeholderText = "Add your update here..."
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
@@ -71,25 +65,22 @@ class CaseDiagnosisViewController: UIViewController {
         configureNavigationBar()
         configureUI()
     }
-    
+    /*
     init(diagnosisText: String) {
         self.diagnosisText = diagnosisText
         textTracker.updateTextTracking(toValue: diagnosisText.count)
         super.init(nibName: nil, bundle: nil)
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+     */
     
 
     private func configureNavigationBar() {
-        title = "Diagnosis details"
+        title = "Add update"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = blackColor
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddDiagnosis))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Publish", style: .done, target: self, action: #selector(handleAddUpdate))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -99,8 +90,7 @@ class CaseDiagnosisViewController: UIViewController {
         
         textTracker.isHidden = true
         
-        diagnosisTextView.placeholderLabel.text = diagnosisText.count > 0 ? "" : "Add your diagnosis here..."
-        diagnosisTextView.text = diagnosisText
+        diagnosisTextView.placeholderLabel.text = "Add your update here..."
         diagnosisTextView.delegate = self
         
         profileImageView.layer.cornerRadius = 45 / 2
@@ -135,43 +125,17 @@ class CaseDiagnosisViewController: UIViewController {
     }
     
     
-    @objc func handleAddDiagnosis() {
-        if stageIsUpdating || diagnosisIsUpdating {
-            showLoadingView()
-            CaseService.uploadCaseDiagnosis(withCaseId: caseId, withDiagnosis: diagnosisTextView.text) { uploaded in
-                self.dismissLoadingView()
-                if uploaded {
-                    self.dismiss(animated: true)
-                } else {
-                    print("couldn't add diagnosis")
-                }
-            }
-            
-        } else {
-            delegate?.handleAddDiagnosis(diagnosisTextView.text)
-            dismiss(animated: true)
-        }
-
+    @objc func handleAddUpdate() {
+        delegate?.didTapUploadCaseUpdate(withText: diagnosisTextView.text)
+        dismiss(animated: true)
     }
     
     @objc func handleDismiss() {
-        if stageIsUpdating {
-            dismissDiagnosisAlert {
-                CaseService.uploadCaseStage(withCaseId: self.caseId) { uploaded in
-                    if uploaded {
-                        let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark")
-                        popUpView.showTopPopup(inView: self.view)
-                        self.dismiss(animated: true)
-                    }
-                }
-            }
-        } else {
-            dismiss(animated: true)
-        }
+        dismiss(animated: true)
     }
 }
 
-extension CaseDiagnosisViewController: UITextViewDelegate {
+extension AddCaseUpdateViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         let count = textView.text.count
         navigationItem.rightBarButtonItem?.isEnabled = count > 0 ? true : false

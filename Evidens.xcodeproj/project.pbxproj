@@ -218,7 +218,9 @@
 		5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */; };
 		5FBCB9F828A7745A007EF79D /* NotificationsLikeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */; };
 		5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */; };
-		5FBCB9FC28A80A3D007EF79D /* AddUpdateCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FB28A80A3D007EF79D /* AddUpdateCaseViewController.swift */; };
+		5FBCB9FC28A80A3D007EF79D /* CaseUpdatesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FB28A80A3D007EF79D /* CaseUpdatesViewController.swift */; };
+		5FBCB9FE28A8D8EE007EF79D /* AddCaseUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */; };
+		5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -459,7 +461,9 @@
 		5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
 		5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsLikeCell.swift; sourceTree = "<group>"; };
 		5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMenuLauncher.swift; sourceTree = "<group>"; };
-		5FBCB9FB28A80A3D007EF79D /* AddUpdateCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUpdateCaseViewController.swift; sourceTree = "<group>"; };
+		5FBCB9FB28A80A3D007EF79D /* CaseUpdatesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseUpdatesViewController.swift; sourceTree = "<group>"; };
+		5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCaseUpdateViewController.swift; sourceTree = "<group>"; };
+		5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCaseCell.swift; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -757,7 +761,8 @@
 			isa = PBXGroup;
 			children = (
 				5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */,
-				5FBCB9FB28A80A3D007EF79D /* AddUpdateCaseViewController.swift */,
+				5FBCB9FB28A80A3D007EF79D /* CaseUpdatesViewController.swift */,
+				5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -830,6 +835,7 @@
 				5FB290272886FD43002FBAE1 /* CaseImageCell.swift */,
 				5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */,
 				5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */,
+				5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1625,7 +1631,7 @@
 			files = (
 				5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */,
 				5F77BF7528587ED400F31A75 /* MEProfileImageView.swift in Sources */,
-				5FBCB9FC28A80A3D007EF79D /* AddUpdateCaseViewController.swift in Sources */,
+				5FBCB9FC28A80A3D007EF79D /* CaseUpdatesViewController.swift in Sources */,
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
 				5F85218F28A3CF620033AF67 /* ExperienceSectionViewController.swift in Sources */,
 				5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */,
@@ -1666,6 +1672,7 @@
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */,
 				5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */,
+				5FBCB9FE28A8D8EE007EF79D /* AddCaseUpdateViewController.swift in Sources */,
 				5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */,
 				5F9A9F912898111800A25152 /* AddPublicationViewController.swift in Sources */,
 				5F39B49C283005890079F8CF /* RecentUserCell.swift in Sources */,
@@ -1769,6 +1776,7 @@
 				5F0A4F5527259A0900700304 /* SettingsViewController.swift in Sources */,
 				5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */,
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
+				5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,

@@ -53,6 +53,36 @@ struct CaseService {
         }
     }
     
+    static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, completion: @escaping(Bool) -> Void) {
+        COLLECTION_CASES.document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
+            if let _ = error {
+                print("error uplading")
+                completion(false)
+            }
+            completion(true)
+        }
+    }
+    
+    static func uploadCaseStage(withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
+        COLLECTION_CASES.document(caseId).updateData(["stage": Case.CaseStage.resolved.rawValue]) { error in
+            if let _ = error {
+                print("error uploading diagnosis")
+                completion(false)
+            }
+            completion(true)
+        }
+    }
+    
+    static func uploadCaseDiagnosis(withCaseId caseId: String, withDiagnosis text: String, completion: @escaping(Bool) -> Void) {
+        COLLECTION_CASES.document(caseId).updateData(["diagnosis": text, "stage": Case.CaseStage.resolved.rawValue]) { error in
+            if let _ = error {
+                print("error uploading diagnosis")
+                completion(false)
+            }
+            completion(true)
+        }
+    }
+    
     static func fetchRecentCases(withCaseId caseId: [String], completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
         

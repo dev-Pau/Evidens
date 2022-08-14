@@ -93,8 +93,7 @@ class MainTabController: UITabBarController {
                 
             case .verified:
                 print("main tab bar controller")
-                //let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                //sceneDelegate?.updateRootViewController(self)
+                
                 UserDefaults.standard.set(user.uid, forKey: "uid")
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
                 UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")

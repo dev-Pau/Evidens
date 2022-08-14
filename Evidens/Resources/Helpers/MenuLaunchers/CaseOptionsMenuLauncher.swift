@@ -12,7 +12,9 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
  
 protocol CaseOptionsMenuLauncherDelegate: AnyObject {
     func didTapAddCaseUpdate(forCase clinicalCase: Case)
-    func didTapChangeStateToSolved()
+    func didTapChangeStateToSolved(forCaseUid uid: String)
+    func didTapEditDiagnosis(forCaseUid uid: String, withDiagnosisText text: String)
+    func didTapAddDiagnosis()
     func didTapDeleteCase()
     func didTapFollowAction()
     func didTapReportCase()
@@ -80,7 +82,7 @@ class CaseOptionsMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
-        } completion: { completed in
+        } completion: { [self] completed in
             
             if ownerUid == currentUid {
                 // User is tapping on property case
@@ -90,20 +92,31 @@ class CaseOptionsMenuLauncher: NSObject {
                     case self.menuOptionsText[0]:
                         self.delegate?.didTapAddCaseUpdate(forCase: self.clinicalCase!)
                     case self.menuOptionsText[1]:
-                        self.delegate?.didTapChangeStateToSolved()
+                        self.delegate?.didTapChangeStateToSolved(forCaseUid: self.clinicalCase!.caseId)
                     case self.menuOptionsText[2]:
                         self.delegate?.didTapDeleteCase()
                     default:
                         break
                     }
                 } else {
-                    switch selectedOption {
-                    case self.menuOptionsText[0]:
-                        self.delegate?.didTapAddCaseUpdate(forCase: self.clinicalCase!)
-                    case self.menuOptionsText[1]:
-                        self.delegate?.didTapDeleteCase()
-                    default:
-                        break
+                    if self.clinicalCase?.diagnosis != nil {
+                        switch selectedOption {
+                        case self.menuOptionsText[0]:
+                            self.delegate?.didTapEditDiagnosis(forCaseUid: self.clinicalCase!.caseId, withDiagnosisText: self.clinicalCase!.diagnosis)
+                        case self.menuOptionsText[1]:
+                            self.delegate?.didTapDeleteCase()
+                        default:
+                            break
+                        }
+                    } else {
+                        switch selectedOption {
+                        case self.menuOptionsText[0]:
+                            self.delegate?.didTapAddDiagnosis()
+                        case self.menuOptionsText[1]:
+                            self.delegate?.didTapDeleteCase()
+                        default:
+                            break
+                        }
                     }
                 }
             } else {
@@ -163,9 +176,15 @@ class CaseOptionsMenuLauncher: NSObject {
                                      UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
                 menuHeight = 210
             } else {
-                menuOptionsText = ["Add an update", "Delete"]
-                menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
-                                     UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+                if clinicalCase?.diagnosis != nil {
+                    menuOptionsText = ["Edit diagnosis", "Delete"]
+                    menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                         UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+                } else {
+                    menuOptionsText = ["Add diagnosis", "Delete"]
+                    menuOptionsImages = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                         UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+                }
                 menuHeight = 160
             }
             

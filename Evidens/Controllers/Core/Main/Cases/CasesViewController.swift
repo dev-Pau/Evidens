@@ -331,15 +331,33 @@ extension CasesViewController: CaseCellDelegate {
 }
 
 extension CasesViewController: CaseOptionsMenuLauncherDelegate {
-    func didTapAddCaseUpdate(forCase clinicalCase: Case) {
-        let controller = AddUpdateCaseViewController(clinicalCase: clinicalCase)
+    func didTapEditDiagnosis(forCaseUid uid: String, withDiagnosisText text: String) {
+        let controller = CaseDiagnosisViewController(diagnosisText: text)
+        controller.diagnosisIsUpdating = true
+        controller.caseId = uid
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
     }
     
-    func didTapChangeStateToSolved() {
-        print("go to solved")
+    func didTapAddDiagnosis() {
+        print("add diagnosis")
+    }
+    
+    func didTapAddCaseUpdate(forCase clinicalCase: Case) {
+        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase)
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    func didTapChangeStateToSolved(forCaseUid uid: String) {
+        let controller = CaseDiagnosisViewController(diagnosisText: "")
+        controller.stageIsUpdating = true
+        controller.caseId = uid
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
     
     func didTapDeleteCase() {
@@ -353,6 +371,4 @@ extension CasesViewController: CaseOptionsMenuLauncherDelegate {
     func didTapReportCase() {
         print("report")
     }
-    
-    
 }

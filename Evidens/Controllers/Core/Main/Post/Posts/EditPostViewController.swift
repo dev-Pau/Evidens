@@ -42,7 +42,7 @@ class EditPostViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = blackColor
+        label.textColor = .black
         return label
     }()
     
