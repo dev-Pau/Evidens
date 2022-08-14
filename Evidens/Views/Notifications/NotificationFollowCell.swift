@@ -75,7 +75,7 @@ class NotificationFollowCell: UICollectionViewCell {
     }()
     
     private lazy var followButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.buttonSize = .mini
@@ -107,7 +107,7 @@ class NotificationFollowCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 65),
+            cellContentView.heightAnchor.constraint(equalToConstant: 115),
         ])
    
         cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, fullNameLabel, followButton, separatorView)
@@ -135,7 +135,7 @@ class NotificationFollowCell: UICollectionViewCell {
             followButton.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             followButton.heightAnchor.constraint(equalToConstant: 30),
             
-            separatorView.topAnchor.constraint(equalTo: followButton.bottomAnchor, constant: 10),
+            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
@@ -152,7 +152,9 @@ class NotificationFollowCell: UICollectionViewCell {
     
     //MARK: - Actions
     @objc func handleFollow() {
+        print("follow before")
         guard let viewModel = viewModel else { return }
+        print("handle follow")
         if viewModel.notification.userIsFollowed {
             delegate?.cell(self, wantsToUnfollow: viewModel.notification.uid, firstName: viewModel.notification.firstName)
         } else {
@@ -178,7 +180,7 @@ class NotificationFollowCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height - 10))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

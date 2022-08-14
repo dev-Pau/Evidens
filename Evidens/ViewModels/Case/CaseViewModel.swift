@@ -71,7 +71,7 @@ struct CaseViewModel {
     }
     
     var caseHasUpdates: Bool {
-        return clinicalCase.caseUpdates.count == 1 && clinicalCase.caseUpdates[0] == "" ? false : true
+        return clinicalCase.caseUpdates.isEmpty ? false : true
     }
     
     var diagnosisText: String {

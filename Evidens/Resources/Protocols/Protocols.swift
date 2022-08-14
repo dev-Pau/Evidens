@@ -25,7 +25,8 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String)
-    //func clinicalCase(
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
 }
 
 protocol NotificationCellDelegate: AnyObject {

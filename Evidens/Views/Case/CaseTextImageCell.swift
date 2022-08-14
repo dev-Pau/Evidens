@@ -107,6 +107,8 @@ class CaseTextImageCell: UICollectionViewCell {
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
+
+        updateView.delegate = self
     
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         compositionalCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
@@ -261,6 +263,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+            cell.delegate = self
             cell.caseImageView.sd_setImage(with: urlImages[indexPath.row])
             return cell
         } else {
@@ -312,6 +315,20 @@ extension CaseTextImageCell: MEPostActionButtonsDelegate {
     func handleShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(wantsToSeeLikesFor: viewModel.clinicalCase)
+    }
+}
+
+extension CaseTextImageCell: MECaseUpdateViewDelegate {
+    func didTapCaseUpdates() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
+    }
+}
+
+extension CaseTextImageCell: CaseImageCellDelegate {
+    func didTapImage(_ imageView: UIImageView) {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }
 

@@ -249,6 +249,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func reportCaseAlert(completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Report case", message: "Are you sure you want to report this case to our moderation team?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Report", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func showLoadingView() {
         containerView = UIView(frame: view.bounds)
         view.addSubview(containerView)

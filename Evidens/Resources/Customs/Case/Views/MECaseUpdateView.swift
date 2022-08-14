@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol MECaseUpdateViewDelegate: AnyObject {
+    func didTapCaseUpdates()
+}
+
 class MECaseUpdateView: UIView {
+    
+    weak var delegate: MECaseUpdateViewDelegate?
     
     var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -39,11 +45,10 @@ class MECaseUpdateView: UIView {
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         addSubviews(profileImageView, diagnosisLabel)
-    
-        // change for the profile image of the user, not the current user of app
-        guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
-        profileImageView.sd_setImage(with: URL(string: imageUrl))
-
+        
+        isUserInteractionEnabled = true
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenUpdates)))
+        
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -57,5 +62,9 @@ class MECaseUpdateView: UIView {
         ])
         
         profileImageView.layer.cornerRadius = 20 / 2
+    }
+    
+    @objc func handleOpenUpdates() {
+        delegate?.didTapCaseUpdates()
     }
 }

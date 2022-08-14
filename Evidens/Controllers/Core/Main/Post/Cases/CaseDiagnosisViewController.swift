@@ -89,7 +89,8 @@ class CaseDiagnosisViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = blackColor
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddDiagnosis))
+        let rightBarButtonText = stageIsUpdating || diagnosisIsUpdating ? "Update" : "Add"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: rightBarButtonText, style: .done, target: self, action: #selector(handleAddDiagnosis))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }

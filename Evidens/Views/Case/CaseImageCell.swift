@@ -7,12 +7,20 @@
 
 import UIKit
 
+protocol CaseImageCellDelegate: AnyObject {
+    func didTapImage(_ imageView: UIImageView)
+}
+
 class CaseImageCell: UICollectionViewCell {
+    
+    weak var delegate: CaseImageCellDelegate?
     
     lazy var caseImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         iv.clipsToBounds = true
         return iv
     }()
@@ -31,5 +39,9 @@ class CaseImageCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func handleImageTap() {
+        delegate?.didTapImage(caseImageView)
     }
 }

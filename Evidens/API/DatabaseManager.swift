@@ -227,13 +227,26 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - Report Posts
+//MARK: - Report Posts & Cases
 
 extension DatabaseManager {
     
     public func reportPost(forUid postUid: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
         let ref = database.child("reports").child("posts").child(postUid).childByAutoId()
+        let reportData = ["uid": uid]
+        ref.setValue(reportData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+            }
+            completion(true)
+        }
+    }
+    
+    public func reportCase(forUid caseUid: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
+        let ref = database.child("reports").child("cases").child(caseUid).childByAutoId()
         let reportData = ["uid": uid]
         ref.setValue(reportData) { error, _ in
             if let _ = error {

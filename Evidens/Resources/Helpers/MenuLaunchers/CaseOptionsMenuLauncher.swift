@@ -14,10 +14,10 @@ protocol CaseOptionsMenuLauncherDelegate: AnyObject {
     func didTapAddCaseUpdate(forCase clinicalCase: Case)
     func didTapChangeStateToSolved(forCaseUid uid: String)
     func didTapEditDiagnosis(forCaseUid uid: String, withDiagnosisText text: String)
-    func didTapAddDiagnosis()
+    func didTapAddDiagnosis(forCaseUid uid: String)
     func didTapDeleteCase()
-    func didTapFollowAction()
-    func didTapReportCase()
+    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String)
+    func didTapReportCase(forCaseUid uid: String)
 }
 
 class CaseOptionsMenuLauncher: NSObject {
@@ -111,7 +111,7 @@ class CaseOptionsMenuLauncher: NSObject {
                     } else {
                         switch selectedOption {
                         case self.menuOptionsText[0]:
-                            self.delegate?.didTapAddDiagnosis()
+                            self.delegate?.didTapAddDiagnosis(forCaseUid: self.clinicalCase!.caseId)
                         case self.menuOptionsText[1]:
                             self.delegate?.didTapDeleteCase()
                         default:
@@ -122,9 +122,9 @@ class CaseOptionsMenuLauncher: NSObject {
             } else {
                 switch selectedOption {
                 case self.menuOptionsText[0]:
-                    self.delegate?.didTapFollowAction()
+                    self.delegate?.didTapFollowAction(forUid: ownerUid, isFollowing: self.isFollowed, forUserFirstName: firstName)
                 case self.menuOptionsText[1]:
-                    self.delegate?.didTapReportCase()
+                    self.delegate?.didTapReportCase(forCaseUid: self.clinicalCase!.caseId)
                 default:
                     break
                 }

@@ -11,6 +11,10 @@ private let updateCaseCellReuseIdentifier = "UpdateCaseCellReuseIdentifier"
 
 class CaseUpdatesViewController: UIViewController {
     
+    var controllerIsPushed: Bool = false
+    
+    var clinicalCaseData: [String] = []
+    
     private var clinicalCase: Case
     
     private let collectionView: UICollectionView = {
@@ -41,6 +45,8 @@ class CaseUpdatesViewController: UIViewController {
     private lazy var addUpdateButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
+        button.isHidden = true
+        button.isUserInteractionEnabled = false
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .medium
@@ -70,8 +76,11 @@ class CaseUpdatesViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Case updates"
+        
+        if !controllerIsPushed {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .black
+        }
     }
     
     private func configureCollectionView() {
@@ -81,6 +90,10 @@ class CaseUpdatesViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(UpdateCaseCell.self, forCellWithReuseIdentifier: updateCaseCellReuseIdentifier)
+        if clinicalCase.diagnosis != "" {
+            clinicalCase.caseUpdates.append(clinicalCase.diagnosis)
+            clinicalCase.caseUpdates.reverse()
+        }
     }
     
     private func configureUI() {
@@ -102,11 +115,15 @@ class CaseUpdatesViewController: UIViewController {
             emptyUpdatesLabel.isHidden = true
             collectionView.isHidden = false
         }
+        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        addUpdateButton.isHidden = clinicalCase.ownerUid == uid ? false : true
+        addUpdateButton.isUserInteractionEnabled = clinicalCase.ownerUid == uid ? true : false
     }
     
     @objc func handleAddUpdate() {
         let controller = AddCaseUpdateViewController()
-    controller.delegate = self
+        controller.delegate = self
         let navController = UINavigationController(rootViewController: controller)
         
         if let presentationController = navController.presentationController as? UISheetPresentationController {
@@ -124,10 +141,21 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return clinicalCase.caseUpdates.count
     }
-        
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: updateCaseCellReuseIdentifier, for: indexPath) as! UpdateCaseCell
-        cell.updateNumberLabel.text = "Update \(indexPath.row + 1)"
+        
+        if clinicalCase.diagnosis != "" {
+            if indexPath.row == 0 {
+                cell.updateNumberLabel.text = "Diagnosis result"
+            } else {
+                cell.updateNumberLabel.text = "Update \(clinicalCase.caseUpdates.count - indexPath.row)"
+            }
+            
+        } else {
+            cell.updateNumberLabel.text = "Update \(indexPath.row + 1)"
+         
+        }
         cell.updateTextLabel.text = clinicalCase.caseUpdates[indexPath.row]
         return cell
     }

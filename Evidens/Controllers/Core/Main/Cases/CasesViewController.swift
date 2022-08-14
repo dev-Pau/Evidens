@@ -14,6 +14,9 @@ class CasesViewController: UIViewController {
     
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
+    private var zoomTransitioning = ZoomTransitioning()
+    var selectedImage: UIImageView!
+    
     private var cases = [Case]() {
         didSet { collectionView.reloadData() }
     }
@@ -63,6 +66,7 @@ class CasesViewController: UIViewController {
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
         
+        self.navigationController?.delegate = zoomTransitioning
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -202,6 +206,33 @@ extension CasesViewController: UISearchBarDelegate {
 }
 
 extension CasesViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        selectedImage = image[index]
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        controller.customDelegate = self
+
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .clear
+        navigationItem.backBarButtonItem = backItem
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
+        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase)
+        controller.controllerIsPushed = true
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        self.navigationItem.backBarButtonItem = backItem
+        
+        self.navigationController?.pushViewController(controller, animated: true)
+        
+    }
     
     func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) {
         caseMenuLauncher.clinicalCase = clinicalCase
@@ -331,6 +362,22 @@ extension CasesViewController: CaseCellDelegate {
 }
 
 extension CasesViewController: CaseOptionsMenuLauncherDelegate {
+    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
+        if follow {
+            // Unfollow user
+            UserService.unfollow(uid: uid) { _ in
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                reportPopup.showTopPopup(inView: self.view)
+            }
+        } else {
+            // Follow user
+            UserService.follow(uid: uid) { _ in
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                reportPopup.showTopPopup(inView: self.view)
+            }
+        }
+    }
+    
     func didTapEditDiagnosis(forCaseUid uid: String, withDiagnosisText text: String) {
         let controller = CaseDiagnosisViewController(diagnosisText: text)
         controller.diagnosisIsUpdating = true
@@ -340,8 +387,13 @@ extension CasesViewController: CaseOptionsMenuLauncherDelegate {
         present(nav, animated: true)
     }
     
-    func didTapAddDiagnosis() {
-        print("add diagnosis")
+    func didTapAddDiagnosis(forCaseUid uid: String) {
+        let controller = CaseDiagnosisViewController(diagnosisText: "")
+        controller.diagnosisIsUpdating = true
+        controller.caseId = uid
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
     
     func didTapAddCaseUpdate(forCase clinicalCase: Case) {
@@ -361,14 +413,29 @@ extension CasesViewController: CaseOptionsMenuLauncherDelegate {
     }
     
     func didTapDeleteCase() {
-        print("delete case")
+        print("Delete Case")
     }
     
-    func didTapFollowAction() {
-        print("follow")
+    func didTapReportCase(forCaseUid uid: String) {
+        reportCaseAlert {
+            DatabaseManager.shared.reportCase(forUid: uid) { reported in
+                if reported {
+                    let reportPopup = METopPopupView(title: "Case reported", image: "flag.fill")
+                    reportPopup.showTopPopup(inView: self.view)
+                }
+            }
+        }
     }
-    
-    func didTapReportCase() {
-        print("report")
+}
+
+extension CasesViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return selectedImage
+    }
+}
+
+extension CasesViewController: HomeImageViewControllerDelegate {
+    func updateVisibleImageInScrollView(_ image: UIImageView) {
+        selectedImage = image
     }
 }

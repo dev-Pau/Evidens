@@ -170,27 +170,42 @@ extension NotificationsViewController: NotificationCellDelegate {
     
 
     func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String, firstName: String) {
-        UserService.unfollow(uid: uid) { error in
-            if let _ = error {
-                return
+        switch cell {
+        case is NotificationFollowCell:
+            print("fljdskjklfljkfd")
+            let currentCell = cell as! NotificationFollowCell
+            UserService.unfollow(uid: uid) { error in
+                if let _ = error {
+                    return
+                }
+                
+                currentCell.viewModel?.notification.userIsFollowed.toggle()
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                reportPopup.showTopPopup(inView: self.view)
             }
-            // Cast cell as both types to access to viewmodel
-            //cell.viewModel?.notification.userIsFollowed.toggle()
-            let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
-            reportPopup.showTopPopup(inView: self.view)
+        default:
+            print("Not registered")
         }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String, firstName: String) {
-        UserService.unfollow(uid: uid) { error in
-            if let _ = error {
-                return
+        switch cell {
+        case is NotificationFollowCell:
+            print("flkjldjs")
+            let currentCell = cell as! NotificationFollowCell
+            UserService.unfollow(uid: uid) { error in
+                if let _ = error {
+                    return
+                }
+
+                currentCell.viewModel?.notification.userIsFollowed.toggle()
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                reportPopup.showTopPopup(inView: self.view)
             }
-            // Cast cell as both types to access to viewmodel
-            //cell.viewModel?.notification.userIsFollowed.toggle()
-            let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
-            reportPopup.showTopPopup(inView: self.view)
+        default:
+            print("Not registered")
         }
+        
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String) {

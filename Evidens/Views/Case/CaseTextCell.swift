@@ -91,6 +91,7 @@ class CaseTextCell: UICollectionViewCell {
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
+        updateView.delegate = self
     
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         compositionalCollectionView.register(CaseTagCell.self, forCellWithReuseIdentifier: caseStageCellReuseIdentifier)
@@ -190,6 +191,12 @@ class CaseTextCell: UICollectionViewCell {
             updateView.isHidden = true
         }
         
+        if viewModel.caseIsAnonymous {
+            updateView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            updateView.profileImageView.sd_setImage(with: URL(string: viewModel.userProfileImageUrl!))
+        }
+        
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         
@@ -265,6 +272,14 @@ extension CaseTextCell: MEPostActionButtonsDelegate {
     func handleShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(wantsToSeeLikesFor: viewModel.clinicalCase)
+    }
+}
+
+
+extension CaseTextCell: MECaseUpdateViewDelegate {
+    func didTapCaseUpdates() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
     }
 }
 
