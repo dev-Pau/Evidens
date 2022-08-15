@@ -10,12 +10,24 @@ import UIKit
 struct CommentViewModel {
     private let comment: Comment
     
+    var anonymousComment: Bool {
+        return comment.anonymous
+    }
+    
+    var commentOnwerUid: String {
+        return comment.uid
+    }
+    
     var profileImageUrl: URL? {
         return URL(string: comment.profileImageUrl)
     }
     
     var fullName: String {
-        return comment.firstName + " " + comment.lastName
+        if anonymousComment {
+            return "Anonymous"
+        } else {
+            return comment.firstName + " " + comment.lastName
+        }
     }
     
     var commentText: String {
@@ -30,16 +42,24 @@ struct CommentViewModel {
         return comment.profession
     }
     
+    var userIsProfessional: Bool {
+        return category == "Professional" ? true : false
+    }
+    
     var category: String {
         return comment.category
     }
-
+    
     
     func userLabelText() -> NSAttributedString {
-        let attributedString = NSMutableAttributedString(string: "\(fullName) · ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
-        attributedString.append(NSAttributedString(string: category, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
-        
-        return attributedString
+        if userIsProfessional {
+            let attributedString = NSMutableAttributedString(string: "\(fullName)", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            return attributedString
+        } else {
+            let attributedString = NSMutableAttributedString(string: "\(fullName) · ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            attributedString.append(NSAttributedString(string: category, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
+            return attributedString
+        }
     }
      
     

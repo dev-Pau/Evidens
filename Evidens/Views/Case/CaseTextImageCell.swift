@@ -284,7 +284,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
 
 extension CaseTextImageCell: MEUserPostViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: viewModel.clinicalCase.ownerUid)
     }
     

@@ -18,6 +18,7 @@ struct Comment {
     let category: String
     let speciality: String
     let profession: String
+    let anonymous: Bool
     
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
@@ -27,6 +28,7 @@ struct Comment {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
         self.category = dictionary["category"] as? String ?? ""
+        self.anonymous = dictionary["anonymous"] as? Bool ?? false
         self.profession = dictionary["profession"] as? String ?? ""
         self.speciality = dictionary["speciality"] as? String ?? ""
     }

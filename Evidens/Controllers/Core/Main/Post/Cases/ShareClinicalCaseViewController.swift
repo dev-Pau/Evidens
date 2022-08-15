@@ -698,10 +698,8 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         
-        showLoadingView()
-        
         if results.count == 0 { return }
-        
+        showLoadingView()
         let group = DispatchGroup()
         var asyncDict = [String:UIImage]()
         var asyncDictWidth = [String:CGFloat]()

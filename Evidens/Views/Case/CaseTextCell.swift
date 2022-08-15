@@ -241,7 +241,7 @@ extension CaseTextCell: UICollectionViewDelegate, UICollectionViewDelegateFlowLa
 
 extension CaseTextCell: MEUserPostViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: viewModel.clinicalCase.ownerUid)
     }
     

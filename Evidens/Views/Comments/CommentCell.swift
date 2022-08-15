@@ -16,6 +16,8 @@ class CommentCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    var ownerUid: String = ""
+    
     private let cellContentView = UIView()
     
     private let profileImageView: UIImageView = {
@@ -23,7 +25,7 @@ class CommentCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = lightColor
         return iv
     }()
     
@@ -48,6 +50,18 @@ class CommentCell: UICollectionViewCell {
         label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private let authorButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.backgroundColor = primaryColor
+        button.layer.cornerRadius = 5
+        button.isHidden = true
+        let title = NSMutableAttributedString(string: "Author", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        button.setAttributedTitle(title, for: .normal)
+        return button
     }()
     
     private let nameLabel: UILabel = {
@@ -101,7 +115,7 @@ class CommentCell: UICollectionViewCell {
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, timeStampLabel, nameLabel, professionLabel, separatorView)
+        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, authorButton, timeStampLabel, nameLabel, professionLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -117,7 +131,7 @@ class CommentCell: UICollectionViewCell {
             timeStampLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             timeStampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
            
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: timeStampLabel.leadingAnchor, constant: -5),
             
@@ -125,9 +139,14 @@ class CommentCell: UICollectionViewCell {
             professionLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             professionLabel.trailingAnchor.constraint(equalTo: timeStampLabel.leadingAnchor, constant: -5),
             
+            authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor),
+            authorButton.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
+            authorButton.heightAnchor.constraint(equalToConstant: 18),
+            authorButton.widthAnchor.constraint(equalToConstant: 50),
+            
             commentLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             commentLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            commentLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            commentLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             //commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
             
             separatorView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 3),
@@ -148,7 +167,19 @@ class CommentCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+
+        if viewModel.anonymousComment {
+            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+        }
+        
+        if ownerUid == viewModel.commentOnwerUid {
+            // Comment from the owner of the case
+            authorButton.isHidden = false
+        }
+        //authorButton.isHidden = viewModel.comment.uid == user.isCurrentUser
+        
         commentLabel.text = viewModel.commentText
         nameLabel.attributedText = viewModel.userLabelText()
         timeStampLabel.text = viewModel.timestampString

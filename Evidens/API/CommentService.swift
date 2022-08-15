@@ -72,6 +72,26 @@ struct CommentService {
         COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
     }
     
+    static func uploadAnonymousComment(comment: String, clinicalCase: Case, user: User, completion: @escaping([String]) -> Void) {
+
+        let data: [String: Any] = ["uid": user.uid as Any,
+                                   "comment": comment,
+                                   "timestamp": Timestamp(date: Date()),
+                                   "anonymous": true,
+                                   "category": user.category.userCategoryString as Any,
+                                   "speciality": user.speciality as Any,
+                                   "profession": user.profession as Any]
+        
+        let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").addDocument(data: data, completion: { error in
+            print("anonymous case uploaded")
+        })
+        //Update recent comments for the user
+        completion([commentRef.documentID, clinicalCase.caseId])
+        
+        //Update number of comments for the case
+        COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
+    }
+    
     static func fetchCaseComments(forCase caseID: String, completion: @escaping([Comment]) -> Void) {
         var comments = [Comment]()
         

@@ -97,6 +97,7 @@ class CommentPostViewController: UICollectionViewController {
             if !self.post.postText.isEmpty {
                 self.comments.append(Comment(dictionary: [
                     "comment": self.post.postText,
+                    "uid": self.post.ownerUid,
                     "timestamp": self.post.timestamp,
                     "firstName": self.post.ownerFirstName as Any,
                     "category": self.post.ownerCategory as Any,
@@ -164,6 +165,7 @@ extension CommentPostViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
+        cell.ownerUid = post.ownerUid
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         return cell
         

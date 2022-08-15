@@ -72,8 +72,10 @@ class CommentCaseViewController: UICollectionViewController {
             self.comments.removeAll()
             // Append the description of the case as comment
             self.comments.append(Comment(dictionary: [
+                "anonymous": self.clinicalCase.privacyOptions == .nonVisible ? true : false,
                 "comment": self.clinicalCase.caseDescription,
                 "timestamp": self.clinicalCase.timestamp,
+                "uid": self.clinicalCase.ownerUid,
                 "firstName": self.clinicalCase.ownerFirstName as Any,
                 "category": self.clinicalCase.ownerCategory.userCategoryString as Any,
                 "speciality": self.clinicalCase.ownerSpeciality as Any,
@@ -82,7 +84,6 @@ class CommentCaseViewController: UICollectionViewController {
                 "profileImageUrl": self.clinicalCase.ownerImageUrl as Any]))
             
             // Append the fetched comments
-            
             self.comments.append(contentsOf: comments)
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
@@ -120,19 +121,11 @@ extension CommentCaseViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
+        cell.ownerUid = clinicalCase.ownerUid
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         return cell
     }
-    /*
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let uid = comments[indexPath.row].uid
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = ProfileViewController(user: user)
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-    */
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
@@ -147,28 +140,36 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
         guard let tab = self.tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
         //Show loader to block user interactions
-        self.view.isUserInteractionEnabled = false
+        
         //Upload commento to Firebase
-        CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
-            //Unshow loader
-            let commentUid = ids[0]
-            let caseUid = ids[1]
-            
-            DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in
-                print("Comment uploaded to realtime recent comments")
+        
+        if clinicalCase.ownerUid == currentUser.uid && clinicalCase.privacyOptions == .nonVisible {
+            // Owner of the anonymous case
+            CommentService.uploadAnonymousComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { _ in
+                // As comment is anonymous, there's no need to upload the comment to recent comments
+                
             }
-            
-            
-            self.clinicalCase.numberOfComments += 1
-            inputView.clearCommentTextView()
-            
-            let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
-            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
-            
-            
-            NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
-            self.view.isUserInteractionEnabled = true
-            //self.view.activityStopAnimating()
+        } else {
+            CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
+                //Unshow loader
+                let commentUid = ids[0]
+                let caseUid = ids[1]
+                
+                DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in
+                    print("Comment uploaded to realtime recent comments")
+                    NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
+                }
+            }
         }
+        
+        self.clinicalCase.numberOfComments += 1
+        inputView.clearCommentTextView()
+        
+        let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+        
+        
+        
+        //self.view.activityStopAnimating()
     }
 }

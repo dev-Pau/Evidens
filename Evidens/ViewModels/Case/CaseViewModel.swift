@@ -78,15 +78,23 @@ struct CaseViewModel {
         return clinicalCase.diagnosis
     }
     
+    var userIsProfessional: Bool {
+        return ownerCategory == "Professional" ? true : false
+    }
+    
     var ownerCategory: String {
         return clinicalCase.ownerCategory.userCategoryString
     }
     
     var userInfo: NSAttributedString {
         let attributedText = NSMutableAttributedString(string: "\(ownerProfession), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        attributedText.append(NSAttributedString(string: "\(ownerSpeciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-        attributedText.append(NSAttributedString(string: ownerCategory, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .semibold), .foregroundColor: primaryColor]))
         
+        if userIsProfessional {
+            attributedText.append(NSAttributedString(string: "\(ownerSpeciality)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+        } else {
+            attributedText.append(NSAttributedString(string: "\(ownerSpeciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+            attributedText.append(NSAttributedString(string: ownerCategory, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .semibold), .foregroundColor: primaryColor]))
+        }
         return attributedText
     }
     

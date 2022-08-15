@@ -70,14 +70,14 @@ extension DatabaseManager {
     }
 }
 
-//MARK: - User recent searches
+//MARK: - User recent searches & users
 
 extension DatabaseManager {
     
     /// Uploads current user recent searches with the field searched
     public func uploadRecentSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/recentSearches")
+        let ref = database.child("users").child("\(uid)/recents").child("searches")
         
         // Check if user has recent searches
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -117,11 +117,67 @@ extension DatabaseManager {
     }
     
     public func fetchRecentSearches(completion: @escaping(Result<[String], Error>) -> Void) {
-        
-        
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let ref = database.child("users").child("\(uid)/recentSearches")
+        let ref = database.child("users").child("\(uid)/recents").child("searches")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            if let recentSearches = snapshot.value as? [String] {
+                completion(.success(recentSearches.reversed()))
+            }
+        }
+    }
+    
+    /// Uploads current user recent searches with the field searched
+    public func uploadRecentUserSearches(withUid uid: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child("\(uid)/recents").child("users")
+        
+        // Check if user has recent searches
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var recentSearches = snapshot.value as? [String] {
+                // Recent searches document exists, append new search
+                
+                // Check if the searched topic is already saved from the past
+                if recentSearches.contains(uid) {
+                    completion(false)
+                    return
+                }
+
+                if recentSearches.count == 5 {
+                    recentSearches.removeFirst()
+                    recentSearches.append(uid)
+                } else {
+                    recentSearches.append(uid)
+                }
+               
+                ref.setValue(recentSearches) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                // First time user searches, create a new document
+                ref.setValue([uid]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
+    public func fetchRecentUserSearches(completion: @escaping(Result<[String], Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users").child("\(uid)/recents").child("users")
         ref.getData { error, snapshot in
             guard error == nil else {
                 completion(.failure(DatabaseError.failedToFetch))

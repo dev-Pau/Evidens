@@ -49,7 +49,7 @@ class CaseUpdatesViewController: UIViewController {
         button.isUserInteractionEnabled = false
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.buttonSize = .medium
+        button.configuration?.buttonSize = .large
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddUpdate), for: .touchUpInside)

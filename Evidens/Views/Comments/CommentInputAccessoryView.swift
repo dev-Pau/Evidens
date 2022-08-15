@@ -16,6 +16,8 @@ class CommentInputAccessoryView: UIView {
     
     //MARK: - Properties
     
+    var caseIsAnonymous: Bool = false
+    
     weak var delegate: CommentInputAccessoryViewDelegate?
 
     let profileImageView: UIImageView = {
@@ -111,9 +113,15 @@ class CommentInputAccessoryView: UIView {
 
         ])
         
+        print(caseIsAnonymous)
+        
         profileImageView.layer.cornerRadius = 40 / 2
-        guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
-        profileImageView.sd_setImage(with: URL(string: uid))
+        if caseIsAnonymous {
+            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
+            profileImageView.sd_setImage(with: URL(string: uid))
+        }
     }
     
     required init?(coder: NSCoder) {
