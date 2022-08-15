@@ -116,6 +116,7 @@ class NotificationsViewController: UICollectionViewController {
         backItem.tintColor = .black
         
         navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
     @objc func handleRefresh() {
@@ -251,6 +252,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             self.navigationItem.backBarButtonItem = backItem
             
             self.navigationController?.pushViewController(controller, animated: true)
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
     }
 }

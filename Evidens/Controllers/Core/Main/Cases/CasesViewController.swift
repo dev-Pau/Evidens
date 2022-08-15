@@ -137,15 +137,18 @@ class CasesViewController: UIViewController {
     }
     
     @objc func didTapProfile() {
-        //guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        //let controller = UserProfileViewController(user: <#T##User#>)
-
-        DatabaseManager.shared.filter()
-        //guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        //atabaseManager.shared.updateLanguage(languageName: "English", languageProficiency: "easy") { _ in
-           
-       // }
-        //DatabaseManager.shared.fetchUsers()
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        backItem.tintColor = .black
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
     @objc func didTapChat() {
@@ -250,6 +253,7 @@ extension CasesViewController: CaseCellDelegate {
             self.navigationItem.backBarButtonItem = backItem
             
             self.navigationController?.pushViewController(controller, animated: true)
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
     }
     

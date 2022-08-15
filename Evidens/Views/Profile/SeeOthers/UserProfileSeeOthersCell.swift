@@ -7,9 +7,17 @@
 
 import UIKit
 
+protocol UserProfileSeeOthersCellDelegate: AnyObject {
+    func didTapProfile(forUser user: User)
+}
+
 class UserProfileSeeOthersCell: UICollectionViewCell {
     
     //MARK: - Properties
+    
+    private var cellUser: User?
+    
+    weak var delegate: UserProfileSeeOthersCellDelegate?
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -45,6 +53,7 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         backgroundColor = .white
         addSubviews(profileImageView, nameLabel, professionLabel)
         
@@ -70,25 +79,17 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func set(userInfo: [String: String]) {
-        guard let uid = userInfo["uid"] else { return }
-        nameLabel.text = userInfo["name"]
-        professionLabel.text = userInfo["profession"]
-        
-        
-        let path = "/profile_images/\(uid)"
-        StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
-            switch result {
-            case .success(let url):
-                
-                DispatchQueue.main.async {
-                    self?.profileImageView.sd_setImage(with: url, completed: nil)
-                }
-                
-            case.failure(let error):
-                print("failed to get image url: \(error)")
-            }
-        })
+    func set(user: User) {
+        nameLabel.text = user.firstName! + " " + user.lastName!
+        professionLabel.text = user.profession
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        cellUser = user
+    }
+    
+    @objc func didTapProfile() {
+        guard let cellUser = cellUser else { return }
+
+        delegate?.didTapProfile(forUser: cellUser)
     }
      
 }

@@ -72,6 +72,44 @@ struct UserService {
         }
     }
     
+    static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
+        var usersFetched: [User] = []
+        COLLECTION_USERS.whereField("profession", isEqualTo: profession).limit(to: 10).getDocuments { snapshot, error in
+            if let error = error {
+                print("error getting documents: \(error)")
+            } else {
+                snapshot?.documents.forEach({ document in
+                    let dictionary = document.data()
+                    
+                    usersFetched.append(User(dictionary: dictionary))
+                    if usersFetched.count == snapshot?.documents.count {
+                        completion(usersFetched)
+                        
+                    }
+                })
+            }
+        }
+    }
+    
+    /*
+     static func fetchUsers(withName name: String, completion: @escaping([User]) -> Void) {
+     COLLECTION_USERS.whereField("firstName", arrayContains: <#T##Any#>)
+     }
+     */
+    
+    static func fetchUsers(withUids uids: [String], completion: @escaping([User]) -> Void) {
+        var users: [User] = []
+        uids.forEach { uid in
+            COLLECTION_USERS.document(uid).getDocument { snapshot, error in
+                guard let dictionary = snapshot?.data() else { return }
+                users.append(User(dictionary: dictionary))
+                if users.count == uids.count {
+                    completion(users)
+                }
+            }
+        }
+    }
+    
     static func fetchUsers(completion: @escaping([User]) -> Void) {
         COLLECTION_USERS.getDocuments { (snapshot, error) in
             guard let snapshot = snapshot else { return }

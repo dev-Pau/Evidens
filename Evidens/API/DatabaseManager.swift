@@ -133,8 +133,8 @@ extension DatabaseManager {
     }
     
     /// Uploads current user recent searches with the field searched
-    public func uploadRecentUserSearches(withUid uid: String, completion: @escaping (Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+    public func uploadRecentUserSearches(withUid userUid: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, uid != userUid  else { return }
         let ref = database.child("users").child("\(uid)/recents").child("users")
         
         // Check if user has recent searches
@@ -143,16 +143,16 @@ extension DatabaseManager {
                 // Recent searches document exists, append new search
                 
                 // Check if the searched topic is already saved from the past
-                if recentSearches.contains(uid) {
+                if recentSearches.contains(userUid) {
                     completion(false)
                     return
                 }
 
                 if recentSearches.count == 5 {
                     recentSearches.removeFirst()
-                    recentSearches.append(uid)
+                    recentSearches.append(userUid)
                 } else {
-                    recentSearches.append(uid)
+                    recentSearches.append(userUid)
                 }
                
                 ref.setValue(recentSearches) { error, _ in
@@ -163,7 +163,7 @@ extension DatabaseManager {
                 }
             } else {
                 // First time user searches, create a new document
-                ref.setValue([uid]) { error, _ in
+                ref.setValue([userUid]) { error, _ in
                     if let _ = error {
                         completion(false)
                         return

@@ -61,8 +61,9 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    var relatedUsers = [[String: String]]() {
+    var relatedUsers = [User]() {
         didSet {
+            print(relatedUsers)
             collectionView.reloadData()
         }
     }
@@ -496,8 +497,8 @@ class UserProfileViewController: UIViewController {
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
                 section.orthogonalScrollingBehavior = .continuous
-                
-                
+
+ 
                 return section
             }
         }
@@ -592,7 +593,6 @@ class UserProfileViewController: UIViewController {
                 
                 self.hasLanguages = true
                 self.languages = languages
-                print(languages)
                 //self.collectionView.reloadData()
                 break
             case .failure(_):
@@ -617,6 +617,11 @@ class UserProfileViewController: UIViewController {
     }
     
     func fetchRelated() {
+        guard let profession = user.profession else { return }
+        UserService.fetchRelatedUsers(withProfession: profession) { relatedUsers in
+            self.relatedUsers = relatedUsers
+            print(relatedUsers)
+        }
         /*
         DatabaseManager.shared.getAllUsers { result in
             switch result {
@@ -679,12 +684,17 @@ class UserProfileViewController: UIViewController {
     
     //MARK: - Actions
     @objc func didTapSettings() {
+        UserService.fetchRelatedUsers(withProfession: "Odontology") { users in
+            print(users)
+        }
+        /*
         AuthService.logout()
         AuthService.googleLogout()
         let controller = WelcomeViewController()
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
+         */
     }
 }
 
@@ -761,7 +771,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             }
             
         } else {
-            return 0
+            return relatedUsers.count
         }
     }
     
@@ -863,7 +873,9 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: seeOthersCellReuseIdentifier, for: indexPath) as! UserProfileSeeOthersCell
-            cell.set(userInfo: relatedUsers[indexPath.row])
+            
+            cell.set(user: relatedUsers[indexPath.row])
+            cell.delegate = self
             return cell
         }
     }
@@ -1008,6 +1020,23 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     }
 }
 
+extension UserProfileViewController: UserProfileSeeOthersCellDelegate {
+    func didTapProfile(forUser user: User) {
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        backItem.tintColor = blackColor
+        
+        let controller = UserProfileViewController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+        
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+    
+    
+}
+
 extension UserProfileViewController: UserProfileTitleHeaderDelegate {
     func didTapEditSection(sectionTitle: String) {
         switch sectionTitle {
@@ -1080,8 +1109,6 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         default:
             print("No cell registered")
         }
-        
-
     }
 }
 
@@ -1156,7 +1183,5 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             print("no footer registered")
         }
     }
-    
-    
 }
 

@@ -139,6 +139,8 @@ class HomeViewController: UICollectionViewController {
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
         
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        
     }
 
     @objc func didTapChat() {
@@ -560,6 +562,7 @@ extension HomeViewController: HomeCellDelegate {
             self.navigationItem.backBarButtonItem = backItem
             
             self.navigationController?.pushViewController(controller, animated: true)
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
     }
     

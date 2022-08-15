@@ -48,9 +48,16 @@ class RecentUserCell: UITableViewCell {
     
     //MARK: - API
     func fetchUsers() {
-        UserService.fetchUsers { users in
-            self.users = users
-            self.collectionView.reloadData()
+        DatabaseManager.shared.fetchRecentUserSearches { result in
+            switch result {
+            case .success(let uids):
+                UserService.fetchUsers(withUids: uids) { users in
+                    self.users = users
+                    self.collectionView.reloadData()
+                }
+            case .failure(_):
+                print("Couldn't fetch recent useres")
+            }
         }
     }
 }
