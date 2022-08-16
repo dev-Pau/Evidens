@@ -113,7 +113,7 @@ class HomeViewController: UICollectionViewController {
                                                             style: .plain,
                                                             target: self,
                                                             action: #selector(didTapChat))
-        navigationItem.rightBarButtonItem?.tintColor = blackColor
+        navigationItem.rightBarButtonItem?.tintColor = .black
         let profileImageItem = UIBarButtonItem(customView: profileImageView)
         profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
         navigationItem.leftBarButtonItem = profileImageItem
@@ -134,7 +134,7 @@ class HomeViewController: UICollectionViewController {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = blackColor
+        backItem.tintColor = .black
         
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)

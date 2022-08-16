@@ -110,7 +110,7 @@ class CaseStageView: UIView {
         
         resolvedButton.configuration?.background.strokeColor = lightGrayColor
         resolvedButton.configuration?.baseBackgroundColor = lightGrayColor
-        resolvedButton.configuration?.baseForegroundColor = blackColor
+        resolvedButton.configuration?.baseForegroundColor = .black
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
@@ -135,7 +135,7 @@ class CaseStageView: UIView {
 
         unresolvedButton.configuration?.background.strokeColor = lightGrayColor
         unresolvedButton.configuration?.baseBackgroundColor = lightGrayColor
-        unresolvedButton.configuration?.baseForegroundColor = blackColor
+        unresolvedButton.configuration?.baseForegroundColor = .black
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)

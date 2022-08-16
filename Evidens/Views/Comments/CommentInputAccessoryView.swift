@@ -24,12 +24,12 @@ class CommentInputAccessoryView: UIView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = lightColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
     
-    private let commentTextView: CommentInputTextView = {
+    let commentTextView: CommentInputTextView = {
         let tv = CommentInputTextView()
         tv.placeholderText = "Share your thoughts here..."
         tv.placeholderLabel.font = .systemFont(ofSize: 13, weight: .regular)
@@ -112,16 +112,16 @@ class CommentInputAccessoryView: UIView {
             topView.heightAnchor.constraint(equalToConstant: 1)
 
         ])
-        
-        print(caseIsAnonymous)
-        
+    
         profileImageView.layer.cornerRadius = 40 / 2
+        /*
         if caseIsAnonymous {
             profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         } else {
             guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
             profileImageView.sd_setImage(with: URL(string: uid))
         }
+         */
     }
     
     required init?(coder: NSCoder) {

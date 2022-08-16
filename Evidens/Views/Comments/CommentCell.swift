@@ -8,6 +8,10 @@
 import UIKit
 import SDWebImage
 
+protocol CommentCellDelegate: AnyObject {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment)
+}
+
 class CommentCell: UICollectionViewCell {
     
     //MARK: - Properties
@@ -15,6 +19,8 @@ class CommentCell: UICollectionViewCell {
     var viewModel: CommentViewModel? {
         didSet { configure() }
     }
+    
+    weak var delegate: CommentCellDelegate?
     
     var ownerUid: String = ""
     
@@ -187,7 +193,8 @@ class CommentCell: UICollectionViewCell {
     }
     
     @objc func handleThreeDots() {
-        
+        guard let viewModel = viewModel else { return }
+        delegate?.didTapComment(self, forComment: viewModel.comment)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

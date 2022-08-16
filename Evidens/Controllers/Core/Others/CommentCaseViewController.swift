@@ -13,6 +13,8 @@ class CommentCaseViewController: UICollectionViewController {
     
     //MARK: - Properties
     
+    private var commentMenu = CommentsMenuLauncher()
+    
     private var clinicalCase: Case
     private var comments = [Comment]()
  
@@ -41,6 +43,7 @@ class CommentCaseViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        commentMenu.delegate = self
         configureCollectionView()
         fetchComments()
     }
@@ -94,6 +97,14 @@ class CommentCaseViewController: UICollectionViewController {
     //MARK: - Helpers
     
     func configureCollectionView() {
+        
+        if clinicalCase.privacyOptions == .nonVisible {
+            commentInputView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
+            commentInputView.profileImageView.sd_setImage(with: URL(string: uid))
+        }
+        
         navigationItem.title = "Comments"
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -122,6 +133,7 @@ extension CommentCaseViewController {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         cell.ownerUid = clinicalCase.ownerUid
+        cell.delegate = self
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         return cell
     }
@@ -130,6 +142,8 @@ extension CommentCaseViewController {
         return 0
     }
 }
+
+
 
 
 //MARK: - CommentInputAccesoryViewDelegate
@@ -171,5 +185,52 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
         
         
         //self.view.activityStopAnimating()
+    }
+}
+
+extension CommentCaseViewController: CommentCellDelegate {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        commentMenu.comment = comment
+        commentMenu.showCommentsSettings(in: view)
+        commentInputView.commentTextView.resignFirstResponder()
+        commentInputView.isHidden = true
+        
+        commentMenu.completion = { delete in
+            
+            if let indexPath = self.collectionView.indexPath(for: cell) {
+                self.deleteCommentAlert {
+                    CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: comment.id) { deleted in
+                        if deleted {
+                            DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                            
+                            self.collectionView.performBatchUpdates {
+                                self.comments.remove(at: indexPath.item)
+                                self.collectionView.deleteItems(at: [indexPath])
+                            }
+                            let popupView = METopPopupView(title: "Comment deleted", image: "trash")
+                            popupView.showTopPopup(inView: self.view)
+                        }
+                        else {
+                            print("couldnt remove comment")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension CommentCaseViewController: CommentsMenuLauncherDelegate {
+    
+    func didTapReport(comment: Comment) {
+        
+    }
+    
+    func didTapDelete(comment: Comment) {
+        
+    }
+    
+    func menuDidDismiss() {
+        inputAccessoryView?.isHidden = false
     }
 }

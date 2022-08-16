@@ -242,6 +242,20 @@ extension DatabaseManager {
             completion(.success(recentComments.reversed()))
         }
     }
+    
+    public func deleteRecentComment(forCommentId commentID: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child(uid).child("comments")
+        let query = ref.queryOrdered(byChild: "commentUid").queryEqual(toValue: commentID).queryLimited(toFirst: 1)
+        
+        query.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                if let key = value.keys.first {
+                    ref.child(key).removeValue()
+                }
+            }
+        }
+    }
 }
 
 

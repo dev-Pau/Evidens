@@ -332,4 +332,49 @@ struct PostService {
             COLLECTION_USERS.document(uid).collection("user-home-feed").document(postId).setData([:])
         }
     }
+    
+    //MARK: - Fetch with pagination
+    
+    static func fetchUserFeedPosts(previousQuery: Query?, completion: @escaping([Post]) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        var posts = [Post]()
+
+        let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
+        
+        first.addSnapshotListener { snapshot, error in
+            guard let snapshot = snapshot else { return }
+            guard let lastSnapshot = snapshot.documents.last else {
+                //the collection is empty
+                return
+            }
+
+            posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            // Construct a new query starting after this document,
+                // retrieving the next 25 cities.
+            completion(posts)
+            COLLECTION_POSTS.order(by: "timestamp").start(afterDocument: lastSnapshot)
+            
+          
+            //print(next)
+        }
+    }
+    
+    /*
+     static func fetchFeedPosts(completion: @escaping([Post]) -> Void) {
+         guard let uid = Auth.auth().currentUser?.uid else { return }
+         var posts = [Post]()
+         
+         COLLECTION_USERS.document(uid).collection("user-home-feed").getDocuments { snapshot, error in
+             snapshot?.documents.forEach({ document in
+                 fetchPost(withPostId: document.documentID) { post in
+                     posts.append(post)
+                     
+                     posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                     
+                     completion(posts)
+                 }
+             })
+         }
+     }
+     */
 }

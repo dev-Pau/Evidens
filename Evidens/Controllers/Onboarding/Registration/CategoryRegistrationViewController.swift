@@ -105,22 +105,12 @@ class CategoryRegistrationViewController: UIViewController {
             
             professionalCategory.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
             professionalCategory.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
-            professionalCategory.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8 / 2 - 5),
+            professionalCategory.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
             professionalCategory.heightAnchor.constraint(equalToConstant: 120),
             
-            investigatorCategory.topAnchor.constraint(equalTo: professionalCategory.topAnchor),
-            investigatorCategory.trailingAnchor.constraint(equalTo: categoryLabel.trailingAnchor),
-            investigatorCategory.leadingAnchor.constraint(equalTo: professionalCategory.trailingAnchor, constant: 10),
-            investigatorCategory.heightAnchor.constraint(equalToConstant: 120),
-            
-            professorCategory.topAnchor.constraint(equalTo: professionalCategory.bottomAnchor, constant: 10),
-            professorCategory.leadingAnchor.constraint(equalTo: professionalCategory.leadingAnchor),
-            professorCategory.trailingAnchor.constraint(equalTo: professionalCategory.trailingAnchor),
-            professorCategory.heightAnchor.constraint(equalToConstant: 120),
-            
-            studentCategory.topAnchor.constraint(equalTo: investigatorCategory.bottomAnchor, constant: 10),
-            studentCategory.leadingAnchor.constraint(equalTo: investigatorCategory.leadingAnchor),
-            studentCategory.trailingAnchor.constraint(equalTo: investigatorCategory.trailingAnchor),
+            studentCategory.topAnchor.constraint(equalTo: professionalCategory.bottomAnchor, constant: 10),
+            studentCategory.leadingAnchor.constraint(equalTo: professionalCategory.leadingAnchor),
+            studentCategory.trailingAnchor.constraint(equalTo: professionalCategory.trailingAnchor),
             studentCategory.heightAnchor.constraint(equalToConstant: 120),
             
             nextButton.topAnchor.constraint(equalTo: studentCategory.bottomAnchor, constant: 20),

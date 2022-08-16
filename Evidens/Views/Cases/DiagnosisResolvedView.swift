@@ -28,7 +28,7 @@ class DiagnosisResolvedView: UIView {
     private let diagnosisTitle: UILabel = {
         let label = UILabel()
         label.text = "You have added a diagnosis to this case"
-        label.textColor = blackColor
+        label.textColor = .black
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false

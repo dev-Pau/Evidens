@@ -8,7 +8,7 @@
 import UIKit
 
 struct CommentViewModel {
-    private let comment: Comment
+    let comment: Comment
     
     var anonymousComment: Bool {
         return comment.anonymous

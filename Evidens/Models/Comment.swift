@@ -10,6 +10,7 @@ import Firebase
 struct Comment {
     
     let uid: String
+    let id: String
     let firstName: String
     let lastName: String
     let profileImageUrl: String
@@ -22,6 +23,7 @@ struct Comment {
     
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
+        self.id = dictionary["id"] as? String ?? ""
         self.firstName = dictionary["firstName"] as? String ?? ""
         self.lastName = dictionary["lastName"] as? String ?? ""
         self.commentText = dictionary["comment"] as? String ?? ""

@@ -22,7 +22,7 @@ class DiagnosisUnresolvedView: UIView {
     private let diagnosisTitle: UILabel = {
         let label = UILabel()
         label.text = "You will ask MyEvidens community for their medical advice on this case"
-        label.textColor = blackColor
+        label.textColor = .black
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false

@@ -71,6 +71,7 @@ class TopCollectionViewCell: UICollectionViewCell {
     // Fetch top users based on current user search
     func fetchTopUsers() {
         // Needs to create a new function to fetch with name
+        
         UserService.fetchUsers { users in
             self.topUsersFetched = users
             self.tableView.reloadData()

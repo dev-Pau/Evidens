@@ -78,7 +78,7 @@ class AddCaseUpdateViewController: UIViewController {
         title = "Add update"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = blackColor
+        navigationItem.leftBarButtonItem?.tintColor = .black
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Publish", style: .done, target: self, action: #selector(handleAddUpdate))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor

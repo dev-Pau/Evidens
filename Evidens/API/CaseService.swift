@@ -83,6 +83,7 @@ struct CaseService {
         }
     }
     
+    
     static func fetchRecentCases(withCaseId caseId: [String], completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
         

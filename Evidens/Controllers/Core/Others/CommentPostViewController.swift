@@ -15,6 +15,8 @@ class CommentPostViewController: UICollectionViewController {
     
     private var post: Post
     private var comments = [Comment]()
+    
+    private var commentMenu = CommentsMenuLauncher()
  
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -63,6 +65,7 @@ class CommentPostViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        commentMenu.delegate = self
         configureUI()
         configureCollectionView()
         fetchComments()
@@ -144,6 +147,10 @@ class CommentPostViewController: UICollectionViewController {
     }
     
     private func configureUI() {
+        
+        guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
+        commentInputView.profileImageView.sd_setImage(with: URL(string: uid))
+        
         view.addSubviews(emptyCommentLabel, startTheConversationLabel)
         NSLayoutConstraint.activate([
             emptyCommentLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -167,21 +174,57 @@ extension CommentPostViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         cell.ownerUid = post.ownerUid
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+        cell.delegate = self
         return cell
         
     }
-    /*
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let uid = comments[indexPath.row].uid
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = ProfileViewController(user: user)
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-    */
-    
+   
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
+    }
+}
+
+extension CommentPostViewController: CommentCellDelegate {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        commentMenu.comment = comment
+        commentMenu.showCommentsSettings(in: view)
+        commentInputView.commentTextView.resignFirstResponder()
+        commentInputView.isHidden = true
+        
+        commentMenu.completion = { delete in
+         
+            if let indexPath = self.collectionView.indexPath(for: cell) {
+                self.deleteCommentAlert {
+                    CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { deleted in
+                        if deleted {
+                            DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+                            
+                            
+                            self.collectionView.performBatchUpdates {
+                                self.comments.remove(at: indexPath.item)
+                                self.collectionView.deleteItems(at: [indexPath])
+                            }
+                            let popupView = METopPopupView(title: "Comment deleted", image: "trash")
+                            popupView.showTopPopup(inView: self.view)
+                        }
+                        else {
+                            print("couldnt remove comment")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension CommentPostViewController: CommentsMenuLauncherDelegate {
+    
+    func didTapReport(comment: Comment) {
+        
+    }
+    
+    func menuDidDismiss() {
+        inputAccessoryView?.isHidden = false
     }
 }
 

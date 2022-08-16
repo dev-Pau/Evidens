@@ -240,6 +240,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func deleteCommentAlert(completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Delete comment", message: "Are you sure you want to delete this comment?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func reportPostAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Report post", message: "Are you sure you want to report this post to our moderation team?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
