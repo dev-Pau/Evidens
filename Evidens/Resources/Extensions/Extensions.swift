@@ -267,6 +267,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func deleteRecentSearchesAlert(completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Clear search history?", message: "Are you sure you want to clear your search results history?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func showLoadingView() {
         containerView = UIView(frame: view.bounds)
         view.addSubview(containerView)

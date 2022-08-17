@@ -30,13 +30,16 @@ struct TopPeopleCellViewModel {
     var fullName: String {
         return user.firstName! + " " + user.lastName!
     }
-    
-    var userType: Int {
-        // retornar la categoría bé com a notification perquè no pot ser un int, ha de ser string
-        return user.category.rawValue
-    }
-    
+        
     var userProfileImageUrl: URL? {
         return URL(string: user.profileImageUrl!)
+    }
+    
+    var profession: String {
+        if user.category == .student {
+            return user.profession! + ", " + user.speciality! + " · " + user.category.userCategoryString
+        } else {
+            return user.profession! + ", " + user.speciality!
+        }
     }
 }

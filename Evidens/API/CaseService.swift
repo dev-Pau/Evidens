@@ -99,6 +99,18 @@ struct CaseService {
         }
     }
     
+    static func fetchTopCases(completion: @escaping([Case]) -> Void) {
+        //Fetch posts by filtering according to timestamp
+        let query = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 3)
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else { return }
+            
+            //Mapping that creates an array for each post
+            let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            completion(cases)
+        }
+    }
+    
     static func fetchCase(withCaseId caseId: String, completion: @escaping(Case) -> Void) {
         COLLECTION_CASES.document(caseId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }

@@ -159,6 +159,18 @@ struct PostService {
         }
     }
     
+    static func fetchTopPosts(completion: @escaping([Post]) -> Void) {
+        //Fetch posts by filtering according to timestamp
+        let query = COLLECTION_POSTS.order(by: "timestamp", descending: true).limit(to: 3)
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else { return }
+            
+            //Mapping that creates an array for each post
+            let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            completion(posts)
+        }
+    }
+    
     static func deletePost(withPostUid uid: String, completion: @escaping(Bool) -> Void) {
         
     }

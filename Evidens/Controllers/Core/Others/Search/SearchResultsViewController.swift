@@ -7,8 +7,10 @@
 
 import UIKit
 
-private let topCellIdentifier = "TopCell"
-private let reuseIdentifier = "Prova"
+private let topCellIdentifier = "TopCellReuseIdentifier"
+private let casesCellIdentifier = "CasesCellReuseIdentifier"
+private let postsCellIdentifier = "PostsCellReuseIdentifier"
+private let peopleCellIdentifier = "PeopleCellIdentifier"
 
 class SearchResultsViewController: UIViewController {
    
@@ -79,7 +81,10 @@ class SearchResultsViewController: UIViewController {
     
     func configureCollectionView() {
         collectionView.register(TopCollectionViewCell.self, forCellWithReuseIdentifier: topCellIdentifier)
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(CasesCollectionViewCell.self, forCellWithReuseIdentifier: casesCellIdentifier)
+        collectionView.register(PostsCollectionViewCell.self, forCellWithReuseIdentifier: postsCellIdentifier)
+        collectionView.register(PeopleCollectionViewCell.self, forCellWithReuseIdentifier: peopleCellIdentifier)
+
         collectionView.delegate = self
         collectionView.dataSource = self
         segmentedButtonsView.segmentedControlDelegate = self
@@ -117,10 +122,20 @@ extension SearchResultsViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         if indexPath.row == 0 {
+            // Top results
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: topCellIdentifier, for: indexPath) as! TopCollectionViewCell
             return cell
+        } else if indexPath.row == 1 {
+            // People
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: peopleCellIdentifier, for: indexPath) as! PeopleCollectionViewCell
+            return cell
+        } else if indexPath.row == 2 {
+            // Post results
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postsCellIdentifier, for: indexPath) as! PostsCollectionViewCell
+            return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
+            // Case results
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: casesCellIdentifier, for: indexPath) as! CasesCollectionViewCell
             return cell
         }
     }

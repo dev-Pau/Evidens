@@ -21,17 +21,20 @@ class TopPeopleCell: UITableViewCell {
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "home.fill")
+        iv.backgroundColor = lightColor
         iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
         return label
     }()
-
+    /*
     private lazy var contactButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "person.fill.badge.plus"), for: .normal)
@@ -40,12 +43,14 @@ class TopPeopleCell: UITableViewCell {
         button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
         return button
     }()
+     */
      
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
         label.textColor = grayColor
-        label.text = "Physiotherapist"
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.numberOfLines = 2
         return label
     }()
     
@@ -54,18 +59,14 @@ class TopPeopleCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        profileImageView.setDimensions(height: 60, width: 60)
-        profileImageView.layer.cornerRadius = 60/2
+        profileImageView.setDimensions(height: 45, width: 45)
+        profileImageView.layer.cornerRadius = 45/2
         
         addSubview(profileImageView)
         profileImageView.anchor(top: topAnchor, left: leftAnchor, paddingTop: 10, paddingLeft: 15)
         
         addSubview(nameLabel)
         nameLabel.anchor(top: profileImageView.topAnchor, left: profileImageView.rightAnchor, paddingLeft: 9)
-        
-        addSubview(contactButton)
-        contactButton.centerY(inView: self)
-        contactButton.anchor(right: rightAnchor, paddingRight: 10)
         
         addSubview(userCategoryLabel)
         userCategoryLabel.anchor(top: nameLabel.bottomAnchor, left: nameLabel.leftAnchor, paddingTop: 2)
@@ -81,6 +82,7 @@ class TopPeopleCell: UITableViewCell {
         guard let viewModel = viewModel else { return }
         profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         nameLabel.text = viewModel.fullName
+        userCategoryLabel.text = viewModel.profession
 
     }
 }

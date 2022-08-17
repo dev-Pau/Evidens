@@ -146,6 +146,13 @@
 		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
 		5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* CasesCell.swift */; };
 		5F992AF828AB6D0B0030F7F1 /* CommentsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AF728AB6D0B0030F7F1 /* CommentsMenuLauncher.swift */; };
+		5F992AFA28ACC7500030F7F1 /* TopPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AF928ACC74F0030F7F1 /* TopPostImageCell.swift */; };
+		5F992AFC28ACC7CD0030F7F1 /* TopPostTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */; };
+		5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */; };
+		5F992B0028ACD6F30030F7F1 /* TopCaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AFF28ACD6F30030F7F1 /* TopCaseTextCell.swift */; };
+		5F992B0428ACE47E0030F7F1 /* CasesCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */; };
+		5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */; };
+		5F992B0B28ACEE590030F7F1 /* PeopleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
 		5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7E289678CB00A25152 /* CustomSectionCell.swift */; };
 		5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */; };
@@ -390,6 +397,13 @@
 		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
 		5F979C5D286DDB3D00C05D57 /* CasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCell.swift; sourceTree = "<group>"; };
 		5F992AF728AB6D0B0030F7F1 /* CommentsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsMenuLauncher.swift; sourceTree = "<group>"; };
+		5F992AF928ACC74F0030F7F1 /* TopPostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostImageCell.swift; sourceTree = "<group>"; };
+		5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostTextCell.swift; sourceTree = "<group>"; };
+		5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCaseImageCell.swift; sourceTree = "<group>"; };
+		5F992AFF28ACD6F30030F7F1 /* TopCaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCaseTextCell.swift; sourceTree = "<group>"; };
+		5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCollectionViewCell.swift; sourceTree = "<group>"; };
+		5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsCollectionViewCell.swift; sourceTree = "<group>"; };
+		5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleCollectionViewCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
 		5F9A9F7E289678CB00A25152 /* CustomSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSectionCell.swift; sourceTree = "<group>"; };
 		5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureSectionViewController.swift; sourceTree = "<group>"; };
@@ -707,7 +721,11 @@
 				5F598BF62835002400189722 /* TopPeopleHeader.swift */,
 				5F598BFD28362E9200189722 /* TopPeopleCell.swift */,
 				5F598C042836569400189722 /* TopPostHeader.swift */,
+				5F992AF928ACC74F0030F7F1 /* TopPostImageCell.swift */,
+				5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */,
 				5F598C0628368E3B00189722 /* TopCaseHeader.swift */,
+				5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */,
+				5F992AFF28ACD6F30030F7F1 /* TopCaseTextCell.swift */,
 			);
 			path = Top;
 			sourceTree = "<group>";
@@ -998,6 +1016,9 @@
 			isa = PBXGroup;
 			children = (
 				5F598BF52834EF0A00189722 /* Top */,
+				5F992B0828ACEDE70030F7F1 /* People */,
+				5F992B0528ACEA0A0030F7F1 /* Posts */,
+				5F992B0228ACE46E0030F7F1 /* Cases */,
 			);
 			path = Topics;
 			sourceTree = "<group>";
@@ -1016,6 +1037,30 @@
 				5F527D9C28859D3A009D5027 /* DiagnosisGenericView.swift */,
 			);
 			path = Cases;
+			sourceTree = "<group>";
+		};
+		5F992B0228ACE46E0030F7F1 /* Cases */ = {
+			isa = PBXGroup;
+			children = (
+				5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */,
+			);
+			path = Cases;
+			sourceTree = "<group>";
+		};
+		5F992B0528ACEA0A0030F7F1 /* Posts */ = {
+			isa = PBXGroup;
+			children = (
+				5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */,
+			);
+			path = Posts;
+			sourceTree = "<group>";
+		};
+		5F992B0828ACEDE70030F7F1 /* People */ = {
+			isa = PBXGroup;
+			children = (
+				5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */,
+			);
+			path = People;
 			sourceTree = "<group>";
 		};
 		5F9A9F842896D88F00A25152 /* Section */ = {
@@ -1658,9 +1703,11 @@
 				5F9A9FAA2899843F00A25152 /* DriverLicenseViewController.swift in Sources */,
 				5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */,
 				5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */,
+				5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
+				5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
 				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
@@ -1676,6 +1723,7 @@
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */,
 				5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */,
+				5F992B0B28ACEE590030F7F1 /* PeopleCollectionViewCell.swift in Sources */,
 				5FBCB9FE28A8D8EE007EF79D /* AddCaseUpdateViewController.swift in Sources */,
 				5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */,
 				5F9A9F912898111800A25152 /* AddPublicationViewController.swift in Sources */,
@@ -1723,6 +1771,7 @@
 				5F598C10283CDD4B00189722 /* HomeImageTextCell.swift in Sources */,
 				5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */,
 				5F05206F27C3AF1A001E7D8F /* PhotoViewController.swift in Sources */,
+				5F992B0428ACE47E0030F7F1 /* CasesCollectionViewCell.swift in Sources */,
 				5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */,
 				5F9F089C2861C01F0069FD2C /* HomeThreeImageTextCell.swift in Sources */,
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
@@ -1731,6 +1780,7 @@
 				5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */,
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */,
+				5F992B0028ACD6F30030F7F1 /* TopCaseTextCell.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
 				5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */,
 				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
@@ -1772,6 +1822,7 @@
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
+				5F992AFC28ACC7CD0030F7F1 /* TopPostTextCell.swift in Sources */,
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
@@ -1823,6 +1874,7 @@
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F9A9F832896CB0D00A25152 /* ConfigureSectionTitleCell.swift in Sources */,
 				5FBCB9F428A6521F007EF79D /* PopupView.swift in Sources */,
+				5F992AFA28ACC7500030F7F1 /* TopPostImageCell.swift in Sources */,
 				5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,

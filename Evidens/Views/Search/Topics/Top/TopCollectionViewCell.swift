@@ -11,13 +11,19 @@ import SDWebImage
 private let topPeopleCellIdentifier = "TopCellIdentifier"
 private let topPeopleHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
 private let topPostHeaderReuseIdentifier = "TopPostHeaderReuseIdentifier"
+private let topPostImageCellReuseIdentifier = "TopPostImageCellReuseIdentifier"
 private let topCaseHeaderReuseIdentifier = "TopHeaderCaseReuseIdentifier"
+private let topPostTextCellReuseIdentifier = "TopPostTextCellReuseIdentifier"
+private let topCaseImageCellReuseIdentifier = "TopCaseImageCellReuseIdentifier"
+private let topCaseTextCellReuseIdentifier = "TopCaseTextCellReuseIdentifier"
 
 class TopCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Properties
     
     private var topUsersFetched = [User]()
+    private var topPostsFetched = [Post]()
+    private var topCasesFetched = [Case]()
     
     /*
     var viewModel: UserCellViewModel? {
@@ -39,12 +45,18 @@ class TopCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         fetchTopUsers()
+        fetchTopPosts()
+        fetchTopCases()
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
         tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellIdentifier)
         tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
+        tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
+        tableView.register(TopPostTextCell.self, forCellReuseIdentifier: topPostTextCellReuseIdentifier)
         tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topCaseHeaderReuseIdentifier)
+        tableView.register(TopCaseImageCell.self, forCellReuseIdentifier: topCaseImageCellReuseIdentifier)
+        tableView.register(TopCaseTextCell.self, forCellReuseIdentifier: topCaseTextCellReuseIdentifier)
         addSubview(tableView)
         tableView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
     
@@ -77,6 +89,20 @@ class TopCollectionViewCell: UICollectionViewCell {
             self.tableView.reloadData()
         }
     }
+    
+    func fetchTopPosts() {
+        PostService.fetchTopPosts { posts in
+            self.topPostsFetched = posts
+            self.tableView.reloadData()
+        }
+    }
+    
+    func fetchTopCases() {
+        CaseService.fetchCases { cases in
+            self.topCasesFetched = cases
+            self.tableView.reloadData()
+        }
+    }
 }
 
 extension TopCollectionViewCell: UITableViewDataSource {
@@ -105,26 +131,55 @@ extension TopCollectionViewCell: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return topUsersFetched.count
+        } else if section == 1 {
+            return topPostsFetched.count
         } else {
-            return topUsersFetched.count
+            return topCasesFetched.count
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 1 {
+        if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellIdentifier, for: indexPath) as! TopPeopleCell
             cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
+            cell.selectionStyle = .none
             return cell
+        } else if indexPath.section == 1 {
+            if topPostsFetched[indexPath.row].type == .plainText {
+                let cell = tableView.dequeueReusableCell(withIdentifier: topPostTextCellReuseIdentifier, for: indexPath) as! TopPostTextCell
+                cell.viewModel = PostViewModel(post: topPostsFetched[indexPath.row])
+                cell.selectionStyle = .none
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: topPostImageCellReuseIdentifier, for: indexPath) as! TopPostImageCell
+                cell.viewModel = PostViewModel(post: topPostsFetched[indexPath.row])
+                cell.selectionStyle = .none
+                return cell
+            }
+
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellIdentifier, for: indexPath) as! TopPeopleCell
-            cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
-            return cell
-            
+            if topCasesFetched[indexPath.row].type == .text {
+                let cell = tableView.dequeueReusableCell(withIdentifier: topCaseTextCellReuseIdentifier, for: indexPath) as! TopCaseTextCell
+                cell.viewModel = CaseViewModel(clinicalCase: topCasesFetched[indexPath.row])
+                cell.selectionStyle = .none
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: topCaseImageCellReuseIdentifier, for: indexPath) as! TopCaseImageCell
+                cell.viewModel = CaseViewModel(clinicalCase: topCasesFetched[indexPath.row])
+                cell.selectionStyle = .none
+                return cell
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 100
+        if indexPath.section == 0 {
+            return 65
+        } else if indexPath.section == 1 {
+            return 200
+        } else {
+            return 200
+        }
     }
 }
 

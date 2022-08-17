@@ -18,8 +18,9 @@ class RecentHeader: UITableViewHeaderFooterView {
     weak var delegate: RecentHeaderDelegate?
     private let recentSearchesLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .bold)
         label.text = "Recent searches"
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -28,10 +29,10 @@ class RecentHeader: UITableViewHeaderFooterView {
         button.configuration = .plain()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseForegroundColor = .black
         
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = .systemFont(ofSize: 15, weight: .medium)
         button.configuration?.attributedTitle = AttributedString("Clear", attributes: container)
         button.addTarget(self, action: #selector(clearButtonPressed), for: .touchUpInside)
         return button

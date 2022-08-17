@@ -146,23 +146,17 @@ extension SearchViewController: UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        if indexPath.section == 0 {
-            if indexPath.row == 0 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentUserCell
-                cell.delegate = self
-                //cell.recentUsers = users[indexPath.row]
-                return cell
-            } else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: recentTextReuseIdentifier, for: indexPath) as! RecentTextCell
-                cell.viewModel = RecentTextCellViewModel(recentText: recentSearchedText[indexPath.row - 1])
-                cell.selectionStyle = .none
-                return cell
-            }
-        } else {
+        if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentUserCell
+            cell.delegate = self
+            //cell.recentUsers = users[indexPath.row]
             return cell
-        }
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: recentTextReuseIdentifier, for: indexPath) as! RecentTextCell
+            cell.viewModel = RecentTextCellViewModel(recentText: recentSearchedText[indexPath.row - 1])
+            cell.selectionStyle = .none
+            return cell
+        }  
         //let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //cell.viewModel = UserCellViewModel(user: user)
@@ -179,6 +173,8 @@ extension SearchViewController: UITableViewDataSource {
         }
         return 130
     }
+    
+    
 }
 
 //MARK: - UITableViewDelegate
@@ -202,6 +198,17 @@ extension SearchViewController: UITableViewDelegate {
         //Navigate to profile controller of the selected user
         //let controller = ProfileViewController(user: user)
         //navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            recentSearchedText.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        indexPath.row == 0 ? false : true
     }
 }
 
@@ -258,6 +265,8 @@ extension SearchViewController: RecentUserCellDelegate {
 extension SearchViewController: RecentHeaderDelegate {
 
     func didTapClearButton() {
-        print("Tap button is pressed")
+        deleteRecentSearchesAlert {
+            print("Delete all here")
+        }
     }
 }
