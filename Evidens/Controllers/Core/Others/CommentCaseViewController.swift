@@ -225,11 +225,7 @@ extension CommentCaseViewController: CommentsMenuLauncherDelegate {
     func didTapReport(comment: Comment) {
         
     }
-    
-    func didTapDelete(comment: Comment) {
         
-    }
-    
     func menuDidDismiss() {
         inputAccessoryView?.isHidden = false
     }

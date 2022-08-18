@@ -43,6 +43,8 @@ class HomeImageTextCell: UICollectionViewCell {
     override init (frame: CGRect) {
         super.init(frame: frame)
         
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
+        
         backgroundColor = .white
         
         userPostView.delegate = self
@@ -130,6 +132,11 @@ class HomeImageTextCell: UICollectionViewCell {
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
+    }
+    
+    @objc func didTapPost() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
     }
 }
 

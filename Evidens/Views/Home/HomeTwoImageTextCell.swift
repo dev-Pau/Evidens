@@ -58,6 +58,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     override init (frame: CGRect) {
         super.init(frame: frame)
         
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
+        
         backgroundColor = .white
         
         userPostView.delegate = self
@@ -161,6 +163,11 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         } else {
             delegate?.cell(self, didTapImage: [postImageView, postTwoImageView], index: 1)
         }
+    }
+    
+    @objc func didTapPost() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
     }
 }
 

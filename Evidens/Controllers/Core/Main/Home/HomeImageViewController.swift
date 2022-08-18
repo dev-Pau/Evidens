@@ -18,7 +18,7 @@ class HomeImageViewController: UIViewController {
     private var postImage: [UIImage]!
     private var imageCount: Int!
     private var index: Int!
-
+    
     private var zoomTransitioning = ZoomTransitioning()
     
     let pagePadding: CGFloat = 10
@@ -278,6 +278,7 @@ class HomeImageViewController: UIViewController {
     }
     
     func updateBackgroundColor() {
+        view.backgroundColor = .white
     }
     
     

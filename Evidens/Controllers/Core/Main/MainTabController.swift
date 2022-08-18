@@ -106,6 +106,9 @@ class MainTabController: UITabBarController {
                 self.tabBar.isTranslucent = true
                 self.tabBar.backgroundColor = .white
                 self.tabBar.standardAppearance = appearance
+                
+                
+                
             }
         }
     }

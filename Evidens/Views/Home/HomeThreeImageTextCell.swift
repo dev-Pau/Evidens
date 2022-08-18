@@ -72,6 +72,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
+        
         userPostView.delegate = self
 
         actionButtonsView.delegate = self
@@ -160,6 +162,11 @@ class HomeThreeImageTextCell: UICollectionViewCell {
                 appended.removeAll()
             }
         }
+    }
+    
+    @objc func didTapPost() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
     }
     
     

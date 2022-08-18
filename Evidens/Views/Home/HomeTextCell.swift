@@ -23,7 +23,7 @@ class HomeTextCell: UICollectionViewCell {
     
     private var userPostView = MEUserPostView()
     
-    private var postTextLabel = MEPostLabel()
+    var postTextLabel = MEPostLabel()
     
     var actionButtonsView = MEPostActionButtons()
     

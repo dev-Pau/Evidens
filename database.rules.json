@@ -1,0 +1,25 @@
+{
+    "rules": {
+        ".read": true,
+        ".write": true,
+        "users": {
+            "$user_ids" : {
+                "posts": {
+                    ".indexOn": "timestamp"
+                },
+                "cases": {
+                    ".indexOn": "timestamp"
+                },
+                "comments": {
+                    ".indexOn": "timestamp"
+                },             
+                "languages": {
+                    ".indexOn": "languageName"
+                },
+                "publications": {
+                    ".indexOn": "title"
+                }
+            }
+        }
+    }
+}

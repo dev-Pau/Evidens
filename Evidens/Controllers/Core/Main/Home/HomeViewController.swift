@@ -228,97 +228,89 @@ extension HomeViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        /*
-        if post != nil {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-            cell.viewModel = PostViewModel(post: post!)
-            return cell
-        }
-         */
         
-        if posts[indexPath.row].type.postType == 0 {
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-            
-            cell.delegate = self
-            
-            cell.layer.borderWidth = 0
-
-            if let post = post {
-                cell.viewModel = PostViewModel(post: post)
-            } else {
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            }
-            return cell
-
-        } else if posts[indexPath.row].type.postType == 1 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-         
-            if let post = post {
-                cell.viewModel = PostViewModel(post: post)
-            } else {
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            if posts[indexPath.row].type.postType == 0 {
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                
+                cell.delegate = self
+                
+                cell.layer.borderWidth = 0
+                
+                if let post = post {
+                    cell.viewModel = PostViewModel(post: post)
+                } else {
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                }
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 1 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                if let post = post {
+                    cell.viewModel = PostViewModel(post: post)
+                } else {
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                }
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 2 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                if let post = post {
+                    cell.viewModel = PostViewModel(post: post)
+                } else {
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                }
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 3 {
+                //print("post type 1")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                if let post = post {
+                    cell.viewModel = PostViewModel(post: post)
+                } else {
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                }
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 4 {
+                //print("post type 1")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                if let post = post {
+                    cell.viewModel = PostViewModel(post: post)
+                } else {
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                }
+                return cell
                 
             }
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 2 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-         
-            if let post = post {
-                cell.viewModel = PostViewModel(post: post)
-            } else {
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
+            else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                if let post = post {
+                    cell.viewModel = PostViewModel(post: post)
+                } else {
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                }
+                return cell
             }
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 3 {
-            //print("post type 1")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-         
-            if let post = post {
-                cell.viewModel = PostViewModel(post: post)
-            } else {
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-            }
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 4 {
-            //print("post type 1")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-         
-            if let post = post {
-                cell.viewModel = PostViewModel(post: post)
-            } else {
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                
-            }
-            return cell
-            
-        }
-        else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-            if let post = post {
-                cell.viewModel = PostViewModel(post: post)
-            } else {
-                cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            }
-            return cell
-        }
+        
     }
 }
 
@@ -397,16 +389,21 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
 extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantstoSeePostsFor post: Post) {
-        /*
-        let height = cell.frame.height
-        let controller = DetailsPostViewController(post: post, height: height)
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsPostViewController(post: post, collectionViewLayout: layout)
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
-         */
+        
     }
     
 

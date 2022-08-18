@@ -17,6 +17,14 @@ class TopCaseImageCell: UITableViewCell {
         }
     }
     
+    private lazy var caseStateButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     private var userPostView = MEUserPostView()
     
     private let titleCaseLabel: UILabel = {
@@ -74,10 +82,13 @@ class TopCaseImageCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubviews(userPostView, titleCaseLabel, caseImageView, descriptionCaseLabel, likesButton, likesCommentsLabel)
+        addSubviews(caseStateButton, userPostView, titleCaseLabel, caseImageView, descriptionCaseLabel, likesButton, likesCommentsLabel)
         
         NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: topAnchor),
+            caseStateButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            caseStateButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            
+            userPostView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 1),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
@@ -130,6 +141,10 @@ class TopCaseImageCell: UITableViewCell {
         caseImageView.sd_setImage(with: viewModel.caseImageUrl?.first)
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
+        
+        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
+        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
+        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
     }
 }
 

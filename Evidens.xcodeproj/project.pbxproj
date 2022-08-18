@@ -194,6 +194,7 @@
 		5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08A128630F580069FD2C /* PostPrivacyCell.swift */; };
 		5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */; };
 		5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */; };
+		5F9F373A28AE4836002C59E4 /* CommentsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
 		5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29015288688D3002FBAE1 /* CaseService.swift */; };
 		5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29018288695D4002FBAE1 /* CaseViewModel.swift */; };
@@ -445,6 +446,7 @@
 		5F9F08A128630F580069FD2C /* PostPrivacyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyCell.swift; sourceTree = "<group>"; };
 		5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyHeader.swift; sourceTree = "<group>"; };
 		5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementsMenuLauncher.swift; sourceTree = "<group>"; };
+		5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSectionHeader.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		5FB29015288688D3002FBAE1 /* CaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseService.swift; sourceTree = "<group>"; };
 		5FB29018288695D4002FBAE1 /* CaseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseViewModel.swift; sourceTree = "<group>"; };
@@ -511,6 +513,7 @@
 		5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileExperienceCell.swift; sourceTree = "<group>"; };
 		5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuTitleHeader.swift; sourceTree = "<group>"; };
 		5FEB92E3289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoCanJoinMenuLauncher.swift; sourceTree = "<group>"; };
+		5FED53B428AE0F82002AC2E5 /* Evidens.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Evidens.entitlements; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
 		ED9965EF6173BC44853D0886 /* Pods-Evidens.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.release.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.release.xcconfig"; sourceTree = "<group>"; };
@@ -1334,6 +1337,7 @@
 		5FC4D85C27070274006B7A34 /* Evidens */ = {
 			isa = PBXGroup;
 			children = (
+				5FED53B428AE0F82002AC2E5 /* Evidens.entitlements */,
 				5FC4D87327070334006B7A34 /* Models */,
 				5FC4D87427070352006B7A34 /* Views */,
 				5FC4D87627070376006B7A34 /* ViewModels */,
@@ -1448,6 +1452,7 @@
 				5F9F089B2861C01F0069FD2C /* HomeThreeImageTextCell.swift */,
 				5F9F089D2861C3CF0069FD2C /* HomeFourImageTextCell.swift */,
 				5F9F0896285F83780069FD2C /* HomeLikesCell.swift */,
+				5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -1790,6 +1795,7 @@
 				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
 				5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */,
 				5F77BF69285753FA00F31A75 /* MEHeaderPostView.swift in Sources */,
+				5F9F373A28AE4836002C59E4 /* CommentsSectionHeader.swift in Sources */,
 				5F6607F22854DB6800FCF895 /* PostBottomMenuLauncher.swift in Sources */,
 				5FC4D883270705F8006B7A34 /* ProfileViewController.swift in Sources */,
 				5FBC2DF72732B1AA004F92CE /* InputTextView.swift in Sources */,
@@ -2052,6 +2058,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = Evidens/Evidens.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2090,6 +2097,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = Evidens/Evidens.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

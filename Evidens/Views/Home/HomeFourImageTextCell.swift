@@ -84,6 +84,8 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         backgroundColor = .white
         
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
+        
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
         
@@ -187,6 +189,11 @@ class HomeFourImageTextCell: UICollectionViewCell {
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 40))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
+    }
+    
+    @objc func didTapPost() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
     }
     
     
