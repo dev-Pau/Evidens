@@ -99,7 +99,7 @@ class HomeTextCell: UICollectionViewCell {
     
     @objc func didTapPost() {
         guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
+        delegate?.cell(self, wantsToSeePost: viewModel.post)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

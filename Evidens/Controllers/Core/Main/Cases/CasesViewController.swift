@@ -14,8 +14,11 @@ class CasesViewController: UIViewController {
     
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
+    var user: User?
+    
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
+    var controllerIsBeeingPushed: Bool = false
     
     private var cases = [Case]() {
         didSet { collectionView.reloadData() }
@@ -76,11 +79,21 @@ class CasesViewController: UIViewController {
     }
     
     private func fetchCases() {
-        CaseService.fetchCases { cases in
-            self.cases = cases
-            self.checkIfUserLikedCase()
-            self.checkIfUserBookmarkedCase()
-            self.collectionView.refreshControl?.endRefreshing()
+        if !controllerIsBeeingPushed {
+            CaseService.fetchCases { cases in
+                self.cases = cases
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.collectionView.refreshControl?.endRefreshing()
+            }
+        } else {
+            guard let uid = user?.uid else { return }
+            CaseService.fetchCases(forUser: uid) { cases in
+                self.cases = cases
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.collectionView.refreshControl?.endRefreshing()
+            }
         }
     }
     
@@ -108,19 +121,24 @@ class CasesViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .plain, target: self, action: #selector(didTapChat))
-        
-        navigationItem.rightBarButtonItem?.tintColor = .black
-        
-        userImageView.heightAnchor.constraint(equalToConstant: 35).isActive = true
-        userImageView.widthAnchor.constraint(equalToConstant: 35).isActive = true
-        userImageView.layer.cornerRadius = 35 / 2
-        let profileImageItem = UIBarButtonItem(customView: userImageView)
-        userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
-        navigationItem.leftBarButtonItem = profileImageItem
-        
-        navigationItem.titleView = searchBar
-        
+        if !controllerIsBeeingPushed {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .plain, target: self, action: #selector(didTapChat))
+            
+            navigationItem.rightBarButtonItem?.tintColor = .black
+            
+            userImageView.heightAnchor.constraint(equalToConstant: 35).isActive = true
+            userImageView.widthAnchor.constraint(equalToConstant: 35).isActive = true
+            userImageView.layer.cornerRadius = 35 / 2
+            let profileImageItem = UIBarButtonItem(customView: userImageView)
+            userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+            navigationItem.leftBarButtonItem = profileImageItem
+            
+            navigationItem.titleView = searchBar
+        } else {
+            navigationItem.titleView = searchBar
+            navigationItem.titleView?.isHidden = true
+            navigationItem.titleView?.isUserInteractionEnabled = false
+        }
     }
     
     private func configureUI() {
@@ -209,6 +227,23 @@ extension CasesViewController: UISearchBarDelegate {
 }
 
 extension CasesViewController: CaseCellDelegate {
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]

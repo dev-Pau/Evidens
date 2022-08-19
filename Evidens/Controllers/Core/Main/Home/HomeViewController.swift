@@ -22,6 +22,7 @@ class HomeViewController: UICollectionViewController {
     var user: User?
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
+    var controllerIsBeeingPushed: Bool = false
     
     private var zoomTransitioning = ZoomTransitioning()
         
@@ -49,7 +50,7 @@ class HomeViewController: UICollectionViewController {
         return searchBar
     }()
 
-    private var posts = [Post]() {
+    var posts = [Post]() {
         didSet { collectionView.reloadData() }
     }
     
@@ -108,16 +109,22 @@ class HomeViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane",
-                                                                           withConfiguration: UIImage.SymbolConfiguration(weight: .medium)),
-                                                            style: .plain,
-                                                            target: self,
-                                                            action: #selector(didTapChat))
-        navigationItem.rightBarButtonItem?.tintColor = .black
-        let profileImageItem = UIBarButtonItem(customView: profileImageView)
-        profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
-        navigationItem.leftBarButtonItem = profileImageItem
-        navigationItem.titleView = searchBar
+        if !controllerIsBeeingPushed {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane",
+                                                                               withConfiguration: UIImage.SymbolConfiguration(weight: .medium)),
+                                                                style: .plain,
+                                                                target: self,
+                                                                action: #selector(didTapChat))
+            navigationItem.rightBarButtonItem?.tintColor = .black
+            let profileImageItem = UIBarButtonItem(customView: profileImageView)
+            profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+            navigationItem.leftBarButtonItem = profileImageItem
+            navigationItem.titleView = searchBar
+        } else {
+            navigationItem.titleView = searchBar
+            navigationItem.titleView?.isHidden = true
+            navigationItem.titleView?.isUserInteractionEnabled = false
+        }
     }
     
     //MARK: - Actions
@@ -158,27 +165,39 @@ class HomeViewController: UICollectionViewController {
     
     //MARK: - API
     func fetchUser() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        UserService.fetchUser(withUid: uid) { user in
-            self.user = user
+        if !controllerIsBeeingPushed {
+            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            UserService.fetchUser(withUid: uid) { user in
+                self.user = user
+            }
         }
     }
     
     
     func fetchPosts() {
-        guard post == nil else {
-            //self.collectionView.refreshControl?.endRefreshing()
-            return
-        }
-        //PostService.fetchPosts { posts in
+        if !controllerIsBeeingPushed {
+            guard post == nil else {
+                //self.collectionView.refreshControl?.endRefreshing()
+                return
+            }
+            //PostService.fetchPosts { posts in
 
-        //
-        
-        PostService.fetchFeedPosts { posts in
-            self.posts = posts
-            self.checkIfUserLikedPosts()
-            self.checkIfUserBookmarkedPost()
-            self.collectionView.refreshControl?.endRefreshing()
+            //
+            
+            PostService.fetchFeedPosts { posts in
+                self.posts = posts
+                self.checkIfUserLikedPosts()
+                self.checkIfUserBookmarkedPost()
+                self.collectionView.refreshControl?.endRefreshing()
+            }
+        } else {
+            guard let uid = user?.uid else { return }
+            PostService.fetchPosts(forUser: uid) { posts in
+                self.posts = posts
+                self.checkIfUserLikedPosts()
+                self.checkIfUserBookmarkedPost()
+                self.collectionView.refreshControl?.endRefreshing()
+            }
         }
     }
     
@@ -388,7 +407,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
-    func cell(_ cell: UICollectionViewCell, wantstoSeePostsFor post: Post) {
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post) {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -403,7 +422,6 @@ extension HomeViewController: HomeCellDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
-        
     }
     
 
@@ -419,7 +437,6 @@ extension HomeViewController: HomeCellDelegate {
         backItem.tintColor = .clear
         navigationItem.backBarButtonItem = backItem
 
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     

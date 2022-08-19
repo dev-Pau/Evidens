@@ -47,8 +47,8 @@ class CaseTextCell: UICollectionViewCell {
     private var urlImages: [URL] = []
     
     private var userPostView = MEUserPostView()
-    private var titleCaseLabel = METitleCaseLabel()
-    private var descriptionCaseLabel = MEPostLabel()
+    var titleCaseLabel = METitleCaseLabel()
+    var descriptionCaseLabel = MEPostLabel()
     private var updateView = MECaseUpdateView()
     private var actionButtonsView = MEPostActionButtons()
     
@@ -86,6 +86,8 @@ class CaseTextCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
         backgroundColor = .white
         
@@ -212,6 +214,11 @@ class CaseTextCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func didTapClinicalCase() {
+        guard let viewModel = viewModel else { return }
+        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

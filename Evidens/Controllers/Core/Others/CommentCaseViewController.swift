@@ -189,6 +189,19 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentCaseViewController: CommentCellDelegate {
+    func didTapProfile(forUid uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            let controller = UserProfileViewController(user: user)
+            
+            let backButton = UIBarButtonItem()
+            backButton.title = ""
+            backButton.tintColor = .black
+            self.navigationItem.backBarButtonItem = backButton
+                    
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
         commentMenu.comment = comment
         commentMenu.showCommentsSettings(in: view)

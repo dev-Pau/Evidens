@@ -230,7 +230,6 @@ struct PostService {
             posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
             
             completion(posts)
-
         }
     }
     

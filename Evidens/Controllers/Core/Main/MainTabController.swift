@@ -107,8 +107,6 @@ class MainTabController: UITabBarController {
                 self.tabBar.backgroundColor = .white
                 self.tabBar.standardAppearance = appearance
                 
-                
-                
             }
         }
     }

@@ -10,6 +10,7 @@ import SDWebImage
 
 protocol CommentCellDelegate: AnyObject {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment)
+    func didTapProfile(forUid uid: String)
 }
 
 class CommentCell: UICollectionViewCell {
@@ -26,12 +27,14 @@ class CommentCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
     
-    private let profileImageView: UIImageView = {
+    private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightColor
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         return iv
     }()
     
@@ -195,6 +198,13 @@ class CommentCell: UICollectionViewCell {
     @objc func handleThreeDots() {
         guard let viewModel = viewModel else { return }
         delegate?.didTapComment(self, forComment: viewModel.comment)
+    }
+    
+    @objc func didTapProfile() {
+        guard let viewModel = viewModel else { return }
+        if viewModel.anonymousComment { return } else {
+            delegate?.didTapProfile(forUid: viewModel.commentOnwerUid)
+        }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

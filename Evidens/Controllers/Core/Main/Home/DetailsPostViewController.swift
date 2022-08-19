@@ -25,11 +25,24 @@ class DetailsPostViewController: UICollectionViewController {
     var selectedImage: UIImageView!
     
     private var post: Post
+
     private var comments: [Comment]? {
         didSet {
             collectionView.reloadData()
         }
     }
+    
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
+        searchBar.searchTextField.attributedPlaceholder = atrString
+        searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.searchTextField.tintColor = primaryColor
+        searchBar.isHidden = true
+        searchBar.isUserInteractionEnabled = false
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        return searchBar
+    }()
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,6 +66,7 @@ class DetailsPostViewController: UICollectionViewController {
     }
     
     func configureCollectionView() {
+        navigationItem.titleView = searchBar
         homeMenuLauncher.delegate = self
         collectionView.backgroundColor = .white
         collectionView.bounces = true
@@ -116,12 +130,14 @@ class DetailsPostViewController: UICollectionViewController {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
+                cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 return cell
                 
             } else if post.type.postType == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
+                cell.postTextLabel.numberOfLines = 0
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
                 return cell
@@ -130,11 +146,13 @@ class DetailsPostViewController: UICollectionViewController {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
+                cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 return cell
             } else if post.type.postType == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
+                cell.postTextLabel.numberOfLines = 0
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
                 return cell
@@ -407,7 +425,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantstoSeePostsFor post: Post) {
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post) {
         return
     }
 }
@@ -427,6 +445,20 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
  */
 
 extension DetailsPostViewController: CommentCellDelegate {
+    
+    func didTapProfile(forUid uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            let controller = UserProfileViewController(user: user)
+            
+            let backButton = UIBarButtonItem()
+            backButton.title = ""
+            backButton.tintColor = .black
+            self.navigationItem.backBarButtonItem = backButton
+                    
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
         commentMenu.comment = comment
         commentMenu.showCommentsSettings(in: view)

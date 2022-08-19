@@ -157,9 +157,23 @@ struct UserService {
                     
                     
                     COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).getDocuments { snapshot, _ in
-                        let cases = snapshot?.documents.count ?? 0
                         
-                        completion(UserStats(followers: followers, following: following, posts: posts, cases: cases))
+                        guard let documents = snapshot?.documents else {
+                            completion(UserStats(followers: followers, following: following, posts: posts, cases: 0))
+                            return
+                        }
+                    
+                        var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                        
+                        cases.enumerated().forEach { index, clinicalCase in
+                            if clinicalCase.privacyOptions == .nonVisible {
+                                cases.remove(at: index)
+                            }
+                        }
+                        
+                        let numOfCases = cases.count
+                        
+                        completion(UserStats(followers: followers, following: following, posts: posts, cases: numOfCases))
                         
                     }
                 }

@@ -23,7 +23,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     private var userPostView = MEUserPostView()
     
-    private var postTextLabel = MEPostLabel()
+    var postTextLabel = MEPostLabel()
     
     var actionButtonsView = MEPostActionButtons()
     
@@ -193,7 +193,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     @objc func didTapPost() {
         guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantstoSeePostsFor: viewModel.post)
+        delegate?.cell(self, wantsToSeePost: viewModel.post)
     }
     
     

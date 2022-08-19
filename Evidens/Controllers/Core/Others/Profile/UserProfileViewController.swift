@@ -989,6 +989,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 1 {
+            // About
             let controller = AboutSectionViewController(section: aboutText)
             controller.title = "About"
             
@@ -998,8 +999,82 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.section == 2 {
+            // Posts
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            
+            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], collectionViewLayout: layout)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.section == 3 {
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            
+            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], collectionViewFlowLayout: layout)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            navigationController?.pushViewController(controller, animated: true)
+            
+        } else if indexPath.section == 4 {
+            // Comments
+            
+            let comment = recentComments[indexPath.row]
+            let type = comment["type"] as? Int
+            if type == 0 {
+                // Post
+                if let postUid = comment["refUid"] as? String {
+                    PostService.fetchPost(withPostId: postUid) { post in
+                        
+                        let layout = UICollectionViewFlowLayout()
+                        layout.scrollDirection = .vertical
+                        layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+                        layout.minimumLineSpacing = 0
+                        layout.minimumInteritemSpacing = 0
+                        
+                        let controller = DetailsPostViewController(post: post, collectionViewLayout: layout)
+                        
+                        let backItem = UIBarButtonItem()
+                        backItem.title = ""
+                        self.navigationItem.backBarButtonItem = backItem
+                        
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    }
+                }
+            } else {
+                // Case
+                if let caseUid = comment["refUid"] as? String {
+                    PostService.fetchPost(withPostId: caseUid) { post in
+                        
+                        let layout = UICollectionViewFlowLayout()
+                        layout.scrollDirection = .vertical
+                        layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+                        layout.minimumLineSpacing = 0
+                        layout.minimumInteritemSpacing = 0
+                        
+                        let controller = DetailsPostViewController(post: post, collectionViewLayout: layout)
+                        
+                        let backItem = UIBarButtonItem()
+                        backItem.title = ""
+                        self.navigationItem.backBarButtonItem = backItem
+                        
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    }
+                }
+            }
         }
-        // Pending open cases, comments & posts
     }
 }
 
@@ -1157,23 +1232,46 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
     func didTapFooter(section: String) {
         switch section {
         case "Show posts":
-            print("Show all posts here")
-            //let layout = UICollectionViewFlowLayout()
-            //layout.scrollDirection = .vertical
-            //layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
-            
-            //let controller = HomeViewController(collectionViewLayout: layout)
-            //controller.user = user
-            //navigationController?.pushViewController(controller, animated: true)ç
-        
-        case "Show experiences":
-            let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
             navigationItem.backBarButtonItem = backItem
             
+            let controller = HomeViewController(collectionViewLayout: layout)
+            controller.controllerIsBeeingPushed = true
+            controller.user = user
+            //controller.user = user
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case "Show cases":
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            let controller = CasesViewController()
+            controller.controllerIsBeeingPushed = true
+            controller.user = user
+            navigationController?.pushViewController(controller, animated: true)
+        
+   
+    case "Show experiences":
+        let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        navigationItem.backBarButtonItem = backItem
+        
             navigationController?.pushViewController(controller, animated: true)
 
          

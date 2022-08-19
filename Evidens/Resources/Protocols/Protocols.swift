@@ -15,7 +15,7 @@ protocol HomeCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post)
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
     func cell(wantsToSeeLikesFor post: Post)
-    func cell(_ cell: UICollectionViewCell, wantstoSeePostsFor post: Post)
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post)
 }
 
 protocol CaseCellDelegate: AnyObject {
@@ -27,6 +27,7 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case)
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case)
 }
 
 protocol NotificationCellDelegate: AnyObject {

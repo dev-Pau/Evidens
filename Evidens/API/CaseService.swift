@@ -99,6 +99,28 @@ struct CaseService {
         }
     }
     
+    static func fetchCases(forUser uid: String, completion: @escaping([Case]) -> Void) {
+        //Fetch posts by filtering according to timestamp & user uid
+        let query =  COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid)
+        
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else { return }
+        
+            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            
+            cases.enumerated().forEach { index, clinicalCase in
+                if clinicalCase.privacyOptions == .nonVisible {
+                    cases.remove(at: index)
+                }
+            }
+            
+            //Order posts by timestamp
+            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            
+            completion(cases)
+        }
+    }
+    
     static func fetchTopCases(completion: @escaping([Case]) -> Void) {
         //Fetch posts by filtering according to timestamp
         let query = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 3)
