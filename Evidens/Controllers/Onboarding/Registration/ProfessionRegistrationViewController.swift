@@ -18,10 +18,10 @@ class ProfessionRegistrationViewController: UIViewController {
     
     private var dataSource: UICollectionViewDiffableDataSource<Section, Profession>!
     
-    private var professions: [Profession] = []
+    private var professions: [Profession] = Profession.getAllProfessions()
     private var filteredProfessions: [Profession] = []
     
-    private var selectedProfession: String = ""
+    private var selectedProfession: String = "Medicine"
     private var isSearching: Bool = false
     
     private let searchController = UISearchController()
@@ -46,7 +46,7 @@ class ProfessionRegistrationViewController: UIViewController {
         configureSearchBar()
         configureUI()
         configureCollectionView()
-        configureData()
+        //configureData()
         configureDataSource()
         updateData(on: professions)
     }
@@ -61,7 +61,12 @@ class ProfessionRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Add Profession"
+        if user.profession == "Professional" {
+            title = "Add Profession"
+        } else {
+            title = "Add field of study"
+        }
+
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
         navigationController?.navigationBar.tintColor = .black
@@ -75,12 +80,18 @@ class ProfessionRegistrationViewController: UIViewController {
         let searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        searchController.searchBar.placeholder = "Profession"
+        if user.profession == "Professional" {
+            searchController.searchBar.placeholder = "Profession"
+        } else {
+            searchController.searchBar.placeholder = "Field of study"
+        }
+
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
     }
     
+    /*
     private func configureData() {
         switch user.category {
         case .none:
@@ -90,12 +101,13 @@ class ProfessionRegistrationViewController: UIViewController {
         case .professor:
             professions = Profession.professorProfessions()
         case .student:
-            professions = Profession.studentProfessions()
+            professions = Profession.getAllProfessions()
             selectedProfession = "Medicine"
         case .researcher:
             professions = Profession.researcherProfessions()
         }
     }
+     */
     
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, Profession>(collectionView: collectionView, cellProvider: { collectionView, indexPath, profession in

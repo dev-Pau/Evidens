@@ -61,8 +61,6 @@ class CategoryRegistrationViewController: UIViewController {
     }()
     
     private let professionalCategory = MECategoryView(title: "Professional")
-    private let professorCategory = MECategoryView(title: "Professor")
-    private let investigatorCategory = MECategoryView(title: "Research scientist")
     private let studentCategory = MECategoryView(title: "Student")
     
     override func viewDidLoad() {
@@ -72,8 +70,6 @@ class CategoryRegistrationViewController: UIViewController {
         
         helperBottomRegistrationMenuLauncher.delegate = self
         professionalCategory.delegate = self
-        professorCategory.delegate = self
-        investigatorCategory.delegate = self
         studentCategory.delegate = self
     }
     
@@ -96,7 +92,7 @@ class CategoryRegistrationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(categoryLabel, professionalCategory, investigatorCategory, professorCategory, studentCategory, nextButton)
+        scrollView.addSubviews(categoryLabel, professionalCategory, studentCategory, nextButton)
         
         NSLayoutConstraint.activate([
             categoryLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -151,8 +147,6 @@ extension CategoryRegistrationViewController: UITextViewDelegate {
 extension CategoryRegistrationViewController: MECategoryViewDelegate {
     func didTapCategory(_ view: MECategoryView, completion: @escaping (Bool) -> Void) {
         professionalCategory.resetCategoryView()
-        professorCategory.resetCategoryView()
-        investigatorCategory.resetCategoryView()
         studentCategory.resetCategoryView()
         nextButton.isUserInteractionEnabled = true
         nextButton.configuration?.baseBackgroundColor = primaryColor
@@ -160,10 +154,6 @@ extension CategoryRegistrationViewController: MECategoryViewDelegate {
         switch view {
         case professionalCategory:
             user.category = .professional
-        case professorCategory:
-            user.category = .professor
-        case investigatorCategory:
-            user.category = .researcher
         case studentCategory:
             user.category = .student
         default:

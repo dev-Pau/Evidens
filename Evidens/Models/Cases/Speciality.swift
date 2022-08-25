@@ -123,6 +123,7 @@ extension Speciality {
         var specialities: [Speciality] = []
         
         let os1 = Speciality(name: "General Odontology")
+        let os12 = Speciality(name: "Academic Odontology")
         let os2 = Speciality(name: "Paediatric Odontology")
         let os3 = Speciality(name: "Endodontics")
         let os4 = Speciality(name: "Orthodontics")
@@ -130,11 +131,230 @@ extension Speciality {
         let os6 = Speciality(name: "Periodontics")
         let os7 = Speciality(name: "Maxillofacial and Oral Surgery")
         let os8 = Speciality(name: "Maxillofacial and Oral Radiology")
-        let os9 = Speciality(name: "Oral and Maxillofacial pathology")
+        let os9 = Speciality(name: "Oral and Maxillofacial Pathology")
         let os10 = Speciality(name: "Dental Prothesis")
         let os11 = Speciality(name: "Dental Aesthetics")
 
-        specialities.append(contentsOf: [os1, os2, os3, os4, os5, os6, os7, os8, os9, os10, os11])
+        specialities.append(contentsOf: [os1, os12, os2, os3, os4, os5, os6, os7, os8, os9, os10, os11])
+        
+        return specialities
+    }
+    
+    static func psychologySpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Psychology")
+        let os21 = Speciality(name: "Academic Psychology")
+        let os2 = Speciality(name: "Clinical Neuropsychology")
+        let os3 = Speciality(name: "Clinical Health Psychology")
+        let os4 = Speciality(name: "Psychoanalysis")
+        let os5 = Speciality(name: "School Psychology")
+        let os6 = Speciality(name: "Clinical Psychology")
+        let os7 = Speciality(name: "Clinical Child and Adolescent Psychology")
+        let os8 = Speciality(name: "Counseling Psychology")
+        let os9 = Speciality(name: "Industrial-Organizational Psychology")
+        let os10 = Speciality(name: "Behavioral and Cognitive Psychology")
+        let os11 = Speciality(name: "Forensic Psychology")
+        let os12 = Speciality(name: "Couple and Family Psychology")
+        let os13 = Speciality(name: "Geropsychology")
+        let os14 = Speciality(name: "Police and Public Safety Psychology")
+        let os15 = Speciality(name: "Sleep Psychology")
+        let os16 = Speciality(name: "Rehabilitation Psychology")
+        let os17 = Speciality(name: "Serious Mental Illness Psychology")
+        let os18 = Speciality(name: "Clinical Psychopharmacology")
+        let os19 = Speciality(name: "Addiction Psychology")
+        let os20 = Speciality(name: "Sport Psychology")
+
+        specialities.append(contentsOf: [os1, os21, os2, os3, os4, os5, os6, os7, os8, os9, os10, os11, os12, os13, os14, os15, os16, os17, os18, os19, os20])
+        
+        return specialities
+    }
+    
+
+    static func physiotherapySpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Physiotherapy")
+        let os11 = Speciality(name: "Academic Physiotherapy")
+        let os2 = Speciality(name: "Geriatric")
+        let os3 = Speciality(name: "Orthopaedic")
+        let os4 = Speciality(name: "Neurology")
+        let os5 = Speciality(name: "Pediatric")
+        let os6 = Speciality(name: "Oncology")
+        let os7 = Speciality(name: "Women’s Health")
+        let os8 = Speciality(name: "Electrophysiologic")
+        let os9 = Speciality(name: "Sports")
+        let os10 = Speciality(name: "Wound Management")
+    
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8, os9, os10])
+        
+        return specialities
+    }
+    
+    static func pharmacySpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Physiotherapy")
+        let os11 = Speciality(name: "Academic Pharmacy")
+        let os2 = Speciality(name: "Ambulatory Care Pharmacy")
+        let os3 = Speciality(name: "Cardiology Pharmacy")
+        let os4 = Speciality(name: "Compounded Sterile Preparations Pharmacy")
+        let os5 = Speciality(name: "Critical Care Pharmacy")
+        let os6 = Speciality(name: "Emergency Medicine Pharmacy")
+        let os7 = Speciality(name: "Geriatric Pharmacy")
+        let os8 = Speciality(name: "Infectious Diseases Pharmacy")
+        let os9 = Speciality(name: "Nuclear Pharmacy")
+        let os10 = Speciality(name: "Nutrition Support Pharmacy")
+
+        let os12 = Speciality(name: "Oncology Pharmacy")
+        let os13 = Speciality(name: "Pediatric Pharmacy")
+        let os14 = Speciality(name: "Pharmacotherapy")
+        let os15 = Speciality(name: "Psychiatric Pharmacy")
+        let os16 = Speciality(name: "Solid Organ Transplantation Pharmacy")
+    
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8, os9, os10, os12, os13, os14, os15, os16])
+        
+        return specialities
+    }
+    
+    static func nursingSpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Nurse")
+        let os11 = Speciality(name: "Registered Nurse")
+        let os2 = Speciality(name: "Cardiac Nurse")
+        let os3 = Speciality(name: "Certified Registered Nurse Anesthetist")
+        let os4 = Speciality(name: "Clinical Nurse Specialist")
+        let os5 = Speciality(name: "Critical Care Nurse")
+        let os6 = Speciality(name: "Family Nurse Practitioner")
+        let os7 = Speciality(name: "Geriatric Nursing")
+        let os8 = Speciality(name: "Perioperative Nurse")
+        let os9 = Speciality(name: "Mental Health Nurse")
+        let os10 = Speciality(name: "Nurse Educator")
+
+        let os12 = Speciality(name: "Nurse Midwife")
+        let os13 = Speciality(name: "Nurse Practitioner")
+        let os14 = Speciality(name: "Oncology Nurse")
+        let os15 = Speciality(name: "Pediatric Nurse")
+        let os16 = Speciality(name: "Public Health Nurse")
+    
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8, os9, os10, os12, os13, os14, os15, os16])
+        
+        return specialities
+    }
+    
+    static func veterinarySpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Veterinary")
+        let os11 = Speciality(name: "Academic Veterinary")
+        let os2 = Speciality(name: "Animal Welfare")
+        let os3 = Speciality(name: "Behavioral Medicine")
+        let os4 = Speciality(name: "Clinical Pharmacology")
+        let os5 = Speciality(name: "Dentistry")
+        let os6 = Speciality(name: "Dermatology")
+        let os7 = Speciality(name: "Emergency and Critical Care")
+        let os8 = Speciality(name: "Internal Medicine")
+        let os9 = Speciality(name: "Laboratory Animal Medicine")
+        let os10 = Speciality(name: "Microbiology")
+
+        let os12 = Speciality(name: "Nutrition")
+        let os13 = Speciality(name: "Ophthalmology")
+        let os14 = Speciality(name: "Pathology")
+        let os15 = Speciality(name: "Poultry Veterinary Medicine")
+        let os16 = Speciality(name: "Preventive Medicine")
+    
+        let os17 = Speciality(name: "Radiology")
+        let os18 = Speciality(name: "Species-specialized Veterinary Practice")
+        let os19 = Speciality(name: "Sports Medicine and Rehabilitation")
+        let os20 = Speciality(name: "Surgery")
+        let os21 = Speciality(name: "Toxicology")
+        let os22 = Speciality(name: "Zoological Medicine")
+
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8, os9, os10, os12, os13, os14, os15, os16, os17, os18, os19, os20, os21, os22])
+        
+        return specialities
+    }
+    
+    static func podiatrySpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Podiatry")
+        let os11 = Speciality(name: "Academic Podiatry")
+        let os2 = Speciality(name: "Reconstructive Surgery")
+        let os3 = Speciality(name: "Podiatric medicine")
+        let os4 = Speciality(name: "Podiatric orthopedics")
+        let os5 = Speciality(name: "Podiatric sports medicine")
+        let os6 = Speciality(name: "High-risk wound care")
+        let os7 = Speciality(name: "Podiatric rheumatology")
+        let os8 = Speciality(name: "Neuropodiatry")
+        let os9 = Speciality(name: "Oncopodiatry")
+        let os10 = Speciality(name: "Podiatric vascular medicine")
+
+        let os12 = Speciality(name: "Podiatric dermatology")
+        let os13 = Speciality(name: "Podoradiology")
+        let os14 = Speciality(name: "Podiatric gerontology")
+        let os15 = Speciality(name: "Podiatric diabetology")
+        let os16 = Speciality(name: "Podopediatrics")
+    
+        let os17 = Speciality(name: "Forensic podiatry")
+    
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8, os9, os10, os12, os13, os14, os15, os16, os17])
+        
+        return specialities
+    }
+    
+    static func nutritionSpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Nutrition & Dietetics")
+        let os11 = Speciality(name: "Academic Nutrition & Dietetics")
+        let os2 = Speciality(name: "Clinical Nutrition")
+        let os3 = Speciality(name: "Community Nutrition")
+        let os4 = Speciality(name: "Procedural Expertise")
+        let os5 = Speciality(name: "Sports Nutritionist")
+        let os6 = Speciality(name: "Pediatric Nutritionist")
+        let os7 = Speciality(name: "Gerontological Nutritionist")
+        let os8 = Speciality(name: "Renal or Nephrology Nutritionist")
+      
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8])
+        
+        return specialities
+    }
+    
+    static func opticsSpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Optics & Optometry")
+        let os11 = Speciality(name: "Academic Optics & Optometry")
+        let os2 = Speciality(name: "Cornea and Contact Lenses")
+        let os3 = Speciality(name: "Ocular Disease")
+        let os4 = Speciality(name: "Low Vision")
+        let os5 = Speciality(name: "Pediatrics")
+        let os6 = Speciality(name: "Geriatrics")
+        let os7 = Speciality(name: "Neuro-Optometry")
+        let os8 = Speciality(name: "Behavioral Optometry/Vision Therapy")
+      
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8])
+        
+        return specialities
+    }
+    
+    static func biomedicalSpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Biomedical Science")
+        let os11 = Speciality(name: "Academic Biomedical Science")
+        let os2 = Speciality(name: "Biomechanical Engineering")
+        let os3 = Speciality(name: "Biomedical Engineering")
+        let os4 = Speciality(name: "Clinical Biochemistry")
+        let os5 = Speciality(name: "Vascular Science")
+        let os6 = Speciality(name: "Clinical Engineering")
+        let os7 = Speciality(name: "Medical Electronics")
+        let os8 = Speciality(name: "Microbiology")
+
+    
+        specialities.append(contentsOf: [os1, os11, os2, os3, os4, os5, os6, os7, os8])
         
         return specialities
     }

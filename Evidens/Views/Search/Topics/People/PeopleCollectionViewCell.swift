@@ -29,20 +29,54 @@ class PeopleCollectionViewCell: UICollectionViewCell {
         return tableView
     }()
     
+    private lazy var noResultsImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.isHidden = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.image = UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        return iv
+    }()
+    
+    private lazy var noResultsLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isHidden = true
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = grayColor
+        return label
+    }()
+    
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = 74
         tableView.rowHeight = UITableView.automaticDimension
         tableView.backgroundColor = .white
         tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
         tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellReuseIdentifier)
-        addSubview(tableView)
-        tableView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
+        addSubviews(tableView, noResultsImageView, noResultsLabel)
+        tableView.frame = bounds
         
+        noResultsLabel.text = "No results found"
+        
+        NSLayoutConstraint.activate([
+            noResultsImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            noResultsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 60),
+            noResultsImageView.heightAnchor.constraint(equalToConstant: 65),
+            noResultsImageView.widthAnchor.constraint(equalToConstant: 65),
+            
+            noResultsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            noResultsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            noResultsLabel.topAnchor.constraint(equalTo: noResultsImageView.bottomAnchor, constant: 10)
+            
+        ])
     }
     
     required init?(coder: NSCoder) {
@@ -60,8 +94,19 @@ class PeopleCollectionViewCell: UICollectionViewCell {
     
     func fetchTopUsers(withText text: String) {
         AlgoliaService.fetchTopUsers(withText: text) { searchUsers in
+            if searchUsers.isEmpty {
+                DispatchQueue.main.async {
+                    self.tableView.isHidden = true
+                    self.noResultsImageView.isHidden = false
+                    self.noResultsLabel.isHidden = false
+                }
+                return
+            }
             self.usersFetched = searchUsers
             DispatchQueue.main.async {
+                self.tableView.isHidden = false
+                self.noResultsImageView.isHidden = true
+                self.noResultsLabel.isHidden = true
                 self.tableView.reloadData()
             }
         }

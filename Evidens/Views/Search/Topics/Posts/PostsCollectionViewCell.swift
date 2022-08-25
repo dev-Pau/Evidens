@@ -29,6 +29,26 @@ class PostsCollectionViewCell: UICollectionViewCell {
         return tableView
     }()
     
+    private lazy var noResultsImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.isHidden = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.image = UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        return iv
+    }()
+    
+    private lazy var noResultsLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isHidden = true
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = grayColor
+        return label
+    }()
+    
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
@@ -42,9 +62,22 @@ class PostsCollectionViewCell: UICollectionViewCell {
         tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
         tableView.register(TopPostTextCell.self, forCellReuseIdentifier: topPostTextCellReuseIdentifier)
         tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
-        addSubview(tableView)
-        tableView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
+        addSubviews(tableView, noResultsImageView, noResultsLabel)
+        tableView.frame = bounds
         
+        noResultsLabel.text = "No results found"
+        
+        NSLayoutConstraint.activate([
+            noResultsImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            noResultsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 60),
+            noResultsImageView.heightAnchor.constraint(equalToConstant: 65),
+            noResultsImageView.widthAnchor.constraint(equalToConstant: 65),
+            
+            noResultsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            noResultsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            noResultsLabel.topAnchor.constraint(equalTo: noResultsImageView.bottomAnchor, constant: 10)
+            
+        ])
     }
     
     required init?(coder: NSCoder) {
@@ -69,11 +102,24 @@ class PostsCollectionViewCell: UICollectionViewCell {
     
     func fetchTopPosts(withText text: String) {
         AlgoliaService.fetchPosts(withText: text) { postIDs in
+            
+            if postIDs.isEmpty {
+                DispatchQueue.main.async {
+                    self.tableView.isHidden = true
+                    self.noResultsImageView.isHidden = false
+                    self.noResultsLabel.isHidden = false
+                }
+                return
+            }
+            
             postIDs.forEach { id in
                 PostService.fetchPost(withPostId: id) { post in
                     self.postsFetched.append(post)
                     if postIDs.count == self.postsFetched.count {
                         DispatchQueue.main.async {
+                            self.tableView.isHidden = false
+                            self.noResultsImageView.isHidden = true
+                            self.noResultsLabel.isHidden = true
                             self.tableView.reloadData()
                         }
                     }

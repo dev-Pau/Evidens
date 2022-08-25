@@ -34,12 +34,15 @@ class TopCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    private var hasFetched: Bool = false
+    
     private var topUsersFetched = [SearchUser]()
     private var topPostsFetched = [Post]()
     private var topCasesFetched = [Case]()
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
+        tableView.allowsSelection = false
         return tableView
     }()
     
@@ -102,8 +105,6 @@ class TopCollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    
-    // Fetch top users based on current user search
     
     func fetchTopCases(withText text: String) {
         AlgoliaService.fetchTopCases(withText: text) { caseIDs in
@@ -171,8 +172,8 @@ extension TopCollectionViewCell: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellIdentifier, for: indexPath) as! TopPeopleCell
-            cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
             cell.selectionStyle = .none
+            cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
             return cell
             
         } else if indexPath.section == 1 {

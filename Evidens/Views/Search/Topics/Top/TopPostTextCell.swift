@@ -114,20 +114,5 @@ class TopPostTextCell: UITableViewCell {
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
     }
-    
-    func configureWithNoPost(withText text: String) {
-        contentView.addSubview(noResultsLabel)
-        userPostView.removeFromSuperview()
-        postTextLabel.removeFromSuperview()
-        likesCommentsLabel.removeFromSuperview()
-        likesButton.removeFromSuperview()
-        
-        NSLayoutConstraint.activate([
-            noResultsLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            noResultsLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
-        noResultsLabel.isHidden = false
-        noResultsLabel.text = "No results found for " + text
-    }
 }
 

@@ -18,7 +18,7 @@ extension Profession {
         return profession
     }
     
-    static func studentProfessions() -> [Profession] {
+    static func getAllProfessions() -> [Profession] {
         var profession: [Profession] = []
         let sp1 = Profession(profession: "Medicine")
         let sp2 = Profession(profession: "Odontology")

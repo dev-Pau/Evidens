@@ -85,20 +85,52 @@ class SpecialityRegistrationViewController: UIViewController {
             print("Pending to configure")
             break
         case .professional:
-            print("Pending to configure")
-            break
-        case .professor:
-            print("Pending to configure")
-            break
-        case .student:
-            
             switch user.profession {
             case "Odontology":
                 specialities = Speciality.odontologySpecialities()
                 selectedSpeciality = "General Odontology"
+            case "Psychology":
+                specialities = Speciality.psychologySpecialities()
+                selectedSpeciality = "General Psychology"
+                
+            case "Physiotherapy":
+                specialities = Speciality.physiotherapySpecialities()
+                selectedSpeciality = "General Physiotherapy"
+                
+            case "Pharmacy":
+                specialities = Speciality.pharmacySpecialities()
+                selectedSpeciality = "General Pharmacy"
+                
+            case "Nursing":
+                specialities = Speciality.nursingSpecialities()
+                selectedSpeciality = "General Nurse"
+                
+            case "Veterinary":
+                specialities = Speciality.veterinarySpecialities()
+                selectedSpeciality = "General Veterinary"
+                
+            case "Podiatry":
+                specialities = Speciality.podiatrySpecialities()
+                selectedSpeciality = "General Podiatry"
+                
+            case "Human Nutrition & Dietetics":
+                specialities = Speciality.nutritionSpecialities()
+                selectedSpeciality = "General Nutrition & Dietetics"
+                
+            case "Optics & Optometry":
+                specialities = Speciality.opticsSpecialities()
+                selectedSpeciality = "General Optics & Optometry"
+                
+                
             default:
                 print("Pending to configure")
             }
+        case .professor:
+            print("Pending to configure")
+            break
+        case .student:
+            print("Pending to configure")
+            
         case .researcher:
             print("Pending to configure")
             break
