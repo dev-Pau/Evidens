@@ -7,6 +7,8 @@
 
 import UIKit
 import SDWebImage
+import InstantSearch
+
 
 private let topPeopleCellIdentifier = "TopCellIdentifier"
 private let topPeopleHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
@@ -17,23 +19,24 @@ private let topPostTextCellReuseIdentifier = "TopPostTextCellReuseIdentifier"
 private let topCaseImageCellReuseIdentifier = "TopCaseImageCellReuseIdentifier"
 private let topCaseTextCellReuseIdentifier = "TopCaseTextCellReuseIdentifier"
 
+
+
 class TopCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Properties
     
-    private var topUsersFetched = [User]()
-    private var topPostsFetched = [Post]()
-    private var topCasesFetched = [Case]()
-    
-    /*
-    var viewModel: UserCellViewModel? {
+    var searchedText: String? {
         didSet {
-            configure()
+            guard let searchedText = searchedText else { return }
+            fetchTopUsers(withText: searchedText)
+            fetchTopPosts(withText: searchedText)
+            fetchTopCases(withText: searchedText)
         }
     }
-     */
     
-    // Top users fetched based on current user search
+    private var topUsersFetched = [SearchUser]()
+    private var topPostsFetched = [Post]()
+    private var topCasesFetched = [Case]()
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
@@ -44,22 +47,27 @@ class TopCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        fetchTopUsers()
-        fetchTopPosts()
-        fetchTopCases()
+        
         tableView.delegate = self
         tableView.dataSource = self
+        
+        tableView.backgroundColor = .white
+        
+        tableView.estimatedRowHeight = 74
+        tableView.rowHeight = UITableView.automaticDimension
+        
+        
         tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
         tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellIdentifier)
         tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
-        tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
         tableView.register(TopPostTextCell.self, forCellReuseIdentifier: topPostTextCellReuseIdentifier)
+        tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
         tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topCaseHeaderReuseIdentifier)
         tableView.register(TopCaseImageCell.self, forCellReuseIdentifier: topCaseImageCellReuseIdentifier)
         tableView.register(TopCaseTextCell.self, forCellReuseIdentifier: topCaseTextCellReuseIdentifier)
         addSubview(tableView)
         tableView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
-    
+        
     }
     
     required init?(coder: NSCoder) {
@@ -68,39 +76,47 @@ class TopCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Helpers
     
-    /*
-    func configure() {
-        guard let viewModel = viewModel else { return }
-        fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-    }
-     */
-    
     //MARK: - Actions
     
     //MARK: - API
+    func fetchTopUsers(withText text: String) {
+        AlgoliaService.fetchTopUsers(withText: text) { searchUsers in
+            self.topUsersFetched = searchUsers
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    func fetchTopPosts(withText text: String) {
+        AlgoliaService.fetchTopPosts(withText: text) { postIDs in
+            postIDs.forEach { id in
+                PostService.fetchPost(withPostId: id) { post in
+                    self.topPostsFetched.append(post)
+                    if postIDs.count == self.topPostsFetched.count {
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     // Fetch top users based on current user search
-    func fetchTopUsers() {
-        // Needs to create a new function to fetch with name
-        
-        UserService.fetchUsers { users in
-            self.topUsersFetched = users
-            self.tableView.reloadData()
-        }
-    }
     
-    func fetchTopPosts() {
-        PostService.fetchTopPosts { posts in
-            self.topPostsFetched = posts
-            self.tableView.reloadData()
-        }
-    }
-    
-    func fetchTopCases() {
-        CaseService.fetchCases { cases in
-            self.topCasesFetched = cases
-            self.tableView.reloadData()
+    func fetchTopCases(withText text: String) {
+        AlgoliaService.fetchTopCases(withText: text) { caseIDs in
+            caseIDs.forEach { id in
+                CaseService.fetchCase(withCaseId: id) { clinicalCase in
+                    self.topCasesFetched.append(clinicalCase)
+                    if caseIDs.count == self.topCasesFetched.count {
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -108,6 +124,20 @@ class TopCollectionViewCell: UICollectionViewCell {
 extension TopCollectionViewCell: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == 0 {
+            if topUsersFetched.count == 0 {
+                return 0
+            }
+        } else if section == 1 {
+            if topPostsFetched.count == 0 {
+                return 0
+            }
+        } else {
+            if topCasesFetched.count == 0 {
+                return 0
+            }
+        }
+        
         return 40.0
     }
     
@@ -144,6 +174,7 @@ extension TopCollectionViewCell: UITableViewDataSource {
             cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
             cell.selectionStyle = .none
             return cell
+            
         } else if indexPath.section == 1 {
             if topPostsFetched[indexPath.row].type == .plainText {
                 let cell = tableView.dequeueReusableCell(withIdentifier: topPostTextCellReuseIdentifier, for: indexPath) as! TopPostTextCell
@@ -156,7 +187,7 @@ extension TopCollectionViewCell: UITableViewDataSource {
                 cell.selectionStyle = .none
                 return cell
             }
-
+            
         } else {
             if topCasesFetched[indexPath.row].type == .text {
                 let cell = tableView.dequeueReusableCell(withIdentifier: topCaseTextCellReuseIdentifier, for: indexPath) as! TopCaseTextCell
@@ -172,17 +203,24 @@ extension TopCollectionViewCell: UITableViewDataSource {
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section == 0 {
-            return 65
-        } else if indexPath.section == 1 {
-            return 200
-        } else {
-            return 200
-        }
+    
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return nil
     }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
+    }
+    
 }
 
 extension TopCollectionViewCell: UITableViewDelegate {
     
+}
+
+extension TopCollectionViewCell: TopPeopleCellDelegate {
+    func didTapProfile(forUid uid: String) {
+        print("Did tap profile")
+    }
 }

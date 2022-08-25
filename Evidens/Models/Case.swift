@@ -10,6 +10,34 @@ import Firebase
 
 struct Case {
     
+    var caseTitle: String
+    var caseDescription: String
+    var caseSpecialities: [String]
+    var caseTypeDetails: [String]
+    var caseUpdates: [String]
+    var likes: Int
+    var numberOfComments: Int
+    var numberOfViews: Int
+    var numberOfBookmarks: Int
+    let ownerUid: String
+    let timestamp: Timestamp
+    let caseId: String
+    let type: CaseType
+    var stage: CaseStage
+    let privacyOptions: Privacy
+    let ownerProfession: String
+    let ownerCategory: User.UserCategory
+    var diagnosis: String
+    let ownerSpeciality: String
+    let ownerImageUrl: String
+    let ownerFirstName: String
+    let ownerLastName: String
+    
+    let caseImageUrl: [String]
+    
+    var didLike = false
+    var didBookmark = false
+    
     enum CaseStage: Int {
         case resolved
         case unresolved
@@ -61,33 +89,12 @@ struct Case {
         }
     }
     
-    var caseTitle: String
-    var caseDescription: String
-    var caseSpecialities: [String]
-    var caseTypeDetails: [String]
-    var caseUpdates: [String]
-    var likes: Int
-    var numberOfComments: Int
-    var numberOfViews: Int
-    var numberOfBookmarks: Int
-    let ownerUid: String
-    let timestamp: Timestamp
-    let caseId: String
-    let type: CaseType
-    var stage: CaseStage
-    let privacyOptions: Privacy
-    let ownerProfession: String
-    let ownerCategory: User.UserCategory
-    var diagnosis: String
-    let ownerSpeciality: String
-    let ownerImageUrl: String
-    let ownerFirstName: String
-    let ownerLastName: String
     
-    let caseImageUrl: [String]
     
-    var didLike = false
-    var didBookmark = false
+    
+    
+    
+    
     
     init(caseId: String, dictionary: [String: Any]) {
         self.caseId = caseId

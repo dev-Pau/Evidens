@@ -5,6 +5,11 @@ const cors = require('cors')({origin: true});
 var config = require('./config');
 admin.initializeApp();
 
+const algoliasearch = require('algoliasearch');
+const { object } = require('firebase-functions/v1/storage');
+const algolia = algoliasearch("1CZMK6HJ7G", "c8cf46cb26959992339983f875a4343e");
+
+
 const gmailEmail = config.user;
 const gmailPassword = config.pass;
 
@@ -42,3 +47,61 @@ async function sendWelcomeEmail(email, displayName) {
     functions.logger.log('New welcome email sent to:', email);
     return null;
   }
+
+
+  
+
+// Algoliasearch
+
+exports.postOnCreate = functions.firestore.document('posts/{uid}').onCreate((snap, context) => {
+  const postIndex = algolia.initIndex('posts_search');
+  const data = snap.data();
+  const objectID = snap.id;
+
+  let postData = {
+    'objectID': objectID,
+    'post': data.post
+  }
+
+  return postIndex.saveObject(postData)
+})
+
+exports.caseOnCreate = functions.firestore.document('cases/{uid}').onCreate((snap, context) => {
+  const caseIndex = algolia.initIndex('cases_search');
+  const data = snap.data();
+  const objectID = snap.id;
+
+  let caseData = {
+    'objectID': objectID,
+    'title': data.title,
+    'description': data.description
+  }
+
+  return caseIndex.saveObject(caseData)
+})
+
+exports.userOnUpdate = functions.firestore.document('users/{uid}').onUpdate((change, context) => {
+  const usersIndex = algolia.initIndex('users_search');
+  // If the user hasn't been deleted
+  if (change.after.exists) {
+    // Get the data updated for the user
+    newUserData = change.after.data();
+
+    // Check if the user is verified, otherwise don't upload to Algolia
+    if (newUserData.phase == 4) {
+      const objectID = change.after.id;
+      let userData = {
+        'objectID': objectID,
+        'firstName': newUserData.firstName,
+        'lastName': newUserData.lastName,
+        'category': newUserData.category,
+        'profession': newUserData.profession,
+        'speciality': newUserData.speciality,
+        'profileImageUrl': newUserData.profileImageUrl
+      }
+
+      return usersIndex.saveObject(userData)
+    }
+  }
+})
+

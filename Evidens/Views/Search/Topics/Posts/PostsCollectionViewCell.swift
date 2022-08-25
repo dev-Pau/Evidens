@@ -17,15 +17,12 @@ class PostsCollectionViewCell: UICollectionViewCell {
     
     private var postsFetched = [Post]()
     
-    /*
-     var viewModel: UserCellViewModel? {
-     didSet {
-     configure()
-     }
-     }
-     */
-    
-    // Top users fetched based on current user search
+    var searchedText: String? {
+        didSet {
+            guard let searchedText = searchedText else { return }
+            fetchTopPosts(withText: searchedText)
+        }
+    }
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
@@ -36,12 +33,15 @@ class PostsCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        fetchCases()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
-        tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
+        
+        tableView.estimatedRowHeight = 74
+        tableView.rowHeight = UITableView.automaticDimension
+        
+        tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
         tableView.register(TopPostTextCell.self, forCellReuseIdentifier: topPostTextCellReuseIdentifier)
+        tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
         addSubview(tableView)
         tableView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
         
@@ -67,10 +67,18 @@ class PostsCollectionViewCell: UICollectionViewCell {
     
     // Fetch top users based on current user search
     
-    func fetchCases() {
-        PostService.fetchPosts { posts in
-            self.postsFetched = posts
-            self.tableView.reloadData()
+    func fetchTopPosts(withText text: String) {
+        AlgoliaService.fetchPosts(withText: text) { postIDs in
+            postIDs.forEach { id in
+                PostService.fetchPost(withPostId: id) { post in
+                    self.postsFetched.append(post)
+                    if postIDs.count == self.postsFetched.count {
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -82,7 +90,7 @@ extension PostsCollectionViewCell: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let cell = tableView.dequeueReusableHeaderFooterView(withIdentifier: topPostHeaderReuseIdentifier) as! TopCaseHeader
+        let cell = tableView.dequeueReusableHeaderFooterView(withIdentifier: topPostHeaderReuseIdentifier) as! TopPostHeader
         return cell
         
     }
@@ -103,10 +111,6 @@ extension PostsCollectionViewCell: UITableViewDataSource {
             cell.selectionStyle = .none
             return cell
         }
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 200
     }
 }
 

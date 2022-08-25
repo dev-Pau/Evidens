@@ -17,12 +17,20 @@ class TopCaseTextCell: UITableViewCell {
         }
     }
     
+    private lazy var caseStateButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     private var userPostView = MEUserPostView()
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.numberOfLines = 1
         //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -32,7 +40,7 @@ class TopCaseTextCell: UITableViewCell {
     private let descriptionCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 3
         //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -58,25 +66,38 @@ class TopCaseTextCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let noResultsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.textColor = grayColor
+
+        return label
+    }()
     //MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubviews(userPostView, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel)
+        contentView.addSubviews(caseStateButton, userPostView, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel)
         
         NSLayoutConstraint.activate([
-            userPostView.topAnchor.constraint(equalTo: topAnchor),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            caseStateButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            caseStateButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            
+            userPostView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
             titleCaseLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            titleCaseLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            descriptionCaseLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
             likesButton.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 3),
@@ -86,7 +107,8 @@ class TopCaseTextCell: UITableViewCell {
             
             likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
             likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            likesCommentsLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
 
         ])
     }
@@ -113,6 +135,10 @@ class TopCaseTextCell: UITableViewCell {
         descriptionCaseLabel.text = viewModel.caseDescription
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
+        
+        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
+        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
+        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
     }
 }
 

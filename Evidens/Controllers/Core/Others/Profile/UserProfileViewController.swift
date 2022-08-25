@@ -686,7 +686,7 @@ class UserProfileViewController: UIViewController {
     
     //MARK: - Actions
     @objc func didTapSettings() {
-
+/*
         var posts = [Post]()
 
         //let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
@@ -711,6 +711,7 @@ class UserProfileViewController: UIViewController {
             //print(next)
         }
         
+        */
         
         
         
@@ -728,14 +729,13 @@ class UserProfileViewController: UIViewController {
         
         
         
-        /*
         AuthService.logout()
         AuthService.googleLogout()
         let controller = WelcomeViewController()
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
-         */
+    
     }
 }
 
@@ -1030,7 +1030,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 4 {
             // Comments
-            
             let comment = recentComments[indexPath.row]
             let type = comment["type"] as? Int
             if type == 0 {
@@ -1261,6 +1260,20 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             let controller = CasesViewController()
             controller.controllerIsBeeingPushed = true
             controller.user = user
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case "Show comments":
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            let controller = UserCommentsViewController(user: user, collectionViewFlowLayout: layout)
+       
             navigationController?.pushViewController(controller, animated: true)
         
    

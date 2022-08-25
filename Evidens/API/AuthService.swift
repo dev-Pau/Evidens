@@ -24,7 +24,7 @@ struct AuthCredentials {
 
 struct AuthService {
     
-    static func logUserIn(withEmail email: String, password: String, completion: AuthDataResultCallback?) {
+    static func logUserIn(withEmail email: String, password: String, completion: @escaping(AuthDataResult?, Error?) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password, completion: completion)
     }
     
@@ -108,8 +108,16 @@ struct AuthService {
     }
     
     
-    static func resetPassword(withEmail email: String, completion: SendPasswordResetCallback?) {
-        Auth.auth().sendPasswordReset(withEmail: email, completion: completion)
+    static func resetPassword(withEmail email: String, completion: @escaping(Error?) -> Void) {
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            if let error = error {
+                print("Error")
+                completion(error)
+                return
+            } else {
+                completion(nil)
+            }
+        }
     }
     
     static func logout() {

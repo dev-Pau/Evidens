@@ -15,18 +15,15 @@ class CasesCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Properties
     
+    var searchedText: String? {
+        didSet {
+            guard let searchedText = searchedText else { return }
+            fetchCases(withText: searchedText)
+        }
+    }
+    
     private var casesFetched = [Case]()
-    
-    /*
-     var viewModel: UserCellViewModel? {
-     didSet {
-     configure()
-     }
-     }
-     */
-    
-    // Top users fetched based on current user search
-    
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
         return tableView
@@ -36,9 +33,12 @@ class CasesCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        fetchCases()
         tableView.delegate = self
         tableView.dataSource = self
+        
+        tableView.estimatedRowHeight = 74
+        tableView.rowHeight = UITableView.automaticDimension
+        
         tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topCaseHeaderReuseIdentifier)
         tableView.register(TopCaseImageCell.self, forCellReuseIdentifier: topCaseImageCellReuseIdentifier)
         tableView.register(TopCaseTextCell.self, forCellReuseIdentifier: topCaseTextCellReuseIdentifier)
@@ -67,10 +67,18 @@ class CasesCollectionViewCell: UICollectionViewCell {
     
     // Fetch top users based on current user search
     
-    func fetchCases() {
-        CaseService.fetchCases { cases in
-            self.casesFetched = cases
-            self.tableView.reloadData()
+    func fetchCases(withText text: String) {
+        AlgoliaService.fetchCases(withText: text) { postIDs in
+            postIDs.forEach { id in
+                CaseService.fetchCase(withCaseId: id) { post in
+                    self.casesFetched.append(post)
+                    if postIDs.count == self.casesFetched.count {
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -103,10 +111,6 @@ extension CasesCollectionViewCell: UITableViewDataSource {
             cell.selectionStyle = .none
             return cell
         }
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 200
     }
 }
 

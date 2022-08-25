@@ -126,7 +126,7 @@ extension DatabaseManager {
                 return
             }
             
-            if let recentSearches = snapshot.value as? [String] {
+            if let recentSearches = snapshot?.value as? [String] {
                 completion(.success(recentSearches.reversed()))
             }
         }
@@ -184,7 +184,7 @@ extension DatabaseManager {
                 return
             }
             
-            if let recentSearches = snapshot.value as? [String] {
+            if let recentSearches = snapshot?.value as? [String] {
                 completion(.success(recentSearches.reversed()))
             }
         }
@@ -232,6 +232,19 @@ extension DatabaseManager {
     
     public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        var recentComments = [[String: Any]]()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                recentComments.append(value)
+            }
+            completion(.success(recentComments.reversed()))
+        }
+    }
+    
+    public func fetchProfileComments(for uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+        let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp")
         var recentComments = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -394,7 +407,7 @@ extension DatabaseManager {
         let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
         
         ref.getData { _, snapshot in
-            if let value = snapshot.value as? [String: Any] {
+            if let value = snapshot?.value as? [String: Any] {
                 guard let key = value.first?.key else { return }
                 
                 let newRef = self.database.child("users").child(uid).child("languages").child(key)
@@ -787,7 +800,7 @@ extension DatabaseManager {
                 return
             }
             
-            if let section = snapshot.value as? String {
+            if let section = snapshot?.value as? String {
                 completion(.success(section))
             }
         }

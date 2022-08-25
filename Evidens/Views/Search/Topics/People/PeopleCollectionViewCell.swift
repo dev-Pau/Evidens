@@ -14,7 +14,15 @@ class PeopleCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Properties
     
-    private var usersFetched = [User]()
+    var searchedText: String? {
+        didSet {
+            guard let searchedText = searchedText else { return }
+            fetchTopUsers(withText: searchedText)
+        }
+    }
+    
+    private var usersFetched = [SearchUser]()
+    
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
@@ -25,9 +33,11 @@ class PeopleCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        fetchUsers()
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.estimatedRowHeight = 74
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.backgroundColor = .white
         tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
         tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellReuseIdentifier)
         addSubview(tableView)
@@ -41,24 +51,19 @@ class PeopleCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Helpers
     
-    /*
-     func configure() {
-     guard let viewModel = viewModel else { return }
-     fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
-     profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-     }
-     */
-    
     //MARK: - Actions
     
     //MARK: - API
     
     // Fetch top users based on current user search
     
-    func fetchUsers() {
-        UserService.fetchUsers { users in
-            self.usersFetched = users
-            self.tableView.reloadData()
+    
+    func fetchTopUsers(withText text: String) {
+        AlgoliaService.fetchTopUsers(withText: text) { searchUsers in
+            self.usersFetched = searchUsers
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
         }
     }
 }
@@ -74,7 +79,7 @@ extension PeopleCollectionViewCell: UITableViewDataSource {
         return cell
         
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return usersFetched.count
     }
@@ -84,10 +89,6 @@ extension PeopleCollectionViewCell: UITableViewDataSource {
         cell.viewModel = TopPeopleCellViewModel(user: usersFetched[indexPath.row])
         cell.selectionStyle = .none
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 65
     }
 }
 

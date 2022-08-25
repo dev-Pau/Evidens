@@ -30,9 +30,8 @@ class TopCaseImageCell: UITableViewCell {
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.numberOfLines = 1
-        //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -40,9 +39,8 @@ class TopCaseImageCell: UITableViewCell {
     private let descriptionCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 3
-        //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -62,14 +60,12 @@ class TopCaseImageCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
-        //button.configuration?.baseForegroundColor = pinkColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        //label.text = "24 · 36 comments"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
@@ -82,28 +78,28 @@ class TopCaseImageCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubviews(caseStateButton, userPostView, titleCaseLabel, caseImageView, descriptionCaseLabel, likesButton, likesCommentsLabel)
+        contentView.addSubviews(caseStateButton, userPostView, titleCaseLabel, caseImageView, descriptionCaseLabel, likesButton, likesCommentsLabel)
         
         NSLayoutConstraint.activate([
-            caseStateButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            caseStateButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseStateButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            caseStateButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             
-            userPostView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 1),
-            userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            userPostView.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor),
+            userPostView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            userPostView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
             caseImageView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
-            caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            caseImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             caseImageView.heightAnchor.constraint(equalToConstant: 75),
             caseImageView.widthAnchor.constraint(equalToConstant: 75),
             
             titleCaseLabel.topAnchor.constraint(equalTo: caseImageView.topAnchor),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             titleCaseLabel.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
             
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor),
-            descriptionCaseLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            descriptionCaseLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
             
             likesButton.topAnchor.constraint(equalTo: caseImageView.bottomAnchor, constant: 3),
@@ -113,7 +109,8 @@ class TopCaseImageCell: UITableViewCell {
             
             likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
             likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            likesCommentsLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
 
         ])
     }

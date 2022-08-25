@@ -6,15 +6,19 @@
 //
 
 import UIKit
+import InstantSearch
 
 private let topCellIdentifier = "TopCellReuseIdentifier"
 private let casesCellIdentifier = "CasesCellReuseIdentifier"
 private let postsCellIdentifier = "PostsCellReuseIdentifier"
 private let peopleCellIdentifier = "PeopleCellIdentifier"
 
+
+
 class SearchResultsViewController: UIViewController {
    
     //MARK: - Properties
+    
     public var searchedText = ""
     
     private let searchTopics = ["Top", "People", "Posts", "Cases"]
@@ -45,7 +49,7 @@ class SearchResultsViewController: UIViewController {
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
         collectionView.isPagingEnabled = true
-        collectionView.indicatorStyle = .white
+        collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
     
@@ -124,18 +128,22 @@ extension SearchResultsViewController: UICollectionViewDataSource {
         if indexPath.row == 0 {
             // Top results
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: topCellIdentifier, for: indexPath) as! TopCollectionViewCell
+            cell.searchedText = searchedText
             return cell
         } else if indexPath.row == 1 {
             // People
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: peopleCellIdentifier, for: indexPath) as! PeopleCollectionViewCell
+            cell.searchedText = searchedText
             return cell
         } else if indexPath.row == 2 {
             // Post results
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postsCellIdentifier, for: indexPath) as! PostsCollectionViewCell
+            cell.searchedText = searchedText
             return cell
         } else {
             // Case results
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: casesCellIdentifier, for: indexPath) as! CasesCollectionViewCell
+            cell.searchedText = searchedText
             return cell
         }
     }

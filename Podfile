@@ -22,6 +22,8 @@ target 'Evidens' do
 	#Google 
 	pod 'GoogleSignIn'
 
+	pod 'InstantSearch', '~> 7'
+
 
 	#SDWebImage
 	pod 'SDWebImage', '~> 5.0'

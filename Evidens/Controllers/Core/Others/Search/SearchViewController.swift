@@ -23,8 +23,9 @@ class SearchViewController: UIViewController {
     
     private var users = [User]()
     private var filteredUsers = [User]()
-    private let searchController = UISearchController(searchResultsController: nil)
     
+    lazy var searchController = UISearchController(searchResultsController: nil)
+
     private var inSearchMode: Bool {
         return searchController.isActive && !searchController.searchBar.text!.isEmpty
     }
@@ -35,6 +36,9 @@ class SearchViewController: UIViewController {
         return tableView
     }()
     
+    
+    
+    
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
@@ -43,19 +47,27 @@ class SearchViewController: UIViewController {
         searchBar.searchTextField.tintColor = primaryColor
         return searchBar
     }()
+     
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchRecents()
-        view.addSubview(UIView())
+        //view.addSubview(UIView())
         navigationItem.titleView = searchBar
         searchBar.becomeFirstResponder()
         searchBar.delegate = self
         configureTableView()
         configureUI()
         //fetchUsers()
+
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        searchController.isActive = true
+        searchController.searchBar.searchTextField.becomeFirstResponder()
     }
     /*
     //MARK: - API
@@ -83,6 +95,7 @@ class SearchViewController: UIViewController {
     
     func configureUI() {
         let refresher = UIRefreshControl()
+        
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refresher
         view.addSubview(tableView)

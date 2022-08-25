@@ -10,10 +10,24 @@ import Firebase
 
 struct Notification {
     
+    let uid: String
+    var postText: String?
+    var postId: String?
+    var caseText: String?
+    var caseId: String?
+    let timestamp: Timestamp
+    let type: NotificationType
+    let id: String
+    let userProfileImageUrl: String
+    let firstName: String
+    let lastName: String
+    let comment: String
+    var userIsFollowed = false
+    
     enum NotificationType: Int {
-        case likePost // done
-        case likeCase // done
-        case follow //done
+        case likePost
+        case likeCase
+        case follow
         case commentPost
         case commentCase
         
@@ -43,19 +57,7 @@ struct Notification {
         }
     }
     
-    let uid: String
-    var postText: String?
-    var postId: String?
-    var caseText: String?
-    var caseId: String?
-    let timestamp: Timestamp
-    let type: NotificationType
-    let id: String
-    let userProfileImageUrl: String
-    let firstName: String
-    let lastName: String
-    let comment: String
-    var userIsFollowed = false
+
     
     init(dictionary: [String: Any]) {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())

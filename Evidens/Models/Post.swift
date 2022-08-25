@@ -10,6 +10,33 @@ import Firebase
 
 struct Post {
     
+    var postText: String
+    var likes: Int
+    var numberOfComments: Int
+    var numberOfShares: Int
+    var numberOfBookmarks: Int
+    let ownerUid: String
+    let timestamp: Timestamp
+    let postId: String
+    let type: PostType
+    let ownerCategory: String
+    let edited: Bool
+    let ownerProfession: String
+    let ownerSpeciality: String
+    
+    let ownerImageUrl: String
+    let ownerFirstName: String
+    let ownerLastName: String
+    
+    let privacyOptions: PrivacyOptions
+    let imageHeight: CGFloat
+    let postImageUrl: [String]
+    
+    var didLike = false
+    var didBookmark = false
+    
+    
+    
     enum PrivacyOptions: Int {
         case all
         case connections
@@ -59,34 +86,13 @@ struct Post {
         }
     }
     
-    var postText: String
-    var likes: Int
-    var numberOfComments: Int
-    var numberOfShares: Int
-    var numberOfBookmarks: Int
-    let ownerUid: String
-    let timestamp: Timestamp
-    let postId: String
-    let type: PostType
-    let ownerCategory: String
-    let edited: Bool
-    let ownerProfession: String
-    let ownerSpeciality: String
     
-    let ownerImageUrl: String
-    let ownerFirstName: String
-    let ownerLastName: String
     
-    let privacyOptions: PrivacyOptions
-    let imageHeight: CGFloat
-    let postImageUrl: [String]
+    
     
     let postDocumentUrl: String
     let documentPages: Int
     let documentTitle: String
-    
-    var didLike = false
-    var didBookmark = false
     
     init(postId: String, dictionary: [String: Any]) {
         self.postId = postId

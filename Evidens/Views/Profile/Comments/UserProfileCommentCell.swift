@@ -9,7 +9,7 @@ import UIKit
 
 class UserProfileCommentCell: UICollectionViewCell {
     
-    private var caseTitleLabel: UILabel = {
+    var caseTitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
         label.font = .systemFont(ofSize: 14, weight: .medium)
@@ -27,7 +27,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return label
     }()
     
-    private var commentUserLabel: UILabel = {
+    var commentUserLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
         label.font = .systemFont(ofSize: 14, weight: .regular)
@@ -93,6 +93,17 @@ class UserProfileCommentCell: UICollectionViewCell {
             commentHeightView.bottomAnchor.constraint(equalTo: commentUserLabel.bottomAnchor),
         ])
         
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
     
     func configure(commentInfo: [String: Any], user: User) {

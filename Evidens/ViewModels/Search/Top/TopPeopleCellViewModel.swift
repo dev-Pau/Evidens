@@ -9,26 +9,26 @@ import UIKit
 
 struct TopPeopleCellViewModel {
     
-    var user: User
+    var user: SearchUser
     
-    init(user: User) {
+    init(user: SearchUser) {
         self.user = user
     }
     
     var uid: String {
-        return user.uid!
+        return user.objectID
     }
     
     var firstName: String {
-        return user.firstName!
+        return user.firstName
     }
     
     var lastName: String {
-        return user.lastName!
+        return user.lastName
     }
     
     var fullName: String {
-        return user.firstName! + " " + user.lastName!
+        return user.firstName + " " + user.lastName
     }
         
     var userProfileImageUrl: URL? {
@@ -36,10 +36,11 @@ struct TopPeopleCellViewModel {
     }
     
     var profession: String {
-        if user.category == .student {
-            return user.profession! + ", " + user.speciality! + " · " + user.category.userCategoryString
+        if user.category == 3 {
+            return user.profession + ", " + user.speciality + " · Student"
         } else {
-            return user.profession! + ", " + user.speciality!
+            return user.profession + ", " + user.speciality
         }
     }
+     
 }
