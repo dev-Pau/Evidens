@@ -84,7 +84,7 @@ class SpecialityRegistrationViewController: UIViewController {
         case .none:
             print("Pending to configure")
             break
-        case .professional:
+        case .professional, .student:
             switch user.profession {
             case "Odontology":
                 specialities = Speciality.odontologySpecialities()
@@ -105,7 +105,7 @@ class SpecialityRegistrationViewController: UIViewController {
                 specialities = Speciality.nursingSpecialities()
                 selectedSpeciality = "General Nurse"
                 
-            case "Veterinary":
+            case "Veterinary Medicine":
                 specialities = Speciality.veterinarySpecialities()
                 selectedSpeciality = "General Veterinary"
                 
@@ -121,6 +121,13 @@ class SpecialityRegistrationViewController: UIViewController {
                 specialities = Speciality.opticsSpecialities()
                 selectedSpeciality = "General Optics & Optometry"
                 
+            case "Biomedical Science":
+                specialities = Speciality.biomedicalSpecialities()
+                selectedSpeciality = "General Biomedical Science"
+                
+            case "Medicine":
+                specialities = Speciality.medicineSpecialities()
+                selectedSpeciality = "General Medicine"
                 
             default:
                 print("Pending to configure")
@@ -128,9 +135,6 @@ class SpecialityRegistrationViewController: UIViewController {
         case .professor:
             print("Pending to configure")
             break
-        case .student:
-            print("Pending to configure")
-            
         case .researcher:
             print("Pending to configure")
             break

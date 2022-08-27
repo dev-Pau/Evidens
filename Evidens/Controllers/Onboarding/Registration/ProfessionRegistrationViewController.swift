@@ -61,7 +61,7 @@ class ProfessionRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        if user.profession == "Professional" {
+        if user.category == .professional {
             title = "Add Profession"
         } else {
             title = "Add field of study"
@@ -80,7 +80,7 @@ class ProfessionRegistrationViewController: UIViewController {
         let searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        if user.profession == "Professional" {
+        if user.category == .professional {
             searchController.searchBar.placeholder = "Profession"
         } else {
             searchController.searchBar.placeholder = "Field of study"

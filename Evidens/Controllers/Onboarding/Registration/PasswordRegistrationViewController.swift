@@ -35,6 +35,7 @@ class PasswordRegistrationViewController: UIViewController {
     private let passwordTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Password")
         tf.tintColor = primaryColor
+        tf.keyboardType = .default
         tf.isSecureTextEntry = true
         return tf
     }()

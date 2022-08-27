@@ -152,7 +152,7 @@ extension ProfileViewController {
     //Select profile post
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = HomeViewController(collectionViewLayout: UICollectionViewFlowLayout())
-        controller.post = posts[indexPath.row]
+        //controller.post = posts[indexPath.row]
         navigationController?.pushViewController(controller, animated: true)
     }
 }

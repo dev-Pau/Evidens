@@ -192,6 +192,38 @@ struct PostService {
         }
     }
     
+    static func fetchHomeDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 5)
+            firstGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 1)
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
+        var posts = [Post]()
+        
+        snapshot.documents.forEach({ document in
+            fetchPost(withPostId: document.documentID) { post in
+                posts.append(post)
+                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                completion(posts)
+            }
+        })
+    }
+    
     static func fetchRecentPosts(withPostId postId: [String], completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
         
@@ -337,10 +369,10 @@ struct PostService {
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, _ in
             guard let documents = snapshot?.documents else { return }
             documents.forEach { document in
-                COLLECTION_USERS.document(document.documentID).collection("user-home-feed").document(postId).setData([:])
+                COLLECTION_USERS.document(document.documentID).collection("user-home-feed").document(postId).setData(["timestamp": Timestamp(date: Date())])
             }
             
-            COLLECTION_USERS.document(uid).collection("user-home-feed").document(postId).setData([:])
+            COLLECTION_USERS.document(uid).collection("user-home-feed").document(postId).setData(["timestamp": Timestamp(date: Date())])
         }
     }
     

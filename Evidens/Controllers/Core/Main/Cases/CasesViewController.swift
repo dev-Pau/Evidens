@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
@@ -15,6 +16,8 @@ class CasesViewController: UIViewController {
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
     var user: User?
+    
+    var casesLastSnapshot: QueryDocumentSnapshot?
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
@@ -61,7 +64,7 @@ class CasesViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchCases()
+        fetchFirstGroupOfCases()
         configureNavigationBar()
         configureCollectionView()
         configureUI()
@@ -78,14 +81,23 @@ class CasesViewController: UIViewController {
         
     }
     
-    private func fetchCases() {
+    private func fetchFirstGroupOfCases() {
         if !controllerIsBeeingPushed {
+            CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.collectionView.refreshControl?.endRefreshing()
+            }
+            /*
             CaseService.fetchCases { cases in
                 self.cases = cases
                 self.checkIfUserLikedCase()
                 self.checkIfUserBookmarkedCase()
                 self.collectionView.refreshControl?.endRefreshing()
             }
+             */
         } else {
             guard let uid = user?.uid else { return }
             CaseService.fetchCases(forUser: uid) { cases in
@@ -184,7 +196,8 @@ class CasesViewController: UIViewController {
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
         cases.removeAll()
-        fetchCases()
+        casesLastSnapshot = nil
+        fetchFirstGroupOfCases()
     }
 }
 
@@ -205,6 +218,17 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             cell.delegate = self
             return cell
+        }
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            print("Get more cases")
+            getMoreCases()
         }
     }
 }
@@ -478,3 +502,17 @@ extension CasesViewController: HomeImageViewControllerDelegate {
         selectedImage = image
     }
 }
+
+extension CasesViewController {
+    func getMoreCases() {
+        CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
+            self.casesLastSnapshot = snapshot.documents.last
+            let documents = snapshot.documents
+            let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            self.cases.append(contentsOf: newCases)
+            self.checkIfUserLikedCase()
+            self.checkIfUserBookmarkedCase()
+        }
+    }
+}
+

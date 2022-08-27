@@ -686,7 +686,7 @@ class UserProfileViewController: UIViewController {
     
     //MARK: - Actions
     @objc func didTapSettings() {
-/*
+
         var posts = [Post]()
 
         //let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
@@ -705,13 +705,12 @@ class UserProfileViewController: UIViewController {
             // Construct a new query starting after this document,
                 // retrieving the next 25 cities.
             //completion(posts)
-            self.first = COLLECTION_POSTS.order(by: "timestamp").start(afterDocument: lastSnapshot).limit(to: 5)
+            self.first = COLLECTION_POSTS.order(by: "timestamp").start(afterDocument: lastSnapshot).limit(to: 1)
             
           
             //print(next)
         }
         
-        */
         
         
         
@@ -729,12 +728,14 @@ class UserProfileViewController: UIViewController {
         
         
         
+        /*
         AuthService.logout()
         AuthService.googleLogout()
         let controller = WelcomeViewController()
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
+         */
     
     }
 }

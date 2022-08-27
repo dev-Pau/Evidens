@@ -143,7 +143,7 @@ extension TableViewNotificationsViewController {
             guard let postId = postId else { return }
             PostService.fetchPost(withPostId: postId) { post in
                 let controller = HomeViewController(collectionViewLayout: UICollectionViewFlowLayout())
-                controller.post = post
+                //controller.post = post
                 self.navigationController?.pushViewController(controller, animated: true)
             }
         }

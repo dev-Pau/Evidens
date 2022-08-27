@@ -7,8 +7,11 @@
 
 import UIKit
 import Firebase
+import AlgoliaSearchClient
 
 struct CaseService {
+    
+    var first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
     
     static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, completion: @escaping(Error?) -> Void) {
         
@@ -46,10 +49,31 @@ struct CaseService {
     }
     
     static func fetchCases(completion: @escaping([Case]) -> Void) {
-        COLLECTION_CASES.order(by: "timestamp", descending: true).getDocuments { snapshot, error in
+        COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10).getDocuments { snapshot, error in
             guard let documents = snapshot?.documents else { return }
             let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             completion(cases)
+        }
+    }
+    
+    
+    
+    static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 5)
+            firstGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 1)
+            nextGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
         }
     }
     

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 private let reuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
@@ -23,6 +24,8 @@ class HomeViewController: UICollectionViewController {
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
     var controllerIsBeeingPushed: Bool = false
+    
+    private var postsLastSnapshot: QueryDocumentSnapshot?
     
     private var zoomTransitioning = ZoomTransitioning()
         
@@ -54,10 +57,6 @@ class HomeViewController: UICollectionViewController {
         didSet { collectionView.reloadData() }
     }
     
-    var post: Post? {
-        didSet { collectionView.reloadData() }
-    }
-
     //MARK: - Lifecycle
     
     
@@ -66,15 +65,10 @@ class HomeViewController: UICollectionViewController {
         super.viewDidLoad()
         self.navigationController?.delegate = zoomTransitioning
         fetchUser()
-        fetchPosts()
+        fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
         searchBar.delegate = self
-
-        if post != nil {
-            checkIfUserLikedPosts()
-            checkIfUserBookmarkedPost()
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -132,7 +126,7 @@ class HomeViewController: UICollectionViewController {
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
         posts.removeAll()
-        fetchPosts()
+        fetchFirstPostsGroup()
     }
     
     @objc func didTapProfile() {
@@ -174,22 +168,18 @@ class HomeViewController: UICollectionViewController {
     }
     
     
-    func fetchPosts() {
+    func fetchFirstPostsGroup() {
         if !controllerIsBeeingPushed {
-            guard post == nil else {
-                //self.collectionView.refreshControl?.endRefreshing()
-                return
+            PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
+                PostService.fetchHomePosts(snapshot: snapshot) { posts in
+                    self.postsLastSnapshot = snapshot.documents.last
+                    self.posts = posts
+                    self.checkIfUserLikedPosts()
+                    self.checkIfUserBookmarkedPost()
+                    self.collectionView.refreshControl?.endRefreshing()
+                }
             }
-            //PostService.fetchPosts { posts in
 
-            //
-            
-            PostService.fetchFeedPosts { posts in
-                self.posts = posts
-                self.checkIfUserLikedPosts()
-                self.checkIfUserBookmarkedPost()
-                self.collectionView.refreshControl?.endRefreshing()
-            }
         } else {
             guard let uid = user?.uid else { return }
             PostService.fetchPosts(forUser: uid) { posts in
@@ -202,11 +192,7 @@ class HomeViewController: UICollectionViewController {
     }
     
     func checkIfUserLikedPosts() {
-        if let post = post {
-            PostService.checkIfUserLikedPost(post: post) { didLike in
-                self.post?.didLike = didLike
-            }
-        } else {
+      
             //For every post in array fetched
             self.posts.forEach { post in
                 //Check if user did like
@@ -216,17 +202,13 @@ class HomeViewController: UICollectionViewController {
                         //Change the didLike according if user did like post
                         self.posts[index].didLike = didLike
                     }
-                }
+                
             }
         }
     }
     
     func checkIfUserBookmarkedPost() {
-        if let post = post {
-            PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
-                self.post?.didBookmark = didBookmark
-            }
-        } else {
+
             //For every post in array fetched
             self.posts.forEach { post in
                 PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
@@ -234,7 +216,7 @@ class HomeViewController: UICollectionViewController {
                         self.posts[index].didBookmark = didBookmark
                     }
                 }
-            }
+            
         }
     }
 }
@@ -243,7 +225,7 @@ class HomeViewController: UICollectionViewController {
 
 extension HomeViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return post == nil ? posts.count : 1
+        return posts.count
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -256,11 +238,9 @@ extension HomeViewController {
                 
                 cell.layer.borderWidth = 0
                 
-                if let post = post {
-                    cell.viewModel = PostViewModel(post: post)
-                } else {
+                
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                }
+                
                 return cell
                 
             } else if posts[indexPath.row].type.postType == 1 {
@@ -268,12 +248,10 @@ extension HomeViewController {
                 cell.delegate = self
                 cell.layer.borderWidth = 0
                 
-                if let post = post {
-                    cell.viewModel = PostViewModel(post: post)
-                } else {
+                
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     
-                }
+                
                 return cell
                 
             } else if posts[indexPath.row].type.postType == 2 {
@@ -281,12 +259,10 @@ extension HomeViewController {
                 cell.delegate = self
                 cell.layer.borderWidth = 0
                 
-                if let post = post {
-                    cell.viewModel = PostViewModel(post: post)
-                } else {
+                
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     
-                }
+                
                 return cell
                 
             } else if posts[indexPath.row].type.postType == 3 {
@@ -295,12 +271,10 @@ extension HomeViewController {
                 cell.delegate = self
                 cell.layer.borderWidth = 0
                 
-                if let post = post {
-                    cell.viewModel = PostViewModel(post: post)
-                } else {
+    
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     
-                }
+                
                 return cell
                 
             } else if posts[indexPath.row].type.postType == 4 {
@@ -309,12 +283,10 @@ extension HomeViewController {
                 cell.delegate = self
                 cell.layer.borderWidth = 0
                 
-                if let post = post {
-                    cell.viewModel = PostViewModel(post: post)
-                } else {
+                
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     
-                }
+                
                 return cell
                 
             }
@@ -322,11 +294,9 @@ extension HomeViewController {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
-                if let post = post {
-                    cell.viewModel = PostViewModel(post: post)
-                } else {
+               
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                }
+                
                 return cell
             }
         

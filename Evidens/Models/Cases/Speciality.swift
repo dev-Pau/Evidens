@@ -358,4 +358,63 @@ extension Speciality {
         
         return specialities
     }
+    
+    static func medicineSpecialities() -> [Speciality] {
+        var specialities: [Speciality] = []
+        
+        let os1 = Speciality(name: "General Medicine")
+        let os21 = Speciality(name: "Academic Medicine")
+        
+        let os2 = Speciality(name: "Allergology")
+        let os3 = Speciality(name: "Clinical Analyses")
+        let os4 = Speciality(name: "Pathological Anatomy")
+        let os5 = Speciality(name: "Anaesthesiology and Resuscitation")
+        let os6 = Speciality(name: "Angiology and Vascular Surgery")
+        let os7 = Speciality(name: "Digestive System")
+        let os8 = Speciality(name: "Clinical Biochemistry")
+        let os9 = Speciality(name: "Cardiology")
+        let os10 = Speciality(name: "Cardiovascular Surgery")
+        let os11 = Speciality(name: "General and Digestive System Surgery")
+        let os12 = Speciality(name: "Oral and Maxillofacial Surgery")
+        let os13 = Speciality(name: "Orthopaedic Surgery and Traumatology")
+        let os14 = Speciality(name: "Paediatric Surgery")
+        let os15 = Speciality(name: "Plastic, Aesthetic and Reconstructive Surgery")
+        let os16 = Speciality(name: "Thoracic Surgery")
+        let os17 = Speciality(name: "Medical and Surgical Dermatology")
+        let os18 = Speciality(name: "Endocrinology and Nutrition")
+        let os19 = Speciality(name: "Clinical Pharmacology")
+        let os20 = Speciality(name: "Geriatrics")
+        
+        let os22 = Speciality(name: "Haematology and Haemotherapy")
+        let os23 = Speciality(name: "Immunology")
+        let os24 = Speciality(name: "Legal and Forensic Medicine")
+        let os25 = Speciality(name: "Occupational Medicine")
+        let os26 = Speciality(name: "Family and Community Medicine")
+        let os27 = Speciality(name: "Physical Medicine and Rehabilitation")
+        let os28 = Speciality(name: "Intensive Care Medicine")
+        let os29 = Speciality(name: "Internal Medicine")
+        let os30 = Speciality(name: "Nuclear Medicine")
+        let os31 = Speciality(name: "Preventive Medicine and Public Health")
+        let os32 = Speciality(name: "Microbiology and Parasitology")
+        let os33 = Speciality(name: "Nephrology")
+        let os34 = Speciality(name: "Pneumology")
+        let os35 = Speciality(name: "Neurosurgery")
+        let os36 = Speciality(name: "Clinical Neurophysiology")
+        let os37 = Speciality(name: "Neurology")
+        let os38 = Speciality(name: "Obstetrics and Gynaecology")
+        let os39 = Speciality(name: "Ophthalmology")
+        let os40 = Speciality(name: "Medical Oncology")
+        
+        let os41 = Speciality(name: "Radiation Oncology")
+        let os42 = Speciality(name: "Otorhinolaryngology")
+        let os43 = Speciality(name: "Paediatrics and Specific Areas")
+        let os44 = Speciality(name: "Psychiatry")
+        let os45 = Speciality(name: "Radiodiagnostics")
+        let os46 = Speciality(name: "Rheumatology")
+        let os47 = Speciality(name: "Urology")
+     
+        specialities.append(contentsOf: [os1, os21, os2, os3, os4, os5, os6, os7, os8, os9, os10, os11, os12, os13, os14, os15, os16, os17, os18, os19, os20, os22, os23, os24, os25, os26, os27, os28, os29, os30, os31, os32, os33, os34, os35, os36, os37, os38, os39, os40, os41, os42, os43, os44, os45, os46, os47])
+        
+        return specialities
+    }
 }
