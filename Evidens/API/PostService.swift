@@ -355,7 +355,7 @@ struct PostService {
             //Use docIDs to update user feed structure
             docIDs.forEach { id in
                 if didFollow {
-                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).setData([:])
+                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).setData(["timestamp": Timestamp(date: Date())])
                 } else {
                     COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
                 }

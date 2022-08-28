@@ -151,7 +151,7 @@ class ConversationViewController: UIViewController {
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
                 
             case .failure(_):
-                //There's no conversation that exists, create new conversation with id
+                //There's no conversation that exists, Hi new conversation with id
                 let controller = ChatViewController(with: uid, id: nil)
                 controller.isNewConversation = true
                 controller.title = name
