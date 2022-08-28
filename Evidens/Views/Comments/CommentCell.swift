@@ -38,7 +38,7 @@ class CommentCell: UICollectionViewCell {
         return iv
     }()
     
-    private lazy var dotsImageButton: UIButton = {
+    lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
@@ -50,7 +50,7 @@ class CommentCell: UICollectionViewCell {
         return button
     }()
     
-    private let timeStampLabel: UILabel = {
+    var timeStampLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 12, weight: .regular)

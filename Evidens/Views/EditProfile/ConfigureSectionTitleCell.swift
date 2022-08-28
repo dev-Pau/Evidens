@@ -13,7 +13,7 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
     
     private let titleSectionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         return label
@@ -24,7 +24,7 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(lightGrayColor)
+        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         return iv
     }()
     

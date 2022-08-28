@@ -9,7 +9,7 @@ import UIKit
 
 class UserCollectionViewCell: UICollectionViewCell {
 
-    var viewModel: UserCellViewModel? {
+    var viewModel: UserRecentCellViewModel? {
         didSet {
             configure()
         }

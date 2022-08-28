@@ -1,14 +1,12 @@
 //
-//  UserCellViewModel.swift
+//  UserRecentCellViewModel.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 31/10/21.
+//  Created by Pau Fernández Solà on 27/8/22.
 //
+import UIKit
 
-import Foundation
-
-//   UPDATE SI IT HAS CIRCULAR IMAGE VIEW AS FIRST ROW OF SEARCH LINKEDIN
-struct UserCellViewModel {
+struct UserRecentCellViewModel {
     
     private let user: User
     

@@ -35,7 +35,6 @@ class HomeViewController: UICollectionViewController {
         iv.setDimensions(height: 35, width: 35)
         iv.layer.cornerRadius = 35/2
         iv.contentMode = .scaleAspectFill
-        
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
         iv.addGestureRecognizer(tap)
         iv.isUserInteractionEnabled = true
@@ -111,7 +110,7 @@ class HomeViewController: UICollectionViewController {
                                                                 action: #selector(didTapChat))
             navigationItem.rightBarButtonItem?.tintColor = .black
             let profileImageItem = UIBarButtonItem(customView: profileImageView)
-            profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+            profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
             navigationItem.leftBarButtonItem = profileImageItem
             navigationItem.titleView = searchBar
         } else {
@@ -300,6 +299,17 @@ extension HomeViewController {
                 return cell
             }
         
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            print("Get more Posts")
+            getMorePosts()
+        }
     }
 }
 
@@ -710,3 +720,15 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
     
 }
 
+extension HomeViewController {
+    func getMorePosts() {
+        PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
+            PostService.fetchHomePosts(snapshot: snapshot) { posts in
+                self.postsLastSnapshot = snapshot.documents.last
+                self.posts.append(contentsOf: posts)
+                self.checkIfUserLikedPosts()
+                self.checkIfUserBookmarkedPost()
+            }
+        }
+    }
+}

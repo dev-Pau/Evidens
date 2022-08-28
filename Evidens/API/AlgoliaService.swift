@@ -45,9 +45,9 @@ struct AlgoliaService {
                 
             case .success(let response):
                 do {
-                    print(response)
+
                     let hits: [SearchUser] = try response.extractHits()
-                    print(hits)
+                   
                     /*
                     hits.forEach { user in
                         print(user.firstName)
@@ -138,7 +138,7 @@ struct AlgoliaService {
                 do {
                     print(response)
                     let hits: [SearchUser] = try response.extractHits()
-                    print(hits)
+                  
                     /*
                     hits.forEach { user in
                         print(user.firstName)

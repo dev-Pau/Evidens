@@ -128,6 +128,7 @@ extension SearchResultsViewController: UICollectionViewDataSource {
         if indexPath.row == 0 {
             // Top results
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: topCellIdentifier, for: indexPath) as! TopCollectionViewCell
+            cell.delegate = self
             cell.searchedText = searchedText
             return cell
         } else if indexPath.row == 1 {
@@ -232,5 +233,23 @@ extension SearchResultsViewController: SegmentedControlDelegate {
             self.collectionView.scrollRectToVisible(frame, animated: true)
         }
         
+    }
+}
+
+
+extension SearchResultsViewController: TopCollectionViewCellDelegate {
+    func handleProfileTap(uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            let controller = UserProfileViewController(user: user)
+            
+            let backButton = UIBarButtonItem()
+            backButton.title = ""
+            backButton.tintColor = .black
+            self.navigationItem.backBarButtonItem = backButton
+                    
+            self.navigationController?.pushViewController(controller, animated: true)
+            
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        }
     }
 }

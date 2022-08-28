@@ -42,7 +42,7 @@ class FullNameRegistrationViewController: UIViewController {
     private let firstNameTextField: UITextField = {
         let tf = CustomTextField(placeholder: "First name")
         tf.tintColor = primaryColor
-        tf.keyboardType = .emailAddress
+        tf.keyboardType = .default
         tf.clearButtonMode = .whileEditing
         return tf
     }()
@@ -50,7 +50,7 @@ class FullNameRegistrationViewController: UIViewController {
     private let lastNameTextField: UITextField = {
         let tf = CustomTextField(placeholder: "Last name")
         tf.tintColor = primaryColor
-        tf.keyboardType = .emailAddress
+        tf.keyboardType = .default
         tf.clearButtonMode = .whileEditing
         return tf
     }()

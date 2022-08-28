@@ -19,11 +19,15 @@ private let topPostTextCellReuseIdentifier = "TopPostTextCellReuseIdentifier"
 private let topCaseImageCellReuseIdentifier = "TopCaseImageCellReuseIdentifier"
 private let topCaseTextCellReuseIdentifier = "TopCaseTextCellReuseIdentifier"
 
-
+protocol TopCollectionViewCellDelegate: AnyObject {
+    func handleProfileTap(uid: String)
+}
 
 class TopCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Properties
+    
+    weak var delegate: TopCollectionViewCellDelegate?
     
     var searchedText: String? {
         didSet {
@@ -173,7 +177,8 @@ extension TopCollectionViewCell: UITableViewDataSource {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellIdentifier, for: indexPath) as! TopPeopleCell
             cell.selectionStyle = .none
-            cell.viewModel = TopPeopleCellViewModel(user: topUsersFetched[indexPath.row])
+            cell.delegate = self
+            cell.viewModel = UserCellViewModel(user: topUsersFetched[indexPath.row])
             return cell
             
         } else if indexPath.section == 1 {
@@ -222,6 +227,6 @@ extension TopCollectionViewCell: UITableViewDelegate {
 
 extension TopCollectionViewCell: TopPeopleCellDelegate {
     func didTapProfile(forUid uid: String) {
-        print("Did tap profile")
+        delegate?.handleProfileTap(uid: uid)
     }
 }

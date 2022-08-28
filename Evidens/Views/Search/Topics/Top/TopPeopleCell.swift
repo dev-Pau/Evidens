@@ -15,7 +15,7 @@ class TopPeopleCell: UITableViewCell {
     
     //MARK: - Properties
     
-    var viewModel: TopPeopleCellViewModel? {
+    var viewModel: UserCellViewModel? {
         didSet {
             configure()
         }

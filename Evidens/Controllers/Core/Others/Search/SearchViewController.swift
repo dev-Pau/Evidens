@@ -84,8 +84,9 @@ class SearchViewController: UIViewController {
     func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.backgroundColor = lightColor
+        tableView.backgroundColor = .white
         tableView.sectionHeaderTopPadding = 0
+        
         tableView.register(RecentUserCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.register(RecentHeader.self, forHeaderFooterViewReuseIdentifier: recentHeaderReuseIdentifier)
         tableView.register(RecentTextCell.self, forCellReuseIdentifier: recentTextReuseIdentifier)
@@ -113,6 +114,7 @@ class SearchViewController: UIViewController {
             }
         }
         tableView.refreshControl?.endRefreshing()
+        tableView.reloadData()
     }
     
     //MARK: - Actions
@@ -129,27 +131,31 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        //let headerView = UIView()
-        let headerCell = tableView.dequeueReusableHeaderFooterView(withIdentifier: recentHeaderReuseIdentifier) as! RecentHeader
-        headerCell.delegate = self
-        //headerView.addSubview(headerCell)
-        return headerCell
+        if section == 0 {
+            let headerCell = tableView.dequeueReusableHeaderFooterView(withIdentifier: recentHeaderReuseIdentifier) as! RecentHeader
+            headerCell.delegate = self
+            return headerCell
+        } else {
+            return nil
+        }
+        
     }
     
     // Returns the number of sections
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return recentSearchedText.count > 0 ? recentSearchedText.count + 1 : 1
-            }
-        return 5
+            return 1
+        } else {
+            return recentSearchedText.count
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 20
+        return section == 0 ? 20 : 0
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -159,14 +165,14 @@ extension SearchViewController: UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row == 0 {
+        if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RecentUserCell
             cell.delegate = self
             //cell.recentUsers = users[indexPath.row]
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: recentTextReuseIdentifier, for: indexPath) as! RecentTextCell
-            cell.viewModel = RecentTextCellViewModel(recentText: recentSearchedText[indexPath.row - 1])
+            cell.viewModel = RecentTextCellViewModel(recentText: recentSearchedText[indexPath.row])
             cell.selectionStyle = .none
             return cell
         }  
@@ -178,15 +184,13 @@ extension SearchViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
-            if indexPath.row == 0 {
-                return 110
-            } else {
-                return 50
-            }
+            return 90
+        } else {
+            return 50
+            
         }
-        return 130
     }
-    
+     
     
 }
 
@@ -194,18 +198,18 @@ extension SearchViewController: UITableViewDataSource {
 
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
-            if indexPath.row > 0 {
+        if indexPath.section == 1 {
+            
                 // Press on recent text cell
                 let controller = SearchResultsViewController()
-                controller.searchedText = recentSearchedText[indexPath.row - 1]
+                controller.searchedText = recentSearchedText[indexPath.row]
                 
                 let backItem = UIBarButtonItem()
                 backItem.title = ""
                 navigationItem.backBarButtonItem = backItem
 
                 navigationController?.pushViewController(controller, animated: true)
-            }
+            
         }
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
@@ -215,13 +219,16 @@ extension SearchViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            recentSearchedText.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            tableView.performBatchUpdates {
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                recentSearchedText.remove(at: indexPath.row)
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        indexPath.row == 0 ? false : true
+        indexPath.section == 0 ? false : true
     }
 }
 
@@ -279,7 +286,15 @@ extension SearchViewController: RecentHeaderDelegate {
 
     func didTapClearButton() {
         deleteRecentSearchesAlert {
-            print("Delete all here")
+            DatabaseManager.shared.deleteRecentSearches { result in
+                switch result {
+                case .success(_):
+                    self.recentSearchedText.removeAll()
+                    self.tableView.reloadData()
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
         }
     }
 }

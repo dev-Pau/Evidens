@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 private let reuseIdentifier = "cell"
 
@@ -14,8 +13,6 @@ private let reuseIdentifier = "cell"
 class ConversationViewController: UIViewController {
     
     //MARK: - Properties
-    
-    private let spinner = JGProgressHUD(style: .dark)
     
     private var conversations = [Conversation]()
     
@@ -25,6 +22,16 @@ class ConversationViewController: UIViewController {
         table.register(ChatCell.self,
                        forCellReuseIdentifier: reuseIdentifier)
         return table
+    }()
+    
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        let atrString = NSAttributedString(string: "Search messages", attributes: [.font : UIFont.systemFont(ofSize: 15)])
+        searchBar.searchTextField.attributedPlaceholder = atrString
+        searchBar.searchTextField.tintColor = primaryColor
+        searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        return searchBar
     }()
     
     private let emptyConversationsLabel: UILabel = {
@@ -59,8 +66,8 @@ class ConversationViewController: UIViewController {
     //MARK: - Helpers
     
     func configureUI() {
+        navigationItem.titleView = searchBar
         view.backgroundColor = .white
-        navigationItem.title = "Conversations"
         view.addSubview(tableView)
         view.addSubview(emptyConversationsLabel)
     }
@@ -102,14 +109,14 @@ class ConversationViewController: UIViewController {
     //Creates a new conversation
     @objc private func didTapComposeButton() {
         let vc = NewConversationViewController()
-        vc.completion = { [weak self] result in
+        vc.completion = { [weak self] user in
             //Check if user conversation already exists
             guard let strongSelf = self else { return }
             
             let currentConversation = strongSelf.conversations
             //Search if target conversation already exists in current conversations
             if let targetConversations = currentConversation.first(where: {
-                $0.otherUserUid == result.uid
+                $0.otherUserUid == user.objectID
             }) {
                 //Present the existing conversation with targetID already created in database
                 let controller = ChatViewController(with: targetConversations.otherUserUid, id: targetConversations.id)
@@ -119,7 +126,7 @@ class ConversationViewController: UIViewController {
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
             } else {
                 //Create and present a new conversation
-                strongSelf.createNewConversation(result: result)
+                strongSelf.createNewConversation(result: user)
             }
         }
         
@@ -127,9 +134,9 @@ class ConversationViewController: UIViewController {
         present(navVC, animated: true)
     }
     
-    private func createNewConversation(result: SearchResult) {
-        let name = result.name
-        let uid = result.uid
+    private func createNewConversation(result: SearchUser) {
+        let name = result.firstName
+        let uid = result.objectID
         //Check in database if conversation with this users exists
         //If it does, reuse conversationID
         DatabaseManager.shared.conversationExists(with: uid) { [weak self] result in

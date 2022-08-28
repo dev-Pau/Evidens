@@ -90,14 +90,6 @@ class CasesViewController: UIViewController {
                 self.checkIfUserBookmarkedCase()
                 self.collectionView.refreshControl?.endRefreshing()
             }
-            /*
-            CaseService.fetchCases { cases in
-                self.cases = cases
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                self.collectionView.refreshControl?.endRefreshing()
-            }
-             */
         } else {
             guard let uid = user?.uid else { return }
             CaseService.fetchCases(forUser: uid) { cases in

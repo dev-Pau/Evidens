@@ -33,13 +33,37 @@ class RecentUserCell: UITableViewCell {
         return collectionView
     }()
     
+    lazy var noRecentUsersLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your recent user searches will appear here"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = grayColor
+        //label.isHidden = true
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        return label
+    }()
+    
     //MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         fetchUsers()
-        contentView.addSubview(collectionView)
-        collectionView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor)
+        contentView.addSubviews(collectionView, noRecentUsersLabel)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            noRecentUsersLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
+            noRecentUsersLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            noRecentUsersLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            noRecentUsersLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+        ])
+        
+        collectionView.anchor(top: contentView.topAnchor, left: contentView.leftAnchor, bottom: contentView.bottomAnchor, right: contentView.rightAnchor)
     }
     
     required init?(coder: NSCoder) {
@@ -51,6 +75,9 @@ class RecentUserCell: UITableViewCell {
         DatabaseManager.shared.fetchRecentUserSearches { result in
             switch result {
             case .success(let uids):
+                self.collectionView.isHidden = uids.isEmpty ? true : false
+                self.noRecentUsersLabel.isHidden = uids.isEmpty ? false : true
+                
                 UserService.fetchUsers(withUids: uids) { users in
                     self.users = users
                     self.collectionView.reloadData()
@@ -73,7 +100,7 @@ extension RecentUserCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! UserCollectionViewCell
         //cell.delegate = self
-        cell.viewModel = UserCellViewModel(user: users[indexPath.row])
+        cell.viewModel = UserRecentCellViewModel(user: users[indexPath.row])
         return cell
     }
     

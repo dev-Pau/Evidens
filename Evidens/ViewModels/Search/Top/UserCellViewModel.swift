@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct TopPeopleCellViewModel {
+struct UserCellViewModel {
     
     var user: SearchUser
     

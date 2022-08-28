@@ -44,9 +44,6 @@ class MainTabController: UITabBarController {
         }
          
 
-        //GIDSignIn.sharedInstance.signOut()
-        //AuthService.logout()
-
         view.backgroundColor = .white
         self.tabBar.isHidden = true
         
@@ -106,7 +103,6 @@ class MainTabController: UITabBarController {
                 self.tabBar.isTranslucent = true
                 self.tabBar.backgroundColor = .white
                 self.tabBar.standardAppearance = appearance
-                
             }
         }
     }

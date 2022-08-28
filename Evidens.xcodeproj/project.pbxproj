@@ -79,7 +79,7 @@
 		5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */; };
 		5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BF62835002400189722 /* TopPeopleHeader.swift */; };
 		5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598BFD28362E9200189722 /* TopPeopleCell.swift */; };
-		5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C022836347D00189722 /* TopPeopleCellViewModel.swift */; };
+		5F598C032836347D00189722 /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C022836347D00189722 /* UserCellViewModel.swift */; };
 		5F598C052836569400189722 /* TopPostHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C042836569400189722 /* TopPostHeader.swift */; };
 		5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C0628368E3B00189722 /* TopCaseHeader.swift */; };
 		5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F598C092836912400189722 /* UserProfileViewController.swift */; };
@@ -197,6 +197,7 @@
 		5F9F373A28AE4836002C59E4 /* CommentsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */; };
 		5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874328B7422A00D44829 /* AlgoliaService.swift */; };
 		5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874728B7627500D44829 /* TopPostImageCell.swift */; };
+		5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */; };
 		5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
 		5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29015288688D3002FBAE1 /* CaseService.swift */; };
@@ -219,7 +220,6 @@
 		5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2904128910008002FBAE1 /* EditProfileViewController.swift */; };
 		5FB2904528910DF5002FBAE1 /* EditNameCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB2904428910DF4002FBAE1 /* EditNameCell.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
-		5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */; };
 		5FBC2DF12732883A004F92CE /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF02732883A004F92CE /* Notification.swift */; };
 		5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF227329316004F92CE /* NotificationService.swift */; };
@@ -334,7 +334,7 @@
 		5F5889272718677A005E5B4F /* AuthenticationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViewModel.swift; sourceTree = "<group>"; };
 		5F598BF62835002400189722 /* TopPeopleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPeopleHeader.swift; sourceTree = "<group>"; };
 		5F598BFD28362E9200189722 /* TopPeopleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPeopleCell.swift; sourceTree = "<group>"; };
-		5F598C022836347D00189722 /* TopPeopleCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPeopleCellViewModel.swift; sourceTree = "<group>"; };
+		5F598C022836347D00189722 /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5F598C042836569400189722 /* TopPostHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostHeader.swift; sourceTree = "<group>"; };
 		5F598C0628368E3B00189722 /* TopCaseHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCaseHeader.swift; sourceTree = "<group>"; };
 		5F598C092836912400189722 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
@@ -452,6 +452,7 @@
 		5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSectionHeader.swift; sourceTree = "<group>"; };
 		5FA0874328B7422A00D44829 /* AlgoliaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaService.swift; sourceTree = "<group>"; };
 		5FA0874728B7627500D44829 /* TopPostImageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopPostImageCell.swift; sourceTree = "<group>"; };
+		5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRecentCellViewModel.swift; sourceTree = "<group>"; };
 		5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCaseViewController.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		5FB29015288688D3002FBAE1 /* CaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseService.swift; sourceTree = "<group>"; };
@@ -474,7 +475,6 @@
 		5FB2904128910008002FBAE1 /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		5FB2904428910DF4002FBAE1 /* EditNameCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNameCell.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
-		5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCellViewModel.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFollowCell.swift; sourceTree = "<group>"; };
 		5FBC2DF02732883A004F92CE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		5FBC2DF227329316004F92CE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -742,7 +742,6 @@
 		5F598C002836346500189722 /* Recents */ = {
 			isa = PBXGroup;
 			children = (
-				5FBC2DA3272EAA8A004F92CE /* UserCellViewModel.swift */,
 				5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */,
 			);
 			path = Recents;
@@ -751,7 +750,8 @@
 		5F598C012836346E00189722 /* Top */ = {
 			isa = PBXGroup;
 			children = (
-				5F598C022836347D00189722 /* TopPeopleCellViewModel.swift */,
+				5F598C022836347D00189722 /* UserCellViewModel.swift */,
+				5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */,
 			);
 			path = Top;
 			sourceTree = "<group>";
@@ -1691,7 +1691,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F598C032836347D00189722 /* TopPeopleCellViewModel.swift in Sources */,
+				5F598C032836347D00189722 /* UserCellViewModel.swift in Sources */,
 				5F77BF7528587ED400F31A75 /* MEProfileImageView.swift in Sources */,
 				5FBCB9FC28A80A3D007EF79D /* CaseUpdatesViewController.swift in Sources */,
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
@@ -1748,6 +1748,7 @@
 				5FB290222886D04D002FBAE1 /* MECaseInfoView.swift in Sources */,
 				5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
+				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */,
 				5F78D30128913F1900FE0C99 /* EditAboutCell.swift in Sources */,
@@ -1902,7 +1903,6 @@
 				5F9E429328802FBD00C2153B /* SpecialityRegistrationViewController.swift in Sources */,
 				5F77BF6D2857564400F31A75 /* MECategoryPostButton.swift in Sources */,
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
-				5FBC2DA4272EAA8A004F92CE /* UserCellViewModel.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,

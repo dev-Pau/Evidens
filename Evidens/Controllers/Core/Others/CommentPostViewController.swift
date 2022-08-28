@@ -173,6 +173,13 @@ extension CommentPostViewController {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         cell.ownerUid = post.ownerUid
+        
+        if indexPath.row == 0 {
+            cell.dotsImageButton.isHidden = true
+            cell.dotsImageButton.isUserInteractionEnabled = false
+            cell.timeStampLabel.isHidden = true
+        }
+        
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         cell.delegate = self
         return cell

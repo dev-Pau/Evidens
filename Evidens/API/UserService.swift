@@ -47,7 +47,7 @@ struct UserService {
     }
     
     static func updateUserLastName(lastName: String, completion: @escaping(Error?) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["lastName": lastName], merge: true) { err in
             if let err = err {
                 print("Error writing document: \(err)")
@@ -118,6 +118,7 @@ struct UserService {
             completion(users)
         }
     }
+    
     
     static func follow(uid: String, completion: @escaping(FirestoreCompletion)) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }

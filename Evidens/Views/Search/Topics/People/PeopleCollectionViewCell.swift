@@ -131,7 +131,7 @@ extension PeopleCollectionViewCell: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellReuseIdentifier, for: indexPath) as! TopPeopleCell
-        cell.viewModel = TopPeopleCellViewModel(user: usersFetched[indexPath.row])
+        cell.viewModel = UserCellViewModel(user: usersFetched[indexPath.row])
         cell.selectionStyle = .none
         return cell
     }

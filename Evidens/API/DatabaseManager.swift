@@ -189,6 +189,18 @@ extension DatabaseManager {
             }
         }
     }
+    
+    public func deleteRecentSearches(completion: @escaping(Result<Bool, Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child("\(uid)/recents")
+        ref.removeValue { error, _ in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            completion(.success(true))
+        }
+    }
 }
 
 //MARK: - User Recent Comments

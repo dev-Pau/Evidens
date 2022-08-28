@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import GoogleSignIn
 
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
@@ -684,61 +685,22 @@ class UserProfileViewController: UIViewController {
     
     var first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
     
+    
     //MARK: - Actions
     @objc func didTapSettings() {
-
-        var posts = [Post]()
-
-        //let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
         
-        first.addSnapshotListener { snapshot, error in
-            guard let snapshot = snapshot else { return }
-            guard let lastSnapshot = snapshot.documents.last else {
-                //the collection is empty
-                return
-            }
-
-            posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-            posts.forEach { post in
-                print(post.postText)
-            }
-            // Construct a new query starting after this document,
-                // retrieving the next 25 cities.
-            //completion(posts)
-            self.first = COLLECTION_POSTS.order(by: "timestamp").start(afterDocument: lastSnapshot).limit(to: 1)
-            
-          
-            //print(next)
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        /*
+        GIDSignIn.sharedInstance.signOut()
         AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-         */
-    
+        
+        DispatchQueue.main.async {
+            let controller = WelcomeViewController()
+            let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+            sceneDelegate?.updateRootViewController(controller)
+        }
     }
 }
+
+
 
 extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {

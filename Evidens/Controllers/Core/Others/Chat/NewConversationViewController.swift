@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import JGProgressHUD
+
 
 private let reusableIdentifier = "cell"
 
@@ -14,19 +14,18 @@ class NewConversationViewController: UIViewController {
     
     //MARK: - Properties
     
-    public var completion: ((SearchResult) -> (Void))?
-    
-    private let spinner = JGProgressHUD(style: .dark)
+    public var completion: ((SearchUser) -> (Void))?
     
     //Firebase results
-    private var users = [[String: String]]()
-    private var hasFetched = false
-    
-    private var results = [SearchResult]()
-    
-    private let searchBar : UISearchBar = {
+    private var users = [SearchUser]()
+
+    private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.placeholder = "Start a new conversation"
+        let atrString = NSAttributedString(string: "Start a new conversation", attributes: [.font : UIFont.systemFont(ofSize: 15)])
+        searchBar.searchTextField.attributedPlaceholder = atrString
+        searchBar.searchTextField.tintColor = primaryColor
+        searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
     
@@ -62,7 +61,7 @@ class NewConversationViewController: UIViewController {
         
         view.backgroundColor = .white
 
-        navigationController?.navigationBar.topItem?.titleView = searchBar
+        navigationItem.titleView = searchBar
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel",
                                                             style: .done,
                                                             target: self,
@@ -95,20 +94,20 @@ class NewConversationViewController: UIViewController {
 extension NewConversationViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return results.count
+        return users.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let model = results[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: reusableIdentifier, for: indexPath) as! NewConversationCell
-        cell.configure(with: model)
+        cell.viewModel = UserCellViewModel(user: users[indexPath.row])
+        print(users[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         //Start conversation
-        let targetUserData = results[indexPath.row]
+        let targetUserData = users[indexPath.row]
         
         dismiss(animated: true, completion: { [weak self] in
             self?.completion?(targetUserData)
@@ -126,60 +125,34 @@ extension NewConversationViewController: UISearchBarDelegate {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
         //Remove the results every time a new search is done
         searchBar.resignFirstResponder()
-        results.removeAll()
-        spinner.show(in: view)
+        users.removeAll()
         searchUsers(query: text)
     }
     
     func searchUsers(query: String) {
-        //Check if array has firebase results
-        if hasFetched {
-            //Filter
-            filterUsers(with: query)
-        } else {
-            //Fetch and filter
-            /*
-            DatabaseManager.shared.getAllUsers { [weak self] result in
-                switch result {
-                case .success(let userCollection):
-                    self?.hasFetched = true
-                    self?.users = userCollection
-                    self?.filterUsers(with: query)
-                case.failure(let error):
-                    print("Failed to get users: \(error)")
-                }
+        AlgoliaService.fetchUsers(withText: query) { users in
+            DispatchQueue.main.async {
+                self.users = users
+                self.filterUsers()
             }
-            */
         }
-        
     }
     
-    func filterUsers(with term: String) {
+    func filterUsers() {
         //Update the UI: Either show results or show no results label
-        guard let currentUserUid = UserDefaults.standard.value(forKey: "uid") as? String, hasFetched else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
+        let fetchedUsers: [SearchUser] = users.filter { user in
+            if user.objectID == uid { return false }
+            return true
+        }
         
-        
-        
-        self.spinner.dismiss()
-        
-        let results: [SearchResult] = users.filter({
-            //Avoid filtering current user
-            guard let uid = $0["uid"], uid != currentUserUid else { return false }
-            guard let name = $0["name"]?.lowercased() else { return false }
-            return name.hasPrefix(term.lowercased())
-        }).compactMap({
-            guard let uid = $0["uid"], let name = $0["name"] else { return nil }
-            return SearchResult(name: name, uid: uid)
-        })
-        
-        self.results = results
-        
+        users = fetchedUsers
         updateUI()
     }
     
     func updateUI() {
-        if results.isEmpty {
+        if users.isEmpty {
             noResultsLabel.isHidden = false
             tableView.isHidden = true
         } else {

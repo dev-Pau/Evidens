@@ -12,6 +12,12 @@ class NewConversationCell: UITableViewCell {
     
     //MARK: - Properties
     
+    var viewModel: UserCellViewModel? {
+        didSet {
+            configure()
+        }
+    }
+    
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -61,23 +67,11 @@ class NewConversationCell: UITableViewCell {
     
     //MARK: - Helpers
     
-    public func configure(with model: SearchResult) {
-        usernameLabel.text = model.name
+    public func configure() {
+        guard let viewModel = viewModel else { return }
+        usernameLabel.text = viewModel.fullName
+        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
 
-        let path = "/profile_images/\(model.uid)"
-        StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
-            switch result {
-            case .success(let url):
-                
-                DispatchQueue.main.async {
-                    self?.profileImageView.sd_setImage(with: url, completed: nil)
-                }
-                
-            case.failure(let error):
-                print("failed to get image url: \(error)")
-            }
-        })
-       
     }
     
     //MARK: - Actions
