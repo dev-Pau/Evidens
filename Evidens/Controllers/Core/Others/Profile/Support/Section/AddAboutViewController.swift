@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol AddAboutViewControllerDelegate: AnyObject {
+    func handleUpdateAbout()
+}
+
 class AddAboutViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
@@ -20,10 +24,12 @@ class AddAboutViewController: UIViewController {
         return scrollView
     }()
     
+    weak var delegate: AddAboutViewControllerDelegate?
+    
     private let infoLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.text = "Your about me section briefly summarize the most important information you want the community to know from you. It can be used to showcase your professional experience, skills, your professional brand or any other information you want to share."
@@ -34,15 +40,15 @@ class AddAboutViewController: UIViewController {
     private lazy var aboutTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = "Add about here"
-        tv.placeholderLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
-        tv.font = .systemFont(ofSize: 15, weight: .regular)
+        tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = .black
         tv.delegate = self
         tv.isScrollEnabled = true
+        tv.tintColor = primaryColor
         tv.backgroundColor = lightColor
         tv.layer.cornerRadius = 5
-        //tv.layer.borderWidth = 1
         tv.autocorrectionType = .no
         tv.placeHolderShouldCenter = false
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -104,9 +110,14 @@ class AddAboutViewController: UIViewController {
     @objc func handleDone() {
         print("Update About")
         guard let text = aboutTextView.text else { return }
+        showLoadingView()
         DatabaseManager.shared.uploadAboutSection(with: text) { completed in
+            self.dismissLoadingView()
             if completed {
                 print("Text uploaded")
+                self.delegate?.handleUpdateAbout()
+                self.navigationController?.popViewController(animated: true)
+                
             }
         }
     }

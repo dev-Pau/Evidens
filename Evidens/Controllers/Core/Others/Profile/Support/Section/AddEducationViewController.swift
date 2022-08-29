@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol AddEducationViewControllerDelegate: AnyObject {
+    func handleUpdateEducation()
+}
+
 class AddEducationViewController: UIViewController {
+    
+    weak var delegate: AddEducationViewControllerDelegate?
     
     private var conditionIsSelected: Bool = false
     
@@ -320,14 +326,22 @@ class AddEducationViewController: UIViewController {
         
         let endDateText = conditionIsSelected ? "Present" : endDate
         
+        showLoadingView()
+        
         if userIsEditing {
             DatabaseManager.shared.updateEducation(previousDegree: previousDegree, previousSchool: previousSchool, previousField: previousField, school: school, degree: degree, field: field, startDate: startDate, endDate: endDate) { uploaded in
                 print("upldated education")
+                self.dismissLoadingView()
+                self.delegate?.handleUpdateEducation()
+                self.navigationController?.popViewController(animated: true)
             }
         } else {
             
             DatabaseManager.shared.uploadEducation(school: school, degree: degree, field: field, startDate: startDate, endDate: endDateText) { uploaded in
                 print("Uploaded education")
+                self.dismissLoadingView()
+                self.delegate?.handleUpdateEducation()
+                self.navigationController?.popViewController(animated: true)
             }
         }
     }

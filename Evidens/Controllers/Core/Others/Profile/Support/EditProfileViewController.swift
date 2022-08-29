@@ -15,11 +15,23 @@ private let customSectionCellReuseIdentifier = "CustomSectionsCellReuseIdentifie
 
 private let aboutCellReuseIdentifier = "AboutCellReuseIdentifier"
 
+protocol EditProfileViewControllerDelegate: AnyObject {
+    func fetchNewUserValues(withUid uid: String)
+    func fetchNewAboutValues(withUid uid: String)
+    func fetchNewExperienceValues(withUid uid: String)
+    func fetchNewEducationValues()
+    func fetchNewPatentValues()
+    func fetchNewPublicationValues()
+    func fetchNewLanguageValues()
+}
+
 
 class EditProfileViewController: UICollectionViewController {
     
     private var user: User
     private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
+    
+    weak var delegate: EditProfileViewControllerDelegate?
     
     private var userDidChangeProfilePicture: Bool = false
     private var userDidChangeBannerPicture: Bool = false
@@ -84,11 +96,14 @@ class EditProfileViewController: UICollectionViewController {
     
     private func configureUI() {
         view.backgroundColor = .white
+        delegate?.fetchNewUserValues(withUid: user.uid!)
     }
     
     //MARK: - Actions
     
     @objc func handleDone() {
+        showLoadingView()
+        
         if userDidChangeProfilePicture {
             updateProfileImage(image: newUserProfilePicture)
         }
@@ -103,8 +118,10 @@ class EditProfileViewController: UICollectionViewController {
         }
         
         if lastNameDidChange {
-           //updateUserLastName()
+           updateUserLastName()
         }
+        
+        self.dismissLoadingView()
         
     }
     
@@ -115,12 +132,13 @@ class EditProfileViewController: UICollectionViewController {
     //MARK: - API
     private func updateProfileImage(image: UIImage) {
         guard let uid = user.uid else { return }
-        //showLoadingView()
         StorageManager.uploadProfileImage(image: image, uid: uid) { imageUrl in
-            UserService.updateProfileUrl(profileImageUrl: imageUrl) { user in
-                //self.dismissLoadingView()
-                self.user.profileImageUrl = imageUrl
-                self.collectionView.reloadData()
+            UserService.updateProfileUrl(profileImageUrl: imageUrl) { updated in
+                if updated {
+                    self.user.profileImageUrl = imageUrl
+                    self.collectionView.reloadData()
+                    self.delegate?.fetchNewUserValues(withUid: uid)
+                }
             }
         }
     }
@@ -128,34 +146,39 @@ class EditProfileViewController: UICollectionViewController {
     private func updateBannerImage(image: UIImage) {
         guard let uid = user.uid else { return }
         StorageManager.uploadBannerImage(image: image, uid: uid) { bannerUrl in
-            UserService.updateBannerUrl(bannerImageUrl: bannerUrl) { user in
-                self.user.bannerImageUrl = bannerUrl
-                self.collectionView.reloadData()
+            UserService.updateBannerUrl(bannerImageUrl: bannerUrl) { updated in
+                if updated {
+                    self.user.bannerImageUrl = bannerUrl
+                    self.collectionView.reloadData()
+                    self.delegate?.fetchNewUserValues(withUid: uid)
+                }
             }
         }
     }
     
     private func updateUserLastName() {
+        guard let uid = user.uid else { return }
         DatabaseManager.shared.updateUserLastName(lastName: lastName) { updated in
             if updated {
                 UserService.updateUserLastName(lastName: self.lastName) { error in
                     if let error = error {
                         print(error.localizedDescription)
                     }
-                    self.dismiss(animated: true)
+                    self.delegate?.fetchNewUserValues(withUid: uid)
                 }
             }
         }
     }
     
     private func updateUserFirstName() {
+        guard let uid = user.uid else { return }
         DatabaseManager.shared.updateUserFirstName(firstName: firstName) { updated in
             if updated {
                 UserService.updateUserFirstName(firstName: self.firstName) { error in
                     if let error = error {
                         print(error.localizedDescription)
                     }
-                    self.dismiss(animated: true)
+                    self.delegate?.fetchNewUserValues(withUid: uid)
                 }
             }
         }
@@ -243,7 +266,7 @@ extension EditProfileViewController: EditNameCellDelegate {
 extension EditProfileViewController: CustomSectionCellDelegate {
     func didTapConfigureSections() {
         let controller = ConfigureSectionViewController()
-        
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -322,4 +345,37 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
             }
         }
     }
+}
+
+extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
+    
+    func languageSectionDidChange() {
+        delegate?.fetchNewLanguageValues()
+    }
+    
+    
+    func publicationSectionDidChange() {
+        delegate?.fetchNewPublicationValues()
+    }
+    
+    func patentSectionDidChange() {
+        delegate?.fetchNewPatentValues()
+    }
+    
+    
+    func educationSectionDidChange() {
+        delegate?.fetchNewEducationValues()
+    }
+    
+    func experienceSectionDidChange() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        delegate?.fetchNewExperienceValues(withUid: uid)
+    }
+    
+    func aboutSectionDidChange() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        delegate?.fetchNewAboutValues(withUid: uid)
+    }
+    
+    
 }

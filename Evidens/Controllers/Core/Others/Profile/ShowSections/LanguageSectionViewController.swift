@@ -73,15 +73,25 @@ class LanguageSectionViewController: UICollectionViewController {
 extension LanguageSectionViewController: UserProfileLanguageCellDelegate {
     func didTapEditLanguage(_ cell: UICollectionViewCell, languageName: String, languageProficiency: String) {
         
-        let controller = AddLanguageViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .black
-        navigationItem.backBarButtonItem = backItem
-        
-        controller.configureWithLanguage(languageName: languageName, languageProficiency: languageProficiency)
-        navigationController?.pushViewController(controller, animated: true)
-        
+        if let index = collectionView.indexPath(for: cell) {
+            let controller = AddLanguageViewController()
+            controller.delegate = self
+            controller.index = index.row
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            navigationItem.backBarButtonItem = backItem
+            
+            controller.configureWithLanguage(languageName: languageName, languageProficiency: languageProficiency)
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }
+
+extension LanguageSectionViewController: AddLanguageViewControllerDelegate {
+    func handleLanguageChange(index: Int) {
+        <#code#>
+    }
+}
+
+

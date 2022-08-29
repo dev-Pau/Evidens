@@ -14,6 +14,8 @@ class ExperienceSectionViewController: UICollectionViewController {
     private var experience = [[String: String]]()
     private var isCurrentUser: Bool
     
+    weak var delegate: EditProfileViewControllerDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -74,6 +76,7 @@ class ExperienceSectionViewController: UICollectionViewController {
 extension ExperienceSectionViewController: UserProfileExperienceCellDelegate {
     func didTapEditExperience(_ cell: UICollectionViewCell, company: String, role: String, startDate: String, endDate: String) {
         let controller = AddExperienceViewController()
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
@@ -82,7 +85,14 @@ extension ExperienceSectionViewController: UserProfileExperienceCellDelegate {
         controller.configureWithProfession(company: company, role: role, startDate: startDate, endDate: endDate)
         navigationController?.pushViewController(controller, animated: true)
     }
+}
 
+extension ExperienceSectionViewController: AddExperienceViewControllerDelegate {
+    func handleUpdateExperience() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        delegate?.fetchNewExperienceValues(withUid: uid)
+        navigationController?.popViewController(animated: true)
+    }
 }
 
 

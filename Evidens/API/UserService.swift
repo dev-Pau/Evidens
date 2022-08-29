@@ -12,24 +12,30 @@ typealias FirestoreCompletion = (Error?) -> Void
 
 struct UserService {
     
-    static func updateProfileUrl(profileImageUrl: String, completion: @escaping(User) -> Void) {
+    static func updateProfileUrl(profileImageUrl: String, completion: @escaping(Bool) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["profileImageUrl" : profileImageUrl], merge: true) { err in
             if let err = err {
                 print("Error writing document: \(err)")
+                completion(false)
+                return
             } else {
                 print("Document succesfully written!")
+                completion(true)
             }
         }
     }
     
-    static func updateBannerUrl(bannerImageUrl: String, completion: @escaping(User) -> Void) {
+    static func updateBannerUrl(bannerImageUrl: String, completion: @escaping(Bool) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["bannerImageUrl" : bannerImageUrl], merge: true) { err in
             if let err = err {
                 print("Error writing document: \(err)")
+                completion(false)
+                return
             } else {
                 print("Document succesfully written!")
+                completion(true)
             }
         }
     }
@@ -40,8 +46,11 @@ struct UserService {
             
             if let err = err {
                 print("Error writing document: \(err)")
+                completion(err)
+                return
             } else {
                 print("Document succesfully written!")
+                completion(nil)
             }
         }
     }
@@ -51,8 +60,10 @@ struct UserService {
         COLLECTION_USERS.document(uid).setData(["lastName": lastName], merge: true) { err in
             if let err = err {
                 print("Error writing document: \(err)")
+                completion(err)
             } else {
                 print("Document succesfully written!")
+                completion(nil)
             }
         }
     }

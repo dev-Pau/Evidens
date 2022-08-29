@@ -120,6 +120,11 @@ class UserProfileViewController: UIViewController {
         configureCollectionView()
 
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchUserStats()
+    }
         
     init(user: User) {
         self.user = user
@@ -1051,6 +1056,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
         
         if user.isCurrentUser {
             let controller = EditProfileViewController(user: user)
+            controller.delegate = self
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)
@@ -1121,7 +1127,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         case "About":
             let controller = AddAboutViewController()
             controller.title = "About"
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1176,7 +1182,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         case "Experience":
             let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
             controller.title = "Experience"
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1298,5 +1304,52 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             print("no footer registered")
         }
     }
+}
+
+extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate {
+    
+    func fetchNewLanguageValues() {
+        fetchUserStats()
+        fetchLanguages()
+    }
+    
+    func fetchNewPublicationValues() {
+        fetchUserStats()
+        fetchPublications()
+    }
+    
+    func fetchNewPatentValues() {
+        fetchUserStats()
+        fetchPatents()
+    }
+    
+    func fetchNewEducationValues() {
+        fetchUserStats()
+        fetchEducation()
+    }
+    
+    func fetchNewExperienceValues(withUid uid: String) {
+        fetchUserStats()
+        fetchExperience()
+    }
+    
+    func handleUpdateAbout() {
+        fetchUserStats()
+        fetchSections()
+    }
+    
+    func fetchNewAboutValues(withUid uid: String) {
+        fetchUserStats()
+        fetchSections()
+    }
+    
+    func fetchNewUserValues(withUid uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            self.user = user
+            self.collectionView.reloadSections([0])
+        }
+    }
+    
+    
 }
 

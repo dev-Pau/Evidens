@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol AddPublicationViewControllerDelegate: AnyObject {
+    func handleUpdatePublication()
+}
+
 class AddPublicationViewController: UIViewController {
+    
+    weak var delegate: AddPublicationViewControllerDelegate?
     
     private var userIsEditing = false
     private var previousPublication: String = ""
@@ -236,19 +242,24 @@ class AddPublicationViewController: UIViewController {
     @objc func handleDone() {
         guard let title = publicationTitleTextField.text, let url = urlPublicationTextField.text, let date = publicationDateTextField.text else { return }
         
+        showLoadingView()
         if userIsEditing {
             print("user is editing calling to update")
             print(previousPublication)
             DatabaseManager.shared.updatePublication(previousPublication: previousPublication, publicationTitle: title, publicationUrl: url, publicationDate: date) { uploaded in
-                if uploaded {
-                    print("Publication updated")
-                }
+                
+                self.dismissLoadingView()
+                self.delegate?.handleUpdatePublication()
+                self.navigationController?.popViewController(animated: true)
+                
             }
         } else {
             DatabaseManager.shared.uploadPublication(title: title, url: url, date: date) { uploaded in
-                if uploaded {
-                    print("Publication uploaded")
-                }
+                
+                self.dismissLoadingView()
+                self.delegate?.handleUpdatePublication()
+                self.navigationController?.popViewController(animated: true)
+                
             }
         }
         

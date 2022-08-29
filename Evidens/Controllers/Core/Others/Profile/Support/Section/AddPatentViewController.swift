@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol AddPatentViewControllerDelegate: AnyObject {
+    func handleUpdatePatent()
+}
+
 class AddPatentViewController: UIViewController {
+    
+    weak var delegate: AddPatentViewControllerDelegate?
     
     private var userIsEditing = false
     private var previousPatent: String = ""
@@ -184,13 +190,19 @@ class AddPatentViewController: UIViewController {
     @objc func handleDone() {
         guard let title = patentTitleTextField.text, let number = patentNumberTextField.text else { return }
         
+        showLoadingView()
+        
         if userIsEditing {
             DatabaseManager.shared.updatePatent(previousPatent: previousPatent, patentTitle: title, patentNumber: number) { uploaded in
-                print("patent updated")
+                self.dismissLoadingView()
+                self.delegate?.handleUpdatePatent()
+                self.navigationController?.popViewController(animated: true)
             }
         } else {
             DatabaseManager.shared.uploadPatent(title: title, number: number) { uploaded in
-                print("patent uploaded")
+                self.dismissLoadingView()
+                self.delegate?.handleUpdatePatent()
+                self.navigationController?.popViewController(animated: true)
             }
         }
     }

@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol AddExperienceViewControllerDelegate: AnyObject {
+    func handleUpdateExperience()
+}
+
 class AddExperienceViewController: UIViewController {
+    
+    weak var delegate: AddExperienceViewControllerDelegate?
     
     private var conditionIsSelected: Bool = false
     
@@ -287,17 +293,23 @@ class AddExperienceViewController: UIViewController {
         
         let dateText = conditionIsSelected ? "Present" : endDateText
         
+        showLoadingView()
+        
         if userIsEditing {
             DatabaseManager.shared.updateExperience(previousCompany: previousCompany, previousRole: previousRole, company: company, role: role, startDate: startDateText, endDate: endDateText) { uploaded in
-                print("experience updated")
+                self.dismissLoadingView()
+                self.delegate?.handleUpdateExperience()
+                self.navigationController?.popViewController(animated: true)
+
             }
-        } else {
             
+        } else {
             DatabaseManager.shared.uploadExperience(role: role, company: company, startDate: startDateText, endDate: dateText) { uploaded in
-                print("experience uploaded")
+                self.dismissLoadingView()
+                self.delegate?.handleUpdateExperience()
+                self.navigationController?.popViewController(animated: true)
             }
         }
-
     }
     
     @objc func handleAddStartDate() {

@@ -7,10 +7,18 @@
 
 import UIKit
 
+protocol AddLanguageViewControllerDelegate: AnyObject {
+    func handleLanguageUpdate()
+}
+
 class AddLanguageViewController: UIViewController {
+    
+    weak var delegate: AddLanguageViewControllerDelegate?
     
     private var userIsEditing = false
     private var previousLanguage: String = ""
+    
+    var index: Int = 0
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -117,19 +125,21 @@ class AddLanguageViewController: UIViewController {
     
     @objc func handleDone() {
         guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
+        showLoadingView()
         if userIsEditing == false {
             DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency) { uploaded in
-                if uploaded {
-                    self.navigationController?.popToRootViewController(animated: true)
-                }
+                self.dismissLoadingView()
+                self.delegate?.handleLanguageUpdate()
+                self.navigationController?.popViewController(animated: true)
+                
             }
         } else {
             DatabaseManager.shared.updateLanguage(previousLanguage: previousLanguage, languageName: language, languageProficiency: proficiency) { uploaded in
+                self.dismissLoadingView()
+                self.delegate?.handleLanguageUpdate()
                 self.navigationController?.popViewController(animated: true)
             }
         }
-       
-        
     }
     
     @objc func textDidChange(_ textField: UITextField) {

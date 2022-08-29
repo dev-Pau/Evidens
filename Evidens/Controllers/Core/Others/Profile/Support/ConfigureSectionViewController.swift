@@ -9,7 +9,18 @@ import UIKit
 
 private let configureSectionTitleCellReuseIdentifier = "ConfigureSectionTitleCellReuseIdentifier"
 
+protocol ConfigureSectionViewControllerDelegate: AnyObject {
+    func aboutSectionDidChange()
+    func experienceSectionDidChange()
+    func educationSectionDidChange()
+    func patentSectionDidChange()
+    func publicationSectionDidChange()
+    func languageSectionDidChange()
+}
+
 class ConfigureSectionViewController: UIViewController {
+    
+    weak var delegate: ConfigureSectionViewControllerDelegate?
     
     private let dataSource: [String] = ["Add about", "Add experience", "Add education", "Add patent", "Add publication", "Add language"]
     
@@ -68,30 +79,63 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
         
         if indexPath.row == 0 {
             let controller = AddAboutViewController()
+            controller.delegate = self
             controller.title = "About"
             navigationController?.pushViewController(controller, animated: true)
             
         } else if indexPath.row == 1 {
             let controller = AddExperienceViewController()
+            controller.delegate = self
             controller.title = "Experience"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 2 {
             let controller = AddEducationViewController()
+            controller.delegate = self
             controller.title = "Education"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 3 {
             let controller = AddPatentViewController()
+            controller.delegate = self
             controller.title = "Patent"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 4 {
             let controller = AddPublicationViewController()
+            controller.delegate = self
             controller.title = "Publication"
             navigationController?.pushViewController(controller, animated: true)
         } else {
             let controller = AddLanguageViewController()
+            controller.delegate = self
             controller.title = "Language"
             navigationController?.pushViewController(controller, animated: true)
         }
+    }
+}
+
+extension ConfigureSectionViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+    
+    func handleLanguageUpdate() {
+        delegate?.languageSectionDidChange()
+    }
+    
+    func handleUpdatePublication() {
+        delegate?.publicationSectionDidChange()
+    }
+    
+    func handleUpdatePatent() {
+        delegate?.patentSectionDidChange()
+    }
+    
+    func handleUpdateEducation() {
+        delegate?.educationSectionDidChange()
+    }
+    
+    func handleUpdateExperience() {
+        delegate?.experienceSectionDidChange()
+    }
+    
+    func handleUpdateAbout() {
+        delegate?.aboutSectionDidChange()
     }
 }
 
