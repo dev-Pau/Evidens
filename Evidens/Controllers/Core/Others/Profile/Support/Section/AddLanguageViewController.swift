@@ -15,11 +15,11 @@ class AddLanguageViewController: UIViewController {
     
     weak var delegate: AddLanguageViewControllerDelegate?
     
+    public var completion: (([String]) -> (Void))?
+    
     private var userIsEditing = false
     private var previousLanguage: String = ""
-    
-    var index: Int = 0
-    
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
@@ -137,7 +137,9 @@ class AddLanguageViewController: UIViewController {
             DatabaseManager.shared.updateLanguage(previousLanguage: previousLanguage, languageName: language, languageProficiency: proficiency) { uploaded in
                 self.dismissLoadingView()
                 self.delegate?.handleLanguageUpdate()
-                self.navigationController?.popViewController(animated: true)
+                if let count = self.navigationController?.viewControllers.count {
+                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+                }
             }
         }
     }

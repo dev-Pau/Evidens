@@ -133,6 +133,13 @@ extension CommentCaseViewController {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         cell.ownerUid = clinicalCase.ownerUid
+        
+        if indexPath.row == 0 {
+            cell.dotsImageButton.isHidden = true
+            cell.dotsImageButton.isUserInteractionEnabled = false
+            cell.timeStampLabel.isHidden = true
+        }
+        
         cell.delegate = self
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         return cell
@@ -236,7 +243,9 @@ extension CommentCaseViewController: CommentCellDelegate {
 extension CommentCaseViewController: CommentsMenuLauncherDelegate {
     
     func didTapReport(comment: Comment) {
-        
+        DatabaseManager.shared.reportCaseComment(forCommentId: comment.id) { reported in
+            print("case reported")
+        }
     }
         
     func menuDidDismiss() {

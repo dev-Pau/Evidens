@@ -241,7 +241,11 @@ extension CommentPostViewController: CommentCellDelegate {
 extension CommentPostViewController: CommentsMenuLauncherDelegate {
     
     func didTapReport(comment: Comment) {
-        
+                DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
+                    if reported {
+                        print("Comment reported")
+                    }
+                }
     }
     
     func menuDidDismiss() {

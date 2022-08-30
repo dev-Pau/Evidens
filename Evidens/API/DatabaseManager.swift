@@ -351,6 +351,32 @@ extension DatabaseManager {
             completion(true)
         }
     }
+    
+    public func reportCaseComment(forCommentId commentID: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
+        let ref = database.child("reports").child("case_comments").child(commentID).childByAutoId()
+        let reportData = ["uid": uid]
+        ref.setValue(reportData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+            }
+            completion(true)
+        }
+    }
+    
+    public func reportPostComment(forCommentId commentID: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
+        let ref = database.child("reports").child("post_comments").child(commentID).childByAutoId()
+        let reportData = ["uid": uid]
+        ref.setValue(reportData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+            }
+            completion(true)
+        }
+    }
 }
 
 //MARK: - User Languages

@@ -250,8 +250,10 @@ class AddPublicationViewController: UIViewController {
                 
                 self.dismissLoadingView()
                 self.delegate?.handleUpdatePublication()
-                self.navigationController?.popViewController(animated: true)
-                
+                if let count = self.navigationController?.viewControllers.count {
+                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+                }
+   
             }
         } else {
             DatabaseManager.shared.uploadPublication(title: title, url: url, date: date) { uploaded in

@@ -9,6 +9,7 @@ import UIKit
 
 private let experienceCellReuseIdentifier = "ExperienceCellReuseIdentifier"
 
+
 class ExperienceSectionViewController: UICollectionViewController {
     
     private var experience = [[String: String]]()
@@ -91,7 +92,6 @@ extension ExperienceSectionViewController: AddExperienceViewControllerDelegate {
     func handleUpdateExperience() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         delegate?.fetchNewExperienceValues(withUid: uid)
-        navigationController?.popViewController(animated: true)
     }
 }
 

@@ -333,7 +333,9 @@ class AddEducationViewController: UIViewController {
                 print("upldated education")
                 self.dismissLoadingView()
                 self.delegate?.handleUpdateEducation()
-                self.navigationController?.popViewController(animated: true)
+                if let count = self.navigationController?.viewControllers.count {
+                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+                }
             }
         } else {
             
@@ -440,6 +442,9 @@ class AddEducationViewController: UIViewController {
         previousDegree = degree
         previousSchool = school
         previousField = field
+        
+        print(startDate)
+        print(endDate)
         
         schoolTextField.text = school
         degreeTypeTextField.text = degree

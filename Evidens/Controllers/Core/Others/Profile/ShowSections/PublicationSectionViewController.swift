@@ -11,6 +11,8 @@ private let publicationCellReuseIdentifier = "PublicationCellReuseIdentifier"
 
 class PublicationSectionViewController: UICollectionViewController {
     
+    weak var delegate: EditProfileViewControllerDelegate?
+    
     private var publications = [[String: String]]()
     private var isCurrentUser: Bool
     
@@ -84,4 +86,12 @@ extension PublicationSectionViewController: UserProfilePublicationCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
         
     }
+}
+
+extension PublicationSectionViewController: AddPublicationViewControllerDelegate {
+    func handleUpdatePublication() {
+        delegate?.fetchNewPublicationValues()
+    }
+    
+    
 }

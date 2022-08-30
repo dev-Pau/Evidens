@@ -11,6 +11,8 @@ private let patentCellReuseIdentifier = "PatentCellReuseIdentifier"
 
 class PatentSectionViewController: UICollectionViewController {
     
+    weak var delegate: EditProfileViewControllerDelegate?
+    
     private var patents = [[String: String]]()
     private var isCurrentUser: Bool
     
@@ -75,7 +77,7 @@ extension PatentSectionViewController: UserProfilePatentCellDelegate {
     func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String) {
 
         let controller = AddPatentViewController()
-        
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
@@ -85,5 +87,13 @@ extension PatentSectionViewController: UserProfilePatentCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
         
     }
+}
+
+extension PatentSectionViewController: AddPatentViewControllerDelegate {
+    func handleUpdatePatent() {
+        delegate?.fetchNewPatentValues()
+    }
+    
+    
 }
 

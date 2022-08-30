@@ -11,6 +11,8 @@ private let educationCellReuseIdentifier = "EducationCellReuseIdentifier"
 
 class EducationSectionViewController: UICollectionViewController {
     
+    weak var delegate: EditProfileViewControllerDelegate?
+    
     private var education = [[String: String]]()
     private var isCurrentUser: Bool
     
@@ -74,6 +76,7 @@ class EducationSectionViewController: UICollectionViewController {
 extension EducationSectionViewController: UserProfileEducationCellDelegate {
     func didTapEditEducation(_ cell: UICollectionViewCell, educationSchool: String, educationDegree: String, educationField: String, educationStartDate: String, educationEndDate: String) {
         let controller = AddEducationViewController()
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
@@ -82,5 +85,13 @@ extension EducationSectionViewController: UserProfileEducationCellDelegate {
         controller.configureWithPublication(school: educationSchool, degree: educationDegree, field: educationField, startDate: educationStartDate, endDate: educationEndDate)
         navigationController?.pushViewController(controller, animated: true)
     }
+}
+
+extension EducationSectionViewController: AddEducationViewControllerDelegate {
+    func handleUpdateEducation() {
+        delegate?.fetchNewEducationValues()
+    }
+    
+    
 }
 

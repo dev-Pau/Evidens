@@ -1138,7 +1138,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         case "Patents":
             let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
             controller.title = "Patents"
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1149,7 +1149,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         case "Education":
             let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
             controller.title = "Education"
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1160,7 +1160,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         case "Languages":
             let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
             controller.title = "Languages"
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1171,7 +1171,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
         case "Publications":
             let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
             controller.title = "Publications"
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1248,7 +1248,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
    
     case "Show experiences":
         let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
-        
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
@@ -1259,7 +1259,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
          
         case "Show education":
             let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1270,7 +1270,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
         case "Show patents":
             let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1281,7 +1281,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
         case "Show publications":
             let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1291,7 +1291,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
         case "Show languages":
             let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -1306,7 +1306,12 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
     }
 }
 
-extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate {
+extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate {
+    func updateLanguageValues() {
+        fetchUserStats()
+        fetchLanguages()
+    }
+    
     
     func fetchNewLanguageValues() {
         fetchUserStats()

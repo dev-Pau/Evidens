@@ -299,8 +299,9 @@ class AddExperienceViewController: UIViewController {
             DatabaseManager.shared.updateExperience(previousCompany: previousCompany, previousRole: previousRole, company: company, role: role, startDate: startDateText, endDate: endDateText) { uploaded in
                 self.dismissLoadingView()
                 self.delegate?.handleUpdateExperience()
-                self.navigationController?.popViewController(animated: true)
-
+                if let count = self.navigationController?.viewControllers.count {
+                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+                }
             }
             
         } else {

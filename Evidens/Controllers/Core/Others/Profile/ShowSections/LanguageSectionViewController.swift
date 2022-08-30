@@ -9,7 +9,13 @@ import UIKit
 
 private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 
+protocol LanguageSectionViewControllerDelegate: AnyObject {
+    func updateLanguageValues()
+}
+
 class LanguageSectionViewController: UICollectionViewController {
+    
+    weak var delegate: LanguageSectionViewControllerDelegate?
     
     private var languages = [[String: String]]()
     private var isCurrentUser: Bool
@@ -72,11 +78,9 @@ class LanguageSectionViewController: UICollectionViewController {
 
 extension LanguageSectionViewController: UserProfileLanguageCellDelegate {
     func didTapEditLanguage(_ cell: UICollectionViewCell, languageName: String, languageProficiency: String) {
-        
         if let index = collectionView.indexPath(for: cell) {
             let controller = AddLanguageViewController()
             controller.delegate = self
-            controller.index = index.row
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -89,9 +93,7 @@ extension LanguageSectionViewController: UserProfileLanguageCellDelegate {
 }
 
 extension LanguageSectionViewController: AddLanguageViewControllerDelegate {
-    func handleLanguageChange(index: Int) {
-        <#code#>
+    func handleLanguageUpdate() {
+        delegate?.updateLanguageValues()
     }
 }
-
-

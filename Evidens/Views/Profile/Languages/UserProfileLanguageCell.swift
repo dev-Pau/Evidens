@@ -18,7 +18,6 @@ class UserProfileLanguageCell: UICollectionViewCell {
     private let languageTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = "English"
         label.textAlignment = .left
         label.textColor = .black
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -30,7 +29,6 @@ class UserProfileLanguageCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.text = "Proficiency level"
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
