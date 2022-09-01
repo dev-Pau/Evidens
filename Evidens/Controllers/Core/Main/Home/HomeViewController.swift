@@ -53,7 +53,11 @@ class HomeViewController: UICollectionViewController {
     }()
 
     var posts = [Post]() {
-        didSet { collectionView.reloadData() }
+        didSet {
+            collectionView.isHidden = false
+            //collectionView.reloadData()
+            
+        }
     }
     
     //MARK: - Lifecycle
@@ -62,6 +66,7 @@ class HomeViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        collectionView.isHidden = true
         self.navigationController?.delegate = zoomTransitioning
         fetchUser()
         fetchFirstPostsGroup()
@@ -76,6 +81,7 @@ class HomeViewController: UICollectionViewController {
         //navigationController?.navigationBar.isHidden = false
         searchBar.resignFirstResponder()
     }
+    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
@@ -165,8 +171,7 @@ class HomeViewController: UICollectionViewController {
             }
         }
     }
-    
-    
+
     func fetchFirstPostsGroup() {
         if !controllerIsBeeingPushed {
             PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
@@ -175,6 +180,7 @@ class HomeViewController: UICollectionViewController {
                     self.posts = posts
                     self.checkIfUserLikedPosts()
                     self.checkIfUserBookmarkedPost()
+                    self.collectionView.reloadData()
                     self.collectionView.refreshControl?.endRefreshing()
                 }
             }
@@ -215,7 +221,6 @@ class HomeViewController: UICollectionViewController {
                         self.posts[index].didBookmark = didBookmark
                     }
                 }
-            
         }
     }
 }
@@ -723,11 +728,15 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
 extension HomeViewController {
     func getMorePosts() {
         PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
+            print(snapshot)
             PostService.fetchHomePosts(snapshot: snapshot) { posts in
                 self.postsLastSnapshot = snapshot.documents.last
+                print(posts)
                 self.posts.append(contentsOf: posts)
+                self.collectionView.reloadData()
                 self.checkIfUserLikedPosts()
                 self.checkIfUserBookmarkedPost()
+                //self.collectionView.reloadItems(at: [IndexPath(index: posts.count - 1)])
             }
         }
     }

@@ -19,6 +19,11 @@ class AddLanguageViewController: UIViewController {
     
     private var userIsEditing = false
     private var previousLanguage: String = ""
+    
+    private var languageSelected: String = ""
+    private var proficiencySelected: String = ""
+    
+    private var textFieldChanged: UITextField!
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -49,6 +54,8 @@ class AddLanguageViewController: UIViewController {
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.delegate = self
+        tf.clearButtonMode = .never
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
         return tf
     }()
@@ -72,7 +79,9 @@ class AddLanguageViewController: UIViewController {
         tf.tintColor = primaryColor
         tf.font = .systemFont(ofSize: 17, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.delegate = self
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+        tf.clearButtonMode = .never
         return tf
     }()
     
@@ -81,6 +90,7 @@ class AddLanguageViewController: UIViewController {
         configureNavigationBar()
         configureUI()
     }
+
     
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
@@ -186,6 +196,55 @@ class AddLanguageViewController: UIViewController {
         textDidChange(languageProficiencyTextField)
         
         navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+}
+
+extension AddLanguageViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        
+        languageTextField.resignFirstResponder()
+        languageProficiencyTextField.resignFirstResponder()
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+        layout.scrollDirection = .vertical
+        
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        
+        let controller = SupportSectionViewController(collectionViewLayout: layout)
+        controller.delegate = self
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        textFieldChanged = textField
+        
+        if textField == languageProficiencyTextField {
+            controller.collectionData = Sections.getAllLanguageLevels()
+            controller.previousValue = proficiencySelected
+        } else {
+            controller.collectionData = Sections.getAllLanguages()
+            controller.previousValue = languageSelected
+        }
+        
+        navigationController?.pushViewController(controller, animated: true)
+        
+    }
+}
+
+extension AddLanguageViewController: SupportSectionViewControllerDelegate {
+    func didTapSectionOption(optionText: String) {
+        if textFieldChanged == languageProficiencyTextField {
+            languageProficiencyTextField.text = optionText
+            proficiencySelected = optionText
+            textDidChange(languageProficiencyTextField)
+        } else {
+            languageTextField.text = optionText
+            languageSelected = optionText
+            textDidChange(languageTextField)
+        }
     }
 }
 

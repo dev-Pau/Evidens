@@ -231,6 +231,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func logoutAlert(completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Log out", message: "Are you sure you want to log out of MyEvidens?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Log out", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func deletePostAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Delete post", message: "Are you sure you want to delete this post?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))

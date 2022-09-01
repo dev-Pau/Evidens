@@ -196,13 +196,15 @@ struct PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 5)
+            print("first")
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 3)
             firstGroupToFetch.addSnapshotListener { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
                 completion(snapshot)
             }
         } else {
+            print("next group")
             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 1)
             nextGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
@@ -217,6 +219,7 @@ struct PostService {
         
         snapshot.documents.forEach({ document in
             fetchPost(withPostId: document.documentID) { post in
+                print("post fetched is \(post)")
                 posts.append(post)
                 posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                 completion(posts)
@@ -382,7 +385,7 @@ struct PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         var posts = [Post]()
 
-        let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
+        let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 10)
         
         first.addSnapshotListener { snapshot, error in
             guard let snapshot = snapshot else { return }

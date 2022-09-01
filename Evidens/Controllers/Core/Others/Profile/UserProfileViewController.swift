@@ -693,7 +693,17 @@ class UserProfileViewController: UIViewController {
     
     //MARK: - Actions
     @objc func didTapSettings() {
+        let controller = ApplicationSettingsViewController()
         
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        
+        navigationItem.backBarButtonItem = backItem
+        controller.hidesBottomBarWhenPushed = true
+        
+        navigationController?.pushViewController(controller, animated: true)
+        /*
         GIDSignIn.sharedInstance.signOut()
         AuthService.logout()
         
@@ -702,6 +712,7 @@ class UserProfileViewController: UIViewController {
             let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
             sceneDelegate?.updateRootViewController(controller)
         }
+         */
     }
 }
 

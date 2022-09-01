@@ -844,6 +844,14 @@ extension DatabaseManager {
         }
     }
 }
+
+// MARK: - Notifications manager
+
+extension DatabaseManager {
+    func uploadNotificationToken() {
+        
+    }
+}
     
     
         
