@@ -687,10 +687,6 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    
-    var first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
-    
-    
     //MARK: - Actions
     @objc func didTapSettings() {
         let controller = ApplicationSettingsViewController()
@@ -1224,7 +1220,9 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             let controller = HomeViewController(collectionViewLayout: layout)
             controller.controllerIsBeeingPushed = true
             controller.user = user
-            //controller.user = user
+            
+            controller.hidesBottomBarWhenPushed = true
+            
             navigationController?.pushViewController(controller, animated: true)
             
         case "Show cases":

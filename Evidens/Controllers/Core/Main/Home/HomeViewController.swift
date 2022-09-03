@@ -26,6 +26,7 @@ class HomeViewController: UICollectionViewController {
     var controllerIsBeeingPushed: Bool = false
     
     private var postsLastSnapshot: QueryDocumentSnapshot?
+    private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
         
@@ -81,6 +82,7 @@ class HomeViewController: UICollectionViewController {
         //navigationController?.navigationBar.isHidden = false
         searchBar.resignFirstResponder()
     }
+    
     
     
     override func viewDidAppear(_ animated: Bool) {
@@ -184,15 +186,38 @@ class HomeViewController: UICollectionViewController {
                     self.collectionView.refreshControl?.endRefreshing()
                 }
             }
-
+            
         } else {
             guard let uid = user?.uid else { return }
-            PostService.fetchPosts(forUser: uid) { posts in
-                self.posts = posts
-                self.checkIfUserLikedPosts()
+            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
+                switch result {
+                    
+                case .success(let uids):
+                    uids.forEach { uid in
+                        PostService.fetchPost(withPostId: uid) { post in
+                            self.posts.append(post)
+                            
+                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            // Get the last timestamp to create next query for realtime database
+                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                            print("Last timestamp value is \(self.postLastTimestamp)")
+                            self.collectionView.reloadData()
+                            
+                        }
+                    }
+                case .failure(let error):
+                    print(error)
+                }
+            }
+            /*
+             PostService.fetchPosts(forUser: uid) { posts in
+             self.posts = posts
+             self.checkIfUserLikedPosts()
                 self.checkIfUserBookmarkedPost()
+                self.collectionView.reloadData()
                 self.collectionView.refreshControl?.endRefreshing()
             }
+             */
         }
     }
     
@@ -727,16 +752,43 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
 
 extension HomeViewController {
     func getMorePosts() {
-        PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
-            print(snapshot)
-            PostService.fetchHomePosts(snapshot: snapshot) { posts in
-                self.postsLastSnapshot = snapshot.documents.last
-                print(posts)
-                self.posts.append(contentsOf: posts)
-                self.collectionView.reloadData()
-                self.checkIfUserLikedPosts()
-                self.checkIfUserBookmarkedPost()
-                //self.collectionView.reloadItems(at: [IndexPath(index: posts.count - 1)])
+        if !controllerIsBeeingPushed {
+            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
+                PostService.fetchHomePosts(snapshot: snapshot) { posts in
+                    self.postsLastSnapshot = snapshot.documents.last
+
+                    self.posts.append(contentsOf: posts)
+                    self.collectionView.reloadData()
+                    self.checkIfUserLikedPosts()
+                    self.checkIfUserBookmarkedPost()
+                    //self.collectionView.reloadItems(at: [IndexPath(index: posts.count - 1)])
+                }
+            }
+        } else {
+            guard let uid = user?.uid else { return }
+            print("Fetching more posts with last value \(postLastTimestamp)")
+            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
+                switch result {
+                case .success(let uids):
+                    uids.forEach { uid in
+                        PostService.fetchPost(withPostId: uid) { post in
+                            self.posts.append(post)
+
+                            
+                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+
+                            // Get the last timestamp to create next query for realtime database
+                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                            self.checkIfUserLikedPosts()
+                            self.checkIfUserBookmarkedPost()
+                            self.collectionView.reloadData()
+                            
+                        }
+                    }
+                case .failure(let error):
+                    print(error)
+                    
+                }
             }
         }
     }

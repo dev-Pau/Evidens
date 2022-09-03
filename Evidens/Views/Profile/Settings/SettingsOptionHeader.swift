@@ -21,7 +21,7 @@ class SettingsOptionHeader: UITableViewHeaderFooterView {
     private let settingsTitle: UILabel = {
         let title = UILabel()
         title.text = "Settings"
-        title.textColor = grayColor
+        title.textColor = .black
         title.numberOfLines = 1
         title.font = .systemFont(ofSize: 19, weight: .medium)
         title.textAlignment = .left

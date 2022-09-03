@@ -21,20 +21,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Posar un valor fins que no estigui registrat
         //
-        if let verified = UserDefaults.standard.value(forKey: "verified") as? Bool {
-            print("Verified")
+        if let _ = UserDefaults.standard.value(forKey: "uid") as? String {
+            print("we have a verified user and we can ask for notifications")
+            UNUserNotificationCenter.current().delegate = self
+            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+              UNUserNotificationCenter.current().requestAuthorization(
+                options: authOptions,
+                completionHandler: { _, _ in }
+              )
+            application.registerForRemoteNotifications()
         }
-        
-        
         // Register for user notifications
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-          UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { _, _ in }
-          )
-        application.registerForRemoteNotifications()
-
+        
         return true
     }
     
@@ -78,15 +76,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         Messaging.messaging().token { token, error in
-          if let error = error {
-            print("Error fetching FCM registration token: \(error)")
-          } else if let token = token {
-            print("FCM registration token: \(token)")
-            
-          }
+            if let error = error {
+                print("Error fetching FCM registration token: \(error)")
+            } else if let token = token {
+                print("FCM registration token: \(token)")
+                DatabaseManager.shared.uploadNotificationToken(tokenID: token)
+                
+            }
         }
     }
-    
-
 }
 

@@ -214,6 +214,15 @@ extension UIView {
     }
 }
 
+extension UserDefaults {
+    static func resetDefaults() {
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+            UserDefaults.standard.synchronize()
+        }
+    }
+}
+
 extension UIViewController {
     
     func displayAlert(withTitle title: String, withMessage message: String) {

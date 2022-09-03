@@ -27,6 +27,10 @@
 		5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */; };
 		5F0D2AF828C0EEFD00BE5DD5 /* SettingsOptionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AF728C0EEFD00BE5DD5 /* SettingsOptionFooter.swift */; };
 		5F0D2AFA28C0FAAF00BE5DD5 /* SettingsOptionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AF928C0FAAF00BE5DD5 /* SettingsOptionHeader.swift */; };
+		5F0D2AFD28C339B900BE5DD5 /* AboutSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AFC28C339B900BE5DD5 /* AboutSettingsViewController.swift */; };
+		5F0D2AFF28C346FD00BE5DD5 /* SettingsSubOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AFE28C346FD00BE5DD5 /* SettingsSubOptionCell.swift */; };
+		5F0D2B0128C34BCD00BE5DD5 /* NotificationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2B0028C34BCD00BE5DD5 /* NotificationSettingsViewController.swift */; };
+		5F0D2B0328C34BD800BE5DD5 /* AccountSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2B0228C34BD800BE5DD5 /* AccountSettingsViewController.swift */; };
 		5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */; };
 		5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */; };
 		5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3E286EFEF3005BC807 /* MEScrollImageView.swift */; };
@@ -290,6 +294,10 @@
 		5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderViewModel.swift; sourceTree = "<group>"; };
 		5F0D2AF728C0EEFD00BE5DD5 /* SettingsOptionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionFooter.swift; sourceTree = "<group>"; };
 		5F0D2AF928C0FAAF00BE5DD5 /* SettingsOptionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionHeader.swift; sourceTree = "<group>"; };
+		5F0D2AFC28C339B900BE5DD5 /* AboutSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsViewController.swift; sourceTree = "<group>"; };
+		5F0D2AFE28C346FD00BE5DD5 /* SettingsSubOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSubOptionCell.swift; sourceTree = "<group>"; };
+		5F0D2B0028C34BCD00BE5DD5 /* NotificationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsViewController.swift; sourceTree = "<group>"; };
+		5F0D2B0228C34BD800BE5DD5 /* AccountSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingsViewController.swift; sourceTree = "<group>"; };
 		5F11AF3A286EC156005BC807 /* ZoomTransitioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomTransitioning.swift; sourceTree = "<group>"; };
 		5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeImageViewController.swift; sourceTree = "<group>"; };
 		5F11AF3E286EFEF3005BC807 /* MEScrollImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEScrollImageView.swift; sourceTree = "<group>"; };
@@ -600,6 +608,17 @@
 			path = Core;
 			sourceTree = "<group>";
 		};
+		5F0D2AFB28C3397A00BE5DD5 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */,
+				5F0D2AFC28C339B900BE5DD5 /* AboutSettingsViewController.swift */,
+				5F0D2B0028C34BCD00BE5DD5 /* NotificationSettingsViewController.swift */,
+				5F0D2B0228C34BD800BE5DD5 /* AccountSettingsViewController.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
 		5F39B49F2830E8AE0079F8CF /* Search */ = {
 			isa = PBXGroup;
 			children = (
@@ -775,10 +794,11 @@
 		5F598C08283690F400189722 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				5F598C092836912400189722 /* UserProfileViewController.swift */,
 				5FB290402890FFF1002FBAE1 /* Support */,
 				5F85218128A1632B0033AF67 /* ShowSections */,
+				5F0D2AFB28C3397A00BE5DD5 /* Configuration */,
 				5FC4D882270705F8006B7A34 /* ProfileViewController.swift */,
-				5F598C092836912400189722 /* UserProfileViewController.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -943,7 +963,6 @@
 				5F85218828A3A7970033AF67 /* PatentSectionViewController.swift */,
 				5F85218B28A3B32F0033AF67 /* EducationSectionViewController.swift */,
 				5F85218E28A3CF620033AF67 /* ExperienceSectionViewController.swift */,
-				5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */,
 			);
 			path = ShowSections;
 			sourceTree = "<group>";
@@ -1239,6 +1258,7 @@
 				5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */,
 				5F0D2AF728C0EEFD00BE5DD5 /* SettingsOptionFooter.swift */,
 				5F0D2AF928C0FAAF00BE5DD5 /* SettingsOptionHeader.swift */,
+				5F0D2AFE28C346FD00BE5DD5 /* SettingsSubOptionCell.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1746,6 +1766,7 @@
 				5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
 				5F527D9728845006009D5027 /* RegistrationListView.swift in Sources */,
+				5F0D2AFF28C346FD00BE5DD5 /* SettingsSubOptionCell.swift in Sources */,
 				5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
@@ -1767,6 +1788,7 @@
 				5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
+				5F0D2B0128C34BCD00BE5DD5 /* NotificationSettingsViewController.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
 				5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
@@ -1793,6 +1815,7 @@
 				5FB290222886D04D002FBAE1 /* MECaseInfoView.swift in Sources */,
 				5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
+				5F0D2B0328C34BD800BE5DD5 /* AccountSettingsViewController.swift in Sources */,
 				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */,
@@ -1803,6 +1826,7 @@
 				5F77BF7028587DBF00F31A75 /* MEUserPostView.swift in Sources */,
 				5F9A9F8F2897F28A00A25152 /* AddLanguageViewController.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
+				5F0D2AFD28C339B900BE5DD5 /* AboutSettingsViewController.swift in Sources */,
 				5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */,
 				5F527D99288554BC009D5027 /* CaseStageViewController.swift in Sources */,
 				5F8B7C4E287401B8005094A5 /* SpecialitiesDiffableCell.swift in Sources */,

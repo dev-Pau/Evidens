@@ -320,6 +320,41 @@ extension DatabaseManager {
             }
         }
     }
+    
+    public func fetchHomeFeedPosts(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[String], Error>) -> Void) {
+        
+        var uids: [String] = []
+        
+        if lastTimestampValue == nil {
+            // First group to fetch
+            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+            ref.observeSingleEvent(of: .value) { snapshot in
+                if let values = snapshot.value as? [String: Any] {
+                    print(values)
+                    values.forEach { value in
+                        uids.append(value.key)
+                    }
+                    completion(.success(uids))
+                }
+            }
+            
+        } else {
+            // Fetch more posts
+            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 1)
+            
+            
+            //queryStarting(afterValue: lastTimestampValue).queryLimited(toFirst: 1)
+            ref.observeSingleEvent(of: .value) { snapshot in
+                if let values = snapshot.value as? [String: Any] {
+                    print(values)
+                    values.forEach { value in
+                        uids.append(value.key)
+                    }
+                    completion(.success(uids))
+                }
+            }
+        }
+    } 
 }
 
 //MARK: - Report Posts & Cases
@@ -848,8 +883,10 @@ extension DatabaseManager {
 // MARK: - Notifications manager
 
 extension DatabaseManager {
-    func uploadNotificationToken() {
-        
+    func uploadNotificationToken(tokenID: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("tokens").child(uid)
+        ref.setValue(tokenID)
     }
 }
     

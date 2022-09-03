@@ -83,6 +83,29 @@ extension ApplicationSettingsViewController: UITableViewDelegate, UITableViewDat
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 95
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        if indexPath.row == 0 {
+            // Notifications
+            let controller = NotificationSectionViewController()
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.row == 1 {
+            // Account
+            let controller = AccountSectionViewController()
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            // About
+            let controller = AboutSettingsViewController()
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
 }
 
 extension ApplicationSettingsViewController: SettingsOptionFooterDelegate {
@@ -90,6 +113,8 @@ extension ApplicationSettingsViewController: SettingsOptionFooterDelegate {
         logoutAlert {
             AuthService.logout()
             AuthService.googleLogout()
+            
+            UserDefaults.resetDefaults()
 
             DispatchQueue.main.async {
                 let controller = WelcomeViewController()

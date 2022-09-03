@@ -214,6 +214,7 @@ struct PostService {
         }
     }
     
+    
     static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
         

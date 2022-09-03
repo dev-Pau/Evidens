@@ -51,6 +51,34 @@ async function sendWelcomeEmail(email, displayName) {
 
   
 
+// Delete Post
+exports.postOnDelete = functions.firestore.document('posts/{uid}').onDelete((snap, context) => {
+  const postID = snap.id
+
+
+
+
+})
+
+// Send notification
+exports.sendNotification = functions.firestore.document('notifications/{uid}/user-notifications').onCreate((snap, context) =>  {
+  const userId = context.params.userId
+  const token = admin.database().ref(`/tokens/${userId}`).once('value');
+
+  const payload = {
+    token: token,
+      notification: {
+          title: 'cloud function demo',
+          body: 'message'
+      },
+      data: {
+          body: 'message',
+      }
+  };
+
+
+})
+
 // Algoliasearch
 
 exports.postOnCreate = functions.firestore.document('posts/{uid}').onCreate((snap, context) => {
