@@ -52,7 +52,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         label.textAlignment = .left
         label.numberOfLines = 0
         //label.text = "31/12/2020"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -70,10 +70,9 @@ class UserProfilePublicationCell: UICollectionViewCell {
     private let publicationUrlLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        //label.text = "https://doi.org/10.1186/s12891-018-2182-8"
         label.textAlignment = .left
         label.textColor = .black
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

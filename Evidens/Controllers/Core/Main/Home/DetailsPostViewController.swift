@@ -48,6 +48,8 @@ class DetailsPostViewController: UICollectionViewController {
         super.viewDidLoad()
         configureCollectionView()
         fetchComments()
+        checkIfUserLikedPosts()
+        checkIfUserBookmarkedPost()
     }
 
     init(post: Post, collectionViewLayout: UICollectionViewFlowLayout) {
@@ -93,6 +95,18 @@ class DetailsPostViewController: UICollectionViewController {
             break
         }
 
+    }
+    
+    func checkIfUserLikedPosts() {
+        PostService.checkIfUserLikedPost(post: post) { didLike in
+            self.post.didLike = didLike
+        }
+    }
+    
+    func checkIfUserBookmarkedPost() {
+        PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
+            self.post.didBookmark = didBookmark  
+        }
     }
     
     

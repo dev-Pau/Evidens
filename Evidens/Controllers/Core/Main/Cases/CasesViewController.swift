@@ -149,7 +149,22 @@ class CasesViewController: UIViewController {
         searchBar.delegate = self
     }
     
+    private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
+            let width = view.bounds.width
+            let padding: CGFloat = 110
+            let minimumItemSpacing: CGFloat = 10
+            let availableWidth = width - (padding * 2) - minimumItemSpacing
+            let itemWidth = availableWidth / 2
+            
+            let flowLayout = UICollectionViewFlowLayout()
+            flowLayout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
+            flowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth + 40)
+            
+            return flowLayout
+        }
+    
     private func configureCollectionView() {
+        
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.delegate = self

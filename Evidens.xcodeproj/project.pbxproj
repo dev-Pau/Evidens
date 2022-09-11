@@ -101,6 +101,12 @@
 		5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */; };
 		5F719B322885B534002666C0 /* PollConfiguratorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F719B312885B533002666C0 /* PollConfiguratorViewController.swift */; };
 		5F719B372886800B002666C0 /* CaseTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F719B362886800B002666C0 /* CaseTextCell.swift */; };
+		5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17328CC871200A16571 /* ContainerViewController.swift */; };
+		5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */; };
+		5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17C28CCFE9E00A16571 /* NavigationBarViewController.swift */; };
+		5F71C18028CD179C00A16571 /* SideMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C17F28CD179C00A16571 /* SideMenuHeader.swift */; };
+		5F71C18228CD18B700A16571 /* SideMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C18128CD18B700A16571 /* SideMenuCell.swift */; };
+		5F71C18428CE359100A16571 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F71C18328CE359100A16571 /* MainViewController.swift */; };
 		5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */; };
 		5F77BF69285753FA00F31A75 /* MEHeaderPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF68285753FA00F31A75 /* MEHeaderPostView.swift */; };
 		5F77BF6D2857564400F31A75 /* MECategoryPostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F77BF6C2857564400F31A75 /* MECategoryPostButton.swift */; };
@@ -367,6 +373,12 @@
 		5F6607FE2856518100FCF895 /* ShareClinicalCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareClinicalCaseViewController.swift; sourceTree = "<group>"; };
 		5F719B312885B533002666C0 /* PollConfiguratorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollConfiguratorViewController.swift; sourceTree = "<group>"; };
 		5F719B362886800B002666C0 /* CaseTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTextCell.swift; sourceTree = "<group>"; };
+		5F71C17328CC871200A16571 /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
+		5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
+		5F71C17C28CCFE9E00A16571 /* NavigationBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarViewController.swift; sourceTree = "<group>"; };
+		5F71C17F28CD179C00A16571 /* SideMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuHeader.swift; sourceTree = "<group>"; };
+		5F71C18128CD18B700A16571 /* SideMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuCell.swift; sourceTree = "<group>"; };
+		5F71C18328CE359100A16571 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		5F77BF6428573D5700F31A75 /* HomeTwoImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTwoImageTextCell.swift; sourceTree = "<group>"; };
 		5F77BF68285753FA00F31A75 /* MEHeaderPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEHeaderPostView.swift; sourceTree = "<group>"; };
 		5F77BF6C2857564400F31A75 /* MECategoryPostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECategoryPostButton.swift; sourceTree = "<group>"; };
@@ -649,6 +661,9 @@
 		5F4493B82760CD14008FD6ED /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				5F71C17328CC871200A16571 /* ContainerViewController.swift */,
+				5F71C17728CCF7F600A16571 /* SideMenuViewController.swift */,
+				5F71C18328CE359100A16571 /* MainViewController.swift */,
 				5FC4D8782707047E006B7A34 /* MainTabController.swift */,
 				5F598C17283E7F6800189722 /* Home */,
 				5F598C1D2842777200189722 /* Cases */,
@@ -906,6 +921,40 @@
 			path = Case;
 			sourceTree = "<group>";
 		};
+		5F71C17928CCFE7300A16571 /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */,
+				5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */,
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
+		5F71C17A28CCFE7E00A16571 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		5F71C17B28CCFE8600A16571 /* NavigationBar */ = {
+			isa = PBXGroup;
+			children = (
+				5F71C17C28CCFE9E00A16571 /* NavigationBarViewController.swift */,
+			);
+			path = NavigationBar;
+			sourceTree = "<group>";
+		};
+		5F71C17E28CD178A00A16571 /* SideMenu */ = {
+			isa = PBXGroup;
+			children = (
+				5F71C17F28CD179C00A16571 /* SideMenuHeader.swift */,
+				5F71C18128CD18B700A16571 /* SideMenuCell.swift */,
+			);
+			path = SideMenu;
+			sourceTree = "<group>";
+		};
 		5F77BF67285753D100F31A75 /* Home */ = {
 			isa = PBXGroup;
 			children = (
@@ -979,12 +1028,12 @@
 		5F8666F3274FAD44009B26E6 /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5F71C17B28CCFE8600A16571 /* NavigationBar */,
+				5F71C17A28CCFE7E00A16571 /* Settings */,
+				5F71C17928CCFE7300A16571 /* Comments */,
 				5F598C08283690F400189722 /* Profile */,
 				5F39B49F2830E8AE0079F8CF /* Search */,
 				5F4493FA27942802008FD6ED /* Chat */,
-				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
-				5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */,
-				5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -1460,6 +1509,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5F71C17E28CD178A00A16571 /* SideMenu */,
 				5FB2904328910DD5002FBAE1 /* EditProfile */,
 				5F979C5C286DDB1000C05D57 /* Cases */,
 				5F6607F32854EB3700FCF895 /* Post */,
@@ -1777,6 +1827,7 @@
 				5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
+				5F71C18228CD18B700A16571 /* SideMenuCell.swift in Sources */,
 				5F992AF828AB6D0B0030F7F1 /* CommentsMenuLauncher.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
 				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
@@ -1814,6 +1865,7 @@
 				5F77BF802858F3BF00F31A75 /* MEPostInfoView.swift in Sources */,
 				5FB290222886D04D002FBAE1 /* MECaseInfoView.swift in Sources */,
 				5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */,
+				5F71C18028CD179C00A16571 /* SideMenuHeader.swift in Sources */,
 				5FC4D88D27072B60006B7A34 /* RegistrationViewController.swift in Sources */,
 				5F0D2B0328C34BD800BE5DD5 /* AccountSettingsViewController.swift in Sources */,
 				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
@@ -1833,9 +1885,11 @@
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
+				5F71C18428CE359100A16571 /* MainViewController.swift in Sources */,
 				5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */,
 				5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */,
 				5F91C15828AFB951006F1BAD /* UserCommentsViewController.swift in Sources */,
+				5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */,
 				5F598BF72835002400189722 /* TopPeopleHeader.swift in Sources */,
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
 				5FEB92E4289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift in Sources */,
@@ -1871,6 +1925,7 @@
 				5F992B0028ACD6F30030F7F1 /* TopCaseTextCell.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
 				5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */,
+				5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */,
 				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
 				5F527D8D2881DCF4009D5027 /* ImageRegistrationViewController.swift in Sources */,
 				5F9A9F9A2898448E00A25152 /* UserProfilePublicationCell.swift in Sources */,
@@ -1983,6 +2038,7 @@
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
 				5F527D9B288567C4009D5027 /* DiagnosisUnresolvedView.swift in Sources */,
+				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,

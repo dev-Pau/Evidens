@@ -12,7 +12,7 @@ class UserProfileNoPostCell: UICollectionViewCell {
     private var postTextLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .medium)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

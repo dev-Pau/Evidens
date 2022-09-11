@@ -10,12 +10,20 @@ import Firebase
 import FirebaseAuth
 import GoogleSignIn
 
+
+protocol MainTabControllerDelegate: AnyObject {
+    func handleMenu()
+    func handleDisablePan()
+}
+
 class MainTabController: UITabBarController {
     
     //MARK: Properties
     
     private var postMenuLauncher = PostBottomMenuLauncher()
     var menu = PostPrivacyMenuLauncher()
+    
+    weak var menuDelegate: MainTabControllerDelegate?
     
     var user: User? {
         didSet {
@@ -127,13 +135,12 @@ class MainTabController: UITabBarController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
-        /*
-         let layout = UICollectionViewFlowLayout()
-         layout.scrollDirection = .vertical
-         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
-         super.init(collectionViewLayout: layout)
-         */
-        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house.fill")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: HomeViewController(collectionViewLayout: layout))
+        
+        let homeController = HomeViewController()
+        homeController.delegate = self
+        homeController.panDelegate = self
+        
+        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house.fill")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: homeController)
         
         let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(systemName: "heart.text.square.fill")!, selectedImage: UIImage(systemName: "heart.text.square.fill")!, rootViewController: CasesViewController())
         
@@ -162,6 +169,21 @@ class MainTabController: UITabBarController {
         nav.navigationBar.tintColor = .black
         
         return nav
+    }
+    
+    func pushUserProfileViewController() {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            guard let user = user else { return }
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            
+            let userProfileController = UserProfileViewController(user: user)
+
+            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
+            currentNavController.pushViewController(userProfileController, animated: true)
+        }
     }
 }
 
@@ -200,5 +222,39 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true, completion: nil)
     }
+    
+    func updateUserProfileImageViewAlpha(alfa: CGFloat) {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa
+        }
+    }
+}
+
+extension MainTabController: NavigationBarViewControllerDelegate {
+    func didTapSearchBar() {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            
+            let controller = SearchViewController()
+            
+            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
+            currentNavController.pushViewController(controller, animated: true)
+        }
+    }
+    
+    func didTapMenuButton() {
+        menuDelegate?.handleMenu()
+    }
+}
+
+extension MainTabController: DisablePanGestureDelegate {
+    func disablePanGesture() {
+        menuDelegate?.handleDisablePan()
+    }
+    
+    
 }
 

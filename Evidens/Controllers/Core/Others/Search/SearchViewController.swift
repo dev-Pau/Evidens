@@ -37,8 +37,6 @@ class SearchViewController: UIViewController {
     }()
     
     
-    
-    
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
@@ -54,6 +52,7 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchRecents()
+
         //view.addSubview(UIView())
         navigationItem.titleView = searchBar
         searchBar.becomeFirstResponder()

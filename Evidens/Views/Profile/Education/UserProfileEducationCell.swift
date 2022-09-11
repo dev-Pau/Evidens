@@ -51,7 +51,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         label.textAlignment = .left
         label.numberOfLines = 0
         //label.text = "2016 - Present"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -83,7 +83,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         label.textAlignment = .left
         label.numberOfLines = 0
         //label.text = "Master's degree"
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

@@ -52,11 +52,18 @@ class ConversationViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didTapComposeButton))
         navigationItem.rightBarButtonItem?.tintColor = .black
+        
+        let backButton = UIBarButtonItem(barButtonSystemItem: .undo, target: self, action: #selector(didTapComposeButton))
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.leftBarButtonItem = backButton
+        
         configureUI()
         configureTableView()
         startListeningForConversations()
+        
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
@@ -108,6 +115,7 @@ class ConversationViewController: UIViewController {
     
     //Creates a new conversation
     @objc private func didTapComposeButton() {
+        print("compose")
         let vc = NewConversationViewController()
         vc.completion = { [weak self] user in
             //Check if user conversation already exists
@@ -223,9 +231,4 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
             tableView.endUpdates()
         }
     }
-    
-    
-    
-  
-
 }

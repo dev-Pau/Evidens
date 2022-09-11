@@ -16,7 +16,7 @@ private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseId
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 
 
-class HomeViewController: UICollectionViewController {
+class HomeViewController: NavigationBarViewController {
     
     //MARK: - Properties
     
@@ -29,68 +29,41 @@ class HomeViewController: UICollectionViewController {
     private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
-        
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.layer.masksToBounds = true
-        iv.setDimensions(height: 35, width: 35)
-        iv.layer.cornerRadius = 35/2
-        iv.contentMode = .scaleAspectFill
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
-        iv.addGestureRecognizer(tap)
-        iv.isUserInteractionEnabled = true
-        
-        return iv
-    }()
     
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.backgroundColor = lightColor
-        searchBar.searchTextField.tintColor = primaryColor
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
+    //weak var panDelegate: DisablePanGestureDelegate?
+    
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing  = 10
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = lightColor
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
     }()
 
+    
     var posts = [Post]() {
         didSet {
-            collectionView.isHidden = false
-            //collectionView.reloadData()
+            collectionView.reloadData()
             
         }
     }
     
     //MARK: - Lifecycle
-    
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.isHidden = true
         self.navigationController?.delegate = zoomTransitioning
         fetchUser()
         fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
-        searchBar.delegate = self
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(false)
-        // To resign first responder
-        //navigationController?.navigationBar.isHidden = false
-        searchBar.resignFirstResponder()
-    }
-    
-    
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        //navigationController?.navigationBar.isHidden = false
-    }
-    
-    
+
     //MARK: - Helpers
     func configureUI() {
         // Configure UICollectionView
@@ -101,6 +74,11 @@ class HomeViewController: UICollectionViewController {
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         //collectionView.register(HomeDocumentCell.self, forCellWithReuseIdentifier: homeDocumentCellReuseIdentifier)
+        
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        view.addSubview(collectionView)
         //Configure UIRefreshControl
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -110,21 +88,10 @@ class HomeViewController: UICollectionViewController {
     }
     
     func configureNavigationItemButtons() {
-        if !controllerIsBeeingPushed {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane",
-                                                                               withConfiguration: UIImage.SymbolConfiguration(weight: .medium)),
-                                                                style: .plain,
-                                                                target: self,
-                                                                action: #selector(didTapChat))
-            navigationItem.rightBarButtonItem?.tintColor = .black
-            let profileImageItem = UIBarButtonItem(customView: profileImageView)
-            profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
-            navigationItem.leftBarButtonItem = profileImageItem
-            navigationItem.titleView = searchBar
-        } else {
-            navigationItem.titleView = searchBar
+        if controllerIsBeeingPushed {
             navigationItem.titleView?.isHidden = true
             navigationItem.titleView?.isUserInteractionEnabled = false
+            navigationItem.leftBarButtonItem?.customView?.isHidden = true
         }
     }
     
@@ -135,34 +102,6 @@ class HomeViewController: UICollectionViewController {
         posts.removeAll()
         fetchFirstPostsGroup()
     }
-    
-    @objc func didTapProfile() {
-        guard let user = user else { return }
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .black
-        
-        let controller = UserProfileViewController(user: user)
-        navigationController?.pushViewController(controller, animated: true)
-        
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        
-    }
-
-    @objc func didTapChat() {
-        let controller = ConversationViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-
-        controller.hidesBottomBarWhenPushed = true
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-
     
     //MARK: - API
     func fetchUser() {
@@ -182,7 +121,7 @@ class HomeViewController: UICollectionViewController {
                     self.posts = posts
                     self.checkIfUserLikedPosts()
                     self.checkIfUserBookmarkedPost()
-                    self.collectionView.reloadData()
+                    //self.collectionView.reloadData()
                     self.collectionView.refreshControl?.endRefreshing()
                 }
             }
@@ -200,8 +139,10 @@ class HomeViewController: UICollectionViewController {
                             self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                             // Get the last timestamp to create next query for realtime database
                             self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                            print("Last timestamp value is \(self.postLastTimestamp)")
-                            self.collectionView.reloadData()
+    
+                            self.checkIfUserLikedPosts()
+                            self.checkIfUserBookmarkedPost()
+                            //self.collectionView.reloadData()
                             
                         }
                     }
@@ -252,12 +193,12 @@ class HomeViewController: UICollectionViewController {
 
 //MARK: - UICollectionViewDataSource
 
-extension HomeViewController {
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+extension HomeViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return posts.count
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
             if posts[indexPath.row].type.postType == 0 {
                 
@@ -331,7 +272,7 @@ extension HomeViewController {
         
     }
     
-    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
@@ -401,7 +342,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0.0
     }
-    
+    /*
     override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
             let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
                 return UIMenu(title: "", subtitle: nil, image: nil, identifier: nil, options: .displayInline, children: [
@@ -412,6 +353,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             }
             return config
         }
+     */
 }
 
 //MARK: - HomeCellDelegate
@@ -676,7 +618,7 @@ extension HomeViewController: HomeCellDelegate {
         }
     }
 }
-
+/*
 extension HomeViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
@@ -691,6 +633,8 @@ extension HomeViewController: UISearchBarDelegate {
         return true
     }
 }
+ */
+
 
 extension HomeViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
@@ -766,7 +710,6 @@ extension HomeViewController {
             }
         } else {
             guard let uid = user?.uid else { return }
-            print("Fetching more posts with last value \(postLastTimestamp)")
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
                 switch result {
                 case .success(let uids):

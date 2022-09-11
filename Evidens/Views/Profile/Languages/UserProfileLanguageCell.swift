@@ -20,7 +20,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         label.numberOfLines = 0
         label.textAlignment = .left
         label.textColor = .black
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -29,7 +29,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = grayColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

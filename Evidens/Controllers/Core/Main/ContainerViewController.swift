@@ -1,0 +1,217 @@
+//
+//  ContainerViewController.swift
+//  Evidens
+//
+//  Created by Pau Fernández Solà on 10/9/22.
+//
+
+import UIKit
+
+class ContainerViewController: UIViewController {
+    
+    enum MEMenuState {
+        case opened
+        case closed
+    }
+    
+    var panGestureRecognizer: UIPanGestureRecognizer!
+    
+    var panEnabled: Bool = true
+    
+    private var menuState: MEMenuState = .closed
+    private var viewIsOnConversations: Bool = false
+    
+    private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
+    private var screenWidth: CGFloat = UIScreen.main.bounds.width
+    
+    let menuController = SideMenuViewController()
+    let mainController = MainViewController()
+    
+    private lazy var blackBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black.withAlphaComponent(0)
+        view.isUserInteractionEnabled = false
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissMenu)))
+        return view
+    }()
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addChildVCs()
+        view.backgroundColor = .white
+        blackBackgroundView.frame = view.bounds
+        view.addSubview(blackBackgroundView)
+        
+        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+            view.addGestureRecognizer(panGestureRecognizer)
+    }
+    
+    private func addChildVCs() {
+
+        addChild(menuController)
+        menuController.view.frame = CGRect(x: 0 - view.frame.size.width, y: 0, width: menuWidth, height: view.frame.size.height)
+        view.addSubview(menuController.view)
+        menuController.delegate = self
+        menuController.didMove(toParent: self)
+        
+        addChild(mainController)
+        mainController.view.frame = CGRect(x: 0, y: 0, width: screenWidth * 2, height: view.frame.size.height)
+        mainController.delegate = self
+        view.addSubview(mainController.view)
+        mainController.didMove(toParent: self)
+
+    }
+    
+    private func openMenu() {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
+            self.mainController.view.frame.origin.x = self.menuWidth
+            //translation.x / 500
+            self.menuController.view.frame.origin.x = 0
+            self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
+            self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.65)
+            self.mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
+        } completion: { done in
+            if done {
+                self.blackBackgroundView.isUserInteractionEnabled = true
+                self.menuState = .opened
+            }
+        }
+    }
+    
+    private func closeMenu() {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
+            self.mainController.view.frame.origin.x = 0
+            self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
+            self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0)
+            self.menuController.view.frame.origin.x = 0 - self.view.frame.size.width
+            self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0)
+        } completion: { done in
+            if done {
+                self.blackBackgroundView.isUserInteractionEnabled = false
+                self.menuState = .closed
+            }
+        }
+    }
+    
+    private func openConversation() {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) { [self] in
+            self.mainController.view.frame.origin.x = 0 - screenWidth
+            //self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
+        } completion: { done in
+            if done {
+                self.viewIsOnConversations = true
+                self.mainController.updateRootViewControllerToConversation()
+            }
+        }
+    }
+    
+    private func closeConversation() {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
+            self.mainController.view.frame.origin.x = 0
+            self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
+        } completion: { done in
+            if done {
+                self.viewIsOnConversations = false
+                self.mainController.updateRootViewControllerToTabController()
+            }
+        }
+    }
+    
+    @objc func dismissMenu() {
+        closeMenu()
+    }
+    
+    @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
+        let translation = recognizer.translation(in: self.view)
+        
+        if viewIsOnConversations {
+            
+            if recognizer.state == .ended {
+                if translation.x < 0 {
+                    openConversation()
+                } else {
+                    closeConversation()
+                }
+                return
+            }
+            
+            if translation.x >= 0 - UIScreen.main.bounds.width && translation.x > 0.0 {
+                self.mainController.view.frame.origin.x =  0 - screenWidth + translation.x
+                
+                
+            }
+            
+          return
+        }
+        
+        self.mainController.updateUserProfileImageViewAlpha(withAlfa: translation.x / 500)
+        
+        if recognizer.state == .ended {
+            switch menuState {
+            case .opened:
+                if translation.x < 0 {
+                    closeMenu()
+                } else {
+                    openMenu()
+                }
+            case .closed:
+                if translation.x > 0 {
+                    openMenu()
+                } else {
+                    closeMenu()
+                    openConversation()
+                }
+            }
+            
+            return
+        }
+        
+        switch menuState {
+        case .opened:
+            if translation.x >= 0 - (menuWidth) && translation.x < 0.0 {
+                self.mainController.view.frame.origin.x = screenWidth - 50 + translation.x
+                self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
+                self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.65 + translation.x / 500)
+                self.menuController.view.frame.origin.x = translation.x
+                
+            }
+        case .closed:
+            if translation.x > 0.0 && translation.x <= screenWidth - 50 {
+                self.mainController.view.frame.origin.x = translation.x
+                self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
+                self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(translation.x / 500)
+                self.menuController.view.frame.origin.x = 0 - menuWidth + translation.x
+            } else {
+                self.mainController.view.frame.origin.x = translation.x
+            }
+        }
+    }
+}
+
+extension ContainerViewController: MainViewControllerDelegate {
+    func handleMenu() {
+        switch menuState {
+        case .opened:
+            closeMenu()
+        case .closed:
+            openMenu()
+        }
+    }
+    
+    func handleDisablePan() {
+        panEnabled.toggle()
+        panGestureRecognizer.isEnabled = !panEnabled
+    }
+}
+
+
+extension ContainerViewController: SideMenuViewControllerDelegate {
+    
+    func didTapMenuHeader() {
+        closeMenu()
+        mainController.pushUserProfileViewController()
+    }
+}
+ 
+

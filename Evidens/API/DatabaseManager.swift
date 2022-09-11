@@ -327,7 +327,7 @@ extension DatabaseManager {
         
         if lastTimestampValue == nil {
             // First group to fetch
-            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             ref.observeSingleEvent(of: .value) { snapshot in
                 if let values = snapshot.value as? [String: Any] {
                     print(values)
@@ -340,7 +340,7 @@ extension DatabaseManager {
             
         } else {
             // Fetch more posts
-            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 1)
+            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
             
             
             //queryStarting(afterValue: lastTimestampValue).queryLimited(toFirst: 1)

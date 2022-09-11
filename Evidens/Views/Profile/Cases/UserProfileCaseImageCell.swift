@@ -30,7 +30,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 1
         //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -40,7 +40,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     private let descriptionCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
         label.translatesAutoresizingMaskIntoConstraints = false

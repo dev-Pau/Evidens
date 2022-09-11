@@ -990,6 +990,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.section == 3 {
+            guard !recentCases.isEmpty else { return }
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -1217,7 +1218,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             backItem.tintColor = .black
             navigationItem.backBarButtonItem = backItem
             
-            let controller = HomeViewController(collectionViewLayout: layout)
+            let controller = HomeViewController()
             controller.controllerIsBeeingPushed = true
             controller.user = user
             
