@@ -138,13 +138,7 @@ class UserProfileViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationItemButton() {
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)),
-                                                            style: .plain,
-                                                            target: self, action: #selector(didTapSettings))
-        
-        navigationItem.rightBarButtonItem?.tintColor = .black
-        
+
         navigationItem.titleView = searchBar
         
         guard let firstName = user.firstName, let lastName = user.lastName else { return }
@@ -686,30 +680,7 @@ class UserProfileViewController: UIViewController {
             self.collectionView.reloadData()
         }
     }
-    
-    //MARK: - Actions
-    @objc func didTapSettings() {
-        let controller = ApplicationSettingsViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .black
-        
-        navigationItem.backBarButtonItem = backItem
-        controller.hidesBottomBarWhenPushed = true
-        
-        navigationController?.pushViewController(controller, animated: true)
-        /*
-        GIDSignIn.sharedInstance.signOut()
-        AuthService.logout()
-        
-        DispatchQueue.main.async {
-            let controller = WelcomeViewController()
-            let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-            sceneDelegate?.updateRootViewController(controller)
-        }
-         */
-    }
+
 }
 
 

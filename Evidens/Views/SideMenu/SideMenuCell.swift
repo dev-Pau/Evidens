@@ -11,27 +11,41 @@ class SideMenuCell: UICollectionViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.textColor = .black
         return label
     }()
     
+    private let titleImage: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        return iv
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        addSubview(titleLabel)
+        addSubviews(titleLabel, titleImage)
         
         NSLayoutConstraint.activate([
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            titleImage.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            titleImage.heightAnchor.constraint(equalToConstant: 20),
+            titleImage.widthAnchor.constraint(equalToConstant: 20),
+            
+            titleLabel.centerYAnchor.constraint(equalTo: titleImage.centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: titleImage.trailingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
     }
     
-    func set(title: String) {
+    func set(title: String, image: String) {
         titleLabel.text = title
+        titleImage.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
     }
     
     required init?(coder: NSCoder) {

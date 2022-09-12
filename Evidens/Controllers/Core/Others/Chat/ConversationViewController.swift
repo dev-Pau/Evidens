@@ -9,12 +9,18 @@ import UIKit
 
 private let reuseIdentifier = "cell"
 
+protocol ConversationViewControllerDelegate: AnyObject {
+    func didTapHideConversations()
+}
+
 /// Controller that shows list of conversations
 class ConversationViewController: UIViewController {
     
     //MARK: - Properties
     
     private var conversations = [Conversation]()
+    
+    weak var delegate: ConversationViewControllerDelegate?
     
     private let tableView: UITableView = {
         let table = UITableView()
@@ -53,7 +59,8 @@ class ConversationViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didTapComposeButton))
         navigationItem.rightBarButtonItem?.tintColor = .black
         
-        let backButton = UIBarButtonItem(barButtonSystemItem: .undo, target: self, action: #selector(didTapComposeButton))
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
+        
         backButton.title = ""
         backButton.tintColor = .black
         navigationItem.leftBarButtonItem = backButton
@@ -140,6 +147,10 @@ class ConversationViewController: UIViewController {
         
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true)
+    }
+    
+    @objc func didTapHideConversations() {
+        delegate?.didTapHideConversations()
     }
     
     private func createNewConversation(result: SearchUser) {

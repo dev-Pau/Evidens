@@ -23,13 +23,9 @@ class ApplicationSettingsViewController: UIViewController {
         configureNavigationBar()
         configureTableView()
     }
-    
-    let searchBar = UISearchBar()
-    
+  
     private func configureNavigationBar() {
-        searchBar.isHidden = true
-        navigationItem.titleView = searchBar
-        
+        title = "Settings"
     }
     
     private func configureTableView() {
@@ -41,7 +37,6 @@ class ApplicationSettingsViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(SettingsOptionCell.self, forCellReuseIdentifier: settingsCellReuseIdentifier)
         tableView.register(SettingsOptionFooter.self, forHeaderFooterViewReuseIdentifier: settingsFooterReuseIdentifier)
-        tableView.register(SettingsOptionHeader.self, forHeaderFooterViewReuseIdentifier: settingsHeaderReuseIdentifier)
     }
 }
 
@@ -63,13 +58,6 @@ extension ApplicationSettingsViewController: UITableViewDelegate, UITableViewDat
         return 50
     }
     
-    
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: settingsHeaderReuseIdentifier) as! SettingsOptionHeader
-        return header
-    }
-    
-    
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: settingsFooterReuseIdentifier) as! SettingsOptionFooter
         footer.delegate = self
@@ -81,7 +69,11 @@ extension ApplicationSettingsViewController: UITableViewDelegate, UITableViewDat
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 95
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

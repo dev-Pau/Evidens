@@ -14,6 +14,7 @@ import GoogleSignIn
 protocol MainTabControllerDelegate: AnyObject {
     func handleMenu()
     func handleDisablePan()
+    func handleConversations()
 }
 
 class MainTabController: UITabBarController {
@@ -185,6 +186,38 @@ class MainTabController: UITabBarController {
             currentNavController.pushViewController(userProfileController, animated: true)
         }
     }
+    
+    func pushMenuOption(option: SideMenuViewController.MenuOptions) {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
+            
+            switch option {
+            case .bookmarks:
+                let controller = BookmarksViewController()
+                currentNavController.pushViewController(controller, animated: true)
+            }
+            
+            
+            
+        }
+    }
+    
+    func pushSettingsViewController() {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .black
+            
+            let settingsController = ApplicationSettingsViewController()
+
+            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
+            currentNavController.pushViewController(settingsController, animated: true)
+        }
+    }
 }
 
 //MARK: - UITabBarControllerDelegate
@@ -231,6 +264,10 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
 }
 
 extension MainTabController: NavigationBarViewControllerDelegate {
+    func didTapConversationsButton() {
+        menuDelegate?.handleConversations()
+    }
+    
     func didTapSearchBar() {
         if let currentNavController = selectedViewController as? UINavigationController {
             

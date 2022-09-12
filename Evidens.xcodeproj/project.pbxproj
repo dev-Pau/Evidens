@@ -26,7 +26,6 @@
 		5F0A4F592725A1EE00700304 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F582725A1EE00700304 /* K.swift */; };
 		5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */; };
 		5F0D2AF828C0EEFD00BE5DD5 /* SettingsOptionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AF728C0EEFD00BE5DD5 /* SettingsOptionFooter.swift */; };
-		5F0D2AFA28C0FAAF00BE5DD5 /* SettingsOptionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AF928C0FAAF00BE5DD5 /* SettingsOptionHeader.swift */; };
 		5F0D2AFD28C339B900BE5DD5 /* AboutSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AFC28C339B900BE5DD5 /* AboutSettingsViewController.swift */; };
 		5F0D2AFF28C346FD00BE5DD5 /* SettingsSubOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2AFE28C346FD00BE5DD5 /* SettingsSubOptionCell.swift */; };
 		5F0D2B0128C34BCD00BE5DD5 /* NotificationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0D2B0028C34BCD00BE5DD5 /* NotificationSettingsViewController.swift */; };
@@ -215,6 +214,8 @@
 		5FA0875328C099EE00D44829 /* SupportSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* SupportSectionCell.swift */; };
 		5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */; };
 		5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */; };
+		5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */; };
+		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
 		5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
 		5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29015288688D3002FBAE1 /* CaseService.swift */; };
@@ -299,7 +300,6 @@
 		5F0A4F582725A1EE00700304 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		5F0A4F5A2725B91E00700304 /* ProfileHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderViewModel.swift; sourceTree = "<group>"; };
 		5F0D2AF728C0EEFD00BE5DD5 /* SettingsOptionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionFooter.swift; sourceTree = "<group>"; };
-		5F0D2AF928C0FAAF00BE5DD5 /* SettingsOptionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionHeader.swift; sourceTree = "<group>"; };
 		5F0D2AFC28C339B900BE5DD5 /* AboutSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSettingsViewController.swift; sourceTree = "<group>"; };
 		5F0D2AFE28C346FD00BE5DD5 /* SettingsSubOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSubOptionCell.swift; sourceTree = "<group>"; };
 		5F0D2B0028C34BCD00BE5DD5 /* NotificationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsViewController.swift; sourceTree = "<group>"; };
@@ -487,6 +487,8 @@
 		5FA0875228C099EE00D44829 /* SupportSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSectionCell.swift; sourceTree = "<group>"; };
 		5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsViewController.swift; sourceTree = "<group>"; };
 		5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionCell.swift; sourceTree = "<group>"; };
+		5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
+		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
 		5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCaseViewController.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		5FB29015288688D3002FBAE1 /* CaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseService.swift; sourceTree = "<group>"; };
@@ -930,12 +932,13 @@
 			path = Comments;
 			sourceTree = "<group>";
 		};
-		5F71C17A28CCFE7E00A16571 /* Settings */ = {
+		5F71C17A28CCFE7E00A16571 /* SideMenu */ = {
 			isa = PBXGroup;
 			children = (
 				5F0A4F5427259A0900700304 /* SettingsViewController.swift */,
+				5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */,
 			);
-			path = Settings;
+			path = SideMenu;
 			sourceTree = "<group>";
 		};
 		5F71C17B28CCFE8600A16571 /* NavigationBar */ = {
@@ -949,6 +952,7 @@
 		5F71C17E28CD178A00A16571 /* SideMenu */ = {
 			isa = PBXGroup;
 			children = (
+				5FA1FC2928CF8C0A0099BF2C /* Bookmarks */,
 				5F71C17F28CD179C00A16571 /* SideMenuHeader.swift */,
 				5F71C18128CD18B700A16571 /* SideMenuCell.swift */,
 			);
@@ -1029,7 +1033,7 @@
 			isa = PBXGroup;
 			children = (
 				5F71C17B28CCFE8600A16571 /* NavigationBar */,
-				5F71C17A28CCFE7E00A16571 /* Settings */,
+				5F71C17A28CCFE7E00A16571 /* SideMenu */,
 				5F71C17928CCFE7300A16571 /* Comments */,
 				5F598C08283690F400189722 /* Profile */,
 				5F39B49F2830E8AE0079F8CF /* Search */,
@@ -1306,10 +1310,17 @@
 			children = (
 				5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */,
 				5F0D2AF728C0EEFD00BE5DD5 /* SettingsOptionFooter.swift */,
-				5F0D2AF928C0FAAF00BE5DD5 /* SettingsOptionHeader.swift */,
 				5F0D2AFE28C346FD00BE5DD5 /* SettingsSubOptionCell.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		5FA1FC2928CF8C0A0099BF2C /* Bookmarks */ = {
+			isa = PBXGroup;
+			children = (
+				5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */,
+			);
+			path = Bookmarks;
 			sourceTree = "<group>";
 		};
 		5FB29017288695C6002FBAE1 /* Case */ = {
@@ -1826,6 +1837,7 @@
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
+				5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
 				5F71C18228CD18B700A16571 /* SideMenuCell.swift in Sources */,
 				5F992AF828AB6D0B0030F7F1 /* CommentsMenuLauncher.swift in Sources */,
@@ -1942,6 +1954,7 @@
 				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
 				5FA0875328C099EE00D44829 /* SupportSectionCell.swift in Sources */,
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
+				5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
 				5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */,
@@ -1959,7 +1972,6 @@
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
 				5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */,
-				5F0D2AFA28C0FAAF00BE5DD5 /* SettingsOptionHeader.swift in Sources */,
 				5F9A9FA22899048200A25152 /* CasePrivacyMenuLauncher.swift in Sources */,
 				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,

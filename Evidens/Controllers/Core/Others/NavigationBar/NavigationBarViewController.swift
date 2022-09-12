@@ -10,6 +10,7 @@ import UIKit
 protocol NavigationBarViewControllerDelegate: AnyObject {
     func didTapMenuButton()
     func didTapSearchBar()
+    func didTapConversationsButton()
 }
 
 class NavigationBarViewController: UIViewController {
@@ -49,7 +50,7 @@ class NavigationBarViewController: UIViewController {
         userImageView.widthAnchor.constraint(equalToConstant: 35).isActive = true
         userImageView.layer.cornerRadius = 35 / 2
         let profileImageItem = UIBarButtonItem(customView: userImageView)
-        userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+        userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
         navigationItem.leftBarButtonItem = profileImageItem
         
         navigationItem.titleView = searchBar
@@ -57,14 +58,12 @@ class NavigationBarViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        print("appear")
         super.viewWillAppear(animated)
         searchBar.resignFirstResponder()
         panDelegate?.disablePanGesture()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        print("dissapear")
         super.viewWillDisappear(animated)
         panDelegate?.disablePanGesture()
     }
@@ -74,7 +73,7 @@ class NavigationBarViewController: UIViewController {
     }
     
     @objc func didTapChat() {
-        
+        delegate?.didTapConversationsButton()
     }
 }
 

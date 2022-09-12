@@ -282,6 +282,18 @@ extension HomeViewController: UICollectionViewDataSource {
             getMorePosts()
         }
     }
+    
+    /*
+    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
+            navigationController?.setNavigationBarHidden(true, animated: true)
+            collectionView.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+            
+        } else {
+            navigationController?.setNavigationBarHidden(false, animated: true)
+        }
+    }
+     */
 }
 
 

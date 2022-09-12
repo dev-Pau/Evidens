@@ -101,7 +101,6 @@ class ContainerViewController: UIViewController {
         } completion: { done in
             if done {
                 self.viewIsOnConversations = true
-                self.mainController.updateRootViewControllerToConversation()
             }
         }
     }
@@ -113,7 +112,6 @@ class ContainerViewController: UIViewController {
         } completion: { done in
             if done {
                 self.viewIsOnConversations = false
-                self.mainController.updateRootViewControllerToTabController()
             }
         }
     }
@@ -145,8 +143,6 @@ class ContainerViewController: UIViewController {
           return
         }
         
-        self.mainController.updateUserProfileImageViewAlpha(withAlfa: translation.x / 500)
-        
         if recognizer.state == .ended {
             switch menuState {
             case .opened:
@@ -173,6 +169,7 @@ class ContainerViewController: UIViewController {
                 self.mainController.view.frame.origin.x = screenWidth - 50 + translation.x
                 self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
                 self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.65 + translation.x / 500)
+                self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0.65 + translation.x / 500)
                 self.menuController.view.frame.origin.x = translation.x
                 
             }
@@ -182,6 +179,7 @@ class ContainerViewController: UIViewController {
                 self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
                 self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(translation.x / 500)
                 self.menuController.view.frame.origin.x = 0 - menuWidth + translation.x
+                self.mainController.updateUserProfileImageViewAlpha(withAlfa: translation.x / 500)
             } else {
                 self.mainController.view.frame.origin.x = translation.x
             }
@@ -190,6 +188,10 @@ class ContainerViewController: UIViewController {
 }
 
 extension ContainerViewController: MainViewControllerDelegate {
+    func showConversations() {
+        openConversation()
+    }
+    
     func handleMenu() {
         switch menuState {
         case .opened:
@@ -203,10 +205,24 @@ extension ContainerViewController: MainViewControllerDelegate {
         panEnabled.toggle()
         panGestureRecognizer.isEnabled = !panEnabled
     }
+    
+    func hideConversations() {
+        closeConversation()
+    }
 }
 
 
 extension ContainerViewController: SideMenuViewControllerDelegate {
+    func didSelectMenuOption(option: SideMenuViewController.MenuOptions) {
+        closeMenu()
+        mainController.pushMenuOptionController(option: option)
+    }
+    
+    func didTapSettings() {
+        closeMenu()
+        mainController.pushSettingsViewController()
+    }
+    
     
     func didTapMenuHeader() {
         closeMenu()
