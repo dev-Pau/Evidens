@@ -61,14 +61,14 @@ struct CaseService {
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
 
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 5)
+            let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.addSnapshotListener { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
                 completion(snapshot)
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 1)
+            let nextGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.addSnapshotListener { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
@@ -80,7 +80,7 @@ struct CaseService {
     static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, completion: @escaping(Bool) -> Void) {
         COLLECTION_CASES.document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
             if let _ = error {
-                print("error uplading")
+                print("error uploading")
                 completion(false)
             }
             completion(true)
@@ -207,7 +207,7 @@ struct CaseService {
         //Update post bookmark collection to track bookmarks for a particular post
         COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).setData([:]) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).setData(["timestamp": Timestamp(date: Date())], completion: completion)
         }
     }
     
@@ -237,6 +237,37 @@ struct CaseService {
             let docIDs = uid.map({ $0.documentID })
             completion(docIDs)
         }
+    }
+    
+    static func fetchBookmarkedCaseDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
+            firstGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    static func fetchBookmarkedCases(snapshot: QuerySnapshot, completion: @escaping([Case]) -> Void) {
+        var cases = [Case]()
+        snapshot.documents.forEach({ document in
+            fetchCase(withCaseId: document.documentID) { clinicalCase in
+                cases.append(clinicalCase)
+                cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                completion(cases)
+            }
+        })
     }
 }
 

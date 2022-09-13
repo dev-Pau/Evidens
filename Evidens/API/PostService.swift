@@ -290,7 +290,7 @@ struct PostService {
         //Update post bookmark collection to track bookmarks for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData(["timestamp": Timestamp(date: Date())], completion: completion)
         }
     }
     

@@ -10,6 +10,14 @@ import UIKit
 
 class BookmarkCategoriesCell: UICollectionViewCell {
     
+    override var isSelected: Bool {
+        didSet {
+            categoryLabel.textColor = isSelected ? .white : grayColor
+            backgroundColor = isSelected ? primaryColor : .white
+            layer.borderColor = isSelected ? primaryColor.cgColor : grayColor.cgColor
+        }
+    }
+    
     let cellContentView = UIView()
 
     private var categoryLabel: UILabel = {
