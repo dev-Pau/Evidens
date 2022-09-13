@@ -139,7 +139,9 @@ class UserProfileViewController: UIViewController {
     
     func configureNavigationItemButton() {
 
-        navigationItem.titleView = searchBar
+        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = searchBarContainer
         
         guard let firstName = user.firstName, let lastName = user.lastName else { return }
         

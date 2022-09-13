@@ -32,20 +32,10 @@ class DetailsPostViewController: UICollectionViewController {
         }
     }
     
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.backgroundColor = lightColor
-        searchBar.searchTextField.tintColor = primaryColor
-        searchBar.isHidden = true
-        searchBar.isUserInteractionEnabled = false
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
-    }()
-        
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        configureNavigationBar()
         configureCollectionView()
         fetchComments()
         checkIfUserLikedPosts()
@@ -67,8 +57,17 @@ class DetailsPostViewController: UICollectionViewController {
         }
     }
     
+    private func configureNavigationBar() {
+        let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+    }
+    
     func configureCollectionView() {
-        navigationItem.titleView = searchBar
         homeMenuLauncher.delegate = self
         collectionView.backgroundColor = .white
         collectionView.bounces = true

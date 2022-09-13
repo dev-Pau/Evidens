@@ -53,8 +53,9 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         fetchRecents()
 
-        //view.addSubview(UIView())
-        navigationItem.titleView = searchBar
+        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = searchBarContainer
         searchBar.becomeFirstResponder()
         searchBar.delegate = self
         configureTableView()

@@ -220,7 +220,6 @@ struct PostService {
         
         snapshot.documents.forEach({ document in
             fetchPost(withPostId: document.documentID) { post in
-                print("post fetched is \(post)")
                 posts.append(post)
                 posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                 completion(posts)
@@ -380,48 +379,34 @@ struct PostService {
         }
     }
     
-    //MARK: - Fetch with pagination
-    
-    static func fetchUserFeedPosts(previousQuery: Query?, completion: @escaping([Post]) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        var posts = [Post]()
-
-        let first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 10)
+    static func fetchBookmarkedPostDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        first.addSnapshotListener { snapshot, error in
-            guard let snapshot = snapshot else { return }
-            guard let lastSnapshot = snapshot.documents.last else {
-                //the collection is empty
-                return
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
+            firstGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
             }
-
-            posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-            // Construct a new query starting after this document,
-                // retrieving the next 25 cities.
-            completion(posts)
-            COLLECTION_POSTS.order(by: "timestamp").start(afterDocument: lastSnapshot)
-            
-          
-            //print(next)
+        } else {
+            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
         }
     }
     
-    /*
-     static func fetchFeedPosts(completion: @escaping([Post]) -> Void) {
-         guard let uid = Auth.auth().currentUser?.uid else { return }
-         var posts = [Post]()
-         
-         COLLECTION_USERS.document(uid).collection("user-home-feed").getDocuments { snapshot, error in
-             snapshot?.documents.forEach({ document in
-                 fetchPost(withPostId: document.documentID) { post in
-                     posts.append(post)
-                     
-                     posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                     
-                     completion(posts)
-                 }
-             })
-         }
-     }
-     */
+    static func fetchBookmarkedPosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
+        var posts = [Post]()
+        snapshot.documents.forEach({ document in
+            fetchPost(withPostId: document.documentID) { post in
+                posts.append(post)
+                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                completion(posts)
+            }
+        })
+    }
 }

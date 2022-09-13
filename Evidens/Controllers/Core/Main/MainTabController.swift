@@ -133,29 +133,32 @@ class MainTabController: UITabBarController {
         view.backgroundColor = .white
         self.delegate = self
     
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
-        
         let homeController = HomeViewController()
         homeController.delegate = self
         homeController.panDelegate = self
         
-        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house.fill")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: homeController)
+        let casesController = CasesViewController()
+        casesController.delegate = self
+        casesController.panDelegate = self
         
-        let search = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(systemName: "heart.text.square.fill")!, selectedImage: UIImage(systemName: "heart.text.square.fill")!, rootViewController: CasesViewController())
+        let notificationsController = NotificationsViewController()
+        notificationsController.delegate = self
+        notificationsController.panDelegate = self
         
         let postController = ViewController()
+        
+        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house.fill")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: homeController)
+        
+        let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(systemName: "heart.text.square.fill")!, selectedImage: UIImage(systemName: "heart.text.square.fill")!, rootViewController: casesController)
+  
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus.circle.fill")!, selectedImage: UIImage(systemName: "plus.circle.fill")!, rootViewController: postController)
         
         
-        let notificationsLayout = UICollectionViewFlowLayout()
-        notificationsLayout.scrollDirection = .vertical
-        notificationsLayout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
         
-        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell.fill")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationsViewController(collectionViewLayout: notificationsLayout))
         
-        viewControllers = [home, search, post, notifications]
+        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell.fill")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: notificationsController)
+        
+        viewControllers = [home, cases, post, notifications]
         
         tabBar.tintColor = .black
     }

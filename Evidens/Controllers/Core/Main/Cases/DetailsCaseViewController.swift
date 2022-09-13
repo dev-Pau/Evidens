@@ -52,14 +52,23 @@ class DetailsCaseViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         commentMenu.delegate = self
-        //caseMenuLauncher.delegate = self
+        configureNavigationBar()
         configureCollectionView()
         fetchComments()
     }
     
-    private func configureCollectionView() {
-        navigationItem.titleView = searchBar
+    private func configureNavigationBar() {
+        let view = MENavigationBarTitleView(fullName: clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName, category: "Case")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+    }
+    
+
+    private func configureCollectionView() {
         collectionView.backgroundColor = .white
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true

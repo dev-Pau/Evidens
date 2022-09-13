@@ -18,6 +18,8 @@ class NavigationBarViewController: UIViewController {
     weak var delegate: NavigationBarViewControllerDelegate?
     weak var panDelegate: DisablePanGestureDelegate?
     
+    let searchController = UISearchController(searchResultsController: nil)
+    
     private lazy var userImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
@@ -36,11 +38,16 @@ class NavigationBarViewController: UIViewController {
         searchBar.searchTextField.tintColor = primaryColor
         searchBar.searchTextField.backgroundColor = lightColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
+        
         return searchBar
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = searchBarContainer
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .plain, target: self, action: #selector(didTapChat))
         
@@ -53,7 +60,6 @@ class NavigationBarViewController: UIViewController {
         userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
         navigationItem.leftBarButtonItem = profileImageItem
         
-        navigationItem.titleView = searchBar
         searchBar.delegate = self
     }
     
@@ -62,11 +68,14 @@ class NavigationBarViewController: UIViewController {
         searchBar.resignFirstResponder()
         panDelegate?.disablePanGesture()
     }
+
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         panDelegate?.disablePanGesture()
+       
     }
+
     
     @objc func didTapProfile() {
         delegate?.didTapMenuButton()
@@ -84,3 +93,5 @@ extension NavigationBarViewController: UISearchBarDelegate {
         return true
     }
 }
+
+

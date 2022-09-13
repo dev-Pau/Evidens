@@ -61,7 +61,10 @@ class NewConversationViewController: UIViewController {
         
         view.backgroundColor = .white
 
-        navigationItem.titleView = searchBar
+        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = searchBarContainer
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel",
                                                             style: .done,
                                                             target: self,

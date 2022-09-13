@@ -10,7 +10,7 @@ import UIKit
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
 
-class NotificationsViewController: UICollectionViewController {
+class NotificationsViewController: NavigationBarViewController {
     
     //MARK: - Properties
     
@@ -20,59 +20,34 @@ class NotificationsViewController: UICollectionViewController {
     
     private lazy var notificationMenu = NotificationMenuLauncher()
     
-    private lazy var userImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.layer.masksToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
-        iv.addGestureRecognizer(tap)
-        iv.isUserInteractionEnabled = true
-        return iv
-    }()
-    
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search", attributes: [.font : UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = lightColor
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = lightColor
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
     }()
     
     private let refresher = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureNavigationBar()
         configureCollectionView()
         fetchNotifications()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(false)
-        // To resign first responder
-        //navigationController?.navigationBar.isHidden = false
-        searchBar.resignFirstResponder()
-    }
-    
-    private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .plain, target: self, action: #selector(didTapChat))
-        
-        navigationItem.rightBarButtonItem?.tintColor = .black
-        
-        userImageView.heightAnchor.constraint(equalToConstant: 35).isActive = true
-        userImageView.widthAnchor.constraint(equalToConstant: 35).isActive = true
-        userImageView.layer.cornerRadius = 35 / 2
-        let profileImageItem = UIBarButtonItem(customView: userImageView)
-        userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
-        navigationItem.leftBarButtonItem = profileImageItem
-        searchBar.delegate = self
-        navigationItem.titleView = searchBar
-    }
+
     
     private func configureCollectionView() {
+        view.addSubview(collectionView)
+        collectionView.frame = view.bounds
+        collectionView.delegate = self
+        collectionView.dataSource = self
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -100,25 +75,6 @@ class NotificationsViewController: UICollectionViewController {
         }
     }
     
-    @objc func didTapChat() {
-        
-    }
-    
-    @objc func didTapProfile() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
-        
-        let controller = UserProfileViewController(user: user)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .black
-        
-        navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-    }
-    
     @objc func handleRefresh() {
         notifications.removeAll()
         fetchNotifications()
@@ -127,14 +83,14 @@ class NotificationsViewController: UICollectionViewController {
     
 }
 
-extension NotificationsViewController {
+extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return notifications.count
     }
     
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         if notifications[indexPath.row].type.rawValue == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
@@ -149,21 +105,6 @@ extension NotificationsViewController {
             return cell
         }
 
-    }
-}
-
-extension NotificationsViewController: UISearchBarDelegate {
-    
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .black
-        
-        let controller = SearchViewController()
-        navigationController?.pushViewController(controller, animated: true)
-
-        return true
     }
 }
 

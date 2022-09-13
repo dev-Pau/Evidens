@@ -385,6 +385,8 @@ extension HomeViewController: HomeCellDelegate {
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         
+        
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     

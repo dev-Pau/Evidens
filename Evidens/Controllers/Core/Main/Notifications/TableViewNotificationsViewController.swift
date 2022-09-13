@@ -94,7 +94,9 @@ class TableViewNotificationsViewController: UITableViewController {
         userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
         navigationItem.leftBarButtonItem = profileImageItem
         
-        navigationItem.titleView = searchBar
+        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = searchBarContainer
         
     }
     
