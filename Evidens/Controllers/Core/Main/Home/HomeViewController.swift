@@ -20,6 +20,10 @@ class HomeViewController: NavigationBarViewController {
     
     //MARK: - Properties
     
+    enum Section {
+        case main
+    }
+    
     var user: User?
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
@@ -43,11 +47,13 @@ class HomeViewController: NavigationBarViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+    
+    private var dataSource: UICollectionViewDiffableDataSource<Section, Post>!
 
     
     var posts = [Post]() {
         didSet {
-            collectionView.reloadData()
+            //collectionView.reloadData()
             
         }
     }
@@ -56,8 +62,10 @@ class HomeViewController: NavigationBarViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationController?.delegate = zoomTransitioning
         fetchUser()
         fetchFirstPostsGroup()
+        configureDataSource()
         configureUI()
         configureNavigationItemButtons()
     }
@@ -74,7 +82,7 @@ class HomeViewController: NavigationBarViewController {
         //collectionView.register(HomeDocumentCell.self, forCellWithReuseIdentifier: homeDocumentCellReuseIdentifier)
         
         collectionView.delegate = self
-        collectionView.dataSource = self
+        //collectionView.dataSource = self
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(collectionView)
         //Configure UIRefreshControl
@@ -86,6 +94,9 @@ class HomeViewController: NavigationBarViewController {
     }
     
     func configureNavigationItemButtons() {
+        if !displaysSinglePost {
+            //self.navigationController?.delegate = zoomTransitioning
+        }
         /*
         if controllerIsBeeingPushed {
             navigationItem.titleView?.isHidden = true
@@ -120,10 +131,11 @@ class HomeViewController: NavigationBarViewController {
                 PostService.fetchHomePosts(snapshot: snapshot) { posts in
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts = posts
-                    self.checkIfUserLikedPosts()
-                    self.checkIfUserBookmarkedPost()
+                    self.checkIfUserLikedPosts(in: self.posts)
+                    self.checkIfUserBookmarkedPost(in: self.posts)
                     //self.collectionView.reloadData()
                     self.collectionView.refreshControl?.endRefreshing()
+                    self.updateData(on: self.posts)
                 }
             }
             
@@ -141,8 +153,8 @@ class HomeViewController: NavigationBarViewController {
                             // Get the last timestamp to create next query for realtime database
                             self.postLastTimestamp = self.posts.last?.timestamp.seconds
     
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
+                            self.checkIfUserLikedPosts(in: self.posts)
+                            self.checkIfUserBookmarkedPost(in: self.posts)
                             //self.collectionView.reloadData()
                             
                         }
@@ -163,7 +175,7 @@ class HomeViewController: NavigationBarViewController {
         }
     }
     
-    func checkIfUserLikedPosts() {
+    func checkIfUserLikedPosts(in posts: [Post]) {
       
             //For every post in array fetched
             self.posts.forEach { post in
@@ -173,35 +185,31 @@ class HomeViewController: NavigationBarViewController {
                     if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
                         //Change the didLike according if user did like post
                         self.posts[index].didLike = didLike
+                        self.updateData(on: self.posts)
                     }
                 
             }
         }
     }
     
-    func checkIfUserBookmarkedPost() {
+    func checkIfUserBookmarkedPost(in posts: [Post]) {
 
             //For every post in array fetched
             self.posts.forEach { post in
                 PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
                     if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
                         self.posts[index].didBookmark = didBookmark
+                        self.updateData(on: self.posts)
                     }
                 }
         }
     }
-}
-
-//MARK: - UICollectionViewDataSource
-
-extension HomeViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return posts.count
-    }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-            if posts[indexPath.row].type.postType == 0 {
+    
+    
+    func configureDataSource() {
+        dataSource = UICollectionViewDiffableDataSource<Section, Post>(collectionView: collectionView, cellProvider: { (collectionView, indexPath, post) -> UICollectionViewCell? in
+            if post.type.postType == 0 {
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
                 
@@ -210,33 +218,155 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.layer.borderWidth = 0
                 
                 
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                cell.viewModel = PostViewModel(post: post)
                 
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 1 {
+            } else if post.type.postType == 1 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
                 
                 
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    
+                cell.viewModel = PostViewModel(post: post)
+                
                 
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 2 {
+            } else if post.type.postType == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
                 
                 
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    
+                cell.viewModel = PostViewModel(post: post)
+                
                 
                 return cell
                 
-            } else if posts[indexPath.row].type.postType == 3 {
+            } else if post.type.postType == 3 {
+                //print("post type 1")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                
+                cell.viewModel = PostViewModel(post: post)
+                
+                
+                return cell
+                
+            } else if post.type.postType == 4 {
+                //print("post type 1")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                
+                cell.viewModel = PostViewModel(post: post)
+                
+                
+                return cell
+                
+            }
+            else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                cell.viewModel = PostViewModel(post: post)
+                
+                return cell
+            }
+            
+            
+            
+        })
+    }
+    
+    func updateData(on posts: [Post]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Post>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(posts)
+        DispatchQueue.main.async {
+            self.dataSource.apply(snapshot, animatingDifferences: false)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 14.0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0.0
+    }
+
+}
+extension HomeViewController: UICollectionViewDelegate {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            print("Get more Posts")
+            getMorePosts()
+        }
+    }
+}
+//MARK: - UICollectionViewDataSource
+
+
+
+
+
+
+
+/*
+ extension HomeViewController: UICollectionViewDataSource {
+ func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+ return posts.count
+ }
+ 
+ /*
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+  
+  if posts[indexPath.row].type.postType == 0 {
+  
+  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+  
+  cell.delegate = self
+  
+  cell.layer.borderWidth = 0
+  
+  
+  cell.viewModel = PostViewModel(post: posts[indexPath.row])
+  
+  return cell
+  
+  } else if posts[indexPath.row].type.postType == 1 {
+  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+  cell.delegate = self
+  cell.layer.borderWidth = 0
+  
+  
+  cell.viewModel = PostViewModel(post: posts[indexPath.row])
+  
+  
+  return cell
+  
+  } else if posts[indexPath.row].type.postType == 2 {
+  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+  cell.delegate = self
+  cell.layer.borderWidth = 0
+  
+  
+  cell.viewModel = PostViewModel(post: posts[indexPath.row])
+  
+  
+  return cell
+  
+  } else if posts[indexPath.row].type.postType == 3 {
                 //print("post type 1")
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
@@ -272,34 +402,20 @@ extension HomeViewController: UICollectionViewDataSource {
             }
         
     }
+     */
     
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        let height = scrollView.frame.size.height
-        
-        if offsetY > contentHeight - height {
-            print("Get more Posts")
-            getMorePosts()
-        }
-    }
+    
     
     /*
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
-            navigationController?.setNavigationBarHidden(true, animated: true)
-            collectionView.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
-            
-        } else {
-            navigationController?.setNavigationBarHidden(false, animated: true)
-        }
-    }
+    
      */
+ 
 }
+ */
 
 
 //MARK: - UICollectionViewDelegateFlowLayout
-
+/*
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
     
     /*
@@ -347,14 +463,9 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
          
     }
      */
+ */
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-          return 14.0
-    }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0.0
-    }
     /*
     override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
             let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
@@ -367,7 +478,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             return config
         }
      */
-}
+//}
 
 //MARK: - HomeCellDelegate
 
@@ -397,7 +508,7 @@ extension HomeViewController: HomeCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        controller.customDelegate = self
+        //controller.customDelegate = self
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -443,12 +554,14 @@ extension HomeViewController: HomeCellDelegate {
                 //currentCell.viewModel?.post.likes = post.likes - 1
                 self.posts[indexPath.row].didLike = false
                 self.posts[indexPath.row].likes -= 1
+                self.updateData(on: self.posts)
             }
         } else {
             PostService.likePost(post: post) { _ in
                 //currentCell.viewModel?.post.likes = post.likes + 1
                 self.posts[indexPath.row].didLike = true
                 self.posts[indexPath.row].likes += 1
+                self.updateData(on: self.posts)
                 NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
             }
         }
@@ -709,11 +822,13 @@ extension HomeViewController: ZoomTransitioningDelegate {
     }
 }
 
+/*
 extension HomeViewController: HomeImageViewControllerDelegate {
     func updateVisibleImageInScrollView(_ image: UIImageView) {
         selectedImage = image
     }
 }
+ */
 
 extension HomeViewController: HomeOptionsMenuLauncherDelegate {
     func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
@@ -769,9 +884,10 @@ extension HomeViewController {
                     self.postsLastSnapshot = snapshot.documents.last
 
                     self.posts.append(contentsOf: posts)
-                    self.collectionView.reloadData()
-                    self.checkIfUserLikedPosts()
-                    self.checkIfUserBookmarkedPost()
+                    //self.collectionView.reloadData()
+                    self.checkIfUserLikedPosts(in: posts)
+                    self.checkIfUserBookmarkedPost(in: posts)
+                    self.updateData(on: self.posts)
                     //self.collectionView.reloadItems(at: [IndexPath(index: posts.count - 1)])
                 }
             }
@@ -789,9 +905,10 @@ extension HomeViewController {
 
                             // Get the last timestamp to create next query for realtime database
                             self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
-                            self.collectionView.reloadData()
+                            self.checkIfUserLikedPosts(in: [post])
+                            self.checkIfUserBookmarkedPost(in: [post])
+                            self.updateData(on: self.posts)
+                            //self.collectionView.reloadData()
                             
                         }
                     }

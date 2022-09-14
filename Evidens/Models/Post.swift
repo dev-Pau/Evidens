@@ -8,7 +8,7 @@
 import UIKit
 import Firebase
 
-struct Post {
+struct Post: Hashable {
     
     var postText: String
     var likes: Int

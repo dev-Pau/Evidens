@@ -20,7 +20,7 @@ class DetailsPostViewController: UICollectionViewController {
     
     private var commentMenu = CommentsMenuLauncher()
     var homeMenuLauncher = HomeOptionsMenuLauncher()
-    private var zoomTransitioning = ZoomTransitioning()
+    //private var zoomTransitioning = ZoomTransitioning()
 
     var selectedImage: UIImageView!
     
@@ -34,7 +34,7 @@ class DetailsPostViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.delegate = zoomTransitioning
+
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
@@ -414,7 +414,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-
+        //controller.customDelegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .clear
@@ -441,18 +441,21 @@ extension DetailsPostViewController: HomeCellDelegate {
 }
 
 /*
-extension DetailsPostViewController: HomeImageViewControllerDelegate, UINavigationControllerDelegate {
+extension DetailsPostViewController: HomeImageViewControllerDelegate {
     func updateVisibleImageInScrollView(_ image: UIImageView) {
         selectedImage = image
     }
 }
+ */
 
+/*
 extension DetailsPostViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
     }
 }
  */
+ 
  
 
 extension DetailsPostViewController: CommentCellDelegate {

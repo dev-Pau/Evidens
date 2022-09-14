@@ -229,6 +229,7 @@ extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController == tabBarController.viewControllers?[2] {
+            print("did tap")
             postMenuLauncher.showPostSettings(in: view)
             return false
         }
@@ -239,8 +240,9 @@ extension MainTabController: UITabBarControllerDelegate {
 extension MainTabController: PostBottomMenuLauncherDelegate {
     
     func didTapUploadPost() {
+        print("before user")
         guard let user = user else { return }
-        
+        print("post")
         let postController = UploadPostViewController(user: user)
         
         let nav = UINavigationController(rootViewController: postController)

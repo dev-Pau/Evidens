@@ -7,13 +7,15 @@
 
 import UIKit
 
+/*
 protocol HomeImageViewControllerDelegate: AnyObject {
     func updateVisibleImageInScrollView(_ image: UIImageView)
 }
+ */
 
 class HomeImageViewController: UIViewController {
     
-    weak var customDelegate: HomeImageViewControllerDelegate?
+    //weak var customDelegate: HomeImageViewControllerDelegate?
     
     private var postImage: [UIImage]!
     private var imageCount: Int!

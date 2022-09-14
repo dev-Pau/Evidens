@@ -179,7 +179,7 @@ extension CasesViewController: CaseCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        controller.customDelegate = self
+        //controller.customDelegate = self
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -404,11 +404,13 @@ extension CasesViewController: ZoomTransitioningDelegate {
     }
 }
 
+/*
 extension CasesViewController: HomeImageViewControllerDelegate {
     func updateVisibleImageInScrollView(_ image: UIImageView) {
         selectedImage = image
     }
 }
+ */
 
 extension CasesViewController {
     func getMoreCases() {

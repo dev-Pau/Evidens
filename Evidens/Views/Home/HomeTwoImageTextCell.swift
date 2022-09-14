@@ -33,6 +33,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
+        
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = lightGrayColor

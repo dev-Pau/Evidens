@@ -33,7 +33,7 @@ class PostBottomMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Create a post", "Share a clinical case"]
+    private var menuOptionsText: [String] = ["Create a Post", "Share a Clinical Case"]
     private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
                                                 UIImage(systemName: "heart.text.square", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!]
     
