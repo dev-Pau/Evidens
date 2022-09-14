@@ -326,11 +326,12 @@ class PasswordRegistrationViewController: UIViewController {
         let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: password, profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
     
         AuthService.registerUser(withCredential: credentials) { error in
-            if let _ = error {
+            self.dismissLoadingView()
+            if let error = error {
+                self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return
             }
             AuthService.logUserIn(withEmail: self.email, password: password) { result, error in
-                self.dismissLoadingView()
                 if let error = error {
                     self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                     return

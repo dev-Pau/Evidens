@@ -73,6 +73,9 @@ class BookmarksViewController: UIViewController {
         return collectionView
     }()
     
+    private let postsBookmarksView = EmptyBookmarksView(bookmarkTitle: "No saved posts yet", bookmarkDescription: "Posts you save will show up here.")
+    private let casesBookmarksView = EmptyBookmarksView(bookmarkTitle: "No saved cases yet", bookmarkDescription: "Cases you save will show up here.")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = lightColor
@@ -83,9 +86,14 @@ class BookmarksViewController: UIViewController {
     
     private func fetchBookmarkedClinicalCases() {
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
-            CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
-                self.lastSnapshot = snapshot.documents.last
-                self.cases = clinicalCases
+            if snapshot.count == 0 {
+                self.contentCollectionView.isHidden = true
+                self.casesBookmarksView.isHidden = false
+            } else {
+                CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
+                    self.lastSnapshot = snapshot.documents.last
+                    self.cases = clinicalCases
+                }
             }
         }
     }
@@ -106,6 +114,11 @@ class BookmarksViewController: UIViewController {
     
     
     private func configureCollectionViews() {
+        postsBookmarksView.translatesAutoresizingMaskIntoConstraints = false
+        casesBookmarksView.translatesAutoresizingMaskIntoConstraints = false
+        postsBookmarksView.isHidden = true
+        casesBookmarksView.isHidden = true
+        
         categoriesCollectionView.delegate = self
         categoriesCollectionView.dataSource = self
         contentCollectionView.delegate = self
@@ -118,7 +131,7 @@ class BookmarksViewController: UIViewController {
         contentCollectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         contentCollectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         
-        view.addSubviews(categoriesCollectionView, contentCollectionView)
+        view.addSubviews(categoriesCollectionView, contentCollectionView, postsBookmarksView, casesBookmarksView)
         
         NSLayoutConstraint.activate([
             categoriesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -129,7 +142,19 @@ class BookmarksViewController: UIViewController {
             contentCollectionView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor, constant: 1),
             contentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            contentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            contentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            postsBookmarksView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor, constant: 1),
+            postsBookmarksView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            postsBookmarksView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            postsBookmarksView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            casesBookmarksView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor, constant: 1),
+            casesBookmarksView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            casesBookmarksView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            casesBookmarksView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            
         ])
     }
     

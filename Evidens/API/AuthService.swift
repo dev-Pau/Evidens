@@ -70,9 +70,22 @@ struct AuthService {
         
         COLLECTION_USERS.document(uid).setData(data, completion: completion)
         
-        //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid, profilePictureUrl: "", profession: <#T##String#>, speciality: <#T##String#>, category: <#T##String#>))
+    }
+    
+    static func registerAppleUser(withCredential credentials: AuthCredentials, withUid uid: String, completion: @escaping(Error?) -> Void) {
         
-        //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, emailAddress: credentials.email, uid: uid))
+        let data: [String: Any] = ["firstName": credentials.firstName,
+                                   "lastName": credentials.lastName,
+                                   "email": credentials.email,
+                                   "uid": uid,
+                                   "profileImageUrl": "",
+                                   "phase": credentials.phase.rawValue,
+                                   "category": credentials.category.rawValue,
+                                   "profession": credentials.profession,
+                                   "speciality": credentials.speciality]
+        
+        COLLECTION_USERS.document(uid).setData(data, completion: completion)
+       
     }
     
     static func updateUserRegistrationCategoryDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {

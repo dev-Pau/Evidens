@@ -137,7 +137,7 @@ class MainTabController: UITabBarController {
         homeController.delegate = self
         homeController.panDelegate = self
         
-        let casesController = CasesViewController()
+        let casesController = CaseViewController()
         casesController.delegate = self
         casesController.panDelegate = self
         

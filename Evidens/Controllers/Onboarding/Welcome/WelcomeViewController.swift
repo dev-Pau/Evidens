@@ -8,10 +8,14 @@
 import UIKit
 import Firebase
 import GoogleSignIn
+import AuthenticationServices
+import CryptoKit
 
 class WelcomeViewController: UIViewController {
     
     //MARK: - Properties
+    
+    private var currentNonce: String?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -53,7 +57,7 @@ class WelcomeViewController: UIViewController {
     }()
     
     
-    private let appleSingInButton: UIButton = {
+    private lazy var appleSingInButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
@@ -66,6 +70,8 @@ class WelcomeViewController: UIViewController {
         
         button.configuration?.baseForegroundColor = blackColor
         button.configuration?.cornerStyle = .capsule
+        
+        button.addTarget(self, action: #selector(appleLoginButtonPressed), for: .touchUpInside)
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .heavy)
@@ -221,6 +227,10 @@ class WelcomeViewController: UIViewController {
         navigationController?.pushViewController(controller, animated: true)
     }
     
+    @objc func appleLoginButtonPressed() {
+        startSignInWithAppleFlow()
+    }
+    
     @objc func googleLoginButtonPressed() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         // Create Google Sign In configuration object.
@@ -250,7 +260,7 @@ class WelcomeViewController: UIViewController {
                 
                 if let newUser = result?.additionalUserInfo?.isNewUser {
                     if newUser {
-                        print("IS NEW USER")
+
                         // Displaying user data
                         guard let googleUser = result?.user,
                               let email = googleUser.email,
@@ -268,25 +278,133 @@ class WelcomeViewController: UIViewController {
                                 print(error.localizedDescription)
                                 return
                             }
-                            UserService.fetchUser(withUid: googleUser.uid) { user in
-                                let controller = MainTabController()
-                                controller.user = user
-                                controller.modalPresentationStyle = .fullScreen
-                                self.present(controller, animated: false)
-                            }
-                        }
-                    } else {
-                        guard let uid = result?.user.uid else { return }
-                        UserService.fetchUser(withUid: uid) { user in
-                            let controller = MainTabController()
-                            controller.user = user
+                            let controller = ContainerViewController()
                             controller.modalPresentationStyle = .fullScreen
                             self.present(controller, animated: false)
                         }
+                    } else {
+                        let controller = ContainerViewController()
+                        controller.modalPresentationStyle = .fullScreen
+                        self.present(controller, animated: false)
                     }
                 }
             } 
         }
+    }
+}
+
+
+extension WelcomeViewController {
+    
+    func startSignInWithAppleFlow() {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        authorizationController.presentationContextProvider = self
+        authorizationController.performRequests()
+    }
+    
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: [Character] =
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+        
+        while remainingLength > 0 {
+            let randoms: [UInt8] = (0 ..< 16).map { _ in
+                var random: UInt8 = 0
+                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+                if errorCode != errSecSuccess {
+                    fatalError(
+                        "Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)"
+                    )
+                }
+                return random
+            }
+            
+            randoms.forEach { random in
+                if remainingLength == 0 {
+                    return
+                }
+                
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+        return result
+    }
+    
+    private func sha256(_ input: String) -> String {
+      let inputData = Data(input.utf8)
+      let hashedData = SHA256.hash(data: inputData)
+      let hashString = hashedData.compactMap {
+        String(format: "%02x", $0)
+      }.joined()
+
+      return hashString
+    }
+}
+
+extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        ASPresentationAnchor()
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            guard let nonce = currentNonce else { return }
+            guard let appleIDToken = appleIDCredential.identityToken else { return }
+            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else { return }
+            
+            let firstName = appleIDCredential.fullName?.givenName
+            let lastName = appleIDCredential.fullName?.familyName
+            let email = appleIDCredential.email
+            
+            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                if (error != nil) { return }
+                
+                if let newUser = authResult?.additionalUserInfo?.isNewUser {
+                    if newUser {
+                        guard let appleUser = authResult?.user else { return }
+                        
+                        var credentials = AuthCredentials(firstName: firstName ?? "", lastName: lastName ?? "", email: email ?? "", password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+                        
+                        
+                        AuthService.registerAppleUser(withCredential: credentials, withUid: appleUser.uid) { error in
+                            if let error = error {
+                                print(error.localizedDescription)
+                                return
+                            }
+                            let controller = ContainerViewController()
+                            controller.modalPresentationStyle = .fullScreen
+                            self.present(controller, animated: false)
+                        }
+                    } else {
+                        let controller = ContainerViewController()
+                        controller.modalPresentationStyle = .fullScreen
+                        self.present(controller, animated: false)
+                    }
+                    
+                }
+            }
+             
+        }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("error")
     }
 }
 

@@ -1193,6 +1193,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             let controller = HomeViewController()
             controller.controllerIsBeeingPushed = true
+            controller.displaysSinglePost = true
             controller.user = user
             
             controller.hidesBottomBarWhenPushed = true
@@ -1209,8 +1210,9 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             backItem.tintColor = .black
             navigationItem.backBarButtonItem = backItem
             
-            let controller = CasesViewController()
+            let controller = CaseViewController()
             controller.controllerIsBeeingPushed = true
+            controller.displaysSinglePost = true
             controller.user = user
             navigationController?.pushViewController(controller, animated: true)
             

@@ -17,6 +17,14 @@ class HomeImageTextCell: UICollectionViewCell {
         }
     }
     
+    /*
+    var user: User? {
+        didSet {
+            configureWithUserInfo()
+        }
+    }
+     */
+    
     private let cellContentView = UIView()
     
     weak var delegate: HomeCellDelegate?
@@ -42,6 +50,8 @@ class HomeImageTextCell: UICollectionViewCell {
     
     override init (frame: CGRect) {
         super.init(frame: frame)
+        
+        
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         
@@ -94,6 +104,12 @@ class HomeImageTextCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
+        
+        /*
+        UserService.fetchUser(withUid: viewModel.post.ownerUid) { user in
+            self.user = user
+        }
+         */
 
         userPostView.usernameLabel.text = viewModel.fullName
         userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
@@ -118,6 +134,35 @@ class HomeImageTextCell: UICollectionViewCell {
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
         
     }
+    
+    /*
+    func configureWithUserInfo() {
+        guard let user = user else { return }
+        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        if let url = user.profileImageUrl {
+            userPostView.profileImageView.sd_setImage(with: URL(string: url))
+        }
+        
+        
+        
+        userPostView.userInfoCategoryLabel.attributedText =  userInfo
+    }
+     */
+    
+    /*
+    var userInfo: NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: "\((user?.profession!)!), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        if user!.category == .professional {
+            attributedText.append(NSAttributedString(string: "\((user?.speciality!)!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+        } else {
+            attributedText.append(NSAttributedString(string: "\((user?.speciality!)!) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+            attributedText.append(NSAttributedString(string: "\((user?.category)!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+            
+        }
+        return attributedText
+     
+    }
+     */
     
     @objc func handleImageTap() {
         delegate?.cell(self, didTapImage: [postImageView], index: 0)

@@ -68,9 +68,9 @@ class PostBottomMenuLauncher: NSObject {
         } completion: { completed in
             
             switch selectedOption {
-            case "Create a post":
+            case "Create a Post":
                 self.delegate?.didTapUploadPost()
-            case "Share a clinical case":
+            case "Share a Clinical Case":
                 self.delegate?.didTapUploadClinicalCase()
             default:
                 break

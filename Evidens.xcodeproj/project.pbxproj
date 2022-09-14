@@ -137,11 +137,13 @@
 		5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F92754D658009B26E6 /* CommentService.swift */; };
 		5F8666FC27552222009B26E6 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FB27552222009B26E6 /* Comment.swift */; };
 		5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FD2755255F009B26E6 /* CommentViewModel.swift */; };
+		5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F891D4A28D20C3B006DC449 /* EmptyBookmarksView.swift */; };
+		5F891D4D28D21351006DC449 /* CasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F891D4C28D21351006DC449 /* CasesViewController.swift */; };
 		5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */; };
 		5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */; };
 		5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4B2873FC48005094A5 /* Speciality.swift */; };
 		5F8B7C4E287401B8005094A5 /* SpecialitiesDiffableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4D287401B8005094A5 /* SpecialitiesDiffableCell.swift */; };
-		5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */; };
+		5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4F28756EFD005094A5 /* CaseViewController.swift */; };
 		5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5128758164005094A5 /* CaseDetailsView.swift */; };
 		5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */; };
 		5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C5528772982005094A5 /* CharacterTextTracker.swift */; };
@@ -411,11 +413,13 @@
 		5F8666F92754D658009B26E6 /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		5F8666FB27552222009B26E6 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		5F8666FD2755255F009B26E6 /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
+		5F891D4A28D20C3B006DC449 /* EmptyBookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBookmarksView.swift; sourceTree = "<group>"; };
+		5F891D4C28D21351006DC449 /* CasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesViewController.swift; sourceTree = "<group>"; };
 		5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECharacterIndicatorView.swift; sourceTree = "<group>"; };
 		5F8B7C482873FACA005094A5 /* SpecialitiesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesListViewController.swift; sourceTree = "<group>"; };
 		5F8B7C4B2873FC48005094A5 /* Speciality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speciality.swift; sourceTree = "<group>"; };
 		5F8B7C4D287401B8005094A5 /* SpecialitiesDiffableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesDiffableCell.swift; sourceTree = "<group>"; };
-		5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesViewController.swift; sourceTree = "<group>"; };
+		5F8B7C4F28756EFD005094A5 /* CaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseViewController.swift; sourceTree = "<group>"; };
 		5F8B7C5128758164005094A5 /* CaseDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDetailsView.swift; sourceTree = "<group>"; };
 		5F8B7C53287596C6005094A5 /* SpecialitiesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialitiesCell.swift; sourceTree = "<group>"; };
 		5F8B7C5528772982005094A5 /* CharacterTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterTextTracker.swift; sourceTree = "<group>"; };
@@ -844,7 +848,8 @@
 		5F598C1D2842777200189722 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
-				5F8B7C4F28756EFD005094A5 /* CasesViewController.swift */,
+				5F891D4C28D21351006DC449 /* CasesViewController.swift */,
+				5F8B7C4F28756EFD005094A5 /* CaseViewController.swift */,
 				5FBCB9FB28A80A3D007EF79D /* CaseUpdatesViewController.swift */,
 				5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */,
 				5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */,
@@ -1053,6 +1058,14 @@
 			path = Comments;
 			sourceTree = "<group>";
 		};
+		5F891D4828D20C1C006DC449 /* Bookmarks */ = {
+			isa = PBXGroup;
+			children = (
+				5F891D4A28D20C3B006DC449 /* EmptyBookmarksView.swift */,
+			);
+			path = Bookmarks;
+			sourceTree = "<group>";
+		};
 		5F8B7C472873FAAE005094A5 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
@@ -1259,6 +1272,7 @@
 		5F9F0891285F6E140069FD2C /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5F891D4828D20C1C006DC449 /* Bookmarks */,
 				5FBCB9F228A6520D007EF79D /* Popup */,
 				5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */,
 				5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */,
@@ -1839,6 +1853,7 @@
 				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */,
+				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
 				5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
@@ -1961,6 +1976,7 @@
 				5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
+				5F891D4D28D21351006DC449 /* CasesViewController.swift in Sources */,
 				5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */,
 				5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */,
 				5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */,
@@ -1981,7 +1997,7 @@
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
 				5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */,
 				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
-				5F8B7C5028756EFE005094A5 /* CasesViewController.swift in Sources */,
+				5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,

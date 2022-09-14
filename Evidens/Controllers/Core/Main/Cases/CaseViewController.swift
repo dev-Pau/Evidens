@@ -1,11 +1,9 @@
 //
-//  CasesViewController.swift
+//  CaseViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 14/9/22.
+//  Created by Pau Fernández Solà on 6/7/22.
 //
-
-import UIKit
 
 import UIKit
 import Firebase
@@ -13,7 +11,7 @@ import Firebase
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
-class CasesViewController: NavigationBarViewController {
+class CaseViewController: NavigationBarViewController {
     
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
@@ -23,18 +21,30 @@ class CasesViewController: NavigationBarViewController {
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
-    //var controllerIsBeeingPushed: Bool = false
+    var displaysSinglePost: Bool = false
     
     private var cases = [Case]() {
         didSet { collectionView.reloadData() }
     }
     
-    private var collectionView: UICollectionView!
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing  = 10
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 600)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = lightColor
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchFirstGroupOfCases()
+        configureNavigationBar()
         configureCollectionView()
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -50,7 +60,7 @@ class CasesViewController: NavigationBarViewController {
     }
     
     private func fetchFirstGroupOfCases() {
-        if !controllerIsBeeingPushed {
+        if !displaysSinglePost {
             CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
                 self.casesLastSnapshot = snapshot.documents.last
                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
@@ -92,27 +102,35 @@ class CasesViewController: NavigationBarViewController {
         }
     }
     
+    private func configureNavigationBar() {
+        if displaysSinglePost {
+            navigationItem.titleView?.isHidden = true
+            navigationItem.titleView?.isUserInteractionEnabled = false
+            navigationItem.leftBarButtonItem?.customView?.isHidden = true
+        }
+    }
+    
     private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
             let width = view.bounds.width
-            let padding: CGFloat = 10
+            let padding: CGFloat = 110
             let minimumItemSpacing: CGFloat = 10
             let availableWidth = width - (padding * 2) - minimumItemSpacing
             let itemWidth = availableWidth / 2
             
             let flowLayout = UICollectionViewFlowLayout()
             flowLayout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-            flowLayout.itemSize = CGSize(width: itemWidth, height: view.bounds.height / 2)
+            flowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth + 40)
             
             return flowLayout
         }
     
     private func configureCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createTwoColumnFlowLayout())
         
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(collectionView)
     }
     
@@ -124,7 +142,7 @@ class CasesViewController: NavigationBarViewController {
     }
 }
 
-extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return cases.count
@@ -157,7 +175,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 }
 
 
-extension CasesViewController: CaseCellDelegate {
+extension CaseViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case) {
         let layout = UICollectionViewFlowLayout()
@@ -331,7 +349,7 @@ extension CasesViewController: CaseCellDelegate {
     }
 }
 
-extension CasesViewController: CaseOptionsMenuLauncherDelegate {
+extension CaseViewController: CaseOptionsMenuLauncherDelegate {
     func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
         if follow {
             // Unfollow user
@@ -398,19 +416,19 @@ extension CasesViewController: CaseOptionsMenuLauncherDelegate {
     }
 }
 
-extension CasesViewController: ZoomTransitioningDelegate {
+extension CaseViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
     }
 }
 
-extension CasesViewController: HomeImageViewControllerDelegate {
+extension CaseViewController: HomeImageViewControllerDelegate {
     func updateVisibleImageInScrollView(_ image: UIImageView) {
         selectedImage = image
     }
 }
 
-extension CasesViewController {
+extension CaseViewController {
     func getMoreCases() {
         CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
             self.casesLastSnapshot = snapshot.documents.last
@@ -422,5 +440,4 @@ extension CasesViewController {
         }
     }
 }
-
 

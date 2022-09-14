@@ -34,7 +34,7 @@ class DetailsPostViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.navigationController?.delegate = zoomTransitioning
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
@@ -414,15 +414,12 @@ extension DetailsPostViewController: HomeCellDelegate {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        controller.updateBackgroundColor()
-        //controller.customDelegate = self
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .clear
         navigationItem.backBarButtonItem = backItem
 
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -456,6 +453,7 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
     }
 }
  */
+ 
 
 extension DetailsPostViewController: CommentCellDelegate {
     

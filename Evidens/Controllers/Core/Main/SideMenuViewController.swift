@@ -59,6 +59,15 @@ class SideMenuViewController: UIViewController {
         return iv
     }()
     
+    private let settingsLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.textColor = .black
+        return label
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -67,7 +76,7 @@ class SideMenuViewController: UIViewController {
     private func configureCollectionView() {
         collectionView.backgroundColor = .white
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height - 70)
-        view.addSubviews(collectionView, separatorView, settingsImageView)
+        view.addSubviews(collectionView, separatorView, settingsImageView, settingsLabel)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(SideMenuCell.self, forCellWithReuseIdentifier: sideMenuCellReuseIdentifier)
@@ -82,7 +91,11 @@ class SideMenuViewController: UIViewController {
             settingsImageView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             settingsImageView.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
             settingsImageView.heightAnchor.constraint(equalToConstant: 30),
-            settingsImageView.widthAnchor.constraint(equalToConstant: 30)
+            settingsImageView.widthAnchor.constraint(equalToConstant: 30),
+            
+            settingsLabel.centerYAnchor.constraint(equalTo: settingsImageView.centerYAnchor),
+            settingsLabel.leadingAnchor.constraint(equalTo: settingsImageView.trailingAnchor, constant: 10),
+            settingsLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor)
         ])
     }
     

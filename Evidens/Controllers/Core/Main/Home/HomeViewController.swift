@@ -23,14 +23,13 @@ class HomeViewController: NavigationBarViewController {
     var user: User?
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
-    var controllerIsBeeingPushed: Bool = false
+    
+    var displaysSinglePost: Bool = false
     
     private var postsLastSnapshot: QueryDocumentSnapshot?
     private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
-    
-    //weak var panDelegate: DisablePanGestureDelegate?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -57,7 +56,6 @@ class HomeViewController: NavigationBarViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.delegate = zoomTransitioning
         fetchUser()
         fetchFirstPostsGroup()
         configureUI()
@@ -88,11 +86,14 @@ class HomeViewController: NavigationBarViewController {
     }
     
     func configureNavigationItemButtons() {
+        /*
         if controllerIsBeeingPushed {
             navigationItem.titleView?.isHidden = true
             navigationItem.titleView?.isUserInteractionEnabled = false
             navigationItem.leftBarButtonItem?.customView?.isHidden = true
+            navigationItem.rightBarButtonItem?.tintColor = .white
         }
+         */
     }
     
     //MARK: - Actions
@@ -105,7 +106,7 @@ class HomeViewController: NavigationBarViewController {
     
     //MARK: - API
     func fetchUser() {
-        if !controllerIsBeeingPushed {
+        if !displaysSinglePost {
             guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
             UserService.fetchUser(withUid: uid) { user in
                 self.user = user
@@ -114,7 +115,7 @@ class HomeViewController: NavigationBarViewController {
     }
 
     func fetchFirstPostsGroup() {
-        if !controllerIsBeeingPushed {
+        if !displaysSinglePost {
             PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { posts in
                     self.postsLastSnapshot = snapshot.documents.last
@@ -433,22 +434,45 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
 
         HapticsManager.shared.vibrate(for: .success)
         
+        if post.didLike {
+            PostService.unlikePost(post: post) { _ in
+                //currentCell.viewModel?.post.likes = post.likes - 1
+                self.posts[indexPath.row].didLike = false
+                self.posts[indexPath.row].likes -= 1
+            }
+        } else {
+            PostService.likePost(post: post) { _ in
+                //currentCell.viewModel?.post.likes = post.likes + 1
+                self.posts[indexPath.row].didLike = true
+                self.posts[indexPath.row].likes += 1
+                NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+            }
+        }
+      
+        
+        /*
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell
-            currentCell.viewModel?.post.didLike.toggle()
+            //currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
+                    //currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                    
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
+                    //currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -456,7 +480,7 @@ extension HomeViewController: HomeCellDelegate {
         case is HomeImageTextCell:
             let currentCell = cell as! HomeImageTextCell
             
-            currentCell.viewModel?.post.didLike.toggle()
+            //currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
@@ -464,7 +488,7 @@ extension HomeViewController: HomeCellDelegate {
                     //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
                     //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                     
-                    currentCell.viewModel?.post.likes = post.likes - 1
+                    //currentCell.viewModel?.post.likes = post.likes - 1
                 }
             } else {
                 //Like post here
@@ -530,6 +554,7 @@ extension HomeViewController: HomeCellDelegate {
         default:
             print("No cell registered")
         }
+         */
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
@@ -553,6 +578,34 @@ extension HomeViewController: HomeCellDelegate {
     
 
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
+        /*
+         guard let tab = tabBarController as? MainTabController else { return }
+         guard let user = tab.user else { return }
+         guard let indexPath = collectionView.indexPath(for: cell) else { return }
+
+         HapticsManager.shared.vibrate(for: .success)
+         
+         if post.didLike {
+             PostService.unlikePost(post: post) { _ in
+                 //currentCell.viewModel?.post.likes = post.likes - 1
+                 self.posts[indexPath.row].didLike = false
+                 self.posts[indexPath.row].likes -= 1
+             }
+         } else {
+             PostService.likePost(post: post) { _ in
+                 //currentCell.viewModel?.post.likes = post.likes + 1
+                 self.posts[indexPath.row].didLike = true
+                 self.posts[indexPath.row].likes += 1
+                 NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+             }
+         }
+       
+         */
+        if post.didBookmark {
+            
+        }
+        
+        
         switch cell {
         case is HomeTextCell:
             let currentCell = cell as! HomeTextCell
@@ -710,7 +763,7 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
 
 extension HomeViewController {
     func getMorePosts() {
-        if !controllerIsBeeingPushed {
+        if !displaysSinglePost {
             PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { posts in
                     self.postsLastSnapshot = snapshot.documents.last
