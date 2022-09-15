@@ -28,6 +28,8 @@ class HomeViewController: NavigationBarViewController {
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
     
+    private var singleUpdate: Bool = false
+    
     var displaysSinglePost: Bool = false
     
     private var postsLastSnapshot: QueryDocumentSnapshot?
@@ -40,7 +42,7 @@ class HomeViewController: NavigationBarViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing  = 10
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
-        //layout.au
+
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = lightColor
         
@@ -49,10 +51,19 @@ class HomeViewController: NavigationBarViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+    
+    var users = [User]() {
+        didSet {
+            //collectionView.reloadData()
+        }
+    }
    
     var posts = [Post]() {
         didSet {
-            collectionView.reloadData()
+            if !singleUpdate {
+                print("Reload all")
+                //collectionView.reloadData()
+            }
         }
     }
     
@@ -124,22 +135,28 @@ class HomeViewController: NavigationBarViewController {
 
     func fetchFirstPostsGroup() {
         if !displaysSinglePost {
-            print("not pushed")
             PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts = fetchedPosts
                     self.checkIfUserLikedPosts()
                     self.checkIfUserBookmarkedPost()
-                    //self.collectionView.reloadData()
+                    
+                    self.posts.forEach { post in
+                        UserService.fetchUser(withUid: post.ownerUid) { user in
+                            self.users.append(user)
+                            if self.users.count == self.posts.count {
+                                self.collectionView.reloadData()
+                            }
+                        }
+                    }
+                    
                     self.collectionView.refreshControl?.endRefreshing()
-                    //self.updateData(on: self.posts)
                 }
                  
             }
             
         } else {
-            print("pushed")
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
                 switch result {
@@ -173,26 +190,22 @@ class HomeViewController: NavigationBarViewController {
                         self.posts[index].didLike = didLike
                         //self.updateData(on: self.posts)
                     }
-                
             }
         }
     }
     
     func checkIfUserBookmarkedPost() {
-            //For every post in array fetched
-            self.posts.forEach { post in
-                PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
-                    if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
-
-                        self.posts[index].didBookmark = didBookmark
-                        //self.updateData(on: self.posts)
-                    }
+        //For every post in array fetched
+        self.posts.forEach { post in
+            PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
+                if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
+                    self.posts[index].didBookmark = didBookmark
                 }
+            }
         }
     }
-    
-    
 }
+
 extension HomeViewController: UICollectionViewDelegate {
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
@@ -200,7 +213,6 @@ extension HomeViewController: UICollectionViewDelegate {
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            print("Get more Posts")
             getMorePosts()
         }
     }
@@ -223,9 +235,16 @@ extension HomeViewController: UICollectionViewDataSource {
             
             cell.layer.borderWidth = 0
             
-            
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            cell.layoutIfNeeded()
+            
+            
+            let userIndex = users.firstIndex { user in
+                return user.uid == posts[indexPath.row].ownerUid
+            }!
+            
+            
+            cell.userPostView.profileImageView.sd_setImage(with: URL(string: users[userIndex].profileImageUrl!))
+            
             return cell
             
         } else if posts[indexPath.row].type.postType == 1 {
@@ -359,13 +378,17 @@ extension HomeViewController: HomeCellDelegate {
         
         if post.didLike {
             PostService.unlikePost(post: post) { _ in
+                //self.singleUpdate = true
                 self.posts[indexPath.row].didLike = false
                 self.posts[indexPath.row].likes -= 1
+                //self.singleUpdate = false
             }
         } else {
             PostService.likePost(post: post) { _ in
+                //self.singleUpdate = true
                 self.posts[indexPath.row].didLike = true
                 self.posts[indexPath.row].likes += 1
+                //self.singleUpdate = false
                 NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
             }
         }
@@ -398,6 +421,7 @@ extension HomeViewController: HomeCellDelegate {
             PostService.unbookmarkPost(post: post) { _ in
                 self.posts[indexPath.row].didBookmark = false
                 self.posts[indexPath.row].numberOfBookmarks -= 1
+                
             }
         } else {
             PostService.bookmarkPost(post: post) { _ in
@@ -462,7 +486,6 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
 extension HomeViewController {
     func getMorePosts() {
         if !displaysSinglePost {
-            print("not pushed")
             print(collectionView.contentSize.height)
             PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
@@ -470,12 +493,18 @@ extension HomeViewController {
                     self.posts.append(contentsOf: newPosts)
                     self.checkIfUserLikedPosts()
                     self.checkIfUserBookmarkedPost()
+                    
+                    newPosts.forEach { post in
+                        UserService.fetchUser(withUid: post.ownerUid) { user in
+                            self.users.append(user)
+                            if self.users.count == self.posts.count {
+                                self.collectionView.reloadData()
+                            }
+                        }
+                    }
                 }
-                
             }
-            
         } else {
-            print("pushed")
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
                 switch result {

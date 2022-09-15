@@ -7,6 +7,7 @@ admin.initializeApp();
 
 const algoliasearch = require('algoliasearch');
 const { object } = require('firebase-functions/v1/storage');
+const { firestore } = require('firebase-admin');
 const algolia = algoliasearch("1CZMK6HJ7G", "c8cf46cb26959992339983f875a4343e");
 
 
@@ -52,12 +53,19 @@ async function sendWelcomeEmail(email, displayName) {
 
 
 // Delete Post NOT FINISHED
-exports.postOnDelete = functions.firestore.document('posts/{uid}').onDelete((snap, context) => {
+exports.postOnDelete = functions.firestore.document('posts/{uid}').onDelete(async(snap, context) => {
   const postID = snap.id
 
+  const deletedPost = snap.data()
+  
+  const ref = admin.firestore().doc(`posts/${postID}`)
+  admin.firestore().recursiveDelete(ref)
 
+  //const comments = admin.firestore().collection('posts').doc(postID).collection('comments').get()
 
-
+  //const commentData = (await comments).data();
+  
+  functions.logger.log('Comments to be deleted', comments, 'with postId:', postID);
 })
 
 // Send notification NOT FINISHED

@@ -275,6 +275,8 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
+            let isAuthor = currentUser.uid == self.post.ownerUid ? true : false
+            
             self.comments.append(Comment(dictionary: [
                 "comment": comment,
                 "uid": currentUser.uid as Any,
@@ -285,6 +287,7 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "speciality": currentUser.speciality as Any,
                 "profession": currentUser.profession as Any,
                 "lastName": currentUser.lastName as Any,
+                "isAuthor": isAuthor as Any,
                 "profileImageUrl": currentUser.profileImageUrl as Any]))
          
             let indexPath = IndexPath(item: self.comments.count - 1, section: 0)

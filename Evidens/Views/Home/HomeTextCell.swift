@@ -17,11 +17,13 @@ class HomeTextCell: UICollectionViewCell {
         }
     }
     
+    //private var
+    
     private let cellContentView = UIView()
     
     weak var delegate: HomeCellDelegate?
     
-    private var userPostView = MEUserPostView()
+    var userPostView = MEUserPostView()
     
     var postTextLabel = MEPostLabel()
     
@@ -73,13 +75,22 @@ class HomeTextCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        //userPostView.profileImageView.image = nil
+        //userPostView.profileImageView.sd_cancelCurrentImageLoad()
+
+    }
+    
     // MARK: - Helpers
     
     func configure() {
         guard let viewModel = viewModel else { return }
-        
+
         userPostView.usernameLabel.text = viewModel.fullName
-        userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        //userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        
+        
         
         
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "

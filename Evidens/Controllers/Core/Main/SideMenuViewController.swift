@@ -59,12 +59,15 @@ class SideMenuViewController: UIViewController {
         return iv
     }()
     
-    private let settingsLabel: UILabel = {
+    private lazy var settingsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Settings"
         label.textAlignment = .left
         label.textColor = .black
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
         return label
     }()
     

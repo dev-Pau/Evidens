@@ -25,5 +25,6 @@ class MEProfileImageView: UIImageView {
         isUserInteractionEnabled = true
         backgroundColor = lightColor
         
+        
     }
 }
