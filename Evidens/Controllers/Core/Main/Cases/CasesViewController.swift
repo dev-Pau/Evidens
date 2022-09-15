@@ -415,6 +415,7 @@ extension CasesViewController: HomeImageViewControllerDelegate {
 extension CasesViewController {
     func getMoreCases() {
         CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
+
             self.casesLastSnapshot = snapshot.documents.last
             let documents = snapshot.documents
             let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })

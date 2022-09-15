@@ -57,6 +57,8 @@ class DetailsCaseViewController: UICollectionViewController {
         fetchComments()
     }
     
+
+    
     private func configureNavigationBar() {
         let view = MENavigationBarTitleView(fullName: clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName, category: "Case")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -136,7 +138,7 @@ class DetailsCaseViewController: UICollectionViewController {
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                    cell.ownerUid = clinicalCase.ownerUid
+                    //cell.ownerUid = clinicalCase.ownerUid
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.delegate = self
 

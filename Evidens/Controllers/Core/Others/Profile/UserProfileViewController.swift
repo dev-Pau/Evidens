@@ -1049,7 +1049,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     self.user.isFollowed = false
                     self.fetchUserStats()
                     // Delete user feed posts related to the unfollowed user
-                    PostService.updateUserFeedAfterFollowing(user: user, didFollow: false)
+                    PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
                 }
             } else {
                 // Handle follow user
@@ -1058,7 +1058,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     self.fetchUserStats()
                     NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)
                     //Update user feed posts related to the followed user
-                    PostService.updateUserFeedAfterFollowing(user: user, didFollow: true)
+                    PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 }
             }
         }

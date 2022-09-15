@@ -107,6 +107,7 @@ class CommentPostViewController: UICollectionViewController {
                     "speciality": self.post.ownerSpeciality as Any,
                     "profession": self.post.ownerProfession as Any,
                     "lastName": self.post.ownerLastName as Any,
+                    "isAuthor": true as Bool,
                     "profileImageUrl": self.post.ownerImageUrl as Any]))
             }
             // Append the fetched comments
@@ -172,14 +173,9 @@ extension CommentPostViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
-        cell.ownerUid = post.ownerUid
         
-        if indexPath.row == 0 {
-            cell.dotsImageButton.isHidden = true
-            cell.dotsImageButton.isUserInteractionEnabled = false
-            cell.timeStampLabel.isHidden = true
-        }
-        
+        cell.authorButton.isHidden = true
+
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         cell.delegate = self
         return cell
@@ -264,7 +260,7 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
         guard let currentUser = tab.user else { return }
         
         //Show loader to block user interactions
-        self.view.isUserInteractionEnabled = false
+
         //Upload commento to Firebase
         CommentService.uploadPostComment(comment: comment, post: post, user: currentUser) { ids in
             //Unshow loader
@@ -272,7 +268,6 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             let postUid = ids[1]
             
             DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: postUid, title: "", comment: comment, type: .post, withTimestamp: Date()) { uploaded in
-                print("Comment uploaded to realtime recent comments")
             }
             
             
@@ -280,11 +275,24 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
+            self.comments.append(Comment(dictionary: [
+                "comment": comment,
+                "uid": currentUser.uid as Any,
+                "id": commentUid as Any,
+                "timestamp": "Now" as Any,
+                "firstName": currentUser.firstName as Any,
+                "category": currentUser.category.userCategoryString as Any,
+                "speciality": currentUser.speciality as Any,
+                "profession": currentUser.profession as Any,
+                "lastName": currentUser.lastName as Any,
+                "profileImageUrl": currentUser.profileImageUrl as Any]))
+         
             let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+            self.collectionView.reloadData()
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withComment: comment)
-            self.view.isUserInteractionEnabled = true
+
             //self.view.activityStopAnimating()
         }
     }

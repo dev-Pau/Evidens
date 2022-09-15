@@ -198,7 +198,7 @@ struct PostService {
         if lastSnapshot == nil {
             // Fetch first group of posts
             let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
-            firstGroupToFetch.addSnapshotListener { snapshot, error in
+            firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
                 completion(snapshot)
@@ -206,6 +206,7 @@ struct PostService {
         } else {
             // Append new posts 
             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+                
             nextGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
@@ -217,12 +218,17 @@ struct PostService {
     
     static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
-        
+        print(snapshot.documents.count)
         snapshot.documents.forEach({ document in
             fetchPost(withPostId: document.documentID) { post in
                 posts.append(post)
                 posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                completion(posts)
+                if snapshot.documents.count == posts.count {
+                    posts.forEach { post in
+                        print(post.postText)
+                    }
+                    completion(posts)
+                }
             }
         })
     }
@@ -345,22 +351,21 @@ struct PostService {
         }
     }
     
-    
-    
-    static func updateUserFeedAfterFollowing(user: User, didFollow: Bool) {
+
+    static func updateUserFeedAfterFollowing(userUid: String, didFollow: Bool) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: user.uid as Any)
+        let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: userUid as Any)
         query.getDocuments { (snapshot, error) in
             guard let documents = snapshot?.documents else { return }
             
-            let docIDs = documents.map({ $0.documentID })
+            let posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data())})
             
             //Use docIDs to update user feed structure
-            docIDs.forEach { id in
+            posts.forEach { post in
                 if didFollow {
-                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).setData(["timestamp": Timestamp(date: Date())])
+                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(post.postId).setData(["timestamp": post.timestamp])
                 } else {
-                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(id).delete()
+                    COLLECTION_USERS.document(uid).collection("user-home-feed").document(post.postId).delete()
                 }
                 
             }

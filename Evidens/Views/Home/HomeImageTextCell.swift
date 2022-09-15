@@ -74,6 +74,8 @@ class HomeImageTextCell: UICollectionViewCell {
 
         cellContentView.addSubviews(userPostView, postTextLabel, postImageView, actionButtonsView)
         
+
+        
         NSLayoutConstraint.activate([
           
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -95,7 +97,7 @@ class HomeImageTextCell: UICollectionViewCell {
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
-    
+  
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -128,7 +130,11 @@ class HomeImageTextCell: UICollectionViewCell {
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         let imageHeight = min(viewModel.sizeOfImage, UIScreen.main.bounds.height * 0.7)
-        postImageView.setHeightConstraint(toConstant: imageHeight)
+        let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: imageHeight)
+        postImageViewHeightConstraint.priority = UILayoutPriority(999)
+        postImageViewHeightConstraint.isActive = true
+        
+        //postImageView.setHeightConstraint(toConstant: imageHeight)
         
         //postImageView.heightAnchor.constraint(equalToConstant: imageHeight).isActive = true
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)

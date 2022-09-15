@@ -90,6 +90,12 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         
         cellContentView.addSubviews(userPostView, postTextLabel, postImageView, postTwoImageView, postThreeImageView, actionButtonsView)
         
+        let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 200)
+        postImageViewHeightConstraint.priority = UILayoutPriority(999)
+        
+        let postTwoImageViewHeightConstraint = postTwoImageView.heightAnchor.constraint(equalToConstant: 150)
+        postTwoImageViewHeightConstraint.priority = UILayoutPriority(999)
+        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -102,18 +108,18 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             
             postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            postImageView.heightAnchor.constraint(equalToConstant: 200),
+            postImageViewHeightConstraint,
             postImageView.widthAnchor.constraint(equalToConstant: frame.width),
             
             postTwoImageView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 2),
             postTwoImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postTwoImageView.widthAnchor.constraint(equalToConstant: frame.width / 2 - 4),
-            postTwoImageView.heightAnchor.constraint(equalToConstant: 150),
+            postTwoImageViewHeightConstraint,
             
             postThreeImageView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 2),
             postThreeImageView.leadingAnchor.constraint(equalTo: postTwoImageView.trailingAnchor, constant: 2),
             postThreeImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            postThreeImageView.heightAnchor.constraint(equalToConstant: 150),
+            postThreeImageView.bottomAnchor.constraint(equalTo: postTwoImageView.bottomAnchor),
             
             actionButtonsView.topAnchor.constraint(equalTo: postThreeImageView.bottomAnchor, constant: 10),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -150,7 +156,6 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         viewModel.post.postImageUrl.forEach { url in
             let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
 
-           
             appended.append(Int(currentURL[0..<1])!)
 
             if appended.count == viewModel.postImageUrl.count {

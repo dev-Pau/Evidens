@@ -41,6 +41,13 @@ class DetailsPostViewController: UICollectionViewController {
         checkIfUserLikedPosts()
         checkIfUserBookmarkedPost()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+
+    }
 
     init(post: Post, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
@@ -182,7 +189,7 @@ class DetailsPostViewController: UICollectionViewController {
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                    cell.ownerUid = post.ownerUid
+                    cell.authorButton.isHidden = true
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.delegate = self
 

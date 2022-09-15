@@ -18,6 +18,10 @@ struct CommentViewModel {
         return comment.uid
     }
     
+    var isAuthor: Bool {
+        return comment.isAuthor
+    }
+    
     var profileImageUrl: URL? {
         return URL(string: comment.profileImageUrl)
     }

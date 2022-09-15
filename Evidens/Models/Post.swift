@@ -8,7 +8,7 @@
 import UIKit
 import Firebase
 
-struct Post: Hashable {
+struct Post {
     
     var postText: String
     var likes: Int
@@ -86,10 +86,6 @@ struct Post: Hashable {
         }
     }
     
-    
-    
-    
-    
     let postDocumentUrl: String
     let documentPages: Int
     let documentTitle: String
@@ -121,4 +117,16 @@ struct Post: Hashable {
         self.privacyOptions = PrivacyOptions(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .all
         self.edited = dictionary["edited"] as? Bool ?? false
     }
+}
+
+extension Post: Hashable {
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(postId)
+    }
+    
+    static func == (lhs: Post, rhs: Post) -> Bool {
+        return lhs.postId == rhs.postId && lhs.likes == rhs.likes && lhs.didLike == rhs.didLike && lhs.timestamp == rhs.timestamp
+    }
+    
 }

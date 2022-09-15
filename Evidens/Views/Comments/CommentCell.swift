@@ -23,8 +23,6 @@ class CommentCell: UICollectionViewCell {
     
     weak var delegate: CommentCellDelegate?
     
-    var ownerUid: String = ""
-    
     private let cellContentView = UIView()
     
     private lazy var profileImageView: UIImageView = {
@@ -61,13 +59,13 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
-    private let authorButton: UIButton = {
+    var authorButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor.white, for: .normal)
         button.backgroundColor = primaryColor
         button.layer.cornerRadius = 5
-        button.isHidden = true
+        //button.isHidden = true
         let title = NSMutableAttributedString(string: "Author", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         button.setAttributedTitle(title, for: .normal)
         return button
@@ -109,6 +107,7 @@ class CommentCell: UICollectionViewCell {
         view.backgroundColor = lightGrayColor
         return view
     }()
+    
     
     //MARK: - Lifecycle
     
@@ -167,11 +166,12 @@ class CommentCell: UICollectionViewCell {
         
         profileImageView.layer.cornerRadius = 40 / 2
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+ 
     //MARK: - Helpers
     
     private func configure() {
@@ -183,7 +183,7 @@ class CommentCell: UICollectionViewCell {
             profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         }
         
-        if ownerUid == viewModel.commentOnwerUid {
+        if viewModel.isAuthor {
             // Comment from the owner of the case
             authorButton.isHidden = false
         }
@@ -202,10 +202,11 @@ class CommentCell: UICollectionViewCell {
     
     @objc func didTapProfile() {
         guard let viewModel = viewModel else { return }
-        if viewModel.anonymousComment { return } else {
+        if viewModel.anonymousComment { return } else {
             delegate?.didTapProfile(forUid: viewModel.commentOnwerUid)
         }
     }
+    
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)

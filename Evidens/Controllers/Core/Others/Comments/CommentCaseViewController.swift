@@ -84,6 +84,7 @@ class CommentCaseViewController: UICollectionViewController {
                 "speciality": self.clinicalCase.ownerSpeciality as Any,
                 "profession": self.clinicalCase.ownerProfession as Any,
                 "lastName": self.clinicalCase.ownerLastName as Any,
+                "isAuthor": true as Bool,
                 "profileImageUrl": self.clinicalCase.ownerImageUrl as Any]))
             
             // Append the fetched comments
@@ -132,7 +133,7 @@ extension CommentCaseViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
-        cell.ownerUid = clinicalCase.ownerUid
+        
         
         if indexPath.row == 0 {
             cell.dotsImageButton.isHidden = true

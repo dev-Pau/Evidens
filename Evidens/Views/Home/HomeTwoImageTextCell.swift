@@ -79,6 +79,9 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         cellContentView.addSubviews(userPostView, postTextLabel, postImageView, postTwoImageView, actionButtonsView)
         
+        let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 350)
+        postImageViewHeightConstraint.priority = UILayoutPriority(999)
+        
         NSLayoutConstraint.activate([
          
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -92,13 +95,14 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             
             postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            postImageView.heightAnchor.constraint(equalToConstant: 350),
+            //postImageView.heightAnchor.constraint(equalToConstant: 350),
+            postImageViewHeightConstraint,
             postImageView.widthAnchor.constraint(equalToConstant: frame.width / 2 - 4),
             
             postTwoImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
             postTwoImageView.leadingAnchor.constraint(equalTo: postImageView.trailingAnchor, constant: 2),
             postTwoImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            postTwoImageView.heightAnchor.constraint(equalToConstant: 350),
+            postTwoImageView.bottomAnchor.constraint(equalTo: postImageView.bottomAnchor),
             
             actionButtonsView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 10),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -106,6 +110,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
     }
+    
+
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
