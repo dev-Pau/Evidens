@@ -202,6 +202,8 @@ class MainTabController: UITabBarController {
             case .bookmarks:
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
+            case .drafts:
+                break
             }
         }
     }

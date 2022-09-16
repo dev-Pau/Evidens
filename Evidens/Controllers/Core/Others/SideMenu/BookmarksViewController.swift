@@ -37,7 +37,11 @@ class BookmarksViewController: UIViewController {
     
     private var cases = [Case]()
     
-    private var caseUsers = [User]()
+    private var caseUsers = [User]() {
+        didSet {
+            contentCollectionView.reloadData()
+        }
+    }
     private var postUsers = [User]() {
         didSet {
             contentCollectionView.reloadData()
@@ -139,8 +143,8 @@ class BookmarksViewController: UIViewController {
         
         categoriesCollectionView.register(BookmarkCategoriesCell.self, forCellWithReuseIdentifier: categoriesCellReuseIdentifier)
         
-        contentCollectionView.register(UserProfileCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        contentCollectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        contentCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        contentCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         contentCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         
@@ -209,14 +213,38 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             if selectedCategory == 0 {
                 // Cases
                 if cases[indexPath.row].type == .text {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
-                    cell.separatorView.isHidden = true
+                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
+
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    
+                    let userIndex = caseUsers.firstIndex { user in
+                        if user.uid == cases[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: caseUsers[userIndex])
+                    }
+                    
                     return cell
                 } else {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
-                    cell.separatorView.isHidden = true
+                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
+
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    
+                    let userIndex = caseUsers.firstIndex { user in
+                        if user.uid == cases[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: caseUsers[userIndex])
+                    }
+                    
                     return cell
                 }
             } else {
@@ -283,15 +311,34 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             navigationItem.backBarButtonItem = backItem
          
             if selectedCategory == 0 {
-                let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], collectionViewFlowLayout: layout)
-                navigationController?.pushViewController(controller, animated: true)
+                
+                let userIndex = caseUsers.firstIndex { user in
+                    if user.uid == cases[indexPath.row].ownerUid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    #warning("IMPLEMENT DetailsCaseViewController with a user same as DetailsPost")
+                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], collectionViewFlowLayout: layout)
+                    navigationController?.pushViewController(controller, animated: true)
+                }
             } else {
                 
-                //let controller = DetailsPostViewController(post: posts[indexPath.row], collectionViewLayout: layout)
-                //navigationController?.pushViewController(controller, animated: true)
+                let userIndex = postUsers.firstIndex { user in
+                    if user.uid == posts[indexPath.row].ownerUid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], collectionViewLayout: layout)
+                    navigationController?.pushViewController(controller, animated: true)
+                }
             }
         }
-
     }
 }
 

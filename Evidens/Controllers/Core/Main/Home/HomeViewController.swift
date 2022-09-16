@@ -14,6 +14,7 @@ private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIden
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
+private let skeletonReuseIdentifier = "SkeletonReuseIdentifier"
 
 
 class HomeViewController: NavigationBarViewController {
@@ -27,6 +28,8 @@ class HomeViewController: NavigationBarViewController {
     var user: User?
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
+    
+    var loaded = false
     
     private var singleUpdate: Bool = false
     
@@ -76,6 +79,8 @@ class HomeViewController: NavigationBarViewController {
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        
+        collectionView.register(SkeletonTextCell.self, forCellWithReuseIdentifier: skeletonReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -213,25 +218,110 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if !loaded {
+            return 5
+        }
         return posts.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        if posts[indexPath.row].type.postType == 0 {
+        if !loaded {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonReuseIdentifier, for: indexPath) as! SkeletonTextCell
+            return cell
+        } else {
             
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-            
-            cell.delegate = self
-            
-            cell.layer.borderWidth = 0
-            
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            
-            if user != nil {
-                cell.set(user: user!)
+            if posts[indexPath.row].type.postType == 0 {
                 
-            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                
+                cell.delegate = self
+                
+                cell.layer.borderWidth = 0
+                
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+                if user != nil {
+                    cell.set(user: user!)
+                    
+                } else {
+                    let userIndex = users.firstIndex { user in
+                        if user.uid == posts[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: users[userIndex])
+                    }
+                }
+                
+                cell.layoutIfNeeded()
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 1 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                cell.layoutIfNeeded()
+                
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+                if user != nil {
+                    cell.set(user: user!)
+                    
+                } else {
+                    let userIndex = users.firstIndex { user in
+                        if user.uid == posts[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: users[userIndex])
+                    }
+                }
+                
+                cell.layoutIfNeeded()
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 2 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
+                if user != nil {
+                    cell.set(user: user!)
+                    
+                } else {
+                    let userIndex = users.firstIndex { user in
+                        if user.uid == posts[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: users[userIndex])
+                    }
+                }
+                
+                cell.layoutIfNeeded()
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 3 {
+                //print("post type 1")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
                 let userIndex = users.firstIndex { user in
                     if user.uid == posts[indexPath.row].ownerUid {
                         return true
@@ -242,23 +332,19 @@ extension HomeViewController: UICollectionViewDataSource {
                 if let userIndex = userIndex {
                     cell.set(user: users[userIndex])
                 }
-            }
-            
-            cell.layoutIfNeeded()
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 1 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-            cell.layoutIfNeeded()
-            
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            
-            if user != nil {
-                cell.set(user: user!)
                 
-            } else {
+                cell.layoutIfNeeded()
+                
+                return cell
+                
+            } else if posts[indexPath.row].type.postType == 4 {
+                //print("post type 1")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                
                 let userIndex = users.firstIndex { user in
                     if user.uid == posts[indexPath.row].ownerUid {
                         return true
@@ -269,22 +355,18 @@ extension HomeViewController: UICollectionViewDataSource {
                 if let userIndex = userIndex {
                     cell.set(user: users[userIndex])
                 }
-            }
-            
-            cell.layoutIfNeeded()
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 2 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-            
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            
-            if user != nil {
-                cell.set(user: user!)
                 
-            } else {
+                cell.layoutIfNeeded()
+                
+                return cell
+                
+            }
+            else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+                cell.delegate = self
+                cell.layer.borderWidth = 0
+                
+                cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 let userIndex = users.firstIndex { user in
                     if user.uid == posts[indexPath.row].ownerUid {
                         return true
@@ -295,79 +377,11 @@ extension HomeViewController: UICollectionViewDataSource {
                 if let userIndex = userIndex {
                     cell.set(user: users[userIndex])
                 }
+                
+                cell.layoutIfNeeded()
+                
+                return cell
             }
-            
-            cell.layoutIfNeeded()
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 3 {
-            //print("post type 1")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-
-            
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            
-            let userIndex = users.firstIndex { user in
-                if user.uid == posts[indexPath.row].ownerUid {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.set(user: users[userIndex])
-            }
-            
-            cell.layoutIfNeeded()
-            
-            return cell
-            
-        } else if posts[indexPath.row].type.postType == 4 {
-            //print("post type 1")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-            
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            
-            let userIndex = users.firstIndex { user in
-                if user.uid == posts[indexPath.row].ownerUid {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.set(user: users[userIndex])
-            }
-            
-            cell.layoutIfNeeded()
-            
-            return cell
-            
-        }
-        else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
-            cell.delegate = self
-            cell.layer.borderWidth = 0
-            
-            cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            let userIndex = users.firstIndex { user in
-                if user.uid == posts[indexPath.row].ownerUid {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.set(user: users[userIndex])
-            }
-            
-            cell.layoutIfNeeded()
-            
-            return cell
         }
     }
 }

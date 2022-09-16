@@ -22,12 +22,15 @@ class SideMenuViewController: UIViewController {
     
     enum MenuOptions: String, CaseIterable {
         case bookmarks = "Bookmarks"
+        case drafts = "Drafts"
         //case posts = "Posts"
         
         var imageName: String {
             switch self {
             case .bookmarks:
                 return "bookmark"
+            case .drafts:
+                return "square.filled.on.square"
             }
         }
     }
@@ -52,7 +55,7 @@ class SideMenuViewController: UIViewController {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "gearshape.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "gearshape.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
         iv.contentMode = .scaleAspectFill
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
