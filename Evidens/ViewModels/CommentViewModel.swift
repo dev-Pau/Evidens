@@ -18,6 +18,10 @@ struct CommentViewModel {
         return comment.uid
     }
     
+    var isTextFromAuthor: Bool {
+        return comment.isTextFromAuthor
+    }
+    
     var isAuthor: Bool {
         return comment.isAuthor
     }

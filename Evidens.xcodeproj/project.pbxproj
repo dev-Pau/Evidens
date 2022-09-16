@@ -186,6 +186,10 @@
 		5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FA72899603900A25152 /* IDCardViewController.swift */; };
 		5F9A9FAA2899843F00A25152 /* DriverLicenseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FA92899843F00A25152 /* DriverLicenseViewController.swift */; };
 		5F9A9FAC2899854500A25152 /* PassportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9FAB2899854500A25152 /* PassportViewController.swift */; };
+		5F9AFAC428D48887004D61D3 /* BookmarkPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC328D48887004D61D3 /* BookmarkPostCell.swift */; };
+		5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC528D493E5004D61D3 /* BookmarksPostImageCell.swift */; };
+		5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */; };
+		5F9AFACA28D49801004D61D3 /* BookmarksCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */; };
 		5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E427E287ABB2700C2153B /* CaseStageView.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
@@ -460,6 +464,10 @@
 		5F9A9FA72899603900A25152 /* IDCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDCardViewController.swift; sourceTree = "<group>"; };
 		5F9A9FA92899843F00A25152 /* DriverLicenseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverLicenseViewController.swift; sourceTree = "<group>"; };
 		5F9A9FAB2899854500A25152 /* PassportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassportViewController.swift; sourceTree = "<group>"; };
+		5F9AFAC328D48887004D61D3 /* BookmarkPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkPostCell.swift; sourceTree = "<group>"; };
+		5F9AFAC528D493E5004D61D3 /* BookmarksPostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksPostImageCell.swift; sourceTree = "<group>"; };
+		5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseCell.swift; sourceTree = "<group>"; };
+		5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseImageCell.swift; sourceTree = "<group>"; };
 		5F9E427E287ABB2700C2153B /* CaseStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageView.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
@@ -1330,6 +1338,10 @@
 			isa = PBXGroup;
 			children = (
 				5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */,
+				5F9AFAC328D48887004D61D3 /* BookmarkPostCell.swift */,
+				5F9AFAC528D493E5004D61D3 /* BookmarksPostImageCell.swift */,
+				5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */,
+				5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */,
 			);
 			path = Bookmarks;
 			sourceTree = "<group>";
@@ -1869,6 +1881,7 @@
 				5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
 				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
+				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
 				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
 				5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */,
@@ -1904,6 +1917,7 @@
 				5F9A9F8F2897F28A00A25152 /* AddLanguageViewController.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* ProfileHeader.swift in Sources */,
 				5F0D2AFD28C339B900BE5DD5 /* AboutSettingsViewController.swift in Sources */,
+				5F9AFACA28D49801004D61D3 /* BookmarksCaseImageCell.swift in Sources */,
 				5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */,
 				5F527D99288554BC009D5027 /* CaseStageViewController.swift in Sources */,
 				5F8B7C4E287401B8005094A5 /* SpecialitiesDiffableCell.swift in Sources */,
@@ -1919,6 +1933,7 @@
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
 				5FEB92E4289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift in Sources */,
 				5F8EBEA227DE5DA0001CFC6E /* AudioRecorder.swift in Sources */,
+				5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */,
 				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
 				5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */,
 				5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */,
@@ -1942,6 +1957,7 @@
 				5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */,
 				5F9F089C2861C01F0069FD2C /* HomeThreeImageTextCell.swift in Sources */,
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
+				5F9AFAC428D48887004D61D3 /* BookmarkPostCell.swift in Sources */,
 				5F85219428A54BBA0033AF67 /* EditPostViewController.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
 				5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */,

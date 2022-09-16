@@ -249,6 +249,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func unfollowAlert(withUserFirstName name: String, completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Unfollow \(name)", message: "Are you sure you want to unfollow \(name)?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Unfollow", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func deletePostAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Delete post", message: "Are you sure you want to delete this post?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))

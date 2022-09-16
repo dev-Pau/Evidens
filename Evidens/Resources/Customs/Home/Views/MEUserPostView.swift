@@ -30,7 +30,7 @@ class MEUserPostView: UIView {
         return label
     }()
     
-    private lazy var dotsImageButton: UIButton = {
+    lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.image = UIImage(systemName: "ellipsis")
@@ -43,7 +43,7 @@ class MEUserPostView: UIView {
         return button
     }()
     
-    let userInfoCategoryLabel: UILabel = {
+    var userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = grayColor

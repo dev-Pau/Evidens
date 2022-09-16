@@ -78,11 +78,23 @@ extension PostLikesViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = likesTableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! HomeLikesCell
         cell.selectionStyle = .none
-        cell.set(profileImageUrl: users[indexPath.row].profileImageUrl!, name: users[indexPath.row].firstName!, lastName: users[indexPath.row].lastName!, profession: users[indexPath.row].profession!, speciality: users[indexPath.row].speciality!, category: users[indexPath.row].category.userCategoryString)
+        cell.user = users[indexPath.row]
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 60.0
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let controller = UserProfileViewController(user: users[indexPath.row])
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

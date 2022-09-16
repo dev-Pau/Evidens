@@ -228,14 +228,26 @@ extension MainTabController: UITabBarControllerDelegate {
         if viewController == tabBarController.viewControllers?[2] {
             postMenuLauncher.showPostSettings(in: view)
             return false
+        } else if viewController == tabBarController.viewControllers?[0] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? HomeViewController {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
         }
         return true
     }
 }
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
-    
-    func didTapUploadPost() {
+        
+        func didTapUploadPost() {
         guard let user = user else { return }
         let postController = UploadPostViewController(user: user)
         
@@ -290,7 +302,5 @@ extension MainTabController: DisablePanGestureDelegate {
     func disablePanGesture() {
         menuDelegate?.handleDisablePan()
     }
-    
-    
 }
 

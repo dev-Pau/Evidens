@@ -20,6 +20,8 @@ protocol HomeOptionsMenuLauncherDelegate: AnyObject {
 
 class HomeOptionsMenuLauncher: NSObject {
     
+    var user: User?
+
     var post: Post? {
         didSet {
             guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let post = post else { return }
@@ -77,7 +79,7 @@ class HomeOptionsMenuLauncher: NSObject {
     
     
     @objc func handleDismiss(selectedOption: String?) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.ownerUid, let postId = post?.postId, let firstName = post?.ownerFirstName else { return }
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String, let ownerUid = post?.ownerUid, let postId = post?.postId, let firstName = user?.firstName else { return }
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
@@ -150,7 +152,7 @@ class HomeOptionsMenuLauncher: NSObject {
             collectionView.reloadData()
             
         } else {
-            guard let isFollowed = isFollowed, let firstName = post?.ownerFirstName else { return }
+            guard let isFollowed = isFollowed, let firstName = user?.firstName else { return }
 
             let followText = isFollowed ? "Unfollow" : "Follow"
             let followImage = isFollowed ? "xmark.circle.fill" : "plus.circle.fill"

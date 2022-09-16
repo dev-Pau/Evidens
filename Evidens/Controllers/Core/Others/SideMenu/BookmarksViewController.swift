@@ -35,13 +35,16 @@ class BookmarksViewController: UIViewController {
 
     private var selectedCategory: Int = 0
     
-    private var cases = [Case]() {
-        didSet { contentCollectionView.reloadData() }
+    private var cases = [Case]()
+    
+    private var caseUsers = [User]()
+    private var postUsers = [User]() {
+        didSet {
+            contentCollectionView.reloadData()
+        }
     }
     
-    private var posts = [Post]() {
-        didSet { contentCollectionView.reloadData() }
-    }
+    private var posts = [Post]()
     
     private let categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -63,7 +66,7 @@ class BookmarksViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 10
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = lightColor
         collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
@@ -93,6 +96,11 @@ class BookmarksViewController: UIViewController {
                 CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
                     self.lastSnapshot = snapshot.documents.last
                     self.cases = clinicalCases
+                    clinicalCases.forEach { clinicalCaseFetched in
+                        UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
+                            self.caseUsers.append(user)
+                        }
+                    }
                 }
             }
         }
@@ -103,6 +111,11 @@ class BookmarksViewController: UIViewController {
             PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
                 self.lastSnapshot = snapshot.documents.last
                 self.posts = posts
+                posts.forEach { postFetched in
+                    UserService.fetchUser(withUid: postFetched.ownerUid) { user in
+                        self.postUsers.append(user)
+                    }
+                }
             }
         }
     }
@@ -128,8 +141,8 @@ class BookmarksViewController: UIViewController {
         
         contentCollectionView.register(UserProfileCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         contentCollectionView.register(UserProfileCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
-        contentCollectionView.register(UserProfilePostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
-        contentCollectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
+        contentCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         
         view.addSubviews(categoriesCollectionView, contentCollectionView, postsBookmarksView, casesBookmarksView)
         
@@ -208,14 +221,39 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
             } else {
                 if posts[indexPath.row].type.postType == 0 {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
-                    cell.separatorView.isHidden = true
+                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                    
+                    let userIndex = postUsers.firstIndex { user in
+                        if user.uid == posts[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: postUsers[userIndex])
+                    }
+                    
                     return cell
+                    
                 } else {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
-                    cell.separatorView.isHidden = true
+                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
+
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    
+                    let userIndex = postUsers.firstIndex { user in
+                        if user.uid == posts[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: postUsers[userIndex])
+                    }
+                    
                     return cell
                 }
             }
@@ -229,6 +267,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             if selectedCategory == 1 && posts.isEmpty {
                 lastSnapshot = nil
                 fetchBookmarkedPosts()
+                return
             }
             contentCollectionView.reloadData()
         } else {
@@ -247,8 +286,9 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], collectionViewFlowLayout: layout)
                 navigationController?.pushViewController(controller, animated: true)
             } else {
-                let controller = DetailsPostViewController(post: posts[indexPath.row], collectionViewLayout: layout)
-                navigationController?.pushViewController(controller, animated: true)
+                
+                //let controller = DetailsPostViewController(post: posts[indexPath.row], collectionViewLayout: layout)
+                //navigationController?.pushViewController(controller, animated: true)
             }
         }
 
@@ -261,14 +301,24 @@ extension BookmarksViewController {
             CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastSnapshot) { snapshot in
                 CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
                     self.lastSnapshot = snapshot.documents.last
-                    self.cases = clinicalCases
+                    self.cases.append(contentsOf: clinicalCases)
+                    clinicalCases.forEach { clinicalCaseFetched in
+                        UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
+                            self.caseUsers.append(user)
+                        }
+                    }
                 }
             }
         } else {
             PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastSnapshot) { snapshot in
                 PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
                     self.lastSnapshot = snapshot.documents.last
-                    self.posts = posts
+                    self.posts.append(contentsOf: posts)
+                    posts.forEach { postFetched in
+                        UserService.fetchUser(withUid: postFetched.ownerUid) { user in
+                            self.postUsers.append(user)
+                        }
+                    }
                 }
             }
         }

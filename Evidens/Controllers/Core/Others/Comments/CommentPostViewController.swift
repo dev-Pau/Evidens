@@ -14,7 +14,10 @@ class CommentPostViewController: UICollectionViewController {
     //MARK: - Properties
     
     private var post: Post
+    private var user: User
+    
     private var comments = [Comment]()
+    private var ownerComments = [User]()
     
     private var commentMenu = CommentsMenuLauncher()
  
@@ -48,8 +51,9 @@ class CommentPostViewController: UICollectionViewController {
     
     //MARK: - Lifecycle
     
-    init(post: Post) {
+    init(post: Post, user: User) {
         self.post = post
+        self.user = user
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -100,18 +104,30 @@ class CommentPostViewController: UICollectionViewController {
             if !self.post.postText.isEmpty {
                 self.comments.append(Comment(dictionary: [
                     "comment": self.post.postText,
-                    "uid": self.post.ownerUid,
+                    "uid": self.user.uid as Any,
                     "timestamp": self.post.timestamp,
-                    "firstName": self.post.ownerFirstName as Any,
-                    "category": self.post.ownerCategory as Any,
-                    "speciality": self.post.ownerSpeciality as Any,
-                    "profession": self.post.ownerProfession as Any,
-                    "lastName": self.post.ownerLastName as Any,
+                    "firstName": self.user.firstName as Any,
+                    "category": self.user.category.userCategoryString as Any,
+                    "speciality": self.user.speciality as Any,
+                    "profession": self.user.profession as Any,
+                    "lastName": self.user.lastName as Any,
                     "isAuthor": true as Bool,
-                    "profileImageUrl": self.post.ownerImageUrl as Any]))
+                    "isTextFromAuthor": true as Bool,
+                    "profileImageUrl": self.user.profileImageUrl as Any]))
+                
+                self.ownerComments.append(User(dictionary: [
+                    "uid": self.user.uid as Any,
+                    "firstName": self.user.firstName as Any,
+                    "lastName": self.user.lastName as Any,
+                    "profileImageUrl": self.user.profileImageUrl as Any,
+                    "profession": self.user.profession as Any,
+                    "category": self.user.category as Any,
+                    "speciality": self.user.speciality as Any]))
             }
+            
             // Append the fetched comments
             self.comments.append(contentsOf: comments)
+            
             // Post has no text from the owner & no comments
             if comments.isEmpty && self.post.postText.isEmpty {
                 self.emptyCommentLabel.isHidden = false
@@ -119,13 +135,32 @@ class CommentPostViewController: UICollectionViewController {
                 self.collectionView.isHidden = true
                 return
             }
+            
+            if comments.isEmpty && !self.post.postText.isEmpty {
+                self.emptyCommentLabel.isHidden = true
+                self.startTheConversationLabel.isHidden = true
+                self.collectionView.isHidden = false
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                return
+            }
+            
+            // Fetch users from comments
+            self.comments.forEach { comment in
+                UserService.fetchUser(withUid: comment.uid) { user in
+                    self.ownerComments.append(user)
+                    if self.ownerComments.count == self.comments.count {
+                        DispatchQueue.main.async {
+                            self.collectionView.reloadData()
+                        }
+                    }
+                }
+            }
+            
             self.emptyCommentLabel.isHidden = true
             self.startTheConversationLabel.isHidden = true
             self.collectionView.isHidden = false
-            
-            DispatchQueue.main.async {
-                self.collectionView.reloadData()
-            }
         }
     }
     
@@ -177,6 +212,13 @@ extension CommentPostViewController {
         cell.authorButton.isHidden = true
 
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+        
+        let userIndex = ownerComments.firstIndex { user in
+            return user.uid == comments[indexPath.row].uid
+        }!
+        
+        cell.set(user: ownerComments[userIndex])
+        
         cell.delegate = self
         return cell
         
@@ -219,6 +261,7 @@ extension CommentPostViewController: CommentCellDelegate {
                             
                             self.collectionView.performBatchUpdates {
                                 self.comments.remove(at: indexPath.item)
+                                self.ownerComments.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                             let popupView = METopPopupView(title: "Comment deleted", image: "trash")
@@ -289,7 +332,16 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "lastName": currentUser.lastName as Any,
                 "isAuthor": isAuthor as Any,
                 "profileImageUrl": currentUser.profileImageUrl as Any]))
-         
+            
+            self.ownerComments.append(User(dictionary: [
+                "uid": currentUser.uid as Any,
+                "firstName": currentUser.firstName as Any,
+                "lastName": currentUser.lastName as Any,
+                "profileImageUrl": currentUser.profileImageUrl as Any,
+                "profession": currentUser.profession as Any,
+                "category": currentUser.category as Any,
+                "speciality": currentUser.speciality as Any]))
+            
             let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
             self.collectionView.reloadData()
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)

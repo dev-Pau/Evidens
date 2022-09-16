@@ -52,20 +52,9 @@ class HomeViewController: NavigationBarViewController {
         return collectionView
     }()
     
-    var users = [User]() {
-        didSet {
-            //collectionView.reloadData()
-        }
-    }
-   
-    var posts = [Post]() {
-        didSet {
-            if !singleUpdate {
-                print("Reload all")
-                //collectionView.reloadData()
-            }
-        }
-    }
+    var users = [User]()
+    
+    var posts = [Post]()
     
     //MARK: - Lifecycle
 
@@ -74,7 +63,6 @@ class HomeViewController: NavigationBarViewController {
         self.navigationController?.delegate = zoomTransitioning
         fetchUser()
         fetchFirstPostsGroup()
-        //configureDataSource()
         configureUI()
         configureNavigationItemButtons()
     }
@@ -88,13 +76,12 @@ class HomeViewController: NavigationBarViewController {
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        //collectionView.register(HomeDocumentCell.self, forCellWithReuseIdentifier: homeDocumentCellReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(collectionView)
-        //Configure UIRefreshControl
+
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
@@ -118,19 +105,22 @@ class HomeViewController: NavigationBarViewController {
     //MARK: - Actions
     
     @objc func handleRefresh() {
+        if displaysSinglePost { return }
         HapticsManager.shared.vibrate(for: .success)
-        posts.removeAll()
         fetchFirstPostsGroup()
     }
     
     //MARK: - API
     func fetchUser() {
-        if !displaysSinglePost {
+        /*
+        if displaysSinglePost {
+            print("IS FETCHING USER")
             guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
             UserService.fetchUser(withUid: uid) { user in
                 self.user = user
             }
         }
+         */
     }
 
     func fetchFirstPostsGroup() {
@@ -141,21 +131,20 @@ class HomeViewController: NavigationBarViewController {
                     self.posts = fetchedPosts
                     self.checkIfUserLikedPosts()
                     self.checkIfUserBookmarkedPost()
-                    
+                    self.collectionView.refreshControl?.endRefreshing()
                     self.posts.forEach { post in
                         UserService.fetchUser(withUid: post.ownerUid) { user in
                             self.users.append(user)
                             if self.users.count == self.posts.count {
-                                self.collectionView.reloadData()
+                                print("enters heree")
+                                DispatchQueue.main.async {
+                                    self.collectionView.reloadData()
+                                }
                             }
                         }
                     }
-                    
-                    self.collectionView.refreshControl?.endRefreshing()
                 }
-                 
-            }
-            
+            } 
         } else {
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
@@ -189,6 +178,7 @@ class HomeViewController: NavigationBarViewController {
                         //Change the didLike according if user did like post
                         self.posts[index].didLike = didLike
                         //self.updateData(on: self.posts)
+                        self.collectionView.reloadData()
                     }
             }
         }
@@ -200,6 +190,7 @@ class HomeViewController: NavigationBarViewController {
             PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
                 if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
                     self.posts[index].didBookmark = didBookmark
+                    self.collectionView.reloadData()
                 }
             }
         }
@@ -237,14 +228,23 @@ extension HomeViewController: UICollectionViewDataSource {
             
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             
+            if user != nil {
+                cell.set(user: user!)
+                
+            } else {
+                let userIndex = users.firstIndex { user in
+                    if user.uid == posts[indexPath.row].ownerUid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+            }
             
-            let userIndex = users.firstIndex { user in
-                return user.uid == posts[indexPath.row].ownerUid
-            }!
-            
-            
-            cell.userPostView.profileImageView.sd_setImage(with: URL(string: users[userIndex].profileImageUrl!))
-            
+            cell.layoutIfNeeded()
             return cell
             
         } else if posts[indexPath.row].type.postType == 1 {
@@ -254,19 +254,50 @@ extension HomeViewController: UICollectionViewDataSource {
             cell.layoutIfNeeded()
             
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
-            cell.layoutIfNeeded()
             
+            if user != nil {
+                cell.set(user: user!)
+                
+            } else {
+                let userIndex = users.firstIndex { user in
+                    if user.uid == posts[indexPath.row].ownerUid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+            }
+            
+            cell.layoutIfNeeded()
             return cell
             
         } else if posts[indexPath.row].type.postType == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
-            cell.layoutIfNeeded()
             
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             
+            if user != nil {
+                cell.set(user: user!)
+                
+            } else {
+                let userIndex = users.firstIndex { user in
+                    if user.uid == posts[indexPath.row].ownerUid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+            }
             
+            cell.layoutIfNeeded()
             return cell
             
         } else if posts[indexPath.row].type.postType == 3 {
@@ -277,6 +308,18 @@ extension HomeViewController: UICollectionViewDataSource {
 
             
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            
+            let userIndex = users.firstIndex { user in
+                if user.uid == posts[indexPath.row].ownerUid {
+                    return true
+                }
+                return false
+            }
+            
+            if let userIndex = userIndex {
+                cell.set(user: users[userIndex])
+            }
+            
             cell.layoutIfNeeded()
             
             return cell
@@ -286,10 +329,21 @@ extension HomeViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
             cell.delegate = self
             cell.layer.borderWidth = 0
-            cell.layoutIfNeeded()
             
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             
+            let userIndex = users.firstIndex { user in
+                if user.uid == posts[indexPath.row].ownerUid {
+                    return true
+                }
+                return false
+            }
+            
+            if let userIndex = userIndex {
+                cell.set(user: users[userIndex])
+            }
+            
+            cell.layoutIfNeeded()
             
             return cell
             
@@ -300,17 +354,28 @@ extension HomeViewController: UICollectionViewDataSource {
             cell.layer.borderWidth = 0
             
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            let userIndex = users.firstIndex { user in
+                if user.uid == posts[indexPath.row].ownerUid {
+                    return true
+                }
+                return false
+            }
+            
+            if let userIndex = userIndex {
+                cell.set(user: users[userIndex])
+            }
+            
             cell.layoutIfNeeded()
+            
             return cell
         }
-        
     }
 }
 
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
-    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post) {
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -318,13 +383,11 @@ extension HomeViewController: HomeCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsPostViewController(post: post, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        
-        
         
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -358,8 +421,8 @@ extension HomeViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
-        let controller = CommentPostViewController(post: post)
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
+        let controller = CommentPostViewController(post: post, user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -381,38 +444,37 @@ extension HomeViewController: HomeCellDelegate {
                 //self.singleUpdate = true
                 self.posts[indexPath.row].didLike = false
                 self.posts[indexPath.row].likes -= 1
-                //self.singleUpdate = false
+                self.collectionView.reloadData()
             }
         } else {
             PostService.likePost(post: post) { _ in
-                //self.singleUpdate = true
                 self.posts[indexPath.row].didLike = true
                 self.posts[indexPath.row].likes += 1
-                //self.singleUpdate = false
+                self.collectionView.reloadData()
                 NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
             }
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+
             let controller = UserProfileViewController(user: user)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
-            self.navigationItem.backBarButtonItem = backItem
+            navigationItem.backBarButtonItem = backItem
             
-            self.navigationController?.pushViewController(controller, animated: true)
+            navigationController?.pushViewController(controller, animated: true)
             DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        }
+        
     }
     
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post) {
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) {
+        homeMenuLauncher.user = user
         homeMenuLauncher.post = post
         homeMenuLauncher.showImageSettings(in: view)
     }
-    
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
@@ -421,14 +483,20 @@ extension HomeViewController: HomeCellDelegate {
             PostService.unbookmarkPost(post: post) { _ in
                 self.posts[indexPath.row].didBookmark = false
                 self.posts[indexPath.row].numberOfBookmarks -= 1
+                self.collectionView.reloadData()
                 
             }
         } else {
             PostService.bookmarkPost(post: post) { _ in
                 self.posts[indexPath.row].didBookmark = true
                 self.posts[indexPath.row].numberOfBookmarks += 1
+                self.collectionView.reloadData()
             }
         }
+    }
+    
+    func scrollCollectionViewToTop() {
+        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
 }
 
@@ -443,9 +511,11 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
         if follow {
             // Unfollow user
             UserService.unfollow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
-                reportPopup.showTopPopup(inView: self.view)
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
+                self.unfollowAlert(withUserFirstName: firstName) {
+                    let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                    reportPopup.showTopPopup(inView: self.view)
+                    PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
+                }
             }
         } else {
             // Follow user
@@ -498,7 +568,9 @@ extension HomeViewController {
                         UserService.fetchUser(withUid: post.ownerUid) { user in
                             self.users.append(user)
                             if self.users.count == self.posts.count {
-                                self.collectionView.reloadData()
+                                DispatchQueue.main.async {
+                                    self.collectionView.reloadData()
+                                }
                             }
                         }
                     }
@@ -524,3 +596,5 @@ extension HomeViewController {
         }
     }
 }
+
+

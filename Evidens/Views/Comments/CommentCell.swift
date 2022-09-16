@@ -21,6 +21,8 @@ class CommentCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    var commentOwnerUser: User?
+    
     weak var delegate: CommentCellDelegate?
     
     private let cellContentView = UIView()
@@ -65,7 +67,7 @@ class CommentCell: UICollectionViewCell {
         button.setTitleColor(UIColor.white, for: .normal)
         button.backgroundColor = primaryColor
         button.layer.cornerRadius = 5
-        //button.isHidden = true
+        button.isHidden = true
         let title = NSMutableAttributedString(string: "Author", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         button.setAttributedTitle(title, for: .normal)
         return button
@@ -176,23 +178,46 @@ class CommentCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
+        commentLabel.text = viewModel.commentText
+        timeStampLabel.text = viewModel.timestampString
+        dotsImageButton.isHidden = viewModel.isTextFromAuthor ? true : false
+        
 
+        /*
         if viewModel.anonymousComment {
             profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         } else {
             profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         }
-        
+         */
+        /*
         if viewModel.isAuthor {
             // Comment from the owner of the case
             authorButton.isHidden = false
         }
+         */
         //authorButton.isHidden = viewModel.comment.uid == user.isCurrentUser
         
-        commentLabel.text = viewModel.commentText
-        nameLabel.attributedText = viewModel.userLabelText()
-        timeStampLabel.text = viewModel.timestampString
-        professionLabel.text = viewModel.profession + " · " + viewModel.speciality
+
+        //nameLabel.attributedText = viewModel.userLabelText()
+        //professionLabel.text = viewModel.profession + " · " + viewModel.speciality
+    }
+    
+    func set(user: User) {
+        guard let viewModel = viewModel else { return }
+        commentOwnerUser = user
+        nameLabel.attributedText = user.userLabelText()
+        professionLabel.text = user.profession! + ", " + user.speciality!
+        
+        if viewModel.anonymousComment {
+            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        }
+        
+        if viewModel.isAuthor {
+            authorButton.isHidden = false
+        }
     }
     
     @objc func handleThreeDots() {

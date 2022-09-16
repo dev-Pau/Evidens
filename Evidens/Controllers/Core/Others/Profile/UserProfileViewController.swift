@@ -955,7 +955,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], collectionViewLayout: layout)
+            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, collectionViewLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -992,7 +992,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsPostViewController(post: post, collectionViewLayout: layout)
+                        let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.title = ""
@@ -1012,7 +1012,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsPostViewController(post: post, collectionViewLayout: layout)
+                        let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.title = ""

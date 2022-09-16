@@ -9,6 +9,12 @@ import UIKit
 
 class HomeLikesCell: UITableViewCell {
     
+    var user: User? {
+        didSet {
+            configureWithUser()
+        }
+    }
+    
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -72,9 +78,10 @@ class HomeLikesCell: UITableViewCell {
         profileImageView.layer.cornerRadius = 40 / 2
     }
     
-    func set(profileImageUrl: String, name: String, lastName: String, profession: String, speciality: String, category: String) {
-        profileImageView.sd_setImage(with: URL(string: profileImageUrl))
-        nameLabel.text = name + " " + lastName + " · " + category
-        professionLabel.text = profession + " · " + speciality
+    func configureWithUser() {
+        guard let user = user else { return }
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        nameLabel.attributedText = user.userLabelText()
+        professionLabel.text = user.profession! + " · " + user.speciality!
     }
 }

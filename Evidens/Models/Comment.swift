@@ -21,6 +21,7 @@ struct Comment {
     let profession: String
     let anonymous: Bool
     let isAuthor: Bool
+    let isTextFromAuthor: Bool
     
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
@@ -35,6 +36,7 @@ struct Comment {
         self.profession = dictionary["profession"] as? String ?? ""
         self.speciality = dictionary["speciality"] as? String ?? ""
         self.isAuthor = dictionary["isAuthor"] as? Bool ?? false
+        self.isTextFromAuthor = dictionary["isTextFromAuthor"] as? Bool ?? false
     }
 }
 

@@ -218,7 +218,6 @@ struct PostService {
     
     static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
-        print(snapshot.documents.count)
         snapshot.documents.forEach({ document in
             fetchPost(withPostId: document.documentID) { post in
                 posts.append(post)

@@ -17,19 +17,13 @@ class HomeImageTextCell: UICollectionViewCell {
         }
     }
     
-    /*
-    var user: User? {
-        didSet {
-            configureWithUserInfo()
-        }
-    }
-     */
-    
+    var user: User?
+
     private let cellContentView = UIView()
     
     weak var delegate: HomeCellDelegate?
     
-    private var userPostView = MEUserPostView()
+    var userPostView = MEUserPostView()
     
     var postTextLabel = MEPostLabel()
     
@@ -90,6 +84,7 @@ class HomeImageTextCell: UICollectionViewCell {
             postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             postImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            postImageView.heightAnchor.constraint(equalToConstant: 300),
     
             actionButtonsView.topAnchor.constraint(equalTo: postImageView.bottomAnchor, constant: 10),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -107,19 +102,10 @@ class HomeImageTextCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         
-        /*
-        UserService.fetchUser(withUid: viewModel.post.ownerUid) { user in
-            self.user = user
-        }
-         */
 
-        userPostView.usernameLabel.text = viewModel.fullName
-        userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
-        
-        userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
-        
+             
         postTextLabel.text = viewModel.postText
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
@@ -129,46 +115,23 @@ class HomeImageTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        let imageHeight = min(viewModel.sizeOfImage, UIScreen.main.bounds.height * 0.7)
-        let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: imageHeight)
+       
+        let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 300)
         postImageViewHeightConstraint.priority = UILayoutPriority(999)
         postImageViewHeightConstraint.isActive = true
         
-        //postImageView.setHeightConstraint(toConstant: imageHeight)
-        
-        //postImageView.heightAnchor.constraint(equalToConstant: imageHeight).isActive = true
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
-        
     }
     
-    /*
-    func configureWithUserInfo() {
-        guard let user = user else { return }
+    func set(user: User) {
+        self.user = user
+        if let profileImageUrl = user.profileImageUrl {
+            userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        }
+        
         userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
-        if let url = user.profileImageUrl {
-            userPostView.profileImageView.sd_setImage(with: URL(string: url))
-        }
-        
-        
-        
-        userPostView.userInfoCategoryLabel.attributedText =  userInfo
+        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
-     */
-    
-    /*
-    var userInfo: NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: "\((user?.profession!)!), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        if user!.category == .professional {
-            attributedText.append(NSAttributedString(string: "\((user?.speciality!)!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-        } else {
-            attributedText.append(NSAttributedString(string: "\((user?.speciality!)!) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-            attributedText.append(NSAttributedString(string: "\((user?.category)!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
-            
-        }
-        return attributedText
-     
-    }
-     */
     
     @objc func handleImageTap() {
         delegate?.cell(self, didTapImage: [postImageView], index: 0)
@@ -186,21 +149,21 @@ class HomeImageTextCell: UICollectionViewCell {
     }
     
     @objc func didTapPost() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToSeePost: viewModel.post)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
     }
 }
 
 
 extension HomeImageTextCell: MEUserPostViewDelegate {
     func didTapThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, forAuthor: user)
     }
     
     func didTapProfile() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
+        guard let user = user else { return }
+        delegate?.cell(self, wantsToShowProfileFor: user)
     }
 }
 
@@ -216,8 +179,8 @@ extension HomeImageTextCell: MEPostInfoViewDelegate {
 extension HomeImageTextCell: MEPostActionButtonsDelegate {
     
     func handleComments() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post, forAuthor: user)
     }
     
     func handleBookmark() {

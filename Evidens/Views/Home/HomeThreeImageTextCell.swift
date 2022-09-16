@@ -17,6 +17,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         }
     }
     
+    private var user: User?
+    
     weak var delegate: HomeCellDelegate?
     
     private let cellContentView = UIView()
@@ -137,12 +139,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         
-        userPostView.usernameLabel.text = viewModel.fullName
-        userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
-        
-        userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
         
         postTextLabel.text = viewModel.postText
         
@@ -169,9 +167,19 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         }
     }
     
+    func set(user: User) {
+        self.user = user
+        if let profileImageUrl = user.profileImageUrl {
+            userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        }
+        
+        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+    }
+    
     @objc func didTapPost() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToSeePost: viewModel.post)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
     }
     
     
@@ -201,13 +209,13 @@ class HomeThreeImageTextCell: UICollectionViewCell {
 
 extension HomeThreeImageTextCell: MEUserPostViewDelegate {
     func didTapThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, forAuthor: user)
     }
     
     func didTapProfile() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowProfileFor: viewModel.post.ownerUid)
+        guard let user = user else { return }
+        delegate?.cell(self, wantsToShowProfileFor: user)
     }
 }
 
@@ -228,8 +236,8 @@ extension HomeThreeImageTextCell: MEPostActionButtonsDelegate {
     
     
     func handleComments() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.cell(self, wantsToShowCommentsFor: viewModel.post, forAuthor: user)
     }
     
     

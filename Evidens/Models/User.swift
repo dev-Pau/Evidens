@@ -86,6 +86,31 @@ struct User {
     }
 }
 
+extension User {
+    func getUserAttributedInfo() -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: "\(profession!), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        if category == .professional {
+            attributedText.append(NSAttributedString(string: "\(speciality!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+        } else {
+            attributedText.append(NSAttributedString(string: "\(speciality!) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+            attributedText.append(NSAttributedString(string: category.userCategoryString, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+            
+        }
+        return attributedText
+    }
+    
+    func userLabelText() -> NSAttributedString {
+        if category == .professional {
+            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            return attributedString
+        } else {
+            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName! + " · ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            attributedString.append(NSAttributedString(string: "Student", attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
+            return attributedString
+        }
+    }
+}
+
 struct UserStats {
     let followers: Int
     let following: Int

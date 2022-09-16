@@ -25,12 +25,11 @@ class DetailsPostViewController: UICollectionViewController {
     var selectedImage: UIImageView!
     
     private var post: Post
+    private var user: User
 
-    private var comments: [Comment]? {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
+    private var comments: [Comment]?
+
+    private var ownerComments: [User] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,8 +48,9 @@ class DetailsPostViewController: UICollectionViewController {
 
     }
 
-    init(post: Post, collectionViewLayout: UICollectionViewFlowLayout) {
+    init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
+        self.user = user
         super.init(collectionViewLayout: collectionViewLayout)
     }
     
@@ -59,8 +59,19 @@ class DetailsPostViewController: UICollectionViewController {
     }
     
     func fetchComments() {
-        CommentService.fetchComments(forPost: post.postId) { comments in
-            self.comments = comments
+        CommentService.fetchComments(forPost: post.postId) { fetchedComments in
+            self.comments = fetchedComments
+            
+            fetchedComments.forEach { comment in
+                UserService.fetchUser(withUid: comment.uid) { user in
+                    self.ownerComments.append(user)
+                    if self.ownerComments.count == fetchedComments.count {
+                        DispatchQueue.main.async {
+                            self.collectionView.reloadData()
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -145,6 +156,7 @@ class DetailsPostViewController: UICollectionViewController {
                 cell.delegate = self
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
+                cell.set(user: user)
                 return cell
             } else if post.type.postType == 1 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
@@ -152,6 +164,7 @@ class DetailsPostViewController: UICollectionViewController {
                 cell.layer.borderWidth = 0
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
+                cell.set(user: user)
                 return cell
                 
             } else if post.type.postType == 2 {
@@ -160,6 +173,7 @@ class DetailsPostViewController: UICollectionViewController {
                 cell.postTextLabel.numberOfLines = 0
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
+                cell.set(user: user)
                 return cell
             } else if post.type.postType == 3 {
 
@@ -168,6 +182,7 @@ class DetailsPostViewController: UICollectionViewController {
                 cell.layer.borderWidth = 0
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
+                cell.set(user: user)
                 return cell
             } else if post.type.postType == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
@@ -175,6 +190,7 @@ class DetailsPostViewController: UICollectionViewController {
                 cell.postTextLabel.numberOfLines = 0
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
+                cell.set(user: user)
                 return cell
                 
             }
@@ -191,7 +207,20 @@ class DetailsPostViewController: UICollectionViewController {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
                     cell.authorButton.isHidden = true
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                    
+                    
                     cell.delegate = self
+                    
+                    let userIndex = ownerComments.firstIndex { user in
+                        if user.uid == comments[indexPath.row].uid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: ownerComments[userIndex])
+                    }
 
                     cell.backgroundColor = .white
                     return cell
@@ -204,8 +233,8 @@ class DetailsPostViewController: UICollectionViewController {
 }
 
 extension DetailsPostViewController: HomeCellDelegate {
-    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post) {
-        let controller = CommentPostViewController(post: post)
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
+        let controller = CommentPostViewController(post: post, user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -316,21 +345,22 @@ extension DetailsPostViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+       
             let controller = UserProfileViewController(user: user)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
-            self.navigationItem.backBarButtonItem = backItem
+            navigationItem.backBarButtonItem = backItem
             
-            self.navigationController?.pushViewController(controller, animated: true)
+            navigationController?.pushViewController(controller, animated: true)
             DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        }
+        
     }
     
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post) {
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) {
+        homeMenuLauncher.user = user
         homeMenuLauncher.post = post
         homeMenuLauncher.showImageSettings(in: view)
     }
@@ -442,28 +472,10 @@ extension DetailsPostViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post) {
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
         return
     }
 }
-
-/*
-extension DetailsPostViewController: HomeImageViewControllerDelegate {
-    func updateVisibleImageInScrollView(_ image: UIImageView) {
-        selectedImage = image
-    }
-}
- */
-
-/*
-extension DetailsPostViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return selectedImage
-    }
-}
- */
- 
- 
 
 extension DetailsPostViewController: CommentCellDelegate {
     
