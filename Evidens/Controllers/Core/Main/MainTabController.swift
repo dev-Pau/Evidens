@@ -65,7 +65,6 @@ class MainTabController: UITabBarController {
     
     func fetchUser() {
         //Get the uid of current user
-        print("user is logged in")
         guard let uid = Auth.auth().currentUser?.uid else { return }
         //Fetch user with user uid
         UserService.fetchUser(withUid: uid) { user in

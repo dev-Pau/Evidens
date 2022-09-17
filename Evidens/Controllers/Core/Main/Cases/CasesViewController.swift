@@ -308,6 +308,7 @@ extension CasesViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        /*
         CaseService.getAllLikesFor(clinicalCase: clinicalCase) { uids in
             
             let controller = PostLikesViewController(uid: uids)
@@ -318,6 +319,7 @@ extension CasesViewController: CaseCellDelegate {
             
             self.navigationController?.pushViewController(controller, animated: true)
         }
+         */
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case) {

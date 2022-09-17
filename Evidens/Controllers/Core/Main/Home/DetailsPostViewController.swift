@@ -461,15 +461,12 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
-        PostService.getAllLikesFor(post: post) { uids in
-            let controller = PostLikesViewController(uid: uids)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
+        let controller = PostLikesViewController(post: post)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {

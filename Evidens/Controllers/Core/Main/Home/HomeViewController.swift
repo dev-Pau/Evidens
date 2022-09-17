@@ -14,7 +14,8 @@ private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIden
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
-private let skeletonReuseIdentifier = "SkeletonReuseIdentifier"
+private let skeletonTextReuseIdentifier = "SkeletonReuseIdentifier"
+private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
 
 
 class HomeViewController: NavigationBarViewController {
@@ -64,10 +65,18 @@ class HomeViewController: NavigationBarViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.delegate = zoomTransitioning
-        fetchUser()
         fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if !loaded {
+            print("not loaded")
+            collectionView.reloadData()
+        }
     }
 
     //MARK: - Helpers
@@ -80,7 +89,8 @@ class HomeViewController: NavigationBarViewController {
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
         
-        collectionView.register(SkeletonTextCell.self, forCellWithReuseIdentifier: skeletonReuseIdentifier)
+        collectionView.register(SkeletonTextHomeCell.self, forCellWithReuseIdentifier: skeletonTextReuseIdentifier)
+        collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonImageReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -116,17 +126,6 @@ class HomeViewController: NavigationBarViewController {
     }
     
     //MARK: - API
-    func fetchUser() {
-        /*
-        if displaysSinglePost {
-            print("IS FETCHING USER")
-            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-            UserService.fetchUser(withUid: uid) { user in
-                self.user = user
-            }
-        }
-         */
-    }
 
     func fetchFirstPostsGroup() {
         if !displaysSinglePost {
@@ -140,12 +139,8 @@ class HomeViewController: NavigationBarViewController {
                     self.posts.forEach { post in
                         UserService.fetchUser(withUid: post.ownerUid) { user in
                             self.users.append(user)
-                            if self.users.count == self.posts.count {
-                                print("enters heree")
-                                DispatchQueue.main.async {
-                                    self.collectionView.reloadData()
-                                }
-                            }
+                            self.loaded = true
+                            self.collectionView.reloadData()
                         }
                     }
                 }
@@ -164,6 +159,7 @@ class HomeViewController: NavigationBarViewController {
                             self.postLastTimestamp = self.posts.last?.timestamp.seconds
                             self.checkIfUserLikedPosts()
                             self.checkIfUserBookmarkedPost()
+                            self.loaded = true
                         }
                     }
                 case .failure(let error):
@@ -219,7 +215,7 @@ extension HomeViewController: UICollectionViewDelegate {
 extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if !loaded {
-            return 5
+            return 4
         }
         return posts.count
     }
@@ -227,8 +223,14 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         if !loaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonReuseIdentifier, for: indexPath) as! SkeletonTextCell
+            if indexPath.row == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
+                return cell
+            }
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
             return cell
+            
         } else {
             
             if posts[indexPath.row].type.postType == 0 {
@@ -424,15 +426,13 @@ extension HomeViewController: HomeCellDelegate {
     
     
     func cell(wantsToSeeLikesFor post: Post) {
-        PostService.getAllLikesFor(post: post) { uids in
-            let controller = PostLikesViewController(uid: uids)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
+        let controller = PostLikesViewController(post: post)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
@@ -453,20 +453,114 @@ extension HomeViewController: HomeCellDelegate {
         
         HapticsManager.shared.vibrate(for: .success)
         
-        if post.didLike {
-            PostService.unlikePost(post: post) { _ in
-                //self.singleUpdate = true
-                self.posts[indexPath.row].didLike = false
-                self.posts[indexPath.row].likes -= 1
-                self.collectionView.reloadData()
+        switch cell {
+        case is HomeTextCell:
+            let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
             }
-        } else {
-            PostService.likePost(post: post) { _ in
-                self.posts[indexPath.row].didLike = true
-                self.posts[indexPath.row].likes += 1
-                self.collectionView.reloadData()
-                NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
             }
+            
+        case is HomeTwoImageTextCell:
+            let currentCell = cell as! HomeTwoImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                    
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is HomeThreeImageTextCell:
+            let currentCell = cell as! HomeThreeImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is HomeFourImageTextCell:
+            let currentCell = cell as! HomeFourImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                PostService.unlikePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                PostService.likePost(post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        default:
+            break
         }
     }
     
@@ -493,19 +587,98 @@ extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
-        if post.didBookmark {
-            PostService.unbookmarkPost(post: post) { _ in
-                self.posts[indexPath.row].didBookmark = false
-                self.posts[indexPath.row].numberOfBookmarks -= 1
-                self.collectionView.reloadData()
-                
+        switch cell {
+        case is HomeTextCell:
+            let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
             }
-        } else {
-            PostService.bookmarkPost(post: post) { _ in
-                self.posts[indexPath.row].didBookmark = true
-                self.posts[indexPath.row].numberOfBookmarks += 1
-                self.collectionView.reloadData()
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
             }
+            
+        case is HomeTwoImageTextCell:
+            let currentCell = cell as! HomeTwoImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+            
+        case is HomeThreeImageTextCell:
+            let currentCell = cell as! HomeThreeImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+            
+        case is HomeFourImageTextCell:
+            let currentCell = cell as! HomeFourImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                PostService.unbookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                PostService.bookmarkPost(post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+
+        default:
+            break
         }
     }
     
@@ -581,11 +754,7 @@ extension HomeViewController {
                     newPosts.forEach { post in
                         UserService.fetchUser(withUid: post.ownerUid) { user in
                             self.users.append(user)
-                            if self.users.count == self.posts.count {
-                                DispatchQueue.main.async {
-                                    self.collectionView.reloadData()
-                                }
-                            }
+                            self.collectionView.reloadData()
                         }
                     }
                 }
@@ -600,6 +769,9 @@ extension HomeViewController {
                             self.posts.append(newPost)
                             self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                             self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                            self.checkIfUserLikedPosts()
+                            self.checkIfUserBookmarkedPost()
+                            self.collectionView.reloadData()
                         }
                     }
                 case .failure(let error):

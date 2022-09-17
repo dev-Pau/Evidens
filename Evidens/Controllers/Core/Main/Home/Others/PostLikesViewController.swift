@@ -13,7 +13,7 @@ class PostLikesViewController: UIViewController {
     
     //MARK: - Properties
     
-    private var uid: [String]
+    private var post: Post
     
     private var users: [User] = []
     
@@ -31,13 +31,16 @@ class PostLikesViewController: UIViewController {
         configureUI()
     }
     
-    init(uid: [String]) {
-        self.uid = uid
+    init(post: Post) {
+        self.post = post
         super.init(nibName: nil, bundle: nil)
-        uid.forEach { uid in
-            UserService.fetchUser(withUid: uid) { user in
-                self.users.append(user)
-                self.likesTableView.reloadData()
+        
+        PostService.getAllLikesFor(post: post) { uids in
+            uids.forEach { uid in
+                UserService.fetchUser(withUid: uid) { user in
+                    self.users.append(user)
+                    self.likesTableView.reloadData()
+                }
             }
         }
     }

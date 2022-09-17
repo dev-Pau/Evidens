@@ -190,9 +190,10 @@
 		5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC528D493E5004D61D3 /* BookmarksPostImageCell.swift */; };
 		5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */; };
 		5F9AFACA28D49801004D61D3 /* BookmarksCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */; };
-		5F9AFAED28D4CF9C004D61D3 /* SkeletonTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextCell.swift */; };
-		5F9AFAF028D4E2D6004D61D3 /* SkeletonViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAEF28D4E2D6004D61D3 /* SkeletonViewHeader.swift */; };
-		5F9AFAF228D4E399004D61D3 /* SkeletonTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF128D4E399004D61D3 /* SkeletonTextView.swift */; };
+		5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */; };
+		5F9AFAF428D60E56004D61D3 /* SkeletonImageTextHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */; };
+		5F9AFAF628D6368E004D61D3 /* CasesTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF528D6368E004D61D3 /* CasesTextCell.swift */; };
+		5F9AFAF828D6369E004D61D3 /* CasesTextImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF728D6369E004D61D3 /* CasesTextImageCell.swift */; };
 		5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E427E287ABB2700C2153B /* CaseStageView.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
@@ -471,9 +472,10 @@
 		5F9AFAC528D493E5004D61D3 /* BookmarksPostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksPostImageCell.swift; sourceTree = "<group>"; };
 		5F9AFAC728D497F4004D61D3 /* BookmarksCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseCell.swift; sourceTree = "<group>"; };
 		5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseImageCell.swift; sourceTree = "<group>"; };
-		5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonTextCell.swift; sourceTree = "<group>"; };
-		5F9AFAEF28D4E2D6004D61D3 /* SkeletonViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonViewHeader.swift; sourceTree = "<group>"; };
-		5F9AFAF128D4E399004D61D3 /* SkeletonTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonTextView.swift; sourceTree = "<group>"; };
+		5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonTextHomeCell.swift; sourceTree = "<group>"; };
+		5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonImageTextHomeCell.swift; sourceTree = "<group>"; };
+		5F9AFAF528D6368E004D61D3 /* CasesTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesTextCell.swift; sourceTree = "<group>"; };
+		5F9AFAF728D6369E004D61D3 /* CasesTextImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesTextImageCell.swift; sourceTree = "<group>"; };
 		5F9E427E287ABB2700C2153B /* CaseStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageView.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
@@ -935,6 +937,8 @@
 				5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */,
 				5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */,
 				5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */,
+				5F9AFAF528D6368E004D61D3 /* CasesTextCell.swift */,
+				5F9AFAF728D6369E004D61D3 /* CasesTextImageCell.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1254,9 +1258,8 @@
 		5F9AFAEB28D4CDB0004D61D3 /* Skeleton */ = {
 			isa = PBXGroup;
 			children = (
-				5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextCell.swift */,
-				5F9AFAEF28D4E2D6004D61D3 /* SkeletonViewHeader.swift */,
-				5F9AFAF128D4E399004D61D3 /* SkeletonTextView.swift */,
+				5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */,
+				5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */,
 			);
 			path = Skeleton;
 			sourceTree = "<group>";
@@ -1908,6 +1911,7 @@
 				5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
+				5F9AFAF628D6368E004D61D3 /* CasesTextCell.swift in Sources */,
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */,
@@ -1937,8 +1941,8 @@
 				5F9AFACA28D49801004D61D3 /* BookmarksCaseImageCell.swift in Sources */,
 				5F6607FD2855BBB300FCF895 /* MEPostImage.swift in Sources */,
 				5F527D99288554BC009D5027 /* CaseStageViewController.swift in Sources */,
+				5F9AFAF428D60E56004D61D3 /* SkeletonImageTextHomeCell.swift in Sources */,
 				5F8B7C4E287401B8005094A5 /* SpecialitiesDiffableCell.swift in Sources */,
-				5F9AFAF228D4E399004D61D3 /* SkeletonTextView.swift in Sources */,
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
@@ -2014,7 +2018,6 @@
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
 				5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */,
 				5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */,
-				5F9AFAF028D4E2D6004D61D3 /* SkeletonViewHeader.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
 				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
@@ -2049,7 +2052,7 @@
 				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,
-				5F9AFAED28D4CF9C004D61D3 /* SkeletonTextCell.swift in Sources */,
+				5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */,
 				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
 				5F9A9F8B2897E38A00A25152 /* AddEducationViewController.swift in Sources */,
@@ -2097,6 +2100,7 @@
 				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
+				5F9AFAF828D6369E004D61D3 /* CasesTextImageCell.swift in Sources */,
 				5F527D9B288567C4009D5027 /* DiagnosisUnresolvedView.swift in Sources */,
 				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
