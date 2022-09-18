@@ -41,7 +41,6 @@ class PagingSectionFooterView: UICollectionReusableView {
             self.pageControl.currentPage = pagingInfo.currentPage
         })
     }
-     
     
     private func configureUI() {
         backgroundColor = .clear

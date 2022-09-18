@@ -55,7 +55,7 @@ class CaseTextImageCell: UICollectionViewCell {
     }()
     
     private var caseTags: [String] = []
-    private var urlImages: [URL] = []
+    private var stringUrlImages: [String] = []
     
     private var userPostView = MEUserPostView()
     var titleCaseLabel = METitleCaseLabel()
@@ -227,7 +227,7 @@ class CaseTextImageCell: UICollectionViewCell {
         titleCaseLabel.text = viewModel.caseTitle
         caseTags = viewModel.caseTags
         
-        urlImages = viewModel.caseImageUrl!
+        stringUrlImages = viewModel.caseImages!
         compositionalCollectionView.reloadData()
     }
     
@@ -260,7 +260,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return urlImages.count
+            return stringUrlImages.count
         } else {
             return caseTags.count
         }
@@ -271,7 +271,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
             cell.delegate = self
-            cell.caseImageView.sd_setImage(with: urlImages[indexPath.row])
+            cell.caseImageView.sd_setImage(with: URL(string: stringUrlImages[indexPath.row]))
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseStageCellReuseIdentifier, for: indexPath) as! CaseTagCell
@@ -282,7 +282,7 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier, for: indexPath) as! PagingSectionFooterView
-        let itemCount = urlImages.count
+        let itemCount = stringUrlImages.count
         footer.configure(with: itemCount)
         footer.subscribeTo(subject: pagingInfoSubject)
         return footer
@@ -334,7 +334,6 @@ extension CaseTextImageCell: MECaseUpdateViewDelegate {
 
 extension CaseTextImageCell: CaseImageCellDelegate {
     func didTapImage(_ imageView: UIImageView) {
-        guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }

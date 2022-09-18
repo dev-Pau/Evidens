@@ -21,18 +21,12 @@ private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
 class HomeViewController: NavigationBarViewController {
     
     //MARK: - Properties
-    
-    enum Section {
-        case main
-    }
-    
+
     var user: User?
     var selectedImage: UIImageView!
     var homeMenuLauncher = HomeOptionsMenuLauncher()
     
     var loaded = false
-    
-    private var singleUpdate: Bool = false
     
     var displaysSinglePost: Bool = false
     
@@ -72,9 +66,7 @@ class HomeViewController: NavigationBarViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         if !loaded {
-            print("not loaded")
             collectionView.reloadData()
         }
     }
@@ -743,7 +735,6 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
 extension HomeViewController {
     func getMorePosts() {
         if !displaysSinglePost {
-            print(collectionView.contentSize.height)
             PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
                     self.postsLastSnapshot = snapshot.documents.last

@@ -112,7 +112,7 @@ class CaseViewController: NavigationBarViewController {
     
     private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
             let width = view.bounds.width
-            let padding: CGFloat = 110
+            let padding: CGFloat = 10
             let minimumItemSpacing: CGFloat = 10
             let availableWidth = width - (padding * 2) - minimumItemSpacing
             let itemWidth = availableWidth / 2

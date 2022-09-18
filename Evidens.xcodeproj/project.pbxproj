@@ -192,8 +192,7 @@
 		5F9AFACA28D49801004D61D3 /* BookmarksCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */; };
 		5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */; };
 		5F9AFAF428D60E56004D61D3 /* SkeletonImageTextHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */; };
-		5F9AFAF628D6368E004D61D3 /* CasesTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF528D6368E004D61D3 /* CasesTextCell.swift */; };
-		5F9AFAF828D6369E004D61D3 /* CasesTextImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF728D6369E004D61D3 /* CasesTextImageCell.swift */; };
+		5F9AFAFA28D6E718004D61D3 /* CasesFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */; };
 		5F9E427F287ABB2700C2153B /* CaseStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E427E287ABB2700C2153B /* CaseStageView.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
@@ -288,6 +287,7 @@
 		5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */; };
 		5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */; };
 		5FEB92E4289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB92E3289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift */; };
+		5FF5DFF728D77ECD003F9B0A /* SkeletonCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF5DFF628D77ECD003F9B0A /* SkeletonCasesCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -474,8 +474,7 @@
 		5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksCaseImageCell.swift; sourceTree = "<group>"; };
 		5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonTextHomeCell.swift; sourceTree = "<group>"; };
 		5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonImageTextHomeCell.swift; sourceTree = "<group>"; };
-		5F9AFAF528D6368E004D61D3 /* CasesTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesTextCell.swift; sourceTree = "<group>"; };
-		5F9AFAF728D6369E004D61D3 /* CasesTextImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesTextImageCell.swift; sourceTree = "<group>"; };
+		5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesFeedCell.swift; sourceTree = "<group>"; };
 		5F9E427E287ABB2700C2153B /* CaseStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseStageView.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
@@ -574,6 +573,7 @@
 		5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuTitleHeader.swift; sourceTree = "<group>"; };
 		5FEB92E3289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoCanJoinMenuLauncher.swift; sourceTree = "<group>"; };
 		5FED53B428AE0F82002AC2E5 /* Evidens.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Evidens.entitlements; sourceTree = "<group>"; };
+		5FF5DFF628D77ECD003F9B0A /* SkeletonCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCasesCell.swift; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
 		ED9965EF6173BC44853D0886 /* Pods-Evidens.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.release.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.release.xcconfig"; sourceTree = "<group>"; };
@@ -937,8 +937,7 @@
 				5FB29034288D2B81002FBAE1 /* PagingSectionFooterView.swift */,
 				5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */,
 				5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */,
-				5F9AFAF528D6368E004D61D3 /* CasesTextCell.swift */,
-				5F9AFAF728D6369E004D61D3 /* CasesTextImageCell.swift */,
+				5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1260,6 +1259,7 @@
 			children = (
 				5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */,
 				5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */,
+				5FF5DFF628D77ECD003F9B0A /* SkeletonCasesCell.swift */,
 			);
 			path = Skeleton;
 			sourceTree = "<group>";
@@ -1911,7 +1911,6 @@
 				5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
-				5F9AFAF628D6368E004D61D3 /* CasesTextCell.swift in Sources */,
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
 				5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */,
@@ -2037,6 +2036,7 @@
 				5FA0875028BFC64600D44829 /* Sections.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
+				5FF5DFF728D77ECD003F9B0A /* SkeletonCasesCell.swift in Sources */,
 				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,
 				5FA0874D28BFC22700D44829 /* SupportSectionViewController.swift in Sources */,
@@ -2100,7 +2100,6 @@
 				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,
-				5F9AFAF828D6369E004D61D3 /* CasesTextImageCell.swift in Sources */,
 				5F527D9B288567C4009D5027 /* DiagnosisUnresolvedView.swift in Sources */,
 				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
@@ -2118,6 +2117,7 @@
 				5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */,
 				5F78D30728917B3900FE0C99 /* UserProfileTitleHeader.swift in Sources */,
 				5FB2904528910DF5002FBAE1 /* EditNameCell.swift in Sources */,
+				5F9AFAFA28D6E718004D61D3 /* CasesFeedCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

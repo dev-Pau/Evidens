@@ -20,6 +20,7 @@ class CaseImageCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
+        iv.backgroundColor = lightGrayColor
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         iv.clipsToBounds = true
         return iv
@@ -42,6 +43,7 @@ class CaseImageCell: UICollectionViewCell {
     }
     
     @objc func handleImageTap() {
+        print("DID TAP IMAGE")
         delegate?.didTapImage(caseImageView)
     }
 }

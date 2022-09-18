@@ -150,7 +150,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription
-        caseImageView.sd_setImage(with: viewModel.caseImageUrl?.first)
+        caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages?.first!)!))
         timeLabel.text = viewModel.timestampString
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden

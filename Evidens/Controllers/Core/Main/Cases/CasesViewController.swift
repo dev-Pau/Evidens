@@ -6,30 +6,32 @@
 //
 
 import UIKit
-
-import UIKit
 import Firebase
 
-private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
+private let caseSkeletonCellReuseIdentifier = "CaseSkeletonCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController {
     
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
-    var user: User?
+    var users = [User]()
+    
+    var loaded = false
     
     var casesLastSnapshot: QueryDocumentSnapshot?
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
-    //var controllerIsBeeingPushed: Bool = false
-    
-    private var cases = [Case]() {
-        didSet { collectionView.reloadData() }
-    }
+ 
+    private var cases = [Case]()
     
     private var collectionView: UICollectionView!
+    
+    private var filterCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        return collectionView
+    }()
     
 
     override func viewDidLoad() {
@@ -45,29 +47,28 @@ class CasesViewController: NavigationBarViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        
+        if !loaded {
+            collectionView.reloadData()
+        }
     }
     
     private func fetchFirstGroupOfCases() {
-        if !controllerIsBeeingPushed {
-            CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
-                self.casesLastSnapshot = snapshot.documents.last
-                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                self.collectionView.refreshControl?.endRefreshing()
-            }
-        } else {
-            guard let uid = user?.uid else { return }
-            CaseService.fetchCases(forUser: uid) { cases in
-                self.cases = cases
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                self.collectionView.refreshControl?.endRefreshing()
+        CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
+            self.casesLastSnapshot = snapshot.documents.last
+            self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            self.checkIfUserLikedCase()
+            self.checkIfUserBookmarkedCase()
+            self.collectionView.refreshControl?.endRefreshing()
+            self.cases.forEach { clinicalCase in
+                UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                    self.users.append(user)
+                    //self.loaded = true
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
+    
     
     func checkIfUserLikedCase() {
         self.cases.forEach { clinicalCase in
@@ -77,6 +78,7 @@ class CasesViewController: NavigationBarViewController {
                 if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId}) {
                     //Change the didLike according if user did like post
                     self.cases[index].didLike = didLike
+                    self.collectionView.reloadData()
                 }
             }
         }
@@ -87,6 +89,7 @@ class CasesViewController: NavigationBarViewController {
             CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
                 if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId}) {
                     self.cases[index].didBookmark = didBookmark
+                    self.collectionView.reloadData()
                 }
             }
         }
@@ -101,7 +104,7 @@ class CasesViewController: NavigationBarViewController {
             
             let flowLayout = UICollectionViewFlowLayout()
             flowLayout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-            flowLayout.itemSize = CGSize(width: itemWidth, height: view.bounds.height / 2)
+            flowLayout.itemSize = CGSize(width: itemWidth, height: 350)
             
             return flowLayout
         }
@@ -109,8 +112,8 @@ class CasesViewController: NavigationBarViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createTwoColumnFlowLayout())
         
-        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        collectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        collectionView.register(SkeletonCasesCell.self, forCellWithReuseIdentifier: caseSkeletonCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         view.addSubview(collectionView)
@@ -118,8 +121,6 @@ class CasesViewController: NavigationBarViewController {
     
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
-        cases.removeAll()
-        casesLastSnapshot = nil
         fetchFirstGroupOfCases()
     }
 }
@@ -127,21 +128,21 @@ class CasesViewController: NavigationBarViewController {
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if !loaded {
+            return 6
+        }
         return cases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if cases[indexPath.row].type.rawValue == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-            cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-            cell.delegate = self
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-            cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-            cell.delegate = self
+        if !loaded {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseSkeletonCellReuseIdentifier, for: indexPath) as! SkeletonCasesCell
             return cell
         }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
+        cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+        cell.delegate = self
+        return cell
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -176,6 +177,7 @@ extension CasesViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        guard image != [] else { return }
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
@@ -406,26 +408,23 @@ extension CasesViewController: ZoomTransitioningDelegate {
     }
 }
 
-/*
-extension CasesViewController: HomeImageViewControllerDelegate {
-    func updateVisibleImageInScrollView(_ image: UIImageView) {
-        selectedImage = image
-    }
-}
- */
-
 extension CasesViewController {
     func getMoreCases() {
         CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
-
             self.casesLastSnapshot = snapshot.documents.last
             let documents = snapshot.documents
             let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             self.cases.append(contentsOf: newCases)
             self.checkIfUserLikedCase()
             self.checkIfUserBookmarkedCase()
+            
+            newCases.forEach { clinicalCase in
+                UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                    self.users.append(user)
+                    self.collectionView.reloadData()
+                }
+            }
         }
     }
 }
-
 

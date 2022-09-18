@@ -7,8 +7,6 @@
 
 import UIKit
 
-import UIKit
-
 class SkeletonImageTextHomeCell: UICollectionViewCell, SkeletonLoadable {
     
     private let cellContentView = UIView()

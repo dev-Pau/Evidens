@@ -130,11 +130,18 @@ struct CaseViewModel {
         return caseIsAnonymous ? nil : clinicalCase.ownerImageUrl
     }
     
-    var caseImageUrl: [URL]? {
-        clinicalCase.caseImageUrl.map { image in
-            URL(string: image)!
-        }
+    var caseImagesCount: Int {
+        return clinicalCase.caseImageUrl.count
     }
+    
+    var caseImages: [String]? {
+        if caseImagesCount > 0 {
+            return clinicalCase.caseImageUrl
+        }
+        return nil
+      
+        }
+    
     
     var isLikesHidden: Bool {
         if clinicalCase.likes == 0 {
