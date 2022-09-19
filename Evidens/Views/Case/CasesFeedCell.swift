@@ -13,17 +13,14 @@ private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 private let specialitiesCellReuseIdentifier = "SpecialitiesCellReuseIdentifier"
 private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
 private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
-/*
-struct PagingInfo: Equatable, Hashable {
-    let currentPage: Int
-}
- */
 
 class CasesFeedCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
         didSet { configure() }
     }
+    
+    private var user: User?
     
     weak var delegate: CaseCellDelegate?
     
@@ -93,6 +90,8 @@ class CasesFeedCell: UICollectionViewCell {
         layer.borderWidth = 1
         layer.cornerRadius = 10
         
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
+        
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
         backgroundColor = .white
@@ -157,12 +156,6 @@ class CasesFeedCell: UICollectionViewCell {
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
-        if viewModel.userProfileImageUrl != nil {
-            profileImageView.sd_setImage(with: URL(string: viewModel.userProfileImageUrl!))
-        } else {
-            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        }
-
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
@@ -175,13 +168,29 @@ class CasesFeedCell: UICollectionViewCell {
         compositionalCollectionView.reloadData()
     }
     
+    func set(user: User) {
+        guard let viewModel = viewModel else { return }
+        self.user = user
+        
+        if viewModel.caseIsAnonymous {
+            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        }
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     @objc func didTapClinicalCase() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
+    }
+    
+    @objc func handleProfileTap() {
+        guard let user = user, let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
+        delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
 }
 
@@ -211,19 +220,6 @@ extension CasesFeedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowL
     }
 }
 
-extension CasesFeedCell: MEUserPostViewDelegate {
-    func didTapProfile() {
-        guard let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
-        delegate?.clinicalCase(self, wantsToShowProfileFor: viewModel.clinicalCase.ownerUid)
-    }
-    
-    func didTapThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(self, didPressThreeDotsFor: viewModel.clinicalCase)
-    }
-    
-    
-}
 
 extension CasesFeedCell: MEPostActionButtonsDelegate {
     func handleLikes() {
@@ -232,8 +228,7 @@ extension CasesFeedCell: MEPostActionButtonsDelegate {
     }
     
     func handleComments() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(wantsToShowCommentsFor: viewModel.clinicalCase)
+        return
     }
     
     func handleBookmark() {
@@ -242,15 +237,7 @@ extension CasesFeedCell: MEPostActionButtonsDelegate {
     }
     
     func handleShowLikes() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(wantsToSeeLikesFor: viewModel.clinicalCase)
-    }
-}
-
-extension CasesFeedCell: MECaseUpdateViewDelegate {
-    func didTapCaseUpdates() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
+        return
     }
 }
 

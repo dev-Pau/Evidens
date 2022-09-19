@@ -40,7 +40,7 @@ class CommentPostViewController: UICollectionViewController {
     
     private lazy var startTheConversationLabel: UILabel = {
         let label = UILabel()
-        label.text = "Start the conversation."
+        label.text = "Start the discussion."
         label.textAlignment = .center
         label.textColor = grayColor
         label.font = .systemFont(ofSize: 17, weight: .medium)
@@ -231,17 +231,16 @@ extension CommentPostViewController {
 
 extension CommentPostViewController: CommentCellDelegate {
     
-    func didTapProfile(forUid uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .black
-            self.navigationItem.backBarButtonItem = backButton
-                    
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
+    func didTapProfile(forUser user: User) {
+        
+        let controller = UserProfileViewController(user: user)
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        self.navigationItem.backBarButtonItem = backButton
+        
+        self.navigationController?.pushViewController(controller, animated: true)
     }
     
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
@@ -280,11 +279,14 @@ extension CommentPostViewController: CommentCellDelegate {
 extension CommentPostViewController: CommentsMenuLauncherDelegate {
     
     func didTapReport(comment: Comment) {
-                DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
-                    if reported {
-                        print("Comment reported")
-                    }
+        reportCommentAlert {
+            DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
+                if reported {
+                    let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble")
+                    popupView.showTopPopup(inView: self.view)
                 }
+            }
+        }
     }
     
     func menuDidDismiss() {
@@ -348,7 +350,6 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withComment: comment)
 
-            //self.view.activityStopAnimating()
         }
     }
 }

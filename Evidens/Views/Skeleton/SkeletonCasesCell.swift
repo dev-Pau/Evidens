@@ -96,7 +96,7 @@ class SkeletonCasesCell: UICollectionViewCell, SkeletonLoadable {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 370),
+            cellContentView.heightAnchor.constraint(equalToConstant: 350),
         ])
         
         profileImageLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +112,7 @@ class SkeletonCasesCell: UICollectionViewCell, SkeletonLoadable {
       
         sharesLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        cellContentView.addSubviews(profileImageLabel, caseImageLabel, firstTextLabel, secondTextLabel, thirdTextLabel, fourthTextLabel, likesLabel, sharesLabel)
+        cellContentView.addSubviews(profileImageLabel, caseImageLabel, firstTextLabel, secondTextLabel, thirdTextLabel, fourthTextLabel, stateLabel, likesLabel, sharesLabel)
         
         NSLayoutConstraint.activate([
             caseImageLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -144,6 +144,11 @@ class SkeletonCasesCell: UICollectionViewCell, SkeletonLoadable {
             profileImageLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: paddingLeft),
             profileImageLabel.heightAnchor.constraint(equalToConstant: 30),
             profileImageLabel.widthAnchor.constraint(equalToConstant: 30),
+            
+            stateLabel.centerYAnchor.constraint(equalTo: profileImageLabel.centerYAnchor),
+            stateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -paddingLeft),
+            stateLabel.heightAnchor.constraint(equalToConstant: 15),
+            stateLabel.widthAnchor.constraint(equalToConstant: 50),
 
             likesLabel.topAnchor.constraint(equalTo: profileImageLabel.bottomAnchor, constant: paddingTop),
             likesLabel.leadingAnchor.constraint(equalTo: profileImageLabel.leadingAnchor),
@@ -167,10 +172,6 @@ class SkeletonCasesCell: UICollectionViewCell, SkeletonLoadable {
         caseImageLayer.endPoint = CGPoint(x: 1, y: 0.5)
         caseImageLabel.layer.addSublayer(caseImageLayer)
 
-        stateLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        stateLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        stateLabel.layer.addSublayer(stateLayer)
-        
         firstTextLayer.startPoint = CGPoint(x: 0, y: 0.5)
         firstTextLayer.endPoint = CGPoint(x: 1, y: 0.5)
         firstTextLabel.layer.addSublayer(firstTextLayer)
@@ -186,6 +187,10 @@ class SkeletonCasesCell: UICollectionViewCell, SkeletonLoadable {
         fourthTextLayer.startPoint = CGPoint(x: 0, y: 0.5)
         fourthTextLayer.endPoint = CGPoint(x: 1, y: 0.5)
         fourthTextLabel.layer.addSublayer(fourthTextLayer)
+        
+        stateLayer.startPoint = CGPoint(x: 0, y: 0.5)
+        stateLayer.endPoint = CGPoint(x: 1, y: 0.5)
+        stateLabel.layer.addSublayer(stateLayer)
         
         likesLayer.startPoint = CGPoint(x: 0, y: 0.5)
         likesLayer.endPoint = CGPoint(x: 1, y: 0.5)

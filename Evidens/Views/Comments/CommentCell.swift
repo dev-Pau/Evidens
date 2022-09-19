@@ -10,7 +10,7 @@ import SDWebImage
 
 protocol CommentCellDelegate: AnyObject {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment)
-    func didTapProfile(forUid uid: String)
+    func didTapProfile(forUser user: User)
 }
 
 class CommentCell: UICollectionViewCell {
@@ -226,9 +226,9 @@ class CommentCell: UICollectionViewCell {
     }
     
     @objc func didTapProfile() {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel = viewModel, let commentOwnerUser = commentOwnerUser else { return }
         if viewModel.anonymousComment { return } else {
-            delegate?.didTapProfile(forUid: viewModel.commentOnwerUid)
+            delegate?.didTapProfile(forUser: commentOwnerUser)
         }
     }
     

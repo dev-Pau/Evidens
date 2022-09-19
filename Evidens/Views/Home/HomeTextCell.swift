@@ -18,9 +18,7 @@ class HomeTextCell: UICollectionViewCell {
     }
     
     private var user: User?
-    
-    //private var
-    
+   
     private let cellContentView = UIView()
     
     weak var delegate: HomeCellDelegate?

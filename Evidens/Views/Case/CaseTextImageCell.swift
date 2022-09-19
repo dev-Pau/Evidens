@@ -24,6 +24,8 @@ class CaseTextImageCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    private var user: User?
+    
     weak var delegate: CaseCellDelegate?
     
     private let cellContentView = UIView()
@@ -182,17 +184,8 @@ class CaseTextImageCell: UICollectionViewCell {
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
-        userPostView.usernameLabel.text = viewModel.fullName
-        
-        if viewModel.userProfileImageUrl != nil {
-            userPostView.profileImageView.sd_setImage(with: URL(string: viewModel.userProfileImageUrl!))
-        } else {
-            userPostView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        }
-        
         userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
-        
+       
         descriptionCaseLabel.text = viewModel.caseDescription
         
         if viewModel.caseResolvedWithDiagnosis {
@@ -222,8 +215,6 @@ class CaseTextImageCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        
-        
         titleCaseLabel.text = viewModel.caseTitle
         caseTags = viewModel.caseTags
         
@@ -231,13 +222,28 @@ class CaseTextImageCell: UICollectionViewCell {
         compositionalCollectionView.reloadData()
     }
     
+    func set(user: User) {
+        guard let viewModel = viewModel else { return }
+        self.user = user
+        
+        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        
+        if viewModel.caseIsAnonymous {
+            updateView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        } else {
+            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        }
+       
+        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     @objc func didTapClinicalCase() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -291,8 +297,8 @@ extension CaseTextImageCell: UICollectionViewDelegate, UICollectionViewDelegateF
 
 extension CaseTextImageCell: MEUserPostViewDelegate {
     func didTapProfile() {
-        guard let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
-        delegate?.clinicalCase(self, wantsToShowProfileFor: viewModel.clinicalCase.ownerUid)
+        guard let viewModel = viewModel, let user = user, !viewModel.caseIsAnonymous else { return }
+        delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
     
     func didTapThreeDots() {
@@ -310,8 +316,8 @@ extension CaseTextImageCell: MEPostActionButtonsDelegate {
     }
     
     func handleComments() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(wantsToShowCommentsFor: viewModel.clinicalCase)
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.clinicalCase(wantsToShowCommentsFor: viewModel.clinicalCase, forAuthor: user)
     }
     
     func handleBookmark() {

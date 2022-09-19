@@ -16,18 +16,22 @@ class CommentCaseViewController: UICollectionViewController {
     private var commentMenu = CommentsMenuLauncher()
     
     private var clinicalCase: Case
+    private var user: User
+    
     private var comments = [Comment]()
- 
+    private var ownerComments = [User]()
+    
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.delegate = self
         return cv
     }()
-        
+    
     //MARK: - Lifecycle
     
-    init(clinicalCase: Case) {
+    init(clinicalCase: Case, user: User) {
         self.clinicalCase = clinicalCase
+        self.user = user
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -71,26 +75,50 @@ class CommentCaseViewController: UICollectionViewController {
     //MARK: - API
     
     func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { comments in
+        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { commentsFetched in
+            
             self.comments.removeAll()
             // Append the description of the case as comment
             self.comments.append(Comment(dictionary: [
                 "anonymous": self.clinicalCase.privacyOptions == .nonVisible ? true : false,
                 "comment": self.clinicalCase.caseDescription,
                 "timestamp": self.clinicalCase.timestamp,
-                "uid": self.clinicalCase.ownerUid,
-                "firstName": self.clinicalCase.ownerFirstName as Any,
-                "category": self.clinicalCase.ownerCategory.userCategoryString as Any,
-                "speciality": self.clinicalCase.ownerSpeciality as Any,
-                "profession": self.clinicalCase.ownerProfession as Any,
-                "lastName": self.clinicalCase.ownerLastName as Any,
+                "uid": self.user.uid as Any,
+                "firstName": self.user.firstName as Any,
+                "category": self.user.category.userCategoryString as Any,
+                "speciality": self.user.speciality as Any,
+                "profession": self.user.profession as Any,
+                "lastName": self.user.lastName as Any,
                 "isAuthor": true as Bool,
-                "profileImageUrl": self.clinicalCase.ownerImageUrl as Any]))
+                "isTextFromAuthor": true as Bool,
+                "profileImageUrl": self.user.profileImageUrl as Any]))
             
-            // Append the fetched comments
-            self.comments.append(contentsOf: comments)
-            DispatchQueue.main.async {
+            self.ownerComments.append(User(dictionary: [
+                "uid": self.user.uid as Any,
+                "firstName": self.user.firstName as Any,
+                "lastName": self.user.lastName as Any,
+                "profileImageUrl": self.user.profileImageUrl as Any,
+                "profession": self.user.profession as Any,
+                "category": self.user.category as Any,
+                "speciality": self.user.speciality as Any]))
+            
+            self.comments.append(contentsOf: commentsFetched)
+            
+            if commentsFetched.count == 0 {
                 self.collectionView.reloadData()
+                return
+            }
+            
+            self.comments.forEach { comment in
+                UserService.fetchUser(withUid: comment.uid) { user in
+                    self.ownerComments.append(user)
+                    if self.ownerComments.count == self.comments.count {
+                        DispatchQueue.main.async {
+                            self.collectionView.reloadData()
+                            print(self.comments)
+                        }
+                    }
+                }
             }
         }
     }
@@ -134,15 +162,17 @@ extension CommentCaseViewController {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         
-        
-        if indexPath.row == 0 {
-            cell.dotsImageButton.isHidden = true
-            cell.dotsImageButton.isUserInteractionEnabled = false
-            cell.timeStampLabel.isHidden = true
-        }
-        
+        cell.authorButton.isHidden = true
+
         cell.delegate = self
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+        
+        let userIndex = ownerComments.firstIndex { user in
+            return user.uid == comments[indexPath.row].uid
+        }!
+        
+        cell.set(user: ownerComments[userIndex])
+        
         return cell
     }
 
@@ -177,37 +207,57 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 let commentUid = ids[0]
                 let caseUid = ids[1]
                 
-                DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in
-                    print("Comment uploaded to realtime recent comments")
-                    NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
-                }
+                DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in }
+                
+                self.clinicalCase.numberOfComments += 1
+                inputView.clearCommentTextView()
+                
+                
+                let isAuthor = currentUser.uid == self.clinicalCase.ownerUid ? true : false
+                
+                self.comments.append(Comment(dictionary: [
+                    "comment": comment,
+                    "uid": currentUser.uid as Any,
+                    "id": commentUid as Any,
+                    "timestamp": "Now" as Any,
+                    "firstName": currentUser.firstName as Any,
+                    "category": currentUser.category.userCategoryString as Any,
+                    "speciality": currentUser.speciality as Any,
+                    "profession": currentUser.profession as Any,
+                    "lastName": currentUser.lastName as Any,
+                    "isAuthor": isAuthor as Any,
+                    "profileImageUrl": currentUser.profileImageUrl as Any]))
+                
+                self.ownerComments.append(User(dictionary: [
+                    "uid": currentUser.uid as Any,
+                    "firstName": currentUser.firstName as Any,
+                    "lastName": currentUser.lastName as Any,
+                    "profileImageUrl": currentUser.profileImageUrl as Any,
+                    "profession": currentUser.profession as Any,
+                    "category": currentUser.category as Any,
+                    "speciality": currentUser.speciality as Any]))
+                
+                
+                let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+                self.collectionView.reloadData()
+                self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+                
+                NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
             }
         }
-        
-        self.clinicalCase.numberOfComments += 1
-        inputView.clearCommentTextView()
-        
-        let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
-        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
-        
-        
-        
-        //self.view.activityStopAnimating()
     }
 }
 
 extension CommentCaseViewController: CommentCellDelegate {
-    func didTapProfile(forUid uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .black
-            self.navigationItem.backBarButtonItem = backButton
-                    
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
+    func didTapProfile(forUser user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
@@ -226,6 +276,7 @@ extension CommentCaseViewController: CommentCellDelegate {
                             
                             self.collectionView.performBatchUpdates {
                                 self.comments.remove(at: indexPath.item)
+                                self.ownerComments.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                             let popupView = METopPopupView(title: "Comment deleted", image: "trash")
@@ -244,8 +295,13 @@ extension CommentCaseViewController: CommentCellDelegate {
 extension CommentCaseViewController: CommentsMenuLauncherDelegate {
     
     func didTapReport(comment: Comment) {
-        DatabaseManager.shared.reportCaseComment(forCommentId: comment.id) { reported in
-            print("case reported")
+        reportCommentAlert {
+            DatabaseManager.shared.reportCaseComment(forCommentId: comment.id) { reported in
+                if reported {
+                    let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble")
+                    popupView.showTopPopup(inView: self.view)
+                }
+            }
         }
     }
         

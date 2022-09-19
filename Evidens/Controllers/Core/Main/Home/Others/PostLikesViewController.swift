@@ -13,7 +13,7 @@ class PostLikesViewController: UIViewController {
     
     //MARK: - Properties
     
-    private var post: Post
+    private var contentType: Any
     
     private var users: [User] = []
     
@@ -31,15 +31,26 @@ class PostLikesViewController: UIViewController {
         configureUI()
     }
     
-    init(post: Post) {
-        self.post = post
+    init(contentType: Any) {
+        self.contentType = contentType
         super.init(nibName: nil, bundle: nil)
-        
-        PostService.getAllLikesFor(post: post) { uids in
-            uids.forEach { uid in
-                UserService.fetchUser(withUid: uid) { user in
-                    self.users.append(user)
-                    self.likesTableView.reloadData()
+        let type = type(of: contentType)
+        if type == Post.self {
+            PostService.getAllLikesFor(post: contentType as! Post) { uids in
+                uids.forEach { uid in
+                    UserService.fetchUser(withUid: uid) { user in
+                        self.users.append(user)
+                        self.likesTableView.reloadData()
+                    }
+                }
+            }
+        } else {
+            CaseService.getAllLikesFor(clinicalCase: contentType as! Case) { uids in
+                uids.forEach { uid in
+                    UserService.fetchUser(withUid: uid) { user in
+                        self.users.append(user)
+                        self.likesTableView.reloadData()
+                    }
                 }
             }
         }

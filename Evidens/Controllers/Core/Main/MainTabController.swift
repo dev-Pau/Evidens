@@ -241,6 +241,18 @@ extension MainTabController: UITabBarControllerDelegate {
                 return true
             }
             return true
+        } else if viewController == tabBarController.viewControllers?[1] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? CasesViewController {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
         }
         return true
     }

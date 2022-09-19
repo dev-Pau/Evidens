@@ -16,6 +16,7 @@ class CasesViewController: NavigationBarViewController {
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
     var users = [User]()
+    private var cases = [Case]()
     
     var loaded = false
     
@@ -24,8 +25,6 @@ class CasesViewController: NavigationBarViewController {
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
  
-    private var cases = [Case]()
-    
     private var collectionView: UICollectionView!
     
     private var filterCollectionView: UICollectionView = {
@@ -41,7 +40,6 @@ class CasesViewController: NavigationBarViewController {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
-        
         self.navigationController?.delegate = zoomTransitioning
     }
     
@@ -62,7 +60,7 @@ class CasesViewController: NavigationBarViewController {
             self.cases.forEach { clinicalCase in
                 UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
                     self.users.append(user)
-                    //self.loaded = true
+                    self.loaded = true
                     self.collectionView.reloadData()
                 }
             }
@@ -90,6 +88,7 @@ class CasesViewController: NavigationBarViewController {
                 if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId}) {
                     self.cases[index].didBookmark = didBookmark
                     self.collectionView.reloadData()
+
                 }
             }
         }
@@ -141,6 +140,17 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         }
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
         cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+        let userIndex = users.firstIndex { user in
+            if user.uid == cases[indexPath.row].ownerUid {
+                return true
+            }
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            cell.set(user: users[userIndex])
+        }
+        
         cell.delegate = self
         return cell
     }
@@ -151,7 +161,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            print("Get more cases")
             getMoreCases()
         }
     }
@@ -160,14 +169,14 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 
 extension CasesViewController: CaseCellDelegate {
     
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case) {
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -193,76 +202,50 @@ extension CasesViewController: CaseCellDelegate {
     
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase)
-        controller.controllerIsPushed = true
+        return
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) {
+        return
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
-        self.navigationItem.backBarButtonItem = backItem
+        navigationItem.backBarButtonItem = backItem
         
-        self.navigationController?.pushViewController(controller, animated: true)
-        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) {
-        caseMenuLauncher.clinicalCase = clinicalCase
-        caseMenuLauncher.delegate = self
-        caseMenuLauncher.showImageSettings(in: view)
-    }
-    
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .black
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        }
-    }
-    
-    
+
+
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
-        case is CaseTextCell:
-            let currentCell = cell as! CaseTextCell
-            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
-            if clinicalCase.didBookmark {
-                //Unlike post here
-                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
-                }
-            } else {
-                //Like post here
-                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
-                }
-            }
+        case is CasesFeedCell:
+            let currentCell = cell as! CasesFeedCell
             
-        case is CaseTextImageCell:
-            let currentCell = cell as! CaseTextImageCell
             currentCell.viewModel?.clinicalCase.didBookmark.toggle()
+            
             if clinicalCase.didBookmark {
-                //Unlike post here
                 CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.cases[indexPath.row].didBookmark = false
                 }
             } else {
-                //Like post here
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    self.cases[indexPath.row].didBookmark = true
                 }
             }
+
         default:
-            print("Cell not registered")
+            break
         }
         
     }
@@ -270,68 +253,48 @@ extension CasesViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        print(indexPath.row)
+        
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
-        case is CaseTextCell:
-            let currentCell = cell as! CaseTextCell
+        case is CasesFeedCell:
+            let currentCell = cell as! CasesFeedCell
+            
             currentCell.viewModel?.clinicalCase.didLike.toggle()
+            
             if clinicalCase.didLike {
                 //Unlike post here
                 CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    //currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    self.cases[indexPath.row].didLike = false
                 }
             } else {
                 //Like post here
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
+                    //currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    self.cases[indexPath.row].didLike = true
+                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likePost, clinicalCase: clinicalCase)
                 }
             }
             
-        case is CaseTextImageCell:
-            let currentCell = cell as! CaseTextImageCell
-            currentCell.viewModel?.clinicalCase.didLike.toggle()
-            if clinicalCase.didLike {
-                //Unlike post here
-                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
-                }
-            } else {
-                //Like post here
-                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
-                }
-            }
         default:
-            print("Cell not registered")
+            break
         }
+    }
+    
+    func scrollCollectionViewToTop() {
+        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        /*
-        CaseService.getAllLikesFor(clinicalCase: clinicalCase) { uids in
-            
-            let controller = PostLikesViewController(uid: uids)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
-         */
+        return
     }
     
-    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-
-        navigationController?.pushViewController(controller, animated: true)
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
+        return
     }
 }
 

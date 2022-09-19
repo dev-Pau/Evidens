@@ -10,6 +10,7 @@ import UIKit
 private let cellReuseIdentifier = "CommentMenuCellReuseIdentifier"
 private let headerReuseIdentifier = "CommentMenuHeaderReuseIdentifier"
 
+
 protocol CommentsMenuLauncherDelegate: AnyObject {
     func didTapReport(comment: Comment)
     func menuDidDismiss()

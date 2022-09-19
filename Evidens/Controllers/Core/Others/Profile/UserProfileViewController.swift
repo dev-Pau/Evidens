@@ -970,7 +970,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], collectionViewFlowLayout: layout)
+            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, collectionViewFlowLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""

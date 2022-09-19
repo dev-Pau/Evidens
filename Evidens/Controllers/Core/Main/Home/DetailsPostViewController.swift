@@ -207,8 +207,6 @@ class DetailsPostViewController: UICollectionViewController {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
                     cell.authorButton.isHidden = true
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                    
-                    
                     cell.delegate = self
                     
                     let userIndex = ownerComments.firstIndex { user in
@@ -461,7 +459,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
-        let controller = PostLikesViewController(post: post)
+        let controller = PostLikesViewController(contentType: post)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -475,18 +473,16 @@ extension DetailsPostViewController: HomeCellDelegate {
 }
 
 extension DetailsPostViewController: CommentCellDelegate {
-    
-    func didTapProfile(forUid uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .black
-            self.navigationItem.backBarButtonItem = backButton
-                    
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
+
+    func didTapProfile(forUser user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {

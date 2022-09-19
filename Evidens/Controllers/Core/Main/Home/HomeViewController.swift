@@ -418,7 +418,7 @@ extension HomeViewController: HomeCellDelegate {
     
     
     func cell(wantsToSeeLikesFor post: Post) {
-        let controller = PostLikesViewController(post: post)
+        let controller = PostLikesViewController(contentType: post)
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem

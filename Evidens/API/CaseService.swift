@@ -57,19 +57,18 @@ struct CaseService {
     }
     
     
-    
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
 
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
-            firstGroupToFetch.addSnapshotListener { snapshot, error in
+            firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
                 completion(snapshot)
             }
         } else {
             let nextGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.addSnapshotListener { snapshot, error in
+            nextGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }
                 completion(snapshot)

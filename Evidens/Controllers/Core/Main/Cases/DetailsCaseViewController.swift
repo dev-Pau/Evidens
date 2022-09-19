@@ -16,6 +16,9 @@ private let caseTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 class DetailsCaseViewController: UICollectionViewController {
     
     private var clinicalCase: Case
+    private var user: User
+    
+    private var ownerComments: [User] = []
     
     private var commentMenu = CommentsMenuLauncher()
     var caseMenuLauncher = CaseOptionsMenuLauncher()
@@ -39,8 +42,9 @@ class DetailsCaseViewController: UICollectionViewController {
         return searchBar
     }()
     
-    init(clinicalCase: Case, collectionViewFlowLayout: UICollectionViewFlowLayout) {
+    init(clinicalCase: Case, user: User, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
+        self.user = user
         
         super.init(collectionViewLayout: collectionViewFlowLayout)
     }
@@ -49,12 +53,19 @@ class DetailsCaseViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        let view = MENavigationBarTitleView(fullName: clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName, category: "Case")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        commentMenu.delegate = self
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
+        checkIfUserLikedCase()
+        checkIfUserBookmarkedCase()
     }
     
 
@@ -87,8 +98,19 @@ class DetailsCaseViewController: UICollectionViewController {
     }
     
     private func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { comments in
-            self.comments = comments
+        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { fetchedComments in
+            self.comments = fetchedComments
+            
+            fetchedComments.forEach { comment in
+                UserService.fetchUser(withUid: comment.uid) { user in
+                    self.ownerComments.append(user)
+                    if self.ownerComments.count == fetchedComments.count {
+                        DispatchQueue.main.async {
+                            self.collectionView.reloadData()
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -118,6 +140,7 @@ class DetailsCaseViewController: UICollectionViewController {
             if clinicalCase.type == .text {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+                cell.set(user: user)
                 cell.delegate = self
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.descriptionCaseLabel.numberOfLines = 0
@@ -125,6 +148,7 @@ class DetailsCaseViewController: UICollectionViewController {
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+                cell.set(user: user)
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.descriptionCaseLabel.numberOfLines = 0
                 cell.delegate = self
@@ -138,9 +162,20 @@ class DetailsCaseViewController: UICollectionViewController {
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                    //cell.ownerUid = clinicalCase.ownerUid
+                    cell.authorButton.isHidden = true
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.delegate = self
+                    
+                    let userIndex = ownerComments.firstIndex { user in
+                        if user.uid == comments[indexPath.row].uid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: ownerComments[userIndex])
+                    }
 
                     cell.backgroundColor = .white
                     return cell
@@ -153,6 +188,7 @@ class DetailsCaseViewController: UICollectionViewController {
 }
 
 extension DetailsCaseViewController: CommentCellDelegate {
+
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
         commentMenu.comment = comment
         commentMenu.showCommentsSettings(in: view)
@@ -180,48 +216,48 @@ extension DetailsCaseViewController: CommentCellDelegate {
         }
     }
     
-    func didTapProfile(forUid uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .black
-            self.navigationItem.backBarButtonItem = backButton
-                    
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-}
-
-extension DetailsCaseViewController: CommentsMenuLauncherDelegate {
-    func didTapReport(comment: Comment) {
-        print("")
+    func didTapProfile(forUser user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        self.navigationItem.backBarButtonItem = backButton
+        
+        self.navigationController?.pushViewController(controller, animated: true)
+        
     }
     
-    func menuDidDismiss() {
-        print("")
+    func checkIfUserLikedCase() {
+        CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
+            self.clinicalCase.didLike = didLike
+        }
+    }
+    
+    func checkIfUserBookmarkedCase() {
+        CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
+            self.clinicalCase.didBookmark = didBookmark
+        }
     }
 }
 
 extension DetailsCaseViewController: CaseCellDelegate {
+
+    
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        /*
-        CaseService.getAllLikesFor(clinicalCase: clinicalCase) { uids in
-            
-            let controller = PostLikesViewController(uid: uids)
+
+            let controller = PostLikesViewController(contentType: clinicalCase)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            self.navigationItem.backBarButtonItem = backItem
+            navigationItem.backBarButtonItem = backItem
             
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
-         */
+            navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase)
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
+        
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -318,19 +354,18 @@ extension DetailsCaseViewController: CaseCellDelegate {
         caseMenuLauncher.showImageSettings(in: view)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .black
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        }
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
+    
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
         let controller = CaseUpdatesViewController(clinicalCase: clinicalCase)
@@ -359,7 +394,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case) {
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         return
     }
 }

@@ -176,15 +176,15 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
 
 
 extension CaseViewController: CaseCellDelegate {
-    
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case) {
+
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -227,18 +227,16 @@ extension CaseViewController: CaseCellDelegate {
         caseMenuLauncher.showImageSettings(in: view)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .black
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        }
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        self.navigationItem.backBarButtonItem = backItem
+        
+        self.navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
     
     
@@ -326,22 +324,18 @@ extension CaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-        /*
-        CaseService.getAllLikesFor(clinicalCase: clinicalCase) { uids in
-            
-            let controller = PostLikesViewController(uid: uids)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            self.navigationItem.backBarButtonItem = backItem
-            
-            self.navigationController?.pushViewController(controller, animated: true)
-        }
-         */
+        print("case")
+        let controller = PostLikesViewController(contentType: clinicalCase)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase)
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""

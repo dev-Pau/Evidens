@@ -320,8 +320,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
                 
                 if let userIndex = userIndex {
-                    #warning("IMPLEMENT DetailsCaseViewController with a user same as DetailsPost")
-                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], collectionViewFlowLayout: layout)
+                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], collectionViewFlowLayout: layout)
                     navigationController?.pushViewController(controller, animated: true)
                 }
             } else {
