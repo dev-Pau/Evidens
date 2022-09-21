@@ -146,16 +146,13 @@ class MainTabController: UITabBarController {
         
         let postController = ViewController()
         
-        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(systemName: "house.fill")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: homeController)
+        let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
         
-        let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(systemName: "heart.text.square.fill")!, selectedImage: UIImage(systemName: "heart.text.square.fill")!, rootViewController: casesController)
+        let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
   
-        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(systemName: "plus.circle.fill")!, selectedImage: UIImage(systemName: "plus.circle.fill")!, rootViewController: postController)
+        let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "post")!, selectedImage: UIImage(named: "post.selected")!, rootViewController: postController)
         
-        
-        
-        
-        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(systemName: "bell.fill")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: notificationsController)
+        let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
         
         viewControllers = [home, cases, post, notifications]
         
@@ -165,10 +162,10 @@ class MainTabController: UITabBarController {
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
     
         let nav = UINavigationController(rootViewController: rootViewController)
-        nav.tabBarItem.image = unselectedImage
+        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
         nav.tabBarItem.title = title
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
-        nav.tabBarItem.selectedImage = selectedImage
+        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
         nav.navigationBar.tintColor = .black
         
         return nav
@@ -202,6 +199,8 @@ class MainTabController: UITabBarController {
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
             case .drafts:
+                let controller = DraftsViewController()
+                currentNavController.pushViewController(controller, animated: true)
                 break
             }
         }

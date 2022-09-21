@@ -18,6 +18,8 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    private var user: User?
+    
     private let cellContentView = UIView()
 
     private lazy var profileImageView: UIImageView = {
@@ -63,7 +65,6 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         return label
     }()
     
-    
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
@@ -74,13 +75,6 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         button.isUserInteractionEnabled = true
         button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
         return button
-    }()
-    
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = lightColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
     
     //MARK: - Lifecycle
@@ -103,7 +97,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
    
-        cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, postText, fullNameLabel, separatorView)
+        cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, fullNameLabel)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -111,33 +105,39 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             
-            timeLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            timeLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            timeLabel.widthAnchor.constraint(equalToConstant: 60),
-            
             dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             dotsImageButton.heightAnchor.constraint(equalToConstant: 15),
             dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
             
-            fullNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            fullNameLabel.trailingAnchor.constraint(equalTo: timeLabel.leadingAnchor, constant: -10),
-            
+            fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            /*
             postText.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),
             postText.trailingAnchor.constraint(equalTo: fullNameLabel.trailingAnchor),
             postText.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             postText.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            */
+            timeLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor),
+            timeLabel.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
+            timeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
-
+    }
+    
+    func set(user: User) {
+        guard let viewModel = viewModel else { return }
+        self.user = user
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         
+        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        
+        fullNameLabel.attributedText = attributedText
     }
     
     required init?(coder: NSCoder) {
@@ -195,13 +195,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-        
-        //Complete with all information regarding notifications
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-        fullNameLabel.attributedText = viewModel.notificationUserInfo
         timeLabel.text = viewModel.notificationTimeStamp
-        
-        postText.text = viewModel.notificationPostText
     }
 }
 

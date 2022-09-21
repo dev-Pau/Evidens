@@ -15,6 +15,8 @@ private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
 
+private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
+
 class BookmarksViewController: UIViewController {
     
     var lastSnapshot: QueryDocumentSnapshot?
@@ -92,22 +94,21 @@ class BookmarksViewController: UIViewController {
     }
     
     private func fetchBookmarkedClinicalCases() {
+        print(cases.count)
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
-            if snapshot.count == 0 {
-                self.contentCollectionView.isHidden = true
-                self.casesBookmarksView.isHidden = false
-            } else {
                 CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
                     self.lastSnapshot = snapshot.documents.last
                     self.cases = clinicalCases
+                    print(self.cases.count)
                     clinicalCases.forEach { clinicalCaseFetched in
                         UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
                             self.caseUsers.append(user)
+                            print(self.caseUsers.count)
                         }
                     }
                 }
             }
-        }
+        
     }
     
     private func fetchBookmarkedPosts() {
@@ -193,9 +194,9 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             return CategoriesType.allCases.count
         } else {
             if selectedCategory == 0 {
-                return cases.count
+                return cases.count > 0 ? cases.count : 1
             } else {
-                return posts.count
+                return posts.count > 0 ? posts.count : 1
             }
 
         }
@@ -212,6 +213,16 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if selectedCategory == 0 {
                 // Cases
+                
+                /*
+                if cases.count == 0 {
+                    //let cell = tableView.dequeueReusableCell(withIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyDraftCell
+                    //cell.set(title: "No saved cases yet", description: "Cases you save will show up here.")
+                    //return cell
+                    
+                }
+                 */
+                
                 if cases[indexPath.row].type == .text {
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
 

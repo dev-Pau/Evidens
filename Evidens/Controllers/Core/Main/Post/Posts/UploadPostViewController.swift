@@ -341,8 +341,6 @@ class UploadPostViewController: UIViewController {
         scrollView.resizeScrollViewContentSize()
         
         viewModel.hasImage = false
-        //viewModel.hasVideo = false
-        //viewModel.hasDocument = false
         updateForm()
         
         attachementsButton.isUserInteractionEnabled = true
@@ -396,7 +394,14 @@ class UploadPostViewController: UIViewController {
     
     
     @objc func didTapCancel() {
-        navigationController?.dismiss(animated: true)
+        //navigationController?.dismiss(animated: true)
+        if viewModel.hasImage || viewModel.hasText {
+            // Save post to drafts
+            presentInputActionSheet()
+            
+        } else {
+            dismiss(animated: true)
+        }
     }
     
     
@@ -576,5 +581,78 @@ extension UploadPostViewController: UploadContentViewModel {
     func updateForm() {
         shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
         shareButton.isUserInteractionEnabled = viewModel.postIsValid
+    }
+}
+
+extension UploadPostViewController {
+    private func presentInputActionSheet() {
+        let actionSheet = UIAlertController(title: nil,
+                                            message: nil,
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.title = "Save this post for later?"
+        actionSheet.message = "You can save your post and return to it in the future"
+        
+        actionSheet.addAction(UIAlertAction(title: "Save draft",
+                                            style: .default,
+                                            handler: { [weak self] _ in
+            
+            // Save post to drafts
+            guard let self = self else { return }
+            self.savePostToDraft()
+            
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "Delete draft",
+                                            style: .destructive,
+                                            handler: { [weak self] _ in
+            guard let self = self else { return }
+            self.dismiss(animated: true)
+            
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "Continue sharing",
+                                            style: .cancel))
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func savePostToDraft() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let imagesToUpload = postImages.compactMap { $0 }
+        let postText = postTextView.text
+        
+
+        if viewModel.hasImage {
+            showLoadingView()
+            
+            StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                PostService.uploadPostToDrafts(postText: postText, type: Post.PostType.textWithImage, postImageUrl: imageUrl) { error in
+                    self.dismissLoadingView()
+                    if let error = error {
+                        print(error)
+                        return
+                    }
+                    
+                    let popupView = METopPopupView(title: "Post saved to drafts", image: "square.filled.on.square")
+                    popupView.showTopPopup(inView: self.view)
+                    
+                    self.dismiss(animated: true)
+                }
+                
+            }
+        } else {
+            showLoadingView()
+            PostService.uploadPostToDrafts(postText: postText, type: Post.PostType.plainText) { error in
+                self.dismissLoadingView()
+                if let error = error {
+                    print(error)
+                    return
+                }
+                
+                print("post uploaded")
+                self.dismiss(animated: true)
+            }
+        }
     }
 }

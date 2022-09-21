@@ -29,7 +29,7 @@ class DetailsCaseViewController: UICollectionViewController {
             collectionView.reloadData()
         }
     }
-    
+
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
@@ -45,7 +45,6 @@ class DetailsCaseViewController: UICollectionViewController {
     init(clinicalCase: Case, user: User, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
         self.user = user
-        
         super.init(collectionViewLayout: collectionViewFlowLayout)
     }
     
@@ -231,12 +230,16 @@ extension DetailsCaseViewController: CommentCellDelegate {
     func checkIfUserLikedCase() {
         CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
             self.clinicalCase.didLike = didLike
+            self.collectionView.reloadData()
+
         }
     }
     
     func checkIfUserBookmarkedCase() {
         CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
             self.clinicalCase.didBookmark = didBookmark
+            self.collectionView.reloadData()
+
         }
     }
 }
@@ -446,10 +449,14 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
+            guard let tab = tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
             // Follow user
             UserService.follow(uid: uid) { _ in
                 let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
                 reportPopup.showTopPopup(inView: self.view)
+                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
+                NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
             }
         }
     }

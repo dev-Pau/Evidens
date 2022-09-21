@@ -24,6 +24,8 @@ class DetailsPostViewController: UICollectionViewController {
 
     var selectedImage: UIImageView!
     
+    var indexPathSelected: Int?
+    
     private var post: Post
     private var user: User
 
@@ -33,12 +35,12 @@ class DetailsPostViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
         checkIfUserLikedPosts()
         checkIfUserBookmarkedPost()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -51,6 +53,7 @@ class DetailsPostViewController: UICollectionViewController {
     init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
         self.user = user
+
         super.init(collectionViewLayout: collectionViewLayout)
     }
     
@@ -117,12 +120,14 @@ class DetailsPostViewController: UICollectionViewController {
     func checkIfUserLikedPosts() {
         PostService.checkIfUserLikedPost(post: post) { didLike in
             self.post.didLike = didLike
+            self.collectionView.reloadData()
         }
     }
     
     func checkIfUserBookmarkedPost() {
         PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
-            self.post.didBookmark = didBookmark  
+            self.post.didBookmark = didBookmark
+            self.collectionView.reloadData()
         }
     }
     
@@ -244,6 +249,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
+        
 
         HapticsManager.shared.vibrate(for: .success)
         
@@ -255,11 +261,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes - 1
+                    
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
+                    
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -271,9 +279,6 @@ extension DetailsPostViewController: HomeCellDelegate {
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
-                    //currentCell.actionButtonsView.likeButton.setImage(UIImage(named: "heart"), for: .normal)
-                    //currentCell.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-                    //currentCell.likeButton.tintColor = UIColor(rgb: 0x79CBBF)
                     
                     currentCell.viewModel?.post.likes = post.likes - 1
                 }
@@ -282,6 +287,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                 PostService.likePost(post: post) { _ in
 
                     currentCell.viewModel?.post.likes = post.likes + 1
+                    
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 }
@@ -534,10 +540,14 @@ extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
+            guard let tab = tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
             // Follow user
             UserService.follow(uid: uid) { _ in
                 let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
                 reportPopup.showTopPopup(inView: self.view)
+                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
+                NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
             }
         }
     }

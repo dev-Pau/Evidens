@@ -60,6 +60,7 @@ struct NotificationService {
         }
     }
     
+    /*
     static func fetchNotifications(completion: @escaping([Notification]) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -71,5 +72,26 @@ struct NotificationService {
             completion(notifications)
         }
     }
+     */
+    
+    static func fetchNotifications(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 15)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }  
 }
 

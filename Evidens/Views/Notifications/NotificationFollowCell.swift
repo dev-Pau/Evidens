@@ -20,6 +20,8 @@ class NotificationFollowCell: UICollectionViewCell {
     }
     
     private let cellContentView = UIView()
+    
+    private var user: User?
 
     /*
     private let notificationTextLabel: UILabel = {
@@ -110,17 +112,13 @@ class NotificationFollowCell: UICollectionViewCell {
             cellContentView.heightAnchor.constraint(equalToConstant: 115),
         ])
    
-        cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, fullNameLabel, followButton, separatorView)
+        cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, fullNameLabel, followButton)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
-            
-            timeLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            timeLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            //timeLabel.widthAnchor.constraint(equalToConstant: 60),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -129,16 +127,15 @@ class NotificationFollowCell: UICollectionViewCell {
             
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            fullNameLabel.trailingAnchor.constraint(equalTo: timeLabel.leadingAnchor, constant: -10),
+            fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            
+            timeLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 5),
+            timeLabel.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
+            //timeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             
             followButton.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            followButton.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            followButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             followButton.heightAnchor.constraint(equalToConstant: 30),
-            
-            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
@@ -191,8 +188,8 @@ class NotificationFollowCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         
         //Complete with all information regarding notifications
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-        fullNameLabel.attributedText = viewModel.notificationUserInfo
+        //profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+        //fullNameLabel.attributedText = viewModel.notificationUserInfo
         timeLabel.text = viewModel.notificationTimeStamp
         
         var container = AttributeContainer()
@@ -201,5 +198,20 @@ class NotificationFollowCell: UICollectionViewCell {
         followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
         followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
 
+    }
+    
+    func set(user: User) {
+        guard let viewModel = viewModel else { return }
+        
+        self.user = user
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        
+        let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+        attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        
+        fullNameLabel.attributedText = attributedText
+        
     }
 }

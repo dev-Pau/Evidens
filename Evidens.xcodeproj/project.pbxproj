@@ -136,6 +136,7 @@
 		5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666F92754D658009B26E6 /* CommentService.swift */; };
 		5F8666FC27552222009B26E6 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FB27552222009B26E6 /* Comment.swift */; };
 		5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8666FD2755255F009B26E6 /* CommentViewModel.swift */; };
+		5F88A81028DB3876000DBAD2 /* DraftsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F88A80F28DB3876000DBAD2 /* DraftsViewController.swift */; };
 		5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F891D4A28D20C3B006DC449 /* EmptyBookmarksView.swift */; };
 		5F891D4D28D21351006DC449 /* CasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F891D4C28D21351006DC449 /* CasesViewController.swift */; };
 		5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */; };
@@ -225,6 +226,9 @@
 		5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */; };
 		5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */; };
 		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
+		5FA2FB1F28DB56D200B37424 /* DraftPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB1E28DB56D200B37424 /* DraftPostCell.swift */; };
+		5FA2FB2128DB60A700B37424 /* DraftPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2028DB60A700B37424 /* DraftPostImageCell.swift */; };
+		5FA2FB2328DB757200B37424 /* EmptyDraftCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2228DB757200B37424 /* EmptyDraftCell.swift */; };
 		5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
 		5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29015288688D3002FBAE1 /* CaseService.swift */; };
@@ -267,7 +271,6 @@
 		5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8782707047E006B7A34 /* MainTabController.swift */; };
 		5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87A2707058D006B7A34 /* HomeViewController.swift */; };
 		5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87C2707059D006B7A34 /* SearchViewController.swift */; };
-		5FC4D87F270705B0006B7A34 /* TableViewNotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D87E270705B0006B7A34 /* TableViewNotificationsViewController.swift */; };
 		5FC4D88527071CB6006B7A34 /* HomeTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88427071CB6006B7A34 /* HomeTextCell.swift */; };
 		5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88727071FB0006B7A34 /* Extensions.swift */; };
 		5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88A27072B56006B7A34 /* LoginViewController.swift */; };
@@ -418,6 +421,7 @@
 		5F8666F92754D658009B26E6 /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		5F8666FB27552222009B26E6 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		5F8666FD2755255F009B26E6 /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
+		5F88A80F28DB3876000DBAD2 /* DraftsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftsViewController.swift; sourceTree = "<group>"; };
 		5F891D4A28D20C3B006DC449 /* EmptyBookmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBookmarksView.swift; sourceTree = "<group>"; };
 		5F891D4C28D21351006DC449 /* CasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesViewController.swift; sourceTree = "<group>"; };
 		5F8B7C4528730644005094A5 /* MECharacterIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECharacterIndicatorView.swift; sourceTree = "<group>"; };
@@ -507,6 +511,9 @@
 		5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionCell.swift; sourceTree = "<group>"; };
 		5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
 		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
+		5FA2FB1E28DB56D200B37424 /* DraftPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftPostCell.swift; sourceTree = "<group>"; };
+		5FA2FB2028DB60A700B37424 /* DraftPostImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftPostImageCell.swift; sourceTree = "<group>"; };
+		5FA2FB2228DB757200B37424 /* EmptyDraftCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyDraftCell.swift; sourceTree = "<group>"; };
 		5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCaseViewController.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		5FB29015288688D3002FBAE1 /* CaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseService.swift; sourceTree = "<group>"; };
@@ -552,7 +559,6 @@
 		5FC4D8782707047E006B7A34 /* MainTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabController.swift; sourceTree = "<group>"; };
 		5FC4D87A2707058D006B7A34 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		5FC4D87C2707059D006B7A34 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
-		5FC4D87E270705B0006B7A34 /* TableViewNotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewNotificationsViewController.swift; sourceTree = "<group>"; };
 		5FC4D88427071CB6006B7A34 /* HomeTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTextCell.swift; sourceTree = "<group>"; };
 		5FC4D88727071FB0006B7A34 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		5FC4D88A27072B56006B7A34 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -880,7 +886,6 @@
 		5F598C1F2842777E00189722 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
-				5FC4D87E270705B0006B7A34 /* TableViewNotificationsViewController.swift */,
 				5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */,
 			);
 			path = Notifications;
@@ -955,6 +960,7 @@
 			isa = PBXGroup;
 			children = (
 				5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */,
+				5F88A80F28DB3876000DBAD2 /* DraftsViewController.swift */,
 			);
 			path = SideMenu;
 			sourceTree = "<group>";
@@ -970,6 +976,7 @@
 		5F71C17E28CD178A00A16571 /* SideMenu */ = {
 			isa = PBXGroup;
 			children = (
+				5FA2FB1D28DB56BA00B37424 /* Drafts */,
 				5FA1FC2928CF8C0A0099BF2C /* Bookmarks */,
 				5F71C17F28CD179C00A16571 /* SideMenuHeader.swift */,
 				5F71C18128CD18B700A16571 /* SideMenuCell.swift */,
@@ -1363,6 +1370,16 @@
 				5F9AFAC928D49801004D61D3 /* BookmarksCaseImageCell.swift */,
 			);
 			path = Bookmarks;
+			sourceTree = "<group>";
+		};
+		5FA2FB1D28DB56BA00B37424 /* Drafts */ = {
+			isa = PBXGroup;
+			children = (
+				5FA2FB1E28DB56D200B37424 /* DraftPostCell.swift */,
+				5FA2FB2028DB60A700B37424 /* DraftPostImageCell.swift */,
+				5FA2FB2228DB757200B37424 /* EmptyDraftCell.swift */,
+			);
+			path = Drafts;
 			sourceTree = "<group>";
 		};
 		5FB29017288695C6002FBAE1 /* Case */ = {
@@ -1868,12 +1885,15 @@
 				5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */,
 				5F05207627C63A35001E7D8F /* SearchResult.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */,
+				5F88A81028DB3876000DBAD2 /* DraftsViewController.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
 				5F527D9728845006009D5027 /* RegistrationListView.swift in Sources */,
 				5F0D2AFF28C346FD00BE5DD5 /* SettingsSubOptionCell.swift in Sources */,
+				5FA2FB2328DB757200B37424 /* EmptyDraftCell.swift in Sources */,
 				5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
+				5FA2FB1F28DB56D200B37424 /* DraftPostCell.swift in Sources */,
 				5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
@@ -1963,6 +1983,7 @@
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
 				5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */,
+				5FA2FB2128DB60A700B37424 /* DraftPostImageCell.swift in Sources */,
 				5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
@@ -2067,7 +2088,6 @@
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
 				5F8E52B0286846A20053F011 /* METextField.swift in Sources */,
 				5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */,
-				5FC4D87F270705B0006B7A34 /* TableViewNotificationsViewController.swift in Sources */,
 				5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */,
 				5F598C0C28376C5700189722 /* UserProfileHeaderCell.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,

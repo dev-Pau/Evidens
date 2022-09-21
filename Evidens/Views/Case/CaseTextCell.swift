@@ -167,12 +167,6 @@ class CaseTextCell: UICollectionViewCell {
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
-        if viewModel.userProfileImageUrl != nil {
-            userPostView.profileImageView.sd_setImage(with: URL(string: viewModel.userProfileImageUrl!))
-        } else {
-            userPostView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        }
-       
         userPostView.postTimeLabel.text = viewModel.timestampString
         
         descriptionCaseLabel.text = viewModel.caseDescription

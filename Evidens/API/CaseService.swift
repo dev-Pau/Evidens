@@ -268,5 +268,25 @@ struct CaseService {
             }
         })
     }
+    
+    static func fetchDraftCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-drafts").order(by: "timestamp", descending: true).limit(to: 10)
+            firstGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-drafts").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
 }
 

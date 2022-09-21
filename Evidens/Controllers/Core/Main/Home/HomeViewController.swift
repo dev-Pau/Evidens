@@ -384,7 +384,7 @@ extension HomeViewController: UICollectionViewDataSource {
 
 extension HomeViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        
+    
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -392,7 +392,7 @@ extension HomeViewController: HomeCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-        
+       
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -698,10 +698,14 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
             }
         } else {
             // Follow user
+            guard let tab = tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
             UserService.follow(uid: uid) { _ in
                 let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
                 reportPopup.showTopPopup(inView: self.view)
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
+                NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
+                
             }
         }
     }

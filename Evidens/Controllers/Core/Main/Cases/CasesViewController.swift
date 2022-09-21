@@ -170,6 +170,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 extension CasesViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
+        
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -177,7 +178,7 @@ extension CasesViewController: CaseCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
-
+        
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -276,7 +277,7 @@ extension CasesViewController: CaseCellDelegate {
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                     //currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likePost, clinicalCase: clinicalCase)
+                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
