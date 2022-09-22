@@ -10,6 +10,7 @@ import UIKit
 private let topCaseHeaderReuseIdentifier = "TopHeaderCaseReuseIdentifier"
 private let topCaseImageCellReuseIdentifier = "TopCaseImageCellReuseIdentifier"
 private let topCaseTextCellReuseIdentifier = "TopCaseTextCellReuseIdentifier"
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 class CasesCollectionViewCell: UICollectionViewCell {
     
@@ -19,34 +20,15 @@ class CasesCollectionViewCell: UICollectionViewCell {
         didSet {
             guard let searchedText = searchedText else { return }
             fetchCases(withText: searchedText)
+            tableView.reloadData()
         }
     }
     
     private var casesFetched = [Case]()
 
-    private lazy var tableView: UITableView = {
+    lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
         return tableView
-    }()
-    
-    private lazy var noResultsImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.isHidden = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        return iv
-    }()
-    
-    private lazy var noResultsLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textColor = grayColor
-        return label
     }()
     
     //MARK: - Lifecycle
@@ -62,23 +44,9 @@ class CasesCollectionViewCell: UICollectionViewCell {
         tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topCaseHeaderReuseIdentifier)
         tableView.register(TopCaseImageCell.self, forCellReuseIdentifier: topCaseImageCellReuseIdentifier)
         tableView.register(TopCaseTextCell.self, forCellReuseIdentifier: topCaseTextCellReuseIdentifier)
-        addSubviews(tableView, noResultsImageView, noResultsLabel)
+        tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)
+        addSubview(tableView)
         tableView.frame = bounds
-        
-        noResultsLabel.text = "No results found"
-        
-        NSLayoutConstraint.activate([
-            noResultsImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            noResultsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 60),
-            noResultsImageView.heightAnchor.constraint(equalToConstant: 65),
-            noResultsImageView.widthAnchor.constraint(equalToConstant: 65),
-            
-            noResultsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            noResultsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            noResultsLabel.topAnchor.constraint(equalTo: noResultsImageView.bottomAnchor, constant: 10)
-            
-        ])
-        
     }
     
     required init?(coder: NSCoder) {
@@ -102,6 +70,7 @@ class CasesCollectionViewCell: UICollectionViewCell {
     // Fetch top users based on current user search
     
     func fetchCases(withText text: String) {
+        /*
         AlgoliaService.fetchCases(withText: text) { postIDs in
             
             if postIDs.isEmpty {
@@ -127,6 +96,7 @@ class CasesCollectionViewCell: UICollectionViewCell {
                 }
             }
         }
+         */
     }
 }
 
@@ -143,10 +113,18 @@ extension CasesCollectionViewCell: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return casesFetched.count
+        return casesFetched.count > 0 ? casesFetched.count : 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if casesFetched.count == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyContentCell
+            cell.selectionStyle = .none
+            cell.set(title: "No cases found for \(searchedText!)", description: "Try searching for something else.")
+            return cell
+        }
+        
         if casesFetched[indexPath.row].type == .text {
             let cell = tableView.dequeueReusableCell(withIdentifier: topCaseTextCellReuseIdentifier, for: indexPath) as! TopCaseTextCell
             cell.viewModel = CaseViewModel(clinicalCase: casesFetched[indexPath.row])

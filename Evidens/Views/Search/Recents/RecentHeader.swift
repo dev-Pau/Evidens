@@ -41,6 +41,7 @@ class RecentHeader: UITableViewHeaderFooterView {
     //MARK: - Lifecycle
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
+
         contentView.backgroundColor = .white
         
         addSubview(recentSearchesLabel)

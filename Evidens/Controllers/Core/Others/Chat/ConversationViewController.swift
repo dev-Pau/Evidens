@@ -32,7 +32,7 @@ class ConversationViewController: UIViewController {
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search messages", attributes: [.font : UIFont.systemFont(ofSize: 15)])
+        let atrString = NSAttributedString(string: "Search conversations", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
         searchBar.searchTextField.backgroundColor = lightColor
@@ -135,7 +135,7 @@ class ConversationViewController: UIViewController {
             let currentConversation = strongSelf.conversations
             //Search if target conversation already exists in current conversations
             if let targetConversations = currentConversation.first(where: {
-                $0.otherUserUid == user.objectID
+                $0.otherUserUid == user.uid
             }) {
                 //Present the existing conversation with targetID already created in database
                 let controller = ChatViewController(with: targetConversations.otherUserUid, id: targetConversations.id)
@@ -157,17 +157,17 @@ class ConversationViewController: UIViewController {
         delegate?.didTapHideConversations()
     }
     
-    private func createNewConversation(result: SearchUser) {
-        let name = result.firstName
-        let uid = result.objectID
+    private func createNewConversation(result: User) {
+        let name = result.firstName! + " " + result.lastName!
+        let uid = result.uid
         //Check in database if conversation with this users exists
         //If it does, reuse conversationID
-        DatabaseManager.shared.conversationExists(with: uid) { [weak self] result in
+        DatabaseManager.shared.conversationExists(with: uid!) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let conversationId):
                 //Conversation exists, open the conversation with conversationID found
-                let controller = ChatViewController(with: uid, id: conversationId)
+                let controller = ChatViewController(with: uid!, id: conversationId)
                 controller.isNewConversation = false
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never
@@ -175,7 +175,7 @@ class ConversationViewController: UIViewController {
                 
             case .failure(_):
                 //There's no conversation that exists, Hi new conversation with id
-                let controller = ChatViewController(with: uid, id: nil)
+                let controller = ChatViewController(with: uid!, id: nil)
                 controller.isNewConversation = true
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never

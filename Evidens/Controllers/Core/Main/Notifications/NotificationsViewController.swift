@@ -62,8 +62,8 @@ class NotificationsViewController: NavigationBarViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.isHidden = true
-        titleLabel.isHidden = true
-        descriptionLabel.isHidden = true
+        titleLabel.isHidden = false
+        descriptionLabel.isHidden = false
         configureCollectionView()
         fetchNotifications()
     }
@@ -96,9 +96,8 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func fetchNotifications() {
 
-        showLoadingView()
         NotificationService.fetchNotifications(lastSnapshot: nil) { snapshot in
-            self.dismissLoadingView()
+
             if snapshot.count == 0 {
                 // User don't have any notification, display view
                 self.titleLabel.isHidden = false

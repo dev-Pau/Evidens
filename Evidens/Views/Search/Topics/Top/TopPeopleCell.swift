@@ -15,12 +15,12 @@ class TopPeopleCell: UITableViewCell {
     
     //MARK: - Properties
     
-    var viewModel: UserCellViewModel? {
+    var user: User? {
         didSet {
             configure()
         }
     }
-    
+
     weak var delegate: TopPeopleCellDelegate?
     
     private lazy var profileImageView: UIImageView = {
@@ -29,8 +29,6 @@ class TopPeopleCell: UITableViewCell {
         iv.backgroundColor = lightColor
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         return iv
     }()
     
@@ -93,18 +91,15 @@ class TopPeopleCell: UITableViewCell {
     }
     
     //MARK: - Helpers
-    func configure() {
-        guard let viewModel = viewModel else { return }
-        
-        
-        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
-        nameLabel.text = viewModel.fullName
-        userCategoryLabel.text = viewModel.profession
-    }
     
-    
-    @objc func handleProfileTap() {
-        guard let viewModel = viewModel else { return }
-        delegate?.didTapProfile(forUid: viewModel.uid)
+    private func configure() {
+        guard let user = user else { return }
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        nameLabel.text = user.firstName! + " " + user.lastName!
+        if user.category == .student {
+            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
+        } else {
+            userCategoryLabel.text = user.profession! + ", " + user.speciality!
+        }
     }
 }

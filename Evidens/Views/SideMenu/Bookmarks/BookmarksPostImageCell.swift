@@ -67,6 +67,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
+        userPostView.isUserInteractionEnabled = false
         
         let postImageViewHeightConstraint = postImage.heightAnchor.constraint(equalToConstant: 75)
         postImageViewHeightConstraint.priority = UILayoutPriority(999)

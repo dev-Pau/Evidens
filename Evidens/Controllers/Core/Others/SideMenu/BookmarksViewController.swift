@@ -19,7 +19,8 @@ private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseId
 
 class BookmarksViewController: UIViewController {
     
-    var lastSnapshot: QueryDocumentSnapshot?
+    var lastCaseSnapshot: QueryDocumentSnapshot?
+    var lastPostSnapshot: QueryDocumentSnapshot?
     
     enum CategoriesType: String, CaseIterable {
         case cases = "Cases"
@@ -72,7 +73,7 @@ class BookmarksViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 10
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 150)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = lightColor
         collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
@@ -82,9 +83,6 @@ class BookmarksViewController: UIViewController {
         return collectionView
     }()
     
-    private let postsBookmarksView = EmptyBookmarksView(bookmarkTitle: "No saved posts yet", bookmarkDescription: "Posts you save will show up here.")
-    private let casesBookmarksView = EmptyBookmarksView(bookmarkTitle: "No saved cases yet", bookmarkDescription: "Cases you save will show up here.")
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = lightColor
@@ -93,28 +91,50 @@ class BookmarksViewController: UIViewController {
         fetchBookmarkedClinicalCases()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if selectedCategory == 0 {
+
+            if cases.count == 1 {
+                cases.removeAll()
+                fetchBookmarkedClinicalCases()
+            }
+
+        } else {
+            if posts.count == 1 {
+                posts.removeAll()
+                fetchBookmarkedPosts()
+            }
+        }
+        contentCollectionView.reloadData()
+    }
+    
     private func fetchBookmarkedClinicalCases() {
-        print(cases.count)
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
                 CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
-                    self.lastSnapshot = snapshot.documents.last
+                    self.lastCaseSnapshot = snapshot.documents.last
                     self.cases = clinicalCases
-                    print(self.cases.count)
-                    clinicalCases.forEach { clinicalCaseFetched in
-                        UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
+                    
+                    if self.cases.count == 1 {
+                        UserService.fetchUser(withUid: self.cases.first!.ownerUid) { user in
                             self.caseUsers.append(user)
-                            print(self.caseUsers.count)
+                        }
+                    } else {
+                        clinicalCases.forEach { clinicalCaseFetched in
+                            UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
+                                self.caseUsers.append(user)
+                                print(self.caseUsers.count)
+                            }
                         }
                     }
                 }
             }
-        
     }
     
     private func fetchBookmarkedPosts() {
         PostService.fetchBookmarkedPostDocuments(lastSnapshot: nil) { snapshot in
             PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
-                self.lastSnapshot = snapshot.documents.last
+                self.lastPostSnapshot = snapshot.documents.last
                 self.posts = posts
                 posts.forEach { postFetched in
                     UserService.fetchUser(withUid: postFetched.ownerUid) { user in
@@ -132,11 +152,6 @@ class BookmarksViewController: UIViewController {
     
     
     private func configureCollectionViews() {
-        postsBookmarksView.translatesAutoresizingMaskIntoConstraints = false
-        casesBookmarksView.translatesAutoresizingMaskIntoConstraints = false
-        postsBookmarksView.isHidden = true
-        casesBookmarksView.isHidden = true
-        
         categoriesCollectionView.delegate = self
         categoriesCollectionView.dataSource = self
         contentCollectionView.delegate = self
@@ -149,7 +164,9 @@ class BookmarksViewController: UIViewController {
         contentCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         
-        view.addSubviews(categoriesCollectionView, contentCollectionView, postsBookmarksView, casesBookmarksView)
+        contentCollectionView.register(EmptyBookmarkCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
+        
+        view.addSubviews(categoriesCollectionView, contentCollectionView)
         
         NSLayoutConstraint.activate([
             categoriesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -161,18 +178,6 @@ class BookmarksViewController: UIViewController {
             contentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            postsBookmarksView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor, constant: 1),
-            postsBookmarksView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            postsBookmarksView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            postsBookmarksView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            casesBookmarksView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor, constant: 1),
-            casesBookmarksView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            casesBookmarksView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            casesBookmarksView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            
         ])
     }
     
@@ -194,8 +199,11 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             return CategoriesType.allCases.count
         } else {
             if selectedCategory == 0 {
+                
                 return cases.count > 0 ? cases.count : 1
             } else {
+                print("Returned posts \(posts.count > 0 ? posts.count : 1)")
+                print(posts.count)
                 return posts.count > 0 ? posts.count : 1
             }
 
@@ -213,16 +221,12 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if selectedCategory == 0 {
                 // Cases
-                
-                /*
                 if cases.count == 0 {
-                    //let cell = tableView.dequeueReusableCell(withIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyDraftCell
-                    //cell.set(title: "No saved cases yet", description: "Cases you save will show up here.")
-                    //return cell
-                    
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyBookmarkCell
+                    cell.set(title: "No saved cases yet", description: "Cases you save will show up here.")
+                    return cell
                 }
-                 */
-                
+
                 if cases[indexPath.row].type == .text {
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
 
@@ -241,6 +245,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     
                     return cell
                 } else {
+
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
 
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
@@ -259,6 +264,15 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     return cell
                 }
             } else {
+                
+                if posts.count == 0 {
+                    print("no saved posts")
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyBookmarkCell
+                    cell.set(title: "No saved posts yet", description: "Posts you save will show up here.")
+                    return cell
+                }
+                
+                print("saved posts")
                 if posts[indexPath.row].type.postType == 0 {
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
@@ -304,8 +318,8 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             collectionView.cellForItem(at: indexPath)?.isSelected = true
             selectedCategory = CategoriesType.allCases[indexPath.row].index
             if selectedCategory == 1 && posts.isEmpty {
-                lastSnapshot = nil
                 fetchBookmarkedPosts()
+                contentCollectionView.reloadData()
                 return
             }
             contentCollectionView.reloadData()
@@ -355,9 +369,9 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
 extension BookmarksViewController {
     func getMoreCases() {
         if selectedCategory == 0 {
-            CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastSnapshot) { snapshot in
+            CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { snapshot in
                 CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
-                    self.lastSnapshot = snapshot.documents.last
+                    self.lastCaseSnapshot = snapshot.documents.last
                     self.cases.append(contentsOf: clinicalCases)
                     clinicalCases.forEach { clinicalCaseFetched in
                         UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
@@ -367,9 +381,9 @@ extension BookmarksViewController {
                 }
             }
         } else {
-            PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastSnapshot) { snapshot in
+            PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
                 PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
-                    self.lastSnapshot = snapshot.documents.last
+                    self.lastPostSnapshot = snapshot.documents.last
                     self.posts.append(contentsOf: posts)
                     posts.forEach { postFetched in
                         UserService.fetchUser(withUid: postFetched.ownerUid) { user in

@@ -46,10 +46,8 @@ class ChatCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubview(profileImageView)
-        contentView.addSubview(usernameLabel)
-        contentView.addSubview(userMessageLabel)
-        contentView.addSubview(dateLabel)
+        contentView.addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel)
+
     }
     
     required init?(coder: NSCoder) {

@@ -198,10 +198,6 @@ class MainTabController: UITabBarController {
             case .bookmarks:
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
-            case .drafts:
-                let controller = DraftsViewController()
-                currentNavController.pushViewController(controller, animated: true)
-                break
             }
         }
     }
@@ -299,7 +295,7 @@ extension MainTabController: NavigationBarViewControllerDelegate {
             backItem.tintColor = .black
             
             let controller = SearchViewController()
-            
+
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             currentNavController.pushViewController(controller, animated: true)
         }

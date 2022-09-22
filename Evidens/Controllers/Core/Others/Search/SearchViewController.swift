@@ -21,6 +21,8 @@ class SearchViewController: UIViewController {
         }
     }
     
+    private var loaded: Bool = false
+    
     private var users = [User]()
     private var filteredUsers = [User]()
     
@@ -51,12 +53,16 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchRecents()
+        view.backgroundColor = .systemPink
+        DispatchQueue.main.async {
+            self.fetchRecents()
+        }
+        //fetchRecents()
 
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = searchBarContainer
-        searchBar.becomeFirstResponder()
+        //searchBar.becomeFirstResponder()
         searchBar.delegate = self
         configureTableView()
         configureUI()
@@ -64,11 +70,19 @@ class SearchViewController: UIViewController {
 
     }
     
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         searchController.isActive = true
         searchController.searchBar.searchTextField.becomeFirstResponder()
+        searchBar.becomeFirstResponder()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        searchBar.resignFirstResponder()
+    }
+     
     /*
     //MARK: - API
     func fetchUsers() {
@@ -100,11 +114,12 @@ class SearchViewController: UIViewController {
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refresher
         view.addSubview(tableView)
-        tableView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
+        tableView.frame = view.bounds
     }
     
     func fetchRecents() {
         DatabaseManager.shared.fetchRecentSearches { recents in
+            self.loaded = true
             switch recents {
             case .success(let recentSearches):
                 print(recentSearches)
@@ -114,7 +129,10 @@ class SearchViewController: UIViewController {
             }
         }
         tableView.refreshControl?.endRefreshing()
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+
     }
     
     //MARK: - Actions
@@ -201,6 +219,8 @@ extension SearchViewController: UITableViewDelegate {
         if indexPath.section == 1 {
             
                 // Press on recent text cell
+            
+            // When we have full text Search this is the good approach
                 let controller = SearchResultsViewController()
                 controller.searchedText = recentSearchedText[indexPath.row]
                 
@@ -210,25 +230,16 @@ extension SearchViewController: UITableViewDelegate {
 
                 navigationController?.pushViewController(controller, animated: true)
             
+            fetchRecents()
+            
+            
+            
+            
         }
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
         //let controller = ProfileViewController(user: user)
         //navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            
-            tableView.performBatchUpdates {
-                tableView.deleteRows(at: [indexPath], with: .fade)
-                recentSearchedText.remove(at: indexPath.row)
-            }
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        indexPath.section == 0 ? false : true
     }
 }
 
@@ -290,7 +301,7 @@ extension SearchViewController: RecentHeaderDelegate {
                 switch result {
                 case .success(_):
                     self.recentSearchedText.removeAll()
-                    self.tableView.reloadData()
+                    self.fetchRecents()
                 case .failure(let error):
                     print(error.localizedDescription)
                 }

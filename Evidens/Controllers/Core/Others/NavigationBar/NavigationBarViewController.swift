@@ -46,13 +46,13 @@ class NavigationBarViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         
         if !controllerIsBeeingPushed {
             
-
-            
             let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-            searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+            searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.6).isActive = true
             navigationItem.titleView = searchBarContainer
             
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .plain, target: self, action: #selector(didTapChat))

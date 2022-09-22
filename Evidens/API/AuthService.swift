@@ -40,8 +40,8 @@ struct AuthService {
                 //Unique identifier of user
                 guard let uid = result?.user.uid else { return }
                 
-                let data: [String: Any] = ["firstName": credentials.firstName,
-                                           "lastName": credentials.lastName,
+                let data: [String: Any] = ["firstName": credentials.firstName.capitalized,
+                                           "lastName": credentials.lastName.capitalized,
                                            "email": credentials.email,
                                            "uid": uid,
                                            "profileImageUrl": "",
@@ -58,8 +58,8 @@ struct AuthService {
     
     static func registerGoogleUser(withCredential credentials: AuthCredentials, withUid uid: String, completion: @escaping(Error?) -> Void) {
         
-        let data: [String: Any] = ["firstName": credentials.firstName,
-                                   "lastName": credentials.lastName,
+        let data: [String: Any] = ["firstName": credentials.firstName.capitalized,
+                                   "lastName": credentials.lastName.capitalized,
                                    "email": credentials.email,
                                    "uid": uid,
                                    "profileImageUrl": "",
@@ -74,8 +74,8 @@ struct AuthService {
     
     static func registerAppleUser(withCredential credentials: AuthCredentials, withUid uid: String, completion: @escaping(Error?) -> Void) {
         
-        let data: [String: Any] = ["firstName": credentials.firstName,
-                                   "lastName": credentials.lastName,
+        let data: [String: Any] = ["firstName": credentials.firstName.capitalized,
+                                   "lastName": credentials.lastName.capitalized,
                                    "email": credentials.email,
                                    "uid": uid,
                                    "profileImageUrl": "",
@@ -102,8 +102,8 @@ struct AuthService {
     static func updateUserRegistrationNameDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
         
         let data: [String: Any] = ["phase": credentials.phase.rawValue,
-                                   "firstName": credentials.firstName,
-                                   "lastName": credentials.lastName]
+                                   "firstName": credentials.firstName.capitalized,
+                                   "lastName": credentials.lastName.capitalized]
         
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
 

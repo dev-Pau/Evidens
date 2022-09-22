@@ -76,6 +76,9 @@ class BookmarksCaseCell: UICollectionViewCell {
     }
     
     private func configureUI() {
+        userPostView.isUserInteractionEnabled = false
+        
+        
         backgroundColor = .white
         addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel)
         

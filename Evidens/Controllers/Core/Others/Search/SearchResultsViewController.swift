@@ -59,6 +59,7 @@ class SearchResultsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureSearchBar()
         configureUI()
         configureCollectionView()
@@ -74,7 +75,7 @@ class SearchResultsViewController: UIViewController {
         
         view.addSubview(collectionView)
         collectionView.anchor(top: segmentedButtonsView.bottomAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = lightColor
     }
     
     func configureSearchBar() {
@@ -240,18 +241,18 @@ extension SearchResultsViewController: SegmentedControlDelegate {
 
 
 extension SearchResultsViewController: TopCollectionViewCellDelegate {
-    func handleProfileTap(uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
-            
-            let backButton = UIBarButtonItem()
-            backButton.title = ""
-            backButton.tintColor = .black
-            self.navigationItem.backBarButtonItem = backButton
-                    
-            self.navigationController?.pushViewController(controller, animated: true)
-            
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-        }
+    func handleProfileTap(user: User) {
+        
+        let controller = UserProfileViewController(user: user)
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
+        
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
 }
+

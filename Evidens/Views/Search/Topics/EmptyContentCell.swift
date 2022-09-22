@@ -1,19 +1,20 @@
 //
-//  EmptyDraftCell.swift
+//  EmptyContentCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 21/9/22.
+//  Created by Pau Fernández Solà on 22/9/22.
 //
 
 import UIKit
 
-class EmptyDraftCell: UITableViewCell {
+class EmptyContentCell: UITableViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17, weight: .semibold)
+        label.numberOfLines = 0
         label.textAlignment = .center
         return label
     }()
@@ -32,13 +33,16 @@ class EmptyDraftCell: UITableViewCell {
         configure()
     }
     
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func configure() {
+        backgroundColor = .white
+        
         contentView.addSubviews(titleLabel, descriptionLabel)
-
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 50),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 50),
@@ -55,4 +59,8 @@ class EmptyDraftCell: UITableViewCell {
         titleLabel.text = title
         descriptionLabel.text = description
     }
+    
+
 }
+
+

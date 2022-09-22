@@ -12,34 +12,40 @@ class NewConversationCell: UITableViewCell {
     
     //MARK: - Properties
     
-    var viewModel: UserCellViewModel? {
-        didSet {
-            configure()
-        }
-    }
-    
-    private let profileImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 25
-        imageView.layer.masksToBounds = true
-        imageView.backgroundColor = .clear
-        return imageView
+    private lazy var profileImageView: UIImageView = {
+       let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = lightColor
+        iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
-    private let usernameLabel: UILabel = {
+    private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
         return label
     }()
+    
+    private let userCategoryLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = grayColor
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.numberOfLines = 2
+        return label
+    }()
+    
     
 
     //MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubview(profileImageView)
-        contentView.addSubview(usernameLabel)
+        contentView.addSubviews(profileImageView, nameLabel, userCategoryLabel)
     }
     
     required init?(coder: NSCoder) {
@@ -49,30 +55,33 @@ class NewConversationCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        profileImageView.anchor(top: contentView.topAnchor,
-                                left: contentView.leftAnchor,
-                                paddingTop: 10,
-                                paddingLeft: 10,
-                                width: 50,
-                                height: 50)
+        NSLayoutConstraint.activate([
+            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.heightAnchor.constraint(equalToConstant: 45),
+            profileImageView.widthAnchor.constraint(equalToConstant: 45),
+            
+            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            
+            userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
+            userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+        ])
         
-        usernameLabel.anchor(top: profileImageView.topAnchor,
-                             left: profileImageView.rightAnchor,
-                             bottom: profileImageView.bottomAnchor,
-                             paddingLeft: 10,
-                             width: contentView.bounds.width - 20 - profileImageView.bounds.width)
+        profileImageView.layer.cornerRadius = 45 / 2
     }
-    
-    
     
     //MARK: - Helpers
-    
-    public func configure() {
-        guard let viewModel = viewModel else { return }
-        usernameLabel.text = viewModel.fullName
-        profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
 
+    func set(user: User) {
+        nameLabel.text = user.firstName! + " " + user.lastName!
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if user.category == .student {
+            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
+        } else {
+            userCategoryLabel.text = user.profession! + ", " + user.speciality!
+        }
     }
-    
-    //MARK: - Actions
 }

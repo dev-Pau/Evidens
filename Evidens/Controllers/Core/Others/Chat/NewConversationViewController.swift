@@ -14,10 +14,10 @@ class NewConversationViewController: UIViewController {
     
     //MARK: - Properties
     
-    public var completion: ((SearchUser) -> (Void))?
+    public var completion: ((User) -> (Void))?
     
     //Firebase results
-    private var users = [SearchUser]()
+    private var users = [User]()
 
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -102,8 +102,7 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reusableIdentifier, for: indexPath) as! NewConversationCell
-        cell.viewModel = UserCellViewModel(user: users[indexPath.row])
-        print(users[indexPath.row])
+        cell.set(user: users[indexPath.row])
         return cell
     }
     
@@ -126,27 +125,22 @@ extension NewConversationViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
-        //Remove the results every time a new search is done
+        
         searchBar.resignFirstResponder()
         users.removeAll()
-        searchUsers(query: text)
-    }
-    
-    func searchUsers(query: String) {
-        AlgoliaService.fetchUsers(withText: query) { users in
-            DispatchQueue.main.async {
-                self.users = users
-                self.filterUsers()
-            }
+        UserService.fetchUsersWithText(text: text.trimmingCharacters(in: .whitespaces)) { users in
+            self.users = users
+            self.filterUsers()
+            
         }
     }
     
     func filterUsers() {
         //Update the UI: Either show results or show no results label
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let fetchedUsers: [SearchUser] = users.filter { user in
-            if user.objectID == uid { return false }
+        let fetchedUsers: [User] = users.filter { user in
+            if user.uid == uid { return false }
             return true
         }
         

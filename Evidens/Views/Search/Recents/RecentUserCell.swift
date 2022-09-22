@@ -49,6 +49,8 @@ class RecentUserCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         fetchUsers()
+        backgroundColor = .white
+        contentView.backgroundColor = .white
         contentView.addSubviews(collectionView, noRecentUsersLabel)
         
         NSLayoutConstraint.activate([

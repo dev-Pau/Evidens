@@ -86,6 +86,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
+        userPostView.isUserInteractionEnabled = false
         addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel)
         
         NSLayoutConstraint.activate([

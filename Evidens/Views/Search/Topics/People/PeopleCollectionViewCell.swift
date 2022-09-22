@@ -9,6 +9,7 @@ import UIKit
 
 private let topPeopleHeaderReuseIdentifier = "TopPeopleHeaderReuseIdentifier"
 private let topPeopleCellReuseIdentifier = "TopPeopleCellReuseIdentifier"
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 class PeopleCollectionViewCell: UICollectionViewCell {
     
@@ -21,32 +22,12 @@ class PeopleCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    private var usersFetched = [SearchUser]()
+    private var users = [User]()
     
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(), style: .grouped)
         return tableView
-    }()
-    
-    private lazy var noResultsImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.isHidden = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        return iv
-    }()
-    
-    private lazy var noResultsLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textColor = grayColor
-        return label
     }()
     
     //MARK: - Lifecycle
@@ -61,22 +42,10 @@ class PeopleCollectionViewCell: UICollectionViewCell {
         tableView.backgroundColor = .white
         tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
         tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellReuseIdentifier)
-        addSubviews(tableView, noResultsImageView, noResultsLabel)
+        tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)
+        addSubview(tableView)
         tableView.frame = bounds
         
-        noResultsLabel.text = "No results found"
-        
-        NSLayoutConstraint.activate([
-            noResultsImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            noResultsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 60),
-            noResultsImageView.heightAnchor.constraint(equalToConstant: 65),
-            noResultsImageView.widthAnchor.constraint(equalToConstant: 65),
-            
-            noResultsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            noResultsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            noResultsLabel.topAnchor.constraint(equalTo: noResultsImageView.bottomAnchor, constant: 10)
-            
-        ])
     }
     
     required init?(coder: NSCoder) {
@@ -93,6 +62,15 @@ class PeopleCollectionViewCell: UICollectionViewCell {
     
     
     func fetchTopUsers(withText text: String) {
+        UserService.fetchUsersWithText(text: text.capitalized) { users in
+            self.users = users
+            print(self.users.count)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+
+        /*
         AlgoliaService.fetchTopUsers(withText: text) { searchUsers in
             if searchUsers.isEmpty {
                 DispatchQueue.main.async {
@@ -110,6 +88,7 @@ class PeopleCollectionViewCell: UICollectionViewCell {
                 self.tableView.reloadData()
             }
         }
+         */
     }
 }
 
@@ -126,14 +105,28 @@ extension PeopleCollectionViewCell: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return usersFetched.count
+        return users.count > 0 ? users.count : 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if users.count == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyContentCell
+            cell.selectionStyle = .none
+            cell.set(title: "No results found for \(searchedText!)", description: "Try searching for something else.")
+            return cell
+        }
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: topPeopleCellReuseIdentifier, for: indexPath) as! TopPeopleCell
-        cell.viewModel = UserCellViewModel(user: usersFetched[indexPath.row])
+        cell.user = users[indexPath.row]
         cell.selectionStyle = .none
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let uid = users[indexPath.row].uid
+        print(uid)
+        
     }
 }
 

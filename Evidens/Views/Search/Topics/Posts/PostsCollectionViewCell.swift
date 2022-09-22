@@ -10,6 +10,7 @@ import UIKit
 private let topPostHeaderReuseIdentifier = "TopHeaderCaseReuseIdentifier"
 private let topPostImageCellReuseIdentifier = "TopCaseImageCellReuseIdentifier"
 private let topPostTextCellReuseIdentifier = "TopCaseTextCellReuseIdentifier"
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 class PostsCollectionViewCell: UICollectionViewCell {
     
@@ -29,26 +30,6 @@ class PostsCollectionViewCell: UICollectionViewCell {
         return tableView
     }()
     
-    private lazy var noResultsImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.isHidden = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        return iv
-    }()
-    
-    private lazy var noResultsLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textColor = grayColor
-        return label
-    }()
-    
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
@@ -62,22 +43,9 @@ class PostsCollectionViewCell: UICollectionViewCell {
         tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
         tableView.register(TopPostTextCell.self, forCellReuseIdentifier: topPostTextCellReuseIdentifier)
         tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)
-        addSubviews(tableView, noResultsImageView, noResultsLabel)
+        tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)
+        addSubview(tableView)
         tableView.frame = bounds
-        
-        noResultsLabel.text = "No results found"
-        
-        NSLayoutConstraint.activate([
-            noResultsImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            noResultsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 60),
-            noResultsImageView.heightAnchor.constraint(equalToConstant: 65),
-            noResultsImageView.widthAnchor.constraint(equalToConstant: 65),
-            
-            noResultsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            noResultsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            noResultsLabel.topAnchor.constraint(equalTo: noResultsImageView.bottomAnchor, constant: 10)
-            
-        ])
     }
     
     required init?(coder: NSCoder) {
@@ -86,21 +54,12 @@ class PostsCollectionViewCell: UICollectionViewCell {
     
     //MARK: - Helpers
     
-    /*
-     func configure() {
-     guard let viewModel = viewModel else { return }
-     fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
-     profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-     }
-     */
-    
     //MARK: - Actions
     
     //MARK: - API
     
-    // Fetch top users based on current user search
-    
     func fetchTopPosts(withText text: String) {
+        /*
         AlgoliaService.fetchPosts(withText: text) { postIDs in
             
             if postIDs.isEmpty {
@@ -126,6 +85,7 @@ class PostsCollectionViewCell: UICollectionViewCell {
                 }
             }
         }
+         */
     }
 }
 
@@ -142,10 +102,19 @@ extension PostsCollectionViewCell: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return postsFetched.count
+        return postsFetched.count > 0 ? postsFetched.count : 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if postsFetched.count == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyContentCell
+            cell.selectionStyle = .none
+            cell.set(title: "No posts found for \(searchedText!)", description: "Try searching for something else.")
+            return cell
+        }
+        
+        
         if postsFetched[indexPath.row].type == .plainText {
             let cell = tableView.dequeueReusableCell(withIdentifier: topPostTextCellReuseIdentifier, for: indexPath) as! TopPostTextCell
             cell.viewModel = PostViewModel(post: postsFetched[indexPath.row])

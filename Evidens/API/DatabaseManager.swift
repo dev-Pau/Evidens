@@ -30,8 +30,8 @@ extension DatabaseManager {
     /// - `user`:   Target user to be inserted to database
     public func insertUser(with user: ChatUser) {
         //Create user entry based on UID
-        database.child("users").child(user.uid).setValue(["firstName": user.firstName,
-                                           "lastName": user.lastName,
+        database.child("users").child(user.uid).setValue(["firstName": user.firstName.capitalized,
+                                           "lastName": user.lastName.capitalized,
                                            "emailAddress": user.emailAddress])
     }
     
@@ -39,7 +39,7 @@ extension DatabaseManager {
     public func updateUserFirstName(firstName: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid)
-        ref.updateChildValues(["firstName": firstName]) { error, _ in
+        ref.updateChildValues(["firstName": firstName.capitalized]) { error, _ in
             if let _ = error {
                 completion(false)
             }
@@ -50,7 +50,7 @@ extension DatabaseManager {
     public func updateUserLastName(lastName: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid)
-        ref.updateChildValues(["lastName": lastName]) { error, _ in
+        ref.updateChildValues(["lastName": lastName.capitalized]) { error, _ in
             if let _ = error {
                 completion(false)
             }
@@ -191,7 +191,7 @@ extension DatabaseManager {
     }
     
     public func deleteRecentSearches(completion: @escaping(Result<Bool, Error>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/recents")
         ref.removeValue { error, _ in
             if let error = error {

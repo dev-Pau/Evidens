@@ -44,6 +44,7 @@ class RecentTextCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .white
+        contentView.backgroundColor = .white
 
         addSubview(clockImage)
         clockImage.centerY(inView: self)

@@ -42,7 +42,7 @@ struct UserService {
     
     static func updateUserFirstName(firstName: String, completion: @escaping(Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["firstName": firstName], merge: true) { err in
+        COLLECTION_USERS.document(uid).setData(["firstName": firstName.capitalized], merge: true) { err in
             
             if let err = err {
                 print("Error writing document: \(err)")
@@ -57,7 +57,7 @@ struct UserService {
     
     static func updateUserLastName(lastName: String, completion: @escaping(Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).setData(["lastName": lastName], merge: true) { err in
+        COLLECTION_USERS.document(uid).setData(["lastName": lastName.capitalized], merge: true) { err in
             if let err = err {
                 print("Error writing document: \(err)")
                 completion(err)
@@ -101,12 +101,6 @@ struct UserService {
             }
         }
     }
-    
-    /*
-     static func fetchUsers(withName name: String, completion: @escaping([User]) -> Void) {
-     COLLECTION_USERS.whereField("firstName", arrayContains: <#T##Any#>)
-     }
-     */
     
     static func fetchUsers(withUids uids: [String], completion: @escaping([User]) -> Void) {
         var users: [User] = []
@@ -189,6 +183,37 @@ struct UserService {
                         
                     }
                 }
+            }
+        }
+    }
+    
+    static func fetchUsersWithText(text: String, completion: @escaping([User]) -> Void) {
+        var users = [User]()
+        
+        COLLECTION_USERS.order(by: "firstName").whereField("firstName", isGreaterThanOrEqualTo: text.capitalized).whereField("firstName",
+                                                                                                                             isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: 20).getDocuments { snapshot, error in
+         
+            guard let snapshot = snapshot else {completion(users)
+                return
+            }
+            let fetchedFirstNameUsers = snapshot.documents.map({ User(dictionary: $0.data()) })
+            users.append(contentsOf: fetchedFirstNameUsers)
+            if fetchedFirstNameUsers.count < 20 {
+                let lastNameToFetch = 20 - fetchedFirstNameUsers.count
+                
+                COLLECTION_USERS.order(by: "lastName").whereField("lastName", isGreaterThanOrEqualTo: text.capitalized).whereField("lastName",
+                                                                                                                                   isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: lastNameToFetch).getDocuments { snapshot, error in
+                    
+                    guard let snapshot = snapshot else {
+                        completion(users)
+                        return
+                        
+                    }
+                    let fetchedLastNameUsers = snapshot.documents.map({ User(dictionary: $0.data()) })
+                    users.append(contentsOf: fetchedLastNameUsers)
+                    completion(users)
+                }
+                
             }
         }
     }

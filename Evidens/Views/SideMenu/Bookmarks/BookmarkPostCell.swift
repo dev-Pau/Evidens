@@ -55,6 +55,7 @@ class BookmarkPostCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .white
+        userPostView.isUserInteractionEnabled = false
         
         addSubviews(userPostView, postTextLabel, likesButton, likesCommentsLabel)
         
