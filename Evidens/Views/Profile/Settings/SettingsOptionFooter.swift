@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SettingsOptionFooterDelegate: AnyObject {
+protocol SettingsOptionFooterDelegate: AnyObject {
     func didTapLogout()
 }
 
@@ -26,26 +26,17 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
         let label = UILabel()
         label.text = "Log out"
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = primaryColor
+        label.textColor = .red
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLogout)))
         return label
     }()
     
-    private let versionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Version: 0.1.0"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = grayColor
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
- 
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
-        contentView.addSubviews(separatorView, logoutLabel, versionLabel)
+        contentView.addSubviews(separatorView, logoutLabel)
         
         NSLayoutConstraint.activate([
             
@@ -57,11 +48,6 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
             logoutLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             logoutLabel.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor, constant: 10),
             logoutLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor, constant: -10),
-            
-            versionLabel.topAnchor.constraint(equalTo: logoutLabel.bottomAnchor, constant: 10),
-            versionLabel.leadingAnchor.constraint(equalTo: logoutLabel.leadingAnchor),
-            versionLabel.trailingAnchor.constraint(equalTo: versionLabel.trailingAnchor)
-
         ])
     }
     

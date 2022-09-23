@@ -935,6 +935,7 @@ extension DatabaseManager {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String,
               let currentName = UserDefaults.standard.value(forKey: "name") as? String else { return }
 
+        
         let ref = database.child("users/\(currentUid)")
         
         ref.observeSingleEvent(of: .value) { [weak self] snapshot in
@@ -943,7 +944,7 @@ extension DatabaseManager {
                 return
             }
             
-            print("user node is \(userNode)")
+            print("User node is \(userNode)")
             
             let messageDate = firstMessage.sentDate
             let dateString = ChatViewController.dateFormatter.string(from: messageDate)
@@ -1001,10 +1002,12 @@ extension DatabaseManager {
             self?.database.child("users/\(otherUserUid)/conversations").observeSingleEvent(of: .value, with: { [weak self] snapshot in
                 if var conversations = snapshot.value as? [[String: Any]] {
                     //Append
+                    print("Other user has conversations")
                     conversations.append(recipientNewConversationData)
                     self?.database.child("users/\(otherUserUid)/conversations").setValue(conversations)
                 } else {
                     //Create new conversation
+                    print("Other user does not have conversations, create the conversation array with the latest message etc")
                     self?.database.child("users/\(otherUserUid)/conversations").setValue([recipientNewConversationData])
                 }
             })
@@ -1012,6 +1015,7 @@ extension DatabaseManager {
             //Update current user conversation entry
             if var conversations = userNode["conversations"] as? [[String: Any]] {
                 //Conversation array exists for current user, append
+                print("Conversation array exists for current user, means he has other conversations with other users")
                 conversations.append(newConversationData)
                 userNode["conversations"] = conversations
                 
@@ -1028,6 +1032,7 @@ extension DatabaseManager {
             } else {
                 
                 //Conversation array does not exist, create it
+                print("user doesn't have any conversation, create the array")
                 userNode["conversations"] = [newConversationData]
                 
                 ref.setValue(userNode, withCompletionBlock: { [weak self] error, _ in
@@ -1035,6 +1040,7 @@ extension DatabaseManager {
                         completion(false)
                         return
                     }
+                    print("we go create the conversation child in realtime")
                     self?.finishCreatingConversation(name: name,
                                                      conversationID: conversationId,
                                                      firstMessage: firstMessage,
@@ -1153,6 +1159,8 @@ extension DatabaseManager {
                 return
             }
             
+            print("We get all the messages of the conversation with this user: \(currentMessages)")
+            
             let messageDate = newMessage.sentDate
             let dateString = ChatViewController.dateFormatter.string(from: messageDate)
             
@@ -1190,23 +1198,18 @@ extension DatabaseManager {
                 break
             }
             
-            guard let currentUserUid = UserDefaults.standard.value(forKey: "uid") else {
-                completion(false)
-                return
-            }
-            
-            
             let newMessageEntry: [String: Any] = [
                 "id": newMessage.messageId,
                 "type": newMessage.kind.messageKindString,
                 "content": message,
                 "date": dateString,
-                "sender_uid": currentUserUid,
+                "sender_uid": currentUid,
                 "is_read": false,
                 "name": name
             ]
             
             currentMessages.append(newMessageEntry)
+            print("We append this new message")
             
             strongSelf.database.child("conversations/\(conversation)/messages").setValue(currentMessages) { error, _ in
                 guard error == nil else {
@@ -1214,7 +1217,10 @@ extension DatabaseManager {
                     return
                 }
                 
-                strongSelf.database.child("users\(currentUid)/conversations").observeSingleEvent(of: .value, with: { snapshot in
+                print("We append the new message in the conversation to realtime database")
+                
+            print("current user uid is \(currentUid)")
+                strongSelf.database.child("users/\(currentUid)/conversations").observeSingleEvent(of: .value, with: { snapshot in
                     var databaseEntryConversations = [[String: Any]]()
                     
                     let updatedValue: [String: Any] = [
@@ -1223,24 +1229,35 @@ extension DatabaseManager {
                         "message": message
                     ]
                     
+                    print("value of snapshot is \(snapshot.value)")
+            
                     if var currentUserConversations = snapshot.value as? [[String: Any]] {
                         var targetConversation: [String: Any]?
                         var position = 0
                         
+                        print("We found the conversation array and we get the values of conversations \(currentUserConversations)")
+                        
                         for conversationDictionary in currentUserConversations {
                             if let currentId = conversationDictionary["id"] as? String, currentId == conversation {
+                                
                                 //Update latest message
                                 targetConversation = conversationDictionary
+                                
                                 break
                             }
                             position += 1
                         }
                         
                         if var targetConversation = targetConversation {
-                            //We fond the conversation, update the conversation & latest message
+                            print("We found the conversation")
+                            print("We found the conversation andn we update it \(targetConversation)")
+                            
                             targetConversation["latest_message"] = updatedValue
                             currentUserConversations[position] = targetConversation
                             databaseEntryConversations = currentUserConversations
+                            
+                            print("New conversations to update into user updated is \(databaseEntryConversations)")
+                            
                         } else {
                             //User must have deleted the conversation and we append as a fresh new entry
                             let newConversationData: [String: Any] = [
@@ -1255,6 +1272,8 @@ extension DatabaseManager {
                         }
                         //There has never been a conversation, create new entry
                     } else {
+                        print("We didnt find the conversation array for the current user, so we need to create a new entry")
+                        
                         let newConversationData: [String: Any] = [
                             "id": conversation,
                             "other_user_uid": otherUserUid,
@@ -1284,10 +1303,14 @@ extension DatabaseManager {
                     var databaseEntryConversations = [[String: Any]]()
                     guard let currentName = UserDefaults.standard.value(forKey: "name") as? String else { return }
                     
+                    print("for other user is \(snapshot.value)")
+                    
                     if var otherUserConversations = snapshot.value as? [[String: Any]] {
                         var targetConversation: [String: Any]?
                         
                         var position = 0
+                        
+                        print("We find the conversation array for other user")
                         
                         for conversationDictionary in otherUserConversations {
                             if let currentId = conversationDictionary["id"] as? String, currentId == conversation {
@@ -1306,7 +1329,7 @@ extension DatabaseManager {
                             //Failed to find in current collection
                             let newConversationData: [String: Any] = [
                                 "id": conversation,
-                                "other_user_uid": currentUserUid,
+                                "other_user_uid": currentUid,
                                 "creation_date": dateString,
                                 "name": currentName,
                                 "latest_message": updatedValue
@@ -1316,9 +1339,10 @@ extension DatabaseManager {
                         }
                     } else {
                         //Current collection does not exist
+                        print("We didnt find users array for other user create it ")
                         let newConversationData: [String: Any] = [
                             "id": conversation,
-                            "other_user_uid": currentUserUid,
+                            "other_user_uid": currentUid,
                             "creation_date": dateString,
                             "name": currentName,
                             "latest_message": updatedValue

@@ -126,7 +126,6 @@ class ConversationViewController: UIViewController {
     
     //Creates a new conversation
     @objc private func didTapComposeButton() {
-        print("compose")
         let vc = NewConversationViewController()
         vc.completion = { [weak self] user in
             //Check if user conversation already exists
@@ -209,17 +208,17 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     func openConversation(_ model: Conversation) {
         let controller = ChatViewController(with: model.otherUserUid, id: model.id)
         controller.title = model.name
-        controller.navigationItem.largeTitleDisplayMode = .never
-        
-        //let backItem = UIBarButtonItem()
-        //backItem.title = ""
-        //navigationItem.backBarButtonItem = backItem
+
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 90
+        return 70
     }
     
     //Swipe the row away

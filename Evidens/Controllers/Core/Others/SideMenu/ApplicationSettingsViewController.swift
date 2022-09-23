@@ -15,8 +15,16 @@ class ApplicationSettingsViewController: UIViewController {
     
     let tableView = UITableView(frame: .zero, style: .grouped)
     
-    private var options = ["Notifications", "Account" , "About"]
-    private var images = ["bell", "person.crop.circle", "info.circle"]
+    enum SettingsOptions: String, CaseIterable {
+        case about = "About"
+        
+        var image: String {
+            switch self {
+            case .about:
+                return "info.circle"
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,13 +52,13 @@ extension ApplicationSettingsViewController: UITableViewDelegate, UITableViewDat
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return options.count
+        return SettingsOptions.allCases.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: settingsCellReuseIdentifier, for: indexPath) as! SettingsOptionCell
         cell.selectionStyle = .none
-        cell.set(settingsTitle: options[indexPath.row], settingsImage: images[indexPath.row])
+        cell.set(settingsTitle: SettingsOptions.allCases[indexPath.row].rawValue, settingsImage: SettingsOptions.allCases[indexPath.row].image)
         return cell
     }
     
@@ -77,25 +85,19 @@ extension ApplicationSettingsViewController: UITableViewDelegate, UITableViewDat
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedOption = SettingsOptions.allCases[indexPath.row]
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
-        
         navigationItem.backBarButtonItem = backItem
         
-        if indexPath.row == 0 {
-            // Notifications
-            let controller = NotificationSectionViewController()
-            navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 1 {
-            // Account
-            let controller = AccountSectionViewController()
-            navigationController?.pushViewController(controller, animated: true)
-        } else {
-            // About
+        switch selectedOption {
+            
+        case .about:
             let controller = AboutSettingsViewController()
             navigationController?.pushViewController(controller, animated: true)
+
         }
     }
 }

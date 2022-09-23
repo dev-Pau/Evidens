@@ -320,7 +320,6 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
         guard let selfSender = self.selfSender, let messageId = createMessageId() else { return }
-        print("Sending: \(text)")
         let message = Message(sender: selfSender,
                               messageId: messageId,
                               sentDate: Date(),
@@ -328,7 +327,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         // send message
         if isNewConversation {
             //create conversation in database
-            
+            print("We have a new conversation")
             DatabaseManager.shared.createNewConversation(withUid: otherUserUid, name: self.title ?? "User", firstMessage: message) { [weak self] success in
                 if success {
                     print("message sent")
@@ -342,7 +341,8 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             }
         } else {
             //append to existing conversation data
-            print("is not new conversation")
+            print("Is not a new conversation with this user, we go try send message")
+            
             guard let conversationId = conversationId, let name = self.title else { return }
             DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: otherUserUid, newMessage: message, completion: { success in
                 if success {
@@ -351,6 +351,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                     print("failed to send")
                 }
             })
+             
         }
         //Delete text bar upon sending a message
         inputBar.inputTextView.text = ""

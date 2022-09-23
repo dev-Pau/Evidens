@@ -540,12 +540,6 @@ extension UIColor {
     }
 
 }
-
-
-/*
- Function programming inheritance.
- */
-
 protocol SkeletonLoadable {}
 
 extension SkeletonLoadable {

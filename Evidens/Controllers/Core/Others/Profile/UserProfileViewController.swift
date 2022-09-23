@@ -1031,9 +1031,10 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 
 extension UserProfileViewController: UserProfileHeaderCellDelegate {
     
-    func headerCell(didTapEditProfileFor user: User) {
+    func headerCell(_ cell: UICollectionViewCell, didTapEditProfileFor user: User) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
+        guard let currentCell = cell as? UserProfileHeaderCell else { return }
         
         if user.isCurrentUser {
             let controller = EditProfileViewController(user: user)
@@ -1046,8 +1047,10 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
             if user.isFollowed {
                 // Handle unfollow user
                 UserService.unfollow(uid: uid) { error in
+                    
                     self.user.isFollowed = false
                     self.fetchUserStats()
+                    currentCell.isUpdatingFollowState = false
                     // Delete user feed posts related to the unfollowed user
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
                 }
@@ -1056,6 +1059,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                 UserService.follow(uid: uid) { error in
                     self.user.isFollowed = true
                     self.fetchUserStats()
+                    currentCell.isUpdatingFollowState = false
                     NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)
                     //Update user feed posts related to the followed user
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)

@@ -16,28 +16,34 @@ class ChatCell: UITableViewCell {
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 35
+        imageView.layer.cornerRadius = 50/2
         imageView.layer.masksToBounds = true
         imageView.backgroundColor = .clear
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private let usernameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let userMessageLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
         return label
     }()
     
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "32432"
+        label.textAlignment = .right
         label.numberOfLines = 0
         return label
     }()
@@ -57,29 +63,24 @@ class ChatCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        profileImageView.anchor(top: contentView.topAnchor,
-                                left: contentView.leftAnchor,
-                                paddingTop: 10,
-                                paddingLeft: 10,
-                                width: 70,
-                                height: 70)
+        NSLayoutConstraint.activate([
+            dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            
+            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.heightAnchor.constraint(equalToConstant: 50),
+            profileImageView.widthAnchor.constraint(equalToConstant: 50),
         
-        usernameLabel.anchor(top: profileImageView.topAnchor,
-                             left: profileImageView.rightAnchor,
-                             paddingLeft: 10,
-                             width: contentView.bounds.width - 20 - profileImageView.bounds.width)
-                             
-        
-        userMessageLabel.anchor(top: usernameLabel.bottomAnchor,
-                                left: profileImageView.rightAnchor,
-                                paddingTop: 10,
-                                paddingLeft: 10,
-                                width: contentView.bounds.width - 20 - profileImageView.bounds.width,
-                                height: contentView.bounds.height - 10 - usernameLabel.bounds.height - 10)
-        
-        dateLabel.anchor(top: profileImageView.topAnchor,
-                         right: contentView.rightAnchor,
-                         paddingRight: 10)
+            usernameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
+            usernameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            usernameLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor),
+            
+            userMessageLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor),
+            userMessageLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
+            usernameLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor)
+            
+        ])
     }
     
     
@@ -88,7 +89,10 @@ class ChatCell: UITableViewCell {
     
     public func configure(with model: Conversation) {
         
+        //if model.latestMessage.
+        
         let message = model.latestMessage.text
+        
         if message.contains("https://firebasestorage.googleapis.com") {
             //Is a photo or video
             if message.contains("message_images") {
@@ -103,7 +107,8 @@ class ChatCell: UITableViewCell {
         
         usernameLabel.text = model.name
         
-        let dateString = model.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CET", with: "")
+        dateLabel.text = model.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CEST", with: "")
+        let dateString = model.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CEST", with: "")
         
         let addedDateFormatter = DateFormatter()
         addedDateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"

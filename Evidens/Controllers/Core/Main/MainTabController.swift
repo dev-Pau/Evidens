@@ -297,6 +297,7 @@ extension MainTabController: NavigationBarViewControllerDelegate {
             let controller = SearchViewController()
 
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
+            
             currentNavController.pushViewController(controller, animated: true)
         }
     }

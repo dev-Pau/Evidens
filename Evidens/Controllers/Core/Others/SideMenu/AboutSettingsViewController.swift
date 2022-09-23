@@ -1,5 +1,5 @@
 //
-//  AboutSettingsViewController.swift
+//  AccountSettingsViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 3/9/22.
@@ -13,7 +13,11 @@ class AboutSettingsViewController: UIViewController {
     
     let tableView = UITableView(frame: .zero, style: .grouped)
     
-    private var aboutOptions = ["Privacy Policy", "Terms of Use"]
+    enum AccountOptions: String, CaseIterable {
+        case privacyPolicy = "Privacy Policy"
+        case termsOfUse = "Tems of Use"
+        
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,14 +26,14 @@ class AboutSettingsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "About"
+        title = "Account"
     }
     
     private func configureTableView() {
         tableView.backgroundColor = .white
         view.addSubviews(tableView)
         tableView.frame = view.bounds
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(SettingsSubOptionCell.self, forCellReuseIdentifier: optionCellReuseIdentifier)
@@ -48,12 +52,12 @@ extension AboutSettingsViewController: UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return aboutOptions.count
+        return AccountOptions.allCases.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: optionCellReuseIdentifier, for: indexPath) as! SettingsSubOptionCell
-        cell.set(settingsTitle: aboutOptions[indexPath.row])
+        cell.set(settingsTitle: AccountOptions.allCases[indexPath.row].rawValue)
         cell.selectionStyle = .none
         return cell
     }
@@ -62,4 +66,26 @@ extension AboutSettingsViewController: UITableViewDelegate, UITableViewDataSourc
         return 50
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selection = AccountOptions.allCases[indexPath.row]
+
+        switch selection {
+        case .privacyPolicy:
+
+            let controller = PrivacyPolicyViewController()
+            
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+            
+        case .termsOfUse:
+            let controller = TermsOfUseViewController()
+            
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        }
+    }
+    
 }
+

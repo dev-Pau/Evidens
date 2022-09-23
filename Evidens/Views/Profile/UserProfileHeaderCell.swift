@@ -10,7 +10,7 @@ import UIKit
 protocol UserProfileHeaderCellDelegate: AnyObject {
     func headerCell(didTapProfilePictureFor user: User)
     func headerCell(didTapBannerPictureFor user: User)
-    func headerCell(didTapEditProfileFor user: User)
+    func headerCell(_ cell: UICollectionViewCell, didTapEditProfileFor user: User)
 }
 
 class UserProfileHeaderCell: UICollectionViewCell {
@@ -24,6 +24,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
     var viewModel: ProfileHeaderViewModel? {
         didSet {
             configure()
+        }
+    }
+    
+    var isUpdatingFollowState: Bool? {
+        didSet {
+            followButton.setNeedsUpdateConfiguration()
         }
     }
     
@@ -111,6 +117,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
+
         button.configuration?.baseBackgroundColor = primaryColor
         
         //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
@@ -136,6 +143,8 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        isUpdatingFollowState = false
         
         backgroundColor = .white
         
@@ -189,6 +198,13 @@ class UserProfileHeaderCell: UICollectionViewCell {
         ])
         
         profileImageView.layer.cornerRadius = 110 / 2
+        
+        followButton.configurationUpdateHandler = { [unowned self] button in
+            var config = button.configuration
+            config?.showsActivityIndicator = self.isUpdatingFollowState!
+            button.isUserInteractionEnabled = self.isUpdatingFollowState! ? false : true
+            button.configuration = config
+        }
     }
     
     
@@ -228,7 +244,10 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     @objc func handleFollowEditProfile() {
         guard let viewModel = viewModel else { return }
-        delegate?.headerCell(didTapEditProfileFor: viewModel.user)
+        if viewModel.user.isCurrentUser == false {
+            isUpdatingFollowState = true
+        }
+        delegate?.headerCell(self, didTapEditProfileFor: viewModel.user)
     }
     
     @objc func didTapProfilePicture() {
