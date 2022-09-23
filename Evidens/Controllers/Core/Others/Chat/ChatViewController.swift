@@ -32,7 +32,7 @@ class ChatViewController: MessagesViewController {
     private var conversationId: String?
     public var isNewConversation = false
     
-    private var chatImage: UIImageView?
+    private var chatImage: UIImageView!
     
     private var messages = [Message]()
     private var selfSender: Sender? {
@@ -65,8 +65,20 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messagesDisplayDelegate = self
         messagesCollectionView.messageCellDelegate = self
         messageInputBar.delegate = self
+        
+        
+        showMessageTimestampOnSwipeLeft = true
+        
+        removeMessageAvatars()
         setupInputButton()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let view = MENavigationBarChatView(fullName: "Gerard Font")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -103,10 +115,11 @@ class ChatViewController: MessagesViewController {
     private func setupInputButton() {
         let inputButton = InputBarButtonItem()
         inputButton.setSize(CGSize(width: 35, height: 35), animated: false)
-        inputButton.setImage(UIImage(systemName: "paperclip"), for: .normal)
+        inputButton.setImage(UIImage(systemName: "paperclip")?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor), for: .normal)
         inputButton.onTouchUpInside { [weak self] _ in
             self?.presentInputActionSheet()
         }
+        messageInputBar.sendButton.setTitleColor(primaryColor, for: .normal)
         messageInputBar.setLeftStackViewWidthConstant(to: 36, animated: false)
         messageInputBar.setStackViewItems([inputButton], forStack: .left, animated: false)
         
@@ -166,8 +179,39 @@ class ChatViewController: MessagesViewController {
         
     }
     
-    //MARK: - Actions
     
+    
+    private func removeMessageAvatars() {
+        guard let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
+        layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
+        layout.textMessageSizeCalculator.incomingAvatarSize = .zero
+        layout.setMessageIncomingAvatarSize(.zero)
+        layout.setMessageOutgoingAvatarSize(.zero)
+        let incomingLabelAlignment = LabelAlignment(
+            textAlignment: .left,
+            textInsets: UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0))
+        layout.setMessageIncomingMessageTopLabelAlignment(incomingLabelAlignment)
+        let outgoingLabelAlignment = LabelAlignment(
+            textAlignment: .right,
+            textInsets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 15))
+        layout.setMessageOutgoingMessageTopLabelAlignment(outgoingLabelAlignment)
+    }
+    
+    func firstMessageOfTheDay(indexOfMessage: IndexPath) -> Bool {
+        let messageDate = messages[indexOfMessage.section].sentDate
+        guard indexOfMessage.section > 1 else { return true }
+        let previouseMessageDate = messages[indexOfMessage.section - 1].sentDate
+         
+        let day = Calendar.current.component(.day, from: messageDate)
+        let previouseDay = Calendar.current.component(.day, from: previouseMessageDate)
+        if day == previouseDay {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    //MARK: - Actions
 }
 
 extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
@@ -197,25 +241,27 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         }
     }
     
+    
     //Configure the cell top label to display dates
-    func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        if indexPath.section % 3 == 0 {
-            let topCellText = MessageKitDateFormatter.shared.string(from: message.sentDate)
-            let font = UIFont.boldSystemFont(ofSize: 10)
-            let color = UIColor.darkGray
-            
-            return NSAttributedString(string: topCellText, attributes: [.font: font, .foregroundColor: color])
-        }
-        
-        return nil
-    }
     
     //Cell top label size
     func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        if indexPath.section % 3 == 0 {
-            return 18
+            if firstMessageOfTheDay(indexOfMessage: indexPath) {
+                return 18
+            }
+            return 0
         }
-        return 0
+
+    func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+        if firstMessageOfTheDay(indexOfMessage: indexPath) {
+                    let topCellText = MessageKitDateFormatter.shared.string(from: message.sentDate)
+                    let font = UIFont.boldSystemFont(ofSize: 10)
+                    let color = UIColor.darkGray
+                    
+                    return NSAttributedString(string: topCellText, attributes: [.font: font, .foregroundColor: color])
+                }
+                
+                return nil
     }
     
     //Configure bottom label size
@@ -223,6 +269,8 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         //return isFromCurrentSender(message: message) ? 17 : 0
             
     //}
+    
+
     
 
 
@@ -234,56 +282,80 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             return primaryColor
         }
         //Other recipient in conversation
-        return lightGrayColor
+        return lightColor
+    }
+    
+    func messageStyle(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageStyle {
+        
+        if isNextMessageSameSender(at: indexPath) {
+            return .bubble
+        } else {
+            let corner: MessageStyle.TailCorner = isFromCurrentSender(message: message) ? .bottomRight : .bottomLeft
+            return .bubbleTail(corner, .pointedEdge)
+        }
+        
+    }
+    
+    func isNextMessageSameSender(at indexPath: IndexPath) -> Bool {
+        guard indexPath.section + 1 < messages.count else { return false }
+        //if indexPath.section == messages.count - 1 { return true }
+        return messages[indexPath.section].sender.senderId == messages[indexPath.section + 1].sender.senderId
     }
     
     func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-        
-        let sender = message.sender
-        if sender.senderId == selfSender?.senderId {
-            //Show our user profile image
-            if let currentUserImageURL = self.senderPhotoUrl {
-                avatarView.sd_setImage(with: currentUserImageURL, completed: nil)
-            } else {
-                //Fetch url
-                guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return } 
-                let path = "profile_images/\(uid)"
-                
-                StorageManager.downloadImageURL(for: path) { [weak self] result in
-                    switch result {
-                    case .success(let url):
-                        self?.senderPhotoUrl = url
-                        DispatchQueue.main.async {
-                            avatarView.sd_setImage(with: url, completed: nil)
-                        }
-                    case .failure(let error):
-                        print("\(error)")
-                    }
-                }
-            }
-        } else {
-            //Show other user profile image
-            if let _ = self.otherUserPhotoUrl {
-                avatarView.sd_setImage(with: otherUserPhotoUrl, completed: nil)
-            } else {
-                //Fetch url
-                let uid = self.otherUserUid
-                let path = "profile_images/\(uid)"
-                
-                StorageManager.downloadImageURL(for: path) { [weak self] result in
-                    switch result {
-                    case .success(let url):
-                        self?.otherUserPhotoUrl = url
-                        DispatchQueue.main.async {
-                            avatarView.sd_setImage(with: url, completed: nil)
-                        }
-                    case .failure(let error):
-                        print("\(error)")
-                    }
-                }
-            }
-        }
+        avatarView.isHidden = true
     }
+    /*
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+
+            let sender = message.sender
+            if sender.senderId == selfSender?.senderId {
+                //Show our user profile image
+                if let currentUserImageURL = self.senderPhotoUrl {
+                    avatarView.sd_setImage(with: currentUserImageURL, completed: nil)
+                } else {
+                    //Fetch url
+                    guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+                    let path = "profile_images/\(uid)"
+                    
+                    StorageManager.downloadImageURL(for: path) { [weak self] result in
+                        switch result {
+                        case .success(let url):
+                            self?.senderPhotoUrl = url
+                            DispatchQueue.main.async {
+                                avatarView.sd_setImage(with: url, completed: nil)
+                            }
+                        case .failure(let error):
+                            print("\(error)")
+                        }
+                    }
+                }
+            } else {
+                //Show other user profile image
+                if let _ = self.otherUserPhotoUrl {
+                    avatarView.sd_setImage(with: otherUserPhotoUrl, completed: nil)
+                } else {
+                    //Fetch url
+                    let uid = self.otherUserUid
+                    let path = "profile_images/\(uid)"
+                    
+                    StorageManager.downloadImageURL(for: path) { [weak self] result in
+                        switch result {
+                        case .success(let url):
+                            self?.otherUserPhotoUrl = url
+                            DispatchQueue.main.async {
+                                avatarView.sd_setImage(with: url, completed: nil)
+                            }
+                        case .failure(let error):
+                            print("\(error)")
+                        }
+                    }
+                }
+            }
+     */
+        
+//    }
+
 }
 
 //MARK: - MessageCellDelegate
@@ -295,10 +367,12 @@ extension ChatViewController: MessageCellDelegate {
         
         switch message.kind {
         case .photo(let media):
-            guard let imageUrl = media.url else { return }
-            let vc = PhotoViewController(with: imageUrl)
-            self.navigationController?.pushViewController(vc, animated: true)
-            
+            guard let imageUrl = media.url else {
+                print("cant recover image")
+                return }
+            //chatImage.sd_setImage(with: imageUrl)
+            //let vc = HomeImageViewController(image: [chatImage.image], imageCount: 1, index: 0)
+            //self.navigationController?.pushViewController(vc, animated: true)
             
         case .video(let media):
             guard let videoUrl = media.url else { return }
@@ -354,6 +428,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
              
         }
         //Delete text bar upon sending a message
+        messagesCollectionView.reloadData()
         inputBar.inputTextView.text = ""
     }
     

@@ -983,7 +983,8 @@ extension DatabaseManager {
                 "name": name,
                 "latest_message": ["date": dateString,
                                    "message": message,
-                                   "is_read": false
+                                   "is_read": false,
+                                   "sender_uid": currentUid
                 ]
             ]
             
@@ -994,7 +995,8 @@ extension DatabaseManager {
                 "name": currentName,
                 "latest_message": ["date": dateString,
                                    "message": message,
-                                   "is_read": false
+                                   "is_read": false,
+                                   "sender_uid": currentUid
                 ]
             ]
             
@@ -1067,12 +1069,14 @@ extension DatabaseManager {
                       let latestMessage = dictionary["latest_message"] as? [String: Any],
                       let date = latestMessage["date"] as? String,
                       let message = latestMessage["message"] as? String,
-                      let isRead = latestMessage["is_read"]  as? Bool else { return nil }
+                      let isRead = latestMessage["is_read"]  as? Bool,
+                      let senderUid = latestMessage["sender_uid"] as? String else { return nil }
                 
                 
                 let latestMessageObject = LatestMessage(date: date,
                                                         text: message,
-                                                        isRead: isRead)
+                                                        isRead: isRead,
+                                                        senderUid: senderUid)
                 
                 return Conversation(id: conversationId,
                                     name: name,
@@ -1226,7 +1230,8 @@ extension DatabaseManager {
                     let updatedValue: [String: Any] = [
                         "date": dateString,
                         "is_read": false,
-                        "message": message
+                        "message": message,
+                        "sender_uid": currentUid
                     ]
                     
                     print("value of snapshot is \(snapshot.value)")
@@ -1297,7 +1302,8 @@ extension DatabaseManager {
                     let updatedValue: [String: Any] = [
                         "date": dateString,
                         "is_read": false,
-                        "message": message
+                        "message": message,
+                        "sender_uid": currentUid
                     ]
                     
                     var databaseEntryConversations = [[String: Any]]()

@@ -21,6 +21,7 @@ class HomeImageViewController: UIViewController {
     private var imageCount: Int!
     private var index: Int!
     
+    
     private var zoomTransitioning = ZoomTransitioning()
     
     let pagePadding: CGFloat = 10

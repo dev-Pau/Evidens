@@ -84,3 +84,60 @@ class MENavigationBarTitleView: UIView {
         ])
     }
 }
+
+class MENavigationBarChatView: UIView {
+    
+    private let fullNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.textAlignment = .left
+        label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
+        label.textColor = .black
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    
+    private let profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.backgroundColor = lightColor
+        iv.contentMode = .scaleAspectFill
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+    
+    init(fullName: String) {
+        fullNameLabel.text = fullName
+        super.init(frame: CGRect.zero)
+        addSubviews(fullNameLabel, profileImageView)
+    }
+    
+    override convenience init(frame: CGRect) {
+        self.init(frame: frame)
+        self.frame = frame
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        NSLayoutConstraint.activate([
+            
+            profileImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            profileImageView.heightAnchor.constraint(equalToConstant: 35),
+            profileImageView.widthAnchor.constraint(equalToConstant: 35),
+            
+            fullNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            fullNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+        ])
+        
+        profileImageView.layer.cornerRadius = 35 / 2
+    }
+}

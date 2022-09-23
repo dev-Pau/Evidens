@@ -104,6 +104,9 @@ class ConversationViewController: UIViewController {
                 self?.emptyConversationsLabel.isHidden = true
                 self?.tableView.isHidden = false
                 self?.conversations = conversations
+                conversations.forEach { conversation in
+                    // Fetch users here
+                }
                 
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()

@@ -34,6 +34,7 @@ class ChatCell: UITableViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = grayColor
         label.numberOfLines = 2
         return label
     }()
@@ -42,7 +43,7 @@ class ChatCell: UITableViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "32432"
+        label.textColor = grayColor
         label.textAlignment = .right
         label.numberOfLines = 0
         return label
@@ -88,7 +89,7 @@ class ChatCell: UITableViewCell {
     //MARK: - Helpers
     
     public func configure(with model: Conversation) {
-        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //if model.latestMessage.
         
         let message = model.latestMessage.text
@@ -103,6 +104,10 @@ class ChatCell: UITableViewCell {
         } else {
             //It is a normal message
             userMessageLabel.text = model.latestMessage.text
+        }
+        
+        if model.latestMessage.senderUid == uid {
+            userMessageLabel.text = "You: \(userMessageLabel.text ?? "")"
         }
         
         usernameLabel.text = model.name
