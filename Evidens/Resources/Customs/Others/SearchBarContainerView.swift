@@ -108,8 +108,10 @@ class MENavigationBarChatView: UIView {
         return iv
     }()
     
-    init(fullName: String) {
-        fullNameLabel.text = fullName
+    init(user: User) {
+        fullNameLabel.text = user.firstName! + " " + user.lastName!
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!)!)
+        
         super.init(frame: CGRect.zero)
         addSubviews(fullNameLabel, profileImageView)
     }

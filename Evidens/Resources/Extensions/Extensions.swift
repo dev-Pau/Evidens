@@ -532,11 +532,11 @@ extension UIViewController {
 extension UIColor {
 
     static var gradientDarkGrey: UIColor {
-        return grayColor
+        return lightGrayColor
     }
 
     static var gradientLightGrey: UIColor {
-        return lightGrayColor
+        return lightColor
     }
 
 }

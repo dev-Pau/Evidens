@@ -19,12 +19,15 @@ class ConversationViewController: UIViewController {
     //MARK: - Properties
     
     private var conversations = [Conversation]()
+    private var users = [User]()
     
     weak var delegate: ConversationViewControllerDelegate?
     
     private let tableView: UITableView = {
         let table = UITableView()
+        table.separatorStyle = .none
         table.isHidden = true
+        table.keyboardDismissMode = .onDrag
         table.register(ChatCell.self,
                        forCellReuseIdentifier: reuseIdentifier)
         return table
@@ -60,10 +63,10 @@ class ConversationViewController: UIViewController {
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = searchBarContainer
+        searchBar.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didTapComposeButton))
-        navigationItem.rightBarButtonItem?.tintColor = .black
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(didTapComposeButton))
+    
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""
@@ -104,12 +107,17 @@ class ConversationViewController: UIViewController {
                 self?.emptyConversationsLabel.isHidden = true
                 self?.tableView.isHidden = false
                 self?.conversations = conversations
+                
+                self?.conversations.sort(by: { $0.latestMessage.date > $1.latestMessage.date })
+                
                 conversations.forEach { conversation in
                     // Fetch users here
-                }
-                
-                DispatchQueue.main.async {
-                    self?.tableView.reloadData()
+                    UserService.fetchUser(withUid: conversation.otherUserUid) { user in
+                        self?.users.append(user)
+                        DispatchQueue.main.async {
+                            self?.tableView.reloadData()
+                        }
+                    }
                 }
                 
             case .failure(let error):
@@ -140,7 +148,7 @@ class ConversationViewController: UIViewController {
                 $0.otherUserUid == user.uid
             }) {
                 //Present the existing conversation with targetID already created in database
-                let controller = ChatViewController(with: targetConversations.otherUserUid, id: targetConversations.id)
+                let controller = ChatViewController(with: user, id: targetConversations.id)
                 controller.isNewConversation = false
                 controller.title = targetConversations.name
                 controller.navigationItem.largeTitleDisplayMode = .never
@@ -160,6 +168,7 @@ class ConversationViewController: UIViewController {
     }
     
     private func createNewConversation(result: User) {
+        let user = result
         let name = result.firstName! + " " + result.lastName!
         let uid = result.uid
         //Check in database if conversation with this users exists
@@ -169,7 +178,7 @@ class ConversationViewController: UIViewController {
             switch result {
             case .success(let conversationId):
                 //Conversation exists, open the conversation with conversationID found
-                let controller = ChatViewController(with: uid!, id: conversationId)
+                let controller = ChatViewController(with: user, id: conversationId)
                 controller.isNewConversation = false
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never
@@ -177,7 +186,7 @@ class ConversationViewController: UIViewController {
                 
             case .failure(_):
                 //There's no conversation that exists, Hi new conversation with id
-                let controller = ChatViewController(with: uid!, id: nil)
+                let controller = ChatViewController(with: user, id: nil)
                 controller.isNewConversation = true
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never
@@ -196,21 +205,35 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let model = conversations[indexPath.row]
+
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! ChatCell
-        cell.configure(with: model)
+        
+        cell.viewModel = ConversationViewModel(conversation: conversations[indexPath.row])
+        
+        let userIndex = users.firstIndex { user in
+            if user.uid == conversations[indexPath.row].otherUserUid {
+                return true
+            }
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            cell.set(user: users[userIndex])
+        }
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let user = users[indexPath.row]
         let model = conversations[indexPath.row]
-        openConversation(model)
+        openConversation(with: user, with: model)
     }
     
-    func openConversation(_ model: Conversation) {
-        let controller = ChatViewController(with: model.otherUserUid, id: model.id)
-        controller.title = model.name
+    func openConversation(with user: User, with model: Conversation) {
+        let controller = ChatViewController(with: user, id: model.id)
+        controller.title = user.firstName! + " " + user.lastName!
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -248,4 +271,41 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
             tableView.endUpdates()
         }
     }
+}
+
+extension ConversationViewController: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        
+        let controller = SearchViewController()
+
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        
+    }
+    /*
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
+        filterConversations(with: text.lowercased())
+    }
+    
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
+        searchBar.resignFirstResponder()
+        filterConversations(with: text.lowercased())
+    }
+    
+    func filterConversations(with text: String) {
+        var filteredConversations = [Conversation]()
+        let filteredUsers: [User] = users.filter { $0.firstName!.lowercased().contains(text) || $0.lastName!.lowercased().contains(text) }
+        filteredUsers.forEach { user in
+            
+        }
+    }
+     */
 }

@@ -983,7 +983,7 @@ extension DatabaseManager {
                 "name": name,
                 "latest_message": ["date": dateString,
                                    "message": message,
-                                   "is_read": false,
+                                   "is_read": true,
                                    "sender_uid": currentUid
                 ]
             ]
@@ -1229,7 +1229,7 @@ extension DatabaseManager {
                     
                     let updatedValue: [String: Any] = [
                         "date": dateString,
-                        "is_read": false,
+                        "is_read": true,
                         "message": message,
                         "sender_uid": currentUid
                     ]

@@ -228,6 +228,7 @@
 		5FA2FB2D28DC7DC600B37424 /* EmptyContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2C28DC7DC600B37424 /* EmptyContentCell.swift */; };
 		5FA2FB2F28DD7AAE00B37424 /* PrivacyPolicyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2E28DD7AAE00B37424 /* PrivacyPolicyViewController.swift */; };
 		5FA2FB3128DD891E00B37424 /* TermsOfUseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB3028DD891E00B37424 /* TermsOfUseViewController.swift */; };
+		5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */; };
 		5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
 		5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB29015288688D3002FBAE1 /* CaseService.swift */; };
@@ -512,6 +513,7 @@
 		5FA2FB2C28DC7DC600B37424 /* EmptyContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyContentCell.swift; sourceTree = "<group>"; };
 		5FA2FB2E28DD7AAE00B37424 /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
 		5FA2FB3028DD891E00B37424 /* TermsOfUseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfUseViewController.swift; sourceTree = "<group>"; };
+		5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewModel.swift; sourceTree = "<group>"; };
 		5FA34F9E28AF6483003C9C30 /* DetailsCaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCaseViewController.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		5FB29015288688D3002FBAE1 /* CaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseService.swift; sourceTree = "<group>"; };
@@ -1599,6 +1601,7 @@
 				5F8666FD2755255F009B26E6 /* CommentViewModel.swift */,
 				5F80B8C9275E2622001EC105 /* NotificationViewModel.swift */,
 				5F598C13283D2E8C00189722 /* PostImageViewModel.swift */,
+				5FA2FB3228DEE8B600B37424 /* ConversationViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2090,6 +2093,7 @@
 				5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
+				5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */,
 				5FDB11D4289BCABD0079463F /* HelperBottomMenuLauncher.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
 				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,

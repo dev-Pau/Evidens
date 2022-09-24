@@ -11,6 +11,12 @@ import SDWebImage
 
 class ChatCell: UITableViewCell {
     
+    var viewModel: ConversationViewModel? {
+        didSet {
+            configure()
+        }
+    }
+    
     //MARK: - Properties
     
     private let profileImageView: UIImageView = {
@@ -41,7 +47,7 @@ class ChatCell: UITableViewCell {
     
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = grayColor
         label.textAlignment = .right
@@ -49,12 +55,27 @@ class ChatCell: UITableViewCell {
         return label
     }()
     
+    private let messageUnreadImage: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 10 / 2
+        iv.backgroundColor = primaryColor
+        return iv
+    }()
+    
+    private let bottomSeparatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightGrayColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     //MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel)
-
+        contentView.addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel, messageUnreadImage, bottomSeparatorView)
     }
     
     required init?(coder: NSCoder) {
@@ -79,65 +100,31 @@ class ChatCell: UITableViewCell {
             
             userMessageLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor),
             userMessageLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
-            usernameLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor)
+            usernameLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
+            
+            messageUnreadImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            messageUnreadImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            messageUnreadImage.widthAnchor.constraint(equalToConstant: 10),
+            messageUnreadImage.heightAnchor.constraint(equalToConstant: 10),
+            
+            bottomSeparatorView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1)
             
         ])
     }
-    
-    
-    
+
     //MARK: - Helpers
     
-    public func configure(with model: Conversation) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        //if model.latestMessage.
-        
-        let message = model.latestMessage.text
-        
-        if message.contains("https://firebasestorage.googleapis.com") {
-            //Is a photo or video
-            if message.contains("message_images") {
-                userMessageLabel.text = "Photo"
-            } else {
-                userMessageLabel.text = "Video"
-            }
-        } else {
-            //It is a normal message
-            userMessageLabel.text = model.latestMessage.text
-        }
-        
-        if model.latestMessage.senderUid == uid {
-            userMessageLabel.text = "You: \(userMessageLabel.text ?? "")"
-        }
-        
-        usernameLabel.text = model.name
-        
-        dateLabel.text = model.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CEST", with: "")
-        let dateString = model.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CEST", with: "")
-        
-        let addedDateFormatter = DateFormatter()
-        addedDateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
-        addedDateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-
-        if let addedDate = addedDateFormatter.date(from: dateString) {
-            dateLabel.text = addedDate.formatRelativeString()
-        }
-        
-        let path = "/profile_images/\(model.otherUserUid)"
-        StorageManager.downloadImageURL(for: path, completion: { [weak self] result in
-            switch result {
-            case .success(let url):
-                
-                DispatchQueue.main.async {
-                    self?.profileImageView.sd_setImage(with: url, completed: nil)
-                }
-                
-            case.failure(let error):
-                print("failed to get image url: \(error)")
-            }
-        })
-       
+    public func configure() {
+        guard let viewModel = viewModel else { return }
+        userMessageLabel.attributedText = viewModel.messageToDisplay()
+        messageUnreadImage.isHidden = viewModel.isMessageRead
     }
     
-    //MARK: - Actions
+    func set(user: User) {
+        usernameLabel.text = user.firstName! + " " + user.lastName!
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+    }
 }

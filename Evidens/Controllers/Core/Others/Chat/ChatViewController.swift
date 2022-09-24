@@ -19,6 +19,7 @@ class ChatViewController: MessagesViewController {
     
     private var senderPhotoUrl: URL?
     private var otherUserPhotoUrl: URL?
+    private var user: User
     
     public static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -45,12 +46,11 @@ class ChatViewController: MessagesViewController {
     
     //MARK: - Lifecycle
     
-    init(with uid: String, id: String?) {
-        self.otherUserUid = uid
+    init(with user: User, id: String?) {
+        self.user = user
+        self.otherUserUid = user.uid!
         self.conversationId = id
         super.init(nibName: nil, bundle: nil)
-        
-       
     }
     
     required init?(coder: NSCoder) {
@@ -66,7 +66,6 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messageCellDelegate = self
         messageInputBar.delegate = self
         
-        
         showMessageTimestampOnSwipeLeft = true
         
         removeMessageAvatars()
@@ -76,7 +75,7 @@ class ChatViewController: MessagesViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let view = MENavigationBarChatView(fullName: "Gerard Font")
+        let view = MENavigationBarChatView(user: user)
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
     }
@@ -122,6 +121,7 @@ class ChatViewController: MessagesViewController {
         messageInputBar.sendButton.setTitleColor(primaryColor, for: .normal)
         messageInputBar.setLeftStackViewWidthConstant(to: 36, animated: false)
         messageInputBar.setStackViewItems([inputButton], forStack: .left, animated: false)
+        messageInputBar.inputTextView.placeholder = "Message..."
         
     }
     
