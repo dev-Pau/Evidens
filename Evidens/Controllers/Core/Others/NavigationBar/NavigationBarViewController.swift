@@ -29,6 +29,7 @@ class NavigationBarViewController: UIViewController {
         iv.contentMode = .scaleAspectFill
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapProfile))
         iv.addGestureRecognizer(tap)
+        iv.image = UIImage(named: "user.profile")
         iv.isUserInteractionEnabled = true
         return iv
     }()
@@ -52,10 +53,12 @@ class NavigationBarViewController: UIViewController {
             
             let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
             searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.7).isActive = true
+            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.65).isActive = true
             navigationItem.titleView = searchBarContainer
             
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .plain, target: self, action: #selector(didTapChat))
+            //navigationItem.rightBarButtonItem = UIBarButtonItem(customView: UIImageView(image: UIImage(named: "paperplane")))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
+            //navigationItem.rightBarButtonItem?.bo
             
             navigationItem.rightBarButtonItem?.tintColor = .black
             

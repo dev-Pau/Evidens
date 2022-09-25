@@ -58,7 +58,7 @@ class MEUserPostView: UIView {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "clock")
+        iv.image = UIImage(systemName: "clock")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         return iv
     }()
     

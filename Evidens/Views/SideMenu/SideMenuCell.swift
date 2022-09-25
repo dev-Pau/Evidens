@@ -34,8 +34,8 @@ class SideMenuCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             titleImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             titleImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            titleImage.heightAnchor.constraint(equalToConstant: 20),
-            titleImage.widthAnchor.constraint(equalToConstant: 20),
+            titleImage.heightAnchor.constraint(equalToConstant: 25),
+            titleImage.widthAnchor.constraint(equalToConstant: 25),
             
             titleLabel.centerYAnchor.constraint(equalTo: titleImage.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: titleImage.trailingAnchor, constant: 10),
@@ -45,7 +45,7 @@ class SideMenuCell: UICollectionViewCell {
     
     func set(title: String, image: String) {
         titleLabel.text = title
-        titleImage.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
+        titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
     }
     
     required init?(coder: NSCoder) {

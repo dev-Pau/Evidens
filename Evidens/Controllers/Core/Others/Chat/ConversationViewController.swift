@@ -11,6 +11,7 @@ private let reuseIdentifier = "cell"
 
 protocol ConversationViewControllerDelegate: AnyObject {
     func didTapHideConversations()
+    func didBeginEditingCell(isEditing editing: Bool)
 }
 
 /// Controller that shows list of conversations
@@ -65,7 +66,7 @@ class ConversationViewController: UIViewController {
         navigationItem.titleView = searchBarContainer
         searchBar.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(didTapComposeButton))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(didTapComposeButton))
     
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
         
@@ -231,7 +232,6 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let user = users[indexPath.row]
         let model = conversations[indexPath.row]
         
         let userIndex = users.firstIndex { user in
@@ -269,23 +269,47 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         return .delete
     }
     
+    func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        delegate?.didBeginEditingCell(isEditing: false)
+    }
+    
+    func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
+        print("begin")
+        delegate?.didBeginEditingCell(isEditing: true)
+    }
+    
+    
+    
+    
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            //Get the conversationId for current indexPath row
-            let conversationId = conversations[indexPath.row].id
             
-            tableView.beginUpdates()
-            self.conversations.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .left)
-            //Delete the conversation in the database
-            DatabaseManager.shared.deleteConversation(conversationId: conversationId) { success in
-                if !success {
-                    // Add model and row back and show error alert
+            let userIndex = users.firstIndex { user in
+                if user.uid == conversations[indexPath.row].otherUserUid {
+                    return true
+                }
+                return false
+            }
+            
+            if let userIndex = userIndex {
+                let user = users[userIndex]
+                deleteConversationAlert(withUserFirstName: user.firstName!) {
+                    //Get the conversationId for current indexPath row
+                    let conversationId = self.conversations[indexPath.row].id
                     
-                    print("Failed to delete conversation")
+                    tableView.beginUpdates()
+                    self.conversations.remove(at: indexPath.row)
+                    tableView.deleteRows(at: [indexPath], with: .left)
+                    //Delete the conversation in the database
+                    DatabaseManager.shared.deleteConversation(conversationId: conversationId) { success in
+                        if !success {
+                            // Add model and row back and show error alert
+                            print("Failed to delete conversation")
+                        }
+                    }
+                    tableView.endUpdates()
                 }
             }
-            tableView.endUpdates()
         }
     }
 }
@@ -298,31 +322,27 @@ extension ConversationViewController: UISearchBarDelegate {
         backItem.tintColor = .black
         
         let controller = SearchConversationViewController(users: users)
+        controller.delegate = self
 
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
         
     }
-    /*
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
-        filterConversations(with: text.lowercased())
-    }
-    
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
-        searchBar.resignFirstResponder()
-        filterConversations(with: text.lowercased())
-    }
-    
-    func filterConversations(with text: String) {
-        var filteredConversations = [Conversation]()
-        let filteredUsers: [User] = users.filter { $0.firstName!.lowercased().contains(text) || $0.lastName!.lowercased().contains(text) }
-        filteredUsers.forEach { user in
-            
+}
+
+extension ConversationViewController: SearchConversationViewControllerDelegate {
+    func didTapUser(user: User) {
+        let userIndex = conversations.firstIndex { conversation in
+            if conversation.otherUserUid == user.uid {
+                return true
+            }
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            let conversation = conversations[userIndex]
+            openConversation(with: user, with: conversation)
         }
     }
-     */
 }

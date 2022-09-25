@@ -16,6 +16,8 @@ private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
 
 class SearchConversationViewController: UIViewController {
     
+    weak var delegate: SearchConversationViewControllerDelegate?
+    
     private var users: [User]
     private var filteredUsers = [User]()
     
@@ -55,7 +57,6 @@ class SearchConversationViewController: UIViewController {
     
     init(users: [User]) {
         self.users = users
-        print(users)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -81,12 +82,9 @@ class SearchConversationViewController: UIViewController {
         tableView.backgroundColor = .white
         tableView.sectionHeaderTopPadding = 0
         
-        tableView.estimatedRowHeight = 74
-        tableView.rowHeight = UITableView.automaticDimension
-        
-        tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)
+        tableView.register(EmptyConversationSearchCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)
         tableView.register(NewConversationCell.self, forCellReuseIdentifier: conversationCellReuseIdentifier)
-        //tableView.register(RecentTextCell.self, forCellReuseIdentifier: recentTextReuseIdentifier)
+
         tableView.keyboardDismissMode = .onDrag
     }
     
@@ -114,45 +112,32 @@ extension SearchConversationViewController: UITableViewDataSource {
         
         if !loaded {
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyContentCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyConversationSearchCell
             cell.selectionStyle = .none
             cell.set(title: "Search conversations", description: "Try searching for active conversations.")
             return cell
         }
         
         let cell = tableView.dequeueReusableCell(withIdentifier: conversationCellReuseIdentifier, for: indexPath) as! NewConversationCell
+        cell.selectionStyle = .none
         cell.set(user: filteredUsers[indexPath.row])
         return cell
     }
     
-    /*
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return loaded ? 200 : 70
+        return loaded ? 70 : 150
     }
-     */
+     
 }
 
 //MARK: - UITableViewDelegate
 
 extension SearchConversationViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        /*
-        if indexPath.section == 1 {
-            
-            // Press on recent text cell
-            
-            // When we have full text Search this is the good approach
-            let controller = SearchResultsViewController()
-            controller.searchedText = recentSearchedText[indexPath.row]
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            navigationItem.backBarButtonItem = backItem
-            
-            navigationController?.pushViewController(controller, animated: true)
-            
-            fetchRecents()
-         */
+        let user = filteredUsers[indexPath.row]
+        navigationController?.popViewController(animated: true)
+        delegate?.didTapUser(user: user)
     }
 }
 

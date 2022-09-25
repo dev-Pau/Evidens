@@ -30,7 +30,6 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.baseForegroundColor = .black
         button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return button
     }()
@@ -41,6 +40,7 @@ class MEPostActionButtons: UIView {
         label.isUserInteractionEnabled = true
         label.textColor = grayColor
         label.numberOfLines = 0
+        label.textAlignment = .left
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLikesTap)))
         return label
@@ -51,6 +51,7 @@ class MEPostActionButtons: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = grayColor
+        label.textAlignment = .left
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.numberOfLines = 0
         return label
@@ -62,8 +63,7 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "text.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.image = UIImage(named: "comment")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -72,8 +72,6 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "bookmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        button.configuration?.baseForegroundColor = .black
         button.addTarget(self, action: #selector(handleBookmark), for: .touchUpInside)
         return button
     }()
@@ -101,19 +99,22 @@ class MEPostActionButtons: UIView {
             likeButton.topAnchor.constraint(equalTo: topAnchor),
             
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: -10),
+            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: -5),
             likesLabel.widthAnchor.constraint(equalToConstant: 30),
             
-            commentButton.leadingAnchor.constraint(equalTo: likesLabel.trailingAnchor, constant: 5),
+            commentButton.leadingAnchor.constraint(equalTo: likesLabel.trailingAnchor, constant: 10),
             commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            commentButton.widthAnchor.constraint(equalToConstant: 25),
+            commentButton.heightAnchor.constraint(equalToConstant: 25),
             
             commentLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: -10),
+            commentLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 5),
+            commentLabel.widthAnchor.constraint(equalToConstant: 30),
             
-            bookmarkButton.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            bookmarkButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             bookmarkButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            bookmarkButton.heightAnchor.constraint(equalToConstant: 30),
-            bookmarkButton.widthAnchor.constraint(equalToConstant: 30),
+            bookmarkButton.heightAnchor.constraint(equalToConstant: 25),
+            bookmarkButton.widthAnchor.constraint(equalToConstant: 25),
             
             bottomSeparatorLabel.topAnchor.constraint(equalTo: topAnchor),
             bottomSeparatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

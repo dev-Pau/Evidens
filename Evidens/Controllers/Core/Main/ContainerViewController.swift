@@ -17,6 +17,7 @@ class ContainerViewController: UIViewController {
     var panGestureRecognizer: UIPanGestureRecognizer!
     
     var panEnabled: Bool = true
+    var isEditingConversation: Bool = false
     
     private var menuState: MEMenuState = .closed
     private var viewIsOnConversations: Bool = false
@@ -45,6 +46,7 @@ class ContainerViewController: UIViewController {
         
         panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
             view.addGestureRecognizer(panGestureRecognizer)
+        panGestureRecognizer.delegate = self
     }
     
     private func addChildVCs() {
@@ -185,9 +187,16 @@ class ContainerViewController: UIViewController {
             }
         }
     }
+    
+    
 }
 
 extension ContainerViewController: MainViewControllerDelegate {
+    func handleDisablePanWhileEditing(editing: Bool) {
+        //panGestureRecognizer.isEnabled = !editing
+        //isEditingConversation = editing ? true : false
+    }
+    
     func showConversations() {
         openConversation()
     }
@@ -228,6 +237,24 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
         closeMenu()
         mainController.pushUserProfileViewController()
     }
+}
+
+extension ContainerViewController: UIGestureRecognizerDelegate {
+    /*
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if viewIsOnConversations {
+            if let currentGesture = gestureRecognizer as? UIPanGestureRecognizer {
+                if currentGesture.translation(in: self.view).x > 0 {
+                    return true
+                }
+                return false
+            }
+            return false
+        }
+        return false
+    }
+     */
+     
 }
  
 

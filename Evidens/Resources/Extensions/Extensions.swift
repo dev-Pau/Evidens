@@ -240,6 +240,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func deleteConversationAlert(withUserFirstName name: String, completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Delete conversation", message: "Are you sure you want to delete your conversation with \(name)?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     func logoutAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Log out", message: "Are you sure you want to log out of MyEvidens?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
