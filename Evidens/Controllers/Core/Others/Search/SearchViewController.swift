@@ -53,7 +53,7 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemPink
+        view.backgroundColor = .white
         DispatchQueue.main.async {
             self.fetchRecents()
         }

@@ -93,6 +93,11 @@ class ConversationViewController: UIViewController {
         view.addSubview(emptyConversationsLabel)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        searchBar.resignFirstResponder()
+    }
+    
     private func startListeningForConversations() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
@@ -228,7 +233,19 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         tableView.deselectRow(at: indexPath, animated: true)
         let user = users[indexPath.row]
         let model = conversations[indexPath.row]
-        openConversation(with: user, with: model)
+        
+        let userIndex = users.firstIndex { user in
+            if user.uid == conversations[indexPath.row].otherUserUid {
+                return true
+            }
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            let user = users[userIndex]
+            openConversation(with: user, with: model)
+        }
+        
     }
     
     func openConversation(with user: User, with model: Conversation) {
@@ -244,7 +261,7 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
+        return 71
     }
     
     //Swipe the row away
@@ -280,7 +297,7 @@ extension ConversationViewController: UISearchBarDelegate {
         backItem.title = ""
         backItem.tintColor = .black
         
-        let controller = SearchViewController()
+        let controller = SearchConversationViewController(users: users)
 
         navigationItem.backBarButtonItem = backItem
         
