@@ -8,14 +8,22 @@
 import UIKit
 import Firebase
 import GoogleSignIn
+import Combine
 import AuthenticationServices
 import CryptoKit
+
+private let onboardingMessageReuseIdentifier = "OnboardingMessageReuseIdentifier"
+private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
 
 class WelcomeViewController: UIViewController {
     
     //MARK: - Properties
     
+    private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
+    
     private var currentNonce: String?
+    
+    private var onboardingMessages = OnboardingMessage.getAllOnboardingMessages()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -23,7 +31,20 @@ class WelcomeViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
+        scrollView.isScrollEnabled = true
         return scrollView
+    }()
+    
+    private lazy var collectionView: UICollectionView = {
+        let layout = createCellLayout()
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .white
+        collectionView.bounces = true
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.showsHorizontalScrollIndicator = false
+        return collectionView
     }()
     
     private let welcomeText: UILabel = {
@@ -166,6 +187,9 @@ class WelcomeViewController: UIViewController {
     
     //MARK: - Helpers
     func configureUI() {
+        collectionView.register(OnboardingCell.self, forCellWithReuseIdentifier: onboardingMessageReuseIdentifier)
+        collectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
+        
         view.addSubview(scrollView)
         view.backgroundColor = .white
         
@@ -178,16 +202,17 @@ class WelcomeViewController: UIViewController {
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
        
-        scrollView.addSubviews(welcomeText, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin)
+        scrollView.addSubviews(collectionView, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin)
         
         NSLayoutConstraint.activate([
-            welcomeText.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: UIScreen.main.bounds.height * 0.2),
-            welcomeText.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            welcomeText.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
-            
-            googleSingInButton.topAnchor.constraint(equalTo: welcomeText.bottomAnchor, constant: 60),
-            googleSingInButton.leadingAnchor.constraint(equalTo: welcomeText.leadingAnchor),
-            googleSingInButton.trailingAnchor.constraint(equalTo: welcomeText.trailingAnchor),
+            collectionView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: UIScreen.main.bounds.height * 0.1),
+            collectionView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            collectionView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
+            collectionView.heightAnchor.constraint(equalToConstant: 120),
+           
+            googleSingInButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 100),
+            googleSingInButton.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
+            googleSingInButton.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
             googleSingInButton.heightAnchor.constraint(equalToConstant: 50),
             
             appleSingInButton.topAnchor.constraint(equalTo: googleSingInButton.bottomAnchor, constant: 10),
@@ -379,7 +404,7 @@ extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizat
                     if newUser {
                         guard let appleUser = authResult?.user else { return }
                         
-                        var credentials = AuthCredentials(firstName: firstName ?? "", lastName: lastName ?? "", email: email ?? "", password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+                        let credentials = AuthCredentials(firstName: firstName ?? "", lastName: lastName ?? "", email: email ?? "", password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
                         
                         
                         AuthService.registerAppleUser(withCredential: credentials, withUid: appleUser.uid) { error in
@@ -399,12 +424,62 @@ extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizat
                     
                 }
             }
-             
         }
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print("error")
+    }
+}
+
+extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+    
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return onboardingMessages.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: onboardingMessageReuseIdentifier, for: indexPath) as! OnboardingCell
+        cell.set(message: onboardingMessages[indexPath.row])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier, for: indexPath) as! PagingSectionFooterView
+        let itemCount = onboardingMessages.count
+        footer.configure(with: itemCount)
+        footer.subscribeTo(subject: pagingInfoSubject)
+        return footer
+    }
+    
+    private func createCellLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.orthogonalScrollingBehavior = .paging
+            
+            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+
+            section.boundarySupplementaryItems = [footer]
+            
+            section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
+                guard let self = self else { return }
+                let page = round(offset.x / self.collectionView.bounds.width)
+                // Send the page of the visible image to the PagingInfoSubject
+                self.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
+                
+            }
+            return section
+            
+        }
+        return layout
     }
 }
 
