@@ -12,10 +12,16 @@ import SDWebImage
 import AVFoundation
 import AVKit
 
+protocol ChatViewControllerDelegate: AnyObject {
+    func didDeleteConversation(withUser user: User, withConversationId id: String)
+}
+
 
 class ChatViewController: MessagesViewController {
     
     //MARK: - Properties
+    
+    weak var delegate: ChatViewControllerDelegate?
     
     private var senderPhotoUrl: URL?
     private var otherUserPhotoUrl: URL?
@@ -31,8 +37,9 @@ class ChatViewController: MessagesViewController {
     
     public let otherUserUid: String
     private var conversationId: String?
+    private var creationDate: TimeInterval?
     public var isNewConversation = false
-    
+
     private var chatImage: UIImageView!
     
     private var messages = [Message]()
@@ -46,10 +53,12 @@ class ChatViewController: MessagesViewController {
     
     //MARK: - Lifecycle
     
-    init(with user: User, id: String?) {
+    init(with user: User, id: String?, creationDate: TimeInterval?) {
         self.user = user
         self.otherUserUid = user.uid!
         self.conversationId = id
+        self.creationDate = creationDate
+        print("Creation date is \(creationDate)")
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -59,6 +68,39 @@ class ChatViewController: MessagesViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(handleConversationMenu))
+        
+        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.red), attributes: .destructive) { action in
+            self.deleteConversationAlert(withUserFirstName: self.user.firstName!) {
+                if let conversationId = self.conversationId {
+                    self.delegate?.didDeleteConversation(withUser: self.user, withConversationId: conversationId)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
+        
+        let markAsUnreadAction = UIAction(title: "Mark as Unread", image: UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)) { action in
+            if let conversationId = self.conversationId {
+                DatabaseManager.shared.makeLastMessageStateToIsRead(conversationID: conversationId, isReadState: false)
+            }
+        }
+        
+        let menuBarButton = UIBarButtonItem(
+            title: "Add",
+            image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black),
+            primaryAction: nil,
+            menu: UIMenu(title: "", children: [deleteAction, markAsUnreadAction])
+        )
+        
+        self.navigationItem.rightBarButtonItem = menuBarButton
+        
+        let view = MENavigationBarChatView(user: user)
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
+        
        
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
@@ -75,36 +117,40 @@ class ChatViewController: MessagesViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let view = MENavigationBarChatView(user: user)
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
+        
+        
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
-        if let conversationId = conversationId { listenForMessages(id: conversationId, shouldScrollToBottom: true) }
+        if let conversationId = conversationId {
+            print("we are hearing")
+            listenForMessages(id: conversationId, shouldScrollToBottom: true) }
     }
     
    
     private func listenForMessages(id: String, shouldScrollToBottom: Bool) {
-        DatabaseManager.shared.getAllMessagesForConversation(with: id, completion: { [weak self] result in
+        DatabaseManager.shared.getAllMessagesForConversation(with: id, withCreationDate: creationDate, completion: { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let messages):
-                print("CASE SUCCESS")
+                
                 guard !messages.isEmpty else { return }
-                self?.messages = messages
-                print(messages)
+                self.messages = messages
                 DispatchQueue.main.async {
-                    self?.messagesCollectionView.reloadDataAndKeepOffset()
+                    self.messagesCollectionView.reloadDataAndKeepOffset()
+                    DatabaseManager.shared.makeLastMessageStateToIsRead(conversationID: id, isReadState: true)
                     
                     if shouldScrollToBottom {
-                        self?.messagesCollectionView.scrollToLastItem()
+                        self.messagesCollectionView.scrollToLastItem()
                     }
                 }
                 
             case .failure(let error):
                 print("Failed to get messages: \(error)")
+                
             }
         })
     }
@@ -175,12 +221,6 @@ class ChatViewController: MessagesViewController {
         present(actionSheet, animated: true)
     }
     
-    private func presentPhotoInputActionSheet() {
-        
-    }
-    
-    
-    
     private func removeMessageAvatars() {
         guard let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout else { return }
         layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
@@ -199,7 +239,7 @@ class ChatViewController: MessagesViewController {
     
     func firstMessageOfTheDay(indexOfMessage: IndexPath) -> Bool {
         let messageDate = messages[indexOfMessage.section].sentDate
-        guard indexOfMessage.section > 1 else { return true }
+        guard indexOfMessage.section > 1 else { return true }
         let previouseMessageDate = messages[indexOfMessage.section - 1].sentDate
          
         let day = Calendar.current.component(.day, from: messageDate)
@@ -212,6 +252,10 @@ class ChatViewController: MessagesViewController {
     }
     
     //MARK: - Actions
+    
+    @objc func handleConversationMenu() {
+        
+    }
 }
 
 extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
@@ -401,10 +445,10 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         // send message
         if isNewConversation {
             //create conversation in database
-            print("We have a new conversation")
+            print("We send a message on a new conversation")
             DatabaseManager.shared.createNewConversation(withUid: otherUserUid, name: self.title ?? "User", firstMessage: message) { [weak self] success in
                 if success {
-                    print("message sent")
+                    print("message sent on a new conversation")
                     self?.isNewConversation = false
                     let newConversationId = "conversation_\(message.messageId)"
                     self?.conversationId = newConversationId
@@ -415,17 +459,24 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             }
         } else {
             //append to existing conversation data
-            print("Is not a new conversation with this user, we go try send message")
+            print("We send a message on a existing conversation")
             
             guard let conversationId = conversationId, let name = self.title else { return }
-            DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: otherUserUid, newMessage: message, completion: { success in
-                if success {
-                    print("messagen sent")
-                } else {
-                    print("failed to send")
-                }
-            })
-             
+            
+                DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: otherUserUid, newMessage: message, completion: { dateOfCreation in
+                    if dateOfCreation != nil {
+                        // If we alreaady have a creation date set return
+                        if self.creationDate != nil {
+                            return
+                        } else {
+                            self.creationDate = dateOfCreation
+                            self.listenForMessages(id: conversationId, shouldScrollToBottom: true)
+                        }
+                    } else {
+                        print("failed to send")
+                    }
+                })
+            
         }
         //Delete text bar upon sending a message
         messagesCollectionView.reloadData()
@@ -484,13 +535,21 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                                           sentDate: Date(),
                                           kind: .photo(media))
                     
-                    DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: strongSelf.otherUserUid, newMessage: message, completion: { success in
-                        if success {
-                            print("sent photo message")
-                        } else {
-                            print("failed to send photo message")
-                        }
-                    })
+                    
+                        DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: strongSelf.otherUserUid, newMessage: message, completion: { dateOfCreation in
+                            if dateOfCreation != nil {
+                                // If we alreaady have a creation date set return
+                                if strongSelf.creationDate != nil {
+                                    return
+                                } else {
+                                    strongSelf.creationDate = dateOfCreation
+                                    strongSelf.listenForMessages(id: conversationId, shouldScrollToBottom: true)
+                                }
+                            } else {
+                                print("failed to send photo message")
+                            }
+                        })
+                    
                 case .failure(let error):
                     print("Failed to upload photo: \(error)")
                 }
@@ -520,13 +579,23 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                                           sentDate: Date(),
                                           kind: .video(media))
                     
-                    DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: strongSelf.otherUserUid, newMessage: message, completion: { success in
-                        if success {
-                            print("sent photo message")
-                        } else {
-                            print("failed to send photo message")
-                        }
-                    })
+                    
+                        DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: strongSelf.otherUserUid, newMessage: message, completion: { dateOfCreation in
+                            // Check if we sent the message
+                            if dateOfCreation != nil {
+                                // If we alreaady have a creation date set return
+                                if strongSelf.creationDate != nil {
+                                    return
+                                } else {
+                                    strongSelf.creationDate = dateOfCreation
+                                    strongSelf.listenForMessages(id: conversationId, shouldScrollToBottom: true)
+                                }
+                            } else {
+                                print("failed to send photo message")
+                            }
+                        })
+                    
+
                 case .failure(let error):
                     print("Failed to upload photo: \(error)")
                 }

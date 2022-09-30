@@ -889,44 +889,8 @@ extension DatabaseManager {
         ref.setValue(tokenID)
     }
 }
-    
-    
-        
-        //ref.observeSingleEvent(of: <#T##DataEventType#>, with: <#T##(DataSnapshot) -> Void#>)
-        
-        /*
-         // Check if user has recent searches
-         ref.observeSingleEvent(of: .value) { snapshot in
-             if var recentSearches = snapshot.value as? [String] {
-                 // Recent searches document exists, append new search
-                 
-                 // Check if the searched topic is already saved from the past
-                 if recentSearches.contains(searchedTopic) {
-                     completion(false)
-                     return
-                 }
-                 recentSearches.append(searchedTopic)
-                 ref.setValue(recentSearches) { error, _ in
-                     if let _ = error {
-                         completion(false)
-                         return
-                     }
-                 }
-             } else {
-                 // First time user searches, create a new document
-                 ref.setValue([searchedTopic]) { error, _ in
-                     if let _ = error {
-                         completion(false)
-                         return
-                     }
-                 }
-             }
-             completion(true)
-         }
-         */
 
-
-//MARK: - Sending messages & Conversations
+//MARK: - Sending messages & Conversations+
 extension DatabaseManager {
     
     /// Creates a new conversation with target user uid and first message sent
@@ -934,120 +898,89 @@ extension DatabaseManager {
         
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String,
               let currentName = UserDefaults.standard.value(forKey: "name") as? String else { return }
-
         
-        let ref = database.child("users/\(currentUid)")
+        let messageDate = firstMessage.sentDate.timeIntervalSince1970.toDouble()
+        //let dateString = ChatViewController.dateFormatter.string(from: messageDate)
         
-        ref.observeSingleEvent(of: .value) { [weak self] snapshot in
-            guard var userNode = snapshot.value as? [String: Any] else {
+        var message = ""
+        
+        switch firstMessage.kind {
+        case .text(let messageText):
+            message = messageText
+        case .attributedText(_):
+            break
+        case .photo(_):
+            break
+        case .video(_):
+            break
+        case .location(_):
+            break
+        case .emoji(_):
+            break
+        case .audio(_):
+            break
+        case .contact(_):
+            break
+        case .linkPreview(_):
+            break
+        case .custom(_):
+            break
+        }
+        
+        let conversationId = "conversation_\(firstMessage.messageId)"
+        
+        let latestMessage: [String: Any] = [
+            "date": messageDate,
+            "message": message,
+            "is_read": true,
+            "sender_uid": currentUid
+        ]
+        
+        let recipientLatestMessage: [String: Any] = [
+            "date": messageDate,
+            "message": message,
+            "is_read": false,
+            "sender_uid": currentUid
+        ]
+        
+        let newConversationData: [String: Any] = [
+            "id": conversationId,
+            "creation_date": messageDate,
+            "other_user_uid": otherUserUid,
+            "name": name,
+            "latest_message": latestMessage
+        ]
+        
+        let recipientNewConversationData: [String: Any] = [
+            "id": conversationId,
+            "creation_date": messageDate,
+            "other_user_uid": currentUid,
+            "name": currentName,
+            "latest_message": recipientLatestMessage
+        ]
+        
+        //Update recipient conversation entry
+        let otherUserRef = database.child("users/\(otherUserUid)").child("conversations").childByAutoId()
+        
+        otherUserRef.setValue(recipientNewConversationData) { error, _ in
+            if let _ = error {
                 completion(false)
                 return
             }
             
-            print("User node is \(userNode)")
+            let ref = self.database.child("users/\(currentUid)").child("conversations").childByAutoId()
             
-            let messageDate = firstMessage.sentDate
-            let dateString = ChatViewController.dateFormatter.string(from: messageDate)
-            
-            var message = ""
-            
-            switch firstMessage.kind {
-            case .text(let messageText):
-                message = messageText
-            case .attributedText(_):
-                break
-            case .photo(_):
-                break
-            case .video(_):
-                break
-            case .location(_):
-                break
-            case .emoji(_):
-                break
-            case .audio(_):
-                break
-            case .contact(_):
-                break
-            case .linkPreview(_):
-                break
-            case .custom(_):
-                break
-            }
-            
-            let conversationId = "conversation_\(firstMessage.messageId)"
-            
-            let newConversationData: [String: Any] = [
-                "id": conversationId,
-                "creation_date": dateString,
-                "other_user_uid": otherUserUid,
-                "name": name,
-                "latest_message": ["date": dateString,
-                                   "message": message,
-                                   "is_read": true,
-                                   "sender_uid": currentUid
-                ]
-            ]
-            
-            let recipientNewConversationData: [String: Any] = [
-                "id": conversationId,
-                "creation_date": dateString,
-                "other_user_uid": currentUid,
-                "name": currentName,
-                "latest_message": ["date": dateString,
-                                   "message": message,
-                                   "is_read": false,
-                                   "sender_uid": currentUid
-                ]
-            ]
-            
-            //Update recipient conversation entry
-            self?.database.child("users/\(otherUserUid)/conversations").observeSingleEvent(of: .value, with: { [weak self] snapshot in
-                if var conversations = snapshot.value as? [[String: Any]] {
-                    //Append
-                    print("Other user has conversations")
-                    conversations.append(recipientNewConversationData)
-                    self?.database.child("users/\(otherUserUid)/conversations").setValue(conversations)
-                } else {
-                    //Create new conversation
-                    print("Other user does not have conversations, create the conversation array with the latest message etc")
-                    self?.database.child("users/\(otherUserUid)/conversations").setValue([recipientNewConversationData])
+            ref.setValue(newConversationData) { error, _ in
+                if let _ = error {
+                    completion(false)
+                    return
                 }
-            })
-            
-            //Update current user conversation entry
-            if var conversations = userNode["conversations"] as? [[String: Any]] {
-                //Conversation array exists for current user, append
-                print("Conversation array exists for current user, means he has other conversations with other users")
-                conversations.append(newConversationData)
-                userNode["conversations"] = conversations
                 
-                ref.setValue(userNode, withCompletionBlock: { [weak self] error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    self?.finishCreatingConversation(name: name,
-                                                     conversationID: conversationId,
-                                                     firstMessage: firstMessage,
-                                                     completion: completion)
-                })
-            } else {
-                
-                //Conversation array does not exist, create it
-                print("user doesn't have any conversation, create the array")
-                userNode["conversations"] = [newConversationData]
-                
-                ref.setValue(userNode, withCompletionBlock: { [weak self] error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    print("we go create the conversation child in realtime")
-                    self?.finishCreatingConversation(name: name,
-                                                     conversationID: conversationId,
-                                                     firstMessage: firstMessage,
-                                                     completion: completion)
-                })
+                completion(true)
+                self.finishCreatingConversation(name: name,
+                                                conversationID: conversationId,
+                                                firstMessage: firstMessage,
+                                                completion: completion)
             }
         }
     }
@@ -1055,22 +988,37 @@ extension DatabaseManager {
 
     /// Fetches and returns all conversations for the user with uid
     public func getAllConversations(forUid uid: String, completion: @escaping(Result<[Conversation], Error>) -> Void) {
-        database.child("users/\(uid)/conversations").observe(.value, with: { snapshot in
-            guard let value = snapshot.value as? [[String: Any]] else {
-                completion(.failure(DatabaseError.failedToFetch))
-                return
+
+        var fetchedConversations = [[String: Any]]()
+        
+        let ref = database.child("users/\(uid)/conversations")
+        print("We get all conversations")
+        
+        ref.observe(.value) { snapshot in
+            fetchedConversations.removeAll()
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else {
+                    print("we couldt get any snaphsot")
+                    completion(.failure(DatabaseError.failedToFetch))
+                    return
+                }
+
+                fetchedConversations.append(value)
             }
             
-            let conversations: [Conversation] = value.compactMap ({ dictionary in
+            let conversations: [Conversation] = fetchedConversations.compactMap ({ dictionary in
                 guard let conversationId = dictionary["id"] as? String,
                       let name = dictionary["name"] as? String,
-                      let creationDate = dictionary["creation_date"] as? String,
+                      let creationDate = dictionary["creation_date"] as? TimeInterval,
                       let otherUserUid = dictionary["other_user_uid"] as? String,
                       let latestMessage = dictionary["latest_message"] as? [String: Any],
-                      let date = latestMessage["date"] as? String,
+                      let date = latestMessage["date"] as? TimeInterval,
                       let message = latestMessage["message"] as? String,
                       let isRead = latestMessage["is_read"]  as? Bool,
-                      let senderUid = latestMessage["sender_uid"] as? String else { return nil }
+                      let senderUid = latestMessage["sender_uid"] as? String else {
+                    print("conversation with \(dictionary["name"]) is nil")
+                    return nil  }
                 
                 
                 let latestMessageObject = LatestMessage(date: date,
@@ -1084,293 +1032,222 @@ extension DatabaseManager {
                                     creationDate: creationDate,
                                     latestMessage: latestMessageObject)
             })
+            
             completion(.success(conversations))
-        })
+        }
     }
     
+    
     /// Get all messages for a given conversation
-    public func getAllMessagesForConversation(with id: String, completion: @escaping(Result<[Message], Error>) -> Void) {
-        database.child("conversations/\(id)/messages").observe(.value, with: { snapshot in
-            guard let value = snapshot.value as? [[String: Any]] else {
-                completion(.failure(DatabaseError.failedToFetch))
-                return
+    public func getAllMessagesForConversation(with id: String, withCreationDate creationDate: Double?, completion: @escaping(Result<[Message], Error>) -> Void) {
+        var messages = [[String: Any]]()
+        
+        if let creationDate = creationDate {
+            // User is opening conversation that already exists. Either it is active or it has been deleted in the past
+            // Check the creationDate of the conversation and fetch messages greater than creationDate
+            let messagesRef = database.child("conversations/\(id)/messages").queryOrdered(byChild: "date").queryStarting(atValue: creationDate)
+                                                                                                                                                          
+            messagesRef.observe(.value) { snapshot in
+                messages.removeAll()
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    messages.append(value)
+                }
+                
+                let conversationMessages: [Message] = messages.compactMap({ dictionary in
+                    guard let name = dictionary["name"] as? String,
+                          let isRead = dictionary["is_read"] as? Bool,
+                          let messageID = dictionary["id"] as? String,
+                          let content = dictionary["content"] as? String,
+                          let senderUid = dictionary["sender_uid"] as? String,
+                          let type = dictionary["type"] as? String,
+                          let date = Date(timeIntervalSince1970: dictionary["date"] as! TimeInterval) as? Date
+                          else { return nil }
+                    
+                    
+                    var kind: MessageKind?
+                    if type == "photo" {
+                        guard let imageUrl = URL(string: content), let placeHolder = UIImage(systemName: "plus") else { return nil }
+                        let media = Media(url: imageUrl,
+                                          image: nil,
+                                          placeholderImage: placeHolder,
+                                          size: CGSize(width: 150, height: 150))
+                        kind = .photo(media)
+                    } else if type == "video" {
+                        //Placeholder should be a thumbnail of the video
+                        guard let imageUrl = URL(string: content), let placeHolder = UIImage(systemName: "play.circle.fill")?.withTintColor(.clear, renderingMode: .alwaysOriginal) else { return nil }
+                        
+                        let media = Media(url: imageUrl,
+                                          image: nil,
+                                          placeholderImage: placeHolder,
+                                          size: CGSize(width: 150, height: 150))
+                        kind = .video(media)
+                        
+                        
+                    }
+                    else {
+                        kind = .text(content)
+                    }
+                    
+                    guard let finalKind = kind else { return nil }
+                    
+                    let sender = Sender(userProfileImageUrl: "",
+                                        senderId: senderUid,
+                                        displayName: name)
+                    
+                    return Message(sender: sender,
+                                   messageId: messageID,
+                                   sentDate: date,
+                                   kind: finalKind)
+                })
+                
+                completion(.success(conversationMessages))
             }
-            
-            let messages: [Message] = value.compactMap({ dictionary in
-                guard let name = dictionary["name"] as? String,
-                      let isRead = dictionary["is_read"] as? Bool,
-                      let messageID = dictionary["id"] as? String,
-                      let content = dictionary["content"] as? String,
-                      let senderUid = dictionary["sender_uid"] as? String,
-                      let type = dictionary["type"] as? String,
-                      let dateString = dictionary["date"] as? String,
-                      let date = ChatViewController.dateFormatter.date(from: dateString) else { return nil }
-
-                var kind: MessageKind?
-                if type == "photo" {
-                    guard let imageUrl = URL(string: content), let placeHolder = UIImage(systemName: "plus") else { return nil }
-                    let media = Media(url: imageUrl,
-                                      image: nil,
-                                      placeholderImage: placeHolder,
-                                      size: CGSize(width: 150, height: 150))
-                    kind = .photo(media)
-                } else if type == "video" {
-                    //Placeholder should be a thumbnail of the video
-                    guard let imageUrl = URL(string: content), let placeHolder = UIImage(systemName: "play.circle.fill")?.withTintColor(.clear, renderingMode: .alwaysOriginal) else { return nil }
-
-                    let media = Media(url: imageUrl,
-                                      image: nil,
-                                      placeholderImage: placeHolder,
-                                      size: CGSize(width: 150, height: 150))
-                    kind = .video(media)
-                    
-                    
-                }
-                else {
-                    kind = .text(content)
-                }
-                
-                guard let finalKind = kind else { return nil }
-                
-                let sender = Sender(userProfileImageUrl: "",
-                                    senderId: senderUid,
-                                    displayName: name)
-                
-                return Message(sender: sender,
-                               messageId: messageID,
-                               sentDate: date,
-                               kind: finalKind)
-            })
-            completion(.success(messages))
-        })
+        }
+        // There's not creationDate for the conversation so don't fetch any messages
+        completion(.failure(DatabaseError.failedToFetch))
     }
     
     /// Sends a message with target conversation and message
-    public func sendMessage(to conversation: String, name: String, otherUserUid: String, newMessage: Message, completion: @escaping (Bool) -> Void) {
-        //Add new message to messages
-        //Update sender latest message
-        //Update recipient latest message
+    public func sendMessage(to conversation: String, name: String, otherUserUid: String, newMessage: Message, completion: @escaping (Double?) -> Void) {
         
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(false)
+            completion(nil)
             return
         }
         
-        self.database.child("conversations/\(conversation)/messages").observeSingleEvent(of: .value, with: { [weak self] snapshot in
-            guard let strongSelf = self else { return }
-            guard var currentMessages = snapshot.value as? [[String: Any]] else {
-                completion(false)
+        let messageDate = newMessage.sentDate.timeIntervalSince1970.toDouble()
+        
+        var message = ""
+        
+        switch newMessage.kind {
+        case .text(let messageText):
+            message = messageText
+        case .attributedText(_):
+            break
+        case .photo(let mediaItem):
+            if let targetUrl = mediaItem.url?.absoluteString {
+                message = targetUrl
+            }
+            break
+        case .video(let mediaItem):
+            if let targetUrl = mediaItem.url?.absoluteString {
+                message = targetUrl
+            }
+            break
+        case .location(_):
+            break
+        case .emoji(_):
+            break
+        case .audio(_):
+            break
+        case .contact(_):
+            break
+        case .linkPreview(_):
+            break
+        case .custom(_):
+            break
+        }
+        
+        // Create the new message entry for the current conversation between both users
+        let newMessageEntry: [String: Any] = [
+            "id": newMessage.messageId,
+            "type": newMessage.kind.messageKindString,
+            "content": message,
+            "date": messageDate,
+            "sender_uid": currentUid,
+            "is_read": false,
+            "name": name
+        ]
+        
+        // Update the recent message for the current user
+        let newLastMessageSent: [String: Any] = [
+            "date": messageDate,
+            "is_read": true,
+            "message": message,
+            "sender_uid": currentUid
+        ]
+        
+        // Update the recent message for the other user
+        let newLastMessageReceived: [String: Any] = [
+            "date": messageDate,
+            "is_read": false,
+            "message": message,
+            "sender_uid": currentUid
+        ]
+        
+        // Set a new message to the conversation between users
+        let conversationRef = database.child("conversations/\(conversation)/messages").childByAutoId()
+        conversationRef.setValue(newMessageEntry) { error, _ in
+            if let _ = error {
+                completion(nil)
                 return
             }
-            
-            print("We get all the messages of the conversation with this user: \(currentMessages)")
-            
-            let messageDate = newMessage.sentDate
-            let dateString = ChatViewController.dateFormatter.string(from: messageDate)
-            
-            var message = ""
-            
-            switch newMessage.kind {
-            case .text(let messageText):
-                message = messageText
-            case .attributedText(_):
-                break
-            case .photo(let mediaItem):
-                if let targetUrl = mediaItem.url?.absoluteString {
-                    message = targetUrl
+        }
+        
+        let otherUserRef = self.database.child("users/\(otherUserUid)/conversations").queryOrdered(byChild: "id").queryEqual(toValue: conversation)
+        otherUserRef.observeSingleEvent(of: .value, with: { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                // We go to the exact node of the user target conversation to update it
+                let ref = self.database.child("users").child(otherUserUid).child("conversations").child(key).child("latest_message")
+                ref.setValue(newLastMessageReceived) { error, _ in
+                    if let _ = error {
+                        completion(nil)
+                        return
+                    }
                 }
-                break
-            case .video(let mediaItem):
-                if let targetUrl = mediaItem.url?.absoluteString {
-                    message = targetUrl
-                }
-                break
-            case .location(_):
-                break
-            case .emoji(_):
-                break
-            case .audio(_):
-                //if let audioItem = AudioItem. {
-                    
-                //}
-                break
-            case .contact(_):
-                break
-            case .linkPreview(_):
-                break
-            case .custom(_):
-                break
             }
-            
-            let newMessageEntry: [String: Any] = [
-                "id": newMessage.messageId,
-                "type": newMessage.kind.messageKindString,
-                "content": message,
-                "date": dateString,
-                "sender_uid": currentUid,
-                "is_read": false,
-                "name": name
-            ]
-            
-            currentMessages.append(newMessageEntry)
-            print("We append this new message")
-            
-            strongSelf.database.child("conversations/\(conversation)/messages").setValue(currentMessages) { error, _ in
-                guard error == nil else {
-                    completion(false)
-                    return
+        })
+
+        // Update the conversation of current user after sending the message
+        // Update the current conversation as the conversation exists
+        // Search the conversation id in the user conversations database
+        let currentRef = self.database.child("users/\(currentUid)/conversations").queryOrdered(byChild: "id").queryEqual(toValue: conversation)
+        print("Start to update current user")
+        currentRef.observeSingleEvent(of: .value, with: { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                print("We found snapshot")
+                guard let key = value.first?.key else { return }
+                print("We found key \(key)")
+                // We go to the exact node of the user target conversation to update it
+                let newRef = self.database.child("users").child(currentUid).child("conversations").child(key).child("latest_message")
+                newRef.setValue(newLastMessageSent) { error, _ in
+                    if let error = error {
+                        print("we got an error \(error.localizedDescription) ")
+                        completion(nil)
+                        return
+                    }
+                    print("We could update the latest message value of the sender user")
                 }
+            } else {
+                // Current user didn't found the conversation saved, means it was deleted at some point.
+                // Create a new Conversation
                 
-                print("We append the new message in the conversation to realtime database")
+                 let newConversationData: [String: Any] = [
+                     "id": conversation,
+                     "creation_date": messageDate,
+                     "other_user_uid": otherUserUid,
+                     "name": name,
+                     "latest_message": newLastMessageSent
+                 ]
                 
-            print("current user uid is \(currentUid)")
-                strongSelf.database.child("users/\(currentUid)/conversations").observeSingleEvent(of: .value, with: { snapshot in
-                    var databaseEntryConversations = [[String: Any]]()
-                    
-                    let updatedValue: [String: Any] = [
-                        "date": dateString,
-                        "is_read": true,
-                        "message": message,
-                        "sender_uid": currentUid
-                    ]
-                    
-                    print("value of snapshot is \(snapshot.value)")
-            
-                    if var currentUserConversations = snapshot.value as? [[String: Any]] {
-                        var targetConversation: [String: Any]?
-                        var position = 0
-                        
-                        print("We found the conversation array and we get the values of conversations \(currentUserConversations)")
-                        
-                        for conversationDictionary in currentUserConversations {
-                            if let currentId = conversationDictionary["id"] as? String, currentId == conversation {
-                                
-                                //Update latest message
-                                targetConversation = conversationDictionary
-                                
-                                break
-                            }
-                            position += 1
-                        }
-                        
-                        if var targetConversation = targetConversation {
-                            print("We found the conversation")
-                            print("We found the conversation andn we update it \(targetConversation)")
-                            
-                            targetConversation["latest_message"] = updatedValue
-                            currentUserConversations[position] = targetConversation
-                            databaseEntryConversations = currentUserConversations
-                            
-                            print("New conversations to update into user updated is \(databaseEntryConversations)")
-                            
-                        } else {
-                            //User must have deleted the conversation and we append as a fresh new entry
-                            let newConversationData: [String: Any] = [
-                                "id": conversation,
-                                "other_user_uid": otherUserUid,
-                                "creation_date": dateString,
-                                "name": name,
-                                "latest_message": updatedValue
-                                ]
-                            currentUserConversations.append(newConversationData)
-                            databaseEntryConversations = currentUserConversations
-                        }
-                        //There has never been a conversation, create new entry
-                    } else {
-                        print("We didnt find the conversation array for the current user, so we need to create a new entry")
-                        
-                        let newConversationData: [String: Any] = [
-                            "id": conversation,
-                            "other_user_uid": otherUserUid,
-                            "creation_date": dateString,
-                            "name": name,
-                            "latest_message": updatedValue
-                            ]
-                        databaseEntryConversations = [newConversationData]
+                let newCurrentUserConversationRef = self.database.child("users/\(currentUid)/conversations").childByAutoId()
+                newCurrentUserConversationRef.setValue(newConversationData) { error, _ in
+                    if let _ = error {
+                        completion(nil)
+                        return
                     }
-                    
-                    strongSelf.database.child("users/\(currentUid)/conversations").setValue(databaseEntryConversations, withCompletionBlock: { error, _ in
-                        guard error == nil else {
-                            completion(false)
-                            return
-                        }
-                    })
-                })
-                
-                //Update latest message for recipient user
-                strongSelf.database.child("users/\(otherUserUid)/conversations").observeSingleEvent(of: .value, with: { snapshot in
-                    let updatedValue: [String: Any] = [
-                        "date": dateString,
-                        "is_read": false,
-                        "message": message,
-                        "sender_uid": currentUid
-                    ]
-                    
-                    var databaseEntryConversations = [[String: Any]]()
-                    guard let currentName = UserDefaults.standard.value(forKey: "name") as? String else { return }
-                    
-                    print("for other user is \(snapshot.value)")
-                    
-                    if var otherUserConversations = snapshot.value as? [[String: Any]] {
-                        var targetConversation: [String: Any]?
-                        
-                        var position = 0
-                        
-                        print("We find the conversation array for other user")
-                        
-                        for conversationDictionary in otherUserConversations {
-                            if let currentId = conversationDictionary["id"] as? String, currentId == conversation {
-                                //Update latest message
-                                targetConversation = conversationDictionary
-                                break
-                            }
-                            position += 1
-                        }
-                        
-                        if var targetConversation = targetConversation {
-                            targetConversation["latest_message"] = updatedValue
-                            otherUserConversations[position] = targetConversation
-                            databaseEntryConversations = otherUserConversations
-                        } else {
-                            //Failed to find in current collection
-                            let newConversationData: [String: Any] = [
-                                "id": conversation,
-                                "other_user_uid": currentUid,
-                                "creation_date": dateString,
-                                "name": currentName,
-                                "latest_message": updatedValue
-                                ]
-                            otherUserConversations.append(newConversationData)
-                            databaseEntryConversations = otherUserConversations
-                        }
-                    } else {
-                        //Current collection does not exist
-                        print("We didnt find users array for other user create it ")
-                        let newConversationData: [String: Any] = [
-                            "id": conversation,
-                            "other_user_uid": currentUid,
-                            "creation_date": dateString,
-                            "name": currentName,
-                            "latest_message": updatedValue
-                            ]
-                        databaseEntryConversations = [newConversationData]
-                    }
-                    
-                    strongSelf.database.child("users/\(otherUserUid)/conversations").setValue(databaseEntryConversations, withCompletionBlock: { error, _ in
-                        guard error == nil else {
-                            completion(false)
-                            return
-                        }
-                    })
-                })
-                completion(true)
+                    completion(messageDate)
+                }
             }
         })
     }
-    
+
     private func finishCreatingConversation(name: String, conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
-        let messageDate = firstMessage.sentDate
-        let dateString = ChatViewController.dateFormatter.string(from: messageDate)
+        
+        let messageDate = firstMessage.sentDate.timeIntervalSince1970.toDouble()
+        //let dateString = ChatViewController.dateFormatter.string(from: messageDate)
         
         var message = ""
         
@@ -1403,25 +1280,20 @@ extension DatabaseManager {
         }
         
         
-        let collectionMessage: [String: Any] = [
+        let messageData: [String: Any] = [
             "id": firstMessage.messageId,
             "type": firstMessage.kind.messageKindString,
             "content": message,
-            "date": dateString,
+            "date": messageDate,
             "sender_uid": currentUserUid,
             "is_read": false,
             "name": name
         ]
         
-        let value : [String: Any] = [
-            "messages": [
-                collectionMessage
-            ]
-        ]
-        
+      
         print("adding convo: \(conversationID)")
         
-        database.child("conversations/\(conversationID)").setValue(value, withCompletionBlock: { error, _ in
+        database.child("conversations/\(conversationID)/messages").childByAutoId().setValue(messageData, withCompletionBlock: { error, _ in
             guard error == nil else {
                 completion(false)
                 return
@@ -1434,26 +1306,17 @@ extension DatabaseManager {
     public func deleteConversation(conversationId: String, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //Get all conversations for current user
-        let ref = database.child("users/\(uid)/conversations")
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if var conversations = snapshot.value as? [[String: Any]] {
-                var positionToRemove = 0
-                for conversation in conversations {
-                    if let id = conversation["id"] as? String,
-                       id == conversationId {
-                        break
+        let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "id").queryEqual(toValue: conversationId)
+        ref.observeSingleEvent(of: .value) { snapshot, _  in
+            if let value = snapshot.value as? [String: Any] {
+                if let key = value.keys.first {
+                    self.database.child("users/\(uid)/conversations").child(key).removeValue { error, _ in
+                        if let _ = error {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
                     }
-                    positionToRemove += 1
-                }
-                //Delete conversation in collection with target conversationID
-                conversations.remove(at: positionToRemove)
-                //Reset those conversations for the user in the database
-                ref.setValue(conversations) { error, _ in
-                    guard error == nil else {
-                        completion(false)
-                        return
-                    }
-                    completion(true)
                 }
             }
         }
@@ -1461,27 +1324,58 @@ extension DatabaseManager {
     
     /// Check if the conversation already exists in conversation list
     public func conversationExists(with targetRecipientUid: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let senderUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        //Get the original conversationID between both users
-        database.child("users/\(targetRecipientUid)/conversations").observeSingleEvent(of: .value) { snapshot in
-            guard let collection = snapshot.value as? [[String: Any]] else {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        print("We check if the conversation exists")
+        // Current user does not have the conversation, so we first check if the other user has the conversation
+        // If the other user has the conversation means we did deleted it at some point
+        // If the other user does not have a conversation means we never had an active conversation or both users deleted it, either way create a new one
+        let ref = database.child("users/\(targetRecipientUid)/conversations").queryOrdered(byChild: "other_user_uid").queryEqual(toValue: uid)
+        
+        ref.observeSingleEvent(of: .value) { snapshot, error  in
+            if let _ = error {
+                // We still don't have a conversation with this user or both deleted it
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            //Iterate and find conversation with target sender
-            if let conversation = collection.first(where: {
-                guard let targetSenderUid = $0["other_user_uid"] as? String else { return false }
-                return senderUid == targetSenderUid
-            }) {
-                //Get the id
-                guard let id = conversation["id"] as? String else {
-                    completion(.failure(DatabaseError.failedToFetch))
-                    return
+        
+            if let value = snapshot.value as? [String: Any] {
+                print("We have a conversation with the other user and we deleted it at some point")
+                // We have a conversation with the other user and we deleted it at some point
+                if let key = value.keys.first {
+                    // We try to get the conversationID both users had in the past
+                    let newRef = self.database.child("users").child(targetRecipientUid).child("conversations").child(key).child("id")
+                    newRef.getData { error, snapshot in
+                        if let value = snapshot?.value as? String {
+                            // We get the conversationID to continue on the same conversation it was at some point
+                            print(value)
+                            completion(.success(value))
+                        }
+                    }
                 }
-                completion(.success(id))
+            } else {
+                print("We still don't have a conversation with this user or both deleted it")
+                completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            completion(.failure(DatabaseError.failedToFetch))
+        }
+    }
+    
+    public func makeLastMessageStateToIsRead(conversationID: String, isReadState isRead: Bool) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users").child(uid).child("conversations").queryOrdered(byChild: "id").queryEqual(toValue: conversationID)
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                if let key = value.keys.first {
+                    let newRef = self.database.child("users").child(uid).child("conversations").child(key).child("latest_message").child("is_read")
+                    newRef.setValue(isRead) { error, _ in
+                        if let _ = error {
+                            return
+                        }
+                    }
+                }
+            }
         }
     }
 }

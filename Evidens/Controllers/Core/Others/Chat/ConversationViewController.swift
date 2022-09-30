@@ -115,9 +115,10 @@ class ConversationViewController: UIViewController {
                 self?.conversations = conversations
                 
                 self?.conversations.sort(by: { $0.latestMessage.date > $1.latestMessage.date })
-                
+                self?.users.removeAll()
                 conversations.forEach { conversation in
                     // Fetch users here
+                    
                     UserService.fetchUser(withUid: conversation.otherUserUid) { user in
                         self?.users.append(user)
                         DispatchQueue.main.async {
@@ -154,13 +155,16 @@ class ConversationViewController: UIViewController {
                 $0.otherUserUid == user.uid
             }) {
                 //Present the existing conversation with targetID already created in database
-                let controller = ChatViewController(with: user, id: targetConversations.id)
+                print("We have already a conversation with the user")
+                let controller = ChatViewController(with: user, id: targetConversations.id, creationDate: targetConversations.creationDate)
                 controller.isNewConversation = false
+                controller.delegate = self
                 controller.title = targetConversations.name
                 controller.navigationItem.largeTitleDisplayMode = .never
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
             } else {
                 //Create and present a new conversation
+                print("We don't have conversation with this user, we create one")
                 strongSelf.createNewConversation(result: user)
             }
         }
@@ -179,20 +183,26 @@ class ConversationViewController: UIViewController {
         let uid = result.uid
         //Check in database if conversation with this users exists
         //If it does, reuse conversationID
+        
         DatabaseManager.shared.conversationExists(with: uid!) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let conversationId):
+                print("Conversation exists with the user")
                 //Conversation exists, open the conversation with conversationID found
-                let controller = ChatViewController(with: user, id: conversationId)
+                let controller = ChatViewController(with: user, id: conversationId, creationDate: nil)
+
                 controller.isNewConversation = false
+                controller.delegate = self
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
                 
             case .failure(_):
+                print("Conversation does not exist with this user, we push a new chat")
                 //There's no conversation that exists, Hi new conversation with id
-                let controller = ChatViewController(with: user, id: nil)
+                let controller = ChatViewController(with: user, id: nil, creationDate: nil)
+                controller.delegate = self
                 controller.isNewConversation = true
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never
@@ -249,7 +259,8 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func openConversation(with user: User, with model: Conversation) {
-        let controller = ChatViewController(with: user, id: model.id)
+        let controller = ChatViewController(with: user, id: model.id, creationDate: model.creationDate)
+        controller.delegate = self
         controller.title = user.firstName! + " " + user.lastName!
 
         let backItem = UIBarButtonItem()
@@ -265,6 +276,7 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     //Swipe the row away
+    /*
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         return .delete
     }
@@ -277,10 +289,11 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         print("begin")
         delegate?.didBeginEditingCell(isEditing: true)
     }
+     */
     
     
     
-    
+    /*
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             
@@ -312,6 +325,7 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
             }
         }
     }
+     */
 }
 
 extension ConversationViewController: UISearchBarDelegate {
@@ -343,6 +357,44 @@ extension ConversationViewController: SearchConversationViewControllerDelegate {
         if let userIndex = userIndex {
             let conversation = conversations[userIndex]
             openConversation(with: user, with: conversation)
+        }
+    }
+}
+
+extension ConversationViewController: ChatViewControllerDelegate {
+    func didDeleteConversation(withUser user: User, withConversationId id: String) {
+        let conversationIndex = conversations.firstIndex { conversation in
+            if conversation.id == id {
+                return true
+
+            }
+            return false
+        }
+        
+        let userIndex = users.firstIndex { currentUser in
+            if currentUser.uid == user.uid {
+                return true
+            }
+            return false
+        }
+        
+        if let conversationIndex = conversationIndex, let userIndex = userIndex {
+            tableView.beginUpdates()
+            conversations.remove(at: conversationIndex)
+            users.remove(at: userIndex)
+            tableView.deleteRows(at: [IndexPath(row: conversationIndex, section: 0)], with: .left)
+            //Delete the conversation in the database
+            
+            DatabaseManager.shared.deleteConversation(conversationId: id) { success in
+                if !success {
+                    print("Failed to delete conversation")
+                }
+                print("Conversation deleted")
+            }
+             
+            tableView.endUpdates()
+        } else {
+            return
         }
     }
 }

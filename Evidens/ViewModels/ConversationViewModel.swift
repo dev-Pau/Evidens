@@ -51,20 +51,17 @@ struct ConversationViewModel {
     
     var timestampString: String? {
         
-        let dateString = conversation.latestMessage.date.replacingOccurrences(of: " at", with: "").replacingOccurrences(of: " CEST", with: "")
-        
-        let addedDateFormatter = DateFormatter()
-        addedDateFormatter.dateFormat = "d MMM yyyy HH:mm:ss"
-        addedDateFormatter.timeZone = TimeZone(abbreviation: "CEST")
-        
-        let conversationDate = addedDateFormatter.date(from: dateString)
+        let timeInterval = conversation.latestMessage.date
         
         let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        return formatter.string(from: conversationDate!, to: Date())
-        
+        formatter.zeroFormattingBehavior = .dropAll
+        formatter.allowedUnits = [.day, .hour, .minute, .second]
+
+        let date = Date(timeIntervalSince1970: timeInterval)
+
+        return formatter.string(from: date, to: Date())
     }
     
     func messageToDisplay() -> NSAttributedString {

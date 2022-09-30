@@ -46,7 +46,7 @@ class SearchConversationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
+    
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = searchBarContainer
@@ -57,6 +57,7 @@ class SearchConversationViewController: UIViewController {
     
     init(users: [User]) {
         self.users = users
+        print(users)
         super.init(nibName: nil, bundle: nil)
     }
     

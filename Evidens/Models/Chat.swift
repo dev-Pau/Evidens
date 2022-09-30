@@ -8,7 +8,7 @@
 import Foundation
 import MessageKit
 import CoreLocation
-
+import Firebase
 
 struct Message: MessageType {
     public var sender: SenderType

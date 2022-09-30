@@ -109,7 +109,7 @@ class MENavigationBarChatView: UIView {
     }()
     
     init(user: User) {
-        fullNameLabel.text = user.firstName! + " " + user.lastName!
+        fullNameLabel.text = user.firstName!
         profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!)!)
         
         super.init(frame: CGRect.zero)
@@ -130,14 +130,15 @@ class MENavigationBarChatView: UIView {
         super.layoutSubviews()
         NSLayoutConstraint.activate([
             
-            profileImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 35),
-            profileImageView.widthAnchor.constraint(equalToConstant: 35),
+
             
             fullNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            fullNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            fullNameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            
+            profileImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            profileImageView.trailingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor, constant: -10),
+            profileImageView.heightAnchor.constraint(equalToConstant: 35),
+            profileImageView.widthAnchor.constraint(equalToConstant: 35),
         ])
         
         profileImageView.layer.cornerRadius = 35 / 2

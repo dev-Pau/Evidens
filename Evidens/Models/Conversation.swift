@@ -11,12 +11,12 @@ struct Conversation {
     let id: String
     let name: String
     let otherUserUid: String
-    let creationDate: String
+    let creationDate: TimeInterval
     let latestMessage: LatestMessage
 }
 
 struct LatestMessage {
-    let date: String
+    let date: TimeInterval
     let text: String
     let isRead: Bool
     let senderUid: String
