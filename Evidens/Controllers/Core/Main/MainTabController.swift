@@ -107,9 +107,10 @@ class MainTabController: UITabBarController {
                 let appearance = UITabBarAppearance()
                 appearance.configureWithOpaqueBackground()
                 appearance.shadowColor = grayColor
+                appearance.backgroundColor = .white
                 self.tabBar.isHidden = false
                 self.tabBar.isTranslucent = true
-                self.tabBar.backgroundColor = .white
+                self.tabBar.scrollEdgeAppearance = appearance
                 self.tabBar.standardAppearance = appearance
                 
             }

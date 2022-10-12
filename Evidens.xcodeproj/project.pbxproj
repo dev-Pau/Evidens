@@ -226,6 +226,7 @@
 		5F9FB28A28F68E7B00BABDFD /* ExploreCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */; };
 		5F9FB28C28F6A2A500BABDFD /* SeparatorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28B28F6A2A500BABDFD /* SeparatorCell.swift */; };
 		5F9FB28E28F6AE0B00BABDFD /* ExploreCasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28D28F6AE0B00BABDFD /* ExploreCasesViewController.swift */; };
+		5F9FB29128F6CF2000BABDFD /* CategoriesExploreCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB29028F6CF2000BABDFD /* CategoriesExploreCasesCell.swift */; };
 		5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874328B7422A00D44829 /* AlgoliaService.swift */; };
 		5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874728B7627500D44829 /* TopPostImageCell.swift */; };
 		5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */; };
@@ -525,6 +526,7 @@
 		5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCasesCell.swift; sourceTree = "<group>"; };
 		5F9FB28B28F6A2A500BABDFD /* SeparatorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeparatorCell.swift; sourceTree = "<group>"; };
 		5F9FB28D28F6AE0B00BABDFD /* ExploreCasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCasesViewController.swift; sourceTree = "<group>"; };
+		5F9FB29028F6CF2000BABDFD /* CategoriesExploreCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesExploreCasesCell.swift; sourceTree = "<group>"; };
 		5FA0874328B7422A00D44829 /* AlgoliaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaService.swift; sourceTree = "<group>"; };
 		5FA0874728B7627500D44829 /* TopPostImageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopPostImageCell.swift; sourceTree = "<group>"; };
 		5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRecentCellViewModel.swift; sourceTree = "<group>"; };
@@ -955,6 +957,7 @@
 		5F719B3528867FFB002666C0 /* Case */ = {
 			isa = PBXGroup;
 			children = (
+				5F9FB28F28F6CEFB00BABDFD /* Explore */,
 				5F719B362886800B002666C0 /* CaseTextCell.swift */,
 				5FB290252886F843002FBAE1 /* CaseTextImageCell.swift */,
 				5FB290272886FD43002FBAE1 /* CaseImageCell.swift */,
@@ -962,9 +965,8 @@
 				5FB29036288D4DC8002FBAE1 /* CaseTagCell.swift */,
 				5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */,
 				5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */,
-				5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */,
-				5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */,
 				5F9FB28B28F6A2A500BABDFD /* SeparatorCell.swift */,
+				5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -1366,6 +1368,15 @@
 				5F9FB28528F42FD500BABDFD /* UserFollow.swift */,
 			);
 			path = UserFollow;
+			sourceTree = "<group>";
+		};
+		5F9FB28F28F6CEFB00BABDFD /* Explore */ = {
+			isa = PBXGroup;
+			children = (
+				5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */,
+				5F9FB29028F6CF2000BABDFD /* CategoriesExploreCasesCell.swift */,
+			);
+			path = Explore;
 			sourceTree = "<group>";
 		};
 		5FA0874E28BFC5EB00D44829 /* Section */ = {
@@ -1969,6 +1980,7 @@
 				5F25908B28D0CE360018965C /* SearchBarContainerView.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
 				5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */,
+				5F9FB29128F6CF2000BABDFD /* CategoriesExploreCasesCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
 				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,

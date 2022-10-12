@@ -77,13 +77,19 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureCollectionView() {
         view.addSubviews(collectionView, titleLabel, descriptionLabel)
-        collectionView.frame = view.bounds
+        //collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
         NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            
             titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
