@@ -22,7 +22,6 @@ class UserCommentsViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchComments()
-        configureNavigationBar()
         configureCollectionView()
     }
     
@@ -35,8 +34,10 @@ class UserCommentsViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configureNavigationBar() {
-        
+    override func viewWillAppear(_ animated: Bool) {
+        let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Comments")
+        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        navigationItem.titleView = view
     }
     
     private func configureCollectionView() {
@@ -68,5 +69,57 @@ class UserCommentsViewController: UICollectionViewController {
         cell.commentUserLabel.numberOfLines = 0
         cell.configure(commentInfo: recentComments[indexPath.row], user: user)
         return cell
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let commentTapped = recentComments[indexPath.row]
+        if let commentType = commentTapped["type"] as? Int {
+            if commentType == 0 {
+                // Post
+                if let postID = commentTapped["refUid"] as? String {
+                    showLoadingView()
+                    PostService.fetchPost(withPostId: postID) { post in
+                        self.dismissLoadingView()
+                        
+                        let layout = UICollectionViewFlowLayout()
+                        layout.scrollDirection = .vertical
+                        layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+                        layout.minimumLineSpacing = 0
+                        layout.minimumInteritemSpacing = 0
+                        
+                        let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
+                        
+                        let backItem = UIBarButtonItem()
+                        backItem.title = ""
+                        self.navigationItem.backBarButtonItem = backItem
+                        
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    }
+                    
+                }
+            } else {
+                // Clinical Case
+                if let caseID = commentTapped["refUid"] as? String {
+                    showLoadingView()
+                    CaseService.fetchCase(withCaseId: caseID) { clinicalCase in
+                        self.dismissLoadingView()
+                        
+                        let layout = UICollectionViewFlowLayout()
+                        layout.scrollDirection = .vertical
+                        layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+                        layout.minimumLineSpacing = 0
+                        layout.minimumInteritemSpacing = 0
+                        
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
+                        
+                        let backItem = UIBarButtonItem()
+                        backItem.title = ""
+                        self.navigationItem.backBarButtonItem = backItem
+                        
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    }
+                }
+            }
+        }
     }
 }

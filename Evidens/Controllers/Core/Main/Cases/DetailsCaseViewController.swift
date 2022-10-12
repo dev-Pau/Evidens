@@ -67,8 +67,6 @@ class DetailsCaseViewController: UICollectionViewController {
         checkIfUserBookmarkedCase()
     }
     
-
-    
     private func configureNavigationBar() {
         let view = MENavigationBarTitleView(fullName: clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName, category: "Case")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -471,6 +469,4 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
             }
         }
     }
-    
-    
 }

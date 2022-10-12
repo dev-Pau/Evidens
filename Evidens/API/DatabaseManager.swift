@@ -894,7 +894,7 @@ extension DatabaseManager {
 extension DatabaseManager {
     
     /// Creates a new conversation with target user uid and first message sent
-    public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+    public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
         
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String,
               let currentName = UserDefaults.standard.value(forKey: "name") as? String else { return }
@@ -964,7 +964,7 @@ extension DatabaseManager {
         
         otherUserRef.setValue(recipientNewConversationData) { error, _ in
             if let _ = error {
-                completion(false)
+                completion(nil)
                 return
             }
             
@@ -972,11 +972,11 @@ extension DatabaseManager {
             
             ref.setValue(newConversationData) { error, _ in
                 if let _ = error {
-                    completion(false)
+                    completion(nil)
                     return
                 }
                 
-                completion(true)
+                completion(messageDate)
                 self.finishCreatingConversation(name: name,
                                                 conversationID: conversationId,
                                                 firstMessage: firstMessage,
@@ -1197,6 +1197,24 @@ extension DatabaseManager {
                         return
                     }
                 }
+            } else {
+                // Other user reference is not found, means the conversation has been deleted, create a new conversation
+                let otherUserNewConversationData: [String: Any] = [
+                    "id": conversation,
+                    "creation_date": messageDate,
+                    "other_user_uid": otherUserUid,
+                    "name": name,
+                    "latest_message": newLastMessageReceived
+                ]
+                
+                // Add the conversation to the other user, updating it's creation date
+                let newOtherUserConversationRef = self.database.child("users/\(otherUserUid)/conversations").childByAutoId()
+                newOtherUserConversationRef.setValue(otherUserNewConversationData) { error, _ in
+                    if let _ = error {
+                        completion(nil)
+                        return
+                    }
+                }
             }
         })
 
@@ -1223,7 +1241,6 @@ extension DatabaseManager {
             } else {
                 // Current user didn't found the conversation saved, means it was deleted at some point.
                 // Create a new Conversation
-                
                  let newConversationData: [String: Any] = [
                      "id": conversation,
                      "creation_date": messageDate,
@@ -1244,7 +1261,7 @@ extension DatabaseManager {
         })
     }
 
-    private func finishCreatingConversation(name: String, conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+    private func finishCreatingConversation(name: String, conversationID: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
         
         let messageDate = firstMessage.sentDate.timeIntervalSince1970.toDouble()
         //let dateString = ChatViewController.dateFormatter.string(from: messageDate)
@@ -1275,7 +1292,7 @@ extension DatabaseManager {
         }
         
         guard let currentUserUid = UserDefaults.standard.value(forKey: "uid") as? String else {
-            completion(false)
+            completion(nil)
             return
         }
         
@@ -1295,10 +1312,10 @@ extension DatabaseManager {
         
         database.child("conversations/\(conversationID)/messages").childByAutoId().setValue(messageData, withCompletionBlock: { error, _ in
             guard error == nil else {
-                completion(false)
+                completion(nil)
                 return
             }
-            completion(true)
+            completion(messageDate)
         })
     }
     

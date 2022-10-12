@@ -124,6 +124,32 @@ struct UserService {
         }
     }
     
+    static func fetchFollowers(forUid uid: String, completion: @escaping([String?]) -> Void) {
+       var userUids = [String]()
+        
+        
+        COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in
+            guard let uids = snapshot?.documents  else {
+                return }
+            uids.forEach { document in
+                userUids.append(document.documentID)
+            }
+            completion(userUids)
+        }
+    }
+    
+    static func fetchFollowing(forUid uid: String, completion: @escaping([String?]) -> Void) {
+        var userUids = [String]()
+         
+         COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments { snapshot, error in
+             guard let uids = snapshot?.documents  else {
+                 return }
+             uids.forEach { document in
+                 userUids.append(document.documentID)
+             }
+             completion(userUids)
+         }
+     }
     
     static func follow(uid: String, completion: @escaping(FirestoreCompletion)) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }

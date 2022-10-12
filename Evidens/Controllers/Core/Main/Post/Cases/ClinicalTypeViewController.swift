@@ -11,6 +11,7 @@ private let clinicalTypeCellReuseIdentifier = "ClinicalTypeCellReuseIdentifier"
 
 protocol ClinicalTypeViewControllerDelegate: AnyObject {
     func didSelectCaseType(_ types: [String])
+    func didSelectCaseType(type: String)
 }
 
 class ClinicalTypeViewController: UIViewController {
@@ -18,6 +19,8 @@ class ClinicalTypeViewController: UIViewController {
     weak var delegate: ClinicalTypeViewControllerDelegate?
     
     private var selectedTypes: [String]
+    
+    var controllerIsPresented: Bool = false
     
     private var clinicalTypes = CaseType.allCaseTypes()
     
@@ -52,9 +55,14 @@ class ClinicalTypeViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Type details"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = selectedTypes.count > 0 ? true : false
+        
+        if controllerIsPresented {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark")?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(handleDismiss))
+        } else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
+            navigationItem.rightBarButtonItem?.tintColor = primaryColor
+            navigationItem.rightBarButtonItem?.isEnabled = selectedTypes.count > 0 ? true : false
+        }
     }
     
     private func configureTableView() {
@@ -62,6 +70,10 @@ class ClinicalTypeViewController: UIViewController {
         collectionView.dataSource = self
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
+        
+        if controllerIsPresented {
+            collectionView.allowsMultipleSelection = false
+        }
     }
     
     @objc func handleDone() {
@@ -93,6 +105,13 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        if controllerIsPresented {
+            delegate?.didSelectCaseType(type: clinicalTypes[indexPath.row].type)
+            dismiss(animated: true)
+            return
+        }
+        
         guard let cell = collectionView.cellForItem(at: indexPath) as? ClinicalTypeCell else { return }
         if let text = cell.typeTitle.text {
             selectedTypes.append(text)
@@ -101,7 +120,14 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if controllerIsPresented {
+            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .top)
+            dismiss(animated: true)
+            return
+        }
+        
         guard let cell = collectionView.cellForItem(at: indexPath) as? ClinicalTypeCell else { return }
+
         if let text = cell.typeTitle.text {
             if let index = selectedTypes.firstIndex(where: { $0 == text }) {
                 selectedTypes.remove(at: index)
@@ -116,5 +142,9 @@ extension ClinicalTypeViewController: UICollectionViewDelegate, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
+    }
+    
+    @objc func handleDismiss() {
+        dismiss(animated: true)
     }
 }

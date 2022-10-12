@@ -244,11 +244,54 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String) {
-        print("Show post here")
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        showLoadingView()
+        PostService.fetchPost(withPostId: postId) { post in
+            self.dismissLoadingView()
+            
+            let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            self.navigationItem.backBarButtonItem = backItem
+            
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewCase caseId: String) {
-        print("show case here")
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        showLoadingView()
+        
+        CaseService.fetchCase(withCaseId: caseId) { clinicalCase in
+            
+            self.dismissLoadingView()
+            
+            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            self.navigationItem.backBarButtonItem = backItem
+            
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+
     }
     
     
@@ -285,8 +328,15 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String) {
-        UserService.fetchUser(withUid: uid) { user in
-            let controller = UserProfileViewController(user: user)
+        let userIndex = users.firstIndex { user in
+            if user.uid == uid {
+                return true
+            }
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            let controller = UserProfileViewController(user: users[userIndex])
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -294,7 +344,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             self.navigationItem.backBarButtonItem = backItem
             
             self.navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: users[userIndex].uid!) { _ in }
         }
     }
 }

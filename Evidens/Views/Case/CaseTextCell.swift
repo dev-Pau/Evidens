@@ -151,7 +151,6 @@ class CaseTextCell: UICollectionViewCell {
             compositionalCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             compositionalCollectionView.heightAnchor.constraint(equalToConstant: 50),
             
-            
             actionButtonsView.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
@@ -259,8 +258,6 @@ extension CaseTextCell: MEUserPostViewDelegate {
         guard let viewModel = viewModel else { return }
         delegate?.clinicalCase(self, didPressThreeDotsFor: viewModel.clinicalCase)
     }
-    
-    
 }
 
 extension CaseTextCell: MEPostActionButtonsDelegate {

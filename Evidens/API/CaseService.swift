@@ -268,5 +268,17 @@ struct CaseService {
             }
         })
     }
+    
+    // Filter
+    
+    static func fetchCasesWithDetailsFilter(fieldToQuery: String, valueToQuery: String) {
+        COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in
+            guard let documents = snapshot?.documents else { return }
+            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            cases.forEach { clinicalCase in
+                print(clinicalCase.caseDescription)
+            }
+        }
+    }
 }
 

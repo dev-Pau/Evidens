@@ -1015,6 +1015,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
                         
                         let backItem = UIBarButtonItem()
+                        backItem.tintColor = .black
                         backItem.title = ""
                         self.navigationItem.backBarButtonItem = backItem
                         
@@ -1030,6 +1031,18 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 //MARK: - UserProfileHeaderDelegate
 
 extension UserProfileViewController: UserProfileHeaderCellDelegate {
+    
+    func headerCell(didTapFollowingFollowersFor user: User) {
+        let controller = FollowersFollowingViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
     
     func headerCell(_ cell: UICollectionViewCell, didTapEditProfileFor user: User) {
         guard let tab = tabBarController as? MainTabController else { return }

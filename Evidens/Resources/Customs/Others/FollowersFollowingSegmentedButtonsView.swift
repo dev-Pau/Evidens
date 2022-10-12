@@ -1,21 +1,13 @@
 //
-//  CustomSegmentedButtonsView.swift
+//  FollowersFollowingSegmentedButtonsView.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 16/5/22.
+//  Created by Pau Fernández Solà on 4/10/22.
 //
 
 import UIKit
 
-protocol CollectionViewDidScrollDelegate: AnyObject {
-    func collectionViewDidScroll(for x: CGFloat)
-}
-
-protocol SegmentedControlDelegate: AnyObject {
-    func indexDidChange(from currentIndex: Int, to index: Int)
-}
-
-class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
+class FollowersFollowingSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
     
     //MARK: - Properties
     
@@ -120,8 +112,11 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
                 let _ = frame.width / CGFloat(titles.count) * CGFloat(index)
                 // Update the new selected index of the CustomSegmentedButtonsView
                 selectedIndex = index
+                
                 // Notify the controller about a change
+                
                 segmentedControlDelegate?.indexDidChange(from: pastIndex, to: selectedIndex)
+                
                 // Animate transition from one label to other
                 //UIView.animate(withDuration: 0.0) {
                 //self.selectorView.frame.origin.x = selectorPosition
@@ -132,11 +127,11 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
     }
 }
 
-extension CustomSegmentedButtonsView {
+extension FollowersFollowingSegmentedButtonsView {
     
     /// Changes the bottom border position and the color as we scroll to the left/right. This function gets called every time the collectionView moves
     func collectionViewDidScroll(for x: CGFloat) {
-        let minUnit = self.frame.width / 4
+        let minUnit = (self.frame.width / 2) * 1/2
         
         UIView.animate(withDuration: 0.0) { [self] in
             // Update starting point. Goes from 0 to UIScreen.main.bounds.width going through all the different labels
@@ -149,38 +144,18 @@ extension CustomSegmentedButtonsView {
                         // Get all the labels from the stackView
                         guard let firstLabel = stack.subviews[0] as? UILabel else { return }
                         guard let secondLabel = stack.subviews[1] as? UILabel else { return }
-                        guard let thirdLabel = stack.subviews[2] as? UILabel else { return }
-                        guard let fourLabel = stack.subviews[3] as? UILabel else { return }
                         
                         // Depending on distance of the origin.x it changes the colors accordingly
                         switch self.selectorView.frame.origin.x {
                         case 0..<(minUnit):
                             firstLabel.textColor = .black
                             secondLabel.textColor = grayColor
-                            thirdLabel.textColor = grayColor
-                            fourLabel.textColor = grayColor
                             pastIndex = 0
-                            
-                        case (minUnit)..<(minUnit * 2):
+
+                        case (minUnit)...self.frame.width:
                             firstLabel.textColor = grayColor
                             secondLabel.textColor = .black
-                            thirdLabel.textColor = grayColor
-                            fourLabel.textColor = grayColor
                             pastIndex = 1
-                            
-                        case (minUnit * 2)..<(minUnit * 3):
-                            firstLabel.textColor = grayColor
-                            secondLabel.textColor = grayColor
-                            thirdLabel.textColor = .black
-                            fourLabel.textColor = grayColor
-                            pastIndex = 2
-                            
-                        case (minUnit * 3)...self.frame.width:
-                            firstLabel.textColor = grayColor
-                            secondLabel.textColor = grayColor
-                            thirdLabel.textColor = grayColor
-                            fourLabel.textColor = .black
-                            pastIndex = 3
                             
                         default:
                             print("No proper label to display")

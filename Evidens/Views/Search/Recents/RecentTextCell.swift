@@ -19,6 +19,7 @@ class RecentTextCell: UITableViewCell {
     
     private let recentSearchedTextLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14, weight: .heavy)
         label.numberOfLines = 1
         return label
@@ -28,16 +29,10 @@ class RecentTextCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "arrow.up.left"), for: .normal)
         button.tintColor = blackColor
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         //button.addTarget(self, action: #selector(didTapRecentText), for: .touchUpInside)
         return button
-    }()
-    
-    private let clockImage: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(named: "clock")
-        iv.setDimensions(height: 15, width: 15)
-        return iv
     }()
     
     //MARK: - Lifecycle
@@ -46,18 +41,14 @@ class RecentTextCell: UITableViewCell {
         backgroundColor = .white
         contentView.backgroundColor = .white
 
-        addSubview(clockImage)
-        clockImage.centerY(inView: self)
-        clockImage.anchor(left: leftAnchor, paddingLeft: 10)
-        
-        addSubview(goToTextButton)
-        goToTextButton.centerY(inView: clockImage)
-        goToTextButton.anchor(right: rightAnchor, paddingRight: 12)
-        
-        addSubview(recentSearchedTextLabel)
-        recentSearchedTextLabel.centerY(inView: self)
-        recentSearchedTextLabel.anchor(left: clockImage.rightAnchor, paddingLeft: 10)
-        recentSearchedTextLabel.text = "Hello"
+        contentView.addSubviews(goToTextButton, recentSearchedTextLabel)
+        NSLayoutConstraint.activate([
+            recentSearchedTextLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            recentSearchedTextLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            
+            goToTextButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            goToTextButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+        ])
     }
     
     required init?(coder: NSCoder) {
@@ -69,7 +60,5 @@ class RecentTextCell: UITableViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         recentSearchedTextLabel.text = viewModel.textToDisplay
-        //fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
-        //profileImageView.sd_setImage(with: viewModel.profileImageUrl)
     }
 }

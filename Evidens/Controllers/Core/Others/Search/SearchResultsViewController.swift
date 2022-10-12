@@ -59,7 +59,6 @@ class SearchResultsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureSearchBar()
         configureUI()
         configureCollectionView()
@@ -116,8 +115,7 @@ class SearchResultsViewController: UIViewController {
 
 extension SearchResultsViewController: UICollectionViewDataSource {
     
-    
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }

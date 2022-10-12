@@ -446,21 +446,20 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         if isNewConversation {
             //create conversation in database
             print("We send a message on a new conversation")
-            DatabaseManager.shared.createNewConversation(withUid: otherUserUid, name: self.title ?? "User", firstMessage: message) { [weak self] success in
-                if success {
+            DatabaseManager.shared.createNewConversation(withUid: otherUserUid, name: self.title ?? "User", firstMessage: message) { [weak self] dateOfCreation in
+                if dateOfCreation != nil {
                     print("message sent on a new conversation")
                     self?.isNewConversation = false
                     let newConversationId = "conversation_\(message.messageId)"
                     self?.conversationId = newConversationId
+                    self?.creationDate = dateOfCreation
                     self?.listenForMessages(id: newConversationId, shouldScrollToBottom: true)
                 } else {
                     print("failed to send message")
                 }
             }
         } else {
-            //append to existing conversation data
-            print("We send a message on a existing conversation")
-            
+            // Send a message on an existing conversation
             guard let conversationId = conversationId, let name = self.title else { return }
             
                 DatabaseManager.shared.sendMessage(to: conversationId, name: name, otherUserUid: otherUserUid, newMessage: message, completion: { dateOfCreation in

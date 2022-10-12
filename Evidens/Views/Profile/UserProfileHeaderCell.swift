@@ -11,6 +11,7 @@ protocol UserProfileHeaderCellDelegate: AnyObject {
     func headerCell(didTapProfilePictureFor user: User)
     func headerCell(didTapBannerPictureFor user: User)
     func headerCell(_ cell: UICollectionViewCell, didTapEditProfileFor user: User)
+    func headerCell(didTapFollowingFollowersFor user: User)
 }
 
 class UserProfileHeaderCell: UICollectionViewCell {
@@ -130,11 +131,13 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return button
     }()
     
-    private let followersLabel: UILabel = {
+    private lazy var followersLabel: UILabel = {
         let label = UILabel()
         label.textColor = primaryColor
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowingFollowers)))
+        label.isUserInteractionEnabled = true
         return label
     }()
     
@@ -178,19 +181,10 @@ class UserProfileHeaderCell: UICollectionViewCell {
             followersLabel.trailingAnchor.constraint(equalTo: professionLabel.trailingAnchor),
             followersLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-
-            /*
-            otherProfileInfoButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
-            otherProfileInfoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            otherProfileInfoButton.widthAnchor.constraint(equalToConstant: 25),
-            otherProfileInfoButton.heightAnchor.constraint(equalToConstant: 25),
-            
-            
-            */
-            
             followButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             followButton.heightAnchor.constraint(equalToConstant: 30),
+            followButton.widthAnchor.constraint(equalToConstant: 100),
             
             sendMessageButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
             sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
@@ -203,6 +197,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
             var config = button.configuration
             config?.showsActivityIndicator = self.isUpdatingFollowState!
             button.isUserInteractionEnabled = self.isUpdatingFollowState! ? false : true
+            
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 14, weight: .bold)
+            
+            config?.attributedTitle = self.isUpdatingFollowState! ? "" : AttributedString((button.configuration?.title)!, attributes: container)
+
             button.configuration = config
         }
     }
@@ -226,7 +226,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         // Edit Profile/Follow/Unfollow button
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
-        followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
+        followButton.configuration?.attributedTitle = AttributedString(viewModel.followButtonText, attributes: container)
         followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
         followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
         
@@ -258,6 +258,11 @@ class UserProfileHeaderCell: UICollectionViewCell {
     @objc func didTapBannerPicture() {
         guard let viewModel = viewModel else { return }
         delegate?.headerCell(didTapBannerPictureFor: viewModel.user)
+    }
+    
+    @objc func handleShowFollowingFollowers() {
+        guard let viewModel = viewModel else { return }
+        delegate?.headerCell(didTapFollowingFollowersFor: viewModel.user)
     }
     
 }

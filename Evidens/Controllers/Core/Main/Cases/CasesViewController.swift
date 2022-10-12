@@ -8,6 +8,9 @@
 import UIKit
 import Firebase
 
+private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
+private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
+private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 private let caseSkeletonCellReuseIdentifier = "CaseSkeletonCellReuseIdentifier"
 
@@ -20,18 +23,21 @@ class CasesViewController: NavigationBarViewController {
     
     var loaded = false
     
+    private var lastIndexPath: IndexPath?
+    private var lastFilterSelected: String?
+    
     var casesLastSnapshot: QueryDocumentSnapshot?
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
- 
+    
     private var collectionView: UICollectionView!
     
-    private var filterCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        return collectionView
-    }()
+    private var filterCollectionView: UICollectionView!
     
+    enum filterCategories: String, CaseIterable {
+        case newCases = "New"
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,14 +114,54 @@ class CasesViewController: NavigationBarViewController {
             return flowLayout
         }
     
+    private func createFilterCellLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                return section
+        }
+        return layout
+    }
+    
     private func configureCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createTwoColumnFlowLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowLayout())
+        filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        filterCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubviews(filterCollectionView, collectionView)
+        NSLayoutConstraint.activate([
+            filterCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            filterCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            filterCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            filterCollectionView.heightAnchor.constraint(equalToConstant: 50),
+            
+            collectionView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         
         collectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.register(SkeletonCasesCell.self, forCellWithReuseIdentifier: caseSkeletonCellReuseIdentifier)
+        
+        filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
+        filterCollectionView.register(ExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
+        filterCollectionView.register(SeparatorCell.self, forCellWithReuseIdentifier: separatorCellReuseIdentifier)
+        
+        filterCollectionView.allowsSelection = true
+        filterCollectionView.allowsMultipleSelection = false
+        
+        filterCollectionView.dataSource = self
+        filterCollectionView.delegate = self
+        
         collectionView.delegate = self
         collectionView.dataSource = self
-        view.addSubview(collectionView)
+        
     }
     
     @objc func handleRefresh() {
@@ -127,6 +173,10 @@ class CasesViewController: NavigationBarViewController {
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if collectionView == filterCollectionView {
+            return filterCategories.allCases.count + 2
+        }
+        
         if !loaded {
             return 6
         }
@@ -134,10 +184,31 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        if collectionView == filterCollectionView {
+            
+            if indexPath.row == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! ExploreCasesCell
+                return cell
+            }
+            
+            if indexPath.row == 1 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: separatorCellReuseIdentifier, for: indexPath) as! SeparatorCell
+                return cell
+            }
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
+            cell.tagsLabel.text = filterCategories.allCases[indexPath.row - 2].rawValue
+            cell.delegate = self
+            return cell
+        }
+        
+        
         if !loaded {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseSkeletonCellReuseIdentifier, for: indexPath) as! SkeletonCasesCell
             return cell
         }
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
         cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
         let userIndex = users.firstIndex { user in
@@ -163,6 +234,56 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         if offsetY > contentHeight - height {
             getMoreCases()
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == filterCollectionView {
+            
+            if indexPath.row == 0 {
+                // Explore
+                collectionView.selectItem(at: IndexPath(item: 2, section: 0), animated: false, scrollPosition: [])
+                let controller = ExploreCasesViewController()
+                
+                let backItem = UIBarButtonItem()
+                backItem.title = ""
+                backItem.tintColor = .black
+                
+                navigationItem.backBarButtonItem = backItem
+                
+                navigationController?.pushViewController(controller, animated: true)
+                
+                return
+            }
+            
+            if indexPath.row == 1 { return }
+
+            let selection = filterCategories.allCases[indexPath.row - 2]
+            
+            switch selection {
+                
+            case .newCases:
+                print("All tapped")
+                break
+/*
+                lastIndexPath = indexPath
+                
+                collectionView.deselectItem(at: indexPath, animated: false)
+                
+                let controller = ClinicalTypeViewController(selectedTypes: [lastFilterSelected ?? ""])
+                controller.controllerIsPresented = true
+                controller.delegate = self
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                present(nav, animated: true, completion: nil)
+                */
+                //CaseService.fetchCasesWithDetailsFilter(fieldToQuery: "details", valueToQuery: "Teaching interest")
+            }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let selectedIndexPath = IndexPath(item: 2, section: 0)
+        collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: [])
     }
 }
 
@@ -387,6 +508,54 @@ extension CasesViewController {
                     self.users.append(user)
                     self.collectionView.reloadData()
                 }
+            }
+        }
+    }
+}
+
+extension CasesViewController: ClinicalTypeViewControllerDelegate {
+    func didSelectCaseType(type: String) {
+        if let indexPath = lastIndexPath {
+            lastFilterSelected = type
+            filterCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .top)
+        }
+    }
+    
+    func didSelectCaseType(_ types: [String]) {
+        return
+    }
+}
+
+extension CasesViewController: FilterCasesCellDelegate {
+    func didTapFilterImage(_ cell: UICollectionViewCell) {
+        if let indexPath = filterCollectionView.indexPath(for: cell) {
+            if let cell = filterCollectionView.cellForItem(at: indexPath) as? FilterCasesCell {
+                let optionTapped = filterCategories.allCases[indexPath.row]
+                if cell.isSelected {
+                    print("Clear filter here")
+                    return
+                }
+                print("Open options")
+                switch optionTapped {
+
+                case .newCases:
+                    break
+                /*
+                case .trending:
+                    break
+                case .specialities:
+                    break
+                case .details:
+                   
+                    let controller = ClinicalTypeViewController(selectedTypes: [""])
+                    controller.controllerIsPresented = true
+                    controller.delegate = self
+                    let nav = UINavigationController(rootViewController: controller)
+                    nav.modalPresentationStyle = .fullScreen
+                    present(nav, animated: true, completion: nil)
+                 */
+                }
+                 
             }
         }
     }

@@ -66,6 +66,7 @@ class HomeViewController: NavigationBarViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        self.navigationController?.delegate = zoomTransitioning
         if !loaded {
             collectionView.reloadData()
         }

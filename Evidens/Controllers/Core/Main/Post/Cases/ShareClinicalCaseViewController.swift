@@ -909,6 +909,10 @@ extension ShareClinicalCaseViewController: SpecialitiesListViewControllerDelegat
 }
 
 extension ShareClinicalCaseViewController: ClinicalTypeViewControllerDelegate {
+    func didSelectCaseType(type: String) {
+        return
+    }
+    
     func didSelectCaseType(_ types: [String]) {
         caseTypesSelected = types
         viewModel.numberOfDetails = caseTypesSelected.count
