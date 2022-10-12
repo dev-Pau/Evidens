@@ -8,13 +8,14 @@
 import UIKit
 import Firebase
 
+private let exploreHeaderCellReuseIdentifier = "ExploreHeaderCellReuseIdentifier"
 private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 private let caseSkeletonCellReuseIdentifier = "CaseSkeletonCellReuseIdentifier"
 
-class CasesViewController: NavigationBarViewController {
+class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
@@ -22,6 +23,8 @@ class CasesViewController: NavigationBarViewController {
     private var cases = [Case]()
     
     var loaded = false
+    
+    var displaysExploringWindow = false
     
     private var lastIndexPath: IndexPath?
     private var lastFilterSelected: String?
@@ -36,7 +39,8 @@ class CasesViewController: NavigationBarViewController {
     private var filterCollectionView: UICollectionView!
     
     enum filterCategories: String, CaseIterable {
-        case newCases = "New"
+        case all = "All"
+        case recents = "Recently uploaded"
     }
 
     override func viewDidLoad() {
@@ -46,16 +50,17 @@ class CasesViewController: NavigationBarViewController {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
-        self.navigationController?.delegate = zoomTransitioning
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.delegate = self
+       
         if !loaded {
             collectionView.reloadData()
         }
     }
-    
+
     private func fetchFirstGroupOfCases() {
         CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
             self.casesLastSnapshot = snapshot.documents.last
@@ -133,21 +138,34 @@ class CasesViewController: NavigationBarViewController {
         filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         filterCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubviews(filterCollectionView, collectionView)
-        NSLayoutConstraint.activate([
-            filterCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            filterCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            filterCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            filterCollectionView.heightAnchor.constraint(equalToConstant: 50),
+        
+        if displaysExploringWindow {
+            view.addSubviews(collectionView)
+            NSLayoutConstraint.activate([
+                collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
             
-            collectionView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        } else {
+            view.addSubviews(filterCollectionView, collectionView)
+            NSLayoutConstraint.activate([
+                filterCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                filterCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                filterCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                filterCollectionView.heightAnchor.constraint(equalToConstant: 50),
+                
+                collectionView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
+                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+        }
         
         collectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.register(SkeletonCasesCell.self, forCellWithReuseIdentifier: caseSkeletonCellReuseIdentifier)
+        collectionView.register(ExploreHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier)
         
         filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         filterCollectionView.register(ExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
@@ -172,6 +190,7 @@ class CasesViewController: NavigationBarViewController {
 
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == filterCollectionView {
             return filterCategories.allCases.count + 2
@@ -181,6 +200,24 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             return 6
         }
         return cases.count
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if displaysExploringWindow {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier, for: indexPath) as! ExploreHeaderCell
+            return header
+        }
+        
+        return UICollectionReusableView()
+    }
+     
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if displaysExploringWindow {
+            return CGSize(width: view.frame.width, height: 320)
+        }
+        return CGSize.zero
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -261,7 +298,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             
             switch selection {
                 
-            case .newCases:
+            case .all:
                 print("All tapped")
                 break
 /*
@@ -277,6 +314,14 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 present(nav, animated: true, completion: nil)
                 */
                 //CaseService.fetchCasesWithDetailsFilter(fieldToQuery: "details", valueToQuery: "Teaching interest")
+            case .recents:
+                self.navigationController?.delegate = self
+                let controller = CasesViewController()
+                controller.controllerIsBeeingPushed = true
+                controller.displaysExploringWindow = true
+                navigationController?.pushViewController(controller, animated: true)
+                
+                break
             }
         }
     }
@@ -309,6 +354,7 @@ extension CasesViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         guard image != [] else { return }
+        self.navigationController?.delegate = zoomTransitioning
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
@@ -538,7 +584,7 @@ extension CasesViewController: FilterCasesCellDelegate {
                 print("Open options")
                 switch optionTapped {
 
-                case .newCases:
+                case .all:
                     break
                 /*
                 case .trending:
@@ -554,6 +600,9 @@ extension CasesViewController: FilterCasesCellDelegate {
                     nav.modalPresentationStyle = .fullScreen
                     present(nav, animated: true, completion: nil)
                  */
+                case .recents:
+                    
+                    break
                 }
                  
             }

@@ -1,5 +1,5 @@
 //
-//  ExploreCasesViewController.swift
+//  ExploreHeaderCell.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 12/10/22.
@@ -9,35 +9,28 @@ import UIKit
 
 private let exploreReuseIdentifier = "ExploreReuseIdentifier"
 
-class ExploreCasesViewController: UIViewController {
+class ExploreHeaderCell: UICollectionReusableView {
     
     private var categoriesCollectionView: UICollectionView!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        configureNavigationBar()
-        configureCollectionViews()
-        configureUI()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configureCollectionView()
     }
     
-    private func configureNavigationBar() {
-        title = "Explore"
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    private func configureUI() {
-        view.backgroundColor = .white
-    }
-    
-    private func configureCollectionViews() {
-        categoriesCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createExploreLayout())
+    private func configureCollectionView() {
+        categoriesCollectionView = UICollectionView(frame: bounds, collectionViewLayout: createExploreLayout())
         categoriesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreReuseIdentifier)
         categoriesCollectionView.delegate = self
         categoriesCollectionView.dataSource = self
-        view.addSubview(categoriesCollectionView)
-        
-    
+        addSubview(categoriesCollectionView)
     }
     
+
     private func createExploreLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
 
@@ -75,7 +68,7 @@ class ExploreCasesViewController: UIViewController {
     }
 }
 
-extension ExploreCasesViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ExploreHeaderCell: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return Profession.Professions.allCases.count
     }
@@ -86,3 +79,4 @@ extension ExploreCasesViewController: UICollectionViewDelegate, UICollectionView
         return cell
     }
 }
+

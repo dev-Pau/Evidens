@@ -237,6 +237,7 @@
 		5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */; };
 		5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */; };
 		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
+		5FA2EAE728F72D310054BA5B /* ExploreHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAE628F72D310054BA5B /* ExploreHeaderCell.swift */; };
 		5FA2FB2928DC2D7100B37424 /* EmptyBookmarkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */; };
 		5FA2FB2D28DC7DC600B37424 /* EmptyContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2C28DC7DC600B37424 /* EmptyContentCell.swift */; };
 		5FA2FB2F28DD7AAE00B37424 /* PrivacyPolicyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2E28DD7AAE00B37424 /* PrivacyPolicyViewController.swift */; };
@@ -537,6 +538,7 @@
 		5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionCell.swift; sourceTree = "<group>"; };
 		5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
 		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
+		5FA2EAE628F72D310054BA5B /* ExploreHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreHeaderCell.swift; sourceTree = "<group>"; };
 		5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBookmarkCell.swift; sourceTree = "<group>"; };
 		5FA2FB2C28DC7DC600B37424 /* EmptyContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyContentCell.swift; sourceTree = "<group>"; };
 		5FA2FB2E28DD7AAE00B37424 /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
@@ -1375,6 +1377,7 @@
 			children = (
 				5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */,
 				5F9FB29028F6CF2000BABDFD /* CategoriesExploreCasesCell.swift */,
+				5FA2EAE628F72D310054BA5B /* ExploreHeaderCell.swift */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -2178,6 +2181,7 @@
 				5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */,
 				5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */,
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
+				5FA2EAE728F72D310054BA5B /* ExploreHeaderCell.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F9A9F832896CB0D00A25152 /* ConfigureSectionTitleCell.swift in Sources */,

@@ -38,7 +38,7 @@ class ExploreCasesCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = lightColor
-        layer.cornerRadius = 2
+        layer.cornerRadius = 3
         
         addSubviews(exploreImageView, exploreLabel)
         

@@ -12,6 +12,25 @@ struct Profession: Codable, Hashable {
 }
 
 extension Profession {
+    
+    enum Professions: String, CaseIterable {
+        case medicine = "Medicine"
+        case odontology = "Odontology"
+        case pharmacy = "Pharmacy"
+        case physiotherapy = "Physiotherapy"
+        case nursing = "Nursing"
+        case veterinary = "Veterinary Medicine"
+        case psychology = "Psychology"
+        case podiatry = "Podiatry"
+        case nutrition = "Human Nutrition & Dietetics"
+        case optics = "Optics & Optometry"
+        case biomedical = "Biomedical Science"
+        case physical = "Physical Activity & Sport Science"
+        case speech = "Speech Therapy"
+    }
+    
+    
+    
     static func professionalProfessions() -> [Profession] {
         var profession: [Profession] = []
         

@@ -9,6 +9,15 @@ import UIKit
 
 class CategoriesExploreCasesCell: UICollectionViewCell {
     
+    private let categoryLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        return label
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -21,5 +30,17 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = lightColor
         layer.cornerRadius = 3
+        
+        addSubviews(categoryLabel)
+        NSLayoutConstraint.activate([
+            categoryLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5),
+            categoryLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            categoryLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5)
+        ])
+        
+    }
+    
+    func set(category: String) {
+        categoryLabel.text = category
     }
 }
