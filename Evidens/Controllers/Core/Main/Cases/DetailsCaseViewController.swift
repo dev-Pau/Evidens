@@ -13,16 +13,28 @@ private let commentReuseIdentifier = "CommentCellReuseIdentifier"
 private let caseImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 
-class DetailsCaseViewController: UICollectionViewController {
+
+protocol DetailsCaseViewControllerDelegate: AnyObject {
+    func didTapLikeAction(forCase clinicalCase: Case)
+    func didTapBookmarkAction(forCase clinicalCase: Case)
+}
+
+class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate {
     
     private var clinicalCase: Case
     private var user: User
+    
+    private var displayState: DisplayState = .none
     
     private var ownerComments: [User] = []
     
     private var commentMenu = CommentsMenuLauncher()
     var caseMenuLauncher = CaseOptionsMenuLauncher()
+    
+    private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
+    
+    weak var delegate: DetailsCaseViewControllerDelegate?
     
     private var comments: [Comment]? {
         didSet {
@@ -53,9 +65,20 @@ class DetailsCaseViewController: UICollectionViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        let view = MENavigationBarTitleView(fullName: clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName, category: "Case")
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
+        super.viewWillAppear(animated)
+        self.navigationController?.delegate = self
+        
+        switch displayState {
+            
+        case .none:
+            break
+        case .photo:
+            return
+        case .others:
+            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Post")
+            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+            navigationItem.titleView = view
+        }
     }
     
     override func viewDidLoad() {
@@ -68,10 +91,13 @@ class DetailsCaseViewController: UICollectionViewController {
     }
     
     private func configureNavigationBar() {
-        let view = MENavigationBarTitleView(fullName: clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName, category: "Case")
+        
+        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared anonymously" : clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName
+        
+        let view = MENavigationBarTitleView(fullName: fullName, category: "Case")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
-
+        
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
@@ -215,12 +241,12 @@ extension DetailsCaseViewController: CommentCellDelegate {
     
     func didTapProfile(forUser user: User) {
         let controller = UserProfileViewController(user: user)
-        
+        displayState = .others
         let backButton = UIBarButtonItem()
         backButton.title = ""
         backButton.tintColor = .black
         self.navigationItem.backBarButtonItem = backButton
-        
+        displayState = .others
         self.navigationController?.pushViewController(controller, animated: true)
         
     }
@@ -248,18 +274,18 @@ extension DetailsCaseViewController: CaseCellDelegate {
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
 
             let controller = PostLikesViewController(contentType: clinicalCase)
-            
+        displayState = .others
             let backItem = UIBarButtonItem()
             backItem.title = ""
             navigationItem.backBarButtonItem = backItem
-            
+
             navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         
         let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
-        
+        displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -280,11 +306,13 @@ extension DetailsCaseViewController: CaseCellDelegate {
                 //Unlike post here
                 CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             } else {
                 //Like post here
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
@@ -295,12 +323,14 @@ extension DetailsCaseViewController: CaseCellDelegate {
             if clinicalCase.didLike {
                 //Unlike post here
                 CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
+                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                 }
             } else {
                 //Like post here
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                     NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
@@ -320,11 +350,13 @@ extension DetailsCaseViewController: CaseCellDelegate {
                 //Unlike post here
                 CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
             } else {
                 //Like post here
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                     //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -336,11 +368,13 @@ extension DetailsCaseViewController: CaseCellDelegate {
                 //Unlike post here
                 CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
             } else {
                 //Like post here
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                     //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -356,13 +390,14 @@ extension DetailsCaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+
         let controller = UserProfileViewController(user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .black
         navigationItem.backBarButtonItem = backItem
-        
+        displayState = .others
         navigationController?.pushViewController(controller, animated: true)
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
@@ -376,14 +411,16 @@ extension DetailsCaseViewController: CaseCellDelegate {
         backItem.title = ""
         backItem.tintColor = .black
         self.navigationItem.backBarButtonItem = backItem
-        
+        displayState = .others
         self.navigationController?.pushViewController(controller, animated: true)
         
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
+        self.navigationController?.delegate = zoomTransitioning
         selectedImage = image[index]
+        displayState = .photo
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         //controller.customDelegate = self
 
@@ -468,5 +505,11 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
                 }
             }
         }
+    }
+}
+
+extension DetailsCaseViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return selectedImage
     }
 }

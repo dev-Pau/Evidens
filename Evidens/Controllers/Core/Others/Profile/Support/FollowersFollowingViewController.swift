@@ -18,6 +18,7 @@ class FollowersFollowingViewController: UIViewController {
     
     private let topics = ["Followers", "Following"]
     
+    
     private lazy var segmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
         let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
         segmentedButtonsView.setLabelsTitles(titles: topics)

@@ -9,6 +9,7 @@ import UIKit
 
 private let followersFollowingReuseIdentifier = "FollowersFollowingReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
+private let skeletonFollowersFollowingCell = "SkeletonFollowersFollowingReuseIdentifier"
 
 class FollowersCell: UICollectionViewCell {
     
@@ -21,6 +22,8 @@ class FollowersCell: UICollectionViewCell {
             fetchFollowerUsers()
         }
     }
+    
+    var loaded: Bool = false
     
     private var users = [User]()
     private var userIsFollowing = [UserFollow]()
@@ -40,8 +43,10 @@ class FollowersCell: UICollectionViewCell {
         tableView.estimatedRowHeight = 74
         tableView.rowHeight = UITableView.automaticDimension
         tableView.backgroundColor = .white
+        tableView.isScrollEnabled = false
         tableView.register(UsersFollowFollowingCell.self, forCellReuseIdentifier: followersFollowingReuseIdentifier)
         tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)
+        tableView.register(SkeletonFollowersFollowingCell.self, forCellReuseIdentifier: skeletonFollowersFollowingCell)
         addSubview(tableView)
         tableView.frame = bounds
     }
@@ -61,7 +66,6 @@ class FollowersCell: UICollectionViewCell {
         guard let user = user else { return }
 
         UserService.fetchFollowers(forUid: user.uid!, completion: { uids in
-            print(uids)
             uids.forEach { uid in
                 
                 UserService.fetchUser(withUid: uid!) { user in
@@ -70,6 +74,8 @@ class FollowersCell: UICollectionViewCell {
                     UserService.checkIfUserIsFollowed(uid: uid!) { followed in
                         self.userIsFollowing.append(UserFollow(dictionary: ["uid": uid, "isFollow": followed]))
                         if self.userIsFollowing.count == uids.count {
+                            self.loaded = true
+                            self.tableView.isScrollEnabled = true
                             self.tableView.reloadData()
                         }
                     }
@@ -90,10 +96,16 @@ extension FollowersCell: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if !loaded { return 15 }
         return users.count > 0 ? users.count : 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if !loaded {
+            let cell = tableView.dequeueReusableCell(withIdentifier: skeletonFollowersFollowingCell, for: indexPath) as! SkeletonFollowersFollowingCell
+            return cell
+        }
         
         if users.count == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyContentCell

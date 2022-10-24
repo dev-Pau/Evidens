@@ -18,7 +18,7 @@ private let skeletonTextReuseIdentifier = "SkeletonReuseIdentifier"
 private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
 
 
-class HomeViewController: NavigationBarViewController {
+class HomeViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
 
@@ -29,6 +29,8 @@ class HomeViewController: NavigationBarViewController {
     var loaded = false
     
     var displaysSinglePost: Bool = false
+    private var displayState: DisplayState = .none
+    
     
     private var postsLastSnapshot: QueryDocumentSnapshot?
     private var postLastTimestamp: Int64?
@@ -64,9 +66,24 @@ class HomeViewController: NavigationBarViewController {
         configureNavigationItemButtons()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.navigationController?.delegate = zoomTransitioning
+        
+        if displaysSinglePost {
+            switch displayState {
+            case .none:
+                break
+            case .photo:
+                break
+            case .others:
+                guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
+                let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
+                view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+                navigationItem.titleView = view
+            }
+        }
+        
         if !loaded {
             collectionView.reloadData()
         }
@@ -103,10 +120,10 @@ class HomeViewController: NavigationBarViewController {
             let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
-
             let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
             
             navigationItem.rightBarButtonItem = rightBarButtonItem
+
         }
     }
     
@@ -392,7 +409,11 @@ extension HomeViewController: HomeCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
+        self.navigationController?.delegate = self
+        
         let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        displayState = displaysSinglePost ? .others : .none
+        controller.delegate = self
        
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -408,7 +429,7 @@ extension HomeViewController: HomeCellDelegate {
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         //controller.customDelegate = self
-        
+        displayState = .photo
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .clear
@@ -424,13 +445,15 @@ extension HomeViewController: HomeCellDelegate {
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         
+        displayState = displaysSinglePost ? .others : .none
+        
         navigationController?.pushViewController(controller, animated: true)
         
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let controller = CommentPostViewController(post: post, user: user)
-        
+        displayState = displaysSinglePost ? .others : .none
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -558,16 +581,16 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-
-            let controller = UserProfileViewController(user: user)
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .black
-            navigationItem.backBarButtonItem = backItem
-            
-            navigationController?.pushViewController(controller, animated: true)
-            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        if displaysSinglePost { return }
+        let controller = UserProfileViewController(user: user)
+        displayState = displaysSinglePost ? .others : .none
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         
     }
     
@@ -774,6 +797,38 @@ extension HomeViewController {
                     print(error)
                     
                 }
+            }
+        }
+    }
+}
+
+extension HomeViewController: DetailsPostViewControllerDelegate {
+    func didTapLikeAction(forPost post: Post) {
+        let index = posts.firstIndex { homePost in
+            if homePost.postId == post.postId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+                self.cell(cell, didLike: post)
+            }
+        }
+    }
+    
+    func didTapBookmarkAction(forPost post: Post) {
+        let index = posts.firstIndex { homePost in
+            if homePost.postId == post.postId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+                self.cell(cell, didBookmark: post)
             }
         }
     }

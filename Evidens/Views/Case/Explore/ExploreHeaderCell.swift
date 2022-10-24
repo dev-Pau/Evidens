@@ -8,10 +8,17 @@
 import UIKit
 
 private let exploreReuseIdentifier = "ExploreReuseIdentifier"
+private let exploreFooterReuseIdentifier = "ExploreFooterReuseIdentifier"
+
+protocol ExploreHeaderCellDelegate: AnyObject {
+    func didTapExploreCell(forProfession profession: String)
+}
 
 class ExploreHeaderCell: UICollectionReusableView {
     
     private var categoriesCollectionView: UICollectionView!
+    
+    weak var delegate: ExploreHeaderCellDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -25,6 +32,7 @@ class ExploreHeaderCell: UICollectionReusableView {
     private func configureCollectionView() {
         categoriesCollectionView = UICollectionView(frame: bounds, collectionViewLayout: createExploreLayout())
         categoriesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreReuseIdentifier)
+        categoriesCollectionView.register(ExploreFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: exploreFooterReuseIdentifier)
         categoriesCollectionView.delegate = self
         categoriesCollectionView.dataSource = self
         addSubview(categoriesCollectionView)
@@ -61,6 +69,10 @@ class ExploreHeaderCell: UICollectionReusableView {
 
                         let section = NSCollectionLayoutSection(group: repeatingGroup)
             section.orthogonalScrollingBehavior = .continuous
+            
+            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+
+            section.boundarySupplementaryItems = [footer]
 
             return section
         }
@@ -77,6 +89,16 @@ extension ExploreHeaderCell: UICollectionViewDelegate, UICollectionViewDataSourc
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreReuseIdentifier, for: indexPath) as! CategoriesExploreCasesCell
         cell.set(category: Profession.Professions.allCases[indexPath.row].rawValue)
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: exploreFooterReuseIdentifier, for: indexPath) as! ExploreFooter
+        return footer
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let professionSelected = Profession.Professions.allCases[indexPath.row].rawValue
+        delegate?.didTapExploreCell(forProfession: professionSelected)
     }
 }
 

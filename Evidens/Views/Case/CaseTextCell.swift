@@ -205,13 +205,15 @@ class CaseTextCell: UICollectionViewCell {
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
-        
+
         if viewModel.caseIsAnonymous {
-            updateView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+            updateView.profileImageView.image = UIImage(named: "case.privacy")
+            userPostView.profileImageView.image = UIImage(named: "case.privacy")
+            userPostView.usernameLabel.text = "Shared anonymously"
         } else {
+            updateView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
             userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
        
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()

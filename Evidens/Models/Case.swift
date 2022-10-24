@@ -118,7 +118,7 @@ struct Case {
         self.ownerSpeciality = dictionary["ownerSpeciality"] as? String ?? ""
         self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""       
-        self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
+        self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? ["https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/case_images%2Fcase.with.no.image.png?alt=media&token=4ef7c281-14a3-49f2-b0d5-de3b384c9df9"]
         
         self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .visible
     }

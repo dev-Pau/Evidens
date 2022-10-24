@@ -1228,8 +1228,8 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             navigationItem.backBarButtonItem = backItem
             
             let controller = CaseViewController()
-            controller.controllerIsBeeingPushed = true
-            controller.displaysSinglePost = true
+            //controller.controllerIsBeeingPushed = true
+            //controller.displaysSinglePost = true
             controller.user = user
             navigationController?.pushViewController(controller, animated: true)
             

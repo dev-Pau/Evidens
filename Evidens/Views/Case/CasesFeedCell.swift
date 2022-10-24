@@ -53,6 +53,8 @@ class CasesFeedCell: UICollectionViewCell {
     
     private var compositionalCollectionView: UICollectionView!
     
+    private var tagsCollectionView: UICollectionView!
+    
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
@@ -147,6 +149,7 @@ class CasesFeedCell: UICollectionViewCell {
         ])
         
         profileImageView.layer.cornerRadius = 30 / 2
+        profileImageView.contentMode = .scaleAspectFill
     }
     
     private func configure() {
@@ -166,6 +169,7 @@ class CasesFeedCell: UICollectionViewCell {
         
         stringUrlImages = viewModel.caseImages!
         compositionalCollectionView.reloadData()
+      
     }
     
     func set(user: User) {
@@ -173,7 +177,7 @@ class CasesFeedCell: UICollectionViewCell {
         self.user = user
         
         if viewModel.caseIsAnonymous {
-            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+            profileImageView.image = UIImage(named: "case.privacy")
         } else {
             profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }
@@ -205,10 +209,10 @@ extension CasesFeedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowL
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
-            cell.delegate = self
-            cell.caseImageView.sd_setImage(with: URL(string: stringUrlImages[indexPath.row]))
-            return cell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
+        cell.delegate = self
+        cell.caseImageView.sd_setImage(with: URL(string: stringUrlImages[indexPath.row]))
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

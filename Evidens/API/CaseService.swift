@@ -60,6 +60,45 @@ struct CaseService {
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
 
         if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_CASES.limit(to: 10)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_CASES.start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    static func fetchUserVisibleCases(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).whereField("privacy", isEqualTo: 0).limit(to: 10)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).whereField("privacy", isEqualTo: 0).start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    
+    static func fetchLastUploadedClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+
+        if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
@@ -75,6 +114,7 @@ struct CaseService {
             }
         }
     }
+     
     
     static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, completion: @escaping(Bool) -> Void) {
         COLLECTION_CASES.document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
@@ -136,6 +176,22 @@ struct CaseService {
                     cases.remove(at: index)
                 }
             }
+            
+            //Order posts by timestamp
+            cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            
+            completion(cases)
+        }
+    }
+    
+    static func fetchVisibleCases(forUser uid: String, completion: @escaping([Case]) -> Void) {
+        //Fetch posts by filtering according to timestamp & user uid
+        let query =  COLLECTION_CASES.whereField("ownerUid", isEqualTo: uid).whereField("privacy", isEqualTo: 0)
+        
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else { return }
+        
+            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             
             //Order posts by timestamp
             cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
@@ -274,7 +330,7 @@ struct CaseService {
     static func fetchCasesWithDetailsFilter(fieldToQuery: String, valueToQuery: String) {
         COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in
             guard let documents = snapshot?.documents else { return }
-            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             cases.forEach { clinicalCase in
                 print(clinicalCase.caseDescription)
             }

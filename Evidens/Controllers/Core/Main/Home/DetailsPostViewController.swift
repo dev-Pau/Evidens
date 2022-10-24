@@ -16,15 +16,32 @@ private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIden
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 
-class DetailsPostViewController: UICollectionViewController {
+enum DisplayState: Int {
+    case none
+    case photo
+    case others
+}
+
+protocol DetailsPostViewControllerDelegate: AnyObject {
+    func didTapLikeAction(forPost post: Post)
+    func didTapBookmarkAction(forPost post: Post)
+}
+
+class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate {
     
     private var commentMenu = CommentsMenuLauncher()
     var homeMenuLauncher = HomeOptionsMenuLauncher()
-    //private var zoomTransitioning = ZoomTransitioning()
+    private var zoomTransitioning = ZoomTransitioning()
 
     var selectedImage: UIImageView!
     
+    weak var delegate: DetailsPostViewControllerDelegate?
+    
     var indexPathSelected: Int?
+    
+    private var loaded: Bool = false
+    
+    private var displayState: DisplayState = .none
     
     private var post: Post
     private var user: User
@@ -35,19 +52,30 @@ class DetailsPostViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loaded = true
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
         checkIfUserLikedPosts()
         checkIfUserBookmarkedPost()
-
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
-        view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = view
-
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.delegate = self
+        
+        switch displayState {
+            
+        case .none:
+            break
+        case .photo:
+            return
+        case .others:
+            let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+            navigationItem.titleView = view
+        }
     }
 
     init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
@@ -242,7 +270,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-
+        displayState = .others
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -261,13 +289,14 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes - 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                     
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
-                    
+                    self.delegate?.didTapLikeAction(forPost: post)
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -279,15 +308,15 @@ extension DetailsPostViewController: HomeCellDelegate {
             if post.didLike {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
-                    
                     currentCell.viewModel?.post.likes = post.likes - 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
 
                     currentCell.viewModel?.post.likes = post.likes + 1
-                    
+                    self.delegate?.didTapLikeAction(forPost: post)
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 }
@@ -300,11 +329,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes - 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -317,11 +348,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes - 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -334,11 +367,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unlike post here
                 PostService.unlikePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes - 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                 }
             } else {
                 //Like post here
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
+                    self.delegate?.didTapLikeAction(forPost: post)
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -352,7 +387,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
        
             let controller = UserProfileViewController(user: user)
-            
+        displayState = .others
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .black
@@ -378,11 +413,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
         case is HomeImageTextCell:
@@ -392,11 +429,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
             
@@ -407,11 +446,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
             
@@ -422,11 +463,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
             
@@ -437,11 +480,13 @@ extension DetailsPostViewController: HomeCellDelegate {
                 //Unbookmark post here
                 PostService.unbookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             } else {
                 //Bookmark post here
                 PostService.bookmarkPost(post: post) { _ in
                     currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
         default:
@@ -453,7 +498,9 @@ extension DetailsPostViewController: HomeCellDelegate {
         //self.navigationController?.delegate = self
         
         let map: [UIImage] = image.compactMap { $0.image }
+        self.navigationController?.delegate = zoomTransitioning
         selectedImage = image[index]
+        displayState = .photo
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         //controller.customDelegate = self
         let backItem = UIBarButtonItem()
@@ -466,7 +513,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     
     func cell(wantsToSeeLikesFor post: Post) {
         let controller = PostLikesViewController(contentType: post)
-        
+        displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -482,7 +529,7 @@ extension DetailsPostViewController: CommentCellDelegate {
 
     func didTapProfile(forUser user: User) {
         let controller = UserProfileViewController(user: user)
-        
+        displayState = .others
         let backButton = UIBarButtonItem()
         backButton.title = ""
         backButton.tintColor = .black
@@ -561,6 +608,12 @@ extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
                 }
             }
         }
+    }
+}
+
+extension DetailsPostViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return selectedImage
     }
     
     

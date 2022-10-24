@@ -35,17 +35,9 @@ class PostPrivacyCell: UICollectionViewCell {
     
     private let postTypeLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
-        return label
-    }()
-    
-    private let postTypeSubLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 10, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
         return label
     }()
     
@@ -75,7 +67,7 @@ class PostPrivacyCell: UICollectionViewCell {
     
     private func configure() {
 
-        let stack = UIStackView(arrangedSubviews: [postTypeLabel, postTypeSubLabel])
+        let stack = UIStackView(arrangedSubviews: [postTypeLabel])
         stack.axis = .vertical
         stack.distribution = .equalSpacing
         stack.spacing = 5
@@ -103,10 +95,10 @@ class PostPrivacyCell: UICollectionViewCell {
         postTypeImage.layer.cornerRadius = postTypeImage.frame.size.height / 2
     }
     
-    func set(withText text: String, witSubtitle subtitle: String, withImage image: UIImage) {
+    func set(withText text: String, withImage image: UIImage) {
         postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
 
         postTypeLabel.text = text
-        postTypeSubLabel.text = subtitle
+      
     }
 }

@@ -10,6 +10,7 @@ import Firebase
 
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
+private let skeletonNotificationCellReuseIdentifier = "SekeletonNotificationCellReuseIdentifier"
 
 class NotificationsViewController: NavigationBarViewController {
     
@@ -34,6 +35,7 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.backgroundColor = lightColor
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
@@ -61,9 +63,9 @@ class NotificationsViewController: NavigationBarViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.isHidden = true
-        titleLabel.isHidden = false
-        descriptionLabel.isHidden = false
+        collectionView.isHidden = false
+        titleLabel.isHidden = true
+        descriptionLabel.isHidden = true
         configureCollectionView()
         fetchNotifications()
     }
@@ -82,6 +84,7 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.dataSource = self
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
+        collectionView.register(SkeletonNotificationCell.self, forCellWithReuseIdentifier: skeletonNotificationCellReuseIdentifier)
        
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -118,6 +121,8 @@ class NotificationsViewController: NavigationBarViewController {
             self.notifications.forEach { notification in
                 UserService.fetchUser(withUid: notification.uid) { user in
                     self.users.append(user)
+                    self.loaded = true
+                    self.collectionView.isScrollEnabled = true
                     self.collectionView.reloadData()
                 }
             }
@@ -146,11 +151,16 @@ class NotificationsViewController: NavigationBarViewController {
 extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return notifications.count
+        return loaded ? notifications.count : 15
     }
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        if !loaded {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonNotificationCellReuseIdentifier, for: indexPath) as! SkeletonNotificationCell
+            return cell
+        }
         
         if notifications[indexPath.row].type.rawValue == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell

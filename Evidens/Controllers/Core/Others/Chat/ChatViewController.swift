@@ -58,7 +58,6 @@ class ChatViewController: MessagesViewController {
         self.otherUserUid = user.uid!
         self.conversationId = id
         self.creationDate = creationDate
-        print("Creation date is \(creationDate)")
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -68,9 +67,6 @@ class ChatViewController: MessagesViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(handleConversationMenu))
         
         let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.red), attributes: .destructive) { action in
@@ -126,7 +122,6 @@ class ChatViewController: MessagesViewController {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
         if let conversationId = conversationId {
-            print("we are hearing")
             listenForMessages(id: conversationId, shouldScrollToBottom: true) }
     }
     
@@ -411,9 +406,20 @@ extension ChatViewController: MessageCellDelegate {
         
         switch message.kind {
         case .photo(let media):
-            guard let imageUrl = media.url else {
-                print("cant recover image")
-                return }
+            guard let imageUrl = media.url else { return }
+            showLoadingView()
+            let dataTask = URLSession.shared.dataTask(with: imageUrl) { [weak self] data, _, _ in
+                guard let self = self else { return }
+                self.dismissLoadingView()
+                if let data = data {
+                    DispatchQueue.main.async {
+                        let vc = HomeImageViewController(image: [UIImage(data: data)!], imageCount: 1, index: 0)
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    }
+                }
+            }
+            dataTask.resume()
+            
             //chatImage.sd_setImage(with: imageUrl)
             //let vc = HomeImageViewController(image: [chatImage.image], imageCount: 1, index: 0)
             //self.navigationController?.pushViewController(vc, animated: true)
