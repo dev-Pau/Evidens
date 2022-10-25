@@ -9,9 +9,15 @@ import UIKit
 
 private let reuseIdentifier = "CommentCell"
 
+protocol CommentPostViewControllerDelegate: AnyObject {
+    func didCommentPost(post: Post, user: User, comment: Comment)
+}
+
 class CommentPostViewController: UICollectionViewController {
     
     //MARK: - Properties
+    
+    weak var delegate: CommentPostViewControllerDelegate?
     
     private var post: Post
     private var user: User
@@ -86,13 +92,14 @@ class CommentPostViewController: UICollectionViewController {
     //Hide tab bar when comment input acccesory view appear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.tabBarController?.tabBar.isHidden = true
+        //self.tabBarController?.tabBar.isHidden = true
+        //hidesBottomBarWhenPushed = false
     }
     
     //Show tab bar when comment input acccesory view dissappears
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.tabBarController?.tabBar.isHidden = false
+
     }
     
     //MARK: - API
@@ -100,7 +107,7 @@ class CommentPostViewController: UICollectionViewController {
     func fetchComments() {
         CommentService.fetchComments(forPost: post.postId) { comments in
             self.comments.removeAll()
-            // If user post has text, append it as first element
+            // If user post has text, append it as first element of the comment list with the owner user information
             if !self.post.postText.isEmpty {
                 self.comments.append(Comment(dictionary: [
                     "comment": self.post.postText,
@@ -136,6 +143,7 @@ class CommentPostViewController: UICollectionViewController {
                 return
             }
             
+            // Post has text from the owner & no comments
             if comments.isEmpty && !self.post.postText.isEmpty {
                 self.emptyCommentLabel.isHidden = true
                 self.startTheConversationLabel.isHidden = true
@@ -145,6 +153,7 @@ class CommentPostViewController: UICollectionViewController {
                 }
                 return
             }
+            
             
             // Fetch users from comments
             self.comments.forEach { comment in
@@ -174,7 +183,6 @@ class CommentPostViewController: UICollectionViewController {
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         view.addSubview(collectionView)
 
-        //To dismiss the keyboard and hide when scrolling
         collectionView.backgroundColor = .white
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
@@ -210,7 +218,8 @@ extension CommentPostViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
         
         cell.authorButton.isHidden = true
-
+        
+        cell.delegate = self
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         
         let userIndex = ownerComments.firstIndex { user in
@@ -218,10 +227,8 @@ extension CommentPostViewController {
         }!
         
         cell.set(user: ownerComments[userIndex])
-        
-        cell.delegate = self
+
         return cell
-        
     }
    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -315,14 +322,12 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: postUid, title: "", comment: comment, type: .post, withTimestamp: Date()) { uploaded in
             }
             
-            
-            
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
             let isAuthor = currentUser.uid == self.post.ownerUid ? true : false
             
-            self.comments.append(Comment(dictionary: [
+            let addedComment = Comment(dictionary: [
                 "comment": comment,
                 "uid": currentUser.uid as Any,
                 "id": commentUid as Any,
@@ -333,7 +338,9 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "profession": currentUser.profession as Any,
                 "lastName": currentUser.lastName as Any,
                 "isAuthor": isAuthor as Any,
-                "profileImageUrl": currentUser.profileImageUrl as Any]))
+                "profileImageUrl": currentUser.profileImageUrl as Any])
+            
+            self.comments.append(addedComment)
             
             self.ownerComments.append(User(dictionary: [
                 "uid": currentUser.uid as Any,
@@ -347,6 +354,8 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
             self.collectionView.reloadData()
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+            
+            self.delegate?.didCommentPost(post: self.post, user: self.user, comment: addedComment)
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withComment: comment)
 

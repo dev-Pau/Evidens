@@ -68,6 +68,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
         self.navigationController?.delegate = zoomTransitioning
         
         if displaysSinglePost {
@@ -458,6 +459,8 @@ extension HomeViewController: HomeCellDelegate {
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         
+        controller.hidesBottomBarWhenPushed = true
+
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -830,6 +833,20 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
             if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
                 self.cell(cell, didBookmark: post)
             }
+        }
+    }
+    
+    func didComment(forPost post: Post) {
+        let index = posts.firstIndex { homePost in
+            if homePost.postId == post.postId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            #warning("Update del viewModel perquè es mostri direcatment també")
+            posts[index].numberOfComments += 1
         }
     }
 }

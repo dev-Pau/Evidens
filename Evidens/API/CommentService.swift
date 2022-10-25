@@ -12,7 +12,7 @@ struct CommentService {
     static func uploadPostComment(comment: String, post: Post, user: User, completion: @escaping([String]) -> Void) {
 
         let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
-        var isAuthor = (post.ownerUid == user.uid) ? true : false
+        let isAuthor = (post.ownerUid == user.uid) ? true : false
         
         let data: [String: Any] = ["uid": user.uid as Any,
                                    "comment": comment,
@@ -45,23 +45,11 @@ struct CommentService {
             completion(comments)
             
         }
-        /*
-         //Listener to update UI with new comments
-         query.addSnapshotListener { (snapshot, error) in
-         snapshot?.documentChanges.forEach({ change in
-         if change.type == .added {
-         let data = change.document.data()
-         let comment = Comment(dictionary: data)
-         comments.append(comment)
-         }
-         })
-         completion(comments)
-         */
     }
     
     
     static func uploadCaseComment(comment: String, clinicalCase: Case, user: User, completion: @escaping([String]) -> Void) {
-        
+        let isAuthor = (clinicalCase.ownerUid == user.uid) ? true : false
         let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
 
         let data: [String: Any] = ["uid": user.uid as Any,
@@ -73,9 +61,9 @@ struct CommentService {
                                    "speciality": user.speciality as Any,
                                    "profession": user.profession as Any,
                                    "lastName": user.lastName as Any,
+                                   "isAuthor": isAuthor,
                                    "profileImageUrl": user.profileImageUrl as Any]
-        
-        
+    
         commentRef.setData(data) { _ in
             //Update recent comments for the user
             completion([commentRef.documentID, clinicalCase.caseId])
@@ -96,6 +84,7 @@ struct CommentService {
                                    "anonymous": true,
                                    "category": user.category.userCategoryString as Any,
                                    "speciality": user.speciality as Any,
+                                   "isAuthor": true,
                                    "profession": user.profession as Any]
         
         commentRef.setData(data) { _ in
@@ -108,20 +97,12 @@ struct CommentService {
     }
     
     static func fetchCaseComments(forCase caseID: String, completion: @escaping([Comment]) -> Void) {
-        var comments = [Comment]()
-        
         let query = COLLECTION_CASES.document(caseID).collection("comments")
             .order(by: "timestamp", descending: false)
         
-        //Listener to update UI with new comments
-        query.addSnapshotListener { (snapshot, error) in
-            snapshot?.documentChanges.forEach({ change in
-                if change.type == .added {
-                    let data = change.document.data()
-                    let comment = Comment(dictionary: data)
-                    comments.append(comment)
-                }
-            })
+        query.getDocuments { snapshot, error in
+            guard let documents = snapshot?.documents else { return }
+            let comments = documents.map({ Comment(dictionary: $0.data())})
             completion(comments)
         }
     }

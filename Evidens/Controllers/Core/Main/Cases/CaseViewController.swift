@@ -364,6 +364,7 @@ extension CaseViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
+        controller.hidesBottomBarWhenPushed = true
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""

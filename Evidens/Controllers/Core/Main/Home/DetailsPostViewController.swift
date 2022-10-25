@@ -25,6 +25,7 @@ enum DisplayState: Int {
 protocol DetailsPostViewControllerDelegate: AnyObject {
     func didTapLikeAction(forPost post: Post)
     func didTapBookmarkAction(forPost post: Post)
+    func didComment(forPost post: Post)
 }
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate {
@@ -266,7 +267,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let controller = CommentPostViewController(post: post, user: user)
-        
+        controller.hidesBottomBarWhenPushed = true
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
@@ -609,12 +611,45 @@ extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
             }
         }
     }
+    
+    
 }
 
 extension DetailsPostViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
     }
-    
-    
+}
+
+extension DetailsPostViewController: CommentPostViewControllerDelegate {
+    func didCommentPost(post: Post, user: User, comment: Comment) {
+        comments?.append(comment)
+        
+        delegate?.didComment(forPost: post)
+        
+
+        switch post.type {
+            
+        case .plainText:
+            print("plaint text")
+            let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as! HomeTextCell
+            self.post.numberOfComments += 1
+            collectionView.reloadData()
+
+        case .textWithImage:
+            break
+        case .textWithTwoImage:
+            break
+        case .textWithThreeImage:
+            break
+        case .textWithFourImage:
+            break
+        case .document:
+            break
+        case .poll:
+            break
+        case .video:
+            break
+        }
+    }
 }

@@ -206,11 +206,14 @@ class CommentCell: UICollectionViewCell {
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         commentOwnerUser = user
-        nameLabel.attributedText = user.userLabelText()
+        
+        let attributedString = NSMutableAttributedString(string: "Anonymous", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+        
+        nameLabel.attributedText = viewModel.anonymousComment ? attributedString : user.userLabelText()
         professionLabel.text = user.profession! + ", " + user.speciality!
         
         if viewModel.anonymousComment {
-            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+            profileImageView.image = UIImage(named: "case.privacy")
         } else {
             profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }

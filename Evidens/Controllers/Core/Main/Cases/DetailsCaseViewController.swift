@@ -272,24 +272,25 @@ extension DetailsCaseViewController: CaseCellDelegate {
 
     
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
-
-            let controller = PostLikesViewController(contentType: clinicalCase)
+        
+        let controller = PostLikesViewController(contentType: clinicalCase)
         displayState = .others
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            navigationItem.backBarButtonItem = backItem
-
-            navigationController?.pushViewController(controller, animated: true)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         
         let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
+        controller.hidesBottomBarWhenPushed = true
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     

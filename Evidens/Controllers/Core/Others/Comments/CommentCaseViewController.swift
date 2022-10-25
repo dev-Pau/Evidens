@@ -63,13 +63,13 @@ class CommentCaseViewController: UICollectionViewController {
     //Hide tab bar when comment input acccesory view appear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.tabBarController?.tabBar.isHidden = true
+
     }
     
     //Show tab bar when comment input acccesory view dissappears
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.tabBarController?.tabBar.isHidden = false
+
     }
     
     //MARK: - API
@@ -121,6 +121,10 @@ class CommentCaseViewController: UICollectionViewController {
                 }
             }
         }
+        
+        func displayMessage(message: [String]) {
+            
+        }
     }
     
     //MARK: - Helpers
@@ -128,7 +132,7 @@ class CommentCaseViewController: UICollectionViewController {
     func configureCollectionView() {
         
         if clinicalCase.privacyOptions == .nonVisible {
-            commentInputView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+            commentInputView.profileImageView.image = UIImage(named: "case.privacy")
         } else {
             guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
             commentInputView.profileImageView.sd_setImage(with: URL(string: uid))
@@ -141,7 +145,6 @@ class CommentCaseViewController: UICollectionViewController {
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         view.addSubview(collectionView)
 
-        //To dismiss the keyboard and hide when scrolling
         collectionView.backgroundColor = .white
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
@@ -197,9 +200,45 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
         
         if clinicalCase.ownerUid == currentUser.uid && clinicalCase.privacyOptions == .nonVisible {
             // Owner of the anonymous case
-            CommentService.uploadAnonymousComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { _ in
+            CommentService.uploadAnonymousComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
                 // As comment is anonymous, there's no need to upload the comment to recent comments
+                let commentUid = ids[0]
+                let caseUid = ids[1]
                 
+              
+                self.clinicalCase.numberOfComments += 1
+                inputView.clearCommentTextView()
+                
+                
+                let isAuthor = currentUser.uid == self.clinicalCase.ownerUid ? true : false
+                
+                self.comments.append(Comment(dictionary: [
+                    "comment": comment,
+                    "uid": currentUser.uid as Any,
+                    "id": commentUid as Any,
+                    "timestamp": "Now" as Any,
+                    "firstName": currentUser.firstName as Any,
+                    "category": currentUser.category.userCategoryString as Any,
+                    "speciality": currentUser.speciality as Any,
+                    "profession": currentUser.profession as Any,
+                    "lastName": currentUser.lastName as Any,
+                    "isAuthor": true as Any,
+                    "anonymous": true as Any,
+                    "profileImageUrl": currentUser.profileImageUrl as Any]))
+                
+                self.ownerComments.append(User(dictionary: [
+                    "uid": currentUser.uid as Any,
+                    "firstName": currentUser.firstName as Any,
+                    "lastName": currentUser.lastName as Any,
+                    "profileImageUrl": currentUser.profileImageUrl as Any,
+                    "profession": currentUser.profession as Any,
+                    "category": currentUser.category as Any,
+                    "speciality": currentUser.speciality as Any]))
+                
+                let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+                self.collectionView.reloadData()
+                self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+
             }
         } else {
             CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
