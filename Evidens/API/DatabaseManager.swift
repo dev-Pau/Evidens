@@ -268,6 +268,32 @@ extension DatabaseManager {
         }
     }
     
+    public func fetchProfileComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+        var recentComments = [[String: Any]]()
+        if lastTimestampValue == nil {
+            // First group to fetch
+            let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            ref.observeSingleEvent(of: .value) { snapshot in
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    recentComments.append(value)
+                }
+                completion(.success(recentComments.reversed()))
+            }
+        } else {
+            // Fetch more posts
+            let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+
+            ref.observeSingleEvent(of: .value) { snapshot in
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    recentComments.append(value)
+                }
+                completion(.success(recentComments.reversed()))
+            }
+        }
+    }
+    
     public func deleteRecentComment(forCommentId commentID: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("comments")

@@ -15,7 +15,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     var caseMenuLauncher = CaseOptionsMenuLauncher()
     
-    var user: User?
+    var user: User
     
     var casesLastSnapshot: QueryDocumentSnapshot?
     
@@ -41,6 +41,15 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         return collectionView
     }()
     
+    init(user: User) {
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchFirstGroupOfCases()
@@ -64,8 +73,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             break
             
         case .others:
-            guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
-            let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Cases")
+            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
             
@@ -73,7 +81,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func fetchFirstGroupOfCases() {
-        guard let uid = user?.uid else { return }
+        guard let uid = user.uid else { return }
         CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: nil, completion: { snapshot in
             self.casesLastSnapshot = snapshot.documents.last
             self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
@@ -108,10 +116,13 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureNavigationBar() {
-        guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
-        let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Cases")
+        let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
+        
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        
+        navigationItem.rightBarButtonItem = rightBarButtonItem
     }
     
     private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
@@ -155,13 +166,13 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if cases[indexPath.row].type.rawValue == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-            cell.set(user: user!)
+            cell.set(user: user)
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-            cell.set(user: user!)
+            cell.set(user: user)
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             cell.delegate = self
             return cell
@@ -190,6 +201,7 @@ extension CaseViewController: CaseCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        controller.delegate = self
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -238,21 +250,11 @@ extension CaseViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         return
-        /*
-        let controller = UserProfileViewController(user: user)
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .black
-        self.navigationItem.backBarButtonItem = backItem
-        
-        self.navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
-         */
     }
     
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
@@ -263,11 +265,13 @@ extension CaseViewController: CaseCellDelegate {
                 //Unlike post here
                 CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.cases[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    self.cases[indexPath.row].didBookmark = true
                     //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -279,11 +283,13 @@ extension CaseViewController: CaseCellDelegate {
                 //Unlike post here
                 CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.cases[indexPath.row].didBookmark = false
                 }
             } else {
                 //Like post here
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    self.cases[indexPath.row].didBookmark = true
                     //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
@@ -442,7 +448,7 @@ extension CaseViewController: ZoomTransitioningDelegate {
 
 extension CaseViewController {
     func getMoreCases() {
-        guard let uid = user?.uid else { return }
+        guard let uid = user.uid else { return }
         CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: casesLastSnapshot, completion: { snapshot in
             self.casesLastSnapshot = snapshot.documents.last
             let documents = snapshot.documents
@@ -454,5 +460,39 @@ extension CaseViewController {
             self.checkIfUserBookmarkedCase()
         })
     }
+}
+
+extension CaseViewController: DetailsCaseViewControllerDelegate {
+    func didTapLikeAction(forCase clinicalCase: Case) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+                self.clinicalCase(cell, didLike: clinicalCase)
+            }
+        }
+    }
+    
+    func didTapBookmarkAction(forCase clinicalCase: Case) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+                self.clinicalCase(cell, didBookmark: clinicalCase)
+            }
+        }
+    }
+    
+    
 }
 

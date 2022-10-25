@@ -13,9 +13,17 @@ class UserProfileCommentCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .black
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private var profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
     }()
     
     private var commentTextLabel: UILabel = {
@@ -45,7 +53,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return view
     }()
 
-    var separatorView: UIView = {
+    private var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +72,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .white
         
-        addSubviews(caseTitleLabel, commentTextLabel, commentUserLabel, separatorView, commentHeightView)
+        addSubviews(caseTitleLabel, profileImageView, commentTextLabel, commentUserLabel, separatorView, commentHeightView)
         
         NSLayoutConstraint.activate([
             
@@ -73,25 +81,31 @@ class UserProfileCommentCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
 
-            
             commentTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             commentTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
+
             caseTitleLabel.topAnchor.constraint(equalTo: commentTextLabel.bottomAnchor, constant: 10),
             caseTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             caseTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            commentUserLabel.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 5),
-            commentUserLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            commentUserLabel.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 10),
+            commentUserLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 50),
             commentUserLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            commentHeightView.topAnchor.constraint(equalTo: commentUserLabel.topAnchor),
+            commentHeightView.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 10),
             commentHeightView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            commentHeightView.trailingAnchor.constraint(equalTo: commentUserLabel.leadingAnchor, constant: -5),
+            commentHeightView.widthAnchor.constraint(equalToConstant: 5),
             commentHeightView.bottomAnchor.constraint(equalTo: commentUserLabel.bottomAnchor),
+            
+            profileImageView.leadingAnchor.constraint(equalTo: commentHeightView.trailingAnchor, constant: 5),
+            profileImageView.heightAnchor.constraint(equalToConstant: 20),
+            profileImageView.widthAnchor.constraint(equalToConstant: 20),
+            profileImageView.topAnchor.constraint(equalTo: commentHeightView.topAnchor)
         ])
+        
+        profileImageView.layer.cornerRadius = 20 / 2
         
     }
     
@@ -121,8 +135,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         
         commentUserLabel.text = commentInfo["comment"] as? String
         caseTitleLabel.text = commentInfo["title"] as? String
-        //if user.isCurrentUser {
-            //label.text = "Pau Fernández Solà commented on this case"
-        //}
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        
     }
 }

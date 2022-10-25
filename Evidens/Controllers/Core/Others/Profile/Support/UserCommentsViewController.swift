@@ -12,6 +12,7 @@ private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 class UserCommentsViewController: UICollectionViewController {
     
     private let user: User
+    private var commentLastTimestamp: Int64?
     
     var recentComments = [[String: Any]]() {
         didSet {
@@ -21,7 +22,7 @@ class UserCommentsViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchComments()
+        fetchFirstComments()
         configureCollectionView()
     }
     
@@ -35,6 +36,11 @@ class UserCommentsViewController: UICollectionViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        
         let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Comments")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
@@ -45,17 +51,19 @@ class UserCommentsViewController: UICollectionViewController {
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
     }
     
-    private func fetchComments() {
+    private func fetchFirstComments() {
         if let uid = user.uid {
-            DatabaseManager.shared.fetchProfileComments(for: uid) { result in
+            DatabaseManager.shared.fetchProfileComments(lastTimestampValue: nil, forUid: uid, completion: { result in
                 switch result {
-                    
                 case .success(let comments):
-                    self.recentComments = comments
+                    if let lastComment = comments.last, let lastTimestampValue = lastComment["timestamp"] as? TimeInterval {
+                        self.commentLastTimestamp = lastTimestampValue.milliseconds / 1000
+                        self.recentComments = comments
+                    }
                 case .failure(_):
                     print("Error fetching comments")
                 }
-            }
+            })
         }
     }
     
@@ -120,6 +128,34 @@ class UserCommentsViewController: UICollectionViewController {
                     }
                 }
             }
+        }
+    }
+}
+
+extension UserCommentsViewController {
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            getMoreComments()
+        }
+    }
+    
+    private func getMoreComments() {
+        if let uid = user.uid {
+            DatabaseManager.shared.fetchProfileComments(lastTimestampValue: commentLastTimestamp, forUid: uid, completion: { result in
+                switch result {
+                case .success(let comments):
+                    if let lastComment = comments.last, let lastTimestampValue = lastComment["timestamp"] as? TimeInterval {
+                        self.commentLastTimestamp = lastTimestampValue.milliseconds / 1000
+                        self.recentComments.append(contentsOf: comments)
+                    }
+                case .failure(_):
+                    print("Error fetching comments")
+                }
+            })
         }
     }
 }

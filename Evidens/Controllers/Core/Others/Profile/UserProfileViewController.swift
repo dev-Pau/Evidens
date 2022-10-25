@@ -1227,16 +1227,15 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             backItem.tintColor = .black
             navigationItem.backBarButtonItem = backItem
             
-            let controller = CaseViewController()
+            let controller = CaseViewController(user: user)
             //controller.controllerIsBeeingPushed = true
             //controller.displaysSinglePost = true
-            controller.user = user
             navigationController?.pushViewController(controller, animated: true)
             
         case "Show comments":
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
+            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
