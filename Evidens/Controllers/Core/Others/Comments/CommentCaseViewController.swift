@@ -9,9 +9,15 @@ import UIKit
 
 private let reuseIdentifier = "CommentCell"
 
+protocol CommentCaseViewControllerDelegate: AnyObject {
+    func didCommentCase(clinicalCase: Case, user: User, comment: Comment)
+}
+
 class CommentCaseViewController: UICollectionViewController {
     
     //MARK: - Properties
+    
+    weak var delegate: CommentCaseViewControllerDelegate?
     
     private var commentMenu = CommentsMenuLauncher()
     
@@ -212,7 +218,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 
                 let isAuthor = currentUser.uid == self.clinicalCase.ownerUid ? true : false
                 
-                self.comments.append(Comment(dictionary: [
+                let newComment = Comment(dictionary: [
                     "comment": comment,
                     "uid": currentUser.uid as Any,
                     "id": commentUid as Any,
@@ -224,7 +230,9 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "lastName": currentUser.lastName as Any,
                     "isAuthor": true as Any,
                     "anonymous": true as Any,
-                    "profileImageUrl": currentUser.profileImageUrl as Any]))
+                    "profileImageUrl": currentUser.profileImageUrl as Any])
+                
+                self.comments.append(newComment)
                 
                 self.ownerComments.append(User(dictionary: [
                     "uid": currentUser.uid as Any,
@@ -236,6 +244,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "speciality": currentUser.speciality as Any]))
                 
                 let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+                self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.user, comment: newComment)
                 self.collectionView.reloadData()
                 self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
 
@@ -254,7 +263,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 
                 let isAuthor = currentUser.uid == self.clinicalCase.ownerUid ? true : false
                 
-                self.comments.append(Comment(dictionary: [
+                let newComment = Comment(dictionary: [
                     "comment": comment,
                     "uid": currentUser.uid as Any,
                     "id": commentUid as Any,
@@ -265,7 +274,9 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "profession": currentUser.profession as Any,
                     "lastName": currentUser.lastName as Any,
                     "isAuthor": isAuthor as Any,
-                    "profileImageUrl": currentUser.profileImageUrl as Any]))
+                    "profileImageUrl": currentUser.profileImageUrl as Any])
+                
+                self.comments.append(newComment)
                 
                 self.ownerComments.append(User(dictionary: [
                     "uid": currentUser.uid as Any,
@@ -280,6 +291,8 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
                 self.collectionView.reloadData()
                 self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+                
+                self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.user, comment: newComment)
                 
                 NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
             }

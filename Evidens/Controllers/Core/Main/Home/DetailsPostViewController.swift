@@ -624,32 +624,9 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
 extension DetailsPostViewController: CommentPostViewControllerDelegate {
     func didCommentPost(post: Post, user: User, comment: Comment) {
         comments?.append(comment)
+        self.post.numberOfComments += 1
+        collectionView.reloadData()
         
         delegate?.didComment(forPost: post)
-        
-
-        switch post.type {
-            
-        case .plainText:
-            print("plaint text")
-            let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as! HomeTextCell
-            self.post.numberOfComments += 1
-            collectionView.reloadData()
-
-        case .textWithImage:
-            break
-        case .textWithTwoImage:
-            break
-        case .textWithThreeImage:
-            break
-        case .textWithFourImage:
-            break
-        case .document:
-            break
-        case .poll:
-            break
-        case .video:
-            break
-        }
     }
 }

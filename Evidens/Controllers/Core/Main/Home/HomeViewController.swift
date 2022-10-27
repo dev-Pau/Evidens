@@ -454,6 +454,7 @@ extension HomeViewController: HomeCellDelegate {
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let controller = CommentPostViewController(post: post, user: user)
+        controller.delegate = self
         displayState = displaysSinglePost ? .others : .none
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -845,8 +846,80 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
         }
         
         if let index = index {
-            #warning("Update del viewModel perquè es mostri direcatment també")
+
             posts[index].numberOfComments += 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+
+        }
+    }
+}
+
+extension HomeViewController: CommentPostViewControllerDelegate {
+    func didCommentPost(post: Post, user: User, comment: Comment) {
+        let postIndex = posts.firstIndex { homePost in
+            if homePost.postId == post.postId { return true }
+            return false
+        }
+        
+        if let index = postIndex {
+            posts[index].numberOfComments += 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
         }
     }
 }

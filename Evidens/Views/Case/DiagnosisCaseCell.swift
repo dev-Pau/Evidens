@@ -1,13 +1,13 @@
 //
-//  UpdateCaseCell.swift
+//  DiagnosisCaseCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 14/8/22.
+//  Created by Pau Fernández Solà on 27/10/22.
 //
 
 import UIKit
 
-class UpdateCaseCell: UICollectionViewCell {
+class DiagnosisCaseCell: UICollectionViewCell {
     
     let cellContentView = UIView()
     
@@ -22,6 +22,7 @@ class UpdateCaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = primaryColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -34,15 +35,10 @@ class UpdateCaseCell: UICollectionViewCell {
         return label
     }()
     
-    var topSeparatorView: UIView = {
+    private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    var bottomSeparatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = lightColor
         return view
     }()
     
@@ -65,13 +61,8 @@ class UpdateCaseCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
-        cellContentView.addSubviews(topSeparatorView, bottomSeparatorView, imageView, updateNumberLabel, updateTextLabel)
+        cellContentView.addSubviews(imageView, updateNumberLabel, updateTextLabel, separatorView)
         NSLayoutConstraint.activate([
-            topSeparatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            topSeparatorView.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
-            topSeparatorView.widthAnchor.constraint(equalToConstant: 2),
-            topSeparatorView.bottomAnchor.constraint(equalTo: imageView.topAnchor),
-            
             imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             imageView.heightAnchor.constraint(equalToConstant: 30),
@@ -86,16 +77,12 @@ class UpdateCaseCell: UICollectionViewCell {
             updateTextLabel.trailingAnchor.constraint(equalTo: updateNumberLabel.trailingAnchor),
             updateTextLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             
-            bottomSeparatorView.topAnchor.constraint(equalTo: imageView.bottomAnchor),
-            bottomSeparatorView.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
-            bottomSeparatorView.widthAnchor.constraint(equalToConstant: 2),
-            bottomSeparatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
-            
-            
+            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
-        imageView.layer.borderWidth = 2
-        imageView.layer.borderColor = primaryColor.cgColor
         imageView.layer.cornerRadius = 30 / 2
     }
     

@@ -17,6 +17,7 @@ private let caseTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didTapLikeAction(forCase clinicalCase: Case)
     func didTapBookmarkAction(forCase clinicalCase: Case)
+    func didComment(forCase clinicalCase: Case)
 }
 
 class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate {
@@ -285,6 +286,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         
         let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
+        controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         displayState = .others
         let backItem = UIBarButtonItem()
@@ -405,7 +407,8 @@ extension DetailsCaseViewController: CaseCellDelegate {
     
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase)
+        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+        controller.delegate = self
         controller.controllerIsPushed = true
         
         let backItem = UIBarButtonItem()
@@ -414,7 +417,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
         self.navigationItem.backBarButtonItem = backItem
         displayState = .others
         self.navigationController?.pushViewController(controller, animated: true)
-        
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
@@ -440,7 +442,8 @@ extension DetailsCaseViewController: CaseCellDelegate {
 
 extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
     func didTapAddCaseUpdate(forCase clinicalCase: Case) {
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase)
+        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+        controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
@@ -512,5 +515,21 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
 extension DetailsCaseViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
+    }
+}
+
+extension DetailsCaseViewController: CommentCaseViewControllerDelegate {
+    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
+        comments?.append(comment)
+        self.clinicalCase.numberOfComments += 1
+        collectionView.reloadData()
+        delegate?.didComment(forCase: clinicalCase)
+    }
+}
+
+extension DetailsCaseViewController: CaseUpdatesViewControllerDelegate {
+    func didAddUpdateToCase(withUpdates updates: [String]) {
+        self.clinicalCase.caseUpdates = updates
+        collectionView.reloadData()
     }
 }

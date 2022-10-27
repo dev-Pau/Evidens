@@ -604,6 +604,10 @@ extension CasesViewController: ExploreHeaderCellDelegate {
 }
 
 extension CasesViewController: DetailsCaseViewControllerDelegate {
+    func didComment(forCase clinicalCase: Case) {
+        return
+    }
+    
     func didTapLikeAction(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
