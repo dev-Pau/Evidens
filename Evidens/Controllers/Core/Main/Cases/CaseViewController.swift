@@ -465,6 +465,24 @@ extension CaseViewController {
 }
 
 extension CaseViewController: DetailsCaseViewControllerDelegate {
+    func didAddDiagnosis(forCase clinicalCase: Case) {
+        #warning("assign clinical case updates to clniical case and reload data, change statge and diagnosis if i t has")
+    }
+    
+    func didAddUpdate(forCase clinicalCase: Case) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            cases[index].caseUpdates = clinicalCase.caseUpdates
+            collectionView.reloadData()
+        }
+    }
+    
     func didTapLikeAction(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {

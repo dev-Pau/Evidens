@@ -65,16 +65,7 @@ class AddCaseUpdateViewController: UIViewController {
         configureNavigationBar()
         configureUI()
     }
-    /*
-    init(diagnosisText: String) {
-        self.diagnosisText = diagnosisText
-        textTracker.updateTextTracking(toValue: diagnosisText.count)
-        super.init(nibName: nil, bundle: nil)
-    }
-     */
-    
-
-    private func configureNavigationBar() {
+     private func configureNavigationBar() {
         title = "Add update"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))

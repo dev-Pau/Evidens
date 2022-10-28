@@ -22,7 +22,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = primaryColor
+        iv.image = UIImage(named: "case.privacy")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()

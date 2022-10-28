@@ -22,6 +22,7 @@ class UpdateCaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "case.privacy")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()

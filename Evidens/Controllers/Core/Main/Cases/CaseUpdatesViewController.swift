@@ -50,21 +50,6 @@ class CaseUpdatesViewController: UIViewController {
         return label
     }()
     
-    private lazy var addUpdateButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.isHidden = true
-        button.isUserInteractionEnabled = false
-        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.buttonSize = .large
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleAddUpdate), for: .touchUpInside)
-        return button
-    }()
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -84,11 +69,14 @@ class CaseUpdatesViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Case updates"
+        title = "Updates"
         
         if !controllerIsPushed {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .black
+        } else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(handleAddUpdate))
+            navigationItem.rightBarButtonItem?.tintColor = .black
         }
     }
     
@@ -102,20 +90,18 @@ class CaseUpdatesViewController: UIViewController {
         collectionView.register(DiagnosisCaseCell.self, forCellWithReuseIdentifier: diagnosisCaseCellReuseIdentifier)
         if clinicalCase.diagnosis != "" {
             clinicalCase.caseUpdates.append(clinicalCase.diagnosis)
+            clinicalCase.caseUpdates.reverse()
+        } else {
+            clinicalCase.caseUpdates.reverse()
         }
-        clinicalCase.caseUpdates.reverse()
     }
     
     private func configureUI() {
         view.backgroundColor = .white
-        view.addSubviews(emptyUpdatesLabel, addUpdateButton)
+        view.addSubviews(emptyUpdatesLabel)
         NSLayoutConstraint.activate([
             emptyUpdatesLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             emptyUpdatesLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            
-            addUpdateButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addUpdateButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
         
         if clinicalCase.caseUpdates.isEmpty {
@@ -127,8 +113,8 @@ class CaseUpdatesViewController: UIViewController {
         }
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        addUpdateButton.isHidden = clinicalCase.ownerUid == uid ? false : true
-        addUpdateButton.isUserInteractionEnabled = clinicalCase.ownerUid == uid ? true : false
+        navigationItem.rightBarButtonItem?.tintColor = clinicalCase.ownerUid == uid ? .black : .white
+        navigationItem.rightBarButtonItem?.isEnabled = clinicalCase.ownerUid == uid ? true : false
     }
     
     @objc func handleAddUpdate() {
@@ -140,6 +126,15 @@ class CaseUpdatesViewController: UIViewController {
             presentationController.detents = [.medium(), .large()]
         }
         present(navController, animated: true)
+    }
+    
+    @objc func handleChangeState() {
+        let controller = CaseDiagnosisViewController(diagnosisText: "")
+        controller.stageIsUpdating = true
+        controller.caseId = clinicalCase.caseId
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
     
     @objc func handleDismiss() {
@@ -159,7 +154,9 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: diagnosisCaseCellReuseIdentifier, for: indexPath) as! DiagnosisCaseCell
             cell.updateNumberLabel.text = "Diagnosis result"
             cell.updateTextLabel.text = clinicalCase.caseUpdates[indexPath.row]
-            cell.set(user: user)
+            if clinicalCase.privacyOptions == .visible {
+                cell.set(user: user)
+            }
             return cell
         }
         
@@ -175,9 +172,11 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
             cell.bottomSeparatorView.backgroundColor = indexPath.row == clinicalCase.caseUpdates.count - 1 || clinicalCase.caseUpdates.count == 1 ? .white : primaryColor
         }
         
-        cell.updateNumberLabel.text = "Update \(clinicalCase.caseUpdates.count - indexPath.row)"
+        cell.updateNumberLabel.text = clinicalCase.privacyOptions == .nonVisible ? "Update \(clinicalCase.caseUpdates.count - indexPath.row) by author" : "Update \(clinicalCase.caseUpdates.count - indexPath.row) by \(user.firstName!)"
         cell.updateTextLabel.text = clinicalCase.caseUpdates[indexPath.row]
-        cell.set(user: user)
+        if clinicalCase.privacyOptions == .visible {
+            cell.set(user: user)
+        }
         return cell
     }
 }
@@ -191,7 +190,7 @@ extension CaseUpdatesViewController: AddCaseUpdateViewControllerDelegate {
                 let positionToAdd = self.clinicalCase.diagnosis != "" ? 1 : 0
                 self.clinicalCase.caseUpdates.insert(text, at: positionToAdd)
                 self.collectionView.reloadData()
-                self.delegate?.didAddUpdateToCase(withUpdates: self.clinicalCase.caseUpdates)
+                self.delegate?.didAddUpdateToCase(withUpdates: self.clinicalCase.caseUpdates.reversed())
             }
         }
     }

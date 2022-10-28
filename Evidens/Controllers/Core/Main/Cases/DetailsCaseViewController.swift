@@ -18,6 +18,8 @@ protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didTapLikeAction(forCase clinicalCase: Case)
     func didTapBookmarkAction(forCase clinicalCase: Case)
     func didComment(forCase clinicalCase: Case)
+    func didAddUpdate(forCase clinicalCase: Case)
+    func didAddDiagnosis(forCase clinicalCase: Case)
 }
 
 class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate {
@@ -76,7 +78,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         case .photo:
             return
         case .others:
-            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Post")
+            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Case")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
         }
@@ -271,7 +273,6 @@ extension DetailsCaseViewController: CommentCellDelegate {
 
 extension DetailsCaseViewController: CaseCellDelegate {
 
-    
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
         
         let controller = PostLikesViewController(contentType: clinicalCase)
@@ -443,15 +444,22 @@ extension DetailsCaseViewController: CaseCellDelegate {
 extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
     func didTapAddCaseUpdate(forCase clinicalCase: Case) {
         let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .clear
+        navigationItem.backBarButtonItem = backItem
+        
+        controller.controllerIsPushed = true
         controller.delegate = self
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func didTapChangeStateToSolved(forCaseUid uid: String) {
         let controller = CaseDiagnosisViewController(diagnosisText: "")
         controller.stageIsUpdating = true
+        controller.delegate = self
         controller.caseId = uid
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
@@ -461,6 +469,7 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
     func didTapEditDiagnosis(forCaseUid uid: String, withDiagnosisText text: String) {
         let controller = CaseDiagnosisViewController(diagnosisText: text)
         controller.diagnosisIsUpdating = true
+        controller.delegate = self
         controller.caseId = uid
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
@@ -469,6 +478,7 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
     
     func didTapAddDiagnosis(forCaseUid uid: String) {
         let controller = CaseDiagnosisViewController(diagnosisText: "")
+        controller.delegate = self
         controller.diagnosisIsUpdating = true
         controller.caseId = uid
         let nav = UINavigationController(rootViewController: controller)
@@ -531,5 +541,15 @@ extension DetailsCaseViewController: CaseUpdatesViewControllerDelegate {
     func didAddUpdateToCase(withUpdates updates: [String]) {
         self.clinicalCase.caseUpdates = updates
         collectionView.reloadData()
+        delegate?.didAddUpdate(forCase: self.clinicalCase)
+    }
+}
+
+extension DetailsCaseViewController: CaseDiagnosisViewControllerDelegate {
+    func handleAddDiagnosis(_ text: String) {
+        clinicalCase.stage = .resolved
+        clinicalCase.diagnosis = text
+        collectionView.reloadData()
+        delegate?.didAddDiagnosis(forCase: clinicalCase)
     }
 }

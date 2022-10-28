@@ -637,6 +637,35 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
             }
         }
     }
+    
+    func didAddUpdate(forCase clinicalCase: Case) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            cases[index].caseUpdates = clinicalCase.caseUpdates
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+    
+    func didAddDiagnosis(forCase clinicalCase: Case) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            cases[index].stage = .resolved
+            cases[index].diagnosis = clinicalCase.diagnosis
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
 }
 
 

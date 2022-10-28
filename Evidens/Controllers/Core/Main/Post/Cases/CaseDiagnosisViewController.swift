@@ -89,10 +89,10 @@ class CaseDiagnosisViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = blackColor
         
-        let rightBarButtonText = stageIsUpdating || diagnosisIsUpdating ? "Update" : "Add"
+        let rightBarButtonText = stageIsUpdating || diagnosisIsUpdating ? "Skip" : "Add"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: rightBarButtonText, style: .done, target: self, action: #selector(handleAddDiagnosis))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = false
+        navigationItem.rightBarButtonItem?.tintColor = .black
+        navigationItem.rightBarButtonItem?.isEnabled = stageIsUpdating || diagnosisIsUpdating ? true : false
     }
     
     private func configureUI() {
@@ -138,16 +138,38 @@ class CaseDiagnosisViewController: UIViewController {
     
     @objc func handleAddDiagnosis() {
         if stageIsUpdating || diagnosisIsUpdating {
-            showLoadingView()
-            CaseService.uploadCaseDiagnosis(withCaseId: caseId, withDiagnosis: diagnosisTextView.text) { uploaded in
-                self.dismissLoadingView()
-                if uploaded {
-                    self.dismiss(animated: true)
-                } else {
-                    print("couldn't add diagnosis")
+            
+            if diagnosisTextView.text.count == 0 {
+                dismissDiagnosisAlert {
+                    // User changes state to solved without diagnosis
+                    CaseService.uploadCaseStage(withCaseId: self.caseId) { uploaded in
+                        if uploaded {
+                            self.delegate?.handleAddDiagnosis("")
+                            let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark")
+                            popUpView.showTopPopup(inView: self.view)
+                            self.dismiss(animated: true)
+                            return
+                        }
+                    }
+                }
+            } else {
+                // Clinical Case has diagnosis, update the case with it
+                showLoadingView()
+                CaseService.uploadCaseDiagnosis(withCaseId: caseId, withDiagnosis: diagnosisTextView.text) { uploaded in
+                    self.dismissLoadingView()
+                    if uploaded {
+                        // Diagnosis updated, update previous view controllers
+                        self.delegate?.handleAddDiagnosis(self.diagnosisTextView.text)
+                        let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark")
+                        popUpView.showTopPopup(inView: self.view)
+
+                        self.dismiss(animated: true)
+                    } else {
+                        print("couldn't add diagnosis")
+                    }
                 }
             }
-            
+
         } else {
             delegate?.handleAddDiagnosis(diagnosisTextView.text)
             dismiss(animated: true)
@@ -156,26 +178,19 @@ class CaseDiagnosisViewController: UIViewController {
     }
     
     @objc func handleDismiss() {
-        if stageIsUpdating {
-            dismissDiagnosisAlert {
-                CaseService.uploadCaseStage(withCaseId: self.caseId) { uploaded in
-                    if uploaded {
-                        let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark")
-                        popUpView.showTopPopup(inView: self.view)
-                        self.dismiss(animated: true)
-                    }
-                }
-            }
-        } else {
-            dismiss(animated: true)
-        }
+        dismiss(animated: true)
     }
 }
 
 extension CaseDiagnosisViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         let count = textView.text.count
-        navigationItem.rightBarButtonItem?.isEnabled = count > 0 ? true : false
+        if stageIsUpdating || diagnosisIsUpdating {
+            navigationItem.rightBarButtonItem?.title = count > 0 ? "Update" : "Skip"
+            navigationItem.rightBarButtonItem?.tintColor = count > 0 ? primaryColor : .black
+        } else {
+            navigationItem.rightBarButtonItem?.isEnabled = count > 0 ? true : false
+        }
         textTracker.updateTextTracking(toValue: count)
     }
     
