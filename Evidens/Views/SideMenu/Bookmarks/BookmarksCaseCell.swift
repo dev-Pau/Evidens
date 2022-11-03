@@ -118,6 +118,7 @@ class BookmarksCaseCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
         titleCaseLabel.text = viewModel.caseTitle
+        userPostView.postTimeLabel.text = viewModel.timestampString
         descriptionCaseLabel.text = viewModel.caseDescription
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden

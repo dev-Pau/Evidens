@@ -133,8 +133,9 @@ class UserProfileHeaderCell: UICollectionViewCell {
     
     private lazy var followersLabel: UILabel = {
         let label = UILabel()
-        label.textColor = primaryColor
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.text = ""
         label.translatesAutoresizingMaskIntoConstraints = false
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowingFollowers)))
         label.isUserInteractionEnabled = true

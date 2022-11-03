@@ -79,25 +79,43 @@ struct ProfileHeaderViewModel {
     }
     
     var followingFollowersText: NSAttributedString {
-        return followersString(valueFollowers: numberOfFollowers, valueFollowing: numberOfFollowing)
+        return followingUserStats(valueFollowers: numberOfFollowers, valueFollowing: numberOfFollowing)
     }
     
     var numberOfPosts: String {
         return String(user.stats.posts)
     }
     
-    func followersString(valueFollowers: Int, valueFollowing: Int) -> NSAttributedString {
-        let aString = NSMutableAttributedString(string: "\(valueFollowers) followers     \(valueFollowing) following")
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .regular), range: (aString.string as NSString).range(of: "\(valueFollowers) followers     \(valueFollowing) following"))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "\(valueFollowers) followers     \(valueFollowing) following"))
+    func followersString(valueFollowers: Int) -> NSAttributedString {
+        let followers = String(valueFollowers)
 
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: "\(valueFollowers)"))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: "\(valueFollowers)"))
+        let aString = NSMutableAttributedString(string: followers + " followers       ")
         
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: "\(valueFollowing)"))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: "\(valueFollowing)"))
-
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: followers))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: followers))
+        
         return aString
+    }
+    
+    func followingString(valueFollowing: Int) -> NSAttributedString {
+        let following = String(valueFollowing)
+        
+        let aString = NSMutableAttributedString(string: following + " following")
+        
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: following))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: following))
+        
+        return aString
+    }
+    
+    func followingUserStats(valueFollowers: Int, valueFollowing: Int) -> NSAttributedString {
+        let followers = followersString(valueFollowers: valueFollowers)
+        let following = followingString(valueFollowing: valueFollowing)
+        
+        let left = NSMutableAttributedString(attributedString: followers)
+        left.append(following)
+        
+        return left
     }
  
     init(user: User) {

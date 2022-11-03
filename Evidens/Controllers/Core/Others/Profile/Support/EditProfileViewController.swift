@@ -59,7 +59,7 @@ class EditProfileViewController: UICollectionViewController {
     init(user: User) {
         self.user = user
         let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 0
         super.init(collectionViewLayout: layout)
@@ -96,7 +96,7 @@ class EditProfileViewController: UICollectionViewController {
     
     private func configureUI() {
         view.backgroundColor = .white
-        delegate?.fetchNewUserValues(withUid: user.uid!)
+        //delegate?.fetchNewUserValues(withUid: user.uid!)
     }
     
     //MARK: - Actions

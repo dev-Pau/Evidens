@@ -127,6 +127,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
+        userPostView.postTimeLabel.text = viewModel.timestampString
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription
         caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages?.first!)!))

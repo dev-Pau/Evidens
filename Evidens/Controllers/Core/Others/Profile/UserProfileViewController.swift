@@ -105,6 +105,7 @@ class UserProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchUserStats()
+        
         fetchRecentPosts()
         fetchRecentCases()
         fetchLanguages()
@@ -123,7 +124,6 @@ class UserProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        fetchUserStats()
     }
         
     init(user: User) {
@@ -622,7 +622,7 @@ class UserProfileViewController: UIViewController {
         guard let profession = user.profession else { return }
         UserService.fetchRelatedUsers(withProfession: profession) { relatedUsers in
             self.relatedUsers = relatedUsers
-            print(relatedUsers)
+
         }
         /*
         DatabaseManager.shared.getAllUsers { result in
@@ -980,12 +980,14 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         } else if indexPath.section == 4 {
             // Comments
             let comment = recentComments[indexPath.row]
-            let type = comment["type"] as? Int
+            guard let type = comment["type"] as? Int else { return }
+            
             if type == 0 {
                 // Post
                 if let postUid = comment["refUid"] as? String {
+                    showLoadingView()
                     PostService.fetchPost(withPostId: postUid) { post in
-                        
+                        self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
                         layout.scrollDirection = .vertical
                         layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
@@ -1004,15 +1006,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             } else {
                 // Case
                 if let caseUid = comment["refUid"] as? String {
-                    PostService.fetchPost(withPostId: caseUid) { post in
-                        
+                    showLoadingView()
+                    CaseService.fetchCase(withCaseId: caseUid) { clinicalCase in
+                        self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
                         layout.scrollDirection = .vertical
                         layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.tintColor = .black
@@ -1045,16 +1048,22 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     }
     
     func headerCell(_ cell: UICollectionViewCell, didTapEditProfileFor user: User) {
+
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
         guard let currentCell = cell as? UserProfileHeaderCell else { return }
         
-        if user.isCurrentUser {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        if user.uid == uid {
             let controller = EditProfileViewController(user: user)
             controller.delegate = self
+            
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)
+             
+            
         } else {
             guard let uid = user.uid else { return }
             if user.isFollowed {
@@ -1187,7 +1196,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
-            
+
         default:
             print("No cell registered")
         }
@@ -1352,7 +1361,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     func fetchNewUserValues(withUid uid: String) {
         UserService.fetchUser(withUid: uid) { user in
             self.user = user
-            self.collectionView.reloadSections([0])
+            self.collectionView.reloadData()
         }
     }
     
