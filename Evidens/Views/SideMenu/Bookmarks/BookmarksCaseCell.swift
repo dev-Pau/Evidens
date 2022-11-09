@@ -129,11 +129,18 @@ class BookmarksCaseCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileImageUrl {
-            userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        guard let viewModel = viewModel else { return }
+
+        if viewModel.caseIsAnonymous {
+            userPostView.profileImageView.image = UIImage(named: "case.privacy")
+            userPostView.usernameLabel.text = "Shared anonymously"
+            
+        } else {
+            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
         
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     

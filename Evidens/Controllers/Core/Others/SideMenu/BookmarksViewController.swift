@@ -15,6 +15,9 @@ private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
 
+private let skeletonCaseImageCell = "SkeletonCaseImageCell"
+private let skeletonCaseTextCell = "SkeletonCaseTextCell"
+
 private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
 
 class BookmarksViewController: UIViewController {
@@ -38,19 +41,15 @@ class BookmarksViewController: UIViewController {
 
     private var selectedCategory: Int = 0
     
+    private var caseLoaded = false
+    private var postLoaded = false
+    
     private var cases = [Case]()
     
-    private var caseUsers = [User]() {
-        didSet {
-            contentCollectionView.reloadData()
-        }
-    }
-    private var postUsers = [User]() {
-        didSet {
-            contentCollectionView.reloadData()
-        }
-    }
-    
+    private var caseUsers = [User]()
+
+    private var postUsers = [User]()
+
     private var posts = [Post]()
     
     private let categoriesCollectionView: UICollectionView = {
@@ -78,6 +77,7 @@ class BookmarksViewController: UIViewController {
         collectionView.backgroundColor = lightColor
         collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.isScrollEnabled = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         return collectionView
@@ -96,12 +96,14 @@ class BookmarksViewController: UIViewController {
         if selectedCategory == 0 {
 
             if cases.count == 1 {
+                caseLoaded = false
                 cases.removeAll()
                 fetchBookmarkedClinicalCases()
             }
 
         } else {
             if posts.count == 1 {
+                postLoaded = false
                 posts.removeAll()
                 fetchBookmarkedPosts()
             }
@@ -111,34 +113,48 @@ class BookmarksViewController: UIViewController {
     
     private func fetchBookmarkedClinicalCases() {
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
-                CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
-                    self.lastCaseSnapshot = snapshot.documents.last
-                    self.cases = clinicalCases
-                    
-                    if self.cases.count == 1 {
-                        UserService.fetchUser(withUid: self.cases.first!.ownerUid) { user in
-                            self.caseUsers.append(user)
-                        }
-                    } else {
-                        clinicalCases.forEach { clinicalCaseFetched in
-                            UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
-                                self.caseUsers.append(user)
-                                print(self.caseUsers.count)
-                            }
-                        }
+            if snapshot.count == 0 {
+                self.caseLoaded = true
+                self.contentCollectionView.isScrollEnabled = true
+                self.contentCollectionView.reloadData()
+                return
+            }
+
+            CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
+                self.lastCaseSnapshot = snapshot.documents.last
+                self.cases = clinicalCases
+                
+                clinicalCases.forEach { clinicalCaseFetched in
+                    UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
+                        self.caseLoaded = true
+                        self.caseUsers.append(user)
+                        self.contentCollectionView.isScrollEnabled = true
+                        self.contentCollectionView.reloadData()
                     }
                 }
             }
+        }
     }
     
     private func fetchBookmarkedPosts() {
         PostService.fetchBookmarkedPostDocuments(lastSnapshot: nil) { snapshot in
+            if snapshot.count == 0 {
+                self.postLoaded = true
+                self.contentCollectionView.isScrollEnabled = true
+                self.contentCollectionView.reloadData()
+                return
+            }
+            
             PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
                 self.lastPostSnapshot = snapshot.documents.last
                 self.posts = posts
+                
                 posts.forEach { postFetched in
                     UserService.fetchUser(withUid: postFetched.ownerUid) { user in
+                        self.postLoaded = true
                         self.postUsers.append(user)
+                        self.contentCollectionView.isScrollEnabled = true
+                        self.contentCollectionView.reloadData()
                     }
                 }
             }
@@ -148,8 +164,6 @@ class BookmarksViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Bookmarks"
     }
-    
-    
     
     private func configureCollectionViews() {
         categoriesCollectionView.delegate = self
@@ -163,6 +177,8 @@ class BookmarksViewController: UIViewController {
         contentCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         contentCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
+        contentCollectionView.register(SekeletonCaseBookmarksImageTextCell.self, forCellWithReuseIdentifier: skeletonCaseImageCell)
+        contentCollectionView.register(SekeletonCaseBookmarksTextCell.self, forCellWithReuseIdentifier: skeletonCaseTextCell)
         
         contentCollectionView.register(EmptyBookmarkCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         
@@ -190,7 +206,6 @@ class BookmarksViewController: UIViewController {
             getMoreCases()
         }
     }
-    
 }
 
 extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
@@ -199,14 +214,11 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             return CategoriesType.allCases.count
         } else {
             if selectedCategory == 0 {
-                
-                return cases.count > 0 ? cases.count : 1
-            } else {
-                print("Returned posts \(posts.count > 0 ? posts.count : 1)")
-                print(posts.count)
-                return posts.count > 0 ? posts.count : 1
-            }
+                return caseLoaded ? (cases.count > 0 ? cases.count : 1) : 10
 
+            } else {
+                return postLoaded ? (posts.count > 0 ? posts.count : 1) : 10
+            }
         }
     }
     
@@ -221,6 +233,16 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if selectedCategory == 0 {
                 // Cases
+                if !caseLoaded {
+                    if indexPath.row == 0 {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseImageCell, for: indexPath) as! SekeletonCaseBookmarksImageTextCell
+                        return cell
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseTextCell, for: indexPath) as! SekeletonCaseBookmarksTextCell
+                        return cell
+                    }
+                }
+                
                 if cases.count == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyBookmarkCell
                     cell.set(title: "No saved cases yet", description: "Cases you save will show up here.")
@@ -245,7 +267,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     
                     return cell
                 } else {
-
+                    
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
 
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
@@ -265,14 +287,22 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
             } else {
                 
+                if !postLoaded {
+                    if indexPath.row == 0 {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseImageCell, for: indexPath) as! SekeletonCaseBookmarksImageTextCell
+                        return cell
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseTextCell, for: indexPath) as! SekeletonCaseBookmarksTextCell
+                        return cell
+                    }
+                }
+                
                 if posts.count == 0 {
-                    print("no saved posts")
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyBookmarkCell
                     cell.set(title: "No saved posts yet", description: "Posts you save will show up here.")
                     return cell
                 }
                 
-                print("saved posts")
                 if posts[indexPath.row].type.postType == 0 {
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])

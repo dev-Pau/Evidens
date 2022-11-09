@@ -19,6 +19,7 @@ class NavigationBarViewController: UIViewController {
     weak var panDelegate: DisablePanGestureDelegate?
     
     var controllerIsBeeingPushed: Bool = false
+    var wantsToHideSearchBar: Bool = false
     
     let searchController = UISearchController(searchResultsController: nil)
     
@@ -51,16 +52,6 @@ class NavigationBarViewController: UIViewController {
         
         if !controllerIsBeeingPushed {
             
-            let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-            searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.65).isActive = true
-            navigationItem.titleView = searchBarContainer
-            
-            //navigationItem.rightBarButtonItem = UIBarButtonItem(customView: UIImageView(image: UIImage(named: "paperplane")))
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
-            //navigationItem.rightBarButtonItem?.bo
-            
-            navigationItem.rightBarButtonItem?.tintColor = .black
             
             userImageView.heightAnchor.constraint(equalToConstant: 35).isActive = true
             userImageView.widthAnchor.constraint(equalToConstant: 35).isActive = true
@@ -69,9 +60,20 @@ class NavigationBarViewController: UIViewController {
             userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
             navigationItem.leftBarButtonItem = profileImageItem
             
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
+            //navigationItem.rightBarButtonItem?.bo
+            
+            navigationItem.rightBarButtonItem?.tintColor = .black
+            
+            if wantsToHideSearchBar { return }
+            
+            let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+            searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.65).isActive = true
+            navigationItem.titleView = searchBarContainer
+        
             searchBar.delegate = self
         }
-
     }
     
     override func viewWillAppear(_ animated: Bool) {
