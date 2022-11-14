@@ -13,11 +13,11 @@ protocol GroupManagerCellDelegate: AnyObject {
 
 class GroupManagerCell: UICollectionViewCell {
     
-    private var discoverMenuExpanded: Bool = true
+    private let cellContentView = UIView()
     
     weak var delegate: GroupManagerCellDelegate?
     
-    private let profileImageView: UIImageView = {
+    private let profileGroupImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
@@ -30,31 +30,42 @@ class GroupManagerCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = .black
-        button.configuration?.image = UIImage(systemName: "chevron.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
-        button.configuration?.imagePadding = 5
-        button.configuration?.imagePlacement = .trailing
         
+        button.configuration?.image = UIImage(systemName: "chevron.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
+        button.configuration?.imagePadding = 10
+        button.configuration?.imagePlacement = .trailing
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 16, weight: .medium)
-        button.configuration?.attributedTitle = AttributedString("Veterinary medicine", attributes: container)
-
+        button.configuration?.attributedTitle = AttributedString("Veterinary medicine and health and fitness improvement sessions", attributes: container)
         button.contentHorizontalAlignment = .left
         button.translatesAutoresizingMaskIntoConstraints = false
-        
-        
         return button
     }()
     
-    private lazy var discoverButton: UIButton = {
+    private let groupSizeButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseForegroundColor = grayColor
-        button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.image = UIImage(systemName: "chevron.up", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
-        button.addTarget(self, action: #selector(didTapToogleHide), for: .touchUpInside)
+        button.configuration = .plain()
+        button.configuration?.baseForegroundColor = .black
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 13, weight: .medium)
+        button.configuration?.attributedTitle = AttributedString("53 members", attributes: container)
         return button
+    }()
+    
+    private let groupSizeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "53 members"
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     override init(frame: CGRect) {
@@ -67,46 +78,44 @@ class GroupManagerCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
-        addSubviews(profileImageView, groupNameButton, discoverButton)
+        
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        cellContentView.backgroundColor = .white
+        addSubview(cellContentView)
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 40),
-            profileImageView.widthAnchor.constraint(equalToConstant: 40),
-            
-            groupNameButton.topAnchor.constraint(equalTo: topAnchor),
-            groupNameButton.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor),
-            groupNameButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -50),
-            
-            discoverButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            discoverButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            discoverButton.widthAnchor.constraint(equalToConstant: 20),
-            discoverButton.heightAnchor.constraint(equalToConstant: 20)
-            
-            
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        profileImageView.layer.cornerRadius = 40 / 2
+        cellContentView.backgroundColor = .white
+        cellContentView.addSubviews(profileGroupImageView, groupNameButton, groupSizeLabel, separatorView)
         
-        discoverButton.configurationUpdateHandler = { [unowned self] button in
-            var config = button.configuration
+        NSLayoutConstraint.activate([
+
+            profileGroupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            profileGroupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            profileGroupImageView.heightAnchor.constraint(equalToConstant: 40),
+            profileGroupImageView.widthAnchor.constraint(equalToConstant: 40),
             
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 14, weight: .bold)
-            config?.image = discoverMenuExpanded ? UIImage(systemName: "chevron.up", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)) : UIImage(systemName: "chevron.down", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
-            button.configuration = config
-        }
+            groupNameButton.topAnchor.constraint(equalTo: profileGroupImageView.topAnchor),
+            groupNameButton.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor),
+            groupNameButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 10 - 50 - 50),
+           
+            groupSizeLabel.topAnchor.constraint(equalTo: groupNameButton.bottomAnchor),
+            groupSizeLabel.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor, constant: 12),
+            groupSizeLabel.trailingAnchor.constraint(equalTo: groupNameButton.trailingAnchor),
+            groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
+        ])
+        
+        profileGroupImageView.layer.cornerRadius = 40 / 2
+        
     }
     
     func set(user: User) {
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        profileGroupImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
     }
     
-    @objc func didTapToogleHide() {
-        discoverMenuExpanded.toggle()
-        delegate?.didTapToogleHideDiscover(isExpanding: discoverMenuExpanded)
-        discoverButton.setNeedsUpdateConfiguration()
-    }
 }

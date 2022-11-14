@@ -15,6 +15,7 @@ protocol MainTabControllerDelegate: AnyObject {
     func handleMenu()
     func handleDisablePan()
     func handleConversations()
+    func handleDisableRightPan()
 }
 
 class MainTabController: UITabBarController {
@@ -152,7 +153,7 @@ class MainTabController: UITabBarController {
         groupsController.delegate = self
         groupsController.panDelegate = self
         groupsController.wantsToHideSearchBar = true
-        
+
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
         
         let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
@@ -160,6 +161,7 @@ class MainTabController: UITabBarController {
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "post")!, selectedImage: UIImage(named: "post.selected")!, rootViewController: postController)
         
         let groups = templateNavigationController(title: "Groups", unselectedImage: UIImage(named: "groups.selected")!, selectedImage: UIImage(named: "groups.selected")!, rootViewController: groupsController)
+        
         
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
         
@@ -292,6 +294,16 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
 }
 
 extension MainTabController: NavigationBarViewControllerDelegate {
+    func didTapCreateGroup() {
+        let controller = CreateGroupViewController()
+        
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        
+        present(nav, animated: true)
+        
+    }
+    
     func didTapConversationsButton() {
         menuDelegate?.handleConversations()
     }
@@ -317,6 +329,10 @@ extension MainTabController: NavigationBarViewControllerDelegate {
 }
 
 extension MainTabController: DisablePanGestureDelegate {
+    func disableRightPanGesture() {
+        menuDelegate?.handleDisableRightPan()
+    }
+    
     func disablePanGesture() {
         menuDelegate?.handleDisablePan()
     }

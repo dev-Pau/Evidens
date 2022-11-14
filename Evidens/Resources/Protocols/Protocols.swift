@@ -41,6 +41,7 @@ protocol NotificationCellDelegate: AnyObject {
 
 protocol DisablePanGestureDelegate: AnyObject {
     func disablePanGesture()
+    func disableRightPanGesture()
 }
 
 

@@ -21,7 +21,5 @@ class ExploreGroupsCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .white
-        
-        
     }
 }

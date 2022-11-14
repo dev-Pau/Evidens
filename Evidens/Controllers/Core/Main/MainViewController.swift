@@ -12,6 +12,7 @@ protocol MainViewControllerDelegate: AnyObject {
     func handleDisablePan()
     func hideConversations()
     func showConversations()
+    func handleDisableRightPan()
     func handleDisablePanWhileEditing(editing: Bool)
 }
 
@@ -74,6 +75,10 @@ extension MainViewController: MainTabControllerDelegate {
     
     func handleDisablePan() {
         delegate?.handleDisablePan()
+    }
+    
+    func handleDisableRightPan() {
+        delegate?.handleDisableRightPan()
     }
 }
 

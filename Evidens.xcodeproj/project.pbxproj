@@ -163,7 +163,10 @@
 		5F94478129192673003B3DA0 /* DiscoverGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94478029192673003B3DA0 /* DiscoverGroupCell.swift */; };
 		5F944783291A2ADE003B3DA0 /* ExploreGroupsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944782291A2ADE003B3DA0 /* ExploreGroupsCell.swift */; };
 		5F944785291A5B7F003B3DA0 /* GroupManagerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */; };
+		5F944788291D1391003B3DA0 /* DiscoverGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */; };
+		5F94478A291D4645003B3DA0 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944789291D4645003B3DA0 /* GroupCell.swift */; };
 		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
+		5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */; };
 		5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* CasesCell.swift */; };
 		5F992AF828AB6D0B0030F7F1 /* CommentsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AF728AB6D0B0030F7F1 /* CommentsMenuLauncher.swift */; };
 		5F992AFC28ACC7CD0030F7F1 /* TopPostTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */; };
@@ -473,7 +476,10 @@
 		5F94478029192673003B3DA0 /* DiscoverGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverGroupCell.swift; sourceTree = "<group>"; };
 		5F944782291A2ADE003B3DA0 /* ExploreGroupsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreGroupsCell.swift; sourceTree = "<group>"; };
 		5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupManagerCell.swift; sourceTree = "<group>"; };
+		5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverGroupsViewController.swift; sourceTree = "<group>"; };
+		5F944789291D4645003B3DA0 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
+		5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupViewController.swift; sourceTree = "<group>"; };
 		5F979C5D286DDB3D00C05D57 /* CasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCell.swift; sourceTree = "<group>"; };
 		5F992AF728AB6D0B0030F7F1 /* CommentsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsMenuLauncher.swift; sourceTree = "<group>"; };
 		5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostTextCell.swift; sourceTree = "<group>"; };
@@ -1193,6 +1199,8 @@
 			isa = PBXGroup;
 			children = (
 				5F94477D29190012003B3DA0 /* GroupsViewController.swift */,
+				5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */,
+				5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */,
 			);
 			path = Groups;
 			sourceTree = "<group>";
@@ -1200,9 +1208,11 @@
 		5F94477F291925DD003B3DA0 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				5F9483AF29224F6000D68B46 /* Create */,
 				5F94478029192673003B3DA0 /* DiscoverGroupCell.swift */,
 				5F944782291A2ADE003B3DA0 /* ExploreGroupsCell.swift */,
 				5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */,
+				5F944789291D4645003B3DA0 /* GroupCell.swift */,
 			);
 			path = Groups;
 			sourceTree = "<group>";
@@ -1228,6 +1238,13 @@
 				5FA2FB2C28DC7DC600B37424 /* EmptyContentCell.swift */,
 			);
 			path = Topics;
+			sourceTree = "<group>";
+		};
+		5F9483AF29224F6000D68B46 /* Create */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Create;
 			sourceTree = "<group>";
 		};
 		5F979C5C286DDB1000C05D57 /* Cases */ = {
@@ -2015,6 +2032,7 @@
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F4493C227708A84008FD6ED /* WelcomeRegistrationViewController.swift in Sources */,
 				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
+				5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
 				5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
@@ -2241,6 +2259,7 @@
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
 				5FA2EAE728F72D310054BA5B /* ExploreHeaderCell.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
+				5F944788291D1391003B3DA0 /* DiscoverGroupsViewController.swift in Sources */,
 				5F944785291A5B7F003B3DA0 /* GroupManagerCell.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F9A9F832896CB0D00A25152 /* ConfigureSectionTitleCell.swift in Sources */,
@@ -2270,6 +2289,7 @@
 				5FB29031288BFB68002FBAE1 /* DetailsPostViewController.swift in Sources */,
 				5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */,
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,
+				5F94478A291D4645003B3DA0 /* GroupCell.swift in Sources */,
 				5F85218328A163430033AF67 /* AboutSectionViewController.swift in Sources */,
 				5FB2903D288FBCA2002FBAE1 /* MECaseUpdateView.swift in Sources */,
 				5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */,

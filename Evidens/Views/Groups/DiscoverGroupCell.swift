@@ -7,7 +7,15 @@
 
 import UIKit
 
+protocol DiscoverGroupCellDelegate: AnyObject {
+    func didTapDiscover()
+}
+
 class DiscoverGroupCell: UICollectionViewCell {
+    
+    weak var delegate: DiscoverGroupCellDelegate?
+    
+    private let cellContentView = UIView()
     
     private let exploreImage: UIImageView = {
         let iv = UIImageView()
@@ -38,7 +46,7 @@ class DiscoverGroupCell: UICollectionViewCell {
         return label
     }()
     
-    private let exploreGroupsButton: UIButton = {
+    private lazy var exploreGroupsButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
@@ -48,6 +56,9 @@ class DiscoverGroupCell: UICollectionViewCell {
         container.font = UIFont.boldSystemFont(ofSize: 15)
         button.configuration?.attributedTitle = AttributedString("Discover", attributes: container)
         button.translatesAutoresizingMaskIntoConstraints = false
+        
+        button.addTarget(self, action: #selector(handleDiscover), for: .touchUpInside)
+        
         return button
     }()
     
@@ -56,14 +67,6 @@ class DiscoverGroupCell: UICollectionViewCell {
         view.backgroundColor = lightColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
-    }()
-    
-    private let groupSizeLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
     }()
     
     override init(frame: CGRect) {
@@ -76,33 +79,58 @@ class DiscoverGroupCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
-        addSubviews(exploreImage, exploreTitleLabel, exploreDescriptionLabel, exploreGroupsButton, separatorView)
+        
+        cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        cellContentView.backgroundColor = .white
+        addSubview(cellContentView)
         
         NSLayoutConstraint.activate([
-            exploreImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            exploreImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            cellContentView.topAnchor.constraint(equalTo: topAnchor),
+            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            cellContentView.heightAnchor.constraint(equalToConstant: 130),
+        ])
+        
+        cellContentView.addSubviews(exploreImage, exploreTitleLabel, exploreDescriptionLabel, exploreGroupsButton, separatorView)
+        
+        NSLayoutConstraint.activate([
+            exploreImage.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            exploreImage.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             exploreImage.heightAnchor.constraint(equalToConstant: 30),
             exploreImage.widthAnchor.constraint(equalToConstant: 30),
             
             exploreTitleLabel.topAnchor.constraint(equalTo: exploreImage.topAnchor),
             exploreTitleLabel.leadingAnchor.constraint(equalTo: exploreImage.trailingAnchor, constant: 10),
-            exploreTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            exploreTitleLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            exploreDescriptionLabel.topAnchor.constraint(equalTo: exploreTitleLabel.bottomAnchor),
+            exploreDescriptionLabel.topAnchor.constraint(equalTo: exploreTitleLabel.bottomAnchor, constant: 5),
             exploreDescriptionLabel.leadingAnchor.constraint(equalTo: exploreTitleLabel.leadingAnchor),
             exploreDescriptionLabel.trailingAnchor.constraint(equalTo: exploreTitleLabel.trailingAnchor),
             
             exploreGroupsButton.topAnchor.constraint(equalTo: exploreDescriptionLabel.bottomAnchor, constant: 10),
             exploreGroupsButton.leadingAnchor.constraint(equalTo: exploreDescriptionLabel.leadingAnchor),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
         exploreImage.layer.cornerRadius = 30 / 2
-        
+    }
+    
+    @objc func handleDiscover() {
+        delegate?.didTapDiscover()
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
 }

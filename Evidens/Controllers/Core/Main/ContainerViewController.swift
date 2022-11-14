@@ -22,6 +22,9 @@ class ContainerViewController: UIViewController {
     private var menuState: MEMenuState = .closed
     private var viewIsOnConversations: Bool = false
     
+    private var viewIsOnGroupsViewController: Bool = false
+    private var disableRightPan: Bool = false
+    
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
     private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
@@ -77,6 +80,10 @@ class ContainerViewController: UIViewController {
             if done {
                 self.blackBackgroundView.isUserInteractionEnabled = true
                 self.menuState = .opened
+                if self.viewIsOnGroupsViewController == true {
+                    // User is in groups VC
+                    self.disableRightPan = false
+                }
             }
         }
     }
@@ -92,6 +99,9 @@ class ContainerViewController: UIViewController {
             if done {
                 self.blackBackgroundView.isUserInteractionEnabled = false
                 self.menuState = .closed
+                if self.viewIsOnGroupsViewController {
+                    self.disableRightPan = true
+                }
             }
         }
     }
@@ -124,6 +134,9 @@ class ContainerViewController: UIViewController {
     
     @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
         let translation = recognizer.translation(in: self.view)
+        
+        // Disable right gesture at groups VC
+        if translation.x < 0 && disableRightPan { return }
         
         if viewIsOnConversations {
             
@@ -173,6 +186,7 @@ class ContainerViewController: UIViewController {
                 self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.65 + translation.x / 500)
                 self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0.65 + translation.x / 500)
                 self.menuController.view.frame.origin.x = translation.x
+                if viewIsOnGroupsViewController { }
                 
             }
         case .closed:
@@ -217,6 +231,11 @@ extension ContainerViewController: MainViewControllerDelegate {
     
     func hideConversations() {
         closeConversation()
+    }
+    
+    func handleDisableRightPan() {
+        viewIsOnGroupsViewController.toggle()
+        disableRightPan = viewIsOnGroupsViewController
     }
 }
 

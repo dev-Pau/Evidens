@@ -21,14 +21,12 @@ class GroupsViewController: NavigationBarViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        layout.itemSize = CGSize(width: UIScreen.main.bounds.width, height: 120)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 120)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
-    
-    private var itemsInSection: Int = 1
     
     init(user: User) {
         self.user = user
@@ -72,7 +70,7 @@ extension GroupsViewController: UICollectionViewDelegateFlowLayout, UICollection
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         // posar-ho en funció de la secció
         if section == 0 {
-            return itemsInSection == 1 ? UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0) : UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
         
         return UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
@@ -84,7 +82,7 @@ extension GroupsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return itemsInSection }
+        if section == 0 { return 1 }
         if section == 1 { return 1 }
         return 3
     }
@@ -92,11 +90,11 @@ extension GroupsViewController: UICollectionViewDelegateFlowLayout, UICollection
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreHeaderCellReuseIdentifier, for: indexPath) as! DiscoverGroupCell
+            cell.delegate = self
             return cell
         } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupManagerCellReuseIdentifier, for: indexPath) as! GroupManagerCell
             cell.set(user: user)
-            cell.delegate = self
             return cell
         }
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCellReuseIdentifier, for: indexPath) as! ExploreGroupsCell
@@ -104,15 +102,17 @@ extension GroupsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
 }
 
-extension GroupsViewController: GroupManagerCellDelegate {
-    func didTapToogleHideDiscover(isExpanding: Bool) {
-        if isExpanding {
-            itemsInSection = 1
-            groupsListCollectionView.insertItems(at: [IndexPath(row: 0, section: 0)])
-            return
-        }
-        itemsInSection = 0
-        groupsListCollectionView.deleteItems(at: [IndexPath(row: 0, section: 0)])
+extension GroupsViewController: DiscoverGroupCellDelegate {
+    
+    func didTapDiscover() {
+        let controller = DiscoverGroupsViewController()
         
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
