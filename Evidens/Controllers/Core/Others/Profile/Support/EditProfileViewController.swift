@@ -368,12 +368,12 @@ extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
     }
     
     func experienceSectionDidChange() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         delegate?.fetchNewExperienceValues(withUid: uid)
     }
     
     func aboutSectionDidChange() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         delegate?.fetchNewAboutValues(withUid: uid)
     }
     
