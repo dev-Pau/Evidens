@@ -21,10 +21,11 @@ class CategoryCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Add category", attributes: container)
-
+        
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         button.configuration?.imagePlacement = .trailing
         button.configuration?.imagePadding = 5
+
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeColor = lightGrayColor
         button.configuration?.background.strokeWidth = 1
@@ -39,6 +40,11 @@ class CategoryCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        layoutIfNeeded()
     }
     
     private func configure() {
@@ -65,17 +71,13 @@ class CategoryCell: UICollectionViewCell {
     }
     
     func configure(with category: Category) {
-        if category.name == "Add category" {
-            return
-        }
-        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         categoriesButton.configuration?.attributedTitle = AttributedString(category.name, attributes: container)
-        
+        categoriesButton.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+
         categoriesButton.configuration?.baseForegroundColor = .white
         categoriesButton.configuration?.baseBackgroundColor = primaryColor
         categoriesButton.configuration?.background.strokeWidth = 0
-        categoriesButton.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
     }
 }

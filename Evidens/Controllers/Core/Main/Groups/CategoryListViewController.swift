@@ -41,11 +41,9 @@ class CategoryListViewController: UIViewController {
     
     init(selectedCategories: [Category]) {
         self.selectedCategories = selectedCategories
-        if selectedCategories.contains(Category(name: "Add category")) {
+        if self.selectedCategories.last?.name == "Add category" {
             self.selectedCategories.removeLast()
         }
-        
-        print(self.selectedCategories)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -110,11 +108,6 @@ class CategoryListViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-
-        if selectedCategories.count < 3 {
-            selectedCategories.append(Category(name: "Add category"))
-        }
-
         delegate?.didTapAddCategories(categories: selectedCategories)
         navigationController?.popViewController(animated: true)
     }
@@ -136,7 +129,6 @@ extension CategoryListViewController: UICollectionViewDelegateFlowLayout, UIColl
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         navigationItem.rightBarButtonItem?.isEnabled = true
         selectedCategories.insert(Category(name: categories[indexPath.row].name), at: 0)
-        print(selectedCategories)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {

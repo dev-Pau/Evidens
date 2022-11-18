@@ -34,7 +34,7 @@ class CreateGroupViewController: UIViewController {
             }
         }
     }
-    
+
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
@@ -47,11 +47,12 @@ class CreateGroupViewController: UIViewController {
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureCollectionView()
+        configureUI()
     }
     
     private func configureNavigationBar() {
@@ -68,17 +69,18 @@ class CreateGroupViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        view.backgroundColor = .white
-        
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: createGroupImageCellReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: createGroupNameCellReuseIdentifier)
         collectionView.register(GroupDescriptionCell.self, forCellWithReuseIdentifier: createGroupDescriptionCellReuseIdentifier)
         collectionView.register(GroupCategoriesCell.self, forCellWithReuseIdentifier: createGroupCategoriesCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.frame = view.bounds
+    }
+    
+    private func configureUI() {
+        view.backgroundColor = .white
         view.addSubview(collectionView)
-
+        collectionView.frame = view.bounds
     }
     
     @objc func handleDismiss() {
@@ -88,7 +90,26 @@ class CreateGroupViewController: UIViewController {
     @objc func handleCreateGroup() {
         print("Update group to Firebase here")
     }
+    
+    private func createLeftAlignedLayout() -> UICollectionViewLayout {
+        let item = NSCollectionLayoutItem(          // this is your cell
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .estimated(40),         // variable width
+                heightDimension: .absolute(40)          // fixed height
+            )
+        )
+        
+        item.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
+        
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(30)), subitems: [item])
+        group.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
+        group.interItemSpacing = .fixed(10)
+        
+        return UICollectionViewCompositionalLayout(section: .init(group: group))
+    }
 }
+
 
 extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -138,5 +159,3 @@ extension CreateGroupViewController: CategoryListViewControllerDelegate {
         }
     }
 }
-
-

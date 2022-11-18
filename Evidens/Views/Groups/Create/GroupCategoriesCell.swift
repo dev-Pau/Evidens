@@ -39,7 +39,7 @@ class GroupCategoriesCell: UICollectionViewCell {
     }()
     
     private var categoriesCollectionView: UICollectionView!
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -100,16 +100,16 @@ class GroupCategoriesCell: UICollectionViewCell {
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(30)), subitems: [item])
         group.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
-        group.interItemSpacing = .fixed(10) 
+        group.interItemSpacing = .fixed(10)
         
         return UICollectionViewCompositionalLayout(section: .init(group: group))
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
+        
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
+        
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 1))
         autoLayoutAttributes.frame = autoLayoutFrame
@@ -120,7 +120,6 @@ class GroupCategoriesCell: UICollectionViewCell {
         categoriesSelected.removeAll()
         
         categoriesSelected = categories
-        print("Updating collectionView on \(categoriesSelected)")
 
         categoriesCollectionView.reloadData()
     }
@@ -130,35 +129,18 @@ extension GroupCategoriesCell: UICollectionViewDelegateFlowLayout, UICollectionV
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return categoriesSelected.count
     }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        categoriesCollectionView.reloadData()
-    }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! CategoryCell
+        if categoriesSelected.first?.name == "Add category" {
+            return cell
+        }
+        
         cell.configure(with: categoriesSelected[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // User did not select any category, open category browser controller
-        if categoriesSelected[indexPath.row].name == "Add category" {
-            delegate?.didSelectAddCategory(withSelectedCategories: categoriesSelected)
-        } else {
-            // User wants to remove a category already added
-            categoriesSelected.remove(at: indexPath.row)
-            
-            collectionView.deleteItems(at: [indexPath])
-            print("After deleting an item the array is \(categoriesSelected)")
-            if let lastCategoryName = categoriesSelected.last?.name, lastCategoryName != "Add category" {
-                // Append element
-                print("append new category")
-                categoriesSelected.append(Category(name: "Add category"))
-                collectionView.insertItems(at: [IndexPath(item: collectionView.numberOfItems(inSection: 0), section: 0)])
-                
-            }
-        }
+        delegate?.didSelectAddCategory(withSelectedCategories: categoriesSelected)
     }
 }
