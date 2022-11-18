@@ -29,9 +29,9 @@ class GroupDescriptionCell: UICollectionViewCell {
     private lazy var aboutTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = "Add group description here"
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
-        tv.font = .systemFont(ofSize: 17, weight: .regular)
+        tv.placeholderLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        tv.placeholderLabel.textColor = grayColor
+        tv.font = .systemFont(ofSize: 15, weight: .regular)
         tv.textColor = .black
         tv.delegate = self
         tv.isScrollEnabled = true
@@ -64,7 +64,7 @@ class GroupDescriptionCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 210)
+            cellContentView.heightAnchor.constraint(equalToConstant: 140)
         ])
         
         cellContentView.addSubviews(titleLabel, aboutTextView, separatorView)
@@ -75,12 +75,12 @@ class GroupDescriptionCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 15),
             titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            titleLabel.widthAnchor.constraint(equalToConstant: 100),
+            titleLabel.widthAnchor.constraint(equalToConstant: 94),
             
-            aboutTextView.topAnchor.constraint(equalTo: titleLabel.topAnchor),
-            aboutTextView.heightAnchor.constraint(equalToConstant: 170),
+            aboutTextView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            aboutTextView.heightAnchor.constraint(equalToConstant: 100),
             aboutTextView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
             aboutTextView.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor)
         ])

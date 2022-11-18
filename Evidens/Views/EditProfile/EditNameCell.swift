@@ -101,6 +101,7 @@ class EditNameCell: UICollectionViewCell {
     func set(title: String, placeholder: String, name: String) {
         titleLabel.text = title
         firstNameTextField.text = name
+        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: grayColor])
         firstNameTextField.placeholder = placeholder
     }
     

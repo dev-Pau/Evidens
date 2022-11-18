@@ -46,7 +46,6 @@ class ProfessionRegistrationViewController: UIViewController {
         configureSearchBar()
         configureUI()
         configureCollectionView()
-        //configureData()
         configureDataSource()
         updateData(on: professions)
     }
@@ -90,25 +89,7 @@ class ProfessionRegistrationViewController: UIViewController {
         searchController.searchBar.tintColor = primaryColor
         navigationItem.searchController = searchController
     }
-    
-    /*
-    private func configureData() {
-        switch user.category {
-        case .none:
-            break
-        case .professional:
-            professions = Profession.professionalProfessions()
-        case .professor:
-            professions = Profession.professorProfessions()
-        case .student:
-            professions = Profession.getAllProfessions()
-            selectedProfession = "Medicine"
-        case .researcher:
-            professions = Profession.researcherProfessions()
-        }
-    }
-     */
-    
+   
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, Profession>(collectionView: collectionView, cellProvider: { collectionView, indexPath, profession in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: registerProfessionCellReuseIdentifier, for: indexPath) as! RegisterCell
@@ -157,7 +138,6 @@ extension ProfessionRegistrationViewController: UISearchResultsUpdating, UISearc
         guard let filter = searchController.searchBar.text, !filter.isEmpty else {
         filteredProfessions.removeAll()
         updateData(on: professions)
-        print(professions)
         isSearching = false
         return
         }
