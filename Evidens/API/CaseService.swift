@@ -11,8 +11,6 @@ import AlgoliaSearchClient
 
 struct CaseService {
     
-    var first = COLLECTION_POSTS.order(by: "timestamp").limit(to: 5)
-    
     static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, completion: @escaping(Error?) -> Void) {
         
         let data = ["title": caseTitle,

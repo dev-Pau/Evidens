@@ -85,7 +85,6 @@ struct StorageManager {
             
             
             let filename = "\(order) \(uid) \(NSUUID().uuidString)"
-            print(filename)
             let ref = Storage.storage().reference(withPath: "/post_images/\(filename)")
             order += 1
             ref.putData(imageData, metadata: nil) { metadata, error in
@@ -139,6 +138,70 @@ struct StorageManager {
         }
     }
     
+    /// Uploads a profile image for a specific user to firebase storage with url string to download
+    static func uploadGroupImages(images: [UIImage], completion: @escaping([String]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        var groupImagesUrl: [String] = []
+        var index = 0
+        var order = 0
+        
+        images.forEach { image in
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            
+            
+            let filename = "\(order) \(uid) \(NSUUID().uuidString)"
+            let ref = Storage.storage().reference(withPath: "/group_images/\(filename)")
+            order += 1
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    index += 1
+                    guard let imageUrl = url?.absoluteString else { return }
+                    groupImagesUrl.append(imageUrl)
+                    if images.count == index {
+                        
+                        var appended: [Int] = []
+                        
+                        groupImagesUrl.forEach { url in
+                            
+                            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/group_images%2F", with: "")
+                            appended.append(Int(currentURL[0..<1])!)
+                            
+                            if appended.count == groupImagesUrl.count {
+                                var orderedGroupImagesUrl = [groupImagesUrl[appended.firstIndex(of: 0)!], groupImagesUrl[appended.firstIndex(of: 1)!]]
+                                completion(orderedGroupImagesUrl)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    static func uploadGroupImage(image: UIImage, completion: @escaping(String) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.75), let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let filename = uid
+        let ref = Storage.storage().reference(withPath: "/group_images/\(filename)")
+        
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                print("DEBUG: Failed to upload image \(error.localizedDescription)")
+                return
+            }
+            
+            ref.downloadURL { url, error in
+                guard let imageUrl = url?.absoluteString else { return }
+                completion(imageUrl)
+            }
+        }
+    }
+
     static func uploadPostVideo(with fileUrl: URL, completion: @escaping (Result<String, Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let fileName = "\(uid) \(NSUUID().uuidString)"
@@ -239,8 +302,6 @@ struct StorageManager {
             }
         }
     }
-    
-    
 }
 
 func fileInDocumentsDirectory(fileName: String) -> String {

@@ -6,35 +6,53 @@
 //
 
 import UIKit
+import PhotosUI
 
 private let createGroupImageCellReuseIdentifier = "CreateGroupImageCellReuseIdentifier"
 private let createGroupNameCellReuseIdentifier = "CreateGroupNameCellReuseIdentifier"
 private let createGroupDescriptionCellReuseIdentifier = "CreateGroupDescriptionCellReuseIdentifier"
+private let createGroupVisibilityCellReuseIdentifier = "CreateGroupVisibilityCellReuseIdentifier"
 private let createGroupCategoriesCellReuseIdentifier = "CreateGroupCategoriesCellReuseIdentifier"
 
 class CreateGroupViewController: UIViewController {
+    
+    private var viewModel = CreateGroupViewModel()
     
     enum GroupSections: String, CaseIterable {
         case groupPictures = "Group Pictures"
         case groupName = "Name"
         case groupDescription = "Description"
+        case groupVisibility = "Visibility"
         case groupCategories = "Categories"
         
         var index: Int {
             switch self {
             case .groupPictures:
                 return 0
-                
             case .groupName:
                 return 1
             case .groupDescription:
                 return 2
+            case .groupVisibility:
+                return 3              
             case .groupCategories:
-                return 3
+                return 4
             }
         }
     }
-
+    
+    private let group = Group(groupId: "", dictionary: [:])
+    
+    private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
+    
+    private var groupBannerImage = UIImage()
+    private var groupProfileImage = UIImage()
+    private var visibilityState: Group.Visibility = .visible
+    private var groupCategories = [String]()
+    
+    private var isProfile: Bool = false
+    private var isBanner: Bool = false
+    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
@@ -50,6 +68,7 @@ class CreateGroupViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        imageBottomMenuLanucher.delegate = self
         configureNavigationBar()
         configureCollectionView()
         configureUI()
@@ -72,9 +91,14 @@ class CreateGroupViewController: UIViewController {
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: createGroupImageCellReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: createGroupNameCellReuseIdentifier)
         collectionView.register(GroupDescriptionCell.self, forCellWithReuseIdentifier: createGroupDescriptionCellReuseIdentifier)
+        collectionView.register(GroupVisibilityCell.self, forCellWithReuseIdentifier: createGroupVisibilityCellReuseIdentifier)
         collectionView.register(GroupCategoriesCell.self, forCellWithReuseIdentifier: createGroupCategoriesCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
+    }
+    
+    private func groupIsValid() {
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.groupIsValid
     }
     
     private func configureUI() {
@@ -88,7 +112,62 @@ class CreateGroupViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-        print("Update group to Firebase here")
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description else { return }
+        
+        var groupToUpload = Group(groupId: "", dictionary: [:])
+        
+        groupToUpload.name = groupName
+        groupToUpload.description = groupDescription
+        groupToUpload.ownerUid = uid
+        groupToUpload.visibility = visibilityState
+        groupToUpload.categories = groupCategories
+        groupToUpload.memberType = .owner
+        
+        showLoadingView()
+        
+        if viewModel.hasBothImages {
+            // Upload banner and profile
+            let imagesToUpload = [groupBannerImage, groupProfileImage]
+            StorageManager.uploadGroupImages(images: imagesToUpload) { urls in
+                self.dismissLoadingView()
+                groupToUpload.bannerUrl = urls[0]
+                groupToUpload.profileUrl = urls[1]
+                
+                GroupService.uploadGroup(group: groupToUpload) { error in
+                    guard error == nil else { return }
+                    #warning("present group page")
+                }
+            }
+        } else {
+            if viewModel.hasProfile {
+                StorageManager.uploadGroupImage(image: groupProfileImage) { url in
+                    self.dismissLoadingView()
+                    groupToUpload.profileUrl = url
+                    
+                    GroupService.uploadGroup(group: groupToUpload) { error in
+                        guard error == nil else { return }
+                        #warning("present group page")
+                    }
+                }
+            } else if viewModel.hasBanner {
+                StorageManager.uploadGroupImage(image: groupBannerImage) { url in
+                    self.dismissLoadingView()
+                    groupToUpload.bannerUrl = url
+                    
+                    GroupService.uploadGroup(group: groupToUpload) { error in
+                        guard error == nil else { return }
+                        #warning("present group page")
+                    }
+                }
+            } else {
+                // No banner no profile
+                GroupService.uploadGroup(group: groupToUpload) { error in
+                    self.dismissLoadingView()
+                    guard error == nil else { return }
+                    #warning("present group page")
+                }
+            }
+        }
     }
     
     private func createLeftAlignedLayout() -> UICollectionViewLayout {
@@ -119,14 +198,20 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
+            cell.delegate = self
             return cell
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupNameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.set(title: GroupSections.allCases[indexPath.row].rawValue, placeholder: "Group name", name: "")
+            cell.delegate = self
             return cell
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupDescriptionCellReuseIdentifier, for: indexPath) as! GroupDescriptionCell
             cell.set(title: GroupSections.allCases[indexPath.row].rawValue)
+            cell.delegate = self
+            return cell
+        } else if indexPath.row == 3 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupVisibilityCellReuseIdentifier, for: indexPath) as! GroupVisibilityCell
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
@@ -152,10 +237,117 @@ extension CreateGroupViewController: GroupCategoriesCellDelegate {
     }
 }
 
+extension CreateGroupViewController: EditProfilePictureCellDelegate {
+    func didTapChangeProfilePicture() {
+        isProfile = true
+        isBanner = false
+        imageBottomMenuLanucher.showImageSettings(in: view)
+    }
+    
+    func didTapChangeBannerPicture() {
+        isProfile = false
+        isBanner = true
+        imageBottomMenuLanucher.showImageSettings(in: view)
+    }
+}
+
 extension CreateGroupViewController: CategoryListViewControllerDelegate {
     func didTapAddCategories(categories: [Category]) {
         if let cell = collectionView.cellForItem(at: IndexPath(item: GroupSections.groupCategories.index, section: 0)) as? GroupCategoriesCell {
             cell.updateCategories(categories: categories)
+            categories.forEach { category in
+                groupCategories.append(category.name)
+            }
+            
         }
+    }
+}
+
+extension CreateGroupViewController: RegisterBottomMenuLauncherDelegate {
+    func didTapImportFromGallery() {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.preferredAssetRepresentationMode = .current
+        config.filter = PHPickerFilter.any(of: [.images])
+        
+        
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func didTapImportFromCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
+    }
+}
+
+extension CreateGroupViewController: PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        guard let selectedImage = info[.editedImage] as? UIImage else { return }
+        let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+        
+        if isProfile {
+            cell.profileImageView.image = selectedImage
+            cell.hideProfileHint()
+            groupProfileImage = selectedImage
+            viewModel.profileImage = true
+        } else {
+            cell.bannerImageView.image = selectedImage
+            cell.hideBannerHint()
+            //groupBannerImage = selectedImage
+            viewModel.profileBanner = true
+        }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+    
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        if results.count == 0 { return }
+        showLoadingView()
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                guard let image = reading as? UIImage, error == nil else { return }
+                DispatchQueue.main.async {
+                    self.dismissLoadingView()
+                    let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+                    
+                    if self.isProfile {
+                        cell.profileImageView.image = image
+                        cell.hideProfileHint()
+                        self.groupProfileImage = image
+                        self.viewModel.profileImage = true
+                    } else {
+                        cell.bannerImageView.image = image
+                        cell.hideBannerHint()
+                        self.groupBannerImage = image
+                        self.viewModel.profileBanner = true
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension CreateGroupViewController: EditNameCellDelegate {
+    func textDidChange(_ cell: UICollectionViewCell, text: String) {
+        viewModel.name = text
+        groupIsValid()
+    }
+}
+
+extension CreateGroupViewController: GroupDescriptionCellDelegate {
+    func descriptionDidChange(text: String) {
+        viewModel.description = text
+        groupIsValid()
     }
 }

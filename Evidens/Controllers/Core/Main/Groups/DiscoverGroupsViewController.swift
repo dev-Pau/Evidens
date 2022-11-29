@@ -31,10 +31,13 @@ class DiscoverGroupsViewController: UIViewController {
         return collectionView
     }()
     
+    private var groups = [Group]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureCollectionView()
+        fetchGroups()
     }
     
     private func configureNavigationBar() {
@@ -60,15 +63,23 @@ class DiscoverGroupsViewController: UIViewController {
         collectionView.frame = view.bounds
         view.addSubview(collectionView)
     }
+    
+    private func fetchGroups() {
+        GroupService.fetchGroups { groups in
+            self.groups = groups
+            self.collectionView.reloadData()
+        }
+    }
 }
 
 extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 15
+        return groups.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
+        cell.viewModel = GroupViewModel(group: groups[indexPath.row])
         return cell
     }
 }

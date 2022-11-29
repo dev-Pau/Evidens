@@ -138,6 +138,14 @@ class EditProfilePictureCell: UICollectionViewCell {
         bannerImageView.sd_setImage(with: URL(string: bannerImageUrl))
     }
     
+    func hideBannerHint() {
+        editImageButton.isHidden = true
+    }
+    
+    func hideProfileHint() {
+        editProfileButton.isHidden = true
+    }
+    
     @objc func handleEditProfileImage() {
         delegate?.didTapChangeProfilePicture()
     }

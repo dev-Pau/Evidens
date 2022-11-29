@@ -21,6 +21,9 @@ class CategoryListViewController: UIViewController {
     private let searchBar = UISearchController()
     
     private var categories: [Category] = Category.allCategories()
+    private var filteredCategories: [Category] = []
+    
+    private var isSearching: Bool = false
     
     private var selectedCategories: [Category]
 
@@ -68,8 +71,11 @@ class CategoryListViewController: UIViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
         
         searchBar.searchBar.placeholder = "Category"
+        searchBar.searchBar.tintColor = primaryColor
         navigationItem.hidesSearchBarWhenScrolling = false
         searchBar.obscuresBackgroundDuringPresentation = false
+        searchBar.searchResultsUpdater = self
+        searchBar.searchBar.delegate = self
         navigationItem.searchController = searchBar
     }
     
@@ -95,6 +101,13 @@ class CategoryListViewController: UIViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Category>()
         snapshot.appendSections([.main])
         snapshot.appendItems(category)
+        
+        selectedCategories.forEach { category in
+            if (snapshot.sectionIdentifier(containingItem: category) != nil) {
+            } else {
+                snapshot.appendItems([category])
+            }
+        }
         
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
@@ -122,7 +135,8 @@ extension CategoryListViewController: UICollectionViewDelegateFlowLayout, UIColl
         guard let numberOfItemsSelected = collectionView.indexPathsForSelectedItems?.count as? Int else { return false }
         if numberOfItemsSelected < 3 { return true }
         // Show popup
-        print("Show pop up")
+        let reportPopup = METopPopupView(title: "You can only choose 3 categories", image: "exclamationmark.octagon.fill")
+        reportPopup.showTopPopup(inView: self.view)
         return false
     }
     
@@ -146,5 +160,29 @@ extension CategoryListViewController: UICollectionViewDelegateFlowLayout, UIColl
         }
         
         navigationItem.rightBarButtonItem?.isEnabled = numberOfItemsSelected > 0 ? true : false
+    }
+}
+
+extension CategoryListViewController: UISearchBarDelegate, UISearchResultsUpdating {
+
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text, !text.isEmpty else {
+            filteredCategories.removeAll()
+            updateData(on: categories)
+            isSearching = false
+            return
+        }
+        
+        isSearching = true
+        filteredCategories = categories.filter({ category in
+            return category.name.lowercased().contains(text.lowercased())
+        })
+        
+        updateData(on: filteredCategories)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        isSearching = false
+        updateData(on: categories)
     }
 }

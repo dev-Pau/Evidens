@@ -43,6 +43,7 @@ class GroupsViewController: NavigationBarViewController {
         view.backgroundColor = .white
         configureCollectionView()
         configureUI()
+        fetchUserGroups()
     }
     
     private func configureCollectionView() {
@@ -62,6 +63,13 @@ class GroupsViewController: NavigationBarViewController {
     private func configureUI() {
         view.addSubview(groupsListCollectionView)
         groupsListCollectionView.frame = view.bounds
+    }
+    
+    private func fetchUserGroups() {
+        GroupService.fetchUserGroups { groups in
+            
+            //print(groups)
+        }
     }
 }
 

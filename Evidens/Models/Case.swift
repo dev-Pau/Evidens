@@ -88,14 +88,7 @@ struct Case {
             }
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
+
     init(caseId: String, dictionary: [String: Any]) {
         self.caseId = caseId
         self.caseTitle = dictionary["title"] as? String ?? ""

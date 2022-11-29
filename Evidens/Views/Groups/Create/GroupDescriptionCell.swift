@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol GroupDescriptionCellDelegate: AnyObject {
+    func descriptionDidChange(text: String)
+}
+
 class GroupDescriptionCell: UICollectionViewCell {
+    
+    weak var delegate: GroupDescriptionCellDelegate?
     
     private let cellContentView = UIView()
     
@@ -64,7 +70,7 @@ class GroupDescriptionCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 140)
+            cellContentView.heightAnchor.constraint(equalToConstant: 120)
         ])
         
         cellContentView.addSubviews(titleLabel, aboutTextView, separatorView)
@@ -104,7 +110,7 @@ class GroupDescriptionCell: UICollectionViewCell {
 
 extension GroupDescriptionCell: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        print("text did change")
+        delegate?.descriptionDidChange(text: textView.text)
     }
 }
 

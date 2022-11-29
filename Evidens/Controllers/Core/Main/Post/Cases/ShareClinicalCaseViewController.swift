@@ -42,10 +42,6 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var newCellWidth: [CGFloat] = []
     
-    private var previousValueTitle: Int = 0
-    private var previousValueDescription: Int = 0
-    
-    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false

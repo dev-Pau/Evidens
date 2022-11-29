@@ -74,10 +74,12 @@ class CategoryCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         categoriesButton.configuration?.attributedTitle = AttributedString(category.name, attributes: container)
-        categoriesButton.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
-
+       
         categoriesButton.configuration?.baseForegroundColor = .white
         categoriesButton.configuration?.baseBackgroundColor = primaryColor
         categoriesButton.configuration?.background.strokeWidth = 0
+        
+        categoriesButton.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+
     }
 }

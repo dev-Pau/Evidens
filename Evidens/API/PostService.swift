@@ -223,9 +223,6 @@ struct PostService {
                 posts.append(post)
                 posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                 if snapshot.documents.count == posts.count {
-                    posts.forEach { post in
-                        print(post.postText)
-                    }
                     completion(posts)
                 }
             }

@@ -841,6 +841,61 @@ extension DatabaseManager {
     }
 }
 
+//MARK: - Group Manager
+
+extension DatabaseManager {
+    
+    public func uploadNewGroup(groupId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("groups").child(groupId).childByAutoId()
+        
+        let joiningDateTimestamp = NSDate().timeIntervalSince1970
+        
+        let ownerUser = ["uid": uid,
+                         "timestamp": joiningDateTimestamp,
+                         "isOwner": 0] as [String : Any]
+        
+        ref.setValue(ownerUser) { error, _ in
+            
+            let userRef = self.database.child("users").child(uid).child("groups").childByAutoId()
+            
+            let newGroup = ["groupId": groupId,
+                            "isOwner": 0]
+            
+            userRef.setValue(newGroup) { error, _ in
+                if let _ = error {
+                    completion(false)
+                    return
+                }
+                completion(true)
+            }
+        }
+    }
+    
+    public func fetchUserIdGroups(completion: @escaping(Result<[String], Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        var ids = [String]()
+        
+        let userRef = database.child("users").child(uid).child("groups")
+        userRef.getData { error, snapshot in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let snapshot = snapshot else { return }
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any], let groupId = value["groupId"] as? String else { return }
+                ids.append(groupId)
+            }
+            completion(.success(ids))
+        }
+    }
+}
+
+
 
 //MARK: - User Recent Cases
 
