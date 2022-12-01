@@ -51,7 +51,7 @@ class DiscoverGroupCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.baseBackgroundColor = primaryColor
-        
+        button.tintAdjustmentMode = .normal
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
         button.configuration?.attributedTitle = AttributedString("Discover", attributes: container)

@@ -35,7 +35,11 @@ struct GroupService {
     
     static func fetchGroups(completion: @escaping([Group]) -> Void) {
         COLLECTION_GROUPS.getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else { return }
+            guard let documents = snapshot?.documents else {
+                completion([])
+                return
+            }
+            
             let groups: [Group] = documents.compactMap({ Group(groupId: $0.documentID, dictionary: $0.data()) })
             completion(groups)
         }

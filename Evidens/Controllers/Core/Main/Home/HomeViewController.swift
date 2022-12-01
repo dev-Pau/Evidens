@@ -66,6 +66,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         configureNavigationItemButtons()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !loaded { collectionView.reloadData() }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 

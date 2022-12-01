@@ -8,6 +8,7 @@
 import UIKit
 
 private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
+private let groupCellSkeletonCellReuseIdentifier = "GroupCellSkeletonCellReuseIdentifier"
 
 class DiscoverGroupsViewController: UIViewController {
     
@@ -28,10 +29,13 @@ class DiscoverGroupsViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.isScrollEnabled = false
         return collectionView
     }()
     
     private var groups = [Group]()
+    
+    private var loaded: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +59,7 @@ class DiscoverGroupsViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.register(GroupCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        collectionView.register(DiscoverGroupSkeletonCell.self, forCellWithReuseIdentifier: groupCellSkeletonCellReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -67,6 +72,8 @@ class DiscoverGroupsViewController: UIViewController {
     private func fetchGroups() {
         GroupService.fetchGroups { groups in
             self.groups = groups
+            self.collectionView.isScrollEnabled = true
+            self.loaded = true
             self.collectionView.reloadData()
         }
     }
@@ -74,10 +81,15 @@ class DiscoverGroupsViewController: UIViewController {
 
 extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return groups.count
+        return loaded ? groups.count : 10
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if !loaded {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellSkeletonCellReuseIdentifier, for: indexPath) as! DiscoverGroupSkeletonCell
+            return cell
+        }
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
         cell.viewModel = GroupViewModel(group: groups[indexPath.row])
         return cell

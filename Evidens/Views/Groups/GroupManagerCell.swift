@@ -8,12 +8,18 @@
 import UIKit
 
 protocol GroupManagerCellDelegate: AnyObject {
-    func didTapToogleHideDiscover(isExpanding: Bool)
+    func didTapBrosweGroups()
 }
 
 class GroupManagerCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
+    
+    var viewModel: GroupViewModel? {
+        didSet {
+            configureGroup()
+        }
+    }
     
     weak var delegate: GroupManagerCellDelegate?
     
@@ -26,7 +32,7 @@ class GroupManagerCell: UICollectionViewCell {
         return iv
     }()
     
-    private let groupNameButton: UIButton = {
+    private lazy var groupNameButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = .black
@@ -34,28 +40,17 @@ class GroupManagerCell: UICollectionViewCell {
         button.configuration?.image = UIImage(systemName: "chevron.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
         button.configuration?.imagePadding = 10
         button.configuration?.imagePlacement = .trailing
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 16, weight: .medium)
-        button.configuration?.attributedTitle = AttributedString("Veterinary medicine and health and fitness improvement sessions", attributes: container)
+        
         button.contentHorizontalAlignment = .left
+        button.tintAdjustmentMode = .normal
         button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private let groupSizeButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        button.configuration?.baseForegroundColor = .black
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 13, weight: .medium)
-        button.configuration?.attributedTitle = AttributedString("53 members", attributes: container)
+        
+        button.addTarget(self, action: #selector(handleBrowseGroups), for: .touchUpInside)
         return button
     }()
     
     private let groupSizeLabel: UILabel = {
         let label = UILabel()
-        label.text = "53 members"
         label.font = .systemFont(ofSize: 13, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -97,10 +92,10 @@ class GroupManagerCell: UICollectionViewCell {
 
             profileGroupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             profileGroupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            profileGroupImageView.heightAnchor.constraint(equalToConstant: 40),
-            profileGroupImageView.widthAnchor.constraint(equalToConstant: 40),
+            profileGroupImageView.heightAnchor.constraint(equalToConstant: 50),
+            profileGroupImageView.widthAnchor.constraint(equalToConstant: 50),
             
-            groupNameButton.topAnchor.constraint(equalTo: profileGroupImageView.topAnchor),
+            groupNameButton.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             groupNameButton.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor),
             groupNameButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 10 - 50 - 50),
            
@@ -109,13 +104,21 @@ class GroupManagerCell: UICollectionViewCell {
             groupSizeLabel.trailingAnchor.constraint(equalTo: groupNameButton.trailingAnchor),
             groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
         ])
-        
-        profileGroupImageView.layer.cornerRadius = 40 / 2
-        
+        profileGroupImageView.layer.cornerRadius = 5
     }
     
-    func set(user: User) {
-        profileGroupImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+    func configureGroup() {
+        guard let viewModel = viewModel else { return }
+        profileGroupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        groupSizeLabel.text = viewModel.groupSizeString
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .medium)
+        groupNameButton.configuration?.attributedTitle = AttributedString(viewModel.groupName, attributes: container)
+    }
+    
+    @objc func handleBrowseGroups() {
+        delegate?.didTapBrosweGroups()
     }
     
 }
