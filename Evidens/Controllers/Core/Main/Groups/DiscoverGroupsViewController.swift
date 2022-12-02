@@ -44,6 +44,11 @@ class DiscoverGroupsViewController: UIViewController {
         fetchGroups()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !loaded { collectionView.reloadData() }
+    }
+    
     private func configureNavigationBar() {
         
         view.backgroundColor = .white

@@ -9,4 +9,13 @@ import UIKit
 
 class GroupPageViewController: UIViewController {
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureNavigationBar()
+        view.backgroundColor = .white
+    }
+    
+    private func configureNavigationBar() {
+        
+    }
 }

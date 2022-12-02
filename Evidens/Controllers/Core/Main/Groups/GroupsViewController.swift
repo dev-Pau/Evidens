@@ -78,21 +78,6 @@ class GroupsViewController: NavigationBarViewController {
     private func fetchUserGroups() {
         // Fetch last group selected by the user and saved in UserDefaults
         GroupService.fetchUserGroups { groups in
-            /*
-            var runCount = 0
-
-            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-                print("Timer fired!")
-                runCount += 1
-
-                if runCount == 3 {
-                    timer.invalidate()
-                    self.group = groups.first!
-                    self.groupLoaded = true
-                    self.groupsListCollectionView.reloadData()
-                }
-            }
-             */
             self.group = groups.first!
             self.groupLoaded = true
             self.groupsListCollectionView.reloadData()
@@ -132,6 +117,7 @@ extension GroupsViewController: UICollectionViewDelegateFlowLayout, UICollection
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupSkeletonCellReuseIdentifier, for: indexPath) as! GroupSkeletonCell
                 return cell
             }
+            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupManagerCellReuseIdentifier, for: indexPath) as! GroupManagerCell
             cell.delegate = self
             cell.viewModel = GroupViewModel(group: group)

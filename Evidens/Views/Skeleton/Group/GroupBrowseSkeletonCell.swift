@@ -1,21 +1,18 @@
 //
-//  GroupSkeletonCell.swift
+//  GroupBrowseSkeletonCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/12/22.
+//  Created by Pau Fernández Solà on 2/12/22.
 //
 
 import UIKit
 
-class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
+class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
     
     private let cellContentView = UIView()
     
     private var paddingTop: CGFloat =  10
     private var paddingLeft: CGFloat = 10
-    
-    private let groupBannerLabel = UILabel()
-    private let groupBannerLayer = CAGradientLayer()
     
     private let groupImageLabel = UILabel()
     private let groupImageLayer = CAGradientLayer()
@@ -28,6 +25,9 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
 
     private let descriptionLabel = UILabel()
     private let descriptionLayer = CAGradientLayer()
+    
+    private let summLabel = UILabel()
+    private let summLayer = CAGradientLayer()
    
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,10 +42,9 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        groupBannerLayer.frame = groupBannerLabel.bounds
         
         groupImageLayer.frame = groupImageLabel.bounds
-        groupImageLayer.cornerRadius = 60 / 2
+        groupImageLayer.cornerRadius = 50 / 2
         
         fullNameLayer.frame = fullNameLabel.bounds
         fullNameLayer.cornerRadius = fullNameLabel.bounds.height / 2
@@ -55,8 +54,11 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         
         descriptionLayer.frame = descriptionLabel.bounds
         descriptionLayer.cornerRadius = descriptionLabel.bounds.height / 2
+        
+        summLayer.frame = summLabel.bounds
+        summLayer.cornerRadius = summLabel.bounds.height / 2
     }
-
+    
     private func configure() {
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
@@ -66,29 +68,24 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 150),
+            cellContentView.heightAnchor.constraint(equalToConstant: 100),
         ])
         
         groupImageLabel.translatesAutoresizingMaskIntoConstraints = false
         fullNameLabel.translatesAutoresizingMaskIntoConstraints = false
         membersLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        groupBannerLabel.translatesAutoresizingMaskIntoConstraints = false
+        summLabel.translatesAutoresizingMaskIntoConstraints = false
      
-        cellContentView.addSubviews(groupBannerLabel, groupImageLabel, fullNameLabel, membersLabel, descriptionLabel)
+        cellContentView.addSubviews(groupImageLabel, fullNameLabel, membersLabel, descriptionLabel, summLabel)
         
         NSLayoutConstraint.activate([
-            groupBannerLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            groupBannerLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            groupBannerLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            groupBannerLabel.heightAnchor.constraint(equalToConstant: 70),
-            
-            groupImageLabel.centerYAnchor.constraint(equalTo: groupBannerLabel.bottomAnchor),
+            groupImageLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: paddingTop),
             groupImageLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: paddingLeft),
-            groupImageLabel.heightAnchor.constraint(equalToConstant: 60),
-            groupImageLabel.widthAnchor.constraint(equalToConstant: 60),
+            groupImageLabel.heightAnchor.constraint(equalToConstant: 50),
+            groupImageLabel.widthAnchor.constraint(equalToConstant: 50),
             
-            fullNameLabel.topAnchor.constraint(equalTo: groupBannerLabel.bottomAnchor, constant: paddingTop),
+            fullNameLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: paddingTop),
             fullNameLabel.leadingAnchor.constraint(equalTo: groupImageLabel.trailingAnchor, constant: paddingLeft),
             fullNameLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -paddingLeft),
             fullNameLabel.heightAnchor.constraint(equalToConstant: 15),
@@ -103,18 +100,15 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
             membersLabel.widthAnchor.constraint(equalToConstant: 60),
             membersLabel.heightAnchor.constraint(equalToConstant: 15),
             
+            summLabel.topAnchor.constraint(equalTo: membersLabel.bottomAnchor, constant: paddingTop),
+            summLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            summLabel.widthAnchor.constraint(equalToConstant: 120),
+            summLabel.heightAnchor.constraint(equalToConstant: 15),
         ])
-        
-        groupImageLayer.borderColor = UIColor.white.cgColor
-        groupImageLayer.borderWidth = 2
 
     }
     
     private func setup() {
-        groupBannerLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        groupBannerLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        groupBannerLabel.layer.addSublayer(groupBannerLayer)
-        
         groupImageLayer.startPoint = CGPoint(x: 0, y: 0.5)
         groupImageLayer.endPoint = CGPoint(x: 1, y: 0.5)
         groupImageLabel.layer.addSublayer(groupImageLayer)
@@ -131,15 +125,20 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         descriptionLayer.endPoint = CGPoint(x: 1, y: 0.5)
         descriptionLabel.layer.addSublayer(descriptionLayer)
         
+        summLayer.startPoint = CGPoint(x: 0, y: 0.5)
+        summLayer.endPoint = CGPoint(x: 1, y: 0.5)
+        summLabel.layer.addSublayer(summLayer)
+        
         let profileImageGroup = makeAnimationGroup()
         profileImageGroup.beginTime = 0.0
-        groupBannerLayer.add(profileImageGroup, forKey: "backgroundColor")
         groupImageLayer.add(profileImageGroup, forKey: "backgroundColor")
         
         fullNameLayer.add(profileImageGroup, forKey: "backgroundColor")
         membersLayer.add(profileImageGroup, forKey: "backgroundColor")
        
         descriptionLayer.add(profileImageGroup, forKey: "backgroundColor")
+        
+        summLayer.add(profileImageGroup, forKey: "backgroundColor")
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -153,3 +152,4 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         return autoLayoutAttributes
     }
 }
+

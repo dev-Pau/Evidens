@@ -23,11 +23,23 @@ class GroupManagerCell: UICollectionViewCell {
     
     weak var delegate: GroupManagerCellDelegate?
     
+    private let bannerImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFit
+        iv.backgroundColor = lightGrayColor
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+    
     private let profileGroupImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.image = UIImage(named: "user.profile")
+        iv.layer.borderWidth = 2
+        iv.backgroundColor = lightGrayColor
+        iv.layer.borderColor = UIColor.white.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -86,30 +98,35 @@ class GroupManagerCell: UICollectionViewCell {
         ])
         
         cellContentView.backgroundColor = .white
-        cellContentView.addSubviews(profileGroupImageView, groupNameButton, groupSizeLabel, separatorView)
+        cellContentView.addSubviews(bannerImageView, profileGroupImageView, groupNameButton, groupSizeLabel, separatorView)
         
         NSLayoutConstraint.activate([
+            bannerImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
+            bannerImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            bannerImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            bannerImageView.heightAnchor.constraint(equalToConstant: 70),
 
-            profileGroupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            profileGroupImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
             profileGroupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            profileGroupImageView.heightAnchor.constraint(equalToConstant: 50),
-            profileGroupImageView.widthAnchor.constraint(equalToConstant: 50),
+            profileGroupImageView.heightAnchor.constraint(equalToConstant: 60),
+            profileGroupImageView.widthAnchor.constraint(equalToConstant: 60),
             
-            groupNameButton.topAnchor.constraint(equalTo: cellContentView.topAnchor),
+            groupNameButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
             groupNameButton.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor),
-            groupNameButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 10 - 50 - 50),
+            groupNameButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 10 - 60 - 10),
            
             groupSizeLabel.topAnchor.constraint(equalTo: groupNameButton.bottomAnchor),
             groupSizeLabel.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor, constant: 12),
             groupSizeLabel.trailingAnchor.constraint(equalTo: groupNameButton.trailingAnchor),
             groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
         ])
-        profileGroupImageView.layer.cornerRadius = 5
+        profileGroupImageView.layer.cornerRadius = 60 / 2
     }
     
     func configureGroup() {
         guard let viewModel = viewModel else { return }
         profileGroupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        bannerImageView.sd_setImage(with: URL(string: viewModel.groupBannerUrl!))
         groupSizeLabel.text = viewModel.groupSizeString
         
         var container = AttributeContainer()
