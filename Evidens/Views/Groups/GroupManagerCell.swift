@@ -7,6 +7,8 @@
 
 import UIKit
 
+private let userCellReuseIdentifier = "UserCellReuseIdentifier"
+
 protocol GroupManagerCellDelegate: AnyObject {
     func didTapBrosweGroups()
 }
@@ -21,14 +23,17 @@ class GroupManagerCell: UICollectionViewCell {
         }
     }
     
+    private var groupUsers = [User]()
+    
     weak var delegate: GroupManagerCellDelegate?
     
-    private let bannerImageView: UIImageView = {
+    private lazy var bannerImageView: UIImageView = {
         let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = lightGrayColor
+        iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.clipsToBounds = true
+        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.isUserInteractionEnabled = true
         return iv
     }()
     
@@ -61,20 +66,24 @@ class GroupManagerCell: UICollectionViewCell {
         return button
     }()
     
+    private let membersCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = CGSize(width: 25, height: 25)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    
     private let groupSizeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -98,7 +107,11 @@ class GroupManagerCell: UICollectionViewCell {
         ])
         
         cellContentView.backgroundColor = .white
-        cellContentView.addSubviews(bannerImageView, profileGroupImageView, groupNameButton, groupSizeLabel, separatorView)
+        cellContentView.addSubviews(bannerImageView, profileGroupImageView, groupNameButton, groupSizeLabel, membersCollectionView)
+        
+        membersCollectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
+        membersCollectionView.delegate = self
+        membersCollectionView.dataSource = self
         
         NSLayoutConstraint.activate([
             bannerImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -114,17 +127,24 @@ class GroupManagerCell: UICollectionViewCell {
             groupNameButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
             groupNameButton.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor),
             groupNameButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 10 - 60 - 10),
+            
+            membersCollectionView.topAnchor.constraint(equalTo: groupNameButton.bottomAnchor),
+            membersCollectionView.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor, constant: 12),
+            membersCollectionView.heightAnchor.constraint(equalToConstant: 25),
+            membersCollectionView.widthAnchor.constraint(equalToConstant: 25),
            
-            groupSizeLabel.topAnchor.constraint(equalTo: groupNameButton.bottomAnchor),
-            groupSizeLabel.leadingAnchor.constraint(equalTo: profileGroupImageView.trailingAnchor, constant: 12),
+            groupSizeLabel.centerYAnchor.constraint(equalTo: membersCollectionView.centerYAnchor),
+            groupSizeLabel.leadingAnchor.constraint(equalTo: membersCollectionView.trailingAnchor, constant: 5),
             groupSizeLabel.trailingAnchor.constraint(equalTo: groupNameButton.trailingAnchor),
-            groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
+            groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -15)
         ])
+        
         profileGroupImageView.layer.cornerRadius = 60 / 2
     }
     
     func configureGroup() {
         guard let viewModel = viewModel else { return }
+        fetchGroupUsers()
         profileGroupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         bannerImageView.sd_setImage(with: URL(string: viewModel.groupBannerUrl!))
         groupSizeLabel.text = viewModel.groupSizeString
@@ -132,10 +152,46 @@ class GroupManagerCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
         groupNameButton.configuration?.attributedTitle = AttributedString(viewModel.groupName, attributes: container)
+        
     }
     
     @objc func handleBrowseGroups() {
         delegate?.didTapBrosweGroups()
     }
     
+    private func fetchGroupUsers() {
+        guard let viewModel = viewModel else { return }
+        DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: viewModel.group.groupId) { uids in
+            print(uids.count)
+            UserService.fetchUsers(withUids: uids) { users in
+                self.groupUsers = users
+                //rint(self.groupUsers.count)
+                self.membersCollectionView.widthConstraint?.constant = CGFloat(uids.count) * 25
+                self.membersCollectionView.reloadData()
+            }
+        }
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
+    }
+}
+
+extension GroupManagerCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return groupUsers.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! GroupUserCell
+        cell.set(user: groupUsers[indexPath.row])
+        return cell
+    }
 }

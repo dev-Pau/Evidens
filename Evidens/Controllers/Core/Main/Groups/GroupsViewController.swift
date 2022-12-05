@@ -178,4 +178,11 @@ extension GroupsViewController: GroupBrowserViewControllerDelegate {
         
         present(nav, animated: true)
     }
+    
+    func didSelectGroup(group: Group) {
+        if let cell = groupsListCollectionView.cellForItem(at: IndexPath(row: 0, section: 1)) as? GroupManagerCell {
+            self.group = group
+            groupsListCollectionView.reloadItems(at: [IndexPath(row: 0, section: 1)])
+        }
+    }
 }

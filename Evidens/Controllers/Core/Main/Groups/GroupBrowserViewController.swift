@@ -13,6 +13,7 @@ private let groupBrowseSkeletonCellReuseIdentifier = "GroupBrowseSkeletonCellReu
 protocol GroupBrowserViewControllerDelegate: AnyObject {
     func didTapGroupCreate()
     func didTapDiscoverGroup()
+    func didSelectGroup(group: Group)
 }
 
 class GroupBrowserViewController: UIViewController {
@@ -25,10 +26,13 @@ class GroupBrowserViewController: UIViewController {
 
     private let groupCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = lightColor
         collectionView.isScrollEnabled = false
         return collectionView
     }()
@@ -86,7 +90,7 @@ class GroupBrowserViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightColor
+        view.backgroundColor = lightGrayColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -189,5 +193,11 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupBrowseCell
         cell.viewModel = GroupViewModel(group: groups[indexPath.row])
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let groupSelected = groups[indexPath.row]
+        delegate?.didSelectGroup(group: groupSelected)
+        dismiss(animated: true)
     }
 }

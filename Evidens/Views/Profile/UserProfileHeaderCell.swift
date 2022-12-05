@@ -39,7 +39,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        
         iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapBannerPicture)))
         iv.isUserInteractionEnabled = true

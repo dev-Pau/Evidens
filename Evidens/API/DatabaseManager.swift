@@ -893,6 +893,24 @@ extension DatabaseManager {
             completion(.success(ids))
         }
     }
+    
+    public func fetchFirstGroupUsers(forGroupId groupId: String, completion: @escaping([String]) -> Void) {
+        var uids = [String]()
+        let groupRef = database.child("groups").child(groupId).queryOrderedByKey().queryLimited(toFirst: 3)
+        groupRef.getData { error, snapshot in
+            if let _ = error {
+                return
+            }
+            
+            guard let snapshot = snapshot else { return }
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any], let uid = value["uid"] as? String else { return }
+                uids.append(uid)
+            }
+            completion(uids)
+            
+        }
+    }
 }
 
 

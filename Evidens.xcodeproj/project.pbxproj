@@ -271,6 +271,7 @@
 		5FA3985C2938AB70007293C2 /* GroupBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA3985B2938AB70007293C2 /* GroupBrowserViewController.swift */; };
 		5FA3985E2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA3985D2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift */; };
 		5FA398602939FCC2007293C2 /* GroupBrowseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */; };
+		5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA39861293DFF35007293C2 /* GroupUserCell.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
 		5FB290142886851B002FBAE1 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB290132886851B002FBAE1 /* Case.swift */; };
@@ -599,6 +600,7 @@
 		5FA3985B2938AB70007293C2 /* GroupBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowserViewController.swift; sourceTree = "<group>"; };
 		5FA3985D2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseSkeletonCell.swift; sourceTree = "<group>"; };
 		5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseCell.swift; sourceTree = "<group>"; };
+		5FA39861293DFF35007293C2 /* GroupUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupUserCell.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		5FB290132886851B002FBAE1 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
@@ -1307,6 +1309,7 @@
 				5F9742C52937687200704022 /* DiscoverGroupSkeletonCell.swift */,
 				5F9742C729389EC800704022 /* GroupSkeletonCell.swift */,
 				5FA3985D2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift */,
+				5FA39861293DFF35007293C2 /* GroupUserCell.swift */,
 			);
 			path = Group;
 			sourceTree = "<group>";
@@ -2325,6 +2328,7 @@
 				5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */,
 				5F598C0C28376C5700189722 /* UserProfileHeaderCell.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
+				5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */,
 				5F9E4285287BE5C700C2153B /* DiagnosisResolvedView.swift in Sources */,
 				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
 				5F944783291A2ADE003B3DA0 /* ExploreGroupsCell.swift in Sources */,
