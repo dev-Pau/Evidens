@@ -97,8 +97,6 @@ class GroupCell: UICollectionViewCell {
             descriptionGroupLabel.trailingAnchor.constraint(equalTo: sizeGroupLabel.trailingAnchor),
             descriptionGroupLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
         ])
-        
-        groupImageView.layer.cornerRadius = 5
     }
     
     private func configure() {

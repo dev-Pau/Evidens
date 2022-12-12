@@ -45,6 +45,7 @@ class SearchViewController: UIViewController {
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.backgroundColor = lightColor
         searchBar.searchTextField.tintColor = primaryColor
+        //searchBar.setImage(UIImage(named: "magnifyingglass")?.withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)), for: .search , state: .normal)
         return searchBar
     }()
      

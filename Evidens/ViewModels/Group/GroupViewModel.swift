@@ -70,6 +70,11 @@ struct GroupViewModel {
         let memberString = groupMembers > 1 ? " members" : " member"
         return String(groupMembers) + memberString
     }
+    
+    var settingsButtonImageString: String {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return "" }
+        return uid == group.ownerUid ? "info" : "gearshape.fill"
+    }
 }
 
 

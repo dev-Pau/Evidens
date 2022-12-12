@@ -19,6 +19,7 @@ class DiscoverGroupsViewController: UIViewController {
         searchBar.searchTextField.tintColor = primaryColor
         searchBar.searchTextField.backgroundColor = lightColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.setImage(UIImage(named: "groups.selected")?.withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)), for: .search , state: .normal)
         return searchBar
     }()
     

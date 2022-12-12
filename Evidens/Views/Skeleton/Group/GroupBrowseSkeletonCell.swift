@@ -44,7 +44,6 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         super.layoutSubviews()
         
         groupImageLayer.frame = groupImageLabel.bounds
-        groupImageLayer.cornerRadius = 50 / 2
         
         fullNameLayer.frame = fullNameLabel.bounds
         fullNameLayer.cornerRadius = fullNameLabel.bounds.height / 2

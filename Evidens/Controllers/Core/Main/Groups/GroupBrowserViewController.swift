@@ -196,6 +196,7 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if !loaded { return }
         let groupSelected = groups[indexPath.row]
         delegate?.didSelectGroup(group: groupSelected)
         dismiss(animated: true)

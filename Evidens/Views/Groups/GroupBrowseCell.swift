@@ -90,7 +90,7 @@ class GroupBrowseCell: UICollectionViewCell {
         ])
         
         
-        cellContentView.addSubviews(groupImageView, groupNameLabel, memberTypeButton, groupSizeLabel, dotsButton, separatorView)
+        cellContentView.addSubviews(groupImageView, groupNameLabel, memberTypeButton, groupSizeLabel, separatorView)
         
         NSLayoutConstraint.activate([
             groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -98,14 +98,14 @@ class GroupBrowseCell: UICollectionViewCell {
             groupImageView.heightAnchor.constraint(equalToConstant: 50),
             groupImageView.widthAnchor.constraint(equalToConstant: 50),
             
-            dotsButton.centerYAnchor.constraint(equalTo: groupImageView.centerYAnchor),
-            dotsButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            dotsButton.widthAnchor.constraint(equalToConstant: 20),
-            dotsButton.heightAnchor.constraint(equalToConstant: 20),
+            //dotsButton.centerYAnchor.constraint(equalTo: groupImageView.centerYAnchor),
+            //dotsButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            //dotsButton.widthAnchor.constraint(equalToConstant: 20),
+            //dotsButton.heightAnchor.constraint(equalToConstant: 20),
             
             groupNameLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             groupNameLabel.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
-            groupNameLabel.trailingAnchor.constraint(equalTo: dotsButton.trailingAnchor, constant: -10),
+            groupNameLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
             memberTypeButton.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 2),
             memberTypeButton.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
@@ -119,8 +119,6 @@ class GroupBrowseCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             separatorView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor)
         ])
-        
-        groupImageView.layer.cornerRadius = 50 / 2
     }
     
     private func configureGroup() {

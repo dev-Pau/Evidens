@@ -45,7 +45,6 @@ class GroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         groupBannerLayer.frame = groupBannerLabel.bounds
         
         groupImageLayer.frame = groupImageLabel.bounds
-        groupImageLayer.cornerRadius = 60 / 2
         
         fullNameLayer.frame = fullNameLabel.bounds
         fullNameLayer.cornerRadius = fullNameLabel.bounds.height / 2

@@ -682,10 +682,7 @@ class UserProfileViewController: UIViewController {
             self.collectionView.reloadData()
         }
     }
-
 }
-
-
 
 extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
