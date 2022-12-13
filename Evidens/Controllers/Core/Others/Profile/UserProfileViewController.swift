@@ -1088,7 +1088,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     }
     
     func headerCell(didTapBannerPictureFor user: User) {
-        let controller = ProfileImageViewController(user: user, isBanner: true)
+        let controller = ProfileImageViewController(isBanner: true)
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async {
             controller.profileImageView.sd_setImage(with: URL(string: user.bannerImageUrl!))
@@ -1098,7 +1098,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
     }
     
     func headerCell(didTapProfilePictureFor user: User) {
-        let controller = ProfileImageViewController(user: user, isBanner: false)
+        let controller = ProfileImageViewController(isBanner: false)
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async {
             controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))

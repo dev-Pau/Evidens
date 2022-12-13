@@ -13,12 +13,9 @@ class ProfileImageViewController: UIViewController {
     
     public var profileImage: UIImage?
     
-    private var user: User
-    
     private var isBanner: Bool
     
-    init (user: User, isBanner: Bool) {
-        self.user = user
+    init (isBanner: Bool) {
         self.isBanner = isBanner
         super.init(nibName: nil, bundle: nil)
     }

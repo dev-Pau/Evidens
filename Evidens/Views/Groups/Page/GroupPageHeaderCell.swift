@@ -9,6 +9,12 @@ import UIKit
 
 private let userCellReuseIdentifier = "UserCellReuseIdentifier"
 
+protocol GroupPageHeaderCellDelegate: AnyObject {
+    func didTapGroupProfilePicture()
+    func didTapGroupBannerPicture()
+    func didTapInfoButton()
+}
+
 class GroupPageHeaderCell: UICollectionViewCell {
     
     var viewModel: GroupViewModel? {
@@ -23,22 +29,28 @@ class GroupPageHeaderCell: UICollectionViewCell {
         }
     }
     
-    private let groupBannerImageView: UIImageView = {
+    weak var delegate: GroupPageHeaderCellDelegate?
+    
+    private lazy var groupBannerImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))
+        iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
     
-    private let groupProfileImageView: UIImageView = {
+    private lazy var groupProfileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.white.cgColor
         iv.backgroundColor = lightGrayColor
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
+        iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -72,7 +84,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         return collectionView
     }()
     
-    private let configurationButton: UIButton = {
+    private lazy var configurationButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -80,6 +92,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         button.configuration?.buttonSize = .mini
         button.configuration?.baseForegroundColor = grayColor
         button.configuration?.cornerStyle = .medium
+        button.addTarget(self, action: #selector(handleConfigurationButtonTap), for: .touchUpInside)
         return button
     }()
     
@@ -140,7 +153,19 @@ class GroupPageHeaderCell: UICollectionViewCell {
         groupProfileImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         groupNameLabel.text = viewModel.groupName
         membersLabel.text = viewModel.groupSizeString
-        configurationButton.configuration?.image = UIImage(systemName: viewModel.settingsButtonImageString)
+        configurationButton.configuration?.image = UIImage(systemName: "info")
+    }
+    
+    @objc func handleBannerTap() {
+        delegate?.didTapGroupBannerPicture()
+    }
+    
+    @objc func handleProfileTap() {
+        delegate?.didTapGroupProfilePicture()
+    }
+    
+    @objc func handleConfigurationButtonTap() {
+        delegate?.didTapInfoButton()
     }
 }
 

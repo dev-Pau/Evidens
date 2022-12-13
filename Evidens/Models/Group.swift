@@ -54,7 +54,7 @@ struct Group {
     init(groupId: String, dictionary: [String: Any]) {
         self.groupId = groupId
         self.name = dictionary["name"] as? String ?? ""
-        self.ownerUid = dictionary["owmerUid"] as? String ?? ""
+        self.ownerUid = dictionary["ownerUid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""
         self.description = dictionary["description"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())

@@ -69,7 +69,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
     }
     
     @objc func handleEdit() {
-        guard let text = sectionTitle.text else { return }
+        guard let text = sectionTitle.text else { return }
         delegate?.didTapEditSection(sectionTitle: text)
     }
     

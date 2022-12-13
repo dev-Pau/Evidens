@@ -111,6 +111,41 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupHeaderReuseIdentifier, for: indexPath) as! GroupPageHeaderCell
         cell.viewModel = GroupViewModel(group: group)
         cell.users = members
+        cell.delegate = self
         return cell
+    }
+}
+
+extension GroupPageViewController: GroupPageHeaderCellDelegate {
+    func didTapGroupProfilePicture() {
+        let controller = ProfileImageViewController(isBanner: false)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            controller.profileImageView.sd_setImage(with: URL(string: self.group.profileUrl!))
+            controller.modalPresentationStyle = .overFullScreen
+            self.present(controller, animated: true)
+        }
+    }
+    
+    func didTapGroupBannerPicture() {
+        let controller = ProfileImageViewController(isBanner: true)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            controller.profileImageView.sd_setImage(with: URL(string: self.group.bannerUrl!))
+            controller.modalPresentationStyle = .overFullScreen
+            self.present(controller, animated: true)
+        }
+    }
+    
+    func didTapInfoButton() {
+        let controller = GroupInformationViewController(group: group)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
