@@ -265,27 +265,24 @@ extension MainTabController: UITabBarControllerDelegate {
 }
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
-        
-        func didTapUploadPost() {
+    func didTapUpload(content: ShareableContent) {
         guard let user = user else { return }
-        let postController = UploadPostViewController(user: user)
-        
-        let nav = UINavigationController(rootViewController: postController)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true, completion: nil)
+        switch content {
+        case .post:
+            let postController = UploadPostViewController(user: user)
+            
+            let nav = UINavigationController(rootViewController: postController)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true, completion: nil)
+        case .clinicalCase:
+            let clinicalCaseController = ShareClinicalCaseViewController(user: user)
+            
+            let nav = UINavigationController(rootViewController: clinicalCaseController)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true, completion: nil)
+        }
     }
-    
-    
-    func didTapUploadClinicalCase() {
-        guard let user = user else { return }
 
-        let clinicalCaseController = ShareClinicalCaseViewController(user: user)
-        
-        let nav = UINavigationController(rootViewController: clinicalCaseController)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true, completion: nil)
-    }
-    
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa

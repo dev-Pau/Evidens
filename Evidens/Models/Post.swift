@@ -37,19 +37,49 @@ struct Post {
     
     
     
-    enum PrivacyOptions: Int {
+    enum PrivacyOptions: Int, CaseIterable {
         case all
-        case connections
-        case me
+        case group
+        //case connections
+        //case me
         
         var privacyOptions: Int {
             switch self {
             case .all:
                 return 0
-            case .connections:
+            case .group:
                 return 1
-            case .me:
-                return 2
+            //case .me:
+              //  return 2
+            }
+        }
+        
+        var privacyTitle: String {
+            switch self {
+            case .all:
+                return "Public"
+            case .group:
+                return "Group"
+            }
+        }
+        
+        var privacyDescription: String {
+            switch self {
+                
+            case .all:
+                return "Anyone on MyEvidens"
+            case .group:
+                return "Select a group you're in"
+            }
+        }
+        
+        var privacyImage: UIImage {
+            switch self {
+                
+            case .all:
+                return UIImage(systemName: "globe.europe.africa.fill")!
+            case .group:
+                return UIImage(named: "groups.selected")!
             }
         }
     }

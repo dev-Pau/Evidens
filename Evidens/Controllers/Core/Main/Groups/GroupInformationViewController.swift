@@ -11,10 +11,12 @@ private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let groupTitleReuseIdentifier = "GroupTitleReuseIdentifier"
 private let groupDetailsReuseIdentifier = "GroupDetailsReuseIdentifier"
 private let profileAboutReuseIdentifier = "ProfileAboutReuseIdentifier"
+private let groupAdminReuseIdentifier = "GroupAdminReuseIdentifier"
 
 class GroupInformationViewController: UIViewController {
     
     private let group: Group
+    private var users = [User]()
     
     private var collectionView: UICollectionView!
     
@@ -32,6 +34,7 @@ class GroupInformationViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCollectionView()
+        fetchUser()
     }
     
     private func configureNavigationBar() {
@@ -51,6 +54,7 @@ class GroupInformationViewController: UIViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.frame = view.bounds
+        collectionView.backgroundColor = lightColor
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -58,11 +62,13 @@ class GroupInformationViewController: UIViewController {
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderReuseIdentifier)
         collectionView.register(GroupDetailsCell.self, forCellWithReuseIdentifier: groupDetailsReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutReuseIdentifier)
+        //collectionView.register(<#T##cellClass: AnyClass?##AnyClass?#>, forCellWithReuseIdentifier: <#T##String#>)
+        collectionView.register(GroupAdminCell.self, forCellWithReuseIdentifier: groupAdminReuseIdentifier)
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-
+            if sectionNumber == 0 || sectionNumber == 1 {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
@@ -73,6 +79,19 @@ class GroupInformationViewController: UIViewController {
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
                 return section
+            } else {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+                
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header]
+                return section
+            }
+
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
@@ -85,13 +104,23 @@ class GroupInformationViewController: UIViewController {
     @objc func handleEditGroupTap() {
         
     }
+    
+    private func fetchUser() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        UserService.fetchUser(withUid: uid) { user in
+            self.users.append(user)
+            self.users.append(user)
+            self.collectionView.reloadSections(IndexSet(integer: 2))
+        }
+    }
 }
 
 extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        if section == 2 { return users.count }
+        else { return 1 }
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -122,10 +151,21 @@ extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UI
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupDetailsReuseIdentifier, for: indexPath) as! GroupDetailsCell
             cell.set(title: group.name, creationDate: group.timestamp)
             return cell
+        } else if indexPath.section == 1 {
+            // Description
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutReuseIdentifier, for: indexPath) as! UserProfileAboutCell
+            cell.set(body: group.description)
+            return cell
+        } else {
+            // Admin team
+            // Description
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupAdminReuseIdentifier, for: indexPath) as! GroupAdminCell
+            cell.user = users[indexPath.row]
+            cell.configureButtonText()
+            #warning("Create a 'admin team' inside RTD to fetch admin users with its role")
+            return cell
         }
-        // Description
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutReuseIdentifier, for: indexPath) as! UserProfileAboutCell
-        cell.set(body: group.description)
-        return cell
+
     }
 }

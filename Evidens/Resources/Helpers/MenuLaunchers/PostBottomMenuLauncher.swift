@@ -12,10 +12,31 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 
 
 protocol PostBottomMenuLauncherDelegate: AnyObject {
-    func didTapUploadPost()
-    func didTapUploadClinicalCase()
+    func didTapUpload(content: ShareableContent)
 }
 
+enum ShareableContent: String, CaseIterable {
+    case post = "Post"
+    case clinicalCase = "Case"
+    
+    var contentString: String {
+        switch self {
+        case .post:
+            return "Upload a post"
+        case .clinicalCase:
+            return "Share a clinical case"
+        }
+    }
+    
+    var contentImage: UIImage {
+        switch self {
+        case .post:
+            return (UIImage(named: "post"))!
+        case .clinicalCase:
+            return (UIImage(named: "cases"))!
+        }
+    }
+}
 
 class PostBottomMenuLauncher: NSObject {
     
@@ -33,9 +54,10 @@ class PostBottomMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Create a Post", "Share a Clinical Case"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
-                                                UIImage(systemName: "heart.text.square", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!]
+    
+    //private var menuOptionsText: [String] = ["Create a Post", "Share a Clinical Case"]
+    //private var menuOptionsImages: [UIImage] = [UIImage(named: "post", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
+                                                //UIImage(named: "cases", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!]
     
     
     private let collectionView: UICollectionView = {
@@ -61,12 +83,12 @@ class PostBottomMenuLauncher: NSObject {
     }
     
     
-    @objc func handleDismiss(selectedOption: String?) {
+    @objc func handleDismiss() {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
         } completion: { completed in
-            
+            /*
             switch selectedOption {
             case "Create a Post":
                 self.delegate?.didTapUploadPost()
@@ -75,6 +97,7 @@ class PostBottomMenuLauncher: NSObject {
             default:
                 break
             }
+             */
         }
     }
     
@@ -119,7 +142,8 @@ class PostBottomMenuLauncher: NSObject {
         if sender.state == .ended {
             if translation.y > 0 && translation.y > menuHeight * 0.3 {
                 UIView.animate(withDuration: 0.3) {
-                    self.handleDismiss(selectedOption: "")
+                    //self.handleDismiss(selectedOption: "")
+                    self.handleDismiss()
                 }
             } else {
                 UIView.animate(withDuration: 0.5) {
@@ -151,12 +175,12 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuOptionsText.count
+        return ShareableContent.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.set(withText: ShareableContent.allCases[indexPath.row].contentString, withImage: ShareableContent.allCases[indexPath.row].contentImage)
         cell.backgroundColor = .white
 
         if indexPath.row == 0 {
@@ -164,7 +188,7 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
             cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         }
         
-        if indexPath.row == menuOptionsText.count - 1 {
+        if indexPath.row == ShareableContent.allCases.count - 1 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         }
@@ -177,7 +201,8 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedOption = menuOptionsText[indexPath.row]
-        handleDismiss(selectedOption: selectedOption)
+        let selectedOption = ShareableContent.allCases[indexPath.row]
+        //handleDismiss(selectedOption: selectedOption)
+        delegate?.didTapUpload(content: selectedOption)
     }
 }

@@ -49,17 +49,6 @@ class UsersFollowFollowingCell: UITableViewCell {
         return label
     }()
     
-    private let noResultsLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.lineBreakMode = .byTruncatingTail
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
-        label.textColor = grayColor
-
-        return label
-    }()
-  
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
         label.textColor = grayColor

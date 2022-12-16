@@ -53,6 +53,7 @@ class GroupDetailsCell: UICollectionViewCell {
     }
     
     private func configure() {
+        backgroundColor = .white
         addSubviews(groupTitleLabel, groupLabel, groupCreationDateLabel, groupCreationLabel)
         NSLayoutConstraint.activate([
             groupTitleLabel.topAnchor.constraint(equalTo: topAnchor),

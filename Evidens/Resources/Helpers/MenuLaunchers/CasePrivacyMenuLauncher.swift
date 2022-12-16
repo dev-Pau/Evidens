@@ -148,7 +148,7 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.set(withText: menuOptionsText[indexPath.row], withSubtitle: "KEKInsane", withImage: menuOptionsImages[indexPath.row])
         
         if indexPath.row == selectedOption {
             cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")

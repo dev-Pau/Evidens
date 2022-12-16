@@ -13,14 +13,14 @@ private let headerReuseIdentifier = "PostPrivacyHeaderReuseIdentifier"
 
 protocol PostPrivacyMenuLauncherDelegate: AnyObject {
     func didDissmisMenu()
-    func didTapPrivacyOption(_ option: Post.PrivacyOptions, _ image: UIImage, _ privacyText: String)
+    func didTapPrivacyOption(_ option: Post.PrivacyOptions)
+                             //, _ image: UIImage, _ privacyText: String)
 }
-
 
 class PostPrivacyMenuLauncher: NSObject {
     
     private var privacyOption: Post.PrivacyOptions = .all
-    
+
     private let blackBackgroundView: UIView = {
         let view = UIView()
         view.clipsToBounds = false
@@ -31,7 +31,7 @@ class PostPrivacyMenuLauncher: NSObject {
     
     weak var delegate: PostPrivacyMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 160
+    private let menuHeight: CGFloat = 110 + CGFloat(Post.PrivacyOptions.allCases.count * 55)
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -129,9 +129,14 @@ class PostPrivacyMenuLauncher: NSObject {
         }
     }
     
+    private func checkIfUserHasGroups() {
+        
+    }
+    
     
     override init() {
         super.init()
+        checkIfUserHasGroups()
         configureCollectionView()
     }
 }
@@ -148,12 +153,12 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuOptionsText.count
+        return Post.PrivacyOptions.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.set(withText: Post.PrivacyOptions.allCases[indexPath.row].privacyTitle, withSubtitle: Post.PrivacyOptions.allCases[indexPath.row].privacyDescription, withImage: Post.PrivacyOptions.allCases[indexPath.row].privacyImage)
         
         if indexPath.row == selectedOption {
             cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
@@ -168,7 +173,9 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         selectedOption = indexPath.row
+        /*
         let option = menuOptionsText[indexPath.row]
         let image = menuOptionsImages[indexPath.row]
         collectionView.reloadData()
@@ -179,8 +186,13 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             privacyOption = .me
         }
+         */
         
-        delegate?.didTapPrivacyOption(privacyOption, image, option)
+        let privacyOption = Post.PrivacyOptions.allCases[indexPath.row]
+        collectionView.reloadData()
+        delegate?.didTapPrivacyOption(privacyOption)
+        handleDismissMenu()
+                                      //, image, option)
     }
 }
 

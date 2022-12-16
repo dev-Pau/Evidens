@@ -176,6 +176,8 @@
 		5F9483B32923A76600D68B46 /* GroupDescriptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9483B22923A76600D68B46 /* GroupDescriptionCell.swift */; };
 		5F9483B52923E66A00D68B46 /* GroupCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9483B42923E66A00D68B46 /* GroupCategoriesCell.swift */; };
 		5F951B45294881E500E99F34 /* GroupDetailsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F951B44294881E500E99F34 /* GroupDetailsCell.swift */; };
+		5F951B472949D33F00E99F34 /* GroupAdminCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F951B462949D33F00E99F34 /* GroupAdminCell.swift */; };
+		5F951B49294B21FA00E99F34 /* GroupContentCreationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F951B48294B21FA00E99F34 /* GroupContentCreationCell.swift */; };
 		5F9742C62937687200704022 /* DiscoverGroupSkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9742C52937687200704022 /* DiscoverGroupSkeletonCell.swift */; };
 		5F9742C829389EC800704022 /* GroupSkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9742C729389EC800704022 /* GroupSkeletonCell.swift */; };
 		5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* CasesCell.swift */; };
@@ -512,6 +514,8 @@
 		5F9483B22923A76600D68B46 /* GroupDescriptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDescriptionCell.swift; sourceTree = "<group>"; };
 		5F9483B42923E66A00D68B46 /* GroupCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCategoriesCell.swift; sourceTree = "<group>"; };
 		5F951B44294881E500E99F34 /* GroupDetailsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetailsCell.swift; sourceTree = "<group>"; };
+		5F951B462949D33F00E99F34 /* GroupAdminCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAdminCell.swift; sourceTree = "<group>"; };
+		5F951B48294B21FA00E99F34 /* GroupContentCreationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentCreationCell.swift; sourceTree = "<group>"; };
 		5F9742C52937687200704022 /* DiscoverGroupSkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverGroupSkeletonCell.swift; sourceTree = "<group>"; };
 		5F9742C729389EC800704022 /* GroupSkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSkeletonCell.swift; sourceTree = "<group>"; };
 		5F979C5D286DDB3D00C05D57 /* CasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCell.swift; sourceTree = "<group>"; };
@@ -1326,6 +1330,7 @@
 			children = (
 				5FAC98D1294873BC00C72228 /* GroupAboutHeader.swift */,
 				5F951B44294881E500E99F34 /* GroupDetailsCell.swift */,
+				5F951B462949D33F00E99F34 /* GroupAdminCell.swift */,
 			);
 			path = Information;
 			sourceTree = "<group>";
@@ -1607,6 +1612,7 @@
 			children = (
 				5F951B43294881C800E99F34 /* Information */,
 				5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */,
+				5F951B48294B21FA00E99F34 /* GroupContentCreationCell.swift */,
 			);
 			path = Page;
 			sourceTree = "<group>";
@@ -2173,6 +2179,7 @@
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
 				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
 				5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */,
+				5F951B472949D33F00E99F34 /* GroupAdminCell.swift in Sources */,
 				5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */,
 				5F9FB28128EC4E3400BABDFD /* UsersFollowFollowingCell.swift in Sources */,
 				5FC4D88527071CB6006B7A34 /* HomeTextCell.swift in Sources */,
@@ -2388,6 +2395,7 @@
 				5F8AF97D292BED19005C6778 /* GroupViewModel.swift in Sources */,
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
 				5FA2EAE728F72D310054BA5B /* ExploreHeaderCell.swift in Sources */,
+				5F951B49294B21FA00E99F34 /* GroupContentCreationCell.swift in Sources */,
 				5F4493ED2782077A008FD6ED /* InfoRegistrationViewController.swift in Sources */,
 				5FA23F42293F65D000A913CB /* GroupSizeCell.swift in Sources */,
 				5F944788291D1391003B3DA0 /* DiscoverGroupsViewController.swift in Sources */,

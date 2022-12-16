@@ -141,7 +141,7 @@ class UploadPostViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Share", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Upload", attributes: container)
         
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
@@ -185,7 +185,7 @@ class UploadPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Create a Post"
+        title = "Upload a post"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
@@ -556,6 +556,14 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
 
 
 extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
+    func didTapPrivacyOption(_ option: Post.PrivacyOptions) {
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .bold)
+        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option.privacyTitle)", attributes: container)
+        settingsPostButton.configuration?.image = option.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        privacyType = option
+    }
+    /*
     func didTapPrivacyOption(_ option: Post.PrivacyOptions, _ image: UIImage, _ privacyText: String) {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
@@ -564,6 +572,7 @@ extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
         privacyType = option
         
     }
+     */
     
     func didDissmisMenu() {
         postTextView.becomeFirstResponder()

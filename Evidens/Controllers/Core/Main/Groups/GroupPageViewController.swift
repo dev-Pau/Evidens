@@ -8,6 +8,7 @@
 import UIKit
 
 private let groupHeaderReuseIdentifier = "GroupHeaderReuseIdentifier"
+private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIdentifier"
 
 class GroupPageViewController: UIViewController {
     
@@ -74,13 +75,14 @@ class GroupPageViewController: UIViewController {
         collectionView.frame = view.bounds
         
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
+        collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)))
-            //item.contentInsets.bottom = 16
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
+            group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(5))
             let section = NSCollectionLayoutSection(group: group)
             return section
         }
@@ -102,17 +104,23 @@ extension GroupPageViewController: UISearchBarDelegate {
     
 }
 
-extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupHeaderReuseIdentifier, for: indexPath) as! GroupPageHeaderCell
-        cell.viewModel = GroupViewModel(group: group)
-        cell.users = members
-        cell.delegate = self
-        return cell
+        if indexPath.row == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupHeaderReuseIdentifier, for: indexPath) as! GroupPageHeaderCell
+            cell.viewModel = GroupViewModel(group: group)
+            cell.users = members
+            cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCreationReuseIdentifier, for: indexPath) as! GroupContentCreationCell
+            
+            return cell
+        }
     }
 }
 

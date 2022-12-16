@@ -41,6 +41,14 @@ class PostPrivacyCell: UICollectionViewCell {
         return label
     }()
     
+    private let postTypeSubLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = grayColor
+        return label
+    }()
+    
     let selectedOptionButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +75,7 @@ class PostPrivacyCell: UICollectionViewCell {
     
     private func configure() {
 
-        let stack = UIStackView(arrangedSubviews: [postTypeLabel])
+        let stack = UIStackView(arrangedSubviews: [postTypeLabel, postTypeSubLabel])
         stack.axis = .vertical
         stack.distribution = .equalSpacing
         stack.spacing = 5
@@ -95,9 +103,9 @@ class PostPrivacyCell: UICollectionViewCell {
         postTypeImage.layer.cornerRadius = postTypeImage.frame.size.height / 2
     }
     
-    func set(withText text: String, withImage image: UIImage) {
-        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-
+    func set(withText text: String, withSubtitle subtitle: String, withImage image: UIImage) {
+        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        postTypeSubLabel.text = subtitle
         postTypeLabel.text = text
       
     }

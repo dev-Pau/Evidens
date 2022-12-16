@@ -135,6 +135,8 @@ class GroupPageHeaderCell: UICollectionViewCell {
             
             configurationButton.topAnchor.constraint(equalTo: groupBannerImageView.bottomAnchor, constant: 10),
             configurationButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            configurationButton.heightAnchor.constraint(equalToConstant: 25),
+            configurationButton.widthAnchor.constraint(equalToConstant: 25),
             
             membersCollectionView.topAnchor.constraint(equalTo: membersLabel.bottomAnchor, constant: 5),
             membersCollectionView.leadingAnchor.constraint(equalTo: membersLabel.leadingAnchor),
