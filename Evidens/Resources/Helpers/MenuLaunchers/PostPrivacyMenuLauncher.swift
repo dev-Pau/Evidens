@@ -31,8 +31,9 @@ class PostPrivacyMenuLauncher: NSObject {
     
     weak var delegate: PostPrivacyMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 110 + CGFloat(Post.PrivacyOptions.allCases.count * 55)
+    private var menuHeight: CGFloat = 110 + CGFloat(Post.PrivacyOptions.allCases.count * 55)
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
+    private var userHasGroups: Bool = false
     
     private var screenWidth: CGFloat = 0
     
@@ -130,7 +131,12 @@ class PostPrivacyMenuLauncher: NSObject {
     }
     
     private func checkIfUserHasGroups() {
-        
+        DatabaseManager.shared.checkIfUserHasGroups { groups in
+            self.userHasGroups = groups
+            if groups == false { self.menuHeight -= 55 }
+            self.collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: self.screenWidth, height: self.menuHeight)
+            self.collectionView.reloadData()
+        }
     }
     
     
@@ -153,7 +159,7 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Post.PrivacyOptions.allCases.count
+        return userHasGroups ? Post.PrivacyOptions.allCases.count : Post.PrivacyOptions.allCases.count - 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

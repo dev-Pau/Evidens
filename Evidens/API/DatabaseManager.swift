@@ -444,23 +444,6 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func filter() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        //let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: "Spanish")
-        let ref = database.child("users").child(uid).child("publications").queryOrdered(byChild: "title").queryEqual(toValue: "Publication 1")
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if let values = snapshot.value as? [String: Any] {
-                print(values)
-                print(values.keys)
-  
-            } else{
-            print("no snapshot in corret format")
-                }
-        }
-    }
-    
     public func uploadLanguage(language: String, proficiency: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -926,6 +909,21 @@ extension DatabaseManager {
                 uids.append(uid)
             }
             completion(uids)
+        }
+    }
+    
+    public func checkIfUserHasGroups(completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let groupRef = database.child("users").child(uid).child("groups").queryOrderedByKey().queryLimited(toFirst: 1)
+        
+        groupRef.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.exists() {
+                completion(true)
+                return
+            }
+            
+            completion(false)
+            return
         }
     }
 }

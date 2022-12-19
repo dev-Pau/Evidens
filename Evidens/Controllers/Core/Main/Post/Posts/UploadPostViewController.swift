@@ -65,7 +65,7 @@ class UploadPostViewController: UIViewController {
     }()
     
     private lazy var settingsPostButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeColor = grayColor
@@ -73,12 +73,15 @@ class UploadPostViewController: UIViewController {
         button.configuration?.image = UIImage(systemName: "globe.europe.africa.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
         
         button.configuration?.imagePlacement = .leading
+        button.configuration?.imagePadding = 5
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString(" Public", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(privacyType.privacyTitle, attributes: container)
         button.configuration?.baseForegroundColor = grayColor
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
+        
         button.translatesAutoresizingMaskIntoConstraints = false
+    
         return button
     }()
     
@@ -218,9 +221,11 @@ class UploadPostViewController: UIViewController {
             
             settingsPostButton.topAnchor.constraint(equalTo: fullName.bottomAnchor, constant: 4),
             settingsPostButton.leadingAnchor.constraint(equalTo: fullName.leadingAnchor),
-            settingsPostButton.heightAnchor.constraint(equalToConstant: 23),
+            //settingsPostButton.heightAnchor.constraint(equalToConstant: 24),
+            settingsPostButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 24),
+            settingsPostButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            postTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            postTextView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
 
@@ -557,6 +562,17 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
 
 extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
     func didTapPrivacyOption(_ option: Post.PrivacyOptions) {
+        if option == .group {
+            let controller = PostGroupSelectionViewController()
+            controller.delegate = self
+            
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            
+            present(navVC, animated: true)
+            return
+        }
+        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
         settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option.privacyTitle)", attributes: container)
@@ -583,5 +599,15 @@ extension UploadPostViewController: UploadContentViewModel {
     func updateForm() {
         shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
         shareButton.isUserInteractionEnabled = viewModel.postIsValid
+    }
+}
+
+extension UploadPostViewController: PostGroupSelectionViewControllerDelegate {
+    func didSelectGroup(_ group: Group) {
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 12, weight: .bold)
+        settingsPostButton.configuration?.attributedTitle = AttributedString(group.name, attributes: container)
+        
+        //settingsPostButton.configuration?.image =  .scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
     }
 }
