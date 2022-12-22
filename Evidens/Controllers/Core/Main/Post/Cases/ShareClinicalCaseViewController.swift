@@ -18,6 +18,7 @@ class ShareClinicalCaseViewController: UIViewController {
     //MARK: - Properties
     
     private var user: User
+    var group: Group?
     
     private var viewModel = ShareCaseViewModel()
     
@@ -191,8 +192,8 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var privacyTypeImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "globe.europe.africa.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.contentMode = .scaleAspectFit
+        iv.image = Case.Privacy.visible.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
@@ -200,9 +201,9 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private lazy var attributedPrivacyString: NSMutableAttributedString = {
-        let aString = NSMutableAttributedString(string: "Sharing publicily. Your profile information will be shared.")
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: "Sharing publicily"))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Sharing publicily"))
+        let aString = NSMutableAttributedString(string: "\(Case.Privacy.visible.privacyTypeString). \(Case.Privacy.visible.privacyTypeSubtitle).")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: Case.Privacy.visible.privacyTypeString))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: Case.Privacy.visible.privacyTypeString))
         return aString
     }()
     
@@ -212,7 +213,7 @@ class ShareClinicalCaseViewController: UIViewController {
         label.textColor = grayColor
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
-        label.numberOfLines = 0
+        label.numberOfLines = 2
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.attributedText = attributedPrivacyString
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -323,8 +324,13 @@ class ShareClinicalCaseViewController: UIViewController {
         titleTextField.resignFirstResponder()
     }
     
-    init(user: User) {
+    init(user: User, group: Group? = nil) {
         self.user = user
+        if let group = group {
+            casePrivacy = .group
+            self.group = group
+        }
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -347,6 +353,12 @@ class ShareClinicalCaseViewController: UIViewController {
     
     func configureUI() {
         view.backgroundColor = .white
+        
+        if let group = group {
+            casePrivacyMenuLauncher.isUploadingCaseFromGroup(group: group)
+            didSelectGroup(group)
+        }
+        
         view.addSubview(scrollView)
 
         titleTextTracker.isHidden = true
@@ -1003,7 +1015,31 @@ extension ShareClinicalCaseViewController: DiagnosisGenericViewDelegate {
 }
 
 extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
-
+    func didTapPrivacyOption(_ option: Case.Privacy) {
+        if option == .group {
+            let controller = PostGroupSelectionViewController(groupSelected: group)
+            controller.delegate = self
+            
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            
+            present(navVC, animated: true)
+            return
+        }
+        
+        let aString = NSMutableAttributedString(string: "\(option.privacyTypeString). \(option.privacyTypeSubtitle).")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: option.privacyTypeString))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: option.privacyTypeString))
+        
+        privacyTypeImage.image = option.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        casePrivacy = option
+        privacyLabel.attributedText = aString
+        self.group = Group(groupId: "", dictionary: [:])
+        casePrivacyMenuLauncher.handleDismissMenu()
+        
+    }
+    
+/*
     func didTapPrivacyOption(_ option: Case.Privacy, _ image: UIImage, _ privacyText: String) {
         casePrivacy = option
         
@@ -1015,12 +1051,29 @@ extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
         privacyLabel.attributedText = aString
         casePrivacyMenuLauncher.handleDismissMenu()
     }
+ */
 }
 
 extension ShareClinicalCaseViewController: ShareContentViewModel {
     func updateForm() {
         shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
         shareButton.isUserInteractionEnabled = viewModel.caseIsValid
+    }
+}
+
+extension ShareClinicalCaseViewController: PostGroupSelectionViewControllerDelegate {
+    func didSelectGroup(_ group: Group) {
+        let aString = NSMutableAttributedString(string: "Group. \(group.name)")
+        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: "Group"))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Group"))
+        
+        privacyTypeImage.image = Case.Privacy.group.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        
+        privacyLabel.attributedText = aString
+        //casePrivacyMenuLauncher.handleDismissMenu()
+        casePrivacy = .group
+        self.group = group
+        casePrivacyMenuLauncher.updatePrivacyWithGroupOptions(group: group)
     }
 }
 

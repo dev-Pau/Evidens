@@ -18,6 +18,7 @@ class UploadPostViewController: UIViewController {
     //MARK: - Properties
     
     private var user: User
+    private var group: Group?
     
     private var viewModel = UploadPostViewModel()
     
@@ -70,13 +71,12 @@ class UploadPostViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeColor = grayColor
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.image = UIImage(systemName: "globe.europe.africa.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        
+        button.configuration?.image = privacyType.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
         button.configuration?.imagePlacement = .leading
         button.configuration?.imagePadding = 5
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString(privacyType.privacyTitle, attributes: container)
+        button.configuration?.attributedTitle = AttributedString(" \(privacyType.privacyTitle)", attributes: container)
         button.configuration?.baseForegroundColor = grayColor
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
         
@@ -176,8 +176,14 @@ class UploadPostViewController: UIViewController {
         postTextView.becomeFirstResponder()
     }
     
-    init(user: User) {
+    init(user: User, group: Group? = nil) {
         self.user = user
+        
+        if let group = group {
+            privacyType = .group
+            self.group = group
+        }
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -200,7 +206,13 @@ class UploadPostViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .white
         
+        if let group = group {
+            postPrivacyMenuLauncher.isUploadingPostFromGroup(group: group)
+            didSelectGroup(group)
+        }
+        
         view.addSubview(scrollView)
+        
         scrollView.addSubviews(profileImageView, fullName, postTextView, settingsPostButton)
         
         NSLayoutConstraint.activate([
@@ -563,7 +575,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
 extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
     func didTapPrivacyOption(_ option: Post.PrivacyOptions) {
         if option == .group {
-            let controller = PostGroupSelectionViewController()
+            let controller = PostGroupSelectionViewController(groupSelected: group)
             controller.delegate = self
             
             let navVC = UINavigationController(rootViewController: controller)
@@ -578,18 +590,9 @@ extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
         settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option.privacyTitle)", attributes: container)
         settingsPostButton.configuration?.image = option.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
         privacyType = option
+        self.group = Group(groupId: "", dictionary: [:])
     }
-    /*
-    func didTapPrivacyOption(_ option: Post.PrivacyOptions, _ image: UIImage, _ privacyText: String) {
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 12, weight: .bold)
-        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(privacyText)", attributes: container)
-        settingsPostButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
-        privacyType = option
-        
-    }
-     */
-    
+ 
     func didDissmisMenu() {
         postTextView.becomeFirstResponder()
     }
@@ -606,8 +609,10 @@ extension UploadPostViewController: PostGroupSelectionViewControllerDelegate {
     func didSelectGroup(_ group: Group) {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
-        settingsPostButton.configuration?.attributedTitle = AttributedString(group.name, attributes: container)
-        
-        //settingsPostButton.configuration?.image =  .scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        settingsPostButton.configuration?.attributedTitle = AttributedString(" \(group.name)", attributes: container)
+        settingsPostButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        privacyType = .group
+        self.group = group
+        postPrivacyMenuLauncher.updatePrivacyWithGroupOptions(group: group)
     }
 }

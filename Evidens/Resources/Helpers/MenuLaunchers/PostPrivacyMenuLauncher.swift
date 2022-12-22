@@ -29,6 +29,10 @@ class PostPrivacyMenuLauncher: NSObject {
     
     var selectedOption = 0
     
+    private var comesFromGroup: Bool = false
+    private var groupIsSelected: Bool = false
+    private var group = Group(groupId: "", dictionary: [:])
+    
     weak var delegate: PostPrivacyMenuLauncherDelegate?
     
     private var menuHeight: CGFloat = 110 + CGFloat(Post.PrivacyOptions.allCases.count * 55)
@@ -36,12 +40,6 @@ class PostPrivacyMenuLauncher: NSObject {
     private var userHasGroups: Bool = false
     
     private var screenWidth: CGFloat = 0
-    
-    private var menuOptionsText: [String] = ["Public"/*, "Connections only", "Only me"*/]
-    private var menuOptionsSubText: [String] = ["Anyone on MyEvidens"/*, "Your connections on MyEvidens", "Only visible to you"*/]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!/*,
-                                                UIImage(systemName: "person.2.fill")!,
-                                                UIImage(systemName: "lock.fill")!*/]
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -62,6 +60,12 @@ class PostPrivacyMenuLauncher: NSObject {
         }, completion: nil)
     }
     
+    func updatePrivacyWithGroupOptions(group: Group) {
+        selectedOption = Post.PrivacyOptions.allCases.count - 1
+        groupIsSelected = true
+        self.group = group
+        collectionView.reloadData()
+    }
     
     @objc func handleDismiss(selectedOption: String?) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
@@ -139,6 +143,14 @@ class PostPrivacyMenuLauncher: NSObject {
         }
     }
     
+    func isUploadingPostFromGroup(group: Group) {
+        // Upload post directly from groupe
+        self.comesFromGroup = true
+        self.menuHeight = 110 + 55
+        self.collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: self.screenWidth, height: self.menuHeight)
+        self.collectionView.reloadData()
+    }
+    
     
     override init() {
         super.init()
@@ -159,12 +171,26 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if comesFromGroup { return 1 }
         return userHasGroups ? Post.PrivacyOptions.allCases.count : Post.PrivacyOptions.allCases.count - 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
-        cell.set(withText: Post.PrivacyOptions.allCases[indexPath.row].privacyTitle, withSubtitle: Post.PrivacyOptions.allCases[indexPath.row].privacyDescription, withImage: Post.PrivacyOptions.allCases[indexPath.row].privacyImage)
+        
+        if comesFromGroup {
+            cell.configureWithGroupData(group: group)
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
+            return cell
+        }
+        
+        if indexPath.row == Post.PrivacyOptions.allCases.count - 1 && groupIsSelected {
+            cell.configureWithGroupData(group: group)
+            
+        } else {
+            
+            cell.set(withText: Post.PrivacyOptions.allCases[indexPath.row].privacyTitle, withSubtitle: Post.PrivacyOptions.allCases[indexPath.row].privacyDescription, withImage: Post.PrivacyOptions.allCases[indexPath.row].privacyImage)
+        }
         
         if indexPath.row == selectedOption {
             cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
@@ -179,26 +205,19 @@ extension PostPrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        selectedOption = indexPath.row
-        /*
-        let option = menuOptionsText[indexPath.row]
-        let image = menuOptionsImages[indexPath.row]
-        collectionView.reloadData()
-        if selectedOption == 0 {
-            privacyOption = .all
-        } else if selectedOption == 1 {
-            privacyOption = .connections
-        } else {
-            privacyOption = .me
-        }
-         */
-        
+        if comesFromGroup { return }
+
         let privacyOption = Post.PrivacyOptions.allCases[indexPath.row]
-        collectionView.reloadData()
+        
+        if privacyOption != .group {
+            selectedOption = indexPath.row
+            groupIsSelected = false
+            collectionView.reloadData()
+        }
+        
         delegate?.didTapPrivacyOption(privacyOption)
         handleDismissMenu()
-                                      //, image, option)
     }
 }
+
 

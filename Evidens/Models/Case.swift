@@ -66,9 +66,10 @@ struct Case {
         }
     }
     
-    enum Privacy: Int {
+    enum Privacy: Int, CaseIterable {
         case visible
         case nonVisible
+        case group
         
         var privacyType: Int {
             switch self {
@@ -76,15 +77,41 @@ struct Case {
                 return 0
             case .nonVisible:
                 return 1
+            case .group:
+                return 2
             }
         }
         
         var privacyTypeString: String {
             switch self {
             case .visible:
-                return "Sharing publicily"
+                return "Public"
             case .nonVisible:
-                return "Sharing anonymously"
+                return "Anonymous"
+            case .group:
+                return "Group"
+            }
+        }
+        
+        var privacyTypeSubtitle: String {
+            switch self {
+            case .visible:
+                return "Your profile information will be visible"
+            case .nonVisible:
+                return "Only your profession and speciality will be visible"
+            case .group:
+                return "Select a group you're in"
+            }
+        }
+        
+        var privacyTypeImage: UIImage {
+            switch self {
+            case .visible:
+                return UIImage(systemName: "globe.europe.africa.fill")!
+            case .nonVisible:
+                return UIImage(systemName: "eyeglasses", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .group:
+                return UIImage(named: "groups.selected")!
             }
         }
     }

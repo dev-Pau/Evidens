@@ -109,4 +109,10 @@ class PostPrivacyCell: UICollectionViewCell {
         postTypeLabel.text = text
       
     }
+    
+    func configureWithGroupData(group: Group) {
+        postTyeButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        postTypeSubLabel.text = "Members of this group"
+        postTypeLabel.text = group.name
+    }
 }

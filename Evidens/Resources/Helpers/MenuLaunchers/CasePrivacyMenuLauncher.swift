@@ -12,13 +12,19 @@ private let headerReuseIdentifier = "CasePrivacyHeaderReuseIdentifier"
 
 
 protocol CasePrivacyMenuLauncherDelegate: AnyObject {
-    func didTapPrivacyOption(_ option: Case.Privacy, _ image: UIImage, _ privacyText: String)
+    //func didTapPrivacyOption(_ option: Case.Privacy, _ image: UIImage, _ privacyText: String)
+    func didTapPrivacyOption(_ option: Case.Privacy)
 }
 
 
 class CasePrivacyMenuLauncher: NSObject {
     
     private var privacyOption: Case.Privacy = .visible
+    
+    private var groupIsSelected: Bool = false
+    private var comesFromGroup: Bool = false
+    private var userHasGroups: Bool = false
+    private var group = Group(groupId: "", dictionary: [:])
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -30,15 +36,10 @@ class CasePrivacyMenuLauncher: NSObject {
     
     weak var delegate: CasePrivacyMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 220
+    private var menuHeight: CGFloat = 110 + CGFloat(Case.Privacy.allCases.count) * 55
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
-    
-    private var menuOptionsText: [String] = ["Share publicily", "Share anonymously"]
-    private var menuOptionsSubText: [String] = ["Your profile information will be shared", "Only your profession and speciality will be shared"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "globe.europe.africa.fill")!,
-                                                UIImage(systemName: "hand.raised.fill")!]
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -57,6 +58,13 @@ class CasePrivacyMenuLauncher: NSObject {
             self.blackBackgroundView.alpha = 1
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
         }, completion: nil)
+    }
+    
+    func updatePrivacyWithGroupOptions(group: Group) {
+        selectedOption = Case.Privacy.allCases.count - 1
+        groupIsSelected = true
+        self.group = group
+        collectionView.reloadData()
     }
     
     
@@ -102,6 +110,23 @@ class CasePrivacyMenuLauncher: NSObject {
         collectionView.addGestureRecognizer(pan)
     }
     
+    private func checkIfUserHasGroups() {
+        DatabaseManager.shared.checkIfUserHasGroups { groups in
+            self.userHasGroups = groups
+            if groups == false { self.menuHeight -= 55 }
+            self.collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: self.screenWidth, height: self.menuHeight)
+            self.collectionView.reloadData()
+        }
+    }
+    
+    func isUploadingCaseFromGroup(group: Group) {
+        // Upload post directly from groupe
+        self.comesFromGroup = true
+        self.menuHeight = 110 + 55
+        self.collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: self.screenWidth, height: self.menuHeight)
+        self.collectionView.reloadData()
+    }
+    
     @objc func handlePan(sender: UIPanGestureRecognizer) {
         let translation = sender.translation(in: collectionView)
         
@@ -126,6 +151,7 @@ class CasePrivacyMenuLauncher: NSObject {
     
     override init() {
         super.init()
+        checkIfUserHasGroups()
         configureCollectionView()
     }
 }
@@ -134,7 +160,7 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostPrivacyHeader
-        header.subtitleLabel.text = "Your case will show up on the feed and in search results. Select the privacy mode to link the case with your profile"
+        header.subtitleLabel.text = "Your case will show up on the feed and in search results. Change the privacy mode to unlink the case with your profile"
         return header
     }
     
@@ -143,13 +169,26 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuOptionsText.count
+        if comesFromGroup { return 1 }
+        return userHasGroups ? Case.Privacy.allCases.count : Case.Privacy.allCases.count - 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
-        cell.set(withText: menuOptionsText[indexPath.row], withSubtitle: "KEKInsane", withImage: menuOptionsImages[indexPath.row])
         
+        if comesFromGroup {
+            cell.configureWithGroupData(group: group)
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
+            return cell
+        }
+        
+        if indexPath.row == Case.Privacy.allCases.count - 1 && groupIsSelected {
+            cell.configureWithGroupData(group: group)
+            
+        } else {
+            cell.set(withText: Case.Privacy.allCases[indexPath.row].privacyTypeString, withSubtitle: Case.Privacy.allCases[indexPath.row].privacyTypeSubtitle, withImage: Case.Privacy.allCases[indexPath.row].privacyTypeImage)
+        }
+       
         if indexPath.row == selectedOption {
             cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
         } else {
@@ -163,17 +202,17 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedOption = indexPath.row
-        let option = menuOptionsSubText[indexPath.row]
-        let image = menuOptionsImages[indexPath.row]
-        collectionView.reloadData()
-        if selectedOption == 0 {
-            privacyOption = .visible
-        } else {
-            privacyOption = .nonVisible
+        if comesFromGroup { return }
+        
+        let privacyOption = Case.Privacy.allCases[indexPath.row]
+        if privacyOption != .group {
+            selectedOption = indexPath.row
+            groupIsSelected = false
+            collectionView.reloadData()
         }
         
-        delegate?.didTapPrivacyOption(privacyOption, image, option)
+        delegate?.didTapPrivacyOption(privacyOption)
+        handleDismissMenu()
     }
 }
 

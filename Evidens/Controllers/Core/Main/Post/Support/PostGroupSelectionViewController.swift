@@ -35,6 +35,18 @@ class PostGroupSelectionViewController: UIViewController {
         return collectionView
     }()
     
+    init(groupSelected: Group? = nil) {
+        if let groupSelected = groupSelected {
+            self.groupSelected = groupSelected
+        }
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchUserGroups()
@@ -49,6 +61,7 @@ class PostGroupSelectionViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleAddGroup))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
@@ -64,7 +77,7 @@ class PostGroupSelectionViewController: UIViewController {
     private func fetchUserGroups() {
         GroupService.fetchUserGroups { groups in
             self.groups = groups
-            self.collectionView.reloadData()            
+            self.collectionView.reloadData()
         }
     }
     
@@ -86,6 +99,10 @@ extension PostGroupSelectionViewController: UICollectionViewDelegateFlowLayout, 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! PostGroupCell
         cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+        if groupSelected.groupId == groups[indexPath.row].groupId {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+        }
         return cell
     }
     

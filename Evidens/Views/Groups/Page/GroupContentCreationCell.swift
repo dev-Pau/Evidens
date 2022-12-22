@@ -7,13 +7,22 @@
 
 import UIKit
 
+protocol GroupContentCreationCellDelegate: AnyObject {
+    func didTapUploadPost()
+    func didTapUploadCase()
+}
+
 class GroupContentCreationCell: UICollectionViewCell {
     
-    private let createContentButton: UIButton = {
+    weak var delegate: GroupContentCreationCellDelegate?
+    
+    private lazy var createContentButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(named: "post")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isUserInteractionEnabled = true
+        button.addTarget(self, action: #selector(handleUploadPost), for: .touchUpInside)
         return button
     }()
     
@@ -26,11 +35,13 @@ class GroupContentCreationCell: UICollectionViewCell {
         return label
     }()
     
-    private let createCaseButton: UIButton = {
+    private lazy var createCaseButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(named: "cases")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isUserInteractionEnabled = true
+        button.addTarget(self, action: #selector(handleUploadCase), for: .touchUpInside)
         return button
     }()
     
@@ -100,5 +111,13 @@ class GroupContentCreationCell: UICollectionViewCell {
             shareInfoLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
 
         ])
+    }
+    
+    @objc func handleUploadPost() {
+        delegate?.didTapUploadPost()
+    }
+    
+    @objc func handleUploadCase() {
+        delegate?.didTapUploadCase()
     }
 }
