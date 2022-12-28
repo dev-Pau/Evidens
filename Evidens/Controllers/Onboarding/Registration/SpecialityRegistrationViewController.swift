@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let registerCellReuseIdentifier = "RegisterCellReuseIdentifier"
 
@@ -27,6 +28,8 @@ class SpecialityRegistrationViewController: UIViewController {
         collectionView.allowsMultipleSelection = false
         return collectionView
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
     
@@ -186,7 +189,10 @@ class SpecialityRegistrationViewController: UIViewController {
         
         let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: "", profileImageUrl: "", phase: .userDetailsPhase, category: user.category, profession: profession, speciality: speciality)
         
+        progressIndicator.show(in: view)
+        
         AuthService.updateUserRegistrationCategoryDetails(withUid: uid, withCredentials: credentials) { error in
+            self.progressIndicator.dismiss(animated: true)
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return

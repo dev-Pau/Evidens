@@ -8,6 +8,7 @@
 import UIKit
 import MessageUI
 import PhotosUI
+import JGProgressHUD
 
 class PassportViewController: UIViewController {
     
@@ -29,6 +30,8 @@ class PassportViewController: UIViewController {
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
@@ -259,11 +262,13 @@ class PassportViewController: UIViewController {
         guard let frontImage = frontImageBackgroundView.image else { return }
         if hasCode {
             guard let uid = user.uid, let membershipCode = membershipCodeTextField.text else { return }
-            //showLoadingView()
+            progressIndicator.show(in: view)
             StorageManager.uploadDocumentationImage(images: [frontImage], type: "passport", uid: uid) { uploaded in
+                
                 if uploaded {
-                    //self.dismissLoadingView()
+                    
                     AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
+                        self.progressIndicator.dismiss(animated: true)
                         if let error = error {
                             print(error.localizedDescription)
                         }

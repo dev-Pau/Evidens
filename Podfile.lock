@@ -610,6 +610,7 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.24):
     - BoringSSL-GRPC/Interface (= 0.0.24)
   - BoringSSL-GRPC/Interface (0.0.24)
+  - CropViewController (2.6.1)
   - Firebase/Analytics (9.4.0):
     - Firebase/Core
   - Firebase/Auth (9.4.0):
@@ -860,6 +861,7 @@ PODS:
   - SwiftProtobuf (1.19.1)
 
 DEPENDENCIES:
+  - CropViewController
   - Firebase/Analytics
   - Firebase/Auth
   - Firebase/Core
@@ -880,6 +882,7 @@ SPEC REPOS:
     - AlgoliaSearchClient
     - AppAuth
     - BoringSSL-GRPC
+    - CropViewController
     - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -922,6 +925,7 @@ SPEC CHECKSUMS:
   AlgoliaSearchClient: 3acecfd630f34585d051c39d6cea3460e416638c
   AppAuth: 80317d99ac7ff2801a2f18ff86b48cd315ed465d
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
+  CropViewController: 58fb440f30dac788b129d2a1f24cffdcb102669c
   Firebase: 7703fc4022824b6d6db1bf7bea58d13b8e17ec46
   FirebaseAnalytics: a1a24e72b7ba7f47045a4633f1abb545c07bd29c
   FirebaseAppCheckInterop: 63119cdfc94b16c3e9421513c17f597aee2ea225
@@ -959,6 +963,6 @@ SPEC CHECKSUMS:
   SDWebImage: 72f86271a6f3139cc7e4a89220946489d4b9a866
   SwiftProtobuf: 59d9ea2eb5f84b509f32d170a65f3348ae758f1e
 
-PODFILE CHECKSUM: 35ad182389f1a0613f383aacc1f9b74a5bceeadc
+PODFILE CHECKSUM: e881bba14f2e065aee2548226c49cf1ce62e2b91
 
 COCOAPODS: 1.10.2

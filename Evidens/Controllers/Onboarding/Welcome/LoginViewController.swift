@@ -76,6 +76,8 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    private let progressIndicator = JGProgressHUD()
+    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -101,9 +103,7 @@ class LoginViewController: UIViewController {
     
     func configureUI() {
         navigationItem.title = "Log In"
-     
-        view.backgroundColor = .white
-
+        
         view.addSubview(scrollView)
         
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
@@ -146,7 +146,7 @@ class LoginViewController: UIViewController {
     }
     
     func configureNavigationItemButton() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
         navigationController?.navigationBar.tintColor = .black
     }
     
@@ -207,11 +207,11 @@ class LoginViewController: UIViewController {
     @objc func handleLogin() {
         guard let email = emailTextField.text else { return }
         guard let password = passwordTextField.text else { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         
         AuthService.logUserIn(withEmail: email, password: password) { result, error in
 
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
             
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)

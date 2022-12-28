@@ -125,7 +125,7 @@ class GroupManagerCell: UICollectionViewCell {
         ])
         
         cellContentView.backgroundColor = .white
-        cellContentView.addSubviews(bannerImageView, profileGroupImageView, dotsButton, groupNameButton, groupSizeLabel, membersCollectionView, groupSizeLabel)
+        cellContentView.addSubviews(bannerImageView, profileGroupImageView, dotsButton, groupNameButton, membersCollectionView, groupSizeLabel)
         
         membersCollectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
         membersCollectionView.register(GroupSizeCell.self, forCellWithReuseIdentifier: userCountCellReuseIdentifier)

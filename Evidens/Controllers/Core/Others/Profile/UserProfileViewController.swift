@@ -1357,6 +1357,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     
     func fetchNewUserValues(withUid uid: String) {
         UserService.fetchUser(withUid: uid) { user in
+            #warning("Asignar al user al main tab controllerl també perquè sinó es perd la info nova")
             self.user = user
             self.collectionView.reloadData()
         }

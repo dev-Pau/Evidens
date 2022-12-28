@@ -8,6 +8,7 @@
 import UIKit
 
 private let userCellReuseIdentifier = "UserCellReuseIdentifier"
+private let userCountCellReuseIdentifier = "UserCountCellReuseIdentifier"
 
 protocol GroupPageHeaderCellDelegate: AnyObject {
     func didTapGroupProfilePicture()
@@ -64,17 +65,6 @@ class GroupPageHeaderCell: UICollectionViewCell {
         return label
     }()
     
-    private let membersLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .left
-        label.numberOfLines = 2
-        label.lineBreakMode = .byTruncatingTail
-        label.textColor = .black
-        return label
-    }()
-    
     private let membersCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -96,6 +86,14 @@ class GroupPageHeaderCell: UICollectionViewCell {
         return button
     }()
     
+    private lazy var groupSizeLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        return label
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -109,10 +107,11 @@ class GroupPageHeaderCell: UICollectionViewCell {
         backgroundColor = .white
         
         membersCollectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
+        membersCollectionView.register(GroupSizeCell.self, forCellWithReuseIdentifier: userCountCellReuseIdentifier)
         membersCollectionView.delegate = self
         membersCollectionView.dataSource = self
         
-        addSubviews(groupBannerImageView, groupProfileImageView, groupNameLabel, membersLabel, configurationButton, membersCollectionView)
+        addSubviews(groupBannerImageView, groupProfileImageView, groupNameLabel, configurationButton, membersCollectionView, groupSizeLabel)
         NSLayoutConstraint.activate([
             groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
             groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -128,20 +127,20 @@ class GroupPageHeaderCell: UICollectionViewCell {
             groupNameLabel.topAnchor.constraint(equalTo: groupProfileImageView.bottomAnchor, constant: 10),
             groupNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            membersLabel.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 5),
-            membersLabel.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
-            membersLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            membersLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -40),
-            
             configurationButton.topAnchor.constraint(equalTo: groupBannerImageView.bottomAnchor, constant: 10),
             configurationButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             configurationButton.heightAnchor.constraint(equalToConstant: 25),
             configurationButton.widthAnchor.constraint(equalToConstant: 25),
             
-            membersCollectionView.topAnchor.constraint(equalTo: membersLabel.bottomAnchor, constant: 5),
-            membersCollectionView.leadingAnchor.constraint(equalTo: membersLabel.leadingAnchor),
+            membersCollectionView.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 5),
+            membersCollectionView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
             membersCollectionView.heightAnchor.constraint(equalToConstant: 25),
-            membersCollectionView.trailingAnchor.constraint(equalTo: membersLabel.trailingAnchor),
+            membersCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            
+            groupSizeLabel.centerYAnchor.constraint(equalTo: membersCollectionView.centerYAnchor),
+            groupSizeLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            groupSizeLabel.trailingAnchor.constraint(equalTo: membersCollectionView.leadingAnchor, constant: -5),
+            groupSizeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
         ])
     }
     
@@ -154,7 +153,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         groupBannerImageView.sd_setImage(with: URL(string: viewModel.groupBannerUrl!))
         groupProfileImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         groupNameLabel.text = viewModel.groupName
-        membersLabel.text = viewModel.groupSizeString
+      
         configurationButton.configuration?.image = UIImage(systemName: "info")
     }
     
@@ -172,21 +171,46 @@ class GroupPageHeaderCell: UICollectionViewCell {
 }
 
 extension GroupPageHeaderCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return users?.count ?? 0
+        if section == 0 {
+            return users?.count ?? 0
+            
+        } else {
+            return 1
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! GroupUserCell
-        cell.set(user: users?[indexPath.row] ?? User(dictionary: [:]))
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! GroupUserCell
+            cell.set(user: users?[indexPath.row] ?? User(dictionary: [:]))
+            return cell
+        }
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCountCellReuseIdentifier, for: indexPath) as! GroupSizeCell
+        if let viewModel = viewModel {
+            cell.set(members: viewModel.groupSizeString)
+        }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 25, height: 25)
+        if indexPath.section == 0 {
+            return CGSize(width: 25, height: 25)
+        } else {
+            return CGSize(width: 150, height: 25)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return -7
+        if section == 0 {
+            return -7
+        }
+        
+        return 10
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 protocol ResetPasswordViewControllerDelegate: AnyObject {
     func controllerDidSendResetPassword(_ controller: ResetPasswordViewController)
@@ -20,6 +21,8 @@ class ResetPasswordViewController: UIViewController {
     var email: String?
     
     private var viewModel = ResetPasswordViewModel()
+    
+    private let progressIndicator = JGProgressHUD()
     
     weak var delegate: ResetPasswordViewControllerDelegate?
     
@@ -144,9 +147,9 @@ class ResetPasswordViewController: UIViewController {
     
     @objc func resetButtonPressed() {
         guard let email = emailTextField.text else { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         AuthService.resetPassword(withEmail: email) { error in
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return

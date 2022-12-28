@@ -31,9 +31,28 @@ class RegisterBottomMenuLauncher: NSObject {
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Import from Camera", "Choose from Gallery"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "camera.fill")!,
-                                                UIImage(systemName: "photo")!]
+    enum ImageSourceOptions: CaseIterable {
+        case camera
+        case gallery
+        
+        var imageSourceString: String {
+            switch self {
+            case .camera:
+                return "Import from camera"
+            case .gallery:
+                return "Choose from gallery"
+            }
+        }
+        
+        var imageSourceImage: UIImage {
+            switch self {
+            case .camera:
+                return UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .gallery:
+                return UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            }
+        }
+    }
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -64,9 +83,9 @@ class RegisterBottomMenuLauncher: NSObject {
         } completion: { completed in
             
             switch selectedOption {
-            case self.menuOptionsText[0]:
+            case ImageSourceOptions.camera.imageSourceString:
                 self.delegate?.didTapImportFromCamera()
-            case self.menuOptionsText[1]:
+            case ImageSourceOptions.gallery.imageSourceString:
                 self.delegate?.didTapImportFromGallery()
             default:
                 break
@@ -149,21 +168,20 @@ extension RegisterBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuOptionsText.count
+        return ImageSourceOptions.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.set(withText: ImageSourceOptions.allCases[indexPath.row].imageSourceString, withImage: ImageSourceOptions.allCases[indexPath.row].imageSourceImage)
         cell.backgroundColor = .white
-        //cell.postTyeButton.configuration?.baseBackgroundColor = .white
-        
+
         if indexPath.row == 0 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         }
         
-        if indexPath.row == menuOptionsText.count - 1 {
+        if indexPath.row == ImageSourceOptions.allCases.count - 1 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         }
@@ -176,7 +194,7 @@ extension RegisterBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedOption = menuOptionsText[indexPath.row]
+        let selectedOption = ImageSourceOptions.allCases[indexPath.row].imageSourceString
         handleDismiss(selectedOption: selectedOption)
     }
 }

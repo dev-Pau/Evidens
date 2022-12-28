@@ -498,6 +498,14 @@ extension UIWindow {
     }
 }
 
+extension UIViewController {
+    func changeBackgroundAlphaToDark(_ darker: Bool) {
+        if let keyWindow = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
+            keyWindow.alpha = darker ? 0.85 : 1
+        }
+    }
+}
+
 extension UIView {
     func setHeightConstraint(toConstant constant: CGFloat) {
         constraints.forEach {

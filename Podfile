@@ -33,5 +33,8 @@ target 'Evidens' do
 
 	#Progression
 	pod 'JGProgressHUD'
+
+	#Crop
+	pod 'CropViewController'
 	
 end

@@ -12,6 +12,7 @@ private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIden
 
 
 private let groupContentSelectionReuseIdentifier = "GroupContentSelectionReuseIdentifier"
+private let groupContentCollectionViewReuseIdentifier = "GroupContentCollectionViewReuseIdentifier"
 
 class GroupPageViewController: UIViewController {
     
@@ -81,6 +82,7 @@ class GroupPageViewController: UIViewController {
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
         
         collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: groupContentCollectionViewReuseIdentifier)
         //collectionView.register(UserProfileTitleHeader.self, forCellWithReuseIdentifier: profileHeaderTitleReuseIdentifier)
         
     }
@@ -95,16 +97,16 @@ class GroupPageViewController: UIViewController {
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(41)),
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
                 header.pinToVisibleBounds = true
                 
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
-                //group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(5))
-                
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(5))
                 let section = NSCollectionLayoutSection(group: group)
+                
                 section.boundarySupplementaryItems = [header]
                 return section
             }
@@ -136,7 +138,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 { return 2 }
-        else { return 20 }
+        else { return 10 }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -154,8 +156,8 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             }
 
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCreationReuseIdentifier, for: indexPath) as! GroupContentCreationCell
-            cell.delegate = self
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCollectionViewReuseIdentifier, for: indexPath)
+            cell.backgroundColor = .red
             return cell
             
         }
@@ -164,6 +166,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentSelectionReuseIdentifier, for: indexPath) as! GroupContentSelectionHeader
         //header.set(title: "Sticky header")
+        
         return header
     }
 }

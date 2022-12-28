@@ -8,6 +8,7 @@
 import UIKit
 import MessageUI
 import PhotosUI
+import JGProgressHUD
 
 class DriverLicenseViewController: UIViewController {
     
@@ -30,6 +31,8 @@ class DriverLicenseViewController: UIViewController {
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
@@ -325,11 +328,11 @@ class DriverLicenseViewController: UIViewController {
         guard let frontImage = frontImageBackgroundView.image, let backImage = backImageBackgroundView.image else { return }
         if hasCode {
             guard let uid = user.uid, let membershipCode = membershipCodeTextField.text else { return }
-            //showLoadingView()
+            progressIndicator.show(in: view)
             StorageManager.uploadDocumentationImage(images: [frontImage, backImage], type: "driver", uid: uid) { uploaded in
                 if uploaded {
                     AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
-                        //self.dismissLoadingView()
+                        self.progressIndicator.dismiss(animated: true)
                         if let error = error {
                             print(error.localizedDescription)
                         }

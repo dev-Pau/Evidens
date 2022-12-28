@@ -24,16 +24,35 @@ class HelperBottomMenuLauncher: NSObject {
         return view
     }()
     
+    enum RegistrationOptionsHelper: String, CaseIterable {
+        case support = "Support"
+        case logout = "Logout"
+        
+        var helperString: String {
+            switch self {
+            case .support:
+                return "Contact support"
+            case .logout:
+                return "Log out"
+            }
+        }
+        
+        var helperImage: UIImage {
+            switch self {
+            case .support:
+                return UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .logout:
+                return UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            }
+        }
+    }
+    
     weak var delegate: HelperBottomMenuLauncherDelegate?
     
     private let menuHeight: CGFloat = 190
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
-    
-    private var menuOptionsText: [String] = ["Contact Support", "Log out"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "tray.fill")!,
-                                                UIImage(systemName: "arrow.right.to.line")!]
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -64,9 +83,9 @@ class HelperBottomMenuLauncher: NSObject {
         } completion: { completed in
             
             switch selectedOption {
-            case self.menuOptionsText[0]:
+            case RegistrationOptionsHelper.support.helperString:
                 self.delegate?.didTapContactSupport()
-            case self.menuOptionsText[1]:
+            case RegistrationOptionsHelper.logout.helperString:
                 self.delegate?.didTapLogout()
             default:
                 break
@@ -150,21 +169,20 @@ extension HelperBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuOptionsText.count
+        return RegistrationOptionsHelper.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.set(withText: RegistrationOptionsHelper.allCases[indexPath.row].helperString, withImage: RegistrationOptionsHelper.allCases[indexPath.row].helperImage)
         cell.backgroundColor = .white
-        //cell.postTyeButton.configuration?.baseBackgroundColor = .white
-        
+
         if indexPath.row == 0 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         }
         
-        if indexPath.row == menuOptionsText.count - 1 {
+        if indexPath.row == RegistrationOptionsHelper.allCases.count - 1 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         }
@@ -177,7 +195,7 @@ extension HelperBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedOption = menuOptionsText[indexPath.row]
+        let selectedOption = RegistrationOptionsHelper.allCases[indexPath.row].helperString
         handleDismiss(selectedOption: selectedOption)
     }
 }

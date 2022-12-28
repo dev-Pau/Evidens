@@ -67,7 +67,7 @@ class ExploreHeaderCell: UICollectionReusableView {
             repeatingGroup.contentInsets.leading = 10
             repeatingGroup.contentInsets.top = 10
 
-                        let section = NSCollectionLayoutSection(group: repeatingGroup)
+            let section = NSCollectionLayoutSection(group: repeatingGroup)
             section.orthogonalScrollingBehavior = .continuous
             
             let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)

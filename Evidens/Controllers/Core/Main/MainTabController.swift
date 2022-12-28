@@ -52,8 +52,7 @@ class MainTabController: UITabBarController {
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
-         
-
+        
         view.backgroundColor = .white
         self.tabBar.isHidden = true
         
@@ -71,7 +70,7 @@ class MainTabController: UITabBarController {
         UserService.fetchUser(withUid: uid) { user in
             //Set user property
             self.user = user
-                        
+            
             switch user.phase {
             case .categoryPhase:
                 print("User created account without giving any details")
@@ -84,7 +83,7 @@ class MainTabController: UITabBarController {
                 let controller = FullNameRegistrationViewController(user: user)
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
-
+                
             case .verificationPhase:
                 print("User gave all information except for the personal identification")
                 let controller = VerificationRegistrationViewController(user: user)
@@ -129,12 +128,12 @@ class MainTabController: UITabBarController {
     }
     
     //MARK: - Helpers
-
+    
     //Setup ViewControllers for the TabBarController
     func configureViewControllers(withUser user: User) {
         view.backgroundColor = .white
         self.delegate = self
-    
+        
         let homeController = HomeViewController()
         homeController.delegate = self
         homeController.panDelegate = self
@@ -153,11 +152,11 @@ class MainTabController: UITabBarController {
         groupsController.delegate = self
         groupsController.panDelegate = self
         groupsController.wantsToHideSearchBar = true
-
+        
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
         
         let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
-  
+        
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "post")!, selectedImage: UIImage(named: "post.selected")!, rootViewController: postController)
         
         let groups = templateNavigationController(title: "Groups", unselectedImage: UIImage(named: "groups.selected")!, selectedImage: UIImage(named: "groups.selected")!, rootViewController: groupsController)
@@ -171,7 +170,7 @@ class MainTabController: UITabBarController {
     }
     
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
-    
+        
         let nav = UINavigationController(rootViewController: rootViewController)
         nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
         nav.tabBarItem.title = title
@@ -191,7 +190,7 @@ class MainTabController: UITabBarController {
             backItem.tintColor = .black
             
             let userProfileController = UserProfileViewController(user: user)
-
+            
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             currentNavController.pushViewController(userProfileController, animated: true)
         }
@@ -220,7 +219,7 @@ class MainTabController: UITabBarController {
             backItem.tintColor = .black
             
             let settingsController = ApplicationSettingsViewController()
-
+            
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             currentNavController.pushViewController(settingsController, animated: true)
         }
@@ -282,7 +281,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
             present(nav, animated: true, completion: nil)
         }
     }
-
+    
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa
@@ -313,7 +312,7 @@ extension MainTabController: NavigationBarViewControllerDelegate {
             backItem.tintColor = .black
             
             let controller = SearchViewController()
-
+            
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             
             currentNavController.pushViewController(controller, animated: true)

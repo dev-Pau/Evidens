@@ -7,6 +7,7 @@
 
 import UIKit
 import PhotosUI
+import CropViewController
 
 private let profilePictureReuseIdentifier = "ProfilePictureReuseIdentifier"
 private let nameCellReuseIdentifier = "NameCellReuseIdentifier"
@@ -322,13 +323,52 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
+
         if results.count == 0 { return }
         showLoadingView()
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async {
+                    
+                    
+                    
+                    
+                    
+                    
+                    // MODIFICAR ELS LOADING VIEWS
                     self.dismissLoadingView()
+
+                    
+                    
+                    
+                    
+                    
+                    
+                    if self.isProfile {
+                        let vc = CropViewController(croppingStyle: .circular , image: image)
+                        vc.delegate = self
+                        vc.aspectRatioLockEnabled = true
+                        vc.toolbarPosition = .bottom
+                        vc.doneButtonTitle = "Done"
+                        vc.cancelButtonTitle = "Cancel"
+                        self.present(vc, animated: true)
+                    } else {
+                        let vc = CropViewController(image: image)
+                        vc.delegate = self
+                        vc.aspectRatioLockEnabled = true
+                        vc.aspectRatioPickerButtonHidden = true
+                        vc.rotateButtonsHidden = true
+                        vc.resetButtonHidden = true
+                        vc.aspectRatioPreset = .presetCustom
+                        vc.customAspectRatio = CGSize(width: 4, height: 1)
+                        vc.toolbarPosition = .bottom
+                        vc.doneButtonTitle = "Done"
+                        vc.cancelButtonTitle = "Cancel"
+                        self.present(vc, animated: true)
+                    }
+
+                    /*
                     let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
                     
                     if self.isProfile {
@@ -340,10 +380,37 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
                         self.newUserProfileBanner = image
                         self.userDidChangeBannerPicture = true
                     }
-                    self.navigationItem.rightBarButtonItem?.isEnabled = true
+                     
+                    
+                     */
                 }
             }
         }
+    }
+}
+
+extension EditProfileViewController: CropViewControllerDelegate {
+    func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
+        cropViewController.dismiss(animated: true)
+    }
+    
+    func cropViewController(_ cropViewController: CropViewController, didCropToCircularImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
+        cropViewController.dismiss(animated: true)
+        let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+        cell.profileImageView.image = image
+        self.newUserProfilePicture = image
+        self.userDidChangeProfilePicture = true
+        self.navigationItem.rightBarButtonItem?.isEnabled = true
+
+    }
+    
+    func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
+        cropViewController.dismiss(animated: true)
+        let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+        cell.bannerImageView.image = image
+        self.newUserProfileBanner = image
+        self.userDidChangeBannerPicture = true
+        self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
 }
 

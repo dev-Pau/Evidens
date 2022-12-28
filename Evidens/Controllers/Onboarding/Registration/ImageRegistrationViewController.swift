@@ -8,6 +8,8 @@
 import UIKit
 import PhotosUI
 import MessageUI
+import JGProgressHUD
+import CropViewController
 
 class ImageRegistrationViewController: UIViewController {
     
@@ -27,6 +29,8 @@ class ImageRegistrationViewController: UIViewController {
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     private let imageTextLabel: UILabel = {
         let label = CustomLabel(placeholder: "Pick a profile picture")
@@ -142,7 +146,7 @@ class ImageRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Account details"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapBack))
         navigationController?.navigationBar.tintColor = .black
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
@@ -196,7 +200,7 @@ class ImageRegistrationViewController: UIViewController {
         
         let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "")
         
-        showLoadingView()
+        progressIndicator.show(in: view)
         
         AuthService.updateUserRegistrationNameDetails(withUid: uid, withCredentials: credentials) { error in
             if let error = error {
@@ -208,7 +212,8 @@ class ImageRegistrationViewController: UIViewController {
                         UserService.updateProfileImageUrl(profileImageUrl: url) { error in
                             self.user.profileImageUrl = url
                             //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
-                            self.dismissLoadingView()
+                            self.progressIndicator.dismiss(animated: true)
+                            
                             if let error = error {
                                 print(error.localizedDescription)
                             } else {
@@ -220,8 +225,8 @@ class ImageRegistrationViewController: UIViewController {
                         }
                     }
                 } else {
-                    self.dismissLoadingView()
-                    self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
+                    self.progressIndicator.dismiss(animated: true)
+                    //self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
                     let controller = VerificationRegistrationViewController(user: self.user)
                     let nav = UINavigationController(rootViewController: controller)
                     nav.modalPresentationStyle = .fullScreen
@@ -237,6 +242,20 @@ class ImageRegistrationViewController: UIViewController {
     
     @objc func handleHelp() {
         helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
+    }
+    
+    func showCrop(image: UIImage) {
+        let controller = TOCropViewController(croppingStyle: .circular, image: image)
+        
+        controller.doneButtonTitle = "Done"
+        controller.cancelButtonTitle = "Cancel"
+
+        controller.delegate = self
+        
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        
+        self.present(navVC, animated: true)
     }
          
 }
@@ -299,22 +318,47 @@ extension ImageRegistrationViewController: UIImagePickerControllerDelegate, UINa
 extension ImageRegistrationViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true)
         if results.count == 0 { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
                 guard let image = reading as? UIImage, error == nil else { return }
+                
                 DispatchQueue.main.async {
-                    self.dismissLoadingView()
+                    picker.dismiss(animated: true)
+                    self.progressIndicator.dismiss(animated: true)
+                    self.showCrop(image: image)
+                    
+                }
+
+                /*
+                DispatchQueue.main.async {
+                    self.progressIndicator.dismiss(animated: true)
                     self.profileImageView.image = image
                     self.uploadPictureButton.isHidden = true
                     self.continueButton.isUserInteractionEnabled = true
                     self.continueButton.backgroundColor = primaryColor
                     self.imageSelected = true
                 }
+                 */
+                 
             }
         }
+    }
+}
+
+extension ImageRegistrationViewController: TOCropViewControllerDelegate {
+    func cropViewController(_ cropViewController: TOCropViewController, didCropToCircularImage image: UIImage, with cropRect: CGRect, angle: Int) {
+        cropViewController.dismiss(animated: true)
+        self.profileImageView.image = image
+        self.uploadPictureButton.isHidden = true
+        self.continueButton.isUserInteractionEnabled = true
+        self.continueButton.backgroundColor = primaryColor
+        self.imageSelected = true
+    }
+    
+    func cropViewController(_ cropViewController: TOCropViewController, didFinishCancelled cancelled: Bool) {
+        cropViewController.dismiss(animated: true)
     }
 }
 

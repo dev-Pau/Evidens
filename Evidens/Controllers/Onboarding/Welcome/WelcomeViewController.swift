@@ -249,6 +249,7 @@ class WelcomeViewController: UIViewController {
     
     @objc func signupButtonPressed() {
         let controller = EmailRegistrationViewController()
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     

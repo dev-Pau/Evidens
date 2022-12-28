@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import JGProgressHUD
 
 class PasswordRegistrationViewController: UIViewController {
     
@@ -177,6 +178,8 @@ class PasswordRegistrationViewController: UIViewController {
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
+    
+    let progressIndicator = JGProgressHUD()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -203,7 +206,7 @@ class PasswordRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Create account"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
         navigationController?.navigationBar.tintColor = .black
     }
     
@@ -321,17 +324,22 @@ class PasswordRegistrationViewController: UIViewController {
     
     @objc func handleCreateAccount() {
         guard let password = passwordTextField.text else { return }
-        
-        showLoadingView()
+
         let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: password, profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+        
+        progressIndicator.show(in: view)
     
         AuthService.registerUser(withCredential: credentials) { error in
-            self.dismissLoadingView()
+            
             if let error = error {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return
             }
+            
             AuthService.logUserIn(withEmail: self.email, password: password) { result, error in
+                
+                self.progressIndicator.dismiss(animated: true)
+                
                 if let error = error {
                     self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                     return

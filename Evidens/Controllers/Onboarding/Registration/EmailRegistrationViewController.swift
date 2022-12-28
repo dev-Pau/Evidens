@@ -105,7 +105,7 @@ class EmailRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Create account"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
         navigationController?.navigationBar.tintColor = .black
     }
 
@@ -153,6 +153,7 @@ class EmailRegistrationViewController: UIViewController {
     @objc func handleNext() {
         guard let email = emailTextField.text else { return }
         let controller = PasswordRegistrationViewController(email: email)
+       
         navigationController?.pushViewController(controller, animated: true)
         emailTextField.resignFirstResponder()
     }

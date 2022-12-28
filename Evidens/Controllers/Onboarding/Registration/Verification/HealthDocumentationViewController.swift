@@ -8,6 +8,7 @@
 import UIKit
 import MessageUI
 import PhotosUI
+import JGProgressHUD
 
 class HealthDocumentationViewController: UIViewController {
     
@@ -30,6 +31,8 @@ class HealthDocumentationViewController: UIViewController {
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
@@ -226,9 +229,11 @@ class HealthDocumentationViewController: UIViewController {
     
     @objc func handleSubmit() {
         guard let customImage = frontImageBackgroundView.image, let uid = user.uid else { return }
+        progressIndicator.show(in: view)
         StorageManager.uploadDocumentationImage(images: image, type: type, uid: uid) { uploaded in
             if uploaded {
                 StorageManager.uploadDocumentationImage(images: [customImage], type: "custom", uid: uid) { uploaded in
+                    self.progressIndicator.dismiss(animated: true)
                     if uploaded {
 
                         AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
