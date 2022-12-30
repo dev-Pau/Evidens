@@ -28,17 +28,26 @@ class GroupBrowseCell: UICollectionViewCell {
     
     private let groupNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textColor = .black
-        label.numberOfLines = 4
+        label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let categoriesGroupLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = grayColor
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
         return label
     }()
     
     private let memberTypeButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
+        button.configuration?.cornerStyle = .medium
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints  = false
         return button
@@ -52,22 +61,15 @@ class GroupBrowseCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var dotsButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    private let membersCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumInteritemSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
     }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
-        return view
-    }()
-    
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -78,7 +80,18 @@ class GroupBrowseCell: UICollectionViewCell {
     }
     
     private func configure() {
+        
         backgroundColor = .white
+        
+        layer.borderWidth = 1
+        layer.borderColor = lightColor.cgColor
+        layer.cornerRadius = 7
+        
+        layer.shadowColor = lightColor.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 0)
+        layer.shadowRadius = 5.0
+        layer.shadowOpacity = 1
+        layer.masksToBounds = false
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -90,35 +103,31 @@ class GroupBrowseCell: UICollectionViewCell {
         ])
         
         
-        cellContentView.addSubviews(groupImageView, groupNameLabel, memberTypeButton, groupSizeLabel, separatorView)
+        cellContentView.addSubviews(groupImageView, groupNameLabel, categoriesGroupLabel, memberTypeButton, groupSizeLabel, membersCollectionView)
         
         NSLayoutConstraint.activate([
-            groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            groupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            groupImageView.heightAnchor.constraint(equalToConstant: 50),
-            groupImageView.widthAnchor.constraint(equalToConstant: 50),
-            
-            //dotsButton.centerYAnchor.constraint(equalTo: groupImageView.centerYAnchor),
-            //dotsButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            //dotsButton.widthAnchor.constraint(equalToConstant: 20),
-            //dotsButton.heightAnchor.constraint(equalToConstant: 20),
+            groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 4),
+            groupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 4),
+            groupImageView.heightAnchor.constraint(equalToConstant: 70),
+            groupImageView.widthAnchor.constraint(equalToConstant: 70),
             
             groupNameLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             groupNameLabel.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
             groupNameLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            memberTypeButton.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 2),
+            categoriesGroupLabel.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor),
+            categoriesGroupLabel.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
+            categoriesGroupLabel.trailingAnchor.constraint(equalTo: groupNameLabel.trailingAnchor),
+            
+            memberTypeButton.topAnchor.constraint(equalTo: categoriesGroupLabel.bottomAnchor, constant: 2),
             memberTypeButton.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
             
             groupSizeLabel.topAnchor.constraint(equalTo: memberTypeButton.bottomAnchor, constant: 2),
             groupSizeLabel.leadingAnchor.constraint(equalTo: memberTypeButton.leadingAnchor),
             groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor)
         ])
+        
+        groupImageView.layer.cornerRadius = 7
     }
     
     private func configureGroup() {
@@ -126,9 +135,10 @@ class GroupBrowseCell: UICollectionViewCell {
         groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         groupNameLabel.text = viewModel.groupName
         groupSizeLabel.text = viewModel.groupSizeString
+        categoriesGroupLabel.text = viewModel.groupCategories
         
         memberTypeButton.configuration?.baseForegroundColor = .white
-        memberTypeButton.configuration?.baseBackgroundColor = primaryColor
+        memberTypeButton.configuration?.baseBackgroundColor = lightGrayColor
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
@@ -141,7 +151,10 @@ class GroupBrowseCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        
+        let height = max(90, autoLayoutSize.height)
+        
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

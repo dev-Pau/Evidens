@@ -11,7 +11,6 @@ protocol NavigationBarViewControllerDelegate: AnyObject {
     func didTapMenuButton()
     func didTapSearchBar()
     func didTapConversationsButton()
-    func didTapCreateGroup()
 }
 
 class NavigationBarViewController: UIViewController {
@@ -20,7 +19,7 @@ class NavigationBarViewController: UIViewController {
     weak var panDelegate: DisablePanGestureDelegate?
     
     var controllerIsBeeingPushed: Bool = false
-    var wantsToHideSearchBar: Bool = false
+    //var wantsToHideSearchBar: Bool = false
 
     let searchController = UISearchController(searchResultsController: nil)
     
@@ -42,6 +41,7 @@ class NavigationBarViewController: UIViewController {
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
         searchBar.searchTextField.backgroundColor = lightColor
+        
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         
         return searchBar
@@ -61,12 +61,6 @@ class NavigationBarViewController: UIViewController {
             userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
             navigationItem.leftBarButtonItem = profileImageItem
             
-            if wantsToHideSearchBar {
-                navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Create", style: .done, target: self, action: #selector(didTapCreateGroup))
-                navigationItem.rightBarButtonItem?.tintColor = grayColor
-                return
-            }
-            
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
 
             navigationItem.rightBarButtonItem?.tintColor = .black
@@ -83,14 +77,14 @@ class NavigationBarViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         searchBar.resignFirstResponder()
-        if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
+        //if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
         panDelegate?.disablePanGesture()
     }
 
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
+        //if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
         panDelegate?.disablePanGesture()
     }
 
@@ -100,10 +94,6 @@ class NavigationBarViewController: UIViewController {
     
     @objc func didTapChat() {
         delegate?.didTapConversationsButton()
-    }
-    
-    @objc func didTapCreateGroup() {
-        delegate?.didTapCreateGroup()
     }
 }
 

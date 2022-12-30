@@ -12,6 +12,8 @@ private let headerReuseIdentifier = "GroupMenuHeaderReuseIdentifier"
 
 protocol GroupMenuLauncherDelegate: AnyObject {
     func didTapVisitGroup()
+    func didTapBrowseGroups()
+    func didTapDiscoverGroups()
 }
 
 class GroupMenuLauncher: NSObject {
@@ -24,14 +26,38 @@ class GroupMenuLauncher: NSObject {
         return view
     }()
 
-    private let menuHeight: CGFloat = 110
+    private let menuHeight: CGFloat = 55 + CGFloat(GroupMenuOptions.allCases.count * 55)
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["Visit group page"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!]
-    
+    enum GroupMenuOptions: CaseIterable {
+        case page
+        case browse
+        case discover
+        
+        var groupMenuString: String {
+            switch self {
+            case .page:
+                return "Visit group page"
+            case .browse:
+                return "Browse groups"
+            case .discover:
+                return "Discover new groups"
+            }
+        }
+        
+        var groupMenuImage: UIImage {
+            switch self {
+            case .page:
+                return UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .browse:
+                return UIImage(systemName: "list.bullet", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .discover:
+                return UIImage(systemName: "safari", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            }
+        }
+    }
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -60,6 +86,17 @@ class GroupMenuLauncher: NSObject {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset, width: self.screenWidth, height: self.menuHeight)
+        } completion: { _ in
+            switch selectedOption {
+            case GroupMenuOptions.page.groupMenuString:
+                self.delegate?.didTapVisitGroup()
+            case GroupMenuOptions.discover.groupMenuString:
+                self.delegate?.didTapDiscoverGroups()
+            case GroupMenuOptions.browse.groupMenuString:
+                self.delegate?.didTapBrowseGroups()
+            default:
+                break
+            }
         }
     }
     
@@ -138,15 +175,25 @@ extension GroupMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuOptionsText.count
+        return GroupMenuOptions.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
-        cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
+        cell.set(withText: GroupMenuOptions.allCases[indexPath.row].groupMenuString, withImage: GroupMenuOptions.allCases[indexPath.row].groupMenuImage)
         cell.backgroundColor = .white
 
-        cell.layer.cornerRadius = 10
+        if indexPath.row == 0 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        }
+        
+        else if indexPath.row == GroupMenuOptions.allCases.count - 1 {
+            cell.layer.cornerRadius = 10
+            cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+         } else {
+             cell.layer.cornerRadius = 0
+         }
         
         return cell
     }
@@ -156,9 +203,9 @@ extension GroupMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedOption = menuOptionsText[indexPath.row]
+        let selectedOption = GroupMenuOptions.allCases[indexPath.row].groupMenuString
         handleDismiss(selectedOption: selectedOption)
-        delegate?.didTapVisitGroup()
+
     }
 }
 

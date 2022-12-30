@@ -7,6 +7,8 @@
 
 import UIKit
 import PhotosUI
+import CropViewController
+import JGProgressHUD
 
 private let createGroupImageCellReuseIdentifier = "CreateGroupImageCellReuseIdentifier"
 private let createGroupNameCellReuseIdentifier = "CreateGroupNameCellReuseIdentifier"
@@ -65,6 +67,8 @@ class CreateGroupViewController: UIViewController {
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
+    
+    private let progressIndicator = JGProgressHUD()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,6 +111,25 @@ class CreateGroupViewController: UIViewController {
         collectionView.frame = view.bounds
     }
     
+    private func cropImage(image: UIImage) {
+        let vc = CropViewController(image: image)
+        vc.aspectRatioLockEnabled = true
+        vc.delegate = self
+        vc.doneButtonTitle = "Done"
+        vc.aspectRatioPickerButtonHidden = true
+        vc.resetButtonHidden = true
+        vc.cancelButtonTitle = "Cancel"
+        
+        if self.isProfile {
+            vc.aspectRatioPreset = .presetSquare
+        } else {
+            vc.aspectRatioPreset = .presetCustom
+            vc.customAspectRatio = CGSize(width: 4, height: 1)
+        }
+        
+        self.present(vc, animated: true)
+    }
+    
     @objc func handleDismiss() {
         dismiss(animated: true)
     }
@@ -123,13 +146,13 @@ class CreateGroupViewController: UIViewController {
         groupToUpload.categories = groupCategories
         groupToUpload.memberType = .owner
         
-        showLoadingView()
+        progressIndicator.show(in: view)
         
         if viewModel.hasBothImages {
             // Upload banner and profile
             let imagesToUpload = [groupBannerImage, groupProfileImage]
             StorageManager.uploadGroupImages(images: imagesToUpload) { urls in
-                self.dismissLoadingView()
+                self.progressIndicator.dismiss(animated: true)
                 groupToUpload.bannerUrl = urls[0]
                 groupToUpload.profileUrl = urls[1]
                 
@@ -141,7 +164,7 @@ class CreateGroupViewController: UIViewController {
         } else {
             if viewModel.hasProfile {
                 StorageManager.uploadGroupImage(image: groupProfileImage) { url in
-                    self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     groupToUpload.profileUrl = url
                     
                     GroupService.uploadGroup(group: groupToUpload) { error in
@@ -151,7 +174,7 @@ class CreateGroupViewController: UIViewController {
                 }
             } else if viewModel.hasBanner {
                 StorageManager.uploadGroupImage(image: groupBannerImage) { url in
-                    self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     groupToUpload.bannerUrl = url
                     
                     GroupService.uploadGroup(group: groupToUpload) { error in
@@ -162,7 +185,7 @@ class CreateGroupViewController: UIViewController {
             } else {
                 // No banner no profile
                 GroupService.uploadGroup(group: groupToUpload) { error in
-                    self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     guard error == nil else { return }
                     #warning("present group page")
                 }
@@ -199,6 +222,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
+            cell.profileImageView.layer.cornerRadius = 7
             return cell
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupNameCellReuseIdentifier, for: indexPath) as! EditNameCell
@@ -290,19 +314,7 @@ extension CreateGroupViewController: PHPickerViewControllerDelegate, UIImagePick
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
-        
-        if isProfile {
-            cell.profileImageView.image = selectedImage
-            cell.hideProfileHint()
-            groupProfileImage = selectedImage
-            viewModel.profileImage = true
-        } else {
-            cell.bannerImageView.image = selectedImage
-            cell.hideBannerHint()
-            //groupBannerImage = selectedImage
-            viewModel.profileBanner = true
-        }
+        cropImage(image: selectedImage)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -313,25 +325,13 @@ extension CreateGroupViewController: PHPickerViewControllerDelegate, UIImagePick
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         if results.count == 0 { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async {
-                    self.dismissLoadingView()
-                    let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
-                    
-                    if self.isProfile {
-                        cell.profileImageView.image = image
-                        cell.hideProfileHint()
-                        self.groupProfileImage = image
-                        self.viewModel.profileImage = true
-                    } else {
-                        cell.bannerImageView.image = image
-                        cell.hideBannerHint()
-                        self.groupBannerImage = image
-                        self.viewModel.profileBanner = true
-                    }
+                    self.progressIndicator.dismiss(animated: true)
+                    self.cropImage(image: image)
                 }
             }
         }
@@ -349,5 +349,28 @@ extension CreateGroupViewController: GroupDescriptionCellDelegate {
     func descriptionDidChange(text: String) {
         viewModel.description = text
         groupIsValid()
+    }
+}
+
+extension CreateGroupViewController: CropViewControllerDelegate {
+    func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
+        cropViewController.dismiss(animated: true)
+    }
+    
+    func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
+        cropViewController.dismiss(animated: true)
+        let cell = collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+        
+        if isProfile {
+            cell.profileImageView.image = image
+            cell.hideProfileHint()
+            groupProfileImage = image
+            viewModel.profileImage = true
+        } else {
+            cell.bannerImageView.image = image
+            cell.hideBannerHint()
+            groupBannerImage = image
+            viewModel.profileBanner = true
+        }
     }
 }

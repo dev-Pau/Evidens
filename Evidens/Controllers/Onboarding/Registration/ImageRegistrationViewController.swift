@@ -307,7 +307,7 @@ extension ImageRegistrationViewController: UIImagePickerControllerDelegate, UINa
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        profileImageView.image = selectedImage
+        showCrop(image: selectedImage)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -330,18 +330,6 @@ extension ImageRegistrationViewController: PHPickerViewControllerDelegate {
                     self.showCrop(image: image)
                     
                 }
-
-                /*
-                DispatchQueue.main.async {
-                    self.progressIndicator.dismiss(animated: true)
-                    self.profileImageView.image = image
-                    self.uploadPictureButton.isHidden = true
-                    self.continueButton.isUserInteractionEnabled = true
-                    self.continueButton.backgroundColor = primaryColor
-                    self.imageSelected = true
-                }
-                 */
-                 
             }
         }
     }

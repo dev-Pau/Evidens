@@ -148,23 +148,15 @@ class MainTabController: UITabBarController {
         
         let postController = ViewController()
         
-        let groupsController = GroupsViewController(user: user)
-        groupsController.delegate = self
-        groupsController.panDelegate = self
-        groupsController.wantsToHideSearchBar = true
-        
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
         
         let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
         
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "post")!, selectedImage: UIImage(named: "post.selected")!, rootViewController: postController)
         
-        let groups = templateNavigationController(title: "Groups", unselectedImage: UIImage(named: "groups.selected")!, selectedImage: UIImage(named: "groups.selected")!, rootViewController: groupsController)
-        
-        
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
         
-        viewControllers = [home, cases, post, groups, notifications]
+        viewControllers = [home, cases, post, notifications]
         
         tabBar.tintColor = .black
     }
@@ -207,6 +199,10 @@ class MainTabController: UITabBarController {
             switch option {
             case .bookmarks:
                 let controller = BookmarksViewController()
+                currentNavController.pushViewController(controller, animated: true)
+            case .groups:
+                guard let user = user else { return }
+                let controller = GroupBrowserViewController()
                 currentNavController.pushViewController(controller, animated: true)
             }
         }
@@ -290,16 +286,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
 }
 
 extension MainTabController: NavigationBarViewControllerDelegate {
-    func didTapCreateGroup() {
-        let controller = CreateGroupViewController()
-        
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        
-        present(nav, animated: true)
-        
-    }
-    
+
     func didTapConversationsButton() {
         menuDelegate?.handleConversations()
     }

@@ -36,7 +36,9 @@ class GroupUserCell: UICollectionViewCell {
             profileImageView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = 25 / 2
+        profileImageView.layer.cornerRadius = 27 / 2
+        profileImageView.layer.borderWidth = 2
+        profileImageView.layer.borderColor = UIColor.white.cgColor
     }
     
     func set(user: User) {

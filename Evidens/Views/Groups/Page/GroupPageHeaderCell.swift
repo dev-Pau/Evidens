@@ -134,7 +134,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
             
             membersCollectionView.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 5),
             membersCollectionView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
-            membersCollectionView.heightAnchor.constraint(equalToConstant: 25),
+            membersCollectionView.heightAnchor.constraint(equalToConstant: 27),
             membersCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
             groupSizeLabel.centerYAnchor.constraint(equalTo: membersCollectionView.centerYAnchor),
@@ -200,7 +200,7 @@ extension GroupPageHeaderCell: UICollectionViewDelegateFlowLayout, UICollectionV
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.section == 0 {
-            return CGSize(width: 25, height: 25)
+            return CGSize(width: 27, height: 27)
         } else {
             return CGSize(width: 150, height: 25)
         }

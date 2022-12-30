@@ -66,6 +66,10 @@ struct GroupViewModel {
         return group.bannerUrl
     }
     
+    var groupCategories: String {
+        return group.categories.joined(separator: " · ")
+    }
+    
     var groupSizeString: String {
         let memberString = groupMembers > 1 ? " members" : " member"
         return String(groupMembers) + memberString

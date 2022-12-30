@@ -8,6 +8,7 @@
 import UIKit
 import PhotosUI
 import CropViewController
+import JGProgressHUD
 
 private let profilePictureReuseIdentifier = "ProfilePictureReuseIdentifier"
 private let nameCellReuseIdentifier = "NameCellReuseIdentifier"
@@ -31,6 +32,8 @@ class EditProfileViewController: UICollectionViewController {
     
     private var user: User
     private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
+    
+    private var progressIndicator = JGProgressHUD()
     
     weak var delegate: EditProfileViewControllerDelegate?
     
@@ -98,6 +101,31 @@ class EditProfileViewController: UICollectionViewController {
     private func configureUI() {
         view.backgroundColor = .white
         //delegate?.fetchNewUserValues(withUid: user.uid!)
+    }
+    
+    private func cropImage(image: UIImage) {
+        if isProfile {
+            let vc = CropViewController(croppingStyle: .circular , image: image)
+            vc.delegate = self
+            vc.aspectRatioLockEnabled = true
+            vc.toolbarPosition = .bottom
+            vc.doneButtonTitle = "Done"
+            vc.cancelButtonTitle = "Cancel"
+            self.present(vc, animated: true)
+        } else {
+            let vc = CropViewController(image: image)
+            vc.delegate = self
+            vc.aspectRatioLockEnabled = true
+            vc.aspectRatioPickerButtonHidden = true
+            vc.rotateButtonsHidden = true
+            vc.resetButtonHidden = true
+            vc.aspectRatioPreset = .presetCustom
+            vc.customAspectRatio = CGSize(width: 4, height: 1)
+            vc.toolbarPosition = .bottom
+            vc.doneButtonTitle = "Done"
+            vc.cancelButtonTitle = "Cancel"
+            self.present(vc, animated: true)
+        }
     }
     
     //MARK: - Actions
@@ -303,18 +331,8 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let selectedImage = info[.editedImage] as? UIImage else { return }
-        let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
+        cropImage(image: selectedImage)
         
-        if isProfile {
-            cell.profileImageView.image = selectedImage
-            newUserProfilePicture = selectedImage
-            userDidChangeProfilePicture = true
-        } else {
-            cell.bannerImageView.image = selectedImage
-            newUserProfileBanner = selectedImage
-            userDidChangeBannerPicture = true
-        }
-        navigationItem.rightBarButtonItem?.isEnabled = true
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -325,64 +343,14 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
         picker.dismiss(animated: true)
 
         if results.count == 0 { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async {
-                    
-                    
-                    
-                    
-                    
-                    
-                    // MODIFICAR ELS LOADING VIEWS
-                    self.dismissLoadingView()
 
-                    
-                    
-                    
-                    
-                    
-                    
-                    if self.isProfile {
-                        let vc = CropViewController(croppingStyle: .circular , image: image)
-                        vc.delegate = self
-                        vc.aspectRatioLockEnabled = true
-                        vc.toolbarPosition = .bottom
-                        vc.doneButtonTitle = "Done"
-                        vc.cancelButtonTitle = "Cancel"
-                        self.present(vc, animated: true)
-                    } else {
-                        let vc = CropViewController(image: image)
-                        vc.delegate = self
-                        vc.aspectRatioLockEnabled = true
-                        vc.aspectRatioPickerButtonHidden = true
-                        vc.rotateButtonsHidden = true
-                        vc.resetButtonHidden = true
-                        vc.aspectRatioPreset = .presetCustom
-                        vc.customAspectRatio = CGSize(width: 4, height: 1)
-                        vc.toolbarPosition = .bottom
-                        vc.doneButtonTitle = "Done"
-                        vc.cancelButtonTitle = "Cancel"
-                        self.present(vc, animated: true)
-                    }
-
-                    /*
-                    let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
-                    
-                    if self.isProfile {
-                        cell.profileImageView.image = image
-                        self.newUserProfilePicture = image
-                        self.userDidChangeProfilePicture = true
-                    } else {
-                        cell.bannerImageView.image = image
-                        self.newUserProfileBanner = image
-                        self.userDidChangeBannerPicture = true
-                    }
-                     
-                    
-                     */
+                    self.progressIndicator.dismiss(animated: true)
+                    self.cropImage(image: image)
                 }
             }
         }
@@ -401,7 +369,6 @@ extension EditProfileViewController: CropViewControllerDelegate {
         self.newUserProfilePicture = image
         self.userDidChangeProfilePicture = true
         self.navigationItem.rightBarButtonItem?.isEnabled = true
-
     }
     
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {

@@ -13,10 +13,8 @@ private let groupManagerCellReuseIdentifier = "GroupManagerCellReuseIdentifier"
 private let groupContentCellReuseIdentifier = "ExploreCellReuseIdentifier"
 
 
-class GroupsViewController: NavigationBarViewController {
-    
-    
-    
+class GroupsViewController: UIViewController {
+
     private var user: User
     
     private var group = Group(groupId: "", dictionary: [:])
@@ -49,8 +47,9 @@ class GroupsViewController: NavigationBarViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigationBar()
         fetchUserGroups()
-        navigationItem.title = "Groups"
+
         view.backgroundColor = .white
         configureCollectionView()
         configureUI()
@@ -60,6 +59,12 @@ class GroupsViewController: NavigationBarViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if !groupLoaded { groupsListCollectionView.reloadData() }
+    }
+    
+    private func configureNavigationBar() {
+        navigationItem.title = "Groups"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Create", style: .done, target: self, action: #selector(didTapCreateGroup))
+        navigationItem.rightBarButtonItem?.tintColor = grayColor
     }
     
     
@@ -90,6 +95,15 @@ class GroupsViewController: NavigationBarViewController {
             self.groupsListCollectionView.reloadData()
             self.didSelectGroup(group: self.group)
         }
+    }
+    
+    @objc func didTapCreateGroup() {
+        let controller = CreateGroupViewController()
+        
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        
+        present(nav, animated: true)
     }
 }
 
@@ -216,6 +230,31 @@ extension GroupsViewController: GroupBrowserViewControllerDelegate {
 }
 
 extension GroupsViewController: GroupMenuLauncherDelegate {
+    func didTapBrowseGroups() {
+        let controller = GroupBrowserViewController()
+        controller.delegate = self
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func didTapDiscoverGroups() {
+        let controller = DiscoverGroupsViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didTapVisitGroup() {
         let controller = GroupPageViewController(group: group, members: groupUsers)
         

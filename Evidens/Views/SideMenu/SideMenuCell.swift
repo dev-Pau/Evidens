@@ -45,7 +45,7 @@ class SideMenuCell: UICollectionViewCell {
     
     func set(title: String, image: String) {
         titleLabel.text = title
-        titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.black).withRenderingMode(.alwaysOriginal)
     }
     
     required init?(coder: NSCoder) {

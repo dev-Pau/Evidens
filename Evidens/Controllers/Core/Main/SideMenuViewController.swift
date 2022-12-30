@@ -22,11 +22,14 @@ class SideMenuViewController: UIViewController {
     
     enum MenuOptions: String, CaseIterable {
         case bookmarks = "Bookmarks"
+        case groups = "Groups"
 
         var imageName: String {
             switch self {
             case .bookmarks:
-                return "bookmark"
+                return "bookmark.fill"
+            case .groups:
+                return "groups.selected"
             }
         }
     }
@@ -37,6 +40,8 @@ class SideMenuViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
         return collectionView
     }()
     

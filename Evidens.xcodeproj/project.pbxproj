@@ -278,6 +278,7 @@
 		5FA398602939FCC2007293C2 /* GroupBrowseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */; };
 		5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA39861293DFF35007293C2 /* GroupUserCell.swift */; };
 		5FA417AD295497D00026F267 /* GroupContentSelectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA417AC295497D00026F267 /* GroupContentSelectionHeader.swift */; };
+		5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA57264295F14F80068284B /* GroupBrowseFooter.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
@@ -617,6 +618,7 @@
 		5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseCell.swift; sourceTree = "<group>"; };
 		5FA39861293DFF35007293C2 /* GroupUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupUserCell.swift; sourceTree = "<group>"; };
 		5FA417AC295497D00026F267 /* GroupContentSelectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectionHeader.swift; sourceTree = "<group>"; };
+		5FA57264295F14F80068284B /* GroupBrowseFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseFooter.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
@@ -1282,6 +1284,7 @@
 				5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */,
 				5F944789291D4645003B3DA0 /* GroupCell.swift */,
 				5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */,
+				5FA57264295F14F80068284B /* GroupBrowseFooter.swift */,
 			);
 			path = Groups;
 			sourceTree = "<group>";
@@ -2271,6 +2274,7 @@
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
 				5F9FB27B28EC3ACF00BABDFD /* FollowersFollowingViewController.swift in Sources */,
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
+				5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */,
 				5FBCB9F828A7745A007EF79D /* NotificationsLikeCell.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */,
