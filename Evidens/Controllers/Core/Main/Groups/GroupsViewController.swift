@@ -256,7 +256,7 @@ extension GroupsViewController: GroupMenuLauncherDelegate {
     }
     
     func didTapVisitGroup() {
-        let controller = GroupPageViewController(group: group, members: groupUsers)
+        let controller = GroupPageViewController(group: group, isFromGroup: true)
         
         let backItem = UIBarButtonItem()
         backItem.tintColor = .black

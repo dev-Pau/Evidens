@@ -27,6 +27,8 @@ class DiscoverGroupsViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
+        layout.minimumLineSpacing = .leastNonzeroMagnitude
+        layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -69,7 +71,7 @@ class DiscoverGroupsViewController: UIViewController {
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .white
         
         collectionView.frame = view.bounds
         view.addSubview(collectionView)
@@ -98,7 +100,22 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
         cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+        if indexPath.row == groups.count - 1 { cell.separatorView.isHidden = true }
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let groupSelected = groups[indexPath.row]
+        
+        let controller = GroupPageViewController(group: groupSelected, isFromGroup: false)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

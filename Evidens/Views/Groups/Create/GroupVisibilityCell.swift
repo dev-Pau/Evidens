@@ -18,8 +18,8 @@ class GroupVisibilityCell: UICollectionViewCell {
         return view
     }()
     
-    private let visibleView = GroupVisibilityView(optionTitle: "Visible", optionDescription: "Group will be visible in search results")
-    private let nonVisibleView = GroupVisibilityView(optionTitle: "Non visible", optionDescription: "Group does not appear in search results")
+    private let visibleView = GroupVisibilityView(optionTitle: "Listed", optionDescription: "Group will be visible in search results and can be displayed in your profile.")
+    private let nonVisibleView = GroupVisibilityView(optionTitle: "Non listed", optionDescription: "Group does not appear either in search results or in your profile.")
     
     private var separatorView: UIView = {
         let view = UIView()
@@ -45,7 +45,7 @@ class GroupVisibilityCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 120)
+            cellContentView.heightAnchor.constraint(equalToConstant: 160)
         ])
         
         visibleView.delegate = self
@@ -61,7 +61,7 @@ class GroupVisibilityCell: UICollectionViewCell {
             visibleView.leadingAnchor.constraint(equalTo: leadingAnchor),
             visibleView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
             visibleView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            visibleView.heightAnchor.constraint(equalToConstant: 50),
+            visibleView.heightAnchor.constraint(equalToConstant: 70),
             
             separatorView.topAnchor.constraint(equalTo: visibleView.bottomAnchor, constant: 5),
             separatorView.leadingAnchor.constraint(equalTo: visibleView.leadingAnchor, constant: 40),
@@ -71,7 +71,7 @@ class GroupVisibilityCell: UICollectionViewCell {
             nonVisibleView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             nonVisibleView.leadingAnchor.constraint(equalTo: visibleView.leadingAnchor),
             nonVisibleView.trailingAnchor.constraint(equalTo: visibleView.trailingAnchor),
-            nonVisibleView.heightAnchor.constraint(equalToConstant: 50)
+            nonVisibleView.heightAnchor.constraint(equalToConstant: 70)
         ])
         
         visibleView.updateVisibility()
@@ -86,6 +86,16 @@ class GroupVisibilityCell: UICollectionViewCell {
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
+    }
+    
+    func setVisibility(visibility: Group.Visibility) {
+        switch visibility {
+        case .visible:
+            break
+        case .nonVisible:
+            visibleView.updateVisibility()
+            nonVisibleView.updateVisibility()
+        }
     }
 }
 
@@ -133,6 +143,7 @@ class GroupVisibilityView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = grayColor
+        label.numberOfLines = 2
         label.textAlignment = .left
         return label
     }()

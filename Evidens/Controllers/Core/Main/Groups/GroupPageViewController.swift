@@ -19,7 +19,9 @@ class GroupPageViewController: UIViewController {
     private var collectionView: UICollectionView!
     
     private var group: Group
-    private var members: [User]
+    private var members: [User]?
+    
+    private var isFromGroup: Bool = false
     
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -30,15 +32,16 @@ class GroupPageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchGroupUsers()
         configureNavigationBar()
         configureSearchBar()
         configureUI()
         configureCollectionView()
     }
     
-    init(group: Group, members: [User]) {
+    init(group: Group, isFromGroup: Bool) {
         self.group = group
-        self.members = members
+        self.isFromGroup = isFromGroup
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -67,6 +70,15 @@ class GroupPageViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .white
 
+    }
+    
+    private func fetchGroupUsers() {
+        DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: group.groupId) { uids in
+            UserService.fetchUsers(withUids: uids) { users in
+                self.members = users
+                self.collectionView.reloadItems(at: [IndexPath(row: 0, section: 0)])
+            }
+        }
     }
     
     private func configureCollectionView() {

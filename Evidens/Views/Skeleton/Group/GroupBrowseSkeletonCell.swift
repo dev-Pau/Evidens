@@ -60,6 +60,20 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
     
     private func configure() {
         
+        backgroundColor = .white
+        
+        layer.borderWidth = 1
+        layer.borderColor = lightColor.cgColor
+        layer.cornerRadius = 7
+        
+        layer.shadowColor = lightColor.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 0)
+        layer.shadowRadius = 5.0
+        layer.shadowOpacity = 1
+        layer.masksToBounds = false
+        
+        groupImageLayer.cornerRadius = 7
+        
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
         
@@ -67,7 +81,7 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 100),
+            cellContentView.heightAnchor.constraint(equalToConstant: 115),
         ])
         
         groupImageLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -79,10 +93,10 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         cellContentView.addSubviews(groupImageLabel, fullNameLabel, membersLabel, descriptionLabel, summLabel)
         
         NSLayoutConstraint.activate([
-            groupImageLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: paddingTop),
-            groupImageLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: paddingLeft),
-            groupImageLabel.heightAnchor.constraint(equalToConstant: 50),
-            groupImageLabel.widthAnchor.constraint(equalToConstant: 50),
+            groupImageLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 4),
+            groupImageLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 4),
+            groupImageLabel.heightAnchor.constraint(equalToConstant: 70),
+            groupImageLabel.widthAnchor.constraint(equalToConstant: 70),
             
             fullNameLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: paddingTop),
             fullNameLabel.leadingAnchor.constraint(equalTo: groupImageLabel.trailingAnchor, constant: paddingLeft),
@@ -97,7 +111,7 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
             membersLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: paddingTop),
             membersLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             membersLabel.widthAnchor.constraint(equalToConstant: 60),
-            membersLabel.heightAnchor.constraint(equalToConstant: 15),
+            membersLabel.heightAnchor.constraint(equalToConstant: 30),
             
             summLabel.topAnchor.constraint(equalTo: membersLabel.bottomAnchor, constant: paddingTop),
             summLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),

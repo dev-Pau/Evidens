@@ -96,6 +96,11 @@ class GroupDescriptionCell: UICollectionViewCell {
         titleLabel.text = title
     }
     
+    func set(description: String) {
+        aboutTextView.text = description
+        aboutTextView.placeholderLabel.isHidden = true
+    }
+    
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 

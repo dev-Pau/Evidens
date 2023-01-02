@@ -279,6 +279,8 @@
 		5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA39861293DFF35007293C2 /* GroupUserCell.swift */; };
 		5FA417AD295497D00026F267 /* GroupContentSelectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA417AC295497D00026F267 /* GroupContentSelectionHeader.swift */; };
 		5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA57264295F14F80068284B /* GroupBrowseFooter.swift */; };
+		5FA572672962E2FB0068284B /* GroupPageCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */; };
+		5FA572692962ECAF0068284B /* GroupCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA572682962ECAF0068284B /* GroupCategoryCell.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
@@ -619,6 +621,8 @@
 		5FA39861293DFF35007293C2 /* GroupUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupUserCell.swift; sourceTree = "<group>"; };
 		5FA417AC295497D00026F267 /* GroupContentSelectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectionHeader.swift; sourceTree = "<group>"; };
 		5FA57264295F14F80068284B /* GroupBrowseFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseFooter.swift; sourceTree = "<group>"; };
+		5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageCategoriesCell.swift; sourceTree = "<group>"; };
+		5FA572682962ECAF0068284B /* GroupCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCategoryCell.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
@@ -1338,6 +1342,8 @@
 				5FAC98D1294873BC00C72228 /* GroupAboutHeader.swift */,
 				5F951B44294881E500E99F34 /* GroupDetailsCell.swift */,
 				5F951B462949D33F00E99F34 /* GroupAdminCell.swift */,
+				5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */,
+				5FA572682962ECAF0068284B /* GroupCategoryCell.swift */,
 			);
 			path = Information;
 			sourceTree = "<group>";
@@ -2157,6 +2163,7 @@
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */,
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
+				5FA572672962E2FB0068284B /* GroupPageCategoriesCell.swift in Sources */,
 				5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
@@ -2266,6 +2273,7 @@
 				5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */,
 				5F05206D27BD5461001E7D8F /* Conversation.swift in Sources */,
 				5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */,
+				5FA572692962ECAF0068284B /* GroupCategoryCell.swift in Sources */,
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
 				5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */,

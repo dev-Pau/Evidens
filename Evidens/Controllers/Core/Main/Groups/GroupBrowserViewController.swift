@@ -102,6 +102,7 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionFooter && loaded {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier, for: indexPath) as! GroupBrowseFooter
+            footer.delegate = self
             return footer
         } else {
             return UICollectionReusableView()
@@ -127,9 +128,30 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if !loaded { return }
         let groupSelected = groups[indexPath.row]
-        delegate?.didSelectGroup(group: groupSelected)
-        dismiss(animated: true)
+        //delegate?.didSelectGroup(group: groupSelected)
+        
+        let controller = GroupPageViewController(group: groupSelected, isFromGroup: true)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
-    
-    
+}
+
+extension GroupBrowserViewController: GroupBrowseFooterDelegate {
+    func didTapDiscoverGroups() {
+        let controller = DiscoverGroupsViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }

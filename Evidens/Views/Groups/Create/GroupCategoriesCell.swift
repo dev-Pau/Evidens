@@ -123,6 +123,19 @@ class GroupCategoriesCell: UICollectionViewCell {
 
         categoriesCollectionView.reloadData()
     }
+    
+    func updateCategories(categories: [String]) {
+        categoriesSelected.removeAll()
+        
+        var categoriesArray = [Category]()
+        categories.forEach { category in
+            categoriesArray.append(Category(name: category))
+        }
+        
+        categoriesSelected = categoriesArray
+
+        categoriesCollectionView.reloadData()
+    }
 }
 
 extension GroupCategoriesCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {

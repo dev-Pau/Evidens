@@ -28,6 +28,8 @@ class DiscoverGroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
     
     private let finalDescriptionLabel = UILabel()
     private let finalDescriptionLayer = CAGradientLayer()
+    
+    private let separatorLabel = UILabel()
    
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,6 +62,11 @@ class DiscoverGroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
     
     private func configure() {
         
+        groupImageLayer.cornerRadius = 7
+        
+        separatorLabel.translatesAutoresizingMaskIntoConstraints = false
+        separatorLabel.backgroundColor = lightColor
+        
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
         
@@ -76,7 +83,7 @@ class DiscoverGroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         finalDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
     
-        cellContentView.addSubviews(groupImageLabel, fullNameLabel, membersLabel, descriptionLabel, finalDescriptionLabel)
+        cellContentView.addSubviews(groupImageLabel, fullNameLabel, membersLabel, descriptionLabel, finalDescriptionLabel, separatorLabel)
         
         NSLayoutConstraint.activate([
             groupImageLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: paddingTop),
@@ -103,6 +110,11 @@ class DiscoverGroupSkeletonCell: UICollectionViewCell, SkeletonLoadable {
             finalDescriptionLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             finalDescriptionLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -40),
             finalDescriptionLabel.heightAnchor.constraint(equalToConstant: 15),
+            
+            separatorLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            separatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            separatorLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            separatorLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor)
         ])
 
     }

@@ -7,14 +7,22 @@
 
 import UIKit
 
+protocol GroupBrowseFooterDelegate: AnyObject {
+    func didTapDiscoverGroups()
+}
+
 class GroupBrowseFooter: UICollectionReusableView {
     
-    private let discoverLabel: UILabel = {
+    weak var delegate: GroupBrowseFooterDelegate?
+    
+    private lazy var discoverLabel: UILabel = {
         let label = UILabel()
         label.textColor = grayColor
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDiscoverGroups)))
         return label
     }()
     
@@ -41,7 +49,10 @@ class GroupBrowseFooter: UICollectionReusableView {
         atrString.append(NSAttributedString(string: " other listed groups or communities that share your interests, vision or goals.", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular)]))
         
         discoverLabel.attributedText = atrString
-        
+    }
+    
+    @objc func handleDiscoverGroups() {
+        delegate?.didTapDiscoverGroups()
     }
     
 }

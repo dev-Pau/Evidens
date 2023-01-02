@@ -81,7 +81,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         button.configuration?.baseBackgroundColor = lightColor
         button.configuration?.buttonSize = .mini
         button.configuration?.baseForegroundColor = grayColor
-        button.configuration?.cornerStyle = .medium
+        button.configuration?.cornerStyle = .capsule
         button.addTarget(self, action: #selector(handleConfigurationButtonTap), for: .touchUpInside)
         return button
     }()
@@ -142,6 +142,8 @@ class GroupPageHeaderCell: UICollectionViewCell {
             groupSizeLabel.trailingAnchor.constraint(equalTo: membersCollectionView.leadingAnchor, constant: -5),
             groupSizeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
         ])
+        
+        groupProfileImageView.layer.cornerRadius = 7
     }
     
     private func configureWithUser() {

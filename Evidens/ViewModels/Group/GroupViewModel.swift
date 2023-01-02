@@ -25,7 +25,7 @@ struct CreateGroupViewModel {
     }
     
     var groupIsValid: Bool {
-        return hasName && hasDescription
+        return hasName && hasDescription && hasCategories
     }
     
     var hasProfile: Bool {
@@ -38,6 +38,10 @@ struct CreateGroupViewModel {
     
     var hasBothImages: Bool {
         return profileBanner ?? false && profileImage ?? false
+    }
+    
+    var hasCategories: Bool {
+        return categories?.isEmpty == false
     }
 }
     

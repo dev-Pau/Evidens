@@ -20,6 +20,8 @@ class CreateGroupViewController: UIViewController {
     
     private var viewModel = CreateGroupViewModel()
     
+    private var group: Group?
+    
     enum GroupSections: String, CaseIterable {
         case groupPictures = "Group Pictures"
         case groupName = "Name"
@@ -42,8 +44,6 @@ class CreateGroupViewController: UIViewController {
             }
         }
     }
-    
-    private let group = Group(groupId: "", dictionary: [:])
     
     private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
     
@@ -78,14 +78,29 @@ class CreateGroupViewController: UIViewController {
         configureUI()
     }
     
+    init(group: Group? = nil) {
+        self.group = group
+        if let group = group {
+            viewModel.name = group.name
+            viewModel.description = group.description
+            viewModel.categories = group.categories
+        }
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private func configureNavigationBar() {
-        title = "Create group"
+        title = group != nil ? "Edit group" : "Create group"
         
         let leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem = leftBarButtonItem
         navigationItem.leftBarButtonItem?.tintColor = .black
         
-        let rightBarButtonItem =  UIBarButtonItem(title: "Create", style: .done, target: self, action: #selector(handleCreateGroup))
+        let rightBarButtonItem =  UIBarButtonItem(title: group != nil ? "Edit" : "Create", style: .done, target: self, action: #selector(handleCreateGroup))
         rightBarButtonItem.tintColor = primaryColor
         rightBarButtonItem.isEnabled = false
         navigationItem.rightBarButtonItem = rightBarButtonItem
@@ -223,22 +238,31 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
             cell.profileImageView.layer.cornerRadius = 7
+            if let group = group {
+                cell.set(bannerImageUrl: group.bannerUrl!)
+                cell.set(profileImageUrl: group.profileUrl!)
+            }
             return cell
+            
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupNameCellReuseIdentifier, for: indexPath) as! EditNameCell
-            cell.set(title: GroupSections.allCases[indexPath.row].rawValue, placeholder: "Group name", name: "")
+            cell.set(title: GroupSections.allCases[indexPath.row].rawValue, placeholder: "Group name", name: group?.name ?? "")
             cell.delegate = self
             return cell
+            
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupDescriptionCellReuseIdentifier, for: indexPath) as! GroupDescriptionCell
             cell.set(title: GroupSections.allCases[indexPath.row].rawValue)
+            cell.set(description: group?.description ?? "")
             cell.delegate = self
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupVisibilityCellReuseIdentifier, for: indexPath) as! GroupVisibilityCell
+            if let group = group { cell.setVisibility(visibility: group.visibility) }
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
+            if let group = group { cell.updateCategories(categories: group.categories) }
             cell.delegate = self
             return cell
         }
@@ -279,8 +303,11 @@ extension CreateGroupViewController: CategoryListViewControllerDelegate {
     func didTapAddCategories(categories: [Category]) {
         if let cell = collectionView.cellForItem(at: IndexPath(item: GroupSections.groupCategories.index, section: 0)) as? GroupCategoriesCell {
             cell.updateCategories(categories: categories)
+            
             categories.forEach { category in
                 groupCategories.append(category.name)
+                viewModel.categories = groupCategories
+                groupIsValid()
             }
             
         }
