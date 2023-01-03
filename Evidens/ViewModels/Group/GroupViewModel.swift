@@ -15,9 +15,14 @@ struct CreateGroupViewModel {
     var profileImage: Bool?
     var profileBanner: Bool?
     var categories: [String]?
+    var visibility: Group.Visibility?
     
     var hasName: Bool {
         return name?.isEmpty == false
+    }
+    
+    var visibilityType: Group.Visibility {
+        return visibility ?? .visible
     }
     
     var hasDescription: Bool {

@@ -107,7 +107,7 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let groupSelected = groups[indexPath.row]
         
-        let controller = GroupPageViewController(group: groupSelected, isFromGroup: false)
+        let controller = GroupPageViewController(group: groupSelected, isMember: false)
         
         let backItem = UIBarButtonItem()
         backItem.tintColor = .black

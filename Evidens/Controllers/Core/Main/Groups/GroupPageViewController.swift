@@ -14,14 +14,20 @@ private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIden
 private let groupContentSelectionReuseIdentifier = "GroupContentSelectionReuseIdentifier"
 private let groupContentCollectionViewReuseIdentifier = "GroupContentCollectionViewReuseIdentifier"
 
+protocol GroupPageViewControllerDelegate: AnyObject {
+    func didUpdateGroup(_ group: Group)
+}
+
 class GroupPageViewController: UIViewController {
+    
+    weak var delegate: GroupPageViewControllerDelegate?
     
     private var collectionView: UICollectionView!
     
     private var group: Group
     private var members: [User]?
     
-    private var isFromGroup: Bool = false
+    private var isMember: Bool = false
     
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -39,9 +45,10 @@ class GroupPageViewController: UIViewController {
         configureCollectionView()
     }
     
-    init(group: Group, isFromGroup: Bool) {
+    
+    init(group: Group, isMember: Bool) {
         self.group = group
-        self.isFromGroup = isFromGroup
+        self.isMember = isMember
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -206,6 +213,7 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
     
     func didTapInfoButton() {
         let controller = GroupInformationViewController(group: group)
+        controller.delegate = self
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -240,5 +248,13 @@ extension GroupPageViewController: GroupContentCreationCellDelegate {
         navVC.modalPresentationStyle = .fullScreen
         
         present(navVC, animated: true)
+    }
+}
+
+extension GroupPageViewController: GroupInformationViewControllerDelegate {
+    func didUpdateGroup(_ group: Group) {
+        self.group = group
+        delegate?.didUpdateGroup(group)
+        collectionView.reloadData()
     }
 }

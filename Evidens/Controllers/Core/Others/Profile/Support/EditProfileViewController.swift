@@ -368,6 +368,7 @@ extension EditProfileViewController: CropViewControllerDelegate {
         cell.profileImageView.image = image
         self.newUserProfilePicture = image
         self.userDidChangeProfilePicture = true
+        cell.hideProfileHint()
         self.navigationItem.rightBarButtonItem?.isEnabled = true
     }
     

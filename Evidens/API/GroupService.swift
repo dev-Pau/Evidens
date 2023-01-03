@@ -13,12 +13,11 @@ struct GroupService {
     static func uploadGroup(group: Group, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let groupRef = COLLECTION_GROUPS.document()
+        let groupRef = COLLECTION_GROUPS.document(group.groupId)
         
-        //let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
         let data = ["name": group.name,
                     "ownerUid": uid,
-                    "id": groupRef.documentID,
+                    "id": group.groupId,
                     "description": group.description,
                     "members": 1,
                     "visibility": group.visibility.rawValue,
@@ -62,6 +61,39 @@ struct GroupService {
                 }
             case .failure(let error):
                 print(error)
+            }
+        }
+    }
+    
+    static func updateGroup(from group: Group, to newGroup: Group, completion: @escaping(Group) -> Void) {
+        // Check what group values have changed
+        var updatedGroupData = [String: Any]()
+
+        let bannerUrl = (group.bannerUrl! == newGroup.bannerUrl!) ? "" : newGroup.bannerUrl
+        let profileUrl = (group.profileUrl! == newGroup.profileUrl!) ? "" : newGroup.profileUrl
+        let name = (group.name == newGroup.name) ? nil : newGroup.name
+        let description = (group.description == newGroup.description) ? nil : newGroup.description
+        let visibility = (group.visibility == newGroup.visibility) ? nil : newGroup.visibility.rawValue
+        let categories = (group.categories == newGroup.categories) ? nil : newGroup.categories
+        
+        if bannerUrl != "" { updatedGroupData["bannerUrl"] = bannerUrl }
+        if profileUrl != "" { updatedGroupData["profileUrl"] = profileUrl }
+        if let name = name { updatedGroupData["name"] = name }
+        if let description = description { updatedGroupData["description"] = description }
+        if let visibility = visibility { updatedGroupData["visibility"] = visibility }
+        if let categories = categories { updatedGroupData["categories"] = categories }
+        
+        if updatedGroupData.isEmpty {
+            completion(group)
+            return
+        }
+
+        COLLECTION_GROUPS.document(group.groupId).updateData(updatedGroupData) { error in
+            if error != nil { return }
+            COLLECTION_GROUPS.document(group.groupId).getDocument { snapshot, error in
+                guard let dictionary = snapshot?.data() else { return }
+                let group = Group(groupId: group.groupId, dictionary: dictionary)
+                completion(group)
             }
         }
     }

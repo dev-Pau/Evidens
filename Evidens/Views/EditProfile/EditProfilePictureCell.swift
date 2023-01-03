@@ -33,46 +33,34 @@ class EditProfilePictureCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = primaryColor
-        iv.layer.borderWidth = 2
+        iv.layer.masksToBounds = true
+        iv.layer.borderWidth = 4
         iv.layer.borderColor = UIColor.white.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
+        iv.backgroundColor = primaryColor
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditProfileImage)))
         return iv
     }()
     
-    private var editImageButton: UIButton = {
+    private var editProfileButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.8)
+        button.configuration?.buttonSize = .large
+        button.configuration?.image = UIImage(systemName: "camera.metering.spot", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private var editProfileButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.8)
-        button.isUserInteractionEnabled = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    private let coverLayer = CALayer()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -91,7 +79,7 @@ class EditProfilePictureCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(bannerImageView, editImageButton, profileImageView, editProfileButton)
+        cellContentView.addSubviews(bannerImageView, profileImageView, editProfileButton)
         
         NSLayoutConstraint.activate([
             bannerImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -99,24 +87,27 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: 100),
             
-            editImageButton.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            editImageButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            editImageButton.heightAnchor.constraint(equalToConstant: 30),
-            editImageButton.widthAnchor.constraint(equalToConstant: 30),
-            
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
             profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
             profileImageView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            
+
             editProfileButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             editProfileButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            editProfileButton.heightAnchor.constraint(equalToConstant: 30),
-            editProfileButton.widthAnchor.constraint(equalToConstant: 30)
+            editProfileButton.heightAnchor.constraint(equalToConstant: 40),
+            editProfileButton.widthAnchor.constraint(equalToConstant: 40)
         ])
-        
+
         profileImageView.layer.cornerRadius = 70/2
+
+        DispatchQueue.main.async {
+            self.coverLayer.frame = self.profileImageView.bounds;
+            self.coverLayer.backgroundColor = UIColor.black.cgColor
+            self.coverLayer.opacity = 0.5
+            self.profileImageView.layer.addSublayer(self.coverLayer)
+        }
+
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -138,11 +129,8 @@ class EditProfilePictureCell: UICollectionViewCell {
         bannerImageView.sd_setImage(with: URL(string: bannerImageUrl))
     }
     
-    func hideBannerHint() {
-        editImageButton.isHidden = true
-    }
-    
     func hideProfileHint() {
+        coverLayer.opacity = 0
         editProfileButton.isHidden = true
     }
     

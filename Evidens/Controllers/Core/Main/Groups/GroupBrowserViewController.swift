@@ -130,7 +130,8 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
         let groupSelected = groups[indexPath.row]
         //delegate?.didSelectGroup(group: groupSelected)
         
-        let controller = GroupPageViewController(group: groupSelected, isFromGroup: true)
+        let controller = GroupPageViewController(group: groupSelected, isMember: true)
+        controller.delegate = self
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -153,5 +154,22 @@ extension GroupBrowserViewController: GroupBrowseFooterDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension GroupBrowserViewController: GroupPageViewControllerDelegate {
+    func didUpdateGroup(_ group: Group) {
+        let index = groups.firstIndex { currentGroup in
+            if group.groupId == currentGroup.groupId {
+                return true
+            }
+            
+            return false
+        }
+        
+        if let index = index {
+            groups[index] = group
+            groupCollectionView.reloadItems(at: [IndexPath(row: index, section: 0)])
+        }
     }
 }

@@ -16,7 +16,13 @@ private let createGroupDescriptionCellReuseIdentifier = "CreateGroupDescriptionC
 private let createGroupVisibilityCellReuseIdentifier = "CreateGroupVisibilityCellReuseIdentifier"
 private let createGroupCategoriesCellReuseIdentifier = "CreateGroupCategoriesCellReuseIdentifier"
 
+protocol CreateGroupViewControllerDelegate: AnyObject {
+    func didUpdateGroup(_ group: Group)
+}
+
 class CreateGroupViewController: UIViewController {
+    
+    weak var delegate: CreateGroupViewControllerDelegate?
     
     private var viewModel = CreateGroupViewModel()
     
@@ -53,7 +59,10 @@ class CreateGroupViewController: UIViewController {
     private var groupCategories = [String]()
     
     private var isProfile: Bool = false
+    private var profileImageChanged: Bool = false
+    
     private var isBanner: Bool = false
+    private var bannerImageChanged: Bool = false
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -84,6 +93,7 @@ class CreateGroupViewController: UIViewController {
             viewModel.name = group.name
             viewModel.description = group.description
             viewModel.categories = group.categories
+            viewModel.visibility = group.visibility
         }
         
         super.init(nibName: nil, bundle: nil)
@@ -150,59 +160,121 @@ class CreateGroupViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let visibility = viewModel.visibility else { return }
         
         var groupToUpload = Group(groupId: "", dictionary: [:])
         
         groupToUpload.name = groupName
         groupToUpload.description = groupDescription
         groupToUpload.ownerUid = uid
-        groupToUpload.visibility = visibilityState
+        groupToUpload.visibility = visibility
         groupToUpload.categories = groupCategories
-        groupToUpload.memberType = .owner
         
-        progressIndicator.show(in: view)
-        
-        if viewModel.hasBothImages {
-            // Upload banner and profile
-            let imagesToUpload = [groupBannerImage, groupProfileImage]
-            StorageManager.uploadGroupImages(images: imagesToUpload) { urls in
-                self.progressIndicator.dismiss(animated: true)
-                groupToUpload.bannerUrl = urls[0]
-                groupToUpload.profileUrl = urls[1]
-                
-                GroupService.uploadGroup(group: groupToUpload) { error in
-                    guard error == nil else { return }
-                    #warning("present group page")
-                }
-            }
-        } else {
-            if viewModel.hasProfile {
-                StorageManager.uploadGroupImage(image: groupProfileImage) { url in
-                    self.progressIndicator.dismiss(animated: true)
-                    groupToUpload.profileUrl = url
+        if let group = group {
+            progressIndicator.show(in: view)
+            
+            // Editing group. Check what fields have changed between the original group
+            if bannerImageChanged && profileImageChanged {
+                // Other group fields have changed
+                StorageManager.uploadGroupImages(images: [groupBannerImage, groupProfileImage], groupId: group.groupId) { urls in
+                    groupToUpload.bannerUrl = urls.first(where: { url in
+                        url.contains("banners")
+                    })
                     
-                    GroupService.uploadGroup(group: groupToUpload) { error in
-                        guard error == nil else { return }
-                        #warning("present group page")
-                    }
-                }
-            } else if viewModel.hasBanner {
-                StorageManager.uploadGroupImage(image: groupBannerImage) { url in
-                    self.progressIndicator.dismiss(animated: true)
-                    groupToUpload.bannerUrl = url
+                    groupToUpload.profileUrl = urls.first(where: { url in
+                        url.contains("profiles")
+                    })
                     
-                    GroupService.uploadGroup(group: groupToUpload) { error in
-                        guard error == nil else { return }
-                        #warning("present group page")
+                    GroupService.updateGroup(from: group, to: groupToUpload) { group in
+                        self.progressIndicator.dismiss(animated: true)
+                        self.dismiss(animated: true)
+                        self.delegate?.didUpdateGroup(group)
                     }
                 }
             } else {
-                // No banner no profile
-                GroupService.uploadGroup(group: groupToUpload) { error in
+                if bannerImageChanged {
+                    // Banner group image has changed
+                    StorageManager.uploadGroupImage(image: groupProfileImage, isProfile: false, groupId: group.groupId) { url in
+                        groupToUpload.profileUrl = url
+                        GroupService.updateGroup(from: group, to: groupToUpload) { group in
+                            self.progressIndicator.dismiss(animated: true)
+                            self.dismiss(animated: true)
+                            self.delegate?.didUpdateGroup(group)
+                        }
+                    }
+                } else if profileImageChanged {
+                    // Profile group image has changed
+                    StorageManager.uploadGroupImage(image: groupProfileImage, isProfile: true, groupId: group.groupId) { url in
+                        groupToUpload.profileUrl = url
+                        GroupService.updateGroup(from: group, to: groupToUpload) { group in
+                            self.progressIndicator.dismiss(animated: true)
+                            self.dismiss(animated: true)
+                            self.delegate?.didUpdateGroup(group)
+                        }
+                    }
+                } else {
+                    // Other group fields have changed
+                    GroupService.updateGroup(from: group, to: groupToUpload) { group in
+                        self.progressIndicator.dismiss(animated: true)
+                        self.dismiss(animated: true)
+                        self.delegate?.didUpdateGroup(group)
+                    }
+                }
+            }
+        } else {
+            // New group
+            // Create a new group with a document reference in Firestore
+            groupToUpload.groupId = COLLECTION_GROUPS.document().documentID
+            
+            progressIndicator.show(in: view)
+            
+            if viewModel.hasBothImages {
+                // Upload banner and profile
+                let imagesToUpload = [groupBannerImage, groupProfileImage]
+                StorageManager.uploadGroupImages(images: imagesToUpload, groupId: groupToUpload.groupId) { urls in
                     self.progressIndicator.dismiss(animated: true)
-                    guard error == nil else { return }
-                    #warning("present group page")
+                    
+                    groupToUpload.bannerUrl = urls.first(where: { url in
+                        url.contains("banners")
+                    })
+                    
+                    groupToUpload.profileUrl = urls.first(where: { url in
+                        url.contains("profiles")
+                    })
+
+                    GroupService.uploadGroup(group: groupToUpload) { error in
+                        guard error == nil else { return }
+                        self.pushGroupViewController(withGroup: groupToUpload)
+                    }
+                }
+            } else {
+                if viewModel.hasProfile {
+                    StorageManager.uploadGroupImage(image: groupProfileImage, isProfile: true, groupId: groupToUpload.groupId) { url in
+                        self.progressIndicator.dismiss(animated: true)
+                        groupToUpload.profileUrl = url
+                        
+                        GroupService.uploadGroup(group: groupToUpload) { error in
+                            guard error == nil else { return }
+                            self.pushGroupViewController(withGroup: groupToUpload)
+                        }
+                    }
+                } else if viewModel.hasBanner {
+                    StorageManager.uploadGroupImage(image: groupBannerImage, isProfile: false, groupId: groupToUpload.groupId) { url in
+                        self.progressIndicator.dismiss(animated: true)
+                        groupToUpload.bannerUrl = url
+                        
+                        GroupService.uploadGroup(group: groupToUpload) { error in
+                            guard error == nil else { return }
+                            self.pushGroupViewController(withGroup: groupToUpload)
+                        }
+                    }
+                } else {
+                    // No banner no profile
+                    GroupService.uploadGroup(group: groupToUpload) { error in
+                        self.progressIndicator.dismiss(animated: true)
+                        guard error == nil else { return }
+                        self.pushGroupViewController(withGroup: groupToUpload)
+                    }
                 }
             }
         }
@@ -224,6 +296,18 @@ class CreateGroupViewController: UIViewController {
         group.interItemSpacing = .fixed(10)
         
         return UICollectionViewCompositionalLayout(section: .init(group: group))
+    }
+    
+    private func pushGroupViewController(withGroup group: Group) {
+        let controller = GroupPageViewController(group: group, isMember: true)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .black
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -258,6 +342,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupVisibilityCellReuseIdentifier, for: indexPath) as! GroupVisibilityCell
+            cell.delegate = self
             if let group = group { cell.setVisibility(visibility: group.visibility) }
             return cell
         } else {
@@ -272,7 +357,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
 extension CreateGroupViewController: GroupCategoriesCellDelegate {
 
     func didSelectAddCategory(withSelectedCategories categories: [Category]) {
-        let controller = CategoryListViewController(selectedCategories: categories)
+        let controller = CategoryListViewController(selectedCategories: categories.reversed())
         controller.delegate = self
         
         let backItem = UIBarButtonItem()
@@ -299,11 +384,25 @@ extension CreateGroupViewController: EditProfilePictureCellDelegate {
     }
 }
 
+extension CreateGroupViewController: GroupVisibilityCellDelegate {
+    func didTapVisibility() {
+        if visibilityState == .nonVisible {
+            visibilityState = .visible
+        } else {
+            visibilityState = .nonVisible
+        }
+        
+        viewModel.visibility = visibilityState
+        groupIsValid()
+    }
+}
+
 extension CreateGroupViewController: CategoryListViewControllerDelegate {
     func didTapAddCategories(categories: [Category]) {
         if let cell = collectionView.cellForItem(at: IndexPath(item: GroupSections.groupCategories.index, section: 0)) as? GroupCategoriesCell {
             cell.updateCategories(categories: categories)
-            
+            groupCategories.removeAll()
+
             categories.forEach { category in
                 groupCategories.append(category.name)
                 viewModel.categories = groupCategories
@@ -388,16 +487,19 @@ extension CreateGroupViewController: CropViewControllerDelegate {
         cropViewController.dismiss(animated: true)
         let cell = collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
         
+        groupIsValid()
+        
         if isProfile {
             cell.profileImageView.image = image
             cell.hideProfileHint()
             groupProfileImage = image
             viewModel.profileImage = true
+            if let _ = group { profileImageChanged = true }
         } else {
             cell.bannerImageView.image = image
-            cell.hideBannerHint()
             groupBannerImage = image
             viewModel.profileBanner = true
+            if let _ = group { bannerImageChanged = true }
         }
     }
 }

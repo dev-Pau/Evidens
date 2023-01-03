@@ -14,9 +14,15 @@ private let profileAboutReuseIdentifier = "ProfileAboutReuseIdentifier"
 private let groupAdminReuseIdentifier = "GroupAdminReuseIdentifier"
 private let groupPageCategoriesReuseIdentifier = "GroupPageCategoriesReuseIdentifier"
 
+protocol GroupInformationViewControllerDelegate: AnyObject {
+    func didUpdateGroup(_ group: Group)
+}
+
 class GroupInformationViewController: UIViewController {
     
-    private let group: Group
+    weak var delegate: GroupInformationViewControllerDelegate?
+    
+    private var group: Group
     private var users = [User]()
     
     private var collectionView: UICollectionView!
@@ -119,6 +125,7 @@ class GroupInformationViewController: UIViewController {
     
     @objc func handleEditGroupTap() {
         let controller = CreateGroupViewController(group: group)
+        controller.delegate = self
         
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
@@ -193,5 +200,13 @@ extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UI
         cell.configureButtonText()
         #warning("Create a 'admin team' inside RTD to fetch admin users with its role")
         return cell
+    }
+}
+
+extension GroupInformationViewController: CreateGroupViewControllerDelegate {
+    func didUpdateGroup(_ group: Group) {
+        self.group = group
+        delegate?.didUpdateGroup(group)
+        collectionView.reloadData()
     }
 }

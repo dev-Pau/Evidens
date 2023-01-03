@@ -43,7 +43,6 @@ struct Group {
     var groupId: String
     var id: String
     var description: String
-    var memberType: MemberType
     var visibility: Visibility
     var categories: [String]
     var bannerUrl: String?
@@ -58,10 +57,9 @@ struct Group {
         self.id = dictionary["id"] as? String ?? ""
         self.description = dictionary["description"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.visibility = dictionary["visibility"] as? Visibility ?? .visible
+        self.visibility = Visibility(rawValue: dictionary["visibility"] as? Int ?? 0) ?? .visible
         self.categories = dictionary["categories"] as? [String] ?? [""]
         self.members = dictionary["members"] as? Int ?? 0
-        self.memberType = dictionary["memberType"] as? MemberType ?? .member
         self.bannerUrl = dictionary["bannerUrl"] as? String ?? ""
         self.profileUrl = dictionary["profileUrl"] as? String ?? ""
     }

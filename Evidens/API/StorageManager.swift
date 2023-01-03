@@ -139,20 +139,18 @@ struct StorageManager {
     }
     
     /// Uploads a profile image for a specific user to firebase storage with url string to download
-    static func uploadGroupImages(images: [UIImage], completion: @escaping([String]) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
+    static func uploadGroupImages(images: [UIImage], groupId: String, completion: @escaping([String]) -> Void) {
         var groupImagesUrl: [String] = []
         var index = 0
         var order = 0
+        let filename = groupId
         
         images.forEach { image in
             
             guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
-            
-            
-            let filename = "\(order) \(uid) \(NSUUID().uuidString)"
-            let ref = Storage.storage().reference(withPath: "/group_images/\(filename)")
+
+            let fileRef = (order == 0) ? "/banners/" : "/profiles/"
+            let ref = Storage.storage().reference(withPath: "/group_images/\(fileRef)\(filename)")
             order += 1
             ref.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
@@ -164,8 +162,12 @@ struct StorageManager {
                     index += 1
                     guard let imageUrl = url?.absoluteString else { return }
                     groupImagesUrl.append(imageUrl)
+
+                    
                     if images.count == index {
+                        completion(groupImagesUrl)
                         
+                        /*
                         var appended: [Int] = []
                         
                         groupImagesUrl.forEach { url in
@@ -174,20 +176,22 @@ struct StorageManager {
                             appended.append(Int(currentURL[0..<1])!)
                             
                             if appended.count == groupImagesUrl.count {
-                                var orderedGroupImagesUrl = [groupImagesUrl[appended.firstIndex(of: 0)!], groupImagesUrl[appended.firstIndex(of: 1)!]]
+                                let orderedGroupImagesUrl = [groupImagesUrl[appended.firstIndex(of: 0)!], groupImagesUrl[appended.firstIndex(of: 1)!]]
                                 completion(orderedGroupImagesUrl)
                             }
                         }
+                        */
                     }
                 }
             }
         }
     }
     
-    static func uploadGroupImage(image: UIImage, completion: @escaping(String) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.75), let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let filename = uid
-        let ref = Storage.storage().reference(withPath: "/group_images/\(filename)")
+    static func uploadGroupImage(image: UIImage, isProfile: Bool, groupId: String, completion: @escaping(String) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        let filename = groupId
+        let fileRef = isProfile ? "/profiles/" : "/banners/"
+        let ref = Storage.storage().reference(withPath: "/group_images/\(fileRef)\(filename)")
         
         ref.putData(imageData, metadata: nil) { metadata, error in
             if let error = error {

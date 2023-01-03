@@ -121,7 +121,7 @@ class CategoryListViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-        delegate?.didTapAddCategories(categories: selectedCategories)
+        delegate?.didTapAddCategories(categories: selectedCategories.reversed())
         navigationController?.popViewController(animated: true)
     }
 }
@@ -156,7 +156,6 @@ extension CategoryListViewController: UICollectionViewDelegateFlowLayout, UIColl
         
         if let categoryIndex = categoryIndex {
             selectedCategories.remove(at: categoryIndex)
-            print(selectedCategories)
         }
         
         navigationItem.rightBarButtonItem?.isEnabled = numberOfItemsSelected > 0 ? true : false

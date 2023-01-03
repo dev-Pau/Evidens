@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol GroupVisibilityCellDelegate: AnyObject {
+    func didTapVisibility()
+}
+
 class GroupVisibilityCell: UICollectionViewCell {
+    
+    weak var delegate: GroupVisibilityCellDelegate?
     
     private let cellContentView = UIView()
     
@@ -89,12 +95,14 @@ class GroupVisibilityCell: UICollectionViewCell {
     }
     
     func setVisibility(visibility: Group.Visibility) {
+        print(visibility)
         switch visibility {
         case .visible:
             break
         case .nonVisible:
             visibleView.updateVisibility()
             nonVisibleView.updateVisibility()
+            delegate?.didTapVisibility()
         }
     }
 }
@@ -102,6 +110,7 @@ class GroupVisibilityCell: UICollectionViewCell {
 extension GroupVisibilityCell: GroupVisibilityViewDelegate {
     func handleVisibilityChange(isSelected: Bool) {
         if isSelected { return }
+        delegate?.didTapVisibility()
         visibleView.updateVisibility()
         nonVisibleView.updateVisibility()
     }
