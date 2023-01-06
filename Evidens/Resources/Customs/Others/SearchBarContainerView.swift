@@ -30,6 +30,13 @@ class SearchBarContainerView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         searchBar.frame = bounds
+        searchBar.searchTextField.layer.cornerRadius = 39 / 2
+        searchBar.searchTextField.layer.masksToBounds = true
+
+    }
+    
+    func setCornerRadius() {
+
     }
 }
 
@@ -129,8 +136,6 @@ class MENavigationBarChatView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         NSLayoutConstraint.activate([
-            
-
             
             fullNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             fullNameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),

@@ -76,8 +76,12 @@ class MEPostActionButtons: UIView {
         return button
     }()
     
-
-    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternaryLabel
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -91,8 +95,9 @@ class MEPostActionButtons: UIView {
     
     func configure() {
         translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = .systemBackground
 
-        addSubviews(likeButton, likesLabel, commentButton, commentLabel, bottomSeparatorLabel, bookmarkButton)
+        addSubviews(likeButton, likesLabel, commentButton, commentLabel, bottomSeparatorLabel, bookmarkButton, separatorView)
         
         NSLayoutConstraint.activate([
             likeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -120,6 +125,11 @@ class MEPostActionButtons: UIView {
             bottomSeparatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             bottomSeparatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
     

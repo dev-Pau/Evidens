@@ -42,16 +42,19 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        
+        /*
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
-            self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
-            //appearance.shadowColor = .black    // navigationbar 1 px bottom border.
+            //self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
+            //self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
+            
+            appearance.backgroundColor = .systemBackground
+            
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
+         */
         
         view.backgroundColor = .white
         self.tabBar.isHidden = true
@@ -103,15 +106,17 @@ class MainTabController: UITabBarController {
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
                 UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
                 
-                
+                /*
                 let appearance = UITabBarAppearance()
                 appearance.configureWithOpaqueBackground()
                 appearance.shadowColor = grayColor
                 appearance.backgroundColor = .white
-                self.tabBar.isHidden = false
+                
                 self.tabBar.isTranslucent = true
                 self.tabBar.scrollEdgeAppearance = appearance
                 self.tabBar.standardAppearance = appearance
+                 */
+                self.tabBar.isHidden = false
                 
             }
         }
@@ -158,17 +163,18 @@ class MainTabController: UITabBarController {
         
         viewControllers = [home, cases, post, notifications]
         
-        tabBar.tintColor = .black
+        //
     }
     
     func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
         
         let nav = UINavigationController(rootViewController: rootViewController)
-        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.systemGray2)
         nav.tabBarItem.title = title
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
-        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
-        nav.navigationBar.tintColor = .black
+        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.label)
+        tabBar.tintColor = .label
+        //nav.navigationBar.tintColor = .black
         
         return nav
     }
@@ -193,7 +199,7 @@ class MainTabController: UITabBarController {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             
             switch option {
@@ -201,7 +207,7 @@ class MainTabController: UITabBarController {
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
             case .groups:
-                guard let user = user else { return }
+                //guard let user = user else { return }
                 let controller = GroupBrowserViewController()
                 currentNavController.pushViewController(controller, animated: true)
             }
@@ -212,7 +218,7 @@ class MainTabController: UITabBarController {
         if let currentNavController = selectedViewController as? UINavigationController {
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             
             let settingsController = ApplicationSettingsViewController()
             

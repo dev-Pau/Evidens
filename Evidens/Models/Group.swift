@@ -26,14 +26,84 @@ struct Group {
     
     enum MemberType: Int {
         case owner
+        case admin
         case member
+        case pending
+        case external
         
-        var isOwner: Int {
+        var memberTypeString: String {
+            switch self {
+                
+            case .owner:
+                return "Owner"
+            case .admin:
+                return "Admin"
+            case .member:
+                return "Member"
+            case .pending:
+                return "Pending"
+            case .external:
+                return "External"
+            }
+        }
+        
+        var type: Int {
             switch self {
             case .owner:
                 return 0
-            case .member:
+            case .admin:
                 return 1
+            case .member:
+                return 2
+            case .pending:
+                return 3
+            case .external:
+                return 4
+            }
+        }
+        
+        var buttonText: String {
+            switch self {
+            case .owner:
+                return "Manage"
+            case .admin:
+                return "Manage"
+            case .member:
+                return "Settings"
+            case .pending:
+                return "Pending"
+            case .external:
+                return "Join"
+            }
+        }
+        
+        var buttonBackgroundColor: UIColor {
+            switch self {
+            case .owner:
+                return .white
+            case .admin:
+                return .white
+            case .member:
+                return .white
+            case .pending:
+                return .white
+            case .external:
+                return .black
+            }
+        }
+        
+        var buttonForegroundColor: UIColor {
+            switch self {
+            case .owner:
+                return .black
+            case .admin:
+                return .black
+            case .member:
+                return .black
+            case .pending:
+                return .black
+            case .external:
+                return .white
             }
         }
     }
@@ -62,5 +132,17 @@ struct Group {
         self.members = dictionary["members"] as? Int ?? 0
         self.bannerUrl = dictionary["bannerUrl"] as? String ?? ""
         self.profileUrl = dictionary["profileUrl"] as? String ?? ""
+    }
+}
+
+struct UserGroup {
+    var uid: String
+    var memberType: Group.MemberType
+    var timestamp: TimeInterval
+    
+    init(dictionary: [String: Any]) {
+        self.uid = dictionary["uid"] as? String ?? ""
+        self.memberType = Group.MemberType(rawValue: dictionary["memberType"] as? Int ?? 4) ?? .external
+        self.timestamp = dictionary["timestamp"] as? TimeInterval ?? 0.0
     }
 }

@@ -17,7 +17,7 @@ class GroupBrowseFooter: UICollectionReusableView {
     
     private lazy var discoverLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -36,7 +36,7 @@ class GroupBrowseFooter: UICollectionReusableView {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubview(discoverLabel)
         
         NSLayoutConstraint.activate([
@@ -45,7 +45,7 @@ class GroupBrowseFooter: UICollectionReusableView {
             discoverLabel.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 30 - 70/2),
         ])
         
-        let atrString = NSMutableAttributedString(string: "Discover", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: primaryColor])
+        let atrString = NSMutableAttributedString(string: "Discover", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.systemBlue])
         atrString.append(NSAttributedString(string: " other listed groups or communities that share your interests, vision or goals.", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular)]))
         
         discoverLabel.attributedText = atrString

@@ -26,8 +26,8 @@ class DiscoverGroupsViewController: UIViewController {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
-        layout.minimumLineSpacing = .leastNonzeroMagnitude
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
@@ -107,7 +107,8 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let groupSelected = groups[indexPath.row]
         
-        let controller = GroupPageViewController(group: groupSelected, isMember: false)
+        #warning("PROBLEMA. Aquí em de mirar previament si l'usuari forma part del grup o no, mirar a RTD si forma part del grup i quin rol té")
+        let controller = GroupPageViewController(group: groupSelected)
         
         let backItem = UIBarButtonItem()
         backItem.tintColor = .black

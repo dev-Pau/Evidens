@@ -40,7 +40,7 @@ class NavigationBarViewController: UIViewController {
         let atrString = NSAttributedString(string: "Search", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.searchTextField.backgroundColor = .tertiarySystemFill
         
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         
@@ -54,20 +54,22 @@ class NavigationBarViewController: UIViewController {
         if !controllerIsBeeingPushed {
             
             
-            userImageView.heightAnchor.constraint(equalToConstant: 35).isActive = true
-            userImageView.widthAnchor.constraint(equalToConstant: 35).isActive = true
-            userImageView.layer.cornerRadius = 35 / 2
+            userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
+            userImageView.layer.cornerRadius = 30 / 2
             let profileImageItem = UIBarButtonItem(customView: userImageView)
             userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
             navigationItem.leftBarButtonItem = profileImageItem
             
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
 
-            navigationItem.rightBarButtonItem?.tintColor = .black
-            
+            navigationItem.rightBarButtonItem?.tintColor = .label
+                                                  
+                                                  
+                                                  
             let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
             searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.65).isActive = true
+            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.70).isActive = true
             navigationItem.titleView = searchBarContainer
         
             searchBar.delegate = self

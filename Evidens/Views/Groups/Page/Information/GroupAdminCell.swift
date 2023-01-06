@@ -67,13 +67,13 @@ class GroupAdminCell: UICollectionViewCell {
         addSubviews(groupCategoryRoleButton, profileImageView, nameLabel, userCategoryLabel)
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             
             groupCategoryRoleButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            groupCategoryRoleButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            groupCategoryRoleButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             groupCategoryRoleButton.widthAnchor.constraint(equalToConstant: 100),
             groupCategoryRoleButton.heightAnchor.constraint(equalToConstant: 30),
             
@@ -107,11 +107,10 @@ class GroupAdminCell: UICollectionViewCell {
         }
     }
     
-    func configureButtonText() {
-        let titleString = "Owner"
+    func configureWithAdminRole(admin: UserGroup) {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
-        groupCategoryRoleButton.configuration?.attributedTitle = AttributedString(titleString, attributes: container)
+        groupCategoryRoleButton.configuration?.attributedTitle = AttributedString(admin.memberType.memberTypeString, attributes: container)
         groupCategoryRoleButton.configuration?.baseBackgroundColor = primaryColor
     }
 }

@@ -19,7 +19,7 @@ class GroupDescriptionCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .tertiaryLabel
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -28,6 +28,7 @@ class GroupDescriptionCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.numberOfLines = 1
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -36,13 +37,13 @@ class GroupDescriptionCell: UICollectionViewCell {
         let tv = InputTextView()
         tv.placeholderText = "Add group description here"
         tv.placeholderLabel.font = .systemFont(ofSize: 15, weight: .regular)
-        tv.placeholderLabel.textColor = grayColor
+        tv.placeholderLabel.textColor = .secondaryLabel
         tv.font = .systemFont(ofSize: 15, weight: .regular)
-        tv.textColor = .black
+        tv.textColor = .label
         tv.delegate = self
         tv.isScrollEnabled = true
         tv.tintColor = primaryColor
-        tv.backgroundColor = lightColor
+        tv.backgroundColor = .systemBackground
         tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
         tv.placeHolderShouldCenter = false
@@ -60,7 +61,7 @@ class GroupDescriptionCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         

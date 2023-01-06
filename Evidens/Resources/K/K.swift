@@ -10,7 +10,7 @@ import Firebase
 import FirebaseFirestore
 
 // Colors
-let primaryColor = UIColor(rgb: 0x00C6B7)
+let primaryColor =  UIColor.systemBlue //UIColor(rgb: 0x00C6B7)
 let lightColor = UIColor(rgb: 0xF1F4F7)
 let blackColor = UIColor(rgb: 0x2B2D42)
 let grayColor = UIColor(rgb: 0x677987)

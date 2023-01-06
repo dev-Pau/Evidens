@@ -35,6 +35,7 @@ class GroupAboutHeader: UICollectionReusableView {
             sectionTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             sectionTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             sectionTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            sectionTitle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     

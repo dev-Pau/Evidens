@@ -104,7 +104,7 @@ class MEUserPostView: UIView {
     func configure() {
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
-        
+        backgroundColor = .systemBackground
         addSubviews(profileImageView, usernameLabel, dotsImageButton, userInfoCategoryLabel, clockImage, postTimeLabel, privacyImage)
         
         translatesAutoresizingMaskIntoConstraints = false

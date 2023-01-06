@@ -29,7 +29,7 @@ class GroupBrowseCell: UICollectionViewCell {
     private let groupNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -37,7 +37,7 @@ class GroupBrowseCell: UICollectionViewCell {
     
     private let categoriesGroupLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 13, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 2
@@ -56,7 +56,7 @@ class GroupBrowseCell: UICollectionViewCell {
     private let groupSizeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -81,13 +81,13 @@ class GroupBrowseCell: UICollectionViewCell {
     
     private func configure() {
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         layer.borderWidth = 1
-        layer.borderColor = lightColor.cgColor
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
         layer.cornerRadius = 7
         
-        layer.shadowColor = lightColor.cgColor
+        layer.shadowColor = UIColor.quaternarySystemFill.cgColor
         layer.shadowOffset = CGSize(width: 0, height: 0)
         layer.shadowRadius = 5.0
         layer.shadowOpacity = 1
@@ -137,8 +137,8 @@ class GroupBrowseCell: UICollectionViewCell {
         groupSizeLabel.text = viewModel.groupSizeString
         categoriesGroupLabel.text = viewModel.groupCategories
         
-        memberTypeButton.configuration?.baseForegroundColor = .white
-        memberTypeButton.configuration?.baseBackgroundColor = lightGrayColor
+        memberTypeButton.configuration?.baseForegroundColor = .label
+        memberTypeButton.configuration?.baseBackgroundColor = .tertiarySystemFill
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)

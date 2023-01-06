@@ -14,7 +14,7 @@ class SideMenuCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -45,7 +45,7 @@ class SideMenuCell: UICollectionViewCell {
     
     func set(title: String, image: String) {
         titleLabel.text = title
-        titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.black).withRenderingMode(.alwaysOriginal)
+        titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label).withRenderingMode(.alwaysOriginal)
     }
     
     required init?(coder: NSCoder) {

@@ -23,13 +23,14 @@ class GroupInformationViewController: UIViewController {
     weak var delegate: GroupInformationViewControllerDelegate?
     
     private var group: Group
-    private var users = [User]()
+    
+    private var adminUsers = [User]()
+    private var adminUserRoles = [UserGroup]()
     
     private var collectionView: UICollectionView!
     
     init(group: Group) {
         self.group = group
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -42,7 +43,7 @@ class GroupInformationViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCollectionView()
-        fetchUser()
+        fetchAdminTeam()
     }
     
     private func configureNavigationBar() {
@@ -133,13 +134,20 @@ class GroupInformationViewController: UIViewController {
         present(navVC, animated: true)
     }
     
-    private func fetchUser() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        UserService.fetchUser(withUid: uid) { user in
-            #warning("FETCH ADMIN TEAM")
-            self.users = [user]
-            DispatchQueue.main.async {
-                self.collectionView.reloadData()
+    private func fetchAdminTeam() {
+        DatabaseManager.shared.fetchGroupAdminTeamRoles(groupId: group.groupId) { adminUsersRoles in
+            self.adminUserRoles = adminUsersRoles
+            
+            // Get all admin uid's
+            let adminUids = adminUsersRoles.map { admin in
+                return admin.uid
+            }
+            
+            UserService.fetchUsers(withUids: adminUids) { admins in
+                self.adminUsers = admins
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -149,7 +157,7 @@ extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UI
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 3 { return users.count }
+        if section == 3 { return adminUsers.count }
         else { return 1 }
     }
     
@@ -196,8 +204,20 @@ extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UI
         }
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupAdminReuseIdentifier, for: indexPath) as! GroupAdminCell
-        cell.user = users[indexPath.row]
-        cell.configureButtonText()
+        
+        cell.configureWithAdminRole(admin: adminUserRoles[indexPath.row])
+        
+        let userIndex = adminUsers.firstIndex { user in
+            if adminUserRoles[indexPath.row].uid == user.uid {
+                return true
+            }
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            cell.user = adminUsers[userIndex]
+        }
+        
         #warning("Create a 'admin team' inside RTD to fetch admin users with its role")
         return cell
     }

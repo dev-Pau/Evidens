@@ -81,7 +81,7 @@ class SideMenuViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height - 70)
         view.addSubviews(collectionView, separatorView, settingsImageView, settingsLabel)
         collectionView.delegate = self

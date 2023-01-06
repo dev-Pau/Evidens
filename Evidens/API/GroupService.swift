@@ -49,6 +49,7 @@ struct GroupService {
         // Download group details from Firestore
         var userGroups = [Group]()
         DatabaseManager.shared.fetchUserIdGroups { result in
+            
             switch result {
             case .success(let groupIds):
                 groupIds.forEach { id in
@@ -61,6 +62,7 @@ struct GroupService {
                 }
             case .failure(let error):
                 print(error)
+                completion([])
             }
         }
     }

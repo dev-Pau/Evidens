@@ -77,6 +77,24 @@ class CreateGroupViewController: UIViewController {
         return collectionView
     }()
     
+    private lazy var createGroupButton: UIButton = {
+        let button = UIButton()
+
+        button.configuration = .filled()
+
+        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseForegroundColor = .white
+
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 17, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Create", attributes: container)
+        
+        button.addTarget(self, action: #selector(handleCreateGroup), for: .touchUpInside)
+        return button
+    }()
+    
     private let progressIndicator = JGProgressHUD()
 
     override func viewDidLoad() {
@@ -94,6 +112,8 @@ class CreateGroupViewController: UIViewController {
             viewModel.description = group.description
             viewModel.categories = group.categories
             viewModel.visibility = group.visibility
+        } else {
+            viewModel.visibility = .visible
         }
         
         super.init(nibName: nil, bundle: nil)
@@ -108,12 +128,11 @@ class CreateGroupViewController: UIViewController {
         
         let leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem = leftBarButtonItem
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
         
-        let rightBarButtonItem =  UIBarButtonItem(title: group != nil ? "Edit" : "Create", style: .done, target: self, action: #selector(handleCreateGroup))
-        rightBarButtonItem.tintColor = primaryColor
-        rightBarButtonItem.isEnabled = false
-        navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createGroupButton)
+        navigationItem.rightBarButtonItem?.isEnabled = false
+
     }
     
     private func configureCollectionView() {
@@ -131,7 +150,7 @@ class CreateGroupViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
     }
@@ -299,10 +318,10 @@ class CreateGroupViewController: UIViewController {
     }
     
     private func pushGroupViewController(withGroup group: Group) {
-        let controller = GroupPageViewController(group: group, isMember: true)
+        let controller = GroupPageViewController(group: group, memberType: .owner)
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem
@@ -361,7 +380,7 @@ extension CreateGroupViewController: GroupCategoriesCellDelegate {
         controller.delegate = self
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem

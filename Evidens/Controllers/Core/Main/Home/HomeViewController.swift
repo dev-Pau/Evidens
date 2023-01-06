@@ -40,11 +40,13 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing  = 10
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
+        layout.minimumInteritemSpacing  = 0
+        layout.minimumLineSpacing = 0
+        
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .systemBackground
         
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -98,7 +100,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Helpers
     func configureUI() {
         // Configure UICollectionView
-        collectionView.backgroundColor = lightColor
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)

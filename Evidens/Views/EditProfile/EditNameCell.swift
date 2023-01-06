@@ -21,6 +21,7 @@ class EditNameCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.numberOfLines = 1
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -37,7 +38,7 @@ class EditNameCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .tertiaryLabel
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -54,7 +55,7 @@ class EditNameCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -101,7 +102,7 @@ class EditNameCell: UICollectionViewCell {
     func set(title: String, placeholder: String, name: String) {
         titleLabel.text = title
         firstNameTextField.text = name
-        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: grayColor])
+        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor.secondaryLabel])
         firstNameTextField.placeholder = placeholder
     }
     

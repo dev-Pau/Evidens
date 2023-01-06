@@ -14,6 +14,11 @@ private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIden
 private let groupContentSelectionReuseIdentifier = "GroupContentSelectionReuseIdentifier"
 private let groupContentCollectionViewReuseIdentifier = "GroupContentCollectionViewReuseIdentifier"
 
+private let groupContentAdminReuseIdentifier = "GroupContentAdminReuseIdentifier"
+private let groupContentHeaderReuseIdentifier = "GroupContentHeaderReuseIdentifier"
+
+private let groupContentDescriptionReuseIdentifier = "GroupContentDescriptionReuseIdentifier"
+
 protocol GroupPageViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
 }
@@ -27,7 +32,10 @@ class GroupPageViewController: UIViewController {
     private var group: Group
     private var members: [User]?
     
-    private var isMember: Bool = false
+    private var adminUserRoles = [UserGroup]()
+    private var adminUsers = [User]()
+    
+    private var memberType: Group.MemberType?
     
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -38,17 +46,37 @@ class GroupPageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchGroupUsers()
         configureNavigationBar()
         configureSearchBar()
         configureUI()
         configureCollectionView()
+        
+        if let memberType = memberType {
+            collectionView.isHidden = false
+            // User is from group or is pending
+            // If user is pending, don't have access to members
+            guard memberType != .pending else { return }
+            // User is from group, fetch group users
+            fetchGroupUsers()
+        } else {
+            // User comes from discover tab or might be pending. Fetch user member type.
+            fetchUserMemberType()
+            
+        }
+
+        #warning("Falta fer una funció per veure el rol de lusuari quan vé de discover group per fer collectionvoiew.ishidden = false i també per fer searchbar user interaction enabled = true quan el trobi")
     }
     
     
-    init(group: Group, isMember: Bool) {
+    init(group: Group, memberType: Group.MemberType? = nil) {
         self.group = group
-        self.isMember = isMember
+        if let memberType = memberType { self.memberType = memberType }
+        /*else {
+            #warning("Delete the else statement, aquí si no té member type s'haurà de fer fetch, només és per fer provesUI")
+            self.memberType = .external
+        }
+         */
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -56,13 +84,36 @@ class GroupPageViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func fetchUserMemberType() {
+        DatabaseManager.shared.fetchUserMemberTypeForGroup(groupId: group.groupId) { memberType in
+            self.memberType = memberType
+            self.collectionView.isHidden = false
+            self.collectionView.reloadData()
+            if memberType == .external || memberType == .pending {
+                DatabaseManager.shared.fetchGroupAdminTeamRoles(groupId: self.group.groupId) { adminUserRoles in
+                    self.adminUserRoles = adminUserRoles
+                    
+                    // Get all admin uid's
+                    let adminUids = adminUserRoles.map { admin in
+                        return admin.uid
+                    }
+                    
+                    UserService.fetchUsers(withUids: adminUids) { admins in
+                        self.adminUsers = admins
+                        DispatchQueue.main.async {
+                            self.collectionView.reloadData()
+                        }
+                    }
+                }
+            } else { return }
+        }
+    }
+    
     private func configureNavigationBar() {
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), style: .done, target: self, action: #selector(handleGroupOptions))
-        navigationItem.rightBarButtonItem = rightBarButtonItem
-        
+
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.70).isActive = true
+        searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8).isActive = true
         
         navigationItem.titleView = searchBarContainer
         
@@ -75,7 +126,7 @@ class GroupPageViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = lightColor
 
     }
     
@@ -93,14 +144,24 @@ class GroupPageViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = lightColor
+        //collectionView.contentInsetAdjustmentBehavior = .never
+
+        if memberType == nil { collectionView.isHidden = true }
         
         view.addSubview(collectionView)
-        collectionView.frame = view.bounds
-        
+
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
         
         collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
+        
+        // External users
+        collectionView.register(GroupAdminCell.self, forCellWithReuseIdentifier: groupContentAdminReuseIdentifier)
+        collectionView.register(GroupAboutHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentHeaderReuseIdentifier)
+        
+        collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: groupContentDescriptionReuseIdentifier)
+        
+        
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: groupContentCollectionViewReuseIdentifier)
         //collectionView.register(UserProfileTitleHeader.self, forCellWithReuseIdentifier: profileHeaderTitleReuseIdentifier)
         
@@ -122,7 +183,7 @@ class GroupPageViewController: UIViewController {
                 header.pinToVisibleBounds = true
                 
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
                 group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(5))
                 let section = NSCollectionLayoutSection(group: group)
                 
@@ -152,12 +213,17 @@ extension GroupPageViewController: UISearchBarDelegate {
 extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return (memberType == .external || memberType == .pending) ? 3 : 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return 2 }
-        else { return 10 }
+        if section == 0 {
+            return (memberType == .external || memberType == .pending) ? 1 : 2
+        } else if section == 1 {
+            return (memberType == .external || memberType == .pending) ? 1 : 10
+        } else {
+            return adminUserRoles.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -166,27 +232,65 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupHeaderReuseIdentifier, for: indexPath) as! GroupPageHeaderCell
                 cell.viewModel = GroupViewModel(group: group)
                 cell.users = members
+                cell.memberType = memberType
                 cell.delegate = self
                 return cell
+                
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCreationReuseIdentifier, for: indexPath) as! GroupContentCreationCell
                 cell.delegate = self
                 return cell
             }
-
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCollectionViewReuseIdentifier, for: indexPath)
-            cell.backgroundColor = .red
-            return cell
             
+        } else if indexPath.section == 1 {
+            if memberType == .pending || memberType == .external {
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentDescriptionReuseIdentifier, for: indexPath) as! UserProfileAboutCell
+                cell.set(body: group.description)
+                return cell
+            } else {
+                #warning("Posasr posts/clinical cases, etc, en funció de quin estigui seleccionat de tab")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCollectionViewReuseIdentifier, for: indexPath)
+                cell.backgroundColor = .red
+                return cell
+            }
+        } else {
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentAdminReuseIdentifier, for: indexPath) as! GroupAdminCell
+                
+                cell.configureWithAdminRole(admin: adminUserRoles[indexPath.row])
+                
+                let userIndex = adminUsers.firstIndex { user in
+                    if adminUserRoles[indexPath.row].uid == user.uid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.user = adminUsers[userIndex]
+                }
+                
+                return cell
+            }
         }
-    }
+    
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentSelectionReuseIdentifier, for: indexPath) as! GroupContentSelectionHeader
-        //header.set(title: "Sticky header")
-        
-        return header
+        if memberType == .external || memberType == .pending {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentHeaderReuseIdentifier, for: indexPath) as! GroupAboutHeader
+            if indexPath.section == 1 {
+                header.set(title: "Description")
+            } else {
+                header.set(title: "AdminTeam")
+            }
+
+            return header
+        } else {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentSelectionReuseIdentifier, for: indexPath) as! GroupContentSelectionHeader
+            return header
+        }
+
     }
 }
 

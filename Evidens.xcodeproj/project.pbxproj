@@ -162,10 +162,6 @@
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
-		5F94477E29190012003B3DA0 /* GroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477D29190012003B3DA0 /* GroupsViewController.swift */; };
-		5F94478129192673003B3DA0 /* DiscoverGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94478029192673003B3DA0 /* DiscoverGroupCell.swift */; };
-		5F944783291A2ADE003B3DA0 /* ExploreGroupsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944782291A2ADE003B3DA0 /* ExploreGroupsCell.swift */; };
-		5F944785291A5B7F003B3DA0 /* GroupManagerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */; };
 		5F944788291D1391003B3DA0 /* DiscoverGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */; };
 		5F94478A291D4645003B3DA0 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944789291D4645003B3DA0 /* GroupCell.swift */; };
 		5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */; };
@@ -281,6 +277,7 @@
 		5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA57264295F14F80068284B /* GroupBrowseFooter.swift */; };
 		5FA572672962E2FB0068284B /* GroupPageCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */; };
 		5FA572692962ECAF0068284B /* GroupCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA572682962ECAF0068284B /* GroupCategoryCell.swift */; };
+		5FA572702965CC1A0068284B /* EmtpyGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5726F2965CC1A0068284B /* EmtpyGroupCell.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
@@ -504,10 +501,6 @@
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
-		5F94477D29190012003B3DA0 /* GroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsViewController.swift; sourceTree = "<group>"; };
-		5F94478029192673003B3DA0 /* DiscoverGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverGroupCell.swift; sourceTree = "<group>"; };
-		5F944782291A2ADE003B3DA0 /* ExploreGroupsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreGroupsCell.swift; sourceTree = "<group>"; };
-		5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupManagerCell.swift; sourceTree = "<group>"; };
 		5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverGroupsViewController.swift; sourceTree = "<group>"; };
 		5F944789291D4645003B3DA0 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedButtonsView.swift; sourceTree = "<group>"; };
@@ -623,6 +616,7 @@
 		5FA57264295F14F80068284B /* GroupBrowseFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseFooter.swift; sourceTree = "<group>"; };
 		5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageCategoriesCell.swift; sourceTree = "<group>"; };
 		5FA572682962ECAF0068284B /* GroupCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCategoryCell.swift; sourceTree = "<group>"; };
+		5FA5726F2965CC1A0068284B /* EmtpyGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmtpyGroupCell.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
@@ -1266,7 +1260,6 @@
 		5F94477C2918FFF6003B3DA0 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
-				5F94477D29190012003B3DA0 /* GroupsViewController.swift */,
 				5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */,
 				5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */,
 				5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */,
@@ -1281,14 +1274,9 @@
 		5F94477F291925DD003B3DA0 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				5FA5726E2965C9C20068284B /* Browse */,
 				5FAC98CB29470CB300C72228 /* Page */,
 				5F9483AF29224F6000D68B46 /* Create */,
-				5F94478029192673003B3DA0 /* DiscoverGroupCell.swift */,
-				5F944782291A2ADE003B3DA0 /* ExploreGroupsCell.swift */,
-				5F944784291A5B7F003B3DA0 /* GroupManagerCell.swift */,
-				5F944789291D4645003B3DA0 /* GroupCell.swift */,
-				5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */,
-				5FA57264295F14F80068284B /* GroupBrowseFooter.swift */,
 			);
 			path = Groups;
 			sourceTree = "<group>";
@@ -1626,14 +1614,33 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
-		5FAC98CB29470CB300C72228 /* Page */ = {
+		5FA5726D2965C9A50068284B /* Page */ = {
 			isa = PBXGroup;
 			children = (
-				5F951B43294881C800E99F34 /* Information */,
 				5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */,
 				5F951B48294B21FA00E99F34 /* GroupContentCreationCell.swift */,
 				5FA417AC295497D00026F267 /* GroupContentSelectionHeader.swift */,
 				5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */,
+			);
+			path = Page;
+			sourceTree = "<group>";
+		};
+		5FA5726E2965C9C20068284B /* Browse */ = {
+			isa = PBXGroup;
+			children = (
+				5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */,
+				5F944789291D4645003B3DA0 /* GroupCell.swift */,
+				5FA57264295F14F80068284B /* GroupBrowseFooter.swift */,
+				5FA5726F2965CC1A0068284B /* EmtpyGroupCell.swift */,
+			);
+			path = Browse;
+			sourceTree = "<group>";
+		};
+		5FAC98CB29470CB300C72228 /* Page */ = {
+			isa = PBXGroup;
+			children = (
+				5FA5726D2965C9A50068284B /* Page */,
+				5F951B43294881C800E99F34 /* Information */,
 			);
 			path = Page;
 			sourceTree = "<group>";
@@ -2292,7 +2299,6 @@
 				5F05206F27C3AF1A001E7D8F /* PhotoViewController.swift in Sources */,
 				5F992B0428ACE47E0030F7F1 /* CasesCollectionViewCell.swift in Sources */,
 				5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */,
-				5F94477E29190012003B3DA0 /* GroupsViewController.swift in Sources */,
 				5F9F089C2861C01F0069FD2C /* HomeThreeImageTextCell.swift in Sources */,
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
 				5F9AFAC428D48887004D61D3 /* BookmarkPostCell.swift in Sources */,
@@ -2361,6 +2367,7 @@
 				5FA0875028BFC64600D44829 /* Sections.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
+				5FA572702965CC1A0068284B /* EmtpyGroupCell.swift in Sources */,
 				5FF5DFF728D77ECD003F9B0A /* SkeletonCasesCell.swift in Sources */,
 				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,
@@ -2382,7 +2389,6 @@
 				5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */,
 				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,
-				5F94478129192673003B3DA0 /* DiscoverGroupCell.swift in Sources */,
 				5F9A9F8B2897E38A00A25152 /* AddEducationViewController.swift in Sources */,
 				5FB2903B288ED674002FBAE1 /* CaseOptionsMenuLauncher.swift in Sources */,
 				5F9A9FAC2899854500A25152 /* PassportViewController.swift in Sources */,
@@ -2403,7 +2409,6 @@
 				5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */,
 				5F9E4285287BE5C700C2153B /* DiagnosisResolvedView.swift in Sources */,
 				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
-				5F944783291A2ADE003B3DA0 /* ExploreGroupsCell.swift in Sources */,
 				5F9FB28C28F6A2A500BABDFD /* SeparatorCell.swift in Sources */,
 				5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */,
 				5FB290262886F843002FBAE1 /* CaseTextImageCell.swift in Sources */,
@@ -2422,7 +2427,6 @@
 				5F951B49294B21FA00E99F34 /* GroupContentCreationCell.swift in Sources */,
 				5FA23F42293F65D000A913CB /* GroupSizeCell.swift in Sources */,
 				5F944788291D1391003B3DA0 /* DiscoverGroupsViewController.swift in Sources */,
-				5F944785291A5B7F003B3DA0 /* GroupManagerCell.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
 				5F9A9F832896CB0D00A25152 /* ConfigureSectionTitleCell.swift in Sources */,
 				5FBCB9F428A6521F007EF79D /* PopupView.swift in Sources */,
@@ -2626,7 +2630,6 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2665,7 +2668,6 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

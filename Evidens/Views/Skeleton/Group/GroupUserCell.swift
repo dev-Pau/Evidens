@@ -36,8 +36,8 @@ class GroupUserCell: UICollectionViewCell {
             profileImageView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = 27 / 2
-        profileImageView.layer.borderWidth = 2
+        profileImageView.layer.cornerRadius = 32 / 2
+        profileImageView.layer.borderWidth = 3
         profileImageView.layer.borderColor = UIColor.white.cgColor
     }
     

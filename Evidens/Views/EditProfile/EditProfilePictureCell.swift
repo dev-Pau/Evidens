@@ -35,7 +35,7 @@ class EditProfilePictureCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.layer.masksToBounds = true
         iv.layer.borderWidth = 4
-        iv.layer.borderColor = UIColor.white.cgColor
+        iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.backgroundColor = primaryColor
@@ -66,7 +66,7 @@ class EditProfilePictureCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -108,6 +108,15 @@ class EditProfilePictureCell: UICollectionViewCell {
             self.profileImageView.layer.addSublayer(self.coverLayer)
         }
 
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
