@@ -50,20 +50,20 @@ class GroupInformationViewController: UIViewController {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if group.ownerUid == uid {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleEditGroupTap))
-            navigationItem.rightBarButtonItem?.tintColor = grayColor
+            navigationItem.rightBarButtonItem?.tintColor = primaryColor
         }
         
         title = "Group details"
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
     }
     
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.frame = view.bounds
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self

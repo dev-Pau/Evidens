@@ -56,9 +56,9 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var shareButton: UIButton = {
         let button = UIButton()
 
-        button.configuration = .gray()
+        button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
+        button.configuration?.baseBackgroundColor = primaryColor
 
         button.isUserInteractionEnabled = false
         
@@ -78,7 +78,7 @@ class ShareClinicalCaseViewController: UIViewController {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         v.isUserInteractionEnabled = true
-        v.backgroundColor = lightColor
+        v.backgroundColor = .quaternarySystemFill
         v.layer.cornerRadius = 10
         return v
     }()
@@ -88,7 +88,7 @@ class ShareClinicalCaseViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "image")
+        iv.image = UIImage(named: "image")?.withTintColor(.secondaryLabel)
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handlePhotoTap)))
         return iv
@@ -155,7 +155,7 @@ class ShareClinicalCaseViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.attributedText = attributedImageInfo
         label.numberOfLines = 0
         return label
@@ -163,28 +163,28 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private let imageTitleSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let titleDescriptionSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let bottomSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let privacySeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -193,7 +193,7 @@ class ShareClinicalCaseViewController: UIViewController {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
-        iv.image = Case.Privacy.visible.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = Case.Privacy.visible.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
@@ -210,7 +210,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private lazy var privacyLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
         label.numberOfLines = 2
@@ -223,7 +223,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -248,7 +248,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "Description"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -261,11 +261,11 @@ class ShareClinicalCaseViewController: UIViewController {
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = .black
+        tv.textColor = .label
         tv.tintColor = primaryColor
         tv.delegate = self
         tv.isScrollEnabled = false
-        tv.backgroundColor = lightColor
+        tv.backgroundColor = .quaternarySystemFill
         tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
         tv.placeHolderShouldCenter = false
@@ -345,14 +345,16 @@ class ShareClinicalCaseViewController: UIViewController {
         title = "Share a case"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
+
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     
     func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         if let group = group {
             casePrivacyMenuLauncher.isUploadingCaseFromGroup(group: group)
@@ -683,7 +685,7 @@ class ShareClinicalCaseViewController: UIViewController {
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = blackColor
+        backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
         
         navigationController?.pushViewController(controller, animated: true)
@@ -695,7 +697,7 @@ class ShareClinicalCaseViewController: UIViewController {
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = blackColor
+        backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
         
         navigationController?.pushViewController(controller, animated: true)
@@ -1056,8 +1058,7 @@ extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
 
 extension ShareClinicalCaseViewController: ShareContentViewModel {
     func updateForm() {
-        shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
-        shareButton.isUserInteractionEnabled = viewModel.caseIsValid
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.caseIsValid
     }
 }
 

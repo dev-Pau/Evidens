@@ -17,7 +17,7 @@ class InputTextView: UITextView {
     
     let placeholderLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

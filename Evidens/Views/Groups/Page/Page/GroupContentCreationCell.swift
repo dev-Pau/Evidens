@@ -19,7 +19,7 @@ class GroupContentCreationCell: UICollectionViewCell {
     private lazy var createContentButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: "post")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: "post")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         button.addTarget(self, action: #selector(handleUploadPost), for: .touchUpInside)
@@ -30,7 +30,7 @@ class GroupContentCreationCell: UICollectionViewCell {
         let label = UILabel()
         label.text = "Start a post or share a case in this group"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         return label
     }()
@@ -38,7 +38,7 @@ class GroupContentCreationCell: UICollectionViewCell {
     private lazy var createCaseButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: "cases")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: "cases")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.secondaryLabel)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         button.addTarget(self, action: #selector(handleUploadCase), for: .touchUpInside)
@@ -49,7 +49,7 @@ class GroupContentCreationCell: UICollectionViewCell {
         let label = UILabel()
         label.text = "Content posted here will only be visible by group members."
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 12, weight: .regular)
         return label
     }()
@@ -57,14 +57,14 @@ class GroupContentCreationCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = grayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
     private let horizontalSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -78,7 +78,7 @@ class GroupContentCreationCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(createContentButton, separatorView, createCaseButton, shareContentLabel, horizontalSeparatorView, shareInfoLabel)
         NSLayoutConstraint.activate([
             createContentButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),

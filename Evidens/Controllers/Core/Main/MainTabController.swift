@@ -23,8 +23,7 @@ class MainTabController: UITabBarController {
     //MARK: Properties
     
     private var postMenuLauncher = PostBottomMenuLauncher()
-    var menu = PostPrivacyMenuLauncher()
-    
+
     weak var menuDelegate: MainTabControllerDelegate?
     
     var user: User? {

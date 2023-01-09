@@ -18,7 +18,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
     private var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -26,6 +26,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .label
         return label
     }()
     
@@ -49,7 +50,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(separatorView, buttonImage, sectionTitle)
         
         NSLayoutConstraint.activate([

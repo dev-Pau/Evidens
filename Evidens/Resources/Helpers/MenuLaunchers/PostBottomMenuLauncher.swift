@@ -49,7 +49,7 @@ class PostBottomMenuLauncher: NSObject {
     
     weak var delegate: PostBottomMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 165
+    private let menuHeight: CGFloat = 185
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -65,7 +65,7 @@ class PostBottomMenuLauncher: NSObject {
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = UIColor.init(named: "bottomMenuBackgroundColor")
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -115,7 +115,7 @@ class PostBottomMenuLauncher: NSObject {
         view.addSubview(collectionView)
         
         blackBackgroundView.frame = view.frame
-        blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.5)
+        blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.6)
         blackBackgroundView.alpha = 0
         
         blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))
@@ -181,7 +181,7 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: ShareableContent.allCases[indexPath.row].contentString, withImage: ShareableContent.allCases[indexPath.row].contentImage)
-        cell.backgroundColor = .white
+        cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
 
         if indexPath.row == 0 {
             cell.layer.cornerRadius = 10
@@ -197,7 +197,7 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: screenWidth - 40, height: 50)
+        return CGSize(width: screenWidth - 40, height: 60)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

@@ -39,6 +39,7 @@ class CategoryListViewController: UIViewController {
         collectionView.keyboardDismissMode = .interactive
         collectionView.alwaysBounceVertical = true
         collectionView.allowsMultipleSelection = true
+        collectionView.backgroundColor = .systemBackground
         return collectionView
     }()
     
@@ -65,6 +66,7 @@ class CategoryListViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Category"
+        view.backgroundColor = .systemBackground
     
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleCreateGroup))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor

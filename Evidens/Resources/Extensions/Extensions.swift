@@ -499,6 +499,22 @@ extension UIWindow {
 }
 
 extension UIViewController {
+
+    /**
+     *  Height of status bar + navigation bar (if navigation bar exist)
+     */
+    
+    var statusBarHeight: CGFloat {
+        return UIApplication.shared.statusBarFrame.size.height
+    }
+
+    var topbarHeight: CGFloat {
+        return UIApplication.shared.statusBarFrame.size.height +
+            (self.navigationController?.navigationBar.frame.height ?? 0.0)
+    }
+}
+
+extension UIViewController {
     func changeBackgroundAlphaToDark(_ darker: Bool) {
         if let keyWindow = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
             keyWindow.alpha = darker ? 0.85 : 1

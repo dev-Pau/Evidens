@@ -35,12 +35,14 @@ class UploadPostViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
         return scrollView
     }()
     
     private let toolbar: UIToolbar = {
         let toolbar = UIToolbar()
-        toolbar.barTintColor = UIColor.white
+        toolbar.barTintColor = .systemBackground
         toolbar.clipsToBounds = true
         toolbar.sizeToFit()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +63,7 @@ class UploadPostViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = blackColor
+        label.textColor = .label
         return label
     }()
     
@@ -69,15 +71,15 @@ class UploadPostViewController: UIViewController {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = grayColor
+        button.configuration?.background.strokeColor = primaryColor
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.image = privacyType.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.image = privacyType.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryColor)
         button.configuration?.imagePlacement = .leading
         button.configuration?.imagePadding = 5
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
         button.configuration?.attributedTitle = AttributedString(" \(privacyType.privacyTitle)", attributes: container)
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
         
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -89,7 +91,7 @@ class UploadPostViewController: UIViewController {
         let button = UIButton()
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "photo.on.rectangle.angled")
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleAttachementsTap), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -100,7 +102,7 @@ class UploadPostViewController: UIViewController {
         tv.placeholderText = "What would you like to share?"
         tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .regular)
         tv.font = .systemFont(ofSize: 18, weight: .regular)
-        tv.textColor = blackColor
+        tv.textColor = .label
         tv.delegate = self
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
@@ -112,8 +114,6 @@ class UploadPostViewController: UIViewController {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 10
-        iv.layer.borderWidth = 1
-        iv.layer.borderColor = blackColor.cgColor
         iv.contentMode = .scaleAspectFill
         return iv
     }()
@@ -124,7 +124,7 @@ class UploadPostViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.baseBackgroundColor = .red.withAlphaComponent(0.7)
+        button.configuration?.baseBackgroundColor = .systemRed.withAlphaComponent(0.7)
         button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(.white)
         button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -135,7 +135,7 @@ class UploadPostViewController: UIViewController {
     private lazy var shareButton: UIButton = {
         let button = UIButton()
 
-        button.configuration = .gray()
+        button.configuration = .filled()
 
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
@@ -198,13 +198,15 @@ class UploadPostViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
+        navigationItem.rightBarButtonItem?.isEnabled = false
         
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
+    
     }
     
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         if let group = group {
             postPrivacyMenuLauncher.isUploadingPostFromGroup(group: group)
@@ -588,7 +590,7 @@ extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
         settingsPostButton.configuration?.attributedTitle = AttributedString(" \(option.privacyTitle)", attributes: container)
-        settingsPostButton.configuration?.image = option.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        settingsPostButton.configuration?.image = option.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryColor)
         privacyType = option
         self.group = Group(groupId: "", dictionary: [:])
     }
@@ -600,8 +602,8 @@ extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
 
 extension UploadPostViewController: UploadContentViewModel {
     func updateForm() {
-        shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
-        shareButton.isUserInteractionEnabled = viewModel.postIsValid
+        //shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.postIsValid
     }
 }
 
@@ -610,7 +612,7 @@ extension UploadPostViewController: PostGroupSelectionViewControllerDelegate {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 12, weight: .bold)
         settingsPostButton.configuration?.attributedTitle = AttributedString(" \(group.name)", attributes: container)
-        settingsPostButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        settingsPostButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryColor)
         privacyType = .group
         self.group = group
         postPrivacyMenuLauncher.updatePrivacyWithGroupOptions(group: group)

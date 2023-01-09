@@ -15,6 +15,7 @@ class UserProfileAboutCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 6
+        label.textColor = .label
         return label
     }()
     
@@ -28,7 +29,7 @@ class UserProfileAboutCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(aboutInformationLabel)
         
         NSLayoutConstraint.activate([

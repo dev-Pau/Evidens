@@ -19,7 +19,7 @@ class RegisterCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.numberOfLines = 0
-        label.textColor = blackColor
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -43,7 +43,7 @@ class RegisterCell: UICollectionViewCell {
     }
 
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(professionLabel, selectButton)
         
         NSLayoutConstraint.activate([

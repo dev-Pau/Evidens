@@ -47,7 +47,7 @@ class SideMenuViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -56,7 +56,7 @@ class SideMenuViewController: UIViewController {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "gearshape.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
+        iv.image = UIImage(systemName: "gearshape.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         iv.contentMode = .scaleAspectFill
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
@@ -69,7 +69,7 @@ class SideMenuViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Settings"
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
         return label

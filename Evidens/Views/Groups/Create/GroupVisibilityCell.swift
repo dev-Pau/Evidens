@@ -19,7 +19,7 @@ class GroupVisibilityCell: UICollectionViewCell {
     
     private var topSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -29,7 +29,7 @@ class GroupVisibilityCell: UICollectionViewCell {
     
     private var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -142,7 +142,7 @@ class GroupVisibilityView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         return label
     }()
@@ -151,7 +151,7 @@ class GroupVisibilityView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 2
         label.textAlignment = .left
         return label

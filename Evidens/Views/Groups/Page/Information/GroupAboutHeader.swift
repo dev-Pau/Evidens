@@ -13,6 +13,7 @@ class GroupAboutHeader: UICollectionReusableView {
 
     var sectionTitle: UILabel = {
         let label = UILabel()
+        label.textColor = .label
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -28,7 +29,7 @@ class GroupAboutHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(sectionTitle)
         
         NSLayoutConstraint.activate([

@@ -14,7 +14,7 @@ class PostMenuHeader: UICollectionReusableView {
     
     private let separator: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .tertiarySystemFill
         view.layer.cornerRadius = 3
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -31,7 +31,7 @@ class PostMenuHeader: UICollectionReusableView {
     
     private func configure() {
         addSubview(separator)
-        
+
         NSLayoutConstraint.activate([
             
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),

@@ -30,6 +30,7 @@ class SideMenuHeader: UICollectionReusableView {
         label.font = .systemFont(ofSize: 18, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
+        label.textColor = .label
         label.textAlignment = .left
         return label
     }()
@@ -39,14 +40,14 @@ class SideMenuHeader: UICollectionReusableView {
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.text = "View profile"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.textAlignment = .left
         return label
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -98,7 +99,6 @@ class SideMenuHeader: UICollectionReusableView {
     }
     
     @objc func handleHeaderTap() {
-        print("HEADER")
         delegate?.didTapHeader()
     }
     

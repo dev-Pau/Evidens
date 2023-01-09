@@ -17,9 +17,9 @@ class DiscoverGroupsViewController: UIViewController {
         let atrString = NSAttributedString(string: "Discover groups", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.backgroundColor = lightColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.setImage(UIImage(named: "groups.selected")?.withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)), for: .search , state: .normal)
+        //searchBar.setImage(UIImage(named: "groups.selected")?.withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)), for: .search , state: .normal)
         return searchBar
     }()
     
@@ -54,7 +54,7 @@ class DiscoverGroupsViewController: UIViewController {
     
     private func configureNavigationBar() {
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
 
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
@@ -71,7 +71,7 @@ class DiscoverGroupsViewController: UIViewController {
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         
         collectionView.frame = view.bounds
         view.addSubview(collectionView)

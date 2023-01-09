@@ -80,30 +80,30 @@ struct Group {
         var buttonBackgroundColor: UIColor {
             switch self {
             case .owner:
-                return .white
+                return .secondarySystemGroupedBackground
             case .admin:
-                return .white
+                return .secondarySystemGroupedBackground
             case .member:
-                return .white
+                return .secondarySystemGroupedBackground
             case .pending:
-                return .white
+                return .secondarySystemGroupedBackground
             case .external:
-                return .black
+                return .label
             }
         }
         
         var buttonForegroundColor: UIColor {
             switch self {
             case .owner:
-                return .black
+                return .label
             case .admin:
-                return .black
+                return .label
             case .member:
-                return .black
+                return .label
             case .pending:
-                return .black
+                return .label
             case .external:
-                return .white
+                return .systemBackground
             }
         }
     }

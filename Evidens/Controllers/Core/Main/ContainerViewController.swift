@@ -43,7 +43,7 @@ class ContainerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         addChildVCs()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         blackBackgroundView.frame = view.bounds
         view.addSubview(blackBackgroundView)
         

@@ -176,10 +176,10 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         
         navigationItem.backBarButtonItem = backItem
-
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -189,7 +189,7 @@ extension GroupBrowserViewController: GroupBrowseFooterDelegate {
         let controller = DiscoverGroupsViewController()
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem

@@ -15,6 +15,7 @@ class GroupDetailsCell: UICollectionViewCell {
         label.text = "Title"
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .label
         return label
     }()
     
@@ -22,7 +23,7 @@ class GroupDetailsCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         return label
     }()
@@ -30,6 +31,7 @@ class GroupDetailsCell: UICollectionViewCell {
     private let groupCreationDateLabel: UILabel = {
         let label = UILabel()
         label.text = "Creation date"
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -39,7 +41,7 @@ class GroupDetailsCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -53,7 +55,7 @@ class GroupDetailsCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(groupTitleLabel, groupLabel, groupCreationDateLabel, groupCreationLabel)
         NSLayoutConstraint.activate([
             groupTitleLabel.topAnchor.constraint(equalTo: topAnchor),

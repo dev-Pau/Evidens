@@ -14,10 +14,12 @@ class GroupCategoryCell: UICollectionViewCell {
     private let categoriesButton: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.backgroundColor = lightGrayColor
+        label.backgroundColor = .secondarySystemGroupedBackground
         label.layer.contentsGravity = .center
         label.layer.masksToBounds = true
-        label.textColor = .white
+        label.layer.borderWidth = 1
+        label.layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        label.textColor = .label
         return label
     }()
     
@@ -36,7 +38,7 @@ class GroupCategoryCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)

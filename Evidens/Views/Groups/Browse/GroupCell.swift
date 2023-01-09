@@ -31,7 +31,7 @@ class GroupCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.numberOfLines = 2
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -40,7 +40,7 @@ class GroupCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -49,14 +49,14 @@ class GroupCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 3
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
     lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
 
@@ -70,8 +70,8 @@ class GroupCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        
-        cellContentView.backgroundColor = .white
+        backgroundColor = .systemBackground
+        cellContentView.backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)

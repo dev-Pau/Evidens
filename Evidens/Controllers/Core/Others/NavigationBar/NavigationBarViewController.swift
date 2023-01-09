@@ -40,7 +40,7 @@ class NavigationBarViewController: UIViewController {
         let atrString = NSAttributedString(string: "Search", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = .tertiarySystemFill
+        //searchBar.searchTextField.backgroundColor = .tertiarySystemFill
         
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         
@@ -82,7 +82,6 @@ class NavigationBarViewController: UIViewController {
         //if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
         panDelegate?.disablePanGesture()
     }
-
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)

@@ -58,7 +58,7 @@ class BookmarksViewController: UIViewController {
         layout.estimatedItemSize = CGSize(width: 100, height: 40)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
         collectionView.alwaysBounceHorizontal = true
@@ -74,7 +74,7 @@ class BookmarksViewController: UIViewController {
         layout.minimumLineSpacing = 10
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 150)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .systemBackground
         collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.isScrollEnabled = false
@@ -85,7 +85,7 @@ class BookmarksViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = lightColor
+        view.backgroundColor = .systemBackground
         configureNavigationBar()
         configureCollectionViews()
         fetchBookmarkedClinicalCases()

@@ -34,7 +34,7 @@ class GroupContentSelectionHeader: UICollectionReusableView {
         layout.estimatedItemSize = CGSize(width: 100, height: 30)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
         collectionView.alwaysBounceHorizontal = true
@@ -54,7 +54,7 @@ class GroupContentSelectionHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         categoriesCollectionView.register(GroupContentSelectorCell.self, forCellWithReuseIdentifier: categoriesCellReuseIdentifier)
         categoriesCollectionView.delegate = self
@@ -63,6 +63,7 @@ class GroupContentSelectionHeader: UICollectionReusableView {
         addSubview(categoriesCollectionView)
         categoriesCollectionView.frame = bounds
         categoriesCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
+        //categoriesCollectionView.reloadData()
     }
 }
 

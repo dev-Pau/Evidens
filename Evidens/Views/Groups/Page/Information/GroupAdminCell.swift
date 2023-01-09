@@ -33,13 +33,14 @@ class GroupAdminCell: UICollectionViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
+        label.textColor = .label
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
     
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -63,7 +64,7 @@ class GroupAdminCell: UICollectionViewCell {
     //MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(groupCategoryRoleButton, profileImageView, nameLabel, userCategoryLabel)
         
         NSLayoutConstraint.activate([

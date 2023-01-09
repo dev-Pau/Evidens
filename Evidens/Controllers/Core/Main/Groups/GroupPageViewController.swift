@@ -39,13 +39,15 @@ class GroupPageViewController: UIViewController {
     
     private var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.tintColor = primaryColor
+        //searchBar.searchTextField.backgroundColor = lightColor
         return searchBar
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
         configureNavigationBar()
         configureSearchBar()
         configureUI()
@@ -121,12 +123,13 @@ class GroupPageViewController: UIViewController {
     }
     
     private func configureSearchBar() {
-        let atrString = NSAttributedString(string: "Search content in \(group.name)", attributes: [.font : UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
+        //let atrString = NSAttributedString(string: "Search content in \(group.name)", attributes: [.font : UIFont.systemFont(ofSize: 15)])
+        //searchBar.searchTextField.attributedPlaceholder = atrString
+        searchBar.searchTextField.placeholder = "Search content in \(group.name)"
     }
     
     private func configureUI() {
-        view.backgroundColor = lightColor
+        view.backgroundColor = .systemBackground
 
     }
     
@@ -143,8 +146,7 @@ class GroupPageViewController: UIViewController {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor = lightColor
-        //collectionView.contentInsetAdjustmentBehavior = .never
+        collectionView.backgroundColor = .systemBackground
 
         if memberType == nil { collectionView.isHidden = true }
         
@@ -282,7 +284,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             if indexPath.section == 1 {
                 header.set(title: "Description")
             } else {
-                header.set(title: "AdminTeam")
+                header.set(title: "Admin Team")
             }
 
             return header
@@ -321,7 +323,7 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         
         navigationItem.backBarButtonItem = backItem
         

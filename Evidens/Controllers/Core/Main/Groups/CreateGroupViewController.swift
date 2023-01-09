@@ -87,9 +87,7 @@ class CreateGroupViewController: UIViewController {
 
         button.configuration?.cornerStyle = .capsule
         
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Create", attributes: container)
+        
         
         button.addTarget(self, action: #selector(handleCreateGroup), for: .touchUpInside)
         return button
@@ -125,6 +123,11 @@ class CreateGroupViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = group != nil ? "Edit group" : "Create group"
+        var buttonTitle = group != nil ? "Edit" : "Create"
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 17, weight: .bold)
+        createGroupButton.configuration?.attributedTitle = AttributedString(buttonTitle, attributes: container)
         
         let leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem = leftBarButtonItem
@@ -356,7 +359,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupDescriptionCellReuseIdentifier, for: indexPath) as! GroupDescriptionCell
             cell.set(title: GroupSections.allCases[indexPath.row].rawValue)
-            cell.set(description: group?.description ?? "")
+            if let group = group { cell.set(description: group.description) }
             cell.delegate = self
             return cell
         } else if indexPath.row == 3 {

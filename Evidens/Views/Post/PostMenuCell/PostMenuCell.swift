@@ -10,12 +10,12 @@ import UIKit
 
 class PostMenuCell: UICollectionViewCell {
     
-    private let padding: CGFloat = 10
+    private let padding: CGFloat = 15
 
     lazy var postTyeButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = lightColor
+        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.1)
 
         button.configuration?.cornerStyle = .capsule
         
@@ -28,7 +28,8 @@ class PostMenuCell: UICollectionViewCell {
     private let postTypeLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textColor = primaryColor
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
 
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -47,7 +48,6 @@ class PostMenuCell: UICollectionViewCell {
     
     
     private func configure() {
-        backgroundColor = .white
         addSubview(postTyeButton)
         addSubview(postTypeLabel)
         
@@ -58,21 +58,21 @@ class PostMenuCell: UICollectionViewCell {
             postTyeButton.heightAnchor.constraint(equalToConstant: 35),
             
             postTypeLabel.centerYAnchor.constraint(equalTo: postTyeButton.centerYAnchor),
-            postTypeLabel.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: 2 * padding),
+            postTypeLabel.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: padding),
             postTypeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
             //postTypeLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     
     func set(withText text: String, withImage image: UIImage) {
-        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         postTypeLabel.text = text
         if text == "Delete" || text == "Report this Post" || text == "Delete notification" || text == "Report this Case" || text == "Delete conversation"  {
-            postTypeLabel.textColor = .red
+            postTypeLabel.textColor = .systemRed
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-            postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.red)
+            postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.systemRed)
         } else {
-            postTypeLabel.textColor = .black
+            postTypeLabel.textColor = primaryColor
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .medium)
         }
     }

@@ -30,9 +30,6 @@ class SearchBarContainerView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         searchBar.frame = bounds
-        searchBar.searchTextField.layer.cornerRadius = 39 / 2
-        searchBar.searchTextField.layer.masksToBounds = true
-
     }
     
     func setCornerRadius() {
@@ -55,7 +52,7 @@ class MENavigationBarTitleView: UIView {
     private let categoryLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .bold)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

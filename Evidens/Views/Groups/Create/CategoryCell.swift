@@ -15,19 +15,19 @@ class CategoryCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .label
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Add category", attributes: container)
         
-        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.imagePlacement = .trailing
         button.configuration?.imagePadding = 5
 
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = lightGrayColor
+        button.configuration?.background.strokeColor = .quaternarySystemFill
         button.configuration?.background.strokeWidth = 1
         button.isUserInteractionEnabled = false
         return button
@@ -48,7 +48,7 @@ class CategoryCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -87,7 +87,7 @@ class CategoryCell: UICollectionViewCell {
         container.font = .systemFont(ofSize: 15, weight: .bold)
         categoriesButton.configuration?.attributedTitle = AttributedString(category, attributes: container)
         categoriesButton.configuration?.baseForegroundColor = .white
-        categoriesButton.configuration?.baseBackgroundColor = lightGrayColor
+        categoriesButton.configuration?.baseBackgroundColor = .quaternarySystemFill
         categoriesButton.configuration?.background.strokeWidth = 0
         
     }

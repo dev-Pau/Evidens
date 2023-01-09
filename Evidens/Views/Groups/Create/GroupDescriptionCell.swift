@@ -19,7 +19,7 @@ class GroupDescriptionCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .tertiaryLabel
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

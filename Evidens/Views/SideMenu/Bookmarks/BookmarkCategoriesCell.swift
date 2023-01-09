@@ -13,8 +13,9 @@ class BookmarkCategoriesCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             categoryLabel.textColor = isSelected ? .white : grayColor
-            backgroundColor = isSelected ? primaryColor : .white
-            layer.borderColor = isSelected ? primaryColor.cgColor : grayColor.cgColor
+            backgroundColor = isSelected ? primaryColor : UIColor.secondarySystemGroupedBackground
+            layer.borderWidth = isSelected ? 0 : 1
+            //layer.borderColor = isSelected ? primaryColor.cgColor : grayColor.cgColor
         }
     }
     
@@ -24,7 +25,7 @@ class BookmarkCategoriesCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -40,7 +41,7 @@ class BookmarkCategoriesCell: UICollectionViewCell {
     private func configure() {
         
         layer.cornerRadius = 20
-        layer.borderColor = grayColor.cgColor
+        layer.borderColor = UIColor.secondaryLabel.cgColor
         layer.borderWidth = 1
         
         addSubview(cellContentView)

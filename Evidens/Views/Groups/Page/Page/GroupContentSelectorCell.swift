@@ -11,9 +11,10 @@ class GroupContentSelectorCell: UICollectionViewCell {
 
     override var isSelected: Bool {
         didSet {
-            categoryLabel.textColor = isSelected ? .white : grayColor
-            backgroundColor = isSelected ? primaryColor : .white
-            layer.borderColor = isSelected ? primaryColor.cgColor : grayColor.cgColor
+            categoryLabel.textColor = isSelected ? .white : .secondaryLabel
+            backgroundColor = isSelected ? primaryColor : .secondarySystemGroupedBackground
+            layer.borderWidth = isSelected ? 0 : 1
+            //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.secondaryLabel.cgColor
         }
     }
     
@@ -23,7 +24,7 @@ class GroupContentSelectorCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -39,7 +40,7 @@ class GroupContentSelectorCell: UICollectionViewCell {
     private func configure() {
         
         layer.cornerRadius = 15
-        layer.borderColor = grayColor.cgColor
+        layer.borderColor = UIColor.secondaryLabel.cgColor
         layer.borderWidth = 1
         
         addSubview(cellContentView)

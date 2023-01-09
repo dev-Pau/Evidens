@@ -15,7 +15,7 @@ class GroupSizeCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     

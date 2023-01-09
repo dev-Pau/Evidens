@@ -38,7 +38,16 @@ class GroupUserCell: UICollectionViewCell {
         
         profileImageView.layer.cornerRadius = 32 / 2
         profileImageView.layer.borderWidth = 3
-        profileImageView.layer.borderColor = UIColor.white.cgColor
+        profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
     }
     
     func set(user: User) {

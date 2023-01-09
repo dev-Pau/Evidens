@@ -23,7 +23,7 @@ class GroupCategoriesCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -34,7 +34,7 @@ class GroupCategoriesCell: UICollectionViewCell {
         label.text = "Categories"
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -50,7 +50,7 @@ class GroupCategoriesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         categoriesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createLeftAlignedLayout())
         categoriesCollectionView.isScrollEnabled = false
         categoriesCollectionView.translatesAutoresizingMaskIntoConstraints = false

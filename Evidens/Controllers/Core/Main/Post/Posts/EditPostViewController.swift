@@ -26,6 +26,8 @@ class EditPostViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.bounces = true
+        scrollView.alwaysBounceVertical = true
         return scrollView
     }()
     
@@ -42,7 +44,7 @@ class EditPostViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -51,7 +53,7 @@ class EditPostViewController: UIViewController {
         tv.placeholderText = "What do you want to talk about?"
         tv.placeholderLabel.font = .systemFont(ofSize: 18, weight: .regular)
         tv.font = .systemFont(ofSize: 18, weight: .regular)
-        tv.textColor = .black
+        tv.textColor = .label
         tv.delegate = self
         tv.tintColor = primaryColor
         tv.isScrollEnabled = false
@@ -64,8 +66,6 @@ class EditPostViewController: UIViewController {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 10
-        iv.layer.borderWidth = 1
-        iv.layer.borderColor = UIColor.black.cgColor
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -74,9 +74,9 @@ class EditPostViewController: UIViewController {
     private lazy var editButton: UIButton = {
         let button = UIButton()
         
-        button.configuration = .gray()
+        button.configuration = .filled()
         
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
+        button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
         
         button.isUserInteractionEnabled = false
@@ -151,13 +151,14 @@ class EditPostViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
+        navigationItem.rightBarButtonItem?.isEnabled = false
         
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
     }
     
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         postTextView.text = post.postText
         postTextView.handleTextDidChange()
         
@@ -299,11 +300,11 @@ extension EditPostViewController: UITextViewDelegate {
         scrollView.resizeScrollViewContentSize()
         
         if hasImage || textView.text.count != 0 {
-            editButton.configuration?.baseBackgroundColor = primaryColor
-            editButton.isUserInteractionEnabled = true
+            
+            navigationItem.rightBarButtonItem?.isEnabled = true
         } else {
-            editButton.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
-            editButton.isUserInteractionEnabled = false
+
+            navigationItem.rightBarButtonItem?.isEnabled = false
         }
     }
 }

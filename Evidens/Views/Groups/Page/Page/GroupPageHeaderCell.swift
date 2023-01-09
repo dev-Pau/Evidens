@@ -54,7 +54,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 3
-        iv.layer.borderColor = UIColor.white.cgColor
+        iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.backgroundColor = lightGrayColor
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         iv.isUserInteractionEnabled = true
@@ -66,7 +66,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 27, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 4
         return label
     }()
@@ -84,11 +84,11 @@ class GroupPageHeaderCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration?.baseBackgroundColor = .white
+        button.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
         button.configuration?.buttonSize = .mini
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.background.strokeColor = lightGrayColor
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.background.strokeColor = .quaternarySystemFill
+        button.configuration?.baseForegroundColor = .label
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
@@ -104,7 +104,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 1
-        button.configuration?.background.strokeColor = lightGrayColor
+        button.configuration?.background.strokeColor = .quaternarySystemFill
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
         
@@ -132,7 +132,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         membersCollectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
         membersCollectionView.register(GroupSizeCell.self, forCellWithReuseIdentifier: userCountCellReuseIdentifier)
@@ -179,6 +179,15 @@ class GroupPageHeaderCell: UICollectionViewCell {
         groupProfileImageView.layer.cornerRadius = 7
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 groupProfileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
+    }
+    
     private func configureWithUser() {
         membersCollectionView.reloadData()
     }
@@ -200,7 +209,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         customUserButton.configuration?.baseBackgroundColor = memberType.buttonBackgroundColor
         customUserButton.configuration?.baseForegroundColor = memberType.buttonForegroundColor
         
-        if memberType == .external { customUserButton.configuration?.background.strokeColor = .black }
+        if memberType == .external { customUserButton.configuration?.background.strokeColor = .quaternarySystemFill }
     }
     
     @objc func handleBannerTap() {
