@@ -21,7 +21,7 @@ class MEPostLabel: UILabel {
     func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         
-        textColor = .black
+        textColor = .label
         
         font = .systemFont(ofSize: 16, weight: .regular)
         

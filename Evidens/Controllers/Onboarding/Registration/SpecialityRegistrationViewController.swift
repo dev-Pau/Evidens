@@ -65,8 +65,7 @@ class SpecialityRegistrationViewController: UIViewController {
         title = "Add Speciality"
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
-        
+       
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
@@ -145,6 +144,7 @@ class SpecialityRegistrationViewController: UIViewController {
     }
     
     private func configureCollectionView() {
+        collectionView.backgroundColor = .systemBackground
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         collectionView.delegate = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: registerCellReuseIdentifier)
@@ -174,7 +174,7 @@ class SpecialityRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
     }
     
     @objc func didTapBack() {

@@ -13,7 +13,7 @@ class CustomLabel: UILabel {
         super.init(frame: .zero)
         text = placeholder
         font = .systemFont(ofSize: 35, weight: .heavy)
-        textColor = .black
+        textColor = .label
         numberOfLines = 0
         //sizeToFit()
         translatesAutoresizingMaskIntoConstraints = false

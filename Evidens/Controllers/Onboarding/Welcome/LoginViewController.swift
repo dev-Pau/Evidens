@@ -17,6 +17,9 @@ class LoginViewController: UIViewController {
     var displayEmailPlaceholder: Bool = false
     var displayPasswordPlaceholder: Bool = false
     
+    private var emailTextFieldIsSelected: Bool = false
+    private var passwordTextFieldIsSelected: Bool = false
+    
     let appearance = UINavigationBarAppearance()
     
     var iconClick = false
@@ -26,6 +29,7 @@ class LoginViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
         scrollView.bounces = true
+        scrollView.backgroundColor = .systemBackground
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .interactive
         return scrollView
@@ -147,7 +151,7 @@ class LoginViewController: UIViewController {
     
     func configureNavigationItemButton() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = .label
     }
     
     func setUpDelegates() {
@@ -197,6 +201,13 @@ class LoginViewController: UIViewController {
         let controller = ResetPasswordViewController()
         controller.delegate = self
         controller.email = emailTextField.text
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
         self.navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -232,7 +243,10 @@ class LoginViewController: UIViewController {
 extension LoginViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = .white
+        emailTextFieldIsSelected = textField == emailTextField ? true : false
+        passwordTextFieldIsSelected = !emailTextFieldIsSelected
+        
+        textField.backgroundColor = .secondarySystemGroupedBackground
         textField.borderStyle = .roundedRect
         textField.layer.borderColor = primaryColor.cgColor
         textField.layer.borderWidth = 2.0
@@ -240,14 +254,27 @@ extension LoginViewController: UITextFieldDelegate {
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.backgroundColor = lightColor
-        textField.layer.borderColor = UIColor.white.cgColor
+        emailTextFieldIsSelected = (textField == emailTextField) ? false : emailTextFieldIsSelected
+        passwordTextFieldIsSelected = (textField == passwordTextField) ? false : passwordTextFieldIsSelected
+        
+        textField.backgroundColor = .tertiarySystemGroupedBackground
+        textField.layer.borderColor = UIColor.systemBackground.cgColor
         textField.layer.borderWidth = 1.0
         //Secure text entry true by default when user ends editing
         if textField == passwordTextField {
             //textField.isSecureTextEntry = true
         }
     }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                emailTextField.layer.borderColor = emailTextFieldIsSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+                passwordTextField.layer.borderColor = passwordTextFieldIsSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+            }
+        }
+    }
+    
 }
 
 //MARK: - FormViewModel

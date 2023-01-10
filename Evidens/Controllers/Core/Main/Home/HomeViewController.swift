@@ -127,7 +127,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
-            let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+            let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
             
             navigationItem.rightBarButtonItem = rightBarButtonItem
 
@@ -424,6 +424,7 @@ extension HomeViewController: HomeCellDelegate {
        
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
@@ -464,6 +465,7 @@ extension HomeViewController: HomeCellDelegate {
         displayState = displaysSinglePost ? .others : .none
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         controller.hidesBottomBarWhenPushed = true
@@ -596,7 +598,7 @@ extension HomeViewController: HomeCellDelegate {
         displayState = displaysSinglePost ? .others : .none
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)

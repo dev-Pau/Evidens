@@ -99,4 +99,28 @@ struct GroupService {
             }
         }
     }
+    
+    static func uploadGroupPost(groupId: String, post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
+        
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let postId = COLLECTION_GROUPS.document(groupId).collection("posts").document().documentID
+        
+        let data = ["post": post,
+                    "timestamp": Timestamp(date: Date()),
+                    "likes": 0,
+                    "ownerUid": uid,
+                    "comments": 0,
+                    "shares": 0,
+                    "type": type.rawValue,
+                    "privacy": privacy.rawValue,
+                    "bookmarks": 0,
+                    "postImageUrl": postImageUrl as Any] as [String : Any]
+        
+        
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).setData(data, completion: completion)
+        DatabaseManager.shared.uploadRecentPostToGroup(withGroupId: groupId, withPostId: postId) { uploaded in
+            print("post group uploaded")
+        }
+    }
 }

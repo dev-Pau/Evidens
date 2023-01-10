@@ -11,9 +11,10 @@ class SpecialitiesDiffableCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            backgroundColor = isSelected ? primaryColor : .white
-            specialityLabel.textColor = isSelected  ? .white : .black
+            backgroundColor = isSelected ? primaryColor : .secondarySystemGroupedBackground
+            specialityLabel.textColor = isSelected  ? .white : .label
             layer.borderWidth = isSelected ? 0 : 1.0
+            checkmarkImage.tintColor = isSelected ? .white : .secondarySystemGroupedBackground
         }
     }
     
@@ -28,7 +29,7 @@ class SpecialitiesDiffableCell: UICollectionViewCell {
     let checkmarkImage: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(systemName: "checkmark.circle.fill")
-        iv.tintColor = .white
+        iv.tintColor = .secondarySystemGroupedBackground
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -47,8 +48,8 @@ class SpecialitiesDiffableCell: UICollectionViewCell {
     func configure() {
         layer.cornerRadius = 10
         layer.borderWidth = 1
-        layer.borderColor = lightGrayColor.cgColor
-        backgroundColor = .white
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        backgroundColor = .secondarySystemGroupedBackground
         
         addSubviews(specialityLabel, checkmarkImage)
 

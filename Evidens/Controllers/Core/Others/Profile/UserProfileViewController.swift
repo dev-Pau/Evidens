@@ -94,7 +94,6 @@ class UserProfileViewController: UIViewController {
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.searchTextField.backgroundColor = lightColor
         return searchBar
     }()
     
@@ -156,7 +155,7 @@ class UserProfileViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.register(UserProfileHeaderCell.self, forCellWithReuseIdentifier: profileHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
@@ -940,7 +939,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -956,9 +955,11 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
+            
         } else if indexPath.section == 3 {
             guard !recentCases.isEmpty else { return }
             let layout = UICollectionViewFlowLayout()
@@ -971,6 +972,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             navigationController?.pushViewController(controller, animated: true)
             
@@ -995,6 +997,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         
                         let backItem = UIBarButtonItem()
                         backItem.title = ""
+                        backItem.tintColor = .label
                         self.navigationItem.backBarButtonItem = backItem
                         
                         self.navigationController?.pushViewController(controller, animated: true)
@@ -1015,7 +1018,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
                         
                         let backItem = UIBarButtonItem()
-                        backItem.tintColor = .black
+                        backItem.tintColor = .label
                         backItem.title = ""
                         self.navigationItem.backBarButtonItem = backItem
                         
@@ -1036,7 +1039,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
         let controller = FollowersFollowingViewController(user: user)
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem
@@ -1114,7 +1117,7 @@ extension UserProfileViewController: UserProfileSeeOthersCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = blackColor
+        backItem.tintColor = .label
         
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
@@ -1134,7 +1137,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1145,7 +1148,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1156,7 +1159,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1167,7 +1170,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1178,7 +1181,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1189,7 +1192,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1211,7 +1214,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             let controller = HomeViewController()
@@ -1230,7 +1233,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             let controller = CaseViewController(user: user)
@@ -1245,7 +1248,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             let controller = UserCommentsViewController(user: user, collectionViewFlowLayout: layout)
@@ -1258,7 +1261,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+            backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
             navigationController?.pushViewController(controller, animated: true)
@@ -1269,7 +1272,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1280,7 +1283,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1291,7 +1294,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -1301,7 +1304,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
 
 

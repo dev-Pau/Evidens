@@ -17,7 +17,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -30,14 +30,14 @@ class UserProfilePostImageCell: UICollectionViewCell {
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
     private let likesButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
+        button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(.systemRed)
         //button.configuration?.baseForegroundColor = pinkColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -49,7 +49,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -59,24 +59,18 @@ class UserProfilePostImageCell: UICollectionViewCell {
         //label.text = "3h ago"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    //image of post if it has
-    //text of post to show x lines
-    //time slot
-    
-    //likes and comments
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -87,10 +81,8 @@ class UserProfilePostImageCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
-        
-        
-        
+        backgroundColor = .systemBackground
+
         addSubviews(postTextLabel, postImage, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([

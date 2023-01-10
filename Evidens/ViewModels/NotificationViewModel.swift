@@ -67,11 +67,11 @@ struct NotificationViewModel {
     }
     
     var followButtonBackgroundColor: UIColor {
-        return notification.userIsFollowed ? lightGrayColor : primaryColor
+        return notification.userIsFollowed ? .secondarySystemGroupedBackground : primaryColor
     }
     
     var followButtonTextColor: UIColor {
-        return notification.userIsFollowed ? .black : .white
+        return notification.userIsFollowed ? .label : .white
     }
     
     var notificationPostText: String? {

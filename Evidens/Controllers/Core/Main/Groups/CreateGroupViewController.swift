@@ -138,6 +138,8 @@ class CreateGroupViewController: UIViewController {
 
     }
     
+    
+    
     private func configureCollectionView() {
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: createGroupImageCellReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: createGroupNameCellReuseIdentifier)

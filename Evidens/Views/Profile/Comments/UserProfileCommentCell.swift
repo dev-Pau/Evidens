@@ -11,7 +11,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     
     var caseTitleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +28,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     
     private var commentTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -37,7 +37,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     
     var commentUserLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.lineBreakMode = .byTruncatingTail
@@ -55,7 +55,7 @@ class UserProfileCommentCell: UICollectionViewCell {
 
     private var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -70,7 +70,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         addSubviews(caseTitleLabel, profileImageView, commentTextLabel, commentUserLabel, separatorView, commentHeightView)
         

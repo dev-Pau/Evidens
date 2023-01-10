@@ -19,7 +19,7 @@ class CategoryRegistrationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
     
@@ -43,10 +43,10 @@ class CategoryRegistrationViewController: UIViewController {
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
+        button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
         
@@ -88,7 +88,7 @@ class CategoryRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -118,6 +118,13 @@ class CategoryRegistrationViewController: UIViewController {
     
     @objc func handleNext() {
         let controller = ProfessionRegistrationViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     

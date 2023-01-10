@@ -59,11 +59,11 @@ struct CaseViewModel {
     }
     
     var caseStageTextColor: UIColor {
-        return clinicalCase.stage.rawValue == 0 ? .white : grayColor
+        return clinicalCase.stage.rawValue == 0 ? .systemBackground : .systemBackground
     }
     
     var caseStageBackgroundColor: UIColor {
-        return clinicalCase.stage.rawValue == 0 ? leafGreenColor : lightGrayColor
+        return clinicalCase.stage.rawValue == 0 ? .systemGreen : .quaternarySystemFill
     }
     
     var caseResolvedWithDiagnosis: Bool {

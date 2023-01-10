@@ -31,7 +31,7 @@ class MERegistrationDocumentView: UIView {
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
 
@@ -48,12 +48,13 @@ class MERegistrationDocumentView: UIView {
     }
     
     private func configure() {
+        backgroundColor = .secondarySystemGroupedBackground
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleVerificationTap)))
         
         translatesAutoresizingMaskIntoConstraints = false
         layer.borderWidth = 1
-        layer.borderColor = lightGrayColor.cgColor
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
         layer.cornerRadius = 5
         
         addSubviews(identityImageView, identityLabel)
@@ -71,6 +72,14 @@ class MERegistrationDocumentView: UIView {
         
         identityImageView.image = UIImage(systemName: image)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         identityLabel.text = title
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                layer.borderColor = UIColor.quaternarySystemFill.cgColor
+            }
+        }
     }
     
     @objc func handleVerificationTap() {

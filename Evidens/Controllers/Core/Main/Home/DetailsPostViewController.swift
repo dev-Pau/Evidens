@@ -112,14 +112,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
 
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
     
     func configureCollectionView() {
         homeMenuLauncher.delegate = self
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
@@ -269,9 +269,12 @@ extension DetailsPostViewController: HomeCellDelegate {
         let controller = CommentPostViewController(post: post, user: user)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
+        
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
+        
         displayState = .others
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -392,7 +395,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         displayState = .others
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
@@ -518,6 +521,8 @@ extension DetailsPostViewController: HomeCellDelegate {
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
+        
         navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -534,7 +539,7 @@ extension DetailsPostViewController: CommentCellDelegate {
         displayState = .others
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = .black
+        backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
         
         navigationController?.pushViewController(controller, animated: true)

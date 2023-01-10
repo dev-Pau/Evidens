@@ -13,12 +13,15 @@ class FullNameRegistrationViewController: UIViewController {
     private var user: User
     private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
     
+    private var firstNameSelected: Bool = false
+    private var lastNameSelected: Bool = false
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
@@ -32,7 +35,7 @@ class FullNameRegistrationViewController: UIViewController {
         let label = UILabel()
         label.text = "This will be displayed on your profile as your full name. You can always change that later."
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -71,8 +74,8 @@ class FullNameRegistrationViewController: UIViewController {
         let button = UIButton()
         button.configuration = .gray()
 
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
         
@@ -108,7 +111,6 @@ class FullNameRegistrationViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Account details"
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
-
     }
     
     private func configureNotificationObservers() {
@@ -120,7 +122,7 @@ class FullNameRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -174,22 +176,44 @@ class FullNameRegistrationViewController: UIViewController {
         user.lastName = lastName
         
         let controller = ImageRegistrationViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }
 
 extension FullNameRegistrationViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = .white
+        firstNameSelected = textField == firstNameTextField ? true : false
+        lastNameSelected = !firstNameSelected
+        
+        textField.backgroundColor = .secondarySystemGroupedBackground
         textField.borderStyle = .roundedRect
         textField.layer.borderColor = primaryColor.cgColor
         textField.layer.borderWidth = 2.0
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.backgroundColor = lightColor
-        textField.layer.borderColor = UIColor.white.cgColor
+        firstNameSelected = (textField == firstNameTextField) ? false : firstNameSelected
+        lastNameSelected = (textField == lastNameTextField) ? false : lastNameSelected
+        
+        textField.backgroundColor = .tertiarySystemGroupedBackground
+        textField.layer.borderColor = UIColor.systemBackground.cgColor
         textField.layer.borderWidth = 1.0
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                firstNameTextField.layer.borderColor = firstNameSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+                lastNameTextField.layer.borderColor = lastNameSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+            }
+        }
     }
 }
 

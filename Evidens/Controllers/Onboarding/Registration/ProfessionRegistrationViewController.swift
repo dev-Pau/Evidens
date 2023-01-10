@@ -67,8 +67,6 @@ class ProfessionRegistrationViewController: UIViewController {
         }
 
         navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
@@ -100,6 +98,7 @@ class ProfessionRegistrationViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: registerProfessionCellReuseIdentifier)
         view.addSubview(collectionView)
@@ -120,7 +119,7 @@ class ProfessionRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
     }
     
     @objc func didTapBack() {
@@ -129,6 +128,11 @@ class ProfessionRegistrationViewController: UIViewController {
     
     @objc func handleNext() {
         let controller = SpecialityRegistrationViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }

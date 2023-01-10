@@ -13,7 +13,7 @@ class CaseDetailsView: UIView {
     
     private lazy var specialitiesInfo: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -21,7 +21,7 @@ class CaseDetailsView: UIView {
     
     private lazy var specialitiesLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -32,7 +32,7 @@ class CaseDetailsView: UIView {
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.secondaryLabel)
         return button
     }()
     
@@ -41,13 +41,13 @@ class CaseDetailsView: UIView {
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.secondaryLabel)
         return button
     }()
     
     private let topView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

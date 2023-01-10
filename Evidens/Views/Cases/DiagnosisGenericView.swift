@@ -26,7 +26,7 @@ class DiagnosisGenericView: UIView {
     private let diagnosisTitle: UILabel = {
         let label = UILabel()
         label.text = "Add a diagnosis to get more engage from the community"
-        label.textColor = blackColor
+        label.textColor = .label
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -36,7 +36,7 @@ class DiagnosisGenericView: UIView {
     private let diagnosisSubtitle: UILabel = {
         let label = UILabel()
         label.text = "Tap to add a diagnosis"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -48,21 +48,21 @@ class DiagnosisGenericView: UIView {
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "chevron.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(.secondaryLabel)
         return button
     }()
     
     private lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
     private lazy var bottomSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
 

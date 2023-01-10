@@ -33,28 +33,6 @@ class CommentPostViewController: UICollectionViewController {
         return cv
     }()
     
-    private lazy var emptyCommentLabel: UILabel = {
-        let label = UILabel()
-        label.text = "No comments yet."
-        label.textAlignment = .center
-        label.textColor = .black
-        label.font = .systemFont(ofSize: 21, weight: .bold)
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var startTheConversationLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Start the discussion."
-        label.textAlignment = .center
-        label.textColor = grayColor
-        label.font = .systemFont(ofSize: 17, weight: .medium)
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     //MARK: - Lifecycle
     
     init(post: Post, user: User) {
@@ -74,7 +52,6 @@ class CommentPostViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         commentMenu.delegate = self
         configureUI()
         configureCollectionView()
@@ -137,16 +114,14 @@ class CommentPostViewController: UICollectionViewController {
             
             // Post has no text from the owner & no comments
             if comments.isEmpty && self.post.postText.isEmpty {
-                self.emptyCommentLabel.isHidden = false
-                self.startTheConversationLabel.isHidden = false
                 self.collectionView.isHidden = true
                 return
             }
             
             // Post has text from the owner & no comments
             if comments.isEmpty && !self.post.postText.isEmpty {
-                self.emptyCommentLabel.isHidden = true
-                self.startTheConversationLabel.isHidden = true
+             
+
                 self.collectionView.isHidden = false
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
@@ -166,9 +141,7 @@ class CommentPostViewController: UICollectionViewController {
                     }
                 }
             }
-            
-            self.emptyCommentLabel.isHidden = true
-            self.startTheConversationLabel.isHidden = true
+    
             self.collectionView.isHidden = false
         }
     }
@@ -179,11 +152,10 @@ class CommentPostViewController: UICollectionViewController {
         navigationItem.title = "Comments"
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         view.addSubview(collectionView)
 
-        collectionView.backgroundColor = .white
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .interactive
@@ -191,17 +163,8 @@ class CommentPostViewController: UICollectionViewController {
     }
     
     private func configureUI() {
-        
         guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
         commentInputView.profileImageView.sd_setImage(with: URL(string: uid))
-        
-        view.addSubviews(emptyCommentLabel, startTheConversationLabel)
-        NSLayoutConstraint.activate([
-            emptyCommentLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            emptyCommentLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startTheConversationLabel.topAnchor.constraint(equalTo: emptyCommentLabel.bottomAnchor, constant: 10),
-            startTheConversationLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
     }
 }
 
@@ -244,7 +207,7 @@ extension CommentPostViewController: CommentCellDelegate {
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = .black
+        backButton.tintColor = .label
         self.navigationItem.backBarButtonItem = backButton
         
         self.navigationController?.pushViewController(controller, animated: true)

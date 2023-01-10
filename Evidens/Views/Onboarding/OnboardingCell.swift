@@ -13,7 +13,7 @@ class OnboardingCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -22,7 +22,7 @@ class OnboardingCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     

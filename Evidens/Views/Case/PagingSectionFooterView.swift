@@ -11,13 +11,13 @@ import Combine
 class PagingSectionFooterView: UICollectionReusableView {
     
     private lazy var pageControl: UIPageControl = {
-            let control = UIPageControl()
-            control.translatesAutoresizingMaskIntoConstraints = false
-            control.isUserInteractionEnabled = false
-            control.currentPageIndicatorTintColor = primaryColor
-            control.pageIndicatorTintColor = grayColor
-            return control
-        }()
+        let control = UIPageControl()
+        control.translatesAutoresizingMaskIntoConstraints = false
+        control.isUserInteractionEnabled = false
+        control.currentPageIndicatorTintColor = primaryColor
+        control.pageIndicatorTintColor = .secondaryLabel
+        return control
+    }()
     
     private var pagingInfoToken: AnyCancellable?
     

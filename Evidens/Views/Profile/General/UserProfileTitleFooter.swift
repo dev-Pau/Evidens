@@ -19,6 +19,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textAlignment = .center
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleFooterTap)))
@@ -27,7 +28,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -42,7 +43,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(sectionAboutTitle, separatorView)
         
         NSLayoutConstraint.activate([

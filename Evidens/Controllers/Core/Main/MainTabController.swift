@@ -184,7 +184,7 @@ class MainTabController: UITabBarController {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             
             let userProfileController = UserProfileViewController(user: user)
             

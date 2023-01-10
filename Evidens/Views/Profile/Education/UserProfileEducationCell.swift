@@ -18,8 +18,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     private let educationCenterTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        //label.text = "Universitat de Barcelona"
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,9 +28,8 @@ class UserProfileEducationCell: UICollectionViewCell {
     private let educationTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        //label.text = "Physiotherapy"
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -41,7 +39,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -50,9 +48,8 @@ class UserProfileEducationCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        //label.text = "2016 - Present"
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -60,7 +57,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     lazy var buttonImage: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         button.configuration?.buttonSize = .mini
         button.isHidden = true
         button.isUserInteractionEnabled = false
@@ -73,7 +70,7 @@ class UserProfileEducationCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "rosette")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "rosette")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -82,16 +79,15 @@ class UserProfileEducationCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        //label.text = "Master's degree"
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -106,7 +102,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         addSubviews(educationCenterTitleLabel, educationTitleLabel, calendarImage, educationIntervalLabel, educationTypeImage, educationTypeLabel, separatorView, buttonImage)
         

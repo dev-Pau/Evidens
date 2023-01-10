@@ -1055,8 +1055,8 @@
 		5F71C17928CCFE7300A16571 /* Comments */ = {
 			isa = PBXGroup;
 			children = (
-				5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */,
 				5F8666F1274FAD30009B26E6 /* CommentPostViewController.swift */,
+				5FB29038288E86A6002FBAE1 /* CommentCaseViewController.swift */,
 			);
 			path = Comments;
 			sourceTree = "<group>";

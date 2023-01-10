@@ -17,15 +17,7 @@ protocol MEPostActionButtonsDelegate: AnyObject {
 class MEPostActionButtons: UIView {
     
     weak var delegate: MEPostActionButtonsDelegate?
-    
-    private let bottomSeparatorLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.backgroundColor = lightGrayColor
-        return label
-    }()
-    
-    
+
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -38,7 +30,7 @@ class MEPostActionButtons: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -50,7 +42,7 @@ class MEPostActionButtons: UIView {
     var commentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.numberOfLines = 0
@@ -63,7 +55,7 @@ class MEPostActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(named: "comment")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        button.configuration?.image = UIImage(named: "comment")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
@@ -78,7 +70,7 @@ class MEPostActionButtons: UIView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternaryLabel
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -97,7 +89,7 @@ class MEPostActionButtons: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
 
-        addSubviews(likeButton, likesLabel, commentButton, commentLabel, bottomSeparatorLabel, bookmarkButton, separatorView)
+        addSubviews(likeButton, likesLabel, commentButton, commentLabel, bookmarkButton, separatorView)
         
         NSLayoutConstraint.activate([
             likeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -120,11 +112,6 @@ class MEPostActionButtons: UIView {
             bookmarkButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             bookmarkButton.heightAnchor.constraint(equalToConstant: 25),
             bookmarkButton.widthAnchor.constraint(equalToConstant: 25),
-            
-            bottomSeparatorLabel.topAnchor.constraint(equalTo: topAnchor),
-            bottomSeparatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            bottomSeparatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),

@@ -52,7 +52,7 @@ class CommentCaseViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         commentMenu.delegate = self
         configureCollectionView()
         fetchComments()
@@ -147,11 +147,10 @@ class CommentCaseViewController: UICollectionViewController {
         navigationItem.title = "Comments"
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         view.addSubview(collectionView)
 
-        collectionView.backgroundColor = .white
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .interactive
@@ -306,7 +305,7 @@ extension CommentCaseViewController: CommentCellDelegate {
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = .black
+        backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
         
         navigationController?.pushViewController(controller, animated: true)

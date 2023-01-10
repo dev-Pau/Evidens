@@ -18,16 +18,16 @@ class VerificationRegistrationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.baseForegroundColor = .black
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .quaternarySystemFill
+        button.configuration?.baseForegroundColor = .label
         button.configuration?.cornerStyle = .capsule
 
         var container = AttributeContainer()
@@ -44,7 +44,7 @@ class VerificationRegistrationViewController: UIViewController {
         let label = UILabel()
         label.text = "We need a photo of your ID"
         label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +64,7 @@ class VerificationRegistrationViewController: UIViewController {
         let label = UILabel()
         label.text = "We verify all members of the MyEvidens community. Please select one of the following identity document types:"
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -181,7 +181,7 @@ extension VerificationRegistrationViewController: MERegistrationDocumentViewDele
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         switch option {

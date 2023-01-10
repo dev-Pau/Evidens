@@ -14,7 +14,7 @@ class CharacterTextTracker: UIView {
     private let textTrackerLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = primaryColor
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0

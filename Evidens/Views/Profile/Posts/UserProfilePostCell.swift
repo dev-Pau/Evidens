@@ -17,7 +17,7 @@ class UserProfilePostCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -38,7 +38,7 @@ class UserProfilePostCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -48,24 +48,18 @@ class UserProfilePostCell: UICollectionViewCell {
         label.text = "3h ago"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    //image of post if it has
-    //text of post to show x lines
-    //time slot
-    
-    //likes and comments
-    
+  
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -76,7 +70,7 @@ class UserProfilePostCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         addSubviews(postTextLabel, likesButton, likesCommentsLabel, timeLabel, separatorView)
         

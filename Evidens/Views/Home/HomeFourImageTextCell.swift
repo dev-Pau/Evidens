@@ -37,7 +37,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
@@ -49,7 +49,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
@@ -61,7 +61,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
@@ -73,7 +73,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap(gesture:))))
         iv.isUserInteractionEnabled = true
         return iv
@@ -150,7 +150,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
     
         postTextLabel.text = viewModel.postText
         
@@ -158,7 +158,6 @@ class HomeFourImageTextCell: UICollectionViewCell {
         actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
-        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         viewModel.post.postImageUrl.forEach { url in

@@ -15,6 +15,7 @@ class PasswordRegistrationViewController: UIViewController {
     private let imageIcon = UIImageView()
     private var iconClick = false
     private var privacySelected: Bool = false
+    private var textFieldSelected: Bool = false
     
     private var viewModel = PasswordRegistrationViewModel()
     
@@ -23,7 +24,7 @@ class PasswordRegistrationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
@@ -50,8 +51,8 @@ class PasswordRegistrationViewController: UIViewController {
         container.font = .systemFont(ofSize: 12, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("8 characters", attributes: container)
         
-        button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -65,8 +66,8 @@ class PasswordRegistrationViewController: UIViewController {
         container.font = .systemFont(ofSize: 12, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Lower case", attributes: container)
         
-        button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -80,8 +81,8 @@ class PasswordRegistrationViewController: UIViewController {
         container.font = .systemFont(ofSize: 12, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Upper case", attributes: container)
         
-        button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -95,8 +96,8 @@ class PasswordRegistrationViewController: UIViewController {
         container.font = .systemFont(ofSize: 12, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Digit", attributes: container)
         
-        button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -110,15 +111,15 @@ class PasswordRegistrationViewController: UIViewController {
         container.font = .systemFont(ofSize: 12, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Special character", attributes: container)
         
-        button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -153,7 +154,7 @@ class PasswordRegistrationViewController: UIViewController {
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: (aString.string as NSString).range(of: "By creating a new account you are indicating that you have read and acknowledge the Terms of Service and Privacy Policy."))
         
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "By creating a new account you are indicating that you have read and acknowledge the Terms of Service and Privacy Policy."))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: "By creating a new account you are indicating that you have read and acknowledge the Terms of Service and Privacy Policy."))
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .semibold), range: (aString.string as NSString).range(of: "Terms of Service"))
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .semibold), range: (aString.string as NSString).range(of: "Privacy Policy"))
@@ -207,7 +208,7 @@ class PasswordRegistrationViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Create account"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = .label
     }
     
     private func setUpDelegates() {
@@ -216,7 +217,7 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -361,35 +362,46 @@ class PasswordRegistrationViewController: UIViewController {
 extension PasswordRegistrationViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemGroupedBackground
         textField.borderStyle = .roundedRect
         textField.layer.borderColor = primaryColor.cgColor
         textField.layer.borderWidth = 2.0
+        textFieldSelected = true
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.backgroundColor = lightColor
+        textField.backgroundColor = .tertiarySystemGroupedBackground
         textField.layer.borderColor = UIColor.white.cgColor
         textField.layer.borderWidth = 1.0
+        textFieldSelected = false
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 passwordTextField.layer.borderColor = textFieldSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+             }
+         }
     }
 }
 
 extension PasswordRegistrationViewController: FormViewModel {
     func updateForm() {
-        lowerCaseButton.configuration?.baseBackgroundColor = viewModel.passwordHasLowerCaseLetter ? primaryColor.withAlphaComponent(0.7) : lightColor
-        lowerCaseButton.configuration?.baseForegroundColor = viewModel.passwordHasLowerCaseLetter ? .white : grayColor
+        lowerCaseButton.configuration?.baseBackgroundColor = viewModel.passwordHasLowerCaseLetter ? primaryColor : .tertiarySystemGroupedBackground
+        lowerCaseButton.configuration?.baseForegroundColor = viewModel.passwordHasLowerCaseLetter ? .white : .secondaryLabel
         
-        upperCaseButton.configuration?.baseBackgroundColor = viewModel.passwordHasUpperCaseLetter ? primaryColor.withAlphaComponent(0.7) : lightColor
-        upperCaseButton.configuration?.baseForegroundColor = viewModel.passwordHasUpperCaseLetter ? .white : grayColor
+        upperCaseButton.configuration?.baseBackgroundColor = viewModel.passwordHasUpperCaseLetter ? primaryColor : .tertiarySystemGroupedBackground
+        upperCaseButton.configuration?.baseForegroundColor = viewModel.passwordHasUpperCaseLetter ? .white : .secondaryLabel
         
-        digitCharButton.configuration?.baseBackgroundColor = viewModel.passwordHasDigit ? primaryColor.withAlphaComponent(0.7) : lightColor
-        digitCharButton.configuration?.baseForegroundColor = viewModel.passwordHasDigit ? .white : grayColor
+        digitCharButton.configuration?.baseBackgroundColor = viewModel.passwordHasDigit ? primaryColor : .tertiarySystemGroupedBackground
+        digitCharButton.configuration?.baseForegroundColor = viewModel.passwordHasDigit ? .white : .secondaryLabel
         
-        specialCharButton.configuration?.baseBackgroundColor = viewModel.passwordHasSpecialChar ? primaryColor.withAlphaComponent(0.7) : lightColor
-        specialCharButton.configuration?.baseForegroundColor = viewModel.passwordHasSpecialChar ? .white : grayColor
+        specialCharButton.configuration?.baseBackgroundColor = viewModel.passwordHasSpecialChar ? primaryColor : .tertiarySystemGroupedBackground
+        specialCharButton.configuration?.baseForegroundColor = viewModel.passwordHasSpecialChar ? .white : .secondaryLabel
         
-        minCharButton.configuration?.baseBackgroundColor = viewModel.passwordMinChar ? primaryColor.withAlphaComponent(0.7) : lightColor
-        minCharButton.configuration?.baseForegroundColor = viewModel.passwordMinChar ? .white : grayColor
+        minCharButton.configuration?.baseBackgroundColor = viewModel.passwordMinChar ? primaryColor : .tertiarySystemGroupedBackground
+        minCharButton.configuration?.baseForegroundColor = viewModel.passwordMinChar ? .white : .secondaryLabel
         
         squareButton.configuration?.image = viewModel.privacyConditionsButtonImage
         

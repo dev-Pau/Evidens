@@ -29,7 +29,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 1
         //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
@@ -39,7 +39,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     
     private let descriptionCaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
@@ -53,7 +53,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .gray
+        iv.backgroundColor = .secondaryLabel
         return iv
     }()
     
@@ -72,7 +72,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -82,14 +82,14 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         //label.text = "3h ago"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -105,7 +105,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(caseStateButton, titleCaseLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([

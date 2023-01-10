@@ -20,7 +20,7 @@ class HomeLikesCell: UITableViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -28,7 +28,7 @@ class HomeLikesCell: UITableViewCell {
         let label = UILabel()
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -38,7 +38,7 @@ class HomeLikesCell: UITableViewCell {
         let label = UILabel()
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -57,6 +57,7 @@ class HomeLikesCell: UITableViewCell {
     
     
     private func configure() {
+        backgroundColor = .systemBackground
         
         addSubviews(profileImageView, nameLabel, professionLabel)
         

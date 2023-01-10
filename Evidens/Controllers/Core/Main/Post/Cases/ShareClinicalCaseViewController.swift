@@ -248,8 +248,10 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "Description"
+        //label.textColor = .secondaryLabel
         label.textColor = .secondaryLabel
         label.isHidden = true
+        //label.backg
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -259,7 +261,7 @@ class ShareClinicalCaseViewController: UIViewController {
         let tv = InputTextView()
         tv.placeholderText = "Description"
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
+        //tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = .label
         tv.tintColor = primaryColor
@@ -673,7 +675,7 @@ class ShareClinicalCaseViewController: UIViewController {
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = blackColor
+        backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
                 
         navigationController?.pushViewController(controller, animated: true)

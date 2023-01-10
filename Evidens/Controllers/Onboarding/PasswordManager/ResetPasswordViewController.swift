@@ -20,6 +20,8 @@ class ResetPasswordViewController: UIViewController {
     
     var email: String?
     
+    private var textFieldIsSelected: Bool = false
+    
     private var viewModel = ResetPasswordViewModel()
     
     private let progressIndicator = JGProgressHUD()
@@ -30,6 +32,7 @@ class ResetPasswordViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
+        scrollView.backgroundColor = .systemBackground
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .interactive
         return scrollView
@@ -44,7 +47,7 @@ class ResetPasswordViewController: UIViewController {
         let label = UILabel()
         label.text = "Enter the email associated with your account and we'll send an email with instructions to reset your password."
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +81,6 @@ class ResetPasswordViewController: UIViewController {
         configureUI()
         setUpDelegates()
         configureNotificationsObservers()
-        configureNavigationItemButton()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -89,7 +91,7 @@ class ResetPasswordViewController: UIViewController {
     //MARK: Helpers
     
     func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         navigationItem.title = "Forgot password"
         
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
@@ -134,17 +136,9 @@ class ResetPasswordViewController: UIViewController {
             emailTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         }
     
-    func configureNavigationItemButton() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
-    }
     
     //MARK:  - Actions
-    
-    @objc func didTapBack() {
-        self.navigationController?.popViewController(animated: true)
-    }
-    
+
     @objc func resetButtonPressed() {
         guard let email = emailTextField.text else { return }
         progressIndicator.show(in: view)
@@ -174,17 +168,30 @@ class ResetPasswordViewController: UIViewController {
 extension ResetPasswordViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = .white
+        textFieldIsSelected = true
+        textField.backgroundColor = .secondarySystemGroupedBackground
         textField.borderStyle = .roundedRect
         textField.layer.borderColor = primaryColor.cgColor
         textField.layer.borderWidth = 2.0
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.backgroundColor = lightColor
-        textField.layer.borderColor = UIColor.white.cgColor
+        textFieldIsSelected = false
+        textField.backgroundColor = .tertiarySystemGroupedBackground
+        textField.layer.borderColor = UIColor.systemBackground.cgColor
         textField.layer.borderWidth = 1.0
     }
+    
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+            if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                emailTextField.layer.borderColor = textFieldIsSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+            }
+        }
+    }
+    
+    
 }
 
 

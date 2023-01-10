@@ -14,6 +14,7 @@ class CommentsSectionHeader: UICollectionViewCell {
         let label = UILabel()
         label.text = "Comments"
         label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -42,9 +43,11 @@ class CommentsSectionHeader: UICollectionViewCell {
     
     
     private func configureUI() {
-        
+        backgroundColor = .systemBackground
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
+        
+        cellContentView.backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
             cellContentView.topAnchor.constraint(equalTo: topAnchor),

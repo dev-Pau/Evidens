@@ -44,6 +44,10 @@ struct ProfileHeaderViewModel {
         // Implement user.isCurrentUser ? "FETCH POINTS" : "Message"
     }
     
+    var messageButtonIsHidden: Bool {
+        return user.isCurrentUser || !user.isFollowed ? true : false
+    }
+    
     //Change button text wether is, or not, current user
     var followButtonText: String {
         if user.isCurrentUser {
@@ -54,11 +58,15 @@ struct ProfileHeaderViewModel {
     }
     
     var followButtonBackgroundColor: UIColor {
-        return user.isCurrentUser ? lightGrayColor : primaryColor
+        return user.isCurrentUser || user.isFollowed ? .systemBackground : .label
     }
     
     var followButtonTextColor: UIColor {
-        return user.isCurrentUser ? .black : .white
+        return user.isCurrentUser || user.isFollowed ? .label : .systemBackground
+    }
+    
+    var followButtonBorderColor: UIColor {
+        return user.isCurrentUser || user.isFollowed ? .quaternarySystemFill : .label
     }
     
     var editBannerButton: Bool {
@@ -92,7 +100,7 @@ struct ProfileHeaderViewModel {
         let aString = NSMutableAttributedString(string: followers + " followers       ")
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: followers))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: followers))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: followers))
         
         return aString
     }
@@ -103,7 +111,7 @@ struct ProfileHeaderViewModel {
         let aString = NSMutableAttributedString(string: following + " following")
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: following))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: (aString.string as NSString).range(of: following))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: following))
         
         return aString
     }

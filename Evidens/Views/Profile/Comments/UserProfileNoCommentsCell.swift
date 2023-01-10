@@ -11,7 +11,7 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -20,7 +20,7 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
     
     private var postTextSubLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -37,7 +37,7 @@ class UserProfileNoCommentsCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         addSubviews(postTextLabel, postTextSubLabel)
         

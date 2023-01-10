@@ -57,7 +57,7 @@ class ClinicalTypeViewController: UIViewController {
         title = "Type details"
         
         if controllerIsPresented {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark")?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(handleDismiss))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark")?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleDismiss))
         } else {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
             navigationItem.rightBarButtonItem?.tintColor = primaryColor

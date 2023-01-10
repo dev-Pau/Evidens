@@ -36,7 +36,7 @@ class CaseDiagnosisViewController: UIViewController {
         label.text = "Help the community and get more engagement by adding a diagnose about your conclusions"
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -44,10 +44,10 @@ class CaseDiagnosisViewController: UIViewController {
     private lazy var diagnosisTextView: InputTextView = {
         let tv = InputTextView()
         tv.placeholderText = "Add your diagnosis here..."
-        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
+        //tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
+        //tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = .black
+        tv.textColor = .label
         tv.tintColor = primaryColor
         tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
@@ -59,7 +59,7 @@ class CaseDiagnosisViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -67,7 +67,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         configureNavigationBar()
         configureUI()
     }
@@ -87,11 +87,11 @@ class CaseDiagnosisViewController: UIViewController {
         title = "Diagnosis details"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = blackColor
+        navigationItem.leftBarButtonItem?.tintColor = .label
         
         let rightBarButtonText = stageIsUpdating || diagnosisIsUpdating ? "Skip" : "Add"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: rightBarButtonText, style: .done, target: self, action: #selector(handleAddDiagnosis))
-        navigationItem.rightBarButtonItem?.tintColor = .black
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = stageIsUpdating || diagnosisIsUpdating ? true : false
     }
     
@@ -187,7 +187,6 @@ extension CaseDiagnosisViewController: UITextViewDelegate {
         let count = textView.text.count
         if stageIsUpdating || diagnosisIsUpdating {
             navigationItem.rightBarButtonItem?.title = count > 0 ? "Update" : "Skip"
-            navigationItem.rightBarButtonItem?.tintColor = count > 0 ? primaryColor : .black
         } else {
             navigationItem.rightBarButtonItem?.isEnabled = count > 0 ? true : false
         }

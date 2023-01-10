@@ -29,7 +29,7 @@ class CasesCell: UICollectionViewCell {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseBackgroundColor = .red.withAlphaComponent(0.7)
+        button.configuration?.baseBackgroundColor = .systemRed.withAlphaComponent(0.7)
         button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(.white)
         button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

@@ -20,15 +20,15 @@ class METextField: UITextField {
         
         leftViewMode = .always
         borderStyle = .roundedRect
-        textColor = .black
-        keyboardAppearance = .light
+        textColor = .label
+        keyboardAppearance = .default
         keyboardType = .emailAddress
         autocorrectionType = .no
-        backgroundColor = lightColor
+        backgroundColor = .quaternarySystemFill
         layer.cornerRadius = 5
-        layer.borderColor = UIColor.white.cgColor
+        layer.borderColor = UIColor.systemBackground.cgColor
         layer.borderWidth = 1.0
-        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor(white: 0.2, alpha: 0.7)])
+        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor.secondaryLabel])
         clearButtonMode = .whileEditing
     }
     
@@ -54,6 +54,15 @@ class METextField: UITextField {
         attributedPlaceholder = attrPlaceholder
         //ttributedPlaceholder = NSAttributedString(string: attributedPlaceholder, attributes: [.foregroundColor: UIColor(white: 0.2, alpha: 0.7)])
         clearButtonMode = .always
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
     }
     
     required init?(coder: NSCoder) {

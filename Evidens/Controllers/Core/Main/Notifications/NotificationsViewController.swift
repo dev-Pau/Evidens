@@ -29,10 +29,10 @@ class NotificationsViewController: NavigationBarViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 10
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 150)
+        layout.minimumLineSpacing = 0
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.isScrollEnabled = false
@@ -46,7 +46,7 @@ class NotificationsViewController: NavigationBarViewController {
         label.text = "No notifications yet"
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -55,7 +55,7 @@ class NotificationsViewController: NavigationBarViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Complete your profile and connect with people you know to start receive notifications about your activity."
         label.textAlignment = .center
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
@@ -72,7 +72,7 @@ class NotificationsViewController: NavigationBarViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if !loaded { collectionView.reloadData() }
+        //if !loaded { collectionView.reloadData() }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -319,7 +319,9 @@ extension NotificationsViewController: NotificationCellDelegate {
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification) {
         notificationMenu.showNotificationSettings(in: view)
         notificationMenu.completion = { delete in
+            print("Completion delete")
             if delete {
+                print("DELETE Go")
 
                 if let indexPath = self.collectionView.indexPath(for: cell) {
                     NotificationService.deleteNotification(withUid: notification.id) { removed in

@@ -21,7 +21,7 @@ class MECategoryView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .bold)
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -31,7 +31,7 @@ class MECategoryView: UIView {
     private let selectionButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(lightGrayColor)
+        button.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.tertiarySystemGroupedBackground)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
@@ -49,10 +49,10 @@ class MECategoryView: UIView {
     
     private func configure() {
         isUserInteractionEnabled = true
-        backgroundColor = .white
+        backgroundColor = .secondarySystemGroupedBackground
         layer.cornerRadius = 16
         layer.borderWidth = 1
-        layer.borderColor = lightGrayColor.cgColor
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
         translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = title
         
@@ -73,8 +73,8 @@ class MECategoryView: UIView {
     }
     
     func resetCategoryView() {
-        selectionButton.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(lightGrayColor)
-        layer.borderColor = lightGrayColor.cgColor
+        selectionButton.configuration?.image = UIImage(systemName: "circle")?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(.quaternarySystemFill)
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
         layer.borderWidth = 1
     }
     

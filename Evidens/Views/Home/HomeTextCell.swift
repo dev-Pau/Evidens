@@ -39,7 +39,7 @@ class HomeTextCell: UICollectionViewCell {
         userPostView.delegate = self
         actionButtonsView.delegate = self
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
 
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -80,15 +80,15 @@ class HomeTextCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         postTextLabel.text = viewModel.postText
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
         actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
-        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+        
     }
     
     func set(user: User) {

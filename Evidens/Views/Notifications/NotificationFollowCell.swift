@@ -15,9 +15,7 @@ class NotificationFollowCell: UICollectionViewCell {
     
     weak var delegate: NotificationCellDelegate?
     
-    var viewModel: NotificationViewModel? {
-        didSet { configure() }
-    }
+    var viewModel: NotificationViewModel?
     
     private let cellContentView = UIView()
     
@@ -54,21 +52,11 @@ class NotificationFollowCell: UICollectionViewCell {
         return label
     }()
     
-    private let timeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .lightGray
-        label.textAlignment = .right
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        return label
-    }()
-    
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -88,9 +76,9 @@ class NotificationFollowCell: UICollectionViewCell {
         return button
     }()
     
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = lightColor
+    private lazy var separatorLabel: UILabel = {
+        let view = UILabel()
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -100,7 +88,7 @@ class NotificationFollowCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
 
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -109,10 +97,11 @@ class NotificationFollowCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 115),
+            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            //heightAnchor.constraint(equalToConstant: 115),
         ])
    
-        cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, fullNameLabel, followButton)
+        cellContentView.addSubviews(separatorLabel, profileImageView, dotsImageButton, fullNameLabel, followButton)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -126,16 +115,17 @@ class NotificationFollowCell: UICollectionViewCell {
             dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
             
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            fullNameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
             
-            timeLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 5),
-            timeLabel.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            //timeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            
-            followButton.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            followButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
             followButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             followButton.heightAnchor.constraint(equalToConstant: 30),
+            
+            separatorLabel.topAnchor.constraint(equalTo: followButton.bottomAnchor),
+            separatorLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: 10),
+            separatorLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            separatorLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
@@ -177,29 +167,16 @@ class NotificationFollowCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height - 10))
+        
+        let height = max(autoLayoutSize.height, 65)
+        
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
     
     //MARK: - Helpers
-    
-    func configure() {
-        guard let viewModel = viewModel else { return }
-        
-        //Complete with all information regarding notifications
-        //profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-        //fullNameLabel.attributedText = viewModel.notificationUserInfo
-        timeLabel.text = viewModel.notificationTimeStamp
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
-        followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
-        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
-        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
 
-    }
-    
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         
@@ -210,8 +187,15 @@ class NotificationFollowCell: UICollectionViewCell {
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: ".  \(viewModel.notificationTimeStamp)", attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
         fullNameLabel.attributedText = attributedText
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+        followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
+        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
+        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
         
     }
 }

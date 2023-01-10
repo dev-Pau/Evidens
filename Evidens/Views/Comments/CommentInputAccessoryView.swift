@@ -24,7 +24,7 @@ class CommentInputAccessoryView: UIView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -37,7 +37,7 @@ class CommentInputAccessoryView: UIView {
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
         tv.layer.cornerRadius = 16
-        tv.layer.borderColor = lightGrayColor.cgColor
+        tv.layer.borderColor = UIColor.quaternarySystemFill.cgColor
         tv.layer.borderWidth = 1
         tv.isScrollEnabled = false
         tv.tintColor = primaryColor
@@ -54,7 +54,6 @@ class CommentInputAccessoryView: UIView {
         button.configuration?.attributedTitle = AttributedString("Post", attributes: container)
         button.isEnabled = false
         button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.baseBackgroundColor = .black
         button.configuration?.titleAlignment = .trailing
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +63,7 @@ class CommentInputAccessoryView: UIView {
     
     private lazy var topView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -77,7 +76,7 @@ class CommentInputAccessoryView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -122,6 +121,15 @@ class CommentInputAccessoryView: UIView {
             profileImageView.sd_setImage(with: URL(string: uid))
         }
          */
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 commentTextView.layer.borderColor = UIColor.quaternarySystemFill.cgColor
+             }
+         }
     }
     
     required init?(coder: NSCoder) {

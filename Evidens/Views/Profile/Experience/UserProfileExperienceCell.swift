@@ -18,8 +18,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     private let professionCenterTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        //label.text = "Kinevic"
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,9 +28,8 @@ class UserProfileExperienceCell: UICollectionViewCell {
     private let professionJobTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        //label.text = "Physiotherapist"
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -41,7 +39,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -50,16 +48,15 @@ class UserProfileExperienceCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        //label.text = "2016 - Present"
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -67,7 +64,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     lazy var buttonImage: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         button.configuration?.buttonSize = .mini
         button.isHidden = true
         button.isUserInteractionEnabled = false
@@ -86,7 +83,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, separatorView, buttonImage)
         
         NSLayoutConstraint.activate([

@@ -23,7 +23,7 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = .quaternarySystemFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -32,6 +32,7 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.numberOfLines = 1
+        label.textColor = .label
         label.textAlignment = .center
         label.layer.contentsGravity = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +55,7 @@ class UserProfileSeeOthersCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(profileImageView, nameLabel, professionLabel)
         
         NSLayoutConstraint.activate([

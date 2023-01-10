@@ -32,6 +32,7 @@ class WelcomeViewController: UIViewController {
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
         scrollView.isScrollEnabled = true
+        scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
     
@@ -39,7 +40,7 @@ class WelcomeViewController: UIViewController {
         let layout = createCellLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -57,13 +58,13 @@ class WelcomeViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.background.strokeColor = lightGrayColor
+        button.configuration?.background.strokeColor = .quaternarySystemFill
         button.configuration?.background.strokeWidth = 1.5
          
         button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.configuration?.imagePadding = 15
         
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseForegroundColor = .black
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
@@ -83,13 +84,13 @@ class WelcomeViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
         
-        button.configuration?.background.strokeColor = lightGrayColor
+        button.configuration?.background.strokeColor = .quaternarySystemFill
         button.configuration?.background.strokeWidth = 1.5
         
         button.configuration?.image = UIImage(systemName: "applelogo")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.configuration?.imagePadding = 15
         
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseForegroundColor = .black
         button.configuration?.cornerStyle = .capsule
         
         button.addTarget(self, action: #selector(appleLoginButtonPressed), for: .touchUpInside)
@@ -106,7 +107,7 @@ class WelcomeViewController: UIViewController {
     private lazy var loginButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
-        button.configuration?.baseBackgroundColor = .white
+        //button.configuration?.baseBackgroundColor = .white
         
         button.configuration?.baseForegroundColor = primaryColor
         
@@ -123,7 +124,7 @@ class WelcomeViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -132,8 +133,7 @@ class WelcomeViewController: UIViewController {
         let label = UILabel()
         label.text = " OR "
         label.font = .systemFont(ofSize: 12, weight: .semibold)
-        label.textColor = grayColor
-        label.backgroundColor = .white
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -143,25 +143,22 @@ class WelcomeViewController: UIViewController {
         button.setTitle("Create account", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor
-        button.setHeight(50)
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(signupButtonPressed), for: .touchUpInside)
-        
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }()
     
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.text = "Already a member?"
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         return label
     }()
+    
     
     //MARK: - Lifecycle
     
@@ -191,11 +188,11 @@ class WelcomeViewController: UIViewController {
         collectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
         
         view.addSubview(scrollView)
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
       
-        navigationController?.navigationBar.barStyle = .black
+        //navigationController?.navigationBar.barStyle = .black
         
         let stackLogin = UIStackView(arrangedSubviews: [haveAccountlabel, loginButton])
         stackLogin.translatesAutoresizingMaskIntoConstraints = false

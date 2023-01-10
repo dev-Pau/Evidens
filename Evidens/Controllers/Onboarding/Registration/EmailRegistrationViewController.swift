@@ -12,13 +12,15 @@ class EmailRegistrationViewController: UIViewController {
     private var viewModel = EmailRegistrationViewModel()
     private var whoCanJoinMenuLauncher = WhoCanJoinMenuLauncher()
     
+    private var textFieldSelected: Bool = false
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = false
         scrollView.keyboardDismissMode = .interactive
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
     
@@ -31,7 +33,7 @@ class EmailRegistrationViewController: UIViewController {
         let label = UILabel()
         label.text = "You will have to confirm this email later on."
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -106,7 +108,7 @@ class EmailRegistrationViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Create account"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = .label
     }
 
     
@@ -167,16 +169,27 @@ class EmailRegistrationViewController: UIViewController {
 extension EmailRegistrationViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemGroupedBackground
         textField.borderStyle = .roundedRect
         textField.layer.borderColor = primaryColor.cgColor
         textField.layer.borderWidth = 2.0
+        textFieldSelected = true
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.backgroundColor = lightColor
-        textField.layer.borderColor = UIColor.white.cgColor
+        textField.backgroundColor = .tertiarySystemGroupedBackground
+        textField.layer.borderColor = UIColor.systemBackground.cgColor
         textField.layer.borderWidth = 1.0
+        textFieldSelected = false
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 emailTextField.layer.borderColor = textFieldSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
+             }
+         }
     }
 }
 

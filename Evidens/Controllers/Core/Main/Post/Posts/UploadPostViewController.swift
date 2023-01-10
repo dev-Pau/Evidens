@@ -423,81 +423,121 @@ class UploadPostViewController: UIViewController {
         
         showLoadingView()
         
-        if postImages.count > 0 {
-            print("Has images")
-            let imagesToUpload = postImages.compactMap { $0 }
-
-            switch imagesToUpload.count {
-            case 1:
-                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                    // Post images saved to firebase. Upload post with images
-                    // post: postTextView, type: .plainText, privacy: privacyType, user: user
-                    PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
-                        self.dismissLoadingView()
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                            
-                        }
-                    }
-                }
-                
-            case 2:
-                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                    // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                        self.dismissLoadingView()
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                        }
-                    }
-                }
-            case 3:
-                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                    // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                        self.dismissLoadingView()
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                        }
-                    }
-                }
-            case 4:
-                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                    // Post images saved to firebase. Upload post with images
-                    PostService.uploadPost(post: postTextView, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                        self.dismissLoadingView()
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                        }
-                    }
-                }
-            default:
-                break
-            }
-        } else {
-            // Post has text only
-            PostService.uploadTextPost(post: postTextView, type: .plainText, privacy: privacyType, user: user) { error in
+        if let group = group {
+            // Group post
+            GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: .plainText, privacy: .group, postImageUrl: nil, user: user) { error in
+                self.dismiss(animated: true)
                 if let error = error {
-                    self.dismissLoadingView()
                     print("DEBUG: \(error.localizedDescription)")
+                    
                     return
                 } else {
-                    self.dismiss(animated: true)
+
+                    return
+                    
                 }
             }
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        else {
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            // No group post
+            
+            if postImages.count > 0 {
+                print("Has images")
+                let imagesToUpload = postImages.compactMap { $0 }
+
+                switch imagesToUpload.count {
+                case 1:
+                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                        // Post images saved to firebase. Upload post with images
+                        // post: postTextView, type: .plainText, privacy: privacyType, user: user
+                        PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
+                            self.dismissLoadingView()
+                            if let error = error {
+                                print("DEBUG: \(error.localizedDescription)")
+                                
+                                return
+                            } else {
+                                self.dismiss(animated: true)
+                                
+                            }
+                        }
+                    }
+                    
+                case 2:
+                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                        // Post images saved to firebase. Upload post with images
+                        PostService.uploadPost(post: postTextView, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                            self.dismissLoadingView()
+                            if let error = error {
+                                print("DEBUG: \(error.localizedDescription)")
+                                return
+                            } else {
+                                self.dismiss(animated: true)
+                            }
+                        }
+                    }
+                case 3:
+                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                        // Post images saved to firebase. Upload post with images
+                        PostService.uploadPost(post: postTextView, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                            self.dismissLoadingView()
+                            if let error = error {
+                                print("DEBUG: \(error.localizedDescription)")
+                                return
+                            } else {
+                                self.dismiss(animated: true)
+                            }
+                        }
+                    }
+                case 4:
+                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
+                        // Post images saved to firebase. Upload post with images
+                        PostService.uploadPost(post: postTextView, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                            self.dismissLoadingView()
+                            if let error = error {
+                                print("DEBUG: \(error.localizedDescription)")
+                                return
+                            } else {
+                                self.dismiss(animated: true)
+                            }
+                        }
+                    }
+                default:
+                    break
+                }
+            } else {
+                // Post has text only
+                PostService.uploadTextPost(post: postTextView, type: .plainText, privacy: privacyType, user: user) { error in
+                    if let error = error {
+                        self.dismissLoadingView()
+                        print("DEBUG: \(error.localizedDescription)")
+                        return
+                    } else {
+                        self.dismiss(animated: true)
+                    }
+                }
+            }
+            
+            
+            
         }
     }
     

@@ -25,7 +25,7 @@ class ImageRegistrationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
@@ -39,9 +39,9 @@ class ImageRegistrationViewController: UIViewController {
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(named: "user")?.withTintColor(grayColor)
+        iv.image = UIImage(named: "user")?.withTintColor(.secondaryLabel)
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .tertiarySystemGroupedBackground
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -53,7 +53,7 @@ class ImageRegistrationViewController: UIViewController {
         let label = UILabel()
         label.text = "Posting a profile photo is optional, but it helps your connections and others to recognize you."
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
         label.sizeToFit()
@@ -100,7 +100,7 @@ class ImageRegistrationViewController: UIViewController {
                                     range: textRange)
         label.attributedText = attributedText
         label.numberOfLines = 0
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleContinue)))
@@ -109,10 +109,10 @@ class ImageRegistrationViewController: UIViewController {
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
+        button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.baseForegroundColor = blackColor
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
         
@@ -146,8 +146,6 @@ class ImageRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Account details"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .black
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
@@ -228,6 +226,7 @@ class ImageRegistrationViewController: UIViewController {
                     self.progressIndicator.dismiss(animated: true)
                     //self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
                     let controller = VerificationRegistrationViewController(user: self.user)
+                    
                     let nav = UINavigationController(rootViewController: controller)
                     nav.modalPresentationStyle = .fullScreen
                     self.present(nav, animated: true)

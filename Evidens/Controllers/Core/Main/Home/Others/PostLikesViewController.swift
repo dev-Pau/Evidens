@@ -77,7 +77,8 @@ class PostLikesViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .systemBackground
+        likesTableView.backgroundColor = .systemBackground
         
     }
     
@@ -104,7 +105,7 @@ extension PostLikesViewController: UITableViewDelegate, UITableViewDataSource {
         let controller = UserProfileViewController(user: users[indexPath.row])
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem

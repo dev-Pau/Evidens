@@ -17,7 +17,7 @@ class WaitingVerificationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
@@ -29,10 +29,10 @@ class WaitingVerificationViewController: UIViewController {
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
+        button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.baseBackgroundColor = .quaternarySystemFill
+        button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
         
@@ -50,7 +50,7 @@ class WaitingVerificationViewController: UIViewController {
         let label = UILabel()
         label.text = "You just finished the registration process to join the MyEvidens community."
         label.font = .systemFont(ofSize: 19, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +61,7 @@ class WaitingVerificationViewController: UIViewController {
         let label = UILabel()
         label.text = "We are reviewing your documentation. Upon verifying your identity, we will send you an email granting you access to MyEvidens."
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +72,10 @@ class WaitingVerificationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
+        
+        #warning("Guardar tota la info de l'usuari a UserDefaults, nom, profile image si en té i l'uid així quan estigui verifiat i entri per primer cop ja tindrà totes les imatges i tot carregades.")
+        #warning("Al fer logout, fer que s'esborrin tots els user defaults.")
+        
         configureUI()
         helperBottomRegistrationMenuLauncher.delegate = self
     }

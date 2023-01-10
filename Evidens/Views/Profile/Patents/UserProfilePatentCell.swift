@@ -18,7 +18,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     private let patentTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,7 +29,7 @@ class UserProfilePatentCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -38,7 +38,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     lazy var buttonImage: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         button.configuration?.buttonSize = .mini
         button.isHidden = true
         button.isUserInteractionEnabled = false
@@ -50,7 +50,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -65,7 +65,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(patentTitleLabel, patentNumberLabel, separatorView, buttonImage)
         
         NSLayoutConstraint.activate([

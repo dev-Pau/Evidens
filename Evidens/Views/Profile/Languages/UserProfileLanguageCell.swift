@@ -19,7 +19,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -30,7 +30,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         label.textAlignment = .left
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -38,7 +38,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     lazy var buttonImage: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         button.configuration?.buttonSize = .mini
         button.isHidden = true
         button.isUserInteractionEnabled = false
@@ -50,7 +50,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -64,7 +64,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(languageTitleLabel, languageLevelLabel, buttonImage, separatorView)
         
         NSLayoutConstraint.activate([

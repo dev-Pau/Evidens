@@ -24,7 +24,7 @@ class MEUserPostView: UIView {
     lazy var usernameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.isUserInteractionEnabled = false
         return label
@@ -34,8 +34,8 @@ class MEUserPostView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = .black
-        button.configuration?.baseBackgroundColor = .white
+        button.configuration?.baseForegroundColor = .label
+        button.configuration?.baseBackgroundColor = .systemBackground
         button.configuration?.buttonSize = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -46,7 +46,7 @@ class MEUserPostView: UIView {
     var userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -58,7 +58,7 @@ class MEUserPostView: UIView {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "clock")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "clock")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         return iv
     }()
     
@@ -69,28 +69,15 @@ class MEUserPostView: UIView {
         return button
     }()
     
-    private lazy var sendButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        
-        button.configuration?.baseBackgroundColor = .white
-
-        button.configuration?.image = UIImage(named: "paperplane")?.withTintColor(grayColor)
-        return button
-    }()
-    
     let postTimeLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .semibold)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
 
-
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()

@@ -14,9 +14,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     
     weak var delegate: NotificationCellDelegate?
     
-    var viewModel: NotificationViewModel? {
-        didSet { configure() }
-    }
+    var viewModel: NotificationViewModel?
     
     private var user: User?
     
@@ -39,25 +37,13 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         label.font = UIFont.boldSystemFont(ofSize: 14)
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
-       
-        
-        return label
-    }()
-    
-    private let timeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .lightGray
-        label.textAlignment = .right
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
         return label
     }()
     
     private let postText: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
       
@@ -69,7 +55,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = grayColor
+        button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -85,9 +71,10 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleAction))
         addGestureRecognizer(tap)
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
 
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        cellContentView.backgroundColor = .systemBackground
         addSubview(cellContentView)
         
         NSLayoutConstraint.activate([
@@ -97,7 +84,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
    
-        cellContentView.addSubviews(profileImageView, timeLabel, dotsImageButton, fullNameLabel)
+        cellContentView.addSubviews(profileImageView, dotsImageButton, fullNameLabel)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -113,15 +100,6 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
-            /*
-            postText.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),
-            postText.trailingAnchor.constraint(equalTo: fullNameLabel.trailingAnchor),
-            postText.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
-            postText.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
-            */
-            timeLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor),
-            timeLabel.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            timeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
@@ -136,6 +114,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: ".  \(viewModel.notificationTimeStamp)", attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
         fullNameLabel.attributedText = attributedText
     }
@@ -186,16 +165,12 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 10))
+        
+        let height = max(autoLayoutSize.height, 65)
+        
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
-    }
-    
-    //MARK: - Helpers
-    
-    func configure() {
-        guard let viewModel = viewModel else { return }
-        timeLabel.text = viewModel.notificationTimeStamp
     }
 }
 

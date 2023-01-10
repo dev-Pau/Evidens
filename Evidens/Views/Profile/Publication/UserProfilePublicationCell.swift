@@ -19,7 +19,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 2
         //label.text = "Estudi observacional de l’efecte del COVID-19 en gent gram amb artorsi de genoll i la seva relació amb la qualitat de vida "
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -30,7 +30,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -38,7 +38,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
     lazy var buttonImage: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         button.configuration?.buttonSize = .mini
         button.isHidden = true
         button.isUserInteractionEnabled = false
@@ -51,9 +51,8 @@ class UserProfilePublicationCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 0
-        //label.text = "31/12/2020"
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -62,7 +61,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "paperclip")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "paperclip")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -71,7 +70,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         let label = UILabel()
         label.numberOfLines = 1
         label.textAlignment = .left
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -79,7 +78,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -94,7 +93,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(publicationTitleLabel, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, buttonImage, separatorView)
         
         NSLayoutConstraint.activate([

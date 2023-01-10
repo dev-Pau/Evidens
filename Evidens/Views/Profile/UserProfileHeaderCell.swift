@@ -51,13 +51,11 @@ class UserProfileHeaderCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.layer.borderWidth = 3
-        iv.layer.borderColor = UIColor.white.cgColor
-        iv.backgroundColor = lightGrayColor
-        
+        iv.layer.borderColor = UIColor.systemBackground.cgColor
+        iv.backgroundColor = .quaternarySystemFill
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapProfilePicture))
         iv.addGestureRecognizer(gesture)
         iv.isUserInteractionEnabled = true
-        
         return iv
     }()
     
@@ -66,7 +64,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 27, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -77,39 +75,22 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.textAlignment = .left
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
-        label.textColor = .black
+        label.textColor = .label
         return label
-    }()
-    
-    private let otherProfileInfoButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 20))
-        button.configuration?.baseForegroundColor = .black
-        button.configuration?.cornerStyle = .capsule
-        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
-        return button
     }()
     
     private let sendMessageButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        
-        //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        //button.configuration?.imagePadding = 15
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.baseBackgroundColor = .systemBackground
+        button.configuration?.baseForegroundColor = .label
         button.configuration?.cornerStyle = .capsule
-        
+        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeColor = .quaternarySystemFill
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Message", attributes: container)
-        
-        //button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
-        
         return button
     }()
     
@@ -117,24 +98,18 @@ class UserProfileHeaderCell: UICollectionViewCell {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
-
-        button.configuration?.baseBackgroundColor = primaryColor
-        
-        //button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        //button.configuration?.imagePadding = 15
-        button.configuration?.baseForegroundColor = .white
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.background.strokeWidth = 1
+        button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
-        
         button.addTarget(self, action: #selector(handleFollowEditProfile), for: .touchUpInside)
-        
         return button
     }()
     
     private lazy var followersLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.text = ""
         label.translatesAutoresizingMaskIntoConstraints = false
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowingFollowers)))
         label.isUserInteractionEnabled = true
@@ -149,7 +124,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         isUpdatingFollowState = false
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, followButton, sendMessageButton, followersLabel)
         
@@ -158,9 +133,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: 100),
-            
-            //editProfileButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
-            //editProfileButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -174,7 +146,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             professionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            //professionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -100),
             
             followersLabel.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 5),
             followersLabel.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
@@ -229,16 +200,32 @@ class UserProfileHeaderCell: UICollectionViewCell {
         followButton.configuration?.attributedTitle = AttributedString(viewModel.followButtonText, attributes: container)
         followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
         followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
         
         // Message
         sendMessageButton.isUserInteractionEnabled = viewModel.user.isCurrentUser ? false : true
-        sendMessageButton.isHidden = viewModel.user.isCurrentUser ? true : false
+        sendMessageButton.isHidden = viewModel.messageButtonIsHidden
         
         // Followers & Following information
         followersLabel.attributedText = viewModel.followingFollowersText
         
         //pointsMessageButton.configuration?.attributedTitle = AttributedString(viewModel.pointsMessageText, attributes: container)
     }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 sendMessageButton.configuration?.background.strokeColor = .quaternarySystemFill
+                 guard let viewModel = viewModel else { return }
+                 followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+             }
+         }
+    }
+    
     
     //MARK: - Actions
     

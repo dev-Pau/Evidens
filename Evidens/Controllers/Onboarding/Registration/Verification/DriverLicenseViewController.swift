@@ -27,7 +27,7 @@ class DriverLicenseViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
@@ -36,10 +36,10 @@ class DriverLicenseViewController: UIViewController {
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
+        button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = lightGrayColor
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.baseBackgroundColor = .quaternarySystemFill
+        button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
         
@@ -57,7 +57,7 @@ class DriverLicenseViewController: UIViewController {
         let label = UILabel()
         label.text = "Upload Driver's License Photo"
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -90,7 +90,7 @@ class DriverLicenseViewController: UIViewController {
         let label = UILabel()
         label.text = "Please make sure that the materials you provide are real, clear and correct. If not, the verification will fail and therefore slow down your verification process."
         label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +103,7 @@ class DriverLicenseViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -112,7 +112,7 @@ class DriverLicenseViewController: UIViewController {
         let label = UILabel()
         label.text = "Driver's License (Front)"
         label.font = .systemFont(ofSize: 13, weight: .medium)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -123,7 +123,7 @@ class DriverLicenseViewController: UIViewController {
         let label = UILabel()
         label.text = "Driver's License (Back)"
         label.font = .systemFont(ofSize: 13, weight: .medium)
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -136,7 +136,7 @@ class DriverLicenseViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -144,7 +144,7 @@ class DriverLicenseViewController: UIViewController {
     private let membershipCodeConditionsString: NSMutableAttributedString = {
         let aString = NSMutableAttributedString(string: "I acknowledge that I am able to provide my membership code. If not, press Next to continue.")
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: (aString.string as NSString).range(of: "I acknowledge that I am able to provide my membership code. If not, press Next to continue."))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: grayColor, range: (aString.string as NSString).range(of: "I acknowledge that I am able to provide my membership code. If not, press Next to continue."))
+        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.secondaryLabel, range: (aString.string as NSString).range(of: "I acknowledge that I am able to provide my membership code. If not, press Next to continue."))
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .semibold), range: (aString.string as NSString).range(of: "membership code"))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "membership code"))
         return aString
@@ -350,7 +350,7 @@ class DriverLicenseViewController: UIViewController {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)

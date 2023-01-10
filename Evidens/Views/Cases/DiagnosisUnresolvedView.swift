@@ -22,7 +22,7 @@ class DiagnosisUnresolvedView: UIView {
     private let diagnosisTitle: UILabel = {
         let label = UILabel()
         label.text = "You will ask MyEvidens community for their medical advice on this case"
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -32,7 +32,7 @@ class DiagnosisUnresolvedView: UIView {
     private let diagnosisSubtitle: UILabel = {
         let label = UILabel()
         label.text = "You will be able to edit the case and add a diagnosis later"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -42,14 +42,14 @@ class DiagnosisUnresolvedView: UIView {
     private lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
     private lazy var bottomSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
 
