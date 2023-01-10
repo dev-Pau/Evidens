@@ -14,17 +14,8 @@ class ExploreCasesCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "safari", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)
+        iv.image = UIImage(systemName: "safari", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
-    }()
-    
-    private let exploreLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Explore"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
-        label.font = .systemFont(ofSize: 15, weight: .medium)
-        return label
     }()
     
     override init(frame: CGRect) {
@@ -37,20 +28,16 @@ class ExploreCasesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = lightColor
+        backgroundColor = .quaternarySystemFill
         layer.cornerRadius = 3
         
-        addSubviews(exploreImageView, exploreLabel)
+        addSubviews(exploreImageView)
         
         NSLayoutConstraint.activate([
             exploreImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             exploreImageView.heightAnchor.constraint(equalToConstant: 25),
             exploreImageView.widthAnchor.constraint(equalToConstant: 25),
             exploreImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            
-            exploreLabel.centerYAnchor.constraint(equalTo: exploreImageView.centerYAnchor),
-            exploreLabel.leadingAnchor.constraint(equalTo: exploreImageView.trailingAnchor, constant: 10),
-            exploreLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
         ])
     }
 }

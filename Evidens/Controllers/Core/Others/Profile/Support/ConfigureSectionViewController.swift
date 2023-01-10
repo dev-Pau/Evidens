@@ -32,7 +32,7 @@ class ConfigureSectionViewController: UIViewController {
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         return collectionView
     }()
     
@@ -48,7 +48,7 @@ class ConfigureSectionViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         collectionView.delegate = self
@@ -75,7 +75,7 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         
         if indexPath.row == 0 {
             let controller = AddAboutViewController()

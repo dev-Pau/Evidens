@@ -82,13 +82,13 @@ class FollowersFollowingSegmentedButtonsView: UIView, CollectionViewDidScrollDel
             
             // Configure label
             label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-            label.textColor = grayColor
+            label.textColor = .secondaryLabel
             label.textAlignment = .center
             label.text = labelTitle
             // Append new label to labels array
             labels.append(label)
         }
-        labels[0].textColor = .black
+        labels[0].textColor = .label
     }
                             
     /// Configure labels into a StackView to display them
@@ -148,13 +148,13 @@ extension FollowersFollowingSegmentedButtonsView {
                         // Depending on distance of the origin.x it changes the colors accordingly
                         switch self.selectorView.frame.origin.x {
                         case 0..<(minUnit):
-                            firstLabel.textColor = .black
-                            secondLabel.textColor = grayColor
+                            firstLabel.textColor = .label
+                            secondLabel.textColor = .secondaryLabel
                             pastIndex = 0
 
                         case (minUnit)...self.frame.width:
-                            firstLabel.textColor = grayColor
-                            secondLabel.textColor = .black
+                            firstLabel.textColor = .secondaryLabel
+                            secondLabel.textColor = .label
                             pastIndex = 1
                             
                         default:

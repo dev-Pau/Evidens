@@ -28,7 +28,8 @@ class SearchResultsViewController: UIViewController {
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         //searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.backgroundColor = lightColor
+        searchBar.searchTextField.tintColor = primaryColor
         return searchBar
     }()
     
@@ -36,8 +37,7 @@ class SearchResultsViewController: UIViewController {
         let segmentedButtonsView = CustomSegmentedButtonsView()
         segmentedButtonsView.setLabelsTitles(titles: searchTopics)
         segmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
-        
-        segmentedButtonsView.backgroundColor = .white
+        segmentedButtonsView.backgroundColor = .systemBackground
         return segmentedButtonsView
     }()
     
@@ -66,7 +66,7 @@ class SearchResultsViewController: UIViewController {
     
     //MARK: - Helpers
     func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
 
         view.addSubview(segmentedButtonsView)
         segmentedButtonsView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor)
@@ -74,7 +74,7 @@ class SearchResultsViewController: UIViewController {
         
         view.addSubview(collectionView)
         collectionView.anchor(top: segmentedButtonsView.bottomAnchor, left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .systemBackground
     }
     
     func configureSearchBar() {
@@ -245,7 +245,7 @@ extension SearchResultsViewController: TopCollectionViewCellDelegate {
         
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = .black
+        backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
         
         navigationController?.pushViewController(controller, animated: true)

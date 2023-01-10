@@ -16,13 +16,14 @@ class TopPeopleHeader: UITableViewHeaderFooterView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.text = "People"
+        label.textColor = .label
         return label
     }()
 
     //MARK: - Lifecycle
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .systemBackground
         addSubview(recentSearchesLabel)
         recentSearchesLabel.centerY(inView: self, leftAnchor: leftAnchor, paddingLeft: 12)
     }

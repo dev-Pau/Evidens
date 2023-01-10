@@ -20,7 +20,7 @@ class AddPublicationViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -32,7 +32,7 @@ class AddPublicationViewController: UIViewController {
     private let publicationTitleLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +55,7 @@ class AddPublicationViewController: UIViewController {
     private let urlPublicationLabel: UILabel = {
         let label = UILabel()
         //label.text = "Publication URL *"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +78,7 @@ class AddPublicationViewController: UIViewController {
     private let publicationDateLabel: UILabel = {
         let label = UILabel()
         //label.text = "Date"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -110,7 +110,7 @@ class AddPublicationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -121,7 +121,7 @@ class AddPublicationViewController: UIViewController {
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -131,7 +131,7 @@ class AddPublicationViewController: UIViewController {
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -180,7 +180,7 @@ class AddPublicationViewController: UIViewController {
         urlPublicationLabel.attributedText = generateSuperscriptFor(text: "Publication URL")
         publicationDateLabel.attributedText = generateSuperscriptFor(text: "Date")
         
-        view.backgroundColor = .white
+        view.backgroundColor = .secondaryLabel
         view.addSubview(scrollView)
         
         scrollView.addSubviews(publicationTitleLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField)

@@ -301,7 +301,7 @@ extension MainTabController: NavigationBarViewControllerDelegate {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             
             let controller = SearchViewController()
             

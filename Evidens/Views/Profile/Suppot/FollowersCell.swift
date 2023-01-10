@@ -42,7 +42,7 @@ class FollowersCell: UICollectionViewCell {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = 74
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .systemBackground
         tableView.isScrollEnabled = false
         tableView.register(UsersFollowFollowingCell.self, forCellReuseIdentifier: followersFollowingReuseIdentifier)
         tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)

@@ -22,6 +22,7 @@ class CustomSectionCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.numberOfLines = 1
         label.text = "Configure custom sections"
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -32,7 +33,7 @@ class CustomSectionCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 0
         label.text = "Build on custom sections to your profile will  help you grow your network, get discovered easily and build more relationships"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -49,24 +50,12 @@ class CustomSectionCell: UICollectionViewCell {
         return button
     }()
     
-    /*
-    private let chevronImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-     */
-        
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -78,11 +67,13 @@ class CustomSectionCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(cellContentView)
+        
+        cellContentView.backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
             cellContentView.topAnchor.constraint(equalTo: topAnchor),

@@ -21,7 +21,7 @@ class TopPostTextCell: UITableViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -42,14 +42,14 @@ class TopPostTextCell: UITableViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2
@@ -61,7 +61,7 @@ class TopPostTextCell: UITableViewCell {
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 2
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
 
         return label
     }()

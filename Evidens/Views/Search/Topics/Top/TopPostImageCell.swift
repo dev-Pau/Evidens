@@ -22,7 +22,7 @@ class TopPostImageCell: UITableViewCell {
     private var postTextLabel: UILabel = {
         let label = UILabel()
         //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +35,7 @@ class TopPostImageCell: UITableViewCell {
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -53,7 +53,7 @@ class TopPostImageCell: UITableViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -61,7 +61,7 @@ class TopPostImageCell: UITableViewCell {
     
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2

@@ -12,7 +12,7 @@ class SeparatorCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.clipsToBounds = true
         return view
     }()

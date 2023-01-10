@@ -10,7 +10,7 @@ import UIKit
 class EmptyConversationSearchCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.numberOfLines = 0
@@ -20,7 +20,7 @@ class EmptyConversationSearchCell: UITableViewCell {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textAlignment = .center
@@ -38,7 +38,7 @@ class EmptyConversationSearchCell: UITableViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         contentView.addSubviews(titleLabel, descriptionLabel)
         

@@ -15,6 +15,7 @@ class TopCaseHeader: UITableViewHeaderFooterView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .bold)
         label.text = "Cases"
+        label.textColor = .label
         return label
     }()
     
@@ -22,7 +23,7 @@ class TopCaseHeader: UITableViewHeaderFooterView {
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .systemBackground
         addSubview(casesLabel)
         casesLabel.centerY(inView: self)
         casesLabel.anchor(left: leftAnchor, paddingLeft: 12)

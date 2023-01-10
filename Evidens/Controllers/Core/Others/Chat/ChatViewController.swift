@@ -67,9 +67,9 @@ class ChatViewController: MessagesViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(handleConversationMenu))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleConversationMenu))
         
-        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.red), attributes: .destructive) { action in
+        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemRed), attributes: .destructive) { action in
             self.deleteConversationAlert(withUserFirstName: self.user.firstName!) {
                 if let conversationId = self.conversationId {
                     self.delegate?.didDeleteConversation(withUser: self.user, withConversationId: conversationId)
@@ -78,7 +78,7 @@ class ChatViewController: MessagesViewController {
             }
         }
         
-        let markAsUnreadAction = UIAction(title: "Mark as Unread", image: UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black)) { action in
+        let markAsUnreadAction = UIAction(title: "Mark as Unread", image: UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             if let conversationId = self.conversationId {
                 DatabaseManager.shared.makeLastMessageStateToIsRead(conversationID: conversationId, isReadState: false)
             }
@@ -86,7 +86,7 @@ class ChatViewController: MessagesViewController {
         
         let menuBarButton = UIBarButtonItem(
             title: "Add",
-            image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black),
+            image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label),
             primaryAction: nil,
             menu: UIMenu(title: "", children: [deleteAction, markAsUnreadAction])
         )
@@ -113,9 +113,6 @@ class ChatViewController: MessagesViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -321,7 +318,7 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             return primaryColor
         }
         //Other recipient in conversation
-        return lightColor
+        return .quaternarySystemFill
     }
     
     func messageStyle(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageStyle {
@@ -413,6 +410,7 @@ extension ChatViewController: MessageCellDelegate {
                 self.dismissLoadingView()
                 if let data = data {
                     DispatchQueue.main.async {
+                        #warning("Trobar la manera de no fer un push normal i que directament s'obri com a home amb zoom")
                         let vc = HomeImageViewController(image: [UIImage(data: data)!], imageCount: 1, index: 0)
                         self.navigationController?.pushViewController(vc, animated: true)
                     }

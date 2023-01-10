@@ -43,7 +43,7 @@ class SearchViewController: UIViewController {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.backgroundColor = lightColor
         searchBar.searchTextField.tintColor = primaryColor
         //searchBar.setImage(UIImage(named: "magnifyingglass")?.withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)), for: .search , state: .normal)
         return searchBar
@@ -54,7 +54,7 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         DispatchQueue.main.async {
             self.fetchRecents()
         }
@@ -99,7 +99,7 @@ class SearchViewController: UIViewController {
     func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .systemBackground
         tableView.sectionHeaderTopPadding = 0
         
         tableView.register(RecentUserCell.self, forCellReuseIdentifier: reuseIdentifier)
@@ -219,23 +219,21 @@ extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 1 {
             
-                // Press on recent text cell
+            // Press on recent text cell
             
             // When we have full text Search this is the good approach
-                let controller = SearchResultsViewController()
-                controller.searchedText = recentSearchedText[indexPath.row]
-                
-                let backItem = UIBarButtonItem()
-                backItem.title = ""
-                navigationItem.backBarButtonItem = backItem
-
-                navigationController?.pushViewController(controller, animated: true)
+            let controller = SearchResultsViewController()
+            controller.searchedText = recentSearchedText[indexPath.row]
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
             
             fetchRecents()
-            
-            
-            
-            
+
         }
         //let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         //Navigate to profile controller of the selected user
@@ -260,6 +258,7 @@ extension SearchViewController: UISearchBarDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
 
         navigationController?.pushViewController(controller, animated: true)
@@ -285,6 +284,7 @@ extension SearchViewController: RecentUserCellDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         let controller = UserProfileViewController(user: user)

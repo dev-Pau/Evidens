@@ -66,12 +66,12 @@ struct ConversationViewModel {
     
     func messageToDisplay() -> NSAttributedString {
         if !isMessageRead {
-            let attributedString = NSMutableAttributedString(string: latestMessageText, attributes: [.font: UIFont.boldSystemFont(ofSize: 15), .foregroundColor: UIColor.black])
-            attributedString.append(NSAttributedString(string: " · " + timestampString!, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: grayColor]))
+            let attributedString = NSMutableAttributedString(string: latestMessageText, attributes: [.font: UIFont.boldSystemFont(ofSize: 15), .foregroundColor: UIColor.label])
+            attributedString.append(NSAttributedString(string: " · " + timestampString!, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel]))
             return attributedString
         } else {
-            let attributedString = NSMutableAttributedString(string: latestMessageText, attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: grayColor])
-            attributedString.append(NSAttributedString(string: " · " + timestampString!, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: grayColor]))
+            let attributedString = NSMutableAttributedString(string: latestMessageText, attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: UIColor.secondaryLabel])
+            attributedString.append(NSAttributedString(string: " · " + timestampString!, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel]))
             return attributedString
         }
     }

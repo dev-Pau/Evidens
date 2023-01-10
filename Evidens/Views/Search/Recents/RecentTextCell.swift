@@ -22,13 +22,14 @@ class RecentTextCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14, weight: .heavy)
         label.numberOfLines = 1
+        label.textColor = .label
         return label
     }()
     
     private lazy var goToTextButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "arrow.up.left"), for: .normal)
-        button.tintColor = blackColor
+        button.tintColor = .label
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         //button.addTarget(self, action: #selector(didTapRecentText), for: .touchUpInside)
@@ -38,8 +39,8 @@ class RecentTextCell: UITableViewCell {
     //MARK: - Lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = .white
-        contentView.backgroundColor = .white
+        backgroundColor = .systemBackground
+        contentView.backgroundColor = .systemBackground
 
         contentView.addSubviews(goToTextButton, recentSearchedTextLabel)
         NSLayoutConstraint.activate([

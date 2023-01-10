@@ -39,7 +39,7 @@ class PostsCollectionViewCell: UICollectionViewCell {
         
         tableView.estimatedRowHeight = 74
         tableView.rowHeight = UITableView.automaticDimension
-        
+        tableView.backgroundColor = .systemBackground
         tableView.register(TopPostHeader.self, forHeaderFooterViewReuseIdentifier: topPostHeaderReuseIdentifier)
         tableView.register(TopPostTextCell.self, forCellReuseIdentifier: topPostTextCellReuseIdentifier)
         tableView.register(TopPostImageCell.self, forCellReuseIdentifier: topPostImageCellReuseIdentifier)

@@ -21,7 +21,7 @@ class UserCollectionViewCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -30,9 +30,9 @@ class UserCollectionViewCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.numberOfLines = 2
         label.textAlignment = .center
+        label.textColor = .label
         label.layer.contentsGravity = .center
         label.setHeight(40)
-        label.text = "Dummy"
         return label
     }()
     
@@ -40,7 +40,7 @@ class UserCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubview(profileImageView)
         profileImageView.setDimensions(height: 40, width: 40)
         profileImageView.layer.cornerRadius = 40/2

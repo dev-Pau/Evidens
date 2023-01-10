@@ -27,7 +27,7 @@ class AddLanguageViewController: UIViewController {
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -38,7 +38,7 @@ class AddLanguageViewController: UIViewController {
     
     private let languageLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +63,7 @@ class AddLanguageViewController: UIViewController {
     private lazy var languageProficiencyLabel: UILabel = {
         let label = UILabel()
         label.text = "Proficiency *"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +102,7 @@ class AddLanguageViewController: UIViewController {
         languageLabel.attributedText = generateSuperscriptFor(text: "Language")
         languageProficiencyLabel.attributedText = generateSuperscriptFor(text: "Proficiency")
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
         scrollView.addSubviews(languageLabel, languageTextField, languageProficiencyLabel, languageProficiencyTextField)
@@ -215,7 +215,7 @@ extension AddLanguageViewController: UITextFieldDelegate {
         let controller = SupportSectionViewController(collectionViewLayout: layout)
         controller.delegate = self
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
         

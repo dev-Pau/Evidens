@@ -90,13 +90,13 @@ class CustomSegmentedButtonsView: UIView, CollectionViewDidScrollDelegate {
             
             // Configure label
             label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-            label.textColor = grayColor
+            label.textColor = .secondaryLabel
             label.textAlignment = .center
             label.text = labelTitle
             // Append new label to labels array
             labels.append(label)
         }
-        labels[0].textColor = .black
+        labels[0].textColor = .label
     }
                             
     /// Configure labels into a StackView to display them
@@ -155,31 +155,31 @@ extension CustomSegmentedButtonsView {
                         // Depending on distance of the origin.x it changes the colors accordingly
                         switch self.selectorView.frame.origin.x {
                         case 0..<(minUnit):
-                            firstLabel.textColor = .black
-                            secondLabel.textColor = grayColor
-                            thirdLabel.textColor = grayColor
-                            fourLabel.textColor = grayColor
+                            firstLabel.textColor = .label
+                            secondLabel.textColor = .secondaryLabel
+                            thirdLabel.textColor = .secondaryLabel
+                            fourLabel.textColor = .secondaryLabel
                             pastIndex = 0
                             
                         case (minUnit)..<(minUnit * 2):
-                            firstLabel.textColor = grayColor
-                            secondLabel.textColor = .black
-                            thirdLabel.textColor = grayColor
-                            fourLabel.textColor = grayColor
+                            firstLabel.textColor = .secondaryLabel
+                            secondLabel.textColor = .label
+                            thirdLabel.textColor = .secondaryLabel
+                            fourLabel.textColor = .secondaryLabel
                             pastIndex = 1
                             
                         case (minUnit * 2)..<(minUnit * 3):
-                            firstLabel.textColor = grayColor
-                            secondLabel.textColor = grayColor
-                            thirdLabel.textColor = .black
-                            fourLabel.textColor = grayColor
+                            firstLabel.textColor = .secondaryLabel
+                            secondLabel.textColor = .secondaryLabel
+                            thirdLabel.textColor = .label
+                            fourLabel.textColor = .secondaryLabel
                             pastIndex = 2
                             
                         case (minUnit * 3)...self.frame.width:
-                            firstLabel.textColor = grayColor
-                            secondLabel.textColor = grayColor
-                            thirdLabel.textColor = grayColor
-                            fourLabel.textColor = .black
+                            firstLabel.textColor = .secondaryLabel
+                            secondLabel.textColor = .secondaryLabel
+                            thirdLabel.textColor = .secondaryLabel
+                            fourLabel.textColor = .label
                             pastIndex = 3
                             
                         default:

@@ -43,13 +43,13 @@ class METextField: UITextField {
         
         leftViewMode = .always
         borderStyle = .roundedRect
-        textColor = .black
-        keyboardAppearance = .light
+        textColor = .label
+        keyboardAppearance = .default
         keyboardType = .default
         autocorrectionType = .no
-        backgroundColor = lightColor
+        backgroundColor = .quaternarySystemFill
         layer.cornerRadius = 5
-        layer.borderColor = UIColor.white.cgColor
+        layer.borderColor = UIColor.systemBackground.cgColor
         layer.borderWidth = 1.0
         attributedPlaceholder = attrPlaceholder
         //ttributedPlaceholder = NSAttributedString(string: attributedPlaceholder, attributes: [.foregroundColor: UIColor(white: 0.2, alpha: 0.7)])

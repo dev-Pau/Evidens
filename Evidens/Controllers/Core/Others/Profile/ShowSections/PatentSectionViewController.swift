@@ -50,6 +50,8 @@ class PatentSectionViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         collectionView.register(UserProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
+        collectionView.backgroundColor = .systemBackground
+        view.backgroundColor = .systemBackground
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -80,7 +82,7 @@ extension PatentSectionViewController: UserProfilePatentCellDelegate {
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         controller.configureWithPublication(patentTitle: patentTitle, patentNumber: patentNumber, patentDescription: patentDescription)

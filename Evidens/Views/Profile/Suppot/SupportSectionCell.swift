@@ -17,6 +17,7 @@ class SupportSectionCell: UICollectionViewCell {
 
     let typeTitle: UILabel = {
         let label = UILabel()
+        label.textColor = .label
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -33,14 +34,14 @@ class SupportSectionCell: UICollectionViewCell {
     
     private var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private var cellContentView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -55,6 +56,7 @@ class SupportSectionCell: UICollectionViewCell {
     }
     
     private func configure() {
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -69,7 +71,7 @@ class SupportSectionCell: UICollectionViewCell {
         
         
         cellContentView.addSubviews(typeTitle, selectedOptionButton, separatorView)
-        cellContentView.backgroundColor = .systemCyan
+        cellContentView.backgroundColor = .systemBackground
         NSLayoutConstraint.activate([
             
             selectedOptionButton.centerYAnchor.constraint(equalTo: cellContentView.centerYAnchor),

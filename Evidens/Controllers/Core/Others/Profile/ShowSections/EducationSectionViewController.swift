@@ -50,6 +50,8 @@ class EducationSectionViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         collectionView.register(UserProfileEducationCell.self, forCellWithReuseIdentifier: educationCellReuseIdentifier)
+        collectionView.backgroundColor = .systemBackground
+        view.backgroundColor = .systemBackground
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -79,7 +81,7 @@ extension EducationSectionViewController: UserProfileEducationCellDelegate {
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         controller.configureWithPublication(school: educationSchool, degree: educationDegree, field: educationField, startDate: educationStartDate, endDate: educationEndDate)

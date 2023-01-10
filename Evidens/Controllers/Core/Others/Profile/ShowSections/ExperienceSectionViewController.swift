@@ -51,6 +51,8 @@ class ExperienceSectionViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         collectionView.register(UserProfileExperienceCell.self, forCellWithReuseIdentifier: experienceCellReuseIdentifier)
+        collectionView.backgroundColor = .systemBackground
+        view.backgroundColor = .systemBackground
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -80,7 +82,7 @@ extension ExperienceSectionViewController: UserProfileExperienceCellDelegate {
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         controller.configureWithProfession(company: company, role: role, startDate: startDate, endDate: endDate)

@@ -76,9 +76,9 @@ class EditProfileViewController: UICollectionViewController {
     private func configureNavigationBar() {
         let leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem = leftBarButtonItem
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
         
-        let rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDone))
+        let rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
@@ -90,6 +90,7 @@ class EditProfileViewController: UICollectionViewController {
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.showsVerticalScrollIndicator = false
+        collectionView.backgroundColor = .systemBackground
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: profilePictureReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: nameCellReuseIdentifier)
         collectionView.register(EditCategoryCell.self, forCellWithReuseIdentifier: categoryCellReuseIdentifier)
@@ -99,7 +100,7 @@ class EditProfileViewController: UICollectionViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         //delegate?.fetchNewUserValues(withUid: user.uid!)
     }
     
@@ -299,7 +300,7 @@ extension EditProfileViewController: CustomSectionCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         
         navigationController?.pushViewController(controller, animated: true)
     }

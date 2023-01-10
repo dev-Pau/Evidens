@@ -26,7 +26,7 @@ class ConversationViewController: UIViewController {
     
     private let tableView: UITableView = {
         let table = UITableView()
-        table.separatorStyle = .none
+        table.separatorStyle = .singleLine
         table.isHidden = true
         table.keyboardDismissMode = .onDrag
         table.register(ChatCell.self,
@@ -39,7 +39,7 @@ class ConversationViewController: UIViewController {
         let atrString = NSAttributedString(string: "Search conversations", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.backgroundColor = lightColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -66,12 +66,12 @@ class ConversationViewController: UIViewController {
         navigationItem.titleView = searchBarContainer
         searchBar.delegate = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(didTapComposeButton))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
     
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""
-        backButton.tintColor = .black
+        backButton.tintColor = .label
         navigationItem.leftBarButtonItem = backButton
         
         configureUI()
@@ -89,7 +89,7 @@ class ConversationViewController: UIViewController {
     //MARK: - Helpers
     
     func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(tableView)
         view.addSubview(emptyConversationsLabel)
     }
@@ -195,6 +195,13 @@ class ConversationViewController: UIViewController {
                 controller.isNewConversation = false
                 controller.delegate = self
                 controller.title = name
+                
+                let backItem = UIBarButtonItem()
+                backItem.tintColor = .label
+                backItem.title = ""
+                
+                strongSelf.navigationItem.backBarButtonItem = backItem
+                
                 controller.navigationItem.largeTitleDisplayMode = .never
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
                 
@@ -206,6 +213,12 @@ class ConversationViewController: UIViewController {
                 controller.isNewConversation = true
                 controller.title = name
                 controller.navigationItem.largeTitleDisplayMode = .never
+                let backItem = UIBarButtonItem()
+                backItem.tintColor = .label
+                backItem.title = ""
+                
+                strongSelf.navigationItem.backBarButtonItem = backItem
+                
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
             }
         }
@@ -265,7 +278,7 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
 
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
@@ -333,7 +346,7 @@ extension ConversationViewController: UISearchBarDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         
         let controller = SearchConversationViewController(users: users)
         controller.delegate = self

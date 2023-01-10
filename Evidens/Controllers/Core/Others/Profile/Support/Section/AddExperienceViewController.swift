@@ -24,7 +24,7 @@ class AddExperienceViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -36,7 +36,7 @@ class AddExperienceViewController: UIViewController {
     private let roleLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +59,7 @@ class AddExperienceViewController: UIViewController {
     private let companyLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -96,13 +96,13 @@ class AddExperienceViewController: UIViewController {
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.text = "Currently working in this role"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
     private let startDateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -111,7 +111,7 @@ class AddExperienceViewController: UIViewController {
     
     private let endDateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -146,14 +146,14 @@ class AddExperienceViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let bottomSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -218,7 +218,7 @@ class AddExperienceViewController: UIViewController {
         startDateLabel.attributedText = generateSuperscriptFor(text: "Start date")
         endDateLabel.attributedText = generateSuperscriptFor(text: "End date")
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
         scrollView.addSubviews(roleLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)

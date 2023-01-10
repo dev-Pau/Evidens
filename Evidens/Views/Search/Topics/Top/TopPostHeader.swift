@@ -12,6 +12,7 @@ class TopPostHeader: UITableViewHeaderFooterView {
     private let postLabel: UILabel = {
        let label = UILabel()
         label.text = "Posts"
+        label.textColor = .label
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
@@ -20,7 +21,7 @@ class TopPostHeader: UITableViewHeaderFooterView {
     //MARK: - Lifecycle
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .systemBackground
         addSubview(postLabel)
         postLabel.centerY(inView: self, leftAnchor: leftAnchor, paddingLeft: 12)
     }

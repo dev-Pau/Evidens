@@ -25,7 +25,7 @@ class AddEducationViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -36,7 +36,7 @@ class AddEducationViewController: UIViewController {
     
     private let schoolLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +59,7 @@ class AddEducationViewController: UIViewController {
     private let degreeTypeLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -81,7 +81,7 @@ class AddEducationViewController: UIViewController {
     
     private let fieldOfStudyLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -117,13 +117,13 @@ class AddEducationViewController: UIViewController {
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.text = "Currently studying this degree type"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
     private let startDateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -132,7 +132,7 @@ class AddEducationViewController: UIViewController {
     
     private let endDateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -169,14 +169,14 @@ class AddEducationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let bottomSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -242,7 +242,7 @@ class AddEducationViewController: UIViewController {
         startDateLabel.attributedText = generateSuperscriptFor(text: "Start date")
         endDateLabel.attributedText = generateSuperscriptFor(text: "End date")
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
         scrollView.addSubviews(schoolLabel, schoolTextField, degreeTypeLabel, degreeTypeTextField, fieldOfStudyLabel, fieldOfStudyTextField, squareButton, educationConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
@@ -442,10 +442,7 @@ class AddEducationViewController: UIViewController {
         previousDegree = degree
         previousSchool = school
         previousField = field
-        
-        print(startDate)
-        print(endDate)
-        
+
         schoolTextField.text = school
         degreeTypeTextField.text = degree
         fieldOfStudyTextField.text = field

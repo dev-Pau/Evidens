@@ -46,7 +46,7 @@ class FilterCasesCell: UICollectionViewCell {
         layer.cornerRadius = 15
         layer.borderWidth = 1
         layer.borderColor = lightGrayColor.cgColor
-        backgroundColor = lightColor
+        backgroundColor = .quaternarySystemFill
         
         addSubviews(tagsLabel)
         

@@ -39,7 +39,7 @@ class PeopleCollectionViewCell: UICollectionViewCell {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = 74
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .systemBackground
         tableView.register(TopPeopleHeader.self, forHeaderFooterViewReuseIdentifier: topPeopleHeaderReuseIdentifier)
         tableView.register(TopPeopleCell.self, forCellReuseIdentifier: topPeopleCellReuseIdentifier)
         tableView.register(EmptyContentCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)

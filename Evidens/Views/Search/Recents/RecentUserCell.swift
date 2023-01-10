@@ -27,6 +27,7 @@ class RecentUserCell: UITableViewCell {
         let collectionView = UICollectionView(frame: CGRect(), collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.backgroundColor = .systemBackground
         collectionView.isUserInteractionEnabled = true
         collectionView.register(UserCollectionViewCell.self, forCellWithReuseIdentifier: identifier)
         collectionView.showsHorizontalScrollIndicator = false
@@ -37,7 +38,7 @@ class RecentUserCell: UITableViewCell {
         let label = UILabel()
         label.text = "Your recent user searches will appear here"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         //label.isHidden = true
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 15, weight: .medium)
@@ -49,8 +50,8 @@ class RecentUserCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         fetchUsers()
-        backgroundColor = .white
-        contentView.backgroundColor = .white
+        backgroundColor = .systemBackground
+        contentView.backgroundColor = .systemBackground
         contentView.addSubviews(collectionView, noRecentUsersLabel)
         
         NSLayoutConstraint.activate([

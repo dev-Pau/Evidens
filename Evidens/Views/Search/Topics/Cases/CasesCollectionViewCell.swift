@@ -40,7 +40,7 @@ class CasesCollectionViewCell: UICollectionViewCell {
         
         tableView.estimatedRowHeight = 74
         tableView.rowHeight = UITableView.automaticDimension
-        
+        tableView.backgroundColor = .systemBackground
         tableView.register(TopCaseHeader.self, forHeaderFooterViewReuseIdentifier: topCaseHeaderReuseIdentifier)
         tableView.register(TopCaseImageCell.self, forCellReuseIdentifier: topCaseImageCellReuseIdentifier)
         tableView.register(TopCaseTextCell.self, forCellReuseIdentifier: topCaseTextCellReuseIdentifier)

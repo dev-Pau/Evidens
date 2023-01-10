@@ -31,6 +31,7 @@ class ChatCell: UITableViewCell {
     
     private let usernameLabel: UILabel = {
         let label = UILabel()
+        label.textColor = .label
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -40,7 +41,7 @@ class ChatCell: UITableViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.numberOfLines = 2
         return label
     }()
@@ -49,7 +50,7 @@ class ChatCell: UITableViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.textAlignment = .right
         label.numberOfLines = 0
         return label
@@ -64,18 +65,11 @@ class ChatCell: UITableViewCell {
         return iv
     }()
     
-    private let bottomSeparatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = lightGrayColor
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     //MARK: - Lifecycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel, messageUnreadImage, bottomSeparatorView)
+        contentView.addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel, messageUnreadImage)
     }
     
     required init?(coder: NSCoder) {
@@ -106,12 +100,6 @@ class ChatCell: UITableViewCell {
             messageUnreadImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             messageUnreadImage.widthAnchor.constraint(equalToConstant: 10),
             messageUnreadImage.heightAnchor.constraint(equalToConstant: 10),
-            
-            bottomSeparatorView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            bottomSeparatorView.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
-            bottomSeparatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1)
-            
         ])
     }
 

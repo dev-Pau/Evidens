@@ -24,7 +24,7 @@ class NewConversationViewController: UIViewController {
         let atrString = NSAttributedString(string: "Start a new conversation", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
         searchBar.searchTextField.tintColor = primaryColor
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.backgroundColor = lightColor
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -42,7 +42,7 @@ class NewConversationViewController: UIViewController {
         label.isHidden = true
         label.text = "No results"
         label.textAlignment = .center
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 21, weight: .medium)
         return label
     }()
@@ -59,7 +59,7 @@ class NewConversationViewController: UIViewController {
         
         searchBar.delegate = self
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
 
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)

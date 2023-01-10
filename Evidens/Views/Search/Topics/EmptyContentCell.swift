@@ -11,7 +11,7 @@ class EmptyContentCell: UITableViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.numberOfLines = 0
@@ -21,7 +21,8 @@ class EmptyContentCell: UITableViewCell {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .quaternarySystemFill
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textAlignment = .center
@@ -39,7 +40,7 @@ class EmptyContentCell: UITableViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         contentView.addSubviews(titleLabel, descriptionLabel)
         

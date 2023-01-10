@@ -13,7 +13,7 @@ class AboutSectionViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -27,7 +27,7 @@ class AboutSectionViewController: UIViewController {
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -47,7 +47,7 @@ class AboutSectionViewController: UIViewController {
 
     private func configureUI() {
 
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
         scrollView.addSubviews(infoLabel)

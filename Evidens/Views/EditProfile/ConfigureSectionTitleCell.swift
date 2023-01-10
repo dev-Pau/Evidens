@@ -15,7 +15,7 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -24,7 +24,7 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         return iv
     }()
     
@@ -39,9 +39,10 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
+        cellContentView.backgroundColor = .systemBackground
         NSLayoutConstraint.activate([
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),

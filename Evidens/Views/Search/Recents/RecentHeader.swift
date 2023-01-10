@@ -20,6 +20,7 @@ class RecentHeader: UITableViewHeaderFooterView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .bold)
         label.text = "Recent searches"
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -27,9 +28,9 @@ class RecentHeader: UITableViewHeaderFooterView {
     private lazy var clearButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
-        button.configuration?.baseBackgroundColor = .white
+        button.configuration?.baseBackgroundColor = .systemBackground
         
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.baseForegroundColor = .label
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
@@ -42,7 +43,7 @@ class RecentHeader: UITableViewHeaderFooterView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .systemBackground
         
         addSubview(recentSearchesLabel)
         recentSearchesLabel.centerY(inView: self, leftAnchor: leftAnchor, paddingLeft: 12)

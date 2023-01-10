@@ -28,6 +28,7 @@ class SupportSectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.bounces = true
+        collectionView.backgroundColor = .systemBackground
         collectionView.alwaysBounceVertical = true
         collectionView.register(SupportSectionCell.self, forCellWithReuseIdentifier: supportSectionCellReuseIdentifier)
     }

@@ -97,7 +97,7 @@ class MENavigationBarChatView: UIView {
         label.textAlignment = .left
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -106,7 +106,7 @@ class MENavigationBarChatView: UIView {
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv

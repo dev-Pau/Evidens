@@ -36,7 +36,7 @@ class SearchConversationViewController: UIViewController {
         let searchBar = UISearchBar()
         let atrString = NSAttributedString(string: "Search conversations", attributes: [.font: UIFont.systemFont(ofSize: 15)])
         searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.backgroundColor = lightColor
+        //searchBar.searchTextField.backgroundColor = lightColor
         searchBar.searchTextField.tintColor = primaryColor
         return searchBar
     }()
@@ -45,7 +45,7 @@ class SearchConversationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
     
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -80,7 +80,7 @@ class SearchConversationViewController: UIViewController {
     func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .systemBackground
         tableView.sectionHeaderTopPadding = 0
         
         tableView.register(EmptyConversationSearchCell.self, forCellReuseIdentifier: emptyContentCellReuseIdentifier)

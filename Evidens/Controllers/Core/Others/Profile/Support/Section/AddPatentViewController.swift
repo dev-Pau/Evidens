@@ -20,7 +20,7 @@ class AddPatentViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -32,7 +32,7 @@ class AddPatentViewController: UIViewController {
     private let patentTitleLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +55,7 @@ class AddPatentViewController: UIViewController {
     private let patentNumberLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -77,7 +77,7 @@ class AddPatentViewController: UIViewController {
 
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -88,7 +88,7 @@ class AddPatentViewController: UIViewController {
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -98,7 +98,7 @@ class AddPatentViewController: UIViewController {
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -131,7 +131,7 @@ class AddPatentViewController: UIViewController {
         patentTitleLabel.attributedText = generateSuperscriptFor(text: "Patent title")
         patentNumberLabel.attributedText = generateSuperscriptFor(text: "Patent number")
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
         scrollView.addSubviews(patentTitleLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel)

@@ -54,6 +54,8 @@ class LanguageSectionViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         collectionView.register(UserProfileLanguageCell.self, forCellWithReuseIdentifier: languageCellReuseIdentifier)
+        collectionView.backgroundColor = .systemBackground
+        view.backgroundColor = .systemBackground
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -83,7 +85,7 @@ extension LanguageSectionViewController: UserProfileLanguageCellDelegate {
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            backItem.tintColor = .black
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
             controller.configureWithLanguage(languageName: languageName, languageProficiency: languageProficiency)

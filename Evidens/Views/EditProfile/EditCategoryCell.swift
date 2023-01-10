@@ -15,6 +15,7 @@ class EditCategoryCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.numberOfLines = 1
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -39,12 +40,10 @@ class EditCategoryCell: UICollectionViewCell {
         
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -56,9 +55,11 @@ class EditCategoryCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        cellContentView.backgroundColor = .systemBackground
         
         addSubview(cellContentView)
         
@@ -109,7 +110,7 @@ class EditCategoryCell: UICollectionViewCell {
     func set(title: String, subtitle: String, image: String) {
         titleLabel.text = title
         subtitleLabel.text = subtitle
-        chevronImageView.image = UIImage(systemName: image)?.withRenderingMode(.alwaysOriginal).withTintColor(lightGrayColor)
+        chevronImageView.image = UIImage(systemName: image)?.withRenderingMode(.alwaysOriginal).withTintColor(.quaternarySystemFill)
     }
 }
 

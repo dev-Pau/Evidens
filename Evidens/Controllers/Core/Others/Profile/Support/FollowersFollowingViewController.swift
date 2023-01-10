@@ -23,8 +23,7 @@ class FollowersFollowingViewController: UIViewController {
         let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
         segmentedButtonsView.setLabelsTitles(titles: topics)
         segmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
-        
-        segmentedButtonsView.backgroundColor = .white
+        segmentedButtonsView.backgroundColor = .systemBackground
         return segmentedButtonsView
     }()
     
@@ -36,7 +35,7 @@ class FollowersFollowingViewController: UIViewController {
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
         collectionView.isPagingEnabled = true
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .systemBackground
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.showsHorizontalScrollIndicator = false
         return collectionView
@@ -127,7 +126,7 @@ extension FollowersFollowingViewController: FollowingFollowerCellDelegate {
         let controller = UserProfileViewController(user: user)
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem
@@ -140,6 +139,7 @@ extension FollowersFollowingViewController: FollowingFollowerCellDelegate {
 
 extension FollowersFollowingViewController: SegmentedControlDelegate {
     func indexDidChange(from currentIndex: Int, to index: Int) {
+        if currentIndex == index { return }
         let collectionBounds = self.collectionView.bounds
         // Switch based on the current index of the CustomSegmentedButtonsView
         switch currentIndex {

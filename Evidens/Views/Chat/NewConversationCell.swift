@@ -15,7 +15,7 @@ class NewConversationCell: UITableViewCell {
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -24,7 +24,7 @@ class NewConversationCell: UITableViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
-
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
@@ -32,7 +32,7 @@ class NewConversationCell: UITableViewCell {
     
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2
@@ -54,6 +54,7 @@ class NewConversationCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),

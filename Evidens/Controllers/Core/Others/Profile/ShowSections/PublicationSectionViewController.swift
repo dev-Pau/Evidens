@@ -50,6 +50,8 @@ class PublicationSectionViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         collectionView.register(UserProfilePublicationCell.self, forCellWithReuseIdentifier: publicationCellReuseIdentifier)
+        collectionView.backgroundColor = .systemBackground
+        view.backgroundColor = .systemBackground
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -79,7 +81,7 @@ extension PublicationSectionViewController: UserProfilePublicationCellDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         controller.configureWithPublication(publicationTitle: publicationTitle, publicationUrl: publicationUrl, publicationDate: publicationDate)

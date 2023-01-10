@@ -33,7 +33,7 @@ class UsersFollowFollowingCell: UITableViewCell {
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -45,13 +45,14 @@ class UsersFollowFollowingCell: UITableViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
+        label.textColor = .label
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
     
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -66,8 +67,9 @@ class UsersFollowFollowingCell: UITableViewCell {
 
         button.configuration?.baseBackgroundColor = primaryColor
         
-        button.configuration?.baseForegroundColor = .white
+        button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
+        button.configuration?.background.strokeWidth = 1
         
         button.addTarget(self, action: #selector(handleFollowUnfollow), for: .touchUpInside)
         
@@ -84,6 +86,7 @@ class UsersFollowFollowingCell: UITableViewCell {
         isUpdatingFollowState = false
         
         contentView.heightAnchor.constraint(equalToConstant: 65).isActive = true
+        backgroundColor = .systemBackground
         
         contentView.addSubviews(followButton, profileImageView, nameLabel, userCategoryLabel)
         NSLayoutConstraint.activate([
@@ -142,7 +145,9 @@ class UsersFollowFollowingCell: UITableViewCell {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
         followButton.configuration?.attributedTitle = AttributedString(titleString, attributes: container)
-        followButton.configuration?.baseBackgroundColor = userIsFollowing ? lightGrayColor : primaryColor
+        followButton.configuration?.baseBackgroundColor = userIsFollowing ? .secondarySystemGroupedBackground : .label
+        followButton.configuration?.baseForegroundColor = userIsFollowing ? .label : .systemBackground
+        followButton.configuration?.background.strokeColor = userIsFollowing ? .quaternarySystemFill : .label
     }
     
     @objc func handleFollowUnfollow() {

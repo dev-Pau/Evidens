@@ -26,7 +26,7 @@ class TopPeopleCell: UITableViewCell {
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -34,6 +34,7 @@ class TopPeopleCell: UITableViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .bold)
 
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -46,14 +47,14 @@ class TopPeopleCell: UITableViewCell {
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 2
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
 
         return label
     }()
   
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2
@@ -64,7 +65,7 @@ class TopPeopleCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+        backgroundColor = .systemBackground
         contentView.heightAnchor.constraint(equalToConstant: 65).isActive = true
         
         contentView.addSubviews(profileImageView, nameLabel, userCategoryLabel)
