@@ -363,6 +363,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
+            backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
          
             if selectedCategory == 0 {

@@ -19,6 +19,8 @@ private let groupContentHeaderReuseIdentifier = "GroupContentHeaderReuseIdentifi
 
 private let groupContentDescriptionReuseIdentifier = "GroupContentDescriptionReuseIdentifier"
 
+private let emptyGroupContentCellReuseIdentifier = "EmptyGroupContentCellReuseIdentifier"
+
 protocol GroupPageViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
 }
@@ -34,6 +36,13 @@ class GroupPageViewController: UIViewController {
     
     private var adminUserRoles = [UserGroup]()
     private var adminUsers = [User]()
+    
+    private var contentIndexSelected: ContentGroup.ContentTopics = .all
+    private var content = [ContentGroup]()
+    private var posts = [Post]()
+    private var cases = [Case]()
+    
+    private var loaded: Bool = false
     
     private var memberType: Group.MemberType?
     
@@ -60,6 +69,7 @@ class GroupPageViewController: UIViewController {
             guard memberType != .pending else { return }
             // User is from group, fetch group users
             fetchGroupUsers()
+            fetchGroupContent()
         } else {
             // User comes from discover tab or might be pending. Fetch user member type.
             fetchUserMemberType()
@@ -142,6 +152,40 @@ class GroupPageViewController: UIViewController {
         }
     }
     
+    private func fetchGroupContent() {
+        // Fetch the post/cases id's ordered by timestamp
+        // For each id obtained, fetch the case or post associated
+        // Update collection view
+        DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId) { contentGroup in
+            self.content = contentGroup
+            // There's no content published in the group
+            if contentGroup.isEmpty {
+                self.loaded = true
+                return
+            }
+            
+            // If there's content, check content type and fetch accordingly
+            contentGroup.forEach { content in
+                if content.type == .post {
+                    PostService.fetchPost(withPostId: content.id) { post in
+                        
+                    }
+                } else {
+                    CaseService.fetchCase(withCaseId: content.id) { clinicalCase in
+                        
+                    }
+                }
+                
+                // Check if all content is fetched
+                if contentGroup.count == self.cases.count + self.posts.count {
+                    // loaded !!
+                    // dismiss the skeleton view
+                    // reload data
+                }
+            }
+        }
+    }
+    
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.delegate = self
@@ -162,6 +206,9 @@ class GroupPageViewController: UIViewController {
         collectionView.register(GroupAboutHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentHeaderReuseIdentifier)
         
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: groupContentDescriptionReuseIdentifier)
+        
+        // Content cells
+        collectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupContentCellReuseIdentifier)
         
         
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: groupContentCollectionViewReuseIdentifier)
@@ -251,7 +298,27 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 cell.set(body: group.description)
                 return cell
             } else {
-                #warning("Posasr posts/clinical cases, etc, en funció de quin estigui seleccionat de tab")
+                // Group posts & clinical cases content
+                switch contentIndexSelected {
+                    
+                case .all:
+                    break
+                case .cases:
+                    break
+                case .posts:
+                    break
+                }
+                 
+                if !loaded {
+                    // Skeleton
+                    
+                }
+                
+                // There's still no content in the group
+                if content.isEmpty {
+                    
+                }
+                
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCollectionViewReuseIdentifier, for: indexPath)
                 cell.backgroundColor = .red
                 return cell

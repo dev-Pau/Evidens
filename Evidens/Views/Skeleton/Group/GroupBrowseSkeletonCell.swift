@@ -31,7 +31,6 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white
         setup()
         configure()
     }
@@ -60,7 +59,7 @@ class GroupBrowseSkeletonCell: UICollectionViewCell, SkeletonLoadable {
     
     private func configure() {
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         layer.borderWidth = 1
         layer.borderColor = lightColor.cgColor

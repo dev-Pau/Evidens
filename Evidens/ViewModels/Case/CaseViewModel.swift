@@ -59,11 +59,11 @@ struct CaseViewModel {
     }
     
     var caseStageTextColor: UIColor {
-        return clinicalCase.stage.rawValue == 0 ? .systemBackground : .systemBackground
+        return clinicalCase.stage.rawValue == 0 ? .white : .systemBackground
     }
     
     var caseStageBackgroundColor: UIColor {
-        return clinicalCase.stage.rawValue == 0 ? .systemGreen : .quaternarySystemFill
+        return clinicalCase.stage.rawValue == 0 ? .systemGreen : .label
     }
     
     var caseResolvedWithDiagnosis: Bool {
@@ -177,7 +177,7 @@ struct CaseViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return clinicalCase.didLike ? pinkColor : blackColor
+        return clinicalCase.didLike ? pinkColor : .label
     }
     
     var likeButtonImage: UIImage? {

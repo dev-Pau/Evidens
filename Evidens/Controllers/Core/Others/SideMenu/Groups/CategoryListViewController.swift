@@ -117,7 +117,7 @@ class CategoryListViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
     }

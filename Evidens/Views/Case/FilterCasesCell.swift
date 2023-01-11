@@ -17,9 +17,9 @@ class FilterCasesCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            layer.borderColor = isSelected ? primaryColor.cgColor : lightGrayColor.cgColor
-            backgroundColor = isSelected ? primaryColor : lightColor
-            tagsLabel.textColor = isSelected ? .white : .black
+            layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
+            backgroundColor = isSelected ? primaryColor : .secondarySystemGroupedBackground
+            tagsLabel.textColor = isSelected ? .white : .label
         }
 
     }
@@ -28,7 +28,7 @@ class FilterCasesCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -45,8 +45,8 @@ class FilterCasesCell: UICollectionViewCell {
     private func configure() {
         layer.cornerRadius = 15
         layer.borderWidth = 1
-        layer.borderColor = lightGrayColor.cgColor
-        backgroundColor = .quaternarySystemFill
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        backgroundColor = .secondarySystemGroupedBackground
         
         addSubviews(tagsLabel)
         
@@ -56,6 +56,15 @@ class FilterCasesCell: UICollectionViewCell {
             tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
             tagsLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5)
         ])
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 layer.borderColor = UIColor.quaternarySystemFill.cgColor
+             }
+         }
     }
     
     @objc func handleImageTap() {

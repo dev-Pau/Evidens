@@ -37,6 +37,7 @@ class UploadPostViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
+        scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
     

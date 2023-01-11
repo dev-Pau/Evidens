@@ -27,7 +27,6 @@ class WelcomeViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
@@ -107,8 +106,7 @@ class WelcomeViewController: UIViewController {
     private lazy var loginButton: UIButton = {
         let button = UIButton()
         button.configuration = .plain()
-        //button.configuration?.baseBackgroundColor = .white
-        
+       
         button.configuration?.baseForegroundColor = primaryColor
         
         var container = AttributeContainer()

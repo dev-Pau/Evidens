@@ -29,7 +29,7 @@ class PostGroupSelectionViewController: UIViewController {
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = false
         return collectionView
@@ -57,7 +57,7 @@ class PostGroupSelectionViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Select a group"
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancelGroupSelection))
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleAddGroup))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
@@ -66,7 +66,7 @@ class PostGroupSelectionViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
         collectionView.delegate = self

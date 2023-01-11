@@ -20,14 +20,14 @@ class MECaseUpdateView: UIView {
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
     var diagnosisLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

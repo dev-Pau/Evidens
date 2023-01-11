@@ -281,7 +281,7 @@ class HomeImageViewController: UIViewController {
     }
     
     func updateBackgroundColor() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
     }
     
     

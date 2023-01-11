@@ -14,7 +14,7 @@ class MECaseActionButtons: UIView {
     private let bottomSeparatorLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.backgroundColor = lightGrayColor
+        label.backgroundColor = .quaternarySystemFill
         return label
     }()
     
@@ -22,7 +22,7 @@ class MECaseActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.baseForegroundColor = .label
         button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return button
     }()
@@ -32,7 +32,7 @@ class MECaseActionButtons: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         button.configuration?.image = UIImage(named: "bookmark")
-        button.configuration?.baseForegroundColor = .black
+        button.configuration?.baseForegroundColor = .label
         button.addTarget(self, action: #selector(handleBookmark), for: .touchUpInside)
         return button
     }()
@@ -48,6 +48,7 @@ class MECaseActionButtons: UIView {
     
     func configure() {
         translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = .systemBackground
 
         addSubviews(likeButton, bottomSeparatorLabel, bookmarkButton)
         

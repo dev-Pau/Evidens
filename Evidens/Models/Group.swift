@@ -146,3 +146,38 @@ struct UserGroup {
         self.timestamp = dictionary["timestamp"] as? TimeInterval ?? 0.0
     }
 }
+
+struct ContentGroup {
+    var id: String
+    var type: GroupContentType
+    var timestamp: TimeInterval
+    
+    enum GroupContentType: Int {
+        case clinicalCase = 0
+        case post = 1
+    }
+    
+    enum ContentTopics: String, CaseIterable {
+        case all = "All"
+        case cases = "Cases"
+        case posts = "Posts"
+        
+        var index: Int {
+            switch self {
+            case .all:
+                return 0
+            case .cases:
+                return 1
+            case .posts:
+                return 1
+            }
+        }
+    }
+    
+    init(dictionary: [String: Any]) {
+        self.id = dictionary["id"] as? String ?? ""
+        self.type = GroupContentType(rawValue: dictionary["type"] as? Int ?? 0) ?? .clinicalCase
+        self.timestamp = dictionary["timestamp"] as? TimeInterval ?? 0.0
+    }
+}
+

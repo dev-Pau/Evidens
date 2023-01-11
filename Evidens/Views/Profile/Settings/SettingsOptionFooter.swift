@@ -17,7 +17,7 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -26,7 +26,7 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
         let label = UILabel()
         label.text = "Log out"
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .red
+        label.textColor = .systemRed
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLogout)))
@@ -35,7 +35,7 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-
+        backgroundColor = .systemBackground
         contentView.addSubviews(separatorView, logoutLabel)
         
         NSLayoutConstraint.activate([

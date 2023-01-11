@@ -32,7 +32,7 @@ class BookmarksCaseCell: UICollectionViewCell {
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +41,7 @@ class BookmarksCaseCell: UICollectionViewCell {
     
     private let descriptionCaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +61,7 @@ class BookmarksCaseCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -79,7 +79,7 @@ class BookmarksCaseCell: UICollectionViewCell {
         userPostView.isUserInteractionEnabled = false
         
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel)
         
         NSLayoutConstraint.activate([
@@ -132,7 +132,8 @@ class BookmarksCaseCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
 
         if viewModel.caseIsAnonymous {
-            userPostView.profileImageView.image = UIImage(named: "case.privacy")
+            #warning("configiure privacy image")
+            userPostView.profileImageView.image = UIImage(named: "")
             userPostView.usernameLabel.text = "Shared anonymously"
             
         } else {

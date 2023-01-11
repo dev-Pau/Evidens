@@ -10,24 +10,7 @@ import UIKit
 private let categoriesCellReuseIdentifier = "CategoriesCellReuseIdentifier"
 
 class GroupContentSelectionHeader: UICollectionReusableView {
-    
-    enum ContentTopics: String, CaseIterable {
-        case all = "All"
-        case cases = "Cases"
-        case posts = "Posts"
-        
-        var index: Int {
-            switch self {
-            case .all:
-                return 0
-            case .cases:
-                return 1
-            case .posts:
-                return 1
-            }
-        }
-    }
-    
+
     private let categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -69,12 +52,12 @@ class GroupContentSelectionHeader: UICollectionReusableView {
 
 extension GroupContentSelectionHeader: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return ContentTopics.allCases.count
+        return ContentGroup.ContentTopics.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = categoriesCollectionView.dequeueReusableCell(withReuseIdentifier: categoriesCellReuseIdentifier, for: indexPath) as! GroupContentSelectorCell
-        cell.set(category: ContentTopics.allCases[indexPath.row].rawValue)
+        cell.set(category: ContentGroup.ContentTopics.allCases[indexPath.row].rawValue)
         return cell
     }
     

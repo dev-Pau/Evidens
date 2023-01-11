@@ -125,14 +125,14 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private func createFilterCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .fractionalHeight(1)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .absolute(30)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
-                section.orthogonalScrollingBehavior = .continuous
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-                return section
+            
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .fractionalHeight(1)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .absolute(30)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.orthogonalScrollingBehavior = .continuous
+            section.interGroupSpacing = 10
+            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+            return section
         }
         return layout
     }
@@ -142,6 +142,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         filterCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        filterCollectionView.bounces = true
+        filterCollectionView.alwaysBounceVertical = false
+        filterCollectionView.alwaysBounceHorizontal = true
         
         if displaysExploringWindow || displaysFilteredWindow {
             view.addSubviews(casesCollectionView)
@@ -384,6 +388,7 @@ extension CasesViewController: CaseCellDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)

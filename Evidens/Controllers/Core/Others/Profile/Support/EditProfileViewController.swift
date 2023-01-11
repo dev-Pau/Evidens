@@ -96,7 +96,6 @@ class EditProfileViewController: UICollectionViewController {
         collectionView.register(EditCategoryCell.self, forCellWithReuseIdentifier: categoryCellReuseIdentifier)
         collectionView.register(CustomSectionCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
 
-        //collectionView.register(EditAboutCell.self, forCellWithReuseIdentifier: aboutCellReuseIdentifier)
     }
     
     private func configureUI() {

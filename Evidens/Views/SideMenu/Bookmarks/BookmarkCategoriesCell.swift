@@ -12,7 +12,7 @@ class BookmarkCategoriesCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            categoryLabel.textColor = isSelected ? .white : grayColor
+            categoryLabel.textColor = isSelected ? .white : .secondaryLabel
             backgroundColor = isSelected ? primaryColor : UIColor.secondarySystemGroupedBackground
             layer.borderWidth = isSelected ? 0 : 1
             //layer.borderColor = isSelected ? primaryColor.cgColor : grayColor.cgColor

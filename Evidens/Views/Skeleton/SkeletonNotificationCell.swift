@@ -31,7 +31,7 @@ class SkeletonNotificationCell: UICollectionViewCell, SkeletonLoadable {
    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         setup()
         configure()
     }

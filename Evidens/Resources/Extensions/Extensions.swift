@@ -580,20 +580,20 @@ extension SkeletonLoadable {
     func makeAnimationGroup(previousGroup: CAAnimationGroup? = nil) -> CAAnimationGroup {
         let animDuration: CFTimeInterval = 0.7
         let anim1 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim1.fromValue = UIColor.gradientLightGrey.cgColor
-        anim1.toValue = UIColor.gradientDarkGrey.cgColor
+        anim1.fromValue = UIColor.quaternarySystemFill.cgColor
+        anim1.toValue = UIColor.systemFill.cgColor
         anim1.duration = animDuration
         anim1.beginTime = 0.0
 
         let anim2 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim2.fromValue = UIColor.gradientDarkGrey.cgColor
-        anim2.toValue = UIColor.gradientLightGrey.cgColor
+        anim2.fromValue = UIColor.quaternarySystemFill.cgColor
+        anim2.toValue = UIColor.systemFill.cgColor
         anim2.duration = animDuration
         anim2.beginTime = anim1.beginTime + anim1.duration
         
         let anim3 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim3.fromValue = UIColor.gradientDarkGrey.cgColor
-        anim3.toValue = UIColor.gradientLightGrey.cgColor
+        anim3.fromValue = UIColor.quaternarySystemFill.cgColor
+        anim3.toValue = UIColor.systemFill.cgColor
         anim3.duration = animDuration
         anim3.beginTime = anim2.beginTime + anim2.duration
 

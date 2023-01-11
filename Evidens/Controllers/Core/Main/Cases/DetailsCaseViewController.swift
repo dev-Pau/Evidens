@@ -45,18 +45,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
     }
 
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.backgroundColor = lightColor
-        searchBar.searchTextField.tintColor = primaryColor
-        searchBar.isHidden = true
-        searchBar.isUserInteractionEnabled = false
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
-    }()
-    
     init(clinicalCase: Case, user: User, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
         self.user = user
@@ -101,14 +89,14 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.white).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
     
 
     private func configureCollectionView() {
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
@@ -184,7 +172,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             if let comments = comments {
                 if indexPath.section == 1 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! CommentsSectionHeader
-                    cell.backgroundColor = .white
+                    cell.backgroundColor = .systemBackground
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
@@ -203,7 +191,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                         cell.set(user: ownerComments[userIndex])
                     }
 
-                    cell.backgroundColor = .white
+                    cell.backgroundColor = .systemBackground
                     return cell
                 }
             } else {
@@ -247,7 +235,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
         displayState = .others
         let backButton = UIBarButtonItem()
         backButton.title = ""
-        backButton.tintColor = .black
+        backButton.tintColor = .label
         self.navigationItem.backBarButtonItem = backButton
         displayState = .others
         self.navigationController?.pushViewController(controller, animated: true)
@@ -279,6 +267,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
@@ -292,6 +281,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
@@ -399,7 +389,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         displayState = .others
         navigationController?.pushViewController(controller, animated: true)
@@ -414,7 +404,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         self.navigationItem.backBarButtonItem = backItem
         displayState = .others
         self.navigationController?.pushViewController(controller, animated: true)
@@ -447,7 +437,7 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .clear
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         controller.controllerIsPushed = true

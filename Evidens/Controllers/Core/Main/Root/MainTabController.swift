@@ -55,7 +55,7 @@ class MainTabController: UITabBarController {
         }
          */
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         self.tabBar.isHidden = true
         
         postMenuLauncher.delegate = self
@@ -135,7 +135,7 @@ class MainTabController: UITabBarController {
     
     //Setup ViewControllers for the TabBarController
     func configureViewControllers(withUser user: User) {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         self.delegate = self
         
         let homeController = HomeViewController()

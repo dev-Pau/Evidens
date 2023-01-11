@@ -19,7 +19,7 @@ class BookmarkPostCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -39,7 +39,7 @@ class BookmarkPostCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -54,7 +54,7 @@ class BookmarkPostCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
         
         addSubviews(userPostView, postTextLabel, likesButton, likesCommentsLabel)

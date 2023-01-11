@@ -25,6 +25,7 @@ class PostGroupCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = .systemBackground
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -33,6 +34,7 @@ class PostGroupCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.backgroundColor = .label
         label.numberOfLines = 0
         return label
     }()
@@ -48,7 +50,7 @@ class PostGroupCell: UICollectionViewCell {
     private var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -62,6 +64,7 @@ class PostGroupCell: UICollectionViewCell {
     }
     
     private func configure() {
+        backgroundColor = .systemBackground
         addSubviews(groupImageView, selectionOptionButton, groupNameLabel, separatorView)
         
         NSLayoutConstraint.activate([

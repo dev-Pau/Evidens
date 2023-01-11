@@ -26,6 +26,7 @@ class CaseDiagnosisViewController: UIViewController {
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
+        iv.backgroundColor = .quaternarySystemFill
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv

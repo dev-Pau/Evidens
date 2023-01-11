@@ -27,7 +27,7 @@ class HealthDocumentationViewController: UIViewController {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
-        scrollView.backgroundColor = .white
+        scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()

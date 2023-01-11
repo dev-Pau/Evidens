@@ -88,7 +88,7 @@ class CasesFeedCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        layer.borderColor = lightGrayColor.cgColor
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
         layer.borderWidth = 1
         layer.cornerRadius = 10
         
@@ -96,7 +96,7 @@ class CasesFeedCell: UICollectionViewCell {
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         actionButtonsView.delegate = self
         
@@ -149,7 +149,6 @@ class CasesFeedCell: UICollectionViewCell {
         ])
         
         profileImageView.layer.cornerRadius = 30 / 2
-        profileImageView.contentMode = .scaleAspectFill
     }
     
     private func configure() {
@@ -159,9 +158,9 @@ class CasesFeedCell: UICollectionViewCell {
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
-        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
-        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
+        //actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
         
         titleCaseLabel.text = viewModel.caseTitle
         titleCaseLabel.numberOfLines = 4
@@ -169,7 +168,16 @@ class CasesFeedCell: UICollectionViewCell {
         
         stringUrlImages = viewModel.caseImages!
         compositionalCollectionView.reloadData()
-      
+    }
+    
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 layer.borderColor = UIColor.quaternarySystemFill.cgColor
+             }
+         }
     }
     
     func set(user: User) {
@@ -177,7 +185,8 @@ class CasesFeedCell: UICollectionViewCell {
         self.user = user
         
         if viewModel.caseIsAnonymous {
-            profileImageView.image = UIImage(named: "case.privacy")
+            #warning("We need image for anonymous")
+            profileImageView.image = UIImage(systemName: "")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         } else {
             profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }

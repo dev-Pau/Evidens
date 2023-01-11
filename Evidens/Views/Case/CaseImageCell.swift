@@ -19,8 +19,9 @@ class CaseImageCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.backgroundColor = .systemBackground
         iv.isUserInteractionEnabled = true
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         iv.clipsToBounds = true
         return iv

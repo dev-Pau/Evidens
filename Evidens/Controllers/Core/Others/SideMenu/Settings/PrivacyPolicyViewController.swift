@@ -14,12 +14,14 @@ class PrivacyPolicyViewController: UIViewController {
     
     override func loadView() {
         webView = WKWebView()
+        webView.backgroundColor = .systemBackground
         webView.navigationDelegate = self
         view = webView
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBackground
         configureNavigationBar()
         let url = URL(string: "https://developer.apple.com")!
         webView.load(URLRequest(url: url))
@@ -27,7 +29,7 @@ class PrivacyPolicyViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Privacy Policy"
-        let leftBarButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black), style: .done, target: self, action: #selector(handleDismiss))
+        let leftBarButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem = leftBarButton
     }
     

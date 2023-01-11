@@ -20,6 +20,7 @@ class AddCaseUpdateViewController: UIViewController {
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
+        iv.backgroundColor = .quaternarySystemFill
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -30,7 +31,7 @@ class AddCaseUpdateViewController: UIViewController {
         label.text = "Add an update to your case and give more information on the progress"
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -39,9 +40,9 @@ class AddCaseUpdateViewController: UIViewController {
         let tv = InputTextView()
         tv.placeholderText = "Add your update here..."
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
+        //tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
-        tv.textColor = .black
+        tv.textColor = .label
         tv.tintColor = primaryColor
         tv.layer.cornerRadius = 5
         tv.autocorrectionType = .no
@@ -53,7 +54,7 @@ class AddCaseUpdateViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -61,7 +62,7 @@ class AddCaseUpdateViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         configureNavigationBar()
         configureUI()
     }
@@ -69,7 +70,7 @@ class AddCaseUpdateViewController: UIViewController {
         title = "Add update"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Publish", style: .done, target: self, action: #selector(handleAddUpdate))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor

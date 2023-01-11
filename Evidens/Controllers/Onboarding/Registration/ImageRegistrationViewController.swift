@@ -153,7 +153,7 @@ class ImageRegistrationViewController: UIViewController {
         
         profileImageView.layer.cornerRadius = 200 / 2
 
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)
         scrollView.addSubviews(imageTextLabel, profileImageView, instructionsImageLabel, uploadPictureButton, skipLabel, continueButton)

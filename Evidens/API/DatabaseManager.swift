@@ -957,16 +957,45 @@ extension DatabaseManager {
     }
     
     public func uploadRecentPostToGroup(withGroupId groupId: String, withPostId postId: String, completion: @escaping (Bool) -> Void) {
-
-        let ref = database.child("groups").child(groupId).child("posts").child(postId).child("timestamp")
-
+        
+        let ref = database.child("groups").child(groupId).child("content").child("all").childByAutoId()
+        let groupRef = database.child("groups").child(groupId).child("content").child("posts").child(postId).child("timestamp")
+        
         let timestamp = NSDate().timeIntervalSince1970
         
-        ref.setValue(timestamp) { error, _ in
+        let data = ["id": postId,
+                    "timestamp": timestamp,
+                    "type": 1] as [String: Any]
+        
+        ref.setValue(data) { error, _ in
             if let _ = error {
                 completion(false)
             }
-            completion(true)
+            
+            groupRef.setValue(timestamp) { error, _ in
+                if let _ = error {
+                    completion(false)
+                }
+                completion(true)
+            }
+        }
+    }
+    
+    public func uploadRecentCaseToGroup(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
+        
+    }
+    
+    public func fetchAllGroupContent(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
+        var recentContent = [ContentGroup]()
+        let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        contentRef.observeSingleEvent(of: .value) { snapshot in
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                recentContent.append(ContentGroup(dictionary: value))
+                //recentComments.append(value)
+            }
+            completion(recentContent.reversed())
         }
     }
 }

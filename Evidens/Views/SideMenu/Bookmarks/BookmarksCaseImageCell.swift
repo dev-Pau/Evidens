@@ -30,7 +30,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -39,7 +39,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     
     private let descriptionCaseLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -52,7 +52,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .gray
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -69,7 +69,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -85,7 +85,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
         addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel)
         

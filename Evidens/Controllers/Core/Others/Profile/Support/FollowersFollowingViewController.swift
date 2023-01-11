@@ -69,7 +69,7 @@ class FollowersFollowingViewController: UIViewController {
         
         segmentedButtonsView.segmentedControlDelegate = self
         
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubviews(segmentedButtonsView, collectionView)
         NSLayoutConstraint.activate([
             segmentedButtonsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),

@@ -43,7 +43,7 @@ class CaseUpdatesViewController: UIViewController {
         let label = UILabel()
         label.text = "This case doesn't have any updates"
         label.textAlignment = .center
-        label.textColor = .gray
+        label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 21, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
@@ -73,17 +73,18 @@ class CaseUpdatesViewController: UIViewController {
         
         if !controllerIsPushed {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = .black
+        navigationItem.leftBarButtonItem?.tintColor = .label
         } else {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(handleAddUpdate))
-            navigationItem.rightBarButtonItem?.tintColor = .black
+            navigationItem.rightBarButtonItem?.tintColor = primaryColor
         }
     }
     
     private func configureCollectionView() {
         view.addSubview(collectionView)
+        view.backgroundColor = .systemBackground
         collectionView.frame = view.bounds
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(UpdateCaseCell.self, forCellWithReuseIdentifier: updateCaseCellReuseIdentifier)
@@ -97,7 +98,7 @@ class CaseUpdatesViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubviews(emptyUpdatesLabel)
         NSLayoutConstraint.activate([
             emptyUpdatesLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -165,11 +166,11 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: updateCaseCellReuseIdentifier, for: indexPath) as! UpdateCaseCell
         
         if hasDiagnosis {
-            cell.topSeparatorView.backgroundColor = indexPath.row == 1 ? .white : primaryColor
+            cell.topSeparatorView.backgroundColor = indexPath.row == 1 ? .systemBackground : primaryColor
             cell.bottomSeparatorView.backgroundColor = indexPath.row == clinicalCase.caseUpdates.count - 1 ? .white : primaryColor
         } else {
-            cell.topSeparatorView.backgroundColor = indexPath.row == 0 ? .white : primaryColor
-            cell.bottomSeparatorView.backgroundColor = indexPath.row == clinicalCase.caseUpdates.count - 1 || clinicalCase.caseUpdates.count == 1 ? .white : primaryColor
+            cell.topSeparatorView.backgroundColor = indexPath.row == 0 ? .systemBackground : primaryColor
+            cell.bottomSeparatorView.backgroundColor = indexPath.row == clinicalCase.caseUpdates.count - 1 || clinicalCase.caseUpdates.count == 1 ? .systemBackground : primaryColor
         }
         
         cell.updateNumberLabel.text = clinicalCase.privacyOptions == .nonVisible ? "Update \(clinicalCase.caseUpdates.count - indexPath.row) by author" : "Update \(clinicalCase.caseUpdates.count - indexPath.row) by \(user.firstName!)"

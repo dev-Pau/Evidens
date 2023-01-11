@@ -19,7 +19,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -32,7 +32,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -51,7 +51,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -66,7 +66,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
         
         let postImageViewHeightConstraint = postImage.heightAnchor.constraint(equalToConstant: 75)

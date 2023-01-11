@@ -27,7 +27,6 @@ class LoginViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.backgroundColor = .white
         scrollView.bounces = true
         scrollView.backgroundColor = .systemBackground
         scrollView.alwaysBounceVertical = true

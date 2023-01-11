@@ -12,7 +12,7 @@ class SettingsSubOptionCell: UITableViewCell {
     private let settingsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .regular)
         return label
@@ -21,7 +21,7 @@ class SettingsSubOptionCell: UITableViewCell {
     private let chevronImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(lightGrayColor)
+        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(.quaternarySystemFill)
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -29,6 +29,7 @@ class SettingsSubOptionCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .systemBackground
         contentView.addSubviews(settingsLabel, chevronImageView)
         
         NSLayoutConstraint.activate([

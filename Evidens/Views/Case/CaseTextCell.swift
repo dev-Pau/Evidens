@@ -33,7 +33,7 @@ class CaseTextCell: UICollectionViewCell {
     private lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -41,7 +41,7 @@ class CaseTextCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -91,7 +91,7 @@ class CaseTextCell: UICollectionViewCell {
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
@@ -188,9 +188,9 @@ class CaseTextCell: UICollectionViewCell {
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         
-        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
-        actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+        actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
+        //actionButtonsView.likeButton.configuration?.baseForegroundColor = viewModel.likeButtonTintColor
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
         
         titleCaseLabel.text = viewModel.caseTitle
         caseTags = viewModel.caseTags
@@ -207,8 +207,9 @@ class CaseTextCell: UICollectionViewCell {
         self.user = user
 
         if viewModel.caseIsAnonymous {
-            updateView.profileImageView.image = UIImage(named: "case.privacy")
-            userPostView.profileImageView.image = UIImage(named: "case.privacy")
+            #warning("Add anonymous images")
+            updateView.profileImageView.image = UIImage(named: "")
+            userPostView.profileImageView.image = UIImage(named: "")
             userPostView.usernameLabel.text = "Shared anonymously"
         } else {
             updateView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))

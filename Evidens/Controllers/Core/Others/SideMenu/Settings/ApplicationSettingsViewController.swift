@@ -37,7 +37,7 @@ class ApplicationSettingsViewController: UIViewController {
     }
     
     private func configureTableView() {
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .systemBackground
         view.addSubviews(tableView)
         tableView.frame = view.bounds
         tableView.separatorStyle = .none
@@ -89,7 +89,7 @@ extension ApplicationSettingsViewController: UITableViewDelegate, UITableViewDat
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         switch selectedOption {

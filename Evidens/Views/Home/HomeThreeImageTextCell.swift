@@ -72,7 +72,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     override init (frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         

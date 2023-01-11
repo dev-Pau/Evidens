@@ -95,6 +95,10 @@ class EmptyGroupCell: UICollectionViewCell {
         ])
     }
     
+    func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String) {
+        
+    }
+    
     @objc func handleDiscoverGroups() {
         delegate?.didTapDiscoverGroup()
     }

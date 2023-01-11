@@ -52,7 +52,7 @@ class GroupMembersViewController: UIViewController {
     }
     
     private func configureTableView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(tableView)
         tableView.frame = view.bounds
         tableView.delegate = self

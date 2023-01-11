@@ -12,7 +12,7 @@ class SettingsOptionCell: UITableViewCell {
     private let settingsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .regular)
         return label
@@ -29,7 +29,7 @@ class SettingsOptionCell: UITableViewCell {
     private let chevronImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(lightGrayColor)
+        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(.quaternarySystemFill)
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -37,6 +37,7 @@ class SettingsOptionCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = .systemBackground
         contentView.addSubviews(settingsImageView, settingsLabel, chevronImageView)
         
         NSLayoutConstraint.activate([
@@ -61,6 +62,6 @@ class SettingsOptionCell: UITableViewCell {
     
     func set(settingsTitle: String, settingsImage: String) {
         settingsLabel.text = settingsTitle
-        settingsImageView.image = UIImage(systemName: settingsImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.black).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        settingsImageView.image = UIImage(systemName: settingsImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
     }
 }

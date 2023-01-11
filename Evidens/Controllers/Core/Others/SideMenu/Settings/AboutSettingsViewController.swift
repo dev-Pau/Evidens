@@ -30,7 +30,7 @@ class AboutSettingsViewController: UIViewController {
     }
     
     private func configureTableView() {
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .systemBackground
         view.addSubviews(tableView)
         tableView.frame = view.bounds
         tableView.separatorStyle = .singleLine

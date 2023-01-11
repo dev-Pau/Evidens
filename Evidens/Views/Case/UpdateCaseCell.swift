@@ -14,6 +14,7 @@ class UpdateCaseCell: UICollectionViewCell {
     var updateNumberLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .medium)
         return label
     }()
@@ -22,7 +23,7 @@ class UpdateCaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "case.privacy")
+        iv.backgroundColor = .quaternarySystemFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -31,6 +32,7 @@ class UpdateCaseCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()

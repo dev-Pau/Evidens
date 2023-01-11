@@ -959,6 +959,7 @@ extension ShareClinicalCaseViewController: CaseStageViewControllerDelegate {
     }
 }
 
+/*
 extension ShareClinicalCaseViewController: CaseStageViewDelegate {
     func didTapUnresolved() {
         diagnosisView.isHidden = true
@@ -975,6 +976,7 @@ extension ShareClinicalCaseViewController: CaseStageViewDelegate {
         present(navController, animated: true)
     }
 }
+ */
 
 extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
     func handleAddDiagnosis(_ text: String) {

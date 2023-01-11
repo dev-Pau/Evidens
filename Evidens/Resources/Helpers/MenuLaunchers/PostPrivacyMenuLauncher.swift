@@ -43,7 +43,7 @@ class PostPrivacyMenuLauncher: NSObject {
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView

@@ -235,7 +235,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             if let comments = comments {
                 if indexPath.section == 1 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! CommentsSectionHeader
-                    cell.backgroundColor = .white
+                    cell.backgroundColor = .systemBackground
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
@@ -254,7 +254,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                         cell.set(user: ownerComments[userIndex])
                     }
 
-                    cell.backgroundColor = .white
+                    cell.backgroundColor = .systemBackground
                     return cell
                 }
             } else {

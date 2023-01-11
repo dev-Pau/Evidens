@@ -47,7 +47,7 @@ class UserCommentsViewController: UICollectionViewController {
     }
     
     private func configureCollectionView() {
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
     }
     
