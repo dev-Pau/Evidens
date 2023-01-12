@@ -1026,7 +1026,7 @@ extension DatabaseManager {
     public func fetchAllGroupCases(withGroupId groupId: String, completion: @escaping([String]) -> Void) {
         var postIds = [String]()
         
-        let casesRef = database.child("groups").child(groupId).child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
         casesRef.observeSingleEvent(of: .value) { snapshot in
             
             if let values = snapshot.value as? [String: Any] {

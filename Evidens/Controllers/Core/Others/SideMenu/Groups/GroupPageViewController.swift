@@ -215,7 +215,22 @@ class GroupPageViewController: UIViewController {
     }
     
     private func fetchGroupCases() {
-        
+        DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId) { caseIds in
+
+            caseIds.forEach { id in
+                CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: id) { clinicalCase in
+                    self.cases.append(clinicalCase)
+                    if caseIds.count == self.cases.count {
+                        print(self.cases)
+                        self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        self.loaded = true
+                        self.collectionView.reloadData()
+                        
+                        
+                    }
+                }
+            }
+        }
     }
     
     private func fetchGroupPosts() {
@@ -435,6 +450,10 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                         }
                         
                     }
+                    
+                    return displayClinicalCaseCell(clinicalCase: cases[indexPath.row], indexPath: indexPath, collectionView: collectionView)
+                    
+                    
                 case .posts:
                     if !loaded {
                         if indexPath.row == 1 {
@@ -617,20 +636,23 @@ extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
     func didTapContentCategory(category: ContentGroup.ContentTopics) {
         if contentIndexSelected == category { return } else {
             contentIndexSelected = category
-            loaded = false
+
+                self.loaded = false
+                self.collectionView.reloadData()
+
             
             switch category {
             case .all:
-                <#code#>
+                self.cases.removeAll()
+                self.posts.removeAll()
+                fetchGroupContent()
             case .cases:
-                <#code#>
+                self.cases.removeAll()
+                fetchGroupCases()
             case .posts:
-                <#code#>
+                self.posts.removeAll()
+                break
             }
-            
-            
-            
-            collectionView.reloadData()
         }
     }
 }
