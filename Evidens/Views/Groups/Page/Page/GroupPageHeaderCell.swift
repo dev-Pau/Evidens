@@ -114,6 +114,13 @@ class GroupPageHeaderCell: UICollectionViewCell {
         // SI ESTÀS FORA POSAR JOIN I A LL'APRETAR POSAR PENDING
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
     private lazy var groupSizeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .medium)
@@ -139,7 +146,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         membersCollectionView.delegate = self
         membersCollectionView.dataSource = self
         
-        addSubviews(groupBannerImageView, groupProfileImageView, groupNameLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel)
+        addSubviews(groupBannerImageView, groupProfileImageView, groupNameLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
         NSLayoutConstraint.activate([
             groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
             groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -174,6 +181,11 @@ class GroupPageHeaderCell: UICollectionViewCell {
             groupSizeLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             groupSizeLabel.trailingAnchor.constraint(equalTo: membersCollectionView.leadingAnchor, constant: -5),
             groupSizeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         groupProfileImageView.layer.cornerRadius = 7
@@ -186,6 +198,18 @@ class GroupPageHeaderCell: UICollectionViewCell {
                  groupProfileImageView.layer.borderColor = UIColor.systemBackground.cgColor
              }
          }
+    }
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
     }
     
     private func configureWithUser() {

@@ -253,6 +253,15 @@ struct PostService {
         }
     }
     
+    static func fetchGroupPost(withGroupId groupId: String, withPostId postId: String, completion: @escaping(Post) -> Void) {
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).getDocument { snapshot, _ in
+            guard let snapshot = snapshot else { return }
+            guard let data = snapshot.data() else { return }
+            let post = Post(postId: snapshot.documentID, dictionary: data)
+            completion(post)
+        }
+    }
+    
     static func fetchPosts(forUser uid: String, completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp & user uid
         let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid)

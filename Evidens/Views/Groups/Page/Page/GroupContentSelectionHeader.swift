@@ -9,7 +9,13 @@ import UIKit
 
 private let categoriesCellReuseIdentifier = "CategoriesCellReuseIdentifier"
 
+protocol GroupContentSelectionHeaderDelegate: AnyObject {
+    func didTapContentCategory(category: ContentGroup.ContentTopics)
+}
+
 class GroupContentSelectionHeader: UICollectionReusableView {
+    
+    weak var delegate: GroupContentSelectionHeaderDelegate?
 
     private let categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -61,4 +67,7 @@ extension GroupContentSelectionHeader: UICollectionViewDelegateFlowLayout, UICol
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        delegate?.didTapContentCategory(category: ContentGroup.ContentTopics.allCases[indexPath.row])
+    }
 }

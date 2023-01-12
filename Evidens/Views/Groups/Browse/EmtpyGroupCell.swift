@@ -95,8 +95,16 @@ class EmptyGroupCell: UICollectionViewCell {
         ])
     }
     
-    func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String) {
-        
+    func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
+        groupTitle.text = title
+        titleLabel.text = description
+        if let buttonText = buttonText {
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 15, weight: .bold)
+            discoverButton.configuration?.attributedTitle = AttributedString(buttonText, attributes: container)
+        } else {
+            discoverButton.isHidden = true
+        }
     }
     
     @objc func handleDiscoverGroups() {

@@ -219,6 +219,15 @@ struct CaseService {
         }
     }
     
+    static func fetchGroupCase(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Case) -> Void) {
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).getDocument { snapshot, _ in
+            guard let snapshot = snapshot else { return }
+            guard let data = snapshot.data() else { return }
+            let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+            completion(clinicalCase)
+        }
+    }
+    
     static func likeCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         

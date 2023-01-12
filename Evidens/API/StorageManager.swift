@@ -166,21 +166,6 @@ struct StorageManager {
                     
                     if images.count == index {
                         completion(groupImagesUrl)
-                        
-                        /*
-                        var appended: [Int] = []
-                        
-                        groupImagesUrl.forEach { url in
-                            
-                            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/group_images%2F", with: "")
-                            appended.append(Int(currentURL[0..<1])!)
-                            
-                            if appended.count == groupImagesUrl.count {
-                                let orderedGroupImagesUrl = [groupImagesUrl[appended.firstIndex(of: 0)!], groupImagesUrl[appended.firstIndex(of: 1)!]]
-                                completion(orderedGroupImagesUrl)
-                            }
-                        }
-                        */
                     }
                 }
             }
@@ -202,6 +187,96 @@ struct StorageManager {
             ref.downloadURL { url, error in
                 guard let imageUrl = url?.absoluteString else { return }
                 completion(imageUrl)
+            }
+        }
+    }
+    
+    static func uploadGroupCaseImage(images: [UIImage], uid: String, groupId: String, completion: @escaping([String]) -> Void) {
+
+        var caseImagesUrl: [String] = []
+        var index = 0
+        var order = 0
+        
+        images.forEach { image in
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            
+            
+            let filename = "\(order) \(uid) \(NSUUID().uuidString)"
+            let ref = Storage.storage().reference(withPath: "/group/case/case_images/\(filename)")
+            order += 1
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload case image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    index += 1
+                    guard let imageUrl = url?.absoluteString else { return }
+                    caseImagesUrl.append(imageUrl)
+                    if images.count == index {
+                        completion(caseImagesUrl)
+                    }
+                }
+            }
+        }
+    }
+    
+    static func uploadGroupPostImage(images: [UIImage], uid: String, groupId: String, completion: @escaping([String]) -> Void) {
+        let ordered = ["IMAGE_ORDER_0", "IMAGE_ORDER_1", "IMAGE_ORDER_2", "IMAGE_ORDER_3"]
+
+        var caseImagesUrl: [String] = []
+        var index = 0
+        var order = 0
+        
+        images.forEach { image in
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            
+            let filename = "IMAGE_ORDER_\(order) \(uid) \(NSUUID().uuidString)"
+            let ref = Storage.storage().reference(withPath: "/group/post/post_images/\(filename)")
+            order += 1
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload case image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    index += 1
+                    guard let imageUrl = url?.absoluteString else { return }
+                    caseImagesUrl.append(imageUrl)
+                    if images.count == index {
+                        var orderedUrls = [String]()
+
+                        orderedUrls.append(caseImagesUrl.first(where: { url in
+                            url.contains(ordered[0])
+                        })!)
+                        
+                        if caseImagesUrl.count > 1 {
+                            orderedUrls.append(caseImagesUrl.first(where: { url in
+                                url.contains(ordered[1])
+                            }) ?? "")
+                        }
+                        
+                        if caseImagesUrl.count > 2 {
+                            
+                            orderedUrls.append(caseImagesUrl.first(where: { url in
+                                url.contains(ordered[2])
+                            }) ?? "")
+                        }
+                        
+                        if caseImagesUrl.count > 3 {
+                            
+                            orderedUrls.append(caseImagesUrl.first(where: { url in
+                                url.contains(ordered[3])
+                            }) ?? "")
+                        }
+
+                        completion(orderedUrls.compactMap{ $0 })
+                    }
+                }
             }
         }
     }

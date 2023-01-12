@@ -982,7 +982,27 @@ extension DatabaseManager {
     }
     
     public func uploadRecentCaseToGroup(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
+        let ref = database.child("groups").child(groupId).child("content").child("all").childByAutoId()
+        let groupRef = database.child("groups").child(groupId).child("content").child("cases").child(caseId).child("timestamp")
         
+        let timestamp = NSDate().timeIntervalSince1970
+        
+        let data = ["id": caseId,
+                    "timestamp": timestamp,
+                    "type": 0] as [String: Any]
+        
+        ref.setValue(data) { error, _ in
+            if let _ = error {
+                completion(false)
+            }
+            
+            groupRef.setValue(timestamp) { error, _ in
+                if let _ = error {
+                    completion(false)
+                }
+                completion(true)
+            }
+        }
     }
     
     public func fetchAllGroupContent(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
@@ -996,6 +1016,25 @@ extension DatabaseManager {
                 //recentComments.append(value)
             }
             completion(recentContent.reversed())
+        }
+    }
+    
+    public func fetchAllGroupPosts(withGroupId groupId: String, completion: @escaping([Post]) -> Void) {
+        #warning("miming the case for posts same as cases")
+    }
+    
+    public func fetchAllGroupCases(withGroupId groupId: String, completion: @escaping([String]) -> Void) {
+        var postIds = [String]()
+        
+        let casesRef = database.child("groups").child(groupId).child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        casesRef.observeSingleEvent(of: .value) { snapshot in
+            
+            if let values = snapshot.value as? [String: Any] {
+                values.forEach { value in
+                    postIds.append(value.key)
+                }
+                completion(postIds)
+            }
         }
     }
 }

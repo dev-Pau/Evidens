@@ -21,6 +21,18 @@ private let groupContentDescriptionReuseIdentifier = "GroupContentDescriptionReu
 
 private let emptyGroupContentCellReuseIdentifier = "EmptyGroupContentCellReuseIdentifier"
 
+private let skeletonTextReuseIdentifier = "SkeletonTextReuseIdentifier"
+private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
+
+private let homeTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
+private let homeFourImageTextCell = "HomeFourImageTextCell"
+private let homeThreeImageTextCell = "HomeThreeImageTextCell"
+private let homeTwoImageTextCell = "HomeTwoImageTextCell"
+private let homeImageTextCell = "HomeImageTextCell"
+
+private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
+private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
+
 protocol GroupPageViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
 }
@@ -117,7 +129,9 @@ class GroupPageViewController: UIViewController {
                         }
                     }
                 }
-            } else { return }
+            } else {
+                
+                return }
         }
     }
     
@@ -158,32 +172,54 @@ class GroupPageViewController: UIViewController {
         // Update collection view
         DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId) { contentGroup in
             self.content = contentGroup
+            print(contentGroup)
             // There's no content published in the group
             if contentGroup.isEmpty {
                 self.loaded = true
+                self.collectionView.reloadData()
                 return
             }
             
             // If there's content, check content type and fetch accordingly
             contentGroup.forEach { content in
                 if content.type == .post {
-                    PostService.fetchPost(withPostId: content.id) { post in
-                        
+                    PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: content.id) { post in
+                        self.posts.append(post)
+                        if contentGroup.count == self.cases.count + self.posts.count {
+                            // loaded !!
+                            // dismiss the skeleton view
+                            // reload data
+                            DispatchQueue.main.async {
+                                self.loaded = true
+                                self.collectionView.reloadData()
+                            }
+
+                        }
                     }
                 } else {
-                    CaseService.fetchCase(withCaseId: content.id) { clinicalCase in
-                        
+                    CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: content.id) { clinicalCase in
+                        self.cases.append(clinicalCase)
+                        if contentGroup.count == self.cases.count + self.posts.count {
+                            // loaded !!
+                            // dismiss the skeleton view
+                            // reload data
+                            DispatchQueue.main.async {
+                                self.loaded = true
+                                self.collectionView.reloadData()
+                            }
+                        }
                     }
-                }
-                
-                // Check if all content is fetched
-                if contentGroup.count == self.cases.count + self.posts.count {
-                    // loaded !!
-                    // dismiss the skeleton view
-                    // reload data
                 }
             }
         }
+    }
+    
+    private func fetchGroupCases() {
+        
+    }
+    
+    private func fetchGroupPosts() {
+        
     }
     
     private func configureCollectionView() {
@@ -191,7 +227,7 @@ class GroupPageViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
-
+        
         if memberType == nil { collectionView.isHidden = true }
         
         view.addSubview(collectionView)
@@ -199,23 +235,36 @@ class GroupPageViewController: UIViewController {
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
         
-        collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
+        collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
         
         // External users
         collectionView.register(GroupAdminCell.self, forCellWithReuseIdentifier: groupContentAdminReuseIdentifier)
-        collectionView.register(GroupAboutHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentHeaderReuseIdentifier)
+        collectionView.register(GroupAboutHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: groupContentHeaderReuseIdentifier)
         
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: groupContentDescriptionReuseIdentifier)
         
+        // Content skeleton cells
+        collectionView.register(SkeletonTextHomeCell.self, forCellWithReuseIdentifier: skeletonTextReuseIdentifier)
+        collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonImageReuseIdentifier)
+        
         // Content cells
         collectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupContentCellReuseIdentifier)
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
+        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCell)
+        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCell)
+        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCell)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCell)
         
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCell)
         
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: groupContentCollectionViewReuseIdentifier)
         //collectionView.register(UserProfileTitleHeader.self, forCellWithReuseIdentifier: profileHeaderTitleReuseIdentifier)
         
     }
     
+    /*
     func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
@@ -248,6 +297,18 @@ class GroupPageViewController: UIViewController {
         layout.configuration = config
         return layout
     }
+     */
+    
+    private func createLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        //layout.sectionHeadersPinToVisibleBounds = true
+        //layout.sectionHeadersPinToVisibleBounds = true
+        return layout
+    }
     
     
     @objc func handleGroupOptions() {
@@ -269,7 +330,19 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         if section == 0 {
             return (memberType == .external || memberType == .pending) ? 1 : 2
         } else if section == 1 {
-            return (memberType == .external || memberType == .pending) ? 1 : 10
+            if memberType == .external || memberType == .pending {
+                return 1
+            } else {
+                // Cases & Posts
+                switch contentIndexSelected {
+                case .all:
+                    return content.isEmpty ? 1 : loaded ? content.count : 4
+                case .cases:
+                    return cases.isEmpty ? 1 :  loaded ? cases.count : 4
+                case .posts:
+                    return posts.isEmpty ? 1 : loaded ? posts.count : 4
+                }
+            }
         } else {
             return adminUserRoles.count
         }
@@ -299,29 +372,81 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 return cell
             } else {
                 // Group posts & clinical cases content
+                if !loaded {
+                    if indexPath.row == 1 {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
+                        return cell
+                    } else {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
+                        return cell
+                    }
+                    
+                }
+                
                 switch contentIndexSelected {
                     
                 case .all:
-                    break
+                    if content.isEmpty {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+                        cell.set(withTitle: "Be the first to share content in this group and get the conversation going.", withDescription: "Create your first post or clinical case")
+                        return cell
+                    }
+                    // Content can be a post or a clinical case
+                    let currentContent = content[indexPath.row]
+                             
+                    switch currentContent.type {
+                    case .clinicalCase:
+                        let caseIndex = cases.firstIndex { clincalCase in
+                            if clincalCase.caseId == currentContent.id {
+                                return true
+                            }
+                            return false
+                        }
+                        
+                        if let caseIndex = caseIndex {
+                            let caseToDisplay = cases[caseIndex]
+                            return displayClinicalCaseCell(clinicalCase: caseToDisplay, indexPath: indexPath, collectionView: collectionView)
+                        }
+                        
+                        
+                    case .post:
+                        // Content is a post, search the post in the post array
+                        let postIndex = posts.firstIndex { post in
+                            if post.postId == currentContent.id {
+                                return true
+                            }
+                            return false
+                        }
+                        
+                        if let postIndex = postIndex {
+                            let postToDisplay = posts[postIndex]
+                            return displayPostCell(post: postToDisplay, indexPath: indexPath, collectionView: collectionView)
+                        }
+                    }
+
                 case .cases:
-                    break
+                    if !loaded {
+                        if indexPath.row == 1 {
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
+                            return cell
+                        } else {
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
+                            return cell
+                        }
+                        
+                    }
                 case .posts:
-                    break
+                    if !loaded {
+                        if indexPath.row == 1 {
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
+                            return cell
+                        } else {
+                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
+                            return cell
+                        }
+                        
+                    }
                 }
-                 
-                if !loaded {
-                    // Skeleton
-                    
-                }
-                
-                // There's still no content in the group
-                if content.isEmpty {
-                    
-                }
-                
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentCollectionViewReuseIdentifier, for: indexPath)
-                cell.backgroundColor = .red
-                return cell
             }
         } else {
                 
@@ -342,10 +467,16 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 
                 return cell
             }
+        
+        return UICollectionViewCell()
+        
         }
     
-    
+
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if indexPath.section == 0 {
+            return UICollectionReusableView()
+        }
         if memberType == .external || memberType == .pending {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentHeaderReuseIdentifier, for: indexPath) as! GroupAboutHeader
             if indexPath.section == 1 {
@@ -357,9 +488,59 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentSelectionReuseIdentifier, for: indexPath) as! GroupContentSelectionHeader
+            header.delegate = self
             return header
         }
-
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if section == 0 { return CGSize.zero }
+        return CGSize(width: UIScreen.main.bounds.width, height: 40)
+    }
+    
+    func displayPostCell(post: Post, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
+        switch post.type {
+            
+        case .plainText:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+            cell.viewModel = PostViewModel(post: post)
+            return cell
+        case .textWithImage:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCell, for: indexPath) as! HomeImageTextCell
+            cell.viewModel = PostViewModel(post: post)
+            return cell
+        case .textWithTwoImage:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCell, for: indexPath) as! HomeTwoImageTextCell
+            cell.viewModel = PostViewModel(post: post)
+            return cell
+        case .textWithThreeImage:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCell, for: indexPath) as! HomeThreeImageTextCell
+            cell.viewModel = PostViewModel(post: post)
+            return cell
+        case .textWithFourImage:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCell, for: indexPath) as! HomeFourImageTextCell
+            cell.viewModel = PostViewModel(post: post)
+            return cell
+        case .document:
+            return UICollectionViewCell()
+        case .poll:
+            return UICollectionViewCell()
+        case .video:
+            return UICollectionViewCell()
+        }
+    }
+    
+    func displayClinicalCaseCell(clinicalCase: Case, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
+        switch clinicalCase.type {
+        case .text:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+            cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+            return cell
+        case .textWithImage:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+            cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+            return cell
+        }
     }
 }
 
@@ -429,5 +610,27 @@ extension GroupPageViewController: GroupInformationViewControllerDelegate {
         self.group = group
         delegate?.didUpdateGroup(group)
         collectionView.reloadData()
+    }
+}
+
+extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
+    func didTapContentCategory(category: ContentGroup.ContentTopics) {
+        if contentIndexSelected == category { return } else {
+            contentIndexSelected = category
+            loaded = false
+            
+            switch category {
+            case .all:
+                <#code#>
+            case .cases:
+                <#code#>
+            case .posts:
+                <#code#>
+            }
+            
+            
+            
+            collectionView.reloadData()
+        }
     }
 }

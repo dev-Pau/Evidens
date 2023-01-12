@@ -111,7 +111,7 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
         let controller = GroupPageViewController(group: groupSelected)
         
         let backItem = UIBarButtonItem()
-        backItem.tintColor = .black
+        backItem.tintColor = .label
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem

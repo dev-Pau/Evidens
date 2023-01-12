@@ -150,6 +150,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
+        /*
         viewModel.post.postImageUrl.forEach { url in
             let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
 
@@ -157,13 +158,16 @@ class HomeThreeImageTextCell: UICollectionViewCell {
 
             if appended.count == viewModel.postImageUrl.count {
               
-                postImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 0)!])
-                postTwoImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 1)!])
-                postThreeImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 2)!])
-               
+              
                 appended.removeAll()
             }
         }
+         */
+        
+        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
+        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+        postThreeImageView.sd_setImage(with: viewModel.postImageUrl[2])
+       
     }
     
     func set(user: User) {

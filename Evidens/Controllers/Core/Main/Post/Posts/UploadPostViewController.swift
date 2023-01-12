@@ -423,30 +423,48 @@ class UploadPostViewController: UIViewController {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         showLoadingView()
-        
+      
+
         if let group = group {
             // Group post
-            GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: .plainText, privacy: .group, postImageUrl: nil, user: user) { error in
-                self.dismiss(animated: true)
-                if let error = error {
-                    print("DEBUG: \(error.localizedDescription)")
+            if postImages.count > 0 {
+                let imagesToUpload = postImages.compactMap { $0 }
+                var postType = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
+                if postImages.count == 1 {
                     
-                    return
+                    #warning("pujar el post amb type")
                 } else {
+                    StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
+                        GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: postType, privacy: .group, postImageUrl: imageUrl) { error in
+                            self.dismiss(animated: true)
+                            if let error = error {
+                                print("DEBUG: \(error.localizedDescription)")
+                                
+                                return
+                            } else {
 
-                    return
-                    
+                                return
+                                
+                            }
+                        }
+                    }
+                }
+            } else {
+                
+                GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: .plainText, privacy: .group, postImageUrl: nil) { error in
+                    self.dismiss(animated: true)
+                    if let error = error {
+                        print("DEBUG: \(error.localizedDescription)")
+                        
+                        return
+                    } else {
+
+                        return
+                        
+                    }
                 }
             }
-        }
-        
-        
-        
-        
-        
-        
-        
-        
+            }
         else {
             
             
@@ -463,7 +481,7 @@ class UploadPostViewController: UIViewController {
             if postImages.count > 0 {
                 print("Has images")
                 let imagesToUpload = postImages.compactMap { $0 }
-
+              
                 switch imagesToUpload.count {
                 case 1:
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in

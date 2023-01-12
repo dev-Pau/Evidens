@@ -7,6 +7,7 @@
 
 import UIKit
 import PhotosUI
+import JGProgressHUD
 
 private let casesCellReuseIdentifier = "CasesCellReuseIdentifier"
 private let specialityCellReuseIdentifier = "SpecialityCellReuseIdentifier"
@@ -19,6 +20,8 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var user: User
     var group: Group?
+    
+    private var progressIndicator = JGProgressHUD()
     
     private var viewModel = ShareCaseViewModel()
     
@@ -60,7 +63,7 @@ class ShareClinicalCaseViewController: UIViewController {
 
         button.configuration?.baseBackgroundColor = primaryColor
 
-        button.isUserInteractionEnabled = false
+        //button.isUserInteractionEnabled = false
         
         button.configuration?.baseForegroundColor = .white
 
@@ -752,7 +755,44 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         guard let title = titleTextField.text, let description = descriptionTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        showLoadingView()
+        //showLoadingView()
+        progressIndicator.show(in: view)
+        
+        if let group = group {
+            if collectionImages.isEmpty {
+                GroupService.uploadGroupCase(groupId: group.groupId, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text) { error in
+                    self.progressIndicator.dismiss(animated: true)
+                   
+                    if let error = error {
+                        print("DEBUG: \(error.localizedDescription)")
+                        
+                        return
+                    } else {
+                        
+                        return
+                        
+                    }
+                    return
+                }
+            } else {
+                StorageManager.uploadGroupCaseImage(images: collectionImages, uid: uid, groupId: group.groupId) { imageUrl in
+                    GroupService.uploadGroupCase(groupId: group.groupId, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage) { error in
+                        self.progressIndicator.dismiss(animated: true)
+                       
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            
+                            return
+                        } else {
+                            
+                            return
+                            
+                        }
+                        return
+                    }
+                }
+            }
+        }
         
         if collectionImages.isEmpty {
             CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user) { error in

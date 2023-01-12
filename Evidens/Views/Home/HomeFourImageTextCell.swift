@@ -159,22 +159,12 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+       
+        postImageView.sd_setImage(with: viewModel.postImageUrl[0])
+        postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+        postThreeImageView.sd_setImage(with: viewModel.postImageUrl[2])
+        postFourImageView.sd_setImage(with: viewModel.postImageUrl[3])
         
-        viewModel.post.postImageUrl.forEach { url in
-            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
-      
-            appended.append(Int(currentURL[0..<1])!)
-
-            if appended.count == viewModel.postImageUrl.count {
-
-                postImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 0)!])
-                postTwoImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 1)!])
-                postThreeImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 2)!])
-                postFourImageView.sd_setImage(with: viewModel.postImageUrl[appended.firstIndex(of: 3)!])
-                
-                appended.removeAll()
-            }
-        }
     }
     
     func set(user: User) {

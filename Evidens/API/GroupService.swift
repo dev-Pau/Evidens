@@ -28,7 +28,7 @@ struct GroupService {
         ]
         
         groupRef.setData(data, completion: completion)
-
+        
         DatabaseManager.shared.uploadNewGroup(groupId: groupRef.documentID) { _ in }
     }
     
@@ -70,7 +70,7 @@ struct GroupService {
     static func updateGroup(from group: Group, to newGroup: Group, completion: @escaping(Group) -> Void) {
         // Check what group values have changed
         var updatedGroupData = [String: Any]()
-
+        
         let bannerUrl = (group.bannerUrl! == newGroup.bannerUrl!) ? "" : newGroup.bannerUrl
         let profileUrl = (group.profileUrl! == newGroup.profileUrl!) ? "" : newGroup.profileUrl
         let name = (group.name == newGroup.name) ? nil : newGroup.name
@@ -89,7 +89,7 @@ struct GroupService {
             completion(group)
             return
         }
-
+        
         COLLECTION_GROUPS.document(group.groupId).updateData(updatedGroupData) { error in
             if error != nil { return }
             COLLECTION_GROUPS.document(group.groupId).getDocument { snapshot, error in
@@ -100,7 +100,7 @@ struct GroupService {
         }
     }
     
-    static func uploadGroupPost(groupId: String, post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadGroupPost(groupId: String, post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
         
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -123,4 +123,35 @@ struct GroupService {
             print("post group uploaded")
         }
     }
+    
+    static func uploadGroupCase(groupId: String, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, completion: @escaping(Error?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let caseId = COLLECTION_GROUPS.document(groupId).collection("cases").document().documentID
+        
+        let data = ["title": caseTitle,
+                    "description": caseDescription,
+                    "specialities": specialities,
+                    "details": details,
+                    "updates": "",
+                    "likes": 0,
+                    "stage": stage.caseStage,
+                    "comments": 0,
+                    "bookmarks": 0,
+                    "views": 0,
+                    "diagnosis": diagnosis as Any,
+                    "ownerUid": uid,
+                    "privacy": Case.Privacy.group.rawValue,
+                    "timestamp": Timestamp(date: Date()),
+                    "type": type.rawValue,
+                    "caseImageUrl": caseImageUrl as Any]
+        
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).setData(data, completion: completion)
+        DatabaseManager.shared.uploadRecentCaseToGroup(withGroupId: groupId, withCaseId: caseId) { uploaded in
+            print("case group uploaded")
+        }
+        
+        
+    }
+    
+
 }

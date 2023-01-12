@@ -462,8 +462,25 @@ extension UIScrollView {
         self.contentSize = CGSize(width: contentRect.size.width, height: contentRect.size.height - height)
         
     }
-    
 }
+
+
+extension Array where Element: Equatable {
+    func sortBy(orderArray: [Element]) -> [Element]? {
+
+        // Index of each element in `orderArray`:
+        let targetIndices = self.compactMap { orderArray.firstIndex(of: $0) }
+        // Verify that each array element occurs in `orderArray`:
+        guard targetIndices.count == self.count else {
+            return nil
+        }
+        // Sort array indices according to their index in `orderArray`:
+        let sortedIndices = self.indices.sorted { targetIndices[$0] < targetIndices[$1] }
+        // Rearrange elements accordingly:
+        return sortedIndices.map { self[$0] }
+    }
+}
+
 
 extension UILabel {
     func countLines() -> Int {
@@ -586,8 +603,8 @@ extension SkeletonLoadable {
         anim1.beginTime = 0.0
 
         let anim2 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim2.fromValue = UIColor.quaternarySystemFill.cgColor
-        anim2.toValue = UIColor.systemFill.cgColor
+        anim2.fromValue = UIColor.systemFill.cgColor
+        anim2.toValue = UIColor.quaternarySystemFill.cgColor
         anim2.duration = animDuration
         anim2.beginTime = anim1.beginTime + anim1.duration
         
