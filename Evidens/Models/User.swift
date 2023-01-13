@@ -10,8 +10,7 @@ import Firebase
 import FirebaseAuth
 
 struct User {
-    
-    
+
     enum UserRegistrationPhase: Int {
         case categoryPhase
         case userDetailsPhase

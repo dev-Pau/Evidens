@@ -165,8 +165,10 @@ class CaseTextCell: UICollectionViewCell {
         caseStateButton.configuration?.attributedTitle = viewModel.caseStage
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
+    
         
-        userPostView.postTimeLabel.text = viewModel.timestampString
+        userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         
         descriptionCaseLabel.text = viewModel.caseDescription
         

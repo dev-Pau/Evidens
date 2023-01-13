@@ -184,7 +184,8 @@ class CaseTextImageCell: UICollectionViewCell {
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
         
-        userPostView.postTimeLabel.text = viewModel.timestampString
+        userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
        
         descriptionCaseLabel.text = viewModel.caseDescription
         
@@ -201,11 +202,13 @@ class CaseTextImageCell: UICollectionViewCell {
             updateView.isHidden = true
         }
         
+        /*
         if viewModel.caseIsAnonymous {
             updateView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         } else {
             updateView.profileImageView.sd_setImage(with: URL(string: viewModel.userProfileImageUrl!))
         }
+         */
         
         viewsLabel.text = viewModel.viewsText
         
@@ -226,15 +229,28 @@ class CaseTextImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        //userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         
+        /*
         if viewModel.caseIsAnonymous {
             #warning("Choose anonymous image")
-            updateView.profileImageView.image = UIImage(systemName: "")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+            userPostView.profileImageView.image = UIImage(systemName: "")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         } else {
             userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }
-       
+         */
+        
+        if viewModel.caseIsAnonymous {
+            #warning("Add anonymous images")
+            updateView.profileImageView.image = UIImage(named: "")
+            userPostView.profileImageView.image = UIImage(named: "")
+            userPostView.usernameLabel.text = "Shared anonymously"
+        } else {
+            updateView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        }
+        
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     

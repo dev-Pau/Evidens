@@ -1019,8 +1019,19 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchAllGroupPosts(withGroupId groupId: String, completion: @escaping([Post]) -> Void) {
-        #warning("miming the case for posts same as cases")
+    public func fetchAllGroupPosts(withGroupId groupId: String, completion: @escaping([String]) -> Void) {
+        var caseIds = [String]()
+        
+        let postsRef = database.child("groups").child(groupId).child("content").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        postsRef.observeSingleEvent(of: .value) { snapshot in
+            if let values = snapshot.value as? [String: Any] {
+                values.forEach { value in
+                    caseIds.append(value.key)
+                }
+                completion(caseIds)
+            }
+        }
+        
     }
     
     public func fetchAllGroupCases(withGroupId groupId: String, completion: @escaping([String]) -> Void) {

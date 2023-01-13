@@ -53,6 +53,7 @@ class GroupPageViewController: UIViewController {
     private var content = [ContentGroup]()
     private var posts = [Post]()
     private var cases = [Case]()
+    private var users = [User]()
     
     private var loaded: Bool = false
     
@@ -161,7 +162,7 @@ class GroupPageViewController: UIViewController {
         DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: group.groupId) { uids in
             UserService.fetchUsers(withUids: uids) { users in
                 self.members = users
-                self.collectionView.reloadItems(at: [IndexPath(row: 0, section: 0)])
+                //self.collectionView.reloadItems(at: [IndexPath(row: 0, section: 0)])
             }
         }
     }
@@ -172,7 +173,6 @@ class GroupPageViewController: UIViewController {
         // Update collection view
         DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId) { contentGroup in
             self.content = contentGroup
-            print(contentGroup)
             // There's no content published in the group
             if contentGroup.isEmpty {
                 self.loaded = true
@@ -186,13 +186,17 @@ class GroupPageViewController: UIViewController {
                     PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: content.id) { post in
                         self.posts.append(post)
                         if contentGroup.count == self.cases.count + self.posts.count {
-                            // loaded !!
-                            // dismiss the skeleton view
-                            // reload data
-                            DispatchQueue.main.async {
+                            let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
+                            let ownerUniqueUids = Array(Set(ownerUids))
+                            UserService.fetchUsers(withUids: ownerUniqueUids) { users in
+                                self.users = users
+                                print(self.users)
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
+                            // get all uids from posts & cases into a new array
+                            // make it unique so all duplicates get deleted
+                            // fetch users with uids.
 
                         }
                     }
@@ -200,10 +204,11 @@ class GroupPageViewController: UIViewController {
                     CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: content.id) { clinicalCase in
                         self.cases.append(clinicalCase)
                         if contentGroup.count == self.cases.count + self.posts.count {
-                            // loaded !!
-                            // dismiss the skeleton view
-                            // reload data
-                            DispatchQueue.main.async {
+                            let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
+                            let ownerUniqueUids = Array(Set(ownerUids))
+                            UserService.fetchUsers(withUids: ownerUniqueUids) { users in
+                                self.users = users
+                                print(self.users)
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
@@ -221,12 +226,15 @@ class GroupPageViewController: UIViewController {
                 CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: id) { clinicalCase in
                     self.cases.append(clinicalCase)
                     if caseIds.count == self.cases.count {
-                        print(self.cases)
+                        // Sort cases by timestamp
                         self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                        self.loaded = true
-                        self.collectionView.reloadData()
-                        
-                        
+                        // Obtain all cases owner uids & make the array unique
+                        let uniqueOwnerUids = Array(Set(self.cases.map({ $0.ownerUid })))
+                        UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
+                            self.users = users
+                            self.loaded = true
+                            self.collectionView.reloadData()
+                        }
                     }
                 }
             }
@@ -234,7 +242,18 @@ class GroupPageViewController: UIViewController {
     }
     
     private func fetchGroupPosts() {
-        
+        DatabaseManager.shared.fetchAllGroupPosts(withGroupId: self.group.groupId) { postIds in
+            postIds.forEach { id in
+                PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: id) { post in
+                    self.posts.append(post)
+                    if postIds.count == self.posts.count {
+                        self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        self.loaded = true
+                        self.collectionView.reloadData()
+                    }
+                }
+            }
+        }
     }
     
     private func configureCollectionView() {
@@ -349,13 +368,14 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 return 1
             } else {
                 // Cases & Posts
+                if !loaded { return 3 }
                 switch contentIndexSelected {
                 case .all:
-                    return content.isEmpty ? 1 : loaded ? content.count : 4
+                    return content.isEmpty ? 1 : content.count//loaded ? (content.isEmpty ? 1 : content.count) : 3
                 case .cases:
-                    return cases.isEmpty ? 1 :  loaded ? cases.count : 4
+                    return cases.isEmpty ? 1 : cases.count//loaded ? (cases.isEmpty ? 1 : cases.count) : 3  //cases.isEmpty ? 1 :  loaded ? cases.count : 4
                 case .posts:
-                    return posts.isEmpty ? 1 : loaded ? posts.count : 4
+                    return posts.isEmpty ? 1 : posts.count//loaded ? (posts.isEmpty ? 1 : posts.count) : 3 //posts.isEmpty ? 1 : loaded ? posts.count : 4
                 }
             }
         } else {
@@ -408,7 +428,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                     }
                     // Content can be a post or a clinical case
                     let currentContent = content[indexPath.row]
-                             
+                    
                     switch currentContent.type {
                     case .clinicalCase:
                         let caseIndex = cases.firstIndex { clincalCase in
@@ -438,7 +458,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                             return displayPostCell(post: postToDisplay, indexPath: indexPath, collectionView: collectionView)
                         }
                     }
-
+                    
                 case .cases:
                     if !loaded {
                         if indexPath.row == 1 {
@@ -465,33 +485,35 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                         }
                         
                     }
+                    
+                    return displayPostCell(post: posts[indexPath.row], indexPath: indexPath, collectionView: collectionView)
                 }
             }
         } else {
-                
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentAdminReuseIdentifier, for: indexPath) as! GroupAdminCell
-                
-                cell.configureWithAdminRole(admin: adminUserRoles[indexPath.row])
-                
-                let userIndex = adminUsers.firstIndex { user in
-                    if adminUserRoles[indexPath.row].uid == user.uid {
-                        return true
-                    }
-                    return false
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupContentAdminReuseIdentifier, for: indexPath) as! GroupAdminCell
+            
+            cell.configureWithAdminRole(admin: adminUserRoles[indexPath.row])
+            
+            let userIndex = adminUsers.firstIndex { user in
+                if adminUserRoles[indexPath.row].uid == user.uid {
+                    return true
                 }
-                
-                if let userIndex = userIndex {
-                    cell.user = adminUsers[userIndex]
-                }
-                
-                return cell
+                return false
             }
+            
+            if let userIndex = userIndex {
+                cell.user = adminUsers[userIndex]
+            }
+            
+            return cell
+        }
         
         return UICollectionViewCell()
         
-        }
+    }
     
-
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
             return UICollectionReusableView()
@@ -503,7 +525,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             } else {
                 header.set(title: "Admin Team")
             }
-
+            
             return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentSelectionReuseIdentifier, for: indexPath) as! GroupContentSelectionHeader
@@ -518,27 +540,39 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func displayPostCell(post: Post, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
+        let userIndex = users.firstIndex { user in
+            if user.uid == post.ownerUid {
+                return true
+            }
+            return false
+        }
+        
         switch post.type {
             
         case .plainText:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
             cell.viewModel = PostViewModel(post: post)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCell, for: indexPath) as! HomeImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithTwoImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCell, for: indexPath) as! HomeTwoImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithThreeImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCell, for: indexPath) as! HomeThreeImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithFourImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCell, for: indexPath) as! HomeFourImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .document:
             return UICollectionViewCell()
@@ -550,18 +584,29 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func displayClinicalCaseCell(clinicalCase: Case, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
+        
+        let userIndex = users.firstIndex { user in
+            if user.uid == clinicalCase.ownerUid {
+                return true
+            }
+            return false
+        }
+        
         switch clinicalCase.type {
         case .text:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+            if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         }
     }
 }
+
 
 extension GroupPageViewController: GroupPageHeaderCellDelegate {
     func didTapGroupProfilePicture() {
@@ -636,10 +681,10 @@ extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
     func didTapContentCategory(category: ContentGroup.ContentTopics) {
         if contentIndexSelected == category { return } else {
             contentIndexSelected = category
-
-                self.loaded = false
-                self.collectionView.reloadData()
-
+            
+            self.loaded = false
+            self.collectionView.reloadData()
+            
             
             switch category {
             case .all:
@@ -651,7 +696,7 @@ extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
                 fetchGroupCases()
             case .posts:
                 self.posts.removeAll()
-                break
+                fetchGroupPosts()
             }
         }
     }

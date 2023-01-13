@@ -16,7 +16,7 @@ struct CaseViewModel {
     }
     
     var caseIsAnonymous: Bool {
-        return clinicalCase.privacyOptions == .visible ? false : true
+        return clinicalCase.privacyOptions == .visible || clinicalCase.privacyOptions == .group ? false : true
     }
     
     var caseDescription: String {
@@ -56,6 +56,29 @@ struct CaseViewModel {
     
     var caseImageStage: UIImage {
         return clinicalCase.stage.rawValue == 0 ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))! : UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+    }
+    
+    var privacyImage: UIImage {
+        switch clinicalCase.privacyOptions {
+            /*
+             case 0:
+                 return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+             case 1:
+                 return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+             case 2:
+                 return UIImage(systemName: "lock.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+             default:
+                 return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+             }
+             */
+        case .visible:
+            return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        case .nonVisible:
+            return UIImage(systemName: "eyeglasses")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        case .group:
+            return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+        }
+
     }
     
     var caseStageTextColor: UIColor {

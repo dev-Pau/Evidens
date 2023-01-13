@@ -68,6 +68,13 @@ class GroupContentCreationCell: UICollectionViewCell {
         return view
     }()
     
+    private let bottomSeparatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -79,7 +86,7 @@ class GroupContentCreationCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(createContentButton, separatorView, createCaseButton, shareContentLabel, horizontalSeparatorView, shareInfoLabel)
+        addSubviews(createContentButton, separatorView, createCaseButton, shareContentLabel, horizontalSeparatorView, shareInfoLabel, bottomSeparatorView)
         NSLayoutConstraint.activate([
             createContentButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             createContentButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -102,13 +109,18 @@ class GroupContentCreationCell: UICollectionViewCell {
             
             horizontalSeparatorView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
             horizontalSeparatorView.heightAnchor.constraint(equalToConstant: 1),
-            horizontalSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            horizontalSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            horizontalSeparatorView.leadingAnchor.constraint(equalTo: createContentButton.leadingAnchor),
+            horizontalSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             shareInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             shareInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             shareInfoLabel.topAnchor.constraint(equalTo: horizontalSeparatorView.bottomAnchor, constant: 10),
-            shareInfoLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            shareInfoLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            bottomSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1)
 
         ])
     }
