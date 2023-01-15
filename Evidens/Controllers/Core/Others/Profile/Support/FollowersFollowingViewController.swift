@@ -117,7 +117,7 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.view.frame.width, height: self.view.frame.height - 150)
+        return CGSize(width: self.view.frame.width, height: collectionView.frame.height)//self.view.frame.height - 150)
     }
 }
 

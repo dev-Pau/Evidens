@@ -181,6 +181,8 @@
 		5F992B0428ACE47E0030F7F1 /* CasesCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */; };
 		5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */; };
 		5F992B0B28ACEE590030F7F1 /* PeopleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */; };
+		5F9A280429743B9C0052E618 /* GroupSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280329743B9C0052E618 /* GroupSelectorCell.swift */; };
+		5F9A280629743BA70052E618 /* RequestSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280529743BA70052E618 /* RequestSelectorCell.swift */; };
 		5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */; };
 		5F9A76CB28E068270079126F /* EmptyConversationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
@@ -516,6 +518,8 @@
 		5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCollectionViewCell.swift; sourceTree = "<group>"; };
 		5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsCollectionViewCell.swift; sourceTree = "<group>"; };
 		5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleCollectionViewCell.swift; sourceTree = "<group>"; };
+		5F9A280329743B9C0052E618 /* GroupSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSelectorCell.swift; sourceTree = "<group>"; };
+		5F9A280529743BA70052E618 /* RequestSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestSelectorCell.swift; sourceTree = "<group>"; };
 		5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchConversationViewController.swift; sourceTree = "<group>"; };
 		5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyConversationSearchCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
@@ -1383,11 +1387,11 @@
 		5F9A27F7296EBEB20052E618 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				5FA3985B2938AB70007293C2 /* GroupBrowserViewController.swift */,
 				5F944787291D1391003B3DA0 /* DiscoverGroupsViewController.swift */,
 				5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */,
 				5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */,
 				5F8AF980292CEA61005C6778 /* GroupPageViewController.swift */,
-				5FA3985B2938AB70007293C2 /* GroupBrowserViewController.swift */,
 				5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */,
 				5FAC98CE29476BF500C72228 /* GroupInformationViewController.swift */,
 			);
@@ -1641,6 +1645,8 @@
 		5FA5726E2965C9C20068284B /* Browse */ = {
 			isa = PBXGroup;
 			children = (
+				5F9A280329743B9C0052E618 /* GroupSelectorCell.swift */,
+				5F9A280529743BA70052E618 /* RequestSelectorCell.swift */,
 				5FA3985F2939FCC2007293C2 /* GroupBrowseCell.swift */,
 				5F944789291D4645003B3DA0 /* GroupCell.swift */,
 				5FA57264295F14F80068284B /* GroupBrowseFooter.swift */,
@@ -2227,6 +2233,7 @@
 				5FA32DC828E1E85700D83759 /* OnboardingMessage.swift in Sources */,
 				5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */,
 				5F9483B32923A76600D68B46 /* GroupDescriptionCell.swift in Sources */,
+				5F9A280429743B9C0052E618 /* GroupSelectorCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
 				5FA2EAE928F967DE0054BA5B /* ExploreFooter.swift in Sources */,
@@ -2452,6 +2459,7 @@
 				5FBC2DF12732883A004F92CE /* Notification.swift in Sources */,
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
+				5F9A280629743BA70052E618 /* RequestSelectorCell.swift in Sources */,
 				5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */,
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,
 				5F8B7C5828797809005094A5 /* ClinicalTypeViewController.swift in Sources */,

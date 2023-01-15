@@ -7,6 +7,9 @@
 
 import UIKit
 
+private let groupSelectorCellReuseIdentifier = "GroupSelectorCellReuseIdentifier"
+private let groupRequestSelectorCellReuseIdentifier = "GroupRequesSelectorCellReuseIdentifier"
+
 private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
 private let groupBrowseSkeletonCellReuseIdentifier = "GroupBrowseSkeletonCellReuseIdentifier"
 private let groupFooterReuseIdentifier = "GroupFooterReuseIdentifier"
@@ -21,6 +24,8 @@ protocol GroupBrowserViewControllerDelegate: AnyObject {
 class GroupBrowserViewController: UIViewController {
     
     weak var delegate: GroupBrowserViewControllerDelegate?
+    
+    private let browserSegmentedButtonsView = FollowersFollowingSegmentedButtonsView(frame: .zero, titles: ["Groups", "Requests"])
     
     private var loaded: Bool = false
     
@@ -48,15 +53,14 @@ class GroupBrowserViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 10
         layout.minimumInteritemSpacing = 10
-        layout.scrollDirection = .vertical
+        layout.scrollDirection = .horizontal
         layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
-        collectionView.isScrollEnabled = false
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isPagingEnabled = true
         return collectionView
     }()
     
@@ -67,7 +71,7 @@ class GroupBrowserViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCollectionView()
-        fetchUserGroups()
+        //fetchUserGroups()
         view.backgroundColor = .systemBackground
     }
     
@@ -83,17 +87,30 @@ class GroupBrowserViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        groupCollectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
-        groupCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
-        groupCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
-        groupCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        //groupCollectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
+        //groupCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        //groupCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
+        //groupCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        groupCollectionView.register(GroupSelectorCell.self, forCellWithReuseIdentifier: groupSelectorCellReuseIdentifier)
+        groupCollectionView.register(RequestSelectorCell.self, forCellWithReuseIdentifier: groupRequestSelectorCellReuseIdentifier)
         groupCollectionView.delegate = self
         groupCollectionView.dataSource = self
     }
     
     private func configureUI() {
-        view.addSubviews(groupCollectionView)
-        groupCollectionView.frame = view.bounds
+        browserSegmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubviews(browserSegmentedButtonsView, groupCollectionView)
+        NSLayoutConstraint.activate([
+            browserSegmentedButtonsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            browserSegmentedButtonsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            browserSegmentedButtonsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            browserSegmentedButtonsView.heightAnchor.constraint(equalToConstant: 51),
+            
+            groupCollectionView.topAnchor.constraint(equalTo: browserSegmentedButtonsView.bottomAnchor),
+            groupCollectionView.leadingAnchor.constraint(equalTo: browserSegmentedButtonsView.leadingAnchor),
+            groupCollectionView.trailingAnchor.constraint(equalTo: browserSegmentedButtonsView.trailingAnchor),
+            groupCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         
     }
     
@@ -117,86 +134,27 @@ class GroupBrowserViewController: UIViewController {
 }
 
 extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        if loaded {
-            if groups.isEmpty {
-                return CGSize.zero
-            } else {
-                return CGSize(width: UIScreen.main.bounds.width - 30, height: 50)
-            }
-        } else {
-            return CGSize.zero
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if kind == UICollectionView.elementKindSectionFooter && loaded {
-            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier, for: indexPath) as! GroupBrowseFooter
-            footer.delegate = self
-            return footer
-        } else {
-            return UICollectionReusableView()
-        }
-    }
-    
+ 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if loaded {
-            return groups.count > 0 ? groups.count : 1
-        } else {
-            return 10
-        }
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: self.view.frame.width, height: groupCollectionView.frame.height)//self.view.frame.height - 150)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if !loaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier, for: indexPath) as! GroupBrowseSkeletonCell
-            return cell
-        }
-        
-        if groups.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+        if indexPath.row == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupSelectorCellReuseIdentifier, for: indexPath) as! GroupSelectorCell
             cell.delegate = self
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupBrowseCell
-            cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestSelectorCellReuseIdentifier, for: indexPath) as! RequestSelectorCell
             return cell
         }
     }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if !loaded || groups.isEmpty { return }
-        let groupSelected = groups[indexPath.row]
-        //delegate?.didSelectGroup(group: groupSelected)
-        
-        #warning("Aquí previ s'han de buscar l'usuari en cada grup dins de RTD i veure si es admin etc per passar l'usuari bo")
-        
-        let controller = GroupPageViewController(group: groupSelected, memberType: .admin)
-        controller.delegate = self
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
 }
 
-extension GroupBrowserViewController: GroupBrowseFooterDelegate {
-    func didTapDiscoverGroups() {
-        let controller = DiscoverGroupsViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
 
 extension GroupBrowserViewController: GroupPageViewControllerDelegate {
     func didUpdateGroup(_ group: Group) {
@@ -215,8 +173,22 @@ extension GroupBrowserViewController: GroupPageViewControllerDelegate {
     }
 }
 
-extension GroupBrowserViewController: EmptyGroupCellDelegate {
-    func didTapDiscoverGroup() {
+extension GroupBrowserViewController: GroupSelectorCellDelegate {
+    func didSelectGroup(_ group: Group) {
+        #warning("Falta passar el role per paràmetre")
+        let controller = GroupPageViewController(group: group, memberType: .admin)
+        controller.delegate = self
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func didTapDiscover() {
         let controller = DiscoverGroupsViewController()
         
         let backItem = UIBarButtonItem()
