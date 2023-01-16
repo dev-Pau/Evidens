@@ -147,6 +147,16 @@ struct UserGroup {
     }
 }
 
+struct MemberTypeGroup {
+    var groupId: String
+    var memberType: Group.MemberType
+    
+    init(dictionary: [String: Any]) {
+        self.groupId = dictionary["groupId"] as? String ?? ""
+        self.memberType = Group.MemberType(rawValue: dictionary["memberType"] as? Int ?? 4) ?? .external
+    }
+}
+
 struct ContentGroup {
     var id: String
     var type: GroupContentType

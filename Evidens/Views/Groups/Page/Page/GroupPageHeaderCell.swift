@@ -14,6 +14,7 @@ protocol GroupPageHeaderCellDelegate: AnyObject {
     func didTapGroupProfilePicture()
     func didTapGroupBannerPicture()
     func didTapInfoButton()
+    func didTapActionButton(memberType: Group.MemberType)
 }
 
 class GroupPageHeaderCell: UICollectionViewCell {
@@ -33,6 +34,12 @@ class GroupPageHeaderCell: UICollectionViewCell {
     var memberType: Group.MemberType? {
         didSet {
             configureActionButton()
+        }
+    }
+    
+    var isUpdatingJoiningState: Bool? {
+        didSet {
+            customUserButton.setNeedsUpdateConfiguration()
         }
     }
     
@@ -106,6 +113,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         button.configuration?.background.strokeWidth = 1
         button.configuration?.background.strokeColor = .quaternarySystemFill
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleActionButtonPressed), for: .touchUpInside)
         return button
         
         // ESTIC AQUÍ CREAR EL BOTÓ HORITZONTAL
@@ -140,11 +148,13 @@ class GroupPageHeaderCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
+        isUpdatingJoiningState = false
         
         membersCollectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
         membersCollectionView.register(GroupSizeCell.self, forCellWithReuseIdentifier: userCountCellReuseIdentifier)
         membersCollectionView.delegate = self
         membersCollectionView.dataSource = self
+        
         
         addSubviews(groupBannerImageView, groupProfileImageView, groupNameLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
         NSLayoutConstraint.activate([
@@ -189,6 +199,20 @@ class GroupPageHeaderCell: UICollectionViewCell {
         ])
         
         groupProfileImageView.layer.cornerRadius = 7
+        
+        customUserButton.configurationUpdateHandler = { [unowned self] button in
+            button.isUserInteractionEnabled = self.isUpdatingJoiningState! ? false : true
+        }
+    }
+    
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
+                self.delegate?.didTapActionButton(memberType: .pending)
+            })
+        ])
+        
+        return menuItems
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -234,6 +258,10 @@ class GroupPageHeaderCell: UICollectionViewCell {
         customUserButton.configuration?.baseForegroundColor = memberType.buttonForegroundColor
         
         if memberType == .external { customUserButton.configuration?.background.strokeColor = .quaternarySystemFill }
+        if memberType == .pending {
+            customUserButton.menu = addMenuItems()
+            customUserButton.showsMenuAsPrimaryAction = true
+        } else { customUserButton.menu = nil }
     }
     
     @objc func handleBannerTap() {
@@ -246,6 +274,21 @@ class GroupPageHeaderCell: UICollectionViewCell {
     
     @objc func handleConfigurationButtonTap() {
         delegate?.didTapInfoButton()
+    }
+    
+    @objc func handleActionButtonPressed() {
+        guard let memberType = memberType else { return }
+
+        if memberType == .external {
+            isUpdatingJoiningState = true
+            delegate?.didTapActionButton(memberType: memberType)
+        } else if memberType == .pending {
+            //customUserButton.menu = addMenuItems()
+            //customUserButton.showsMenuAsPrimaryAction = true
+        } else {
+            delegate?.didTapActionButton(memberType: memberType)
+        }
+
     }
 }
 

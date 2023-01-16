@@ -855,21 +855,44 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchUserIdGroups(completion: @escaping(Result<[String], Error>) -> Void) {
+    public func sendRequestToGroup(groupId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let userRef = database.child("users").child(uid).child("groups").childByAutoId()
+        let joiningDateTimestamp = NSDate().timeIntervalSince1970
+        
+        let groupData = ["groupId": groupId,
+                         "memberType": Group.MemberType.pending.rawValue] as [String : Any]
+        
+        let joiningUser = ["uid": uid,
+                           "timestamp": joiningDateTimestamp,
+                           "memberType": Group.MemberType.pending.rawValue] as [String : Any]
+        
+        userRef.setValue(groupData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+            }
+            
+            let groupRef = self.database.child("groups").child(groupId).child("users").childByAutoId()
+            groupRef.setValue(joiningUser) { error, _ in
+                if let _ = error {
+                    completion(false)
+                    return
+                }
+                completion(true)
+            }
+        }
+    }
+        
+        
+    public func fetchUserIdMemberTypeGroups(completion: @escaping(Result<[MemberTypeGroup], Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        var ids = [String]()
-        let userRef = database.child("users").child(uid).child("groups")
-        userRef.getData { error, snapshot in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            guard let snapshot = snapshot else {
-                completion(.failure(DatabaseError.failedToFetch))
-                return
-            }
+        var memberTypes = [MemberTypeGroup]()
+        
+        let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "memberType").queryStarting(atValue: 0).queryEnding(beforeValue: 3)
+        
+        userRef.observeSingleEvent(of: .value) { snapshot in
 
             if !snapshot.exists() {
                 completion(.failure(DatabaseError.failedToFetch))
@@ -877,10 +900,34 @@ extension DatabaseManager {
             }
             
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any], let groupId = value["groupId"] as? String else { return }
-                ids.append(groupId)
+                guard let value = child.value as? [String: Any] else { return }
+                let memberType = MemberTypeGroup(dictionary: value)
+                memberTypes.append(memberType)
             }
-            completion(.success(ids))
+            completion(.success(memberTypes))
+        }
+    }
+    
+    public func fetchUserIdPendingGroups(completion: @escaping(Result<[MemberTypeGroup], Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        var memberTypes = [MemberTypeGroup]()
+        
+        let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "memberType").queryEqual(toValue: 3)
+        
+        userRef.observeSingleEvent(of: .value) { snapshot in
+
+            if !snapshot.exists() {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                let memberType = MemberTypeGroup(dictionary: value)
+                memberTypes.append(memberType)
+            }
+            completion(.success(memberTypes))
         }
     }
     
@@ -947,6 +994,10 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
         userRef.observeSingleEvent(of: .value) { snapshot in
+            
+            if !snapshot.exists() {
+                completion(Group.MemberType.external)
+            }
             
             snapshot.children.forEach { child in
                 if let child = child as? DataSnapshot, let value = child.value as? [String: Any], let memberType = value["memberType"] as? Int {

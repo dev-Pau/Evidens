@@ -75,10 +75,22 @@ class PostGroupSelectionViewController: UIViewController {
     }
     
     private func fetchUserGroups() {
-        GroupService.fetchUserGroups { groups in
-            self.groups = groups
-            self.collectionView.reloadData()
-        }
+
+         DatabaseManager.shared.fetchUserIdMemberTypeGroups { memberTypeGroup in
+             switch memberTypeGroup {
+             case .success(let memberTypeGroup):
+                 //self.memberType = memberTypeGroup
+                 let groupIds = memberTypeGroup.map({ $0.groupId })
+                 GroupService.fetchUserGroups(withGroupIds: groupIds) { groups in
+                     self.groups = groups
+                     //self.loaded = true
+                     self.collectionView.isScrollEnabled = true
+                     self.collectionView.reloadData()
+                 }
+             case .failure(let error):
+                 print(error)
+             }
+         }
     }
     
     @objc func handleCancelGroupSelection() {

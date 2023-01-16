@@ -79,7 +79,10 @@ class GroupPageViewController: UIViewController {
             collectionView.isHidden = false
             // User is from group or is pending
             // If user is pending, don't have access to members
-            guard memberType != .pending else { return }
+            guard memberType != .pending else {
+                fetchGroupAdminTeam()
+                return
+            }
             // User is from group, fetch group users
             fetchGroupUsers()
             fetchGroupContent()
@@ -115,24 +118,30 @@ class GroupPageViewController: UIViewController {
             self.collectionView.isHidden = false
             self.collectionView.reloadData()
             if memberType == .external || memberType == .pending {
-                DatabaseManager.shared.fetchGroupAdminTeamRoles(groupId: self.group.groupId) { adminUserRoles in
-                    self.adminUserRoles = adminUserRoles
-                    
-                    // Get all admin uid's
-                    let adminUids = adminUserRoles.map { admin in
-                        return admin.uid
-                    }
-                    
-                    UserService.fetchUsers(withUids: adminUids) { admins in
-                        self.adminUsers = admins
-                        DispatchQueue.main.async {
-                            self.collectionView.reloadData()
-                        }
-                    }
-                }
+                self.fetchGroupAdminTeam()
             } else {
-                
-                return }
+                self.fetchGroupUsers()
+                self.fetchGroupContent()
+                return
+            }
+        }
+    }
+    
+    private func fetchGroupAdminTeam() {
+        DatabaseManager.shared.fetchGroupAdminTeamRoles(groupId: self.group.groupId) { adminUserRoles in
+            self.adminUserRoles = adminUserRoles
+            
+            // Get all admin uid's
+            let adminUids = adminUserRoles.map { admin in
+                return admin.uid
+            }
+            
+            UserService.fetchUsers(withUids: adminUids) { admins in
+                self.adminUsers = admins
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+            }
         }
     }
     
@@ -162,7 +171,7 @@ class GroupPageViewController: UIViewController {
         DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: group.groupId) { uids in
             UserService.fetchUsers(withUids: uids) { users in
                 self.members = users
-                //self.collectionView.reloadItems(at: [IndexPath(row: 0, section: 0)])
+                self.collectionView.reloadData()
             }
         }
     }
@@ -609,6 +618,32 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
 
 
 extension GroupPageViewController: GroupPageHeaderCellDelegate {
+    func didTapActionButton(memberType: Group.MemberType) {
+        let cell = collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) as! GroupPageHeaderCell
+        switch memberType {
+        case .owner:
+            break
+        case .admin:
+            break
+        case .member:
+            break
+        case .pending:
+            self.memberType = .external
+            cell.memberType = .external
+            cell.isUpdatingJoiningState = false
+            cell.setNeedsUpdateConfiguration()
+        case .external:
+            DatabaseManager.shared.sendRequestToGroup(groupId: group.groupId) { send in
+                if send {
+                    self.memberType = .pending
+                    cell.memberType = .pending
+                    cell.isUpdatingJoiningState = false
+                    cell.setNeedsUpdateConfiguration()
+                }
+            }
+        }
+    }
+    
     func didTapGroupProfilePicture() {
         let controller = ProfileImageViewController(isBanner: false)
         controller.hidesBottomBarWhenPushed = true

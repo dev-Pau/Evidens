@@ -20,7 +20,7 @@ class EmptyGroupCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "We could not find any group you are a part of - yet."
+        //label.text = "We could not find any group you are a part of - yet."
         label.font = .systemFont(ofSize: 35, weight: .heavy)
         label.textColor = .label
         label.numberOfLines = 0
@@ -33,7 +33,7 @@ class EmptyGroupCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
-        label.text = "Discover listed groups or communities that share your interests, vision or goals."
+        //label.text = "Discover listed groups or communities that share your interests, vision or goals."
         return label
     }()
     
@@ -43,9 +43,9 @@ class EmptyGroupCell: UICollectionViewCell {
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
 
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Discover", attributes: container)
+        //var container = AttributeContainer()
+        //container.font = .systemFont(ofSize: 15, weight: .bold)
+        //button.configuration?.attributedTitle = AttributedString("Discover", attributes: container)
         
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.baseBackgroundColor = .label
@@ -96,8 +96,8 @@ class EmptyGroupCell: UICollectionViewCell {
     }
     
     func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
-        groupTitle.text = title
-        titleLabel.text = description
+        groupTitle.text = description
+        titleLabel.text = title
         if let buttonText = buttonText {
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 15, weight: .bold)

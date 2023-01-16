@@ -25,6 +25,8 @@ class GroupBrowserViewController: UIViewController {
     
     weak var delegate: GroupBrowserViewControllerDelegate?
     
+    weak var scrollDelegate: CollectionViewDidScrollDelegate?
+    
     private let browserSegmentedButtonsView = FollowersFollowingSegmentedButtonsView(frame: .zero, titles: ["Groups", "Requests"])
     
     private var loaded: Bool = false
@@ -51,11 +53,11 @@ class GroupBrowserViewController: UIViewController {
 
     private let groupCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 10
+        layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 10
         layout.scrollDirection = .horizontal
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+        //layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+        //layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
@@ -71,8 +73,8 @@ class GroupBrowserViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCollectionView()
-        //fetchUserGroups()
         view.backgroundColor = .systemBackground
+        browserSegmentedButtonsView.segmentedControlDelegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -111,16 +113,17 @@ class GroupBrowserViewController: UIViewController {
             groupCollectionView.trailingAnchor.constraint(equalTo: browserSegmentedButtonsView.trailingAnchor),
             groupCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
     }
     
-    private func fetchUserGroups() {
-        GroupService.fetchUserGroups { groups in
-            self.groups = groups
-            self.loaded = true
-            self.groupCollectionView.isScrollEnabled = true
-            self.groupCollectionView.reloadData()
-        }
+    func scrollToFrame(scrollOffset : CGFloat) {
+        guard scrollOffset <= groupCollectionView.contentSize.width - groupCollectionView.bounds.size.width else { return }
+        guard scrollOffset >= 0 else { return }
+        groupCollectionView.setContentOffset(CGPoint(x: scrollOffset, y: groupCollectionView.contentOffset.y), animated: true)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        scrollDelegate = browserSegmentedButtonsView
+        scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 2)
     }
     
     @objc func didTapCreateGroup() {
@@ -174,9 +177,8 @@ extension GroupBrowserViewController: GroupPageViewControllerDelegate {
 }
 
 extension GroupBrowserViewController: GroupSelectorCellDelegate {
-    func didSelectGroup(_ group: Group) {
-        #warning("Falta passar el role per paràmetre")
-        let controller = GroupPageViewController(group: group, memberType: .admin)
+    func didSelectGroup(_ group: Group, memberType: Group.MemberType) {
+        let controller = GroupPageViewController(group: group, memberType: memberType)
         controller.delegate = self
         
         let backItem = UIBarButtonItem()
@@ -198,5 +200,35 @@ extension GroupBrowserViewController: GroupSelectorCellDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension GroupBrowserViewController: SegmentedControlDelegate {
+    func indexDidChange(from currentIndex: Int, to index: Int) {
+        if currentIndex == index { return }
+        let collectionBounds = self.groupCollectionView.bounds
+        // Switch based on the current index of the CustomSegmentedButtonsView
+        switch currentIndex {
+        case 0:
+            
+            let contentOffset = CGFloat(floor(self.groupCollectionView.contentOffset.x + collectionBounds.size.width))
+            self.moveToFrame(contentOffset: contentOffset)
+            
+        case 1:
+            
+            let contentOffset = CGFloat(floor(self.groupCollectionView.contentOffset.x - collectionBounds.size.width))
+            self.moveToFrame(contentOffset: contentOffset)
+            
+        default:
+            print("Not found index to change position")
+        }
+    }
+    
+    func moveToFrame(contentOffset : CGFloat) {
+        UIView.animate(withDuration: 1) {
+            let frame: CGRect = CGRect(x : contentOffset ,y : self.groupCollectionView.contentOffset.y ,width : self.groupCollectionView.frame.width, height: self.groupCollectionView.frame.height)
+            self.groupCollectionView.scrollRectToVisible(frame, animated: true)
+        }
+        
     }
 }

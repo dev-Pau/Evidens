@@ -44,29 +44,21 @@ struct GroupService {
         }
     }
     
-    static func fetchUserGroups(completion: @escaping([Group]) -> Void) {
+    static func fetchUserGroups(withGroupIds groupIds: [String], completion: @escaping([Group]) -> Void) {
         // Check user RTD all the ID groups
         // Download group details from Firestore
         var userGroups = [Group]()
-        DatabaseManager.shared.fetchUserIdGroups { result in
-            
-            switch result {
-            case .success(let groupIds):
-                groupIds.forEach { id in
-                    COLLECTION_GROUPS.whereField("id", isEqualTo: id).getDocuments { snapshot, error in
-                        guard let documents = snapshot?.documents else { return }
-                        let group = documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
-                        userGroups.append(contentsOf: group)
-                        completion(userGroups)
-                    }
-                }
-            case .failure(let error):
-                print(error)
-                completion([])
+        
+        groupIds.forEach { id in
+            COLLECTION_GROUPS.whereField("id", isEqualTo: id).getDocuments { snapshot, error in
+                guard let documents = snapshot?.documents else { return }
+                let group = documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+                userGroups.append(contentsOf: group)
+                completion(userGroups)
             }
         }
     }
-    
+
     static func updateGroup(from group: Group, to newGroup: Group, completion: @escaping(Group) -> Void) {
         // Check what group values have changed
         var updatedGroupData = [String: Any]()

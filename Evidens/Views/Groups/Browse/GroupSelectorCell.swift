@@ -13,7 +13,7 @@ private let groupFooterReuseIdentifier = "GroupFooterReuseIdentifier"
 private let emptyGroupCellReuseIdentifier = "EmptyGroupCellReuseIdentifier"
 
 protocol GroupSelectorCellDelegate: AnyObject {
-    func didSelectGroup(_ group: Group)
+    func didSelectGroup(_ group: Group, memberType: Group.MemberType)
     func didTapDiscover()
 }
 
@@ -36,6 +36,8 @@ class GroupSelectorCell: UICollectionViewCell {
         return collectionView
     }()
     
+    private var memberType = [MemberTypeGroup]()
+    
     private var loaded: Bool = false
     private var groups = [Group]()
     
@@ -50,12 +52,22 @@ class GroupSelectorCell: UICollectionViewCell {
     }
     
     private func fetchUserGroups() {
-        GroupService.fetchUserGroups { groups in
-            self.groups = groups
-            #warning("Falta obtenir el rol de cada grup")
-            self.loaded = true
-            self.collectionView.isScrollEnabled = true
-            self.collectionView.reloadData()
+        DatabaseManager.shared.fetchUserIdMemberTypeGroups { memberTypeGroup in
+            switch memberTypeGroup {
+            case .success(let memberTypeGroup):
+                self.memberType = memberTypeGroup
+                let groupIds = memberTypeGroup.map({ $0.groupId })
+                GroupService.fetchUserGroups(withGroupIds: groupIds) { groups in
+                    self.groups = groups
+                    self.loaded = true
+                    self.collectionView.isScrollEnabled = true
+                    self.collectionView.reloadData()
+                }
+            case .failure(_):
+                self.loaded = true
+                self.collectionView.isScrollEnabled = true
+                self.collectionView.reloadData()
+            }
         }
     }
     
@@ -93,11 +105,22 @@ extension GroupSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionVie
         
         if groups.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+            cell.set(withTitle: "We could not find any group you are a part of - yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
             cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupBrowseCell
             cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+            
+            let memberIndex = memberType.firstIndex { memberType in
+                if groups[indexPath.row].groupId == memberType.groupId {
+                    return true
+                }
+                return false
+            }
+            
+            if let memberIndex = memberIndex { cell.setGroupRole(role: memberType[memberIndex].memberType) }
+          
             return cell
         }
     }
@@ -105,7 +128,15 @@ extension GroupSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if !loaded || groups.isEmpty { return }
         let group = groups[indexPath.row]
-        delegate?.didSelectGroup(group)
+        
+        let memberIndex = memberType.firstIndex { memberType in
+            if group.groupId == memberType.groupId {
+                return true
+            }
+            return false
+        }
+        
+        if let memberIndex = memberIndex { delegate?.didSelectGroup(group, memberType: memberType[memberIndex].memberType) }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {

@@ -16,6 +16,8 @@ private let emptyGroupCellReuseIdentifier = "EmptyGroupCellReuseIdentifier"
 
 class RequestSelectorCell: UICollectionViewCell {
     
+    weak var delegate: GroupSelectorCellDelegate?
+    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 10
@@ -44,21 +46,31 @@ class RequestSelectorCell: UICollectionViewCell {
     }
     
     private func fetchUserGroups() {
-        #warning("change functino to fetchUserPendingGroups")
-        GroupService.fetchUserGroups { groups in
-            self.groups = groups
-            self.loaded = true
-            self.collectionView.isScrollEnabled = true
-            self.collectionView.reloadData()
+        DatabaseManager.shared.fetchUserIdPendingGroups { memberTypeGroup in
+            switch memberTypeGroup {
+            case .success(let memberTypeGroup):
+                let groupIds = memberTypeGroup.map({ $0.groupId })
+                GroupService.fetchUserGroups(withGroupIds: groupIds) { groups in
+                    self.groups = groups
+                    self.loaded = true
+                    self.collectionView.isScrollEnabled = true
+                    self.collectionView.reloadData()
+                }
+            case .failure(_):
+                self.loaded = true
+                self.collectionView.isScrollEnabled = true
+                self.collectionView.reloadData()
+            }
+            
         }
     }
     
     private func configure() {
-        backgroundColor = .systemBackground
+        backgroundColor = .systemPink
         addSubview(collectionView)
         collectionView.frame = bounds
         collectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
-        collectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        collectionView.register(GroupPendingCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         collectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
         collectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
         collectionView.delegate = self
@@ -88,10 +100,12 @@ extension RequestSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionV
         if groups.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
             //cell.delegate = self
+            cell.set(withTitle: "We could not find any active group requests.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupBrowseCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupPendingCell
             cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+            cell.setGroupRole(role: .pending)
             return cell
         }
     }

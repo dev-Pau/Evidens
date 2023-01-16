@@ -1,13 +1,14 @@
 //
-//  GroupBrowseCell.swift
+//  GroupPendingCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 2/12/22.
+//  Created by Pau Fernández Solà on 16/1/23.
 //
+
 
 import UIKit
 
-class GroupBrowseCell: UICollectionViewCell {
+class GroupPendingCell: UICollectionViewCell {
     
     var viewModel: GroupViewModel? {
         didSet {
@@ -35,15 +36,6 @@ class GroupBrowseCell: UICollectionViewCell {
         return label
     }()
     
-    private let categoriesGroupLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 13, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
-        return label
-    }()
-    
     private let memberTypeButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -61,15 +53,6 @@ class GroupBrowseCell: UICollectionViewCell {
         return label
     }()
     
-    private let membersCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumInteritemSpacing = 0
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -103,7 +86,7 @@ class GroupBrowseCell: UICollectionViewCell {
         ])
         
         
-        cellContentView.addSubviews(groupImageView, groupNameLabel, categoriesGroupLabel, memberTypeButton, groupSizeLabel, membersCollectionView)
+        cellContentView.addSubviews(groupImageView, groupNameLabel, memberTypeButton, groupSizeLabel)
         
         NSLayoutConstraint.activate([
             groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 4),
@@ -115,11 +98,7 @@ class GroupBrowseCell: UICollectionViewCell {
             groupNameLabel.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
             groupNameLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            categoriesGroupLabel.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor),
-            categoriesGroupLabel.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
-            categoriesGroupLabel.trailingAnchor.constraint(equalTo: groupNameLabel.trailingAnchor),
-            
-            memberTypeButton.topAnchor.constraint(equalTo: categoriesGroupLabel.bottomAnchor, constant: 2),
+            memberTypeButton.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 2),
             memberTypeButton.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
             
             groupSizeLabel.topAnchor.constraint(equalTo: memberTypeButton.bottomAnchor, constant: 2),
@@ -135,10 +114,9 @@ class GroupBrowseCell: UICollectionViewCell {
         groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         groupNameLabel.text = viewModel.groupName
         groupSizeLabel.text = viewModel.groupSizeString
-        categoriesGroupLabel.text = viewModel.groupCategories
-        
-        memberTypeButton.configuration?.baseForegroundColor = .label
-        memberTypeButton.configuration?.baseBackgroundColor = .tertiarySystemFill
+       
+        memberTypeButton.configuration?.baseForegroundColor = primaryColor
+        memberTypeButton.configuration?.baseBackgroundColor = .white
     }
     
     func setGroupRole(role: Group.MemberType) {
@@ -161,3 +139,4 @@ class GroupBrowseCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
 }
+
