@@ -108,6 +108,24 @@ struct Group {
         }
     }
     
+    enum GroupManagement: String, CaseIterable {
+        case posts = "Pending posts"
+        case membership = "Manage membership"
+        case edit = "Edit group"
+        
+        var groupManagementImage: UIImage {
+            switch self {
+            case .posts:
+                return UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .membership:
+                return UIImage(systemName: "folder.badge.person.crop", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .edit:
+                return UIImage(systemName: "highlighter", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            }
+        }
+        
+    }
+    
     var name: String
     var ownerUid: String
     var groupId: String

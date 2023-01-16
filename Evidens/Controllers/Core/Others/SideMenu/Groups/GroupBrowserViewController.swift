@@ -27,7 +27,13 @@ class GroupBrowserViewController: UIViewController {
     
     weak var scrollDelegate: CollectionViewDidScrollDelegate?
     
-    private let browserSegmentedButtonsView = FollowersFollowingSegmentedButtonsView(frame: .zero, titles: ["Groups", "Requests"])
+    private lazy var browserSegmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
+        let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
+        segmentedButtonsView.setLabelsTitles(titles: ["Groups", "Requests"])
+        segmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
+        segmentedButtonsView.backgroundColor = .systemBackground
+        return segmentedButtonsView
+    }()
     
     private var loaded: Bool = false
     
@@ -66,8 +72,6 @@ class GroupBrowserViewController: UIViewController {
         return collectionView
     }()
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -77,11 +81,6 @@ class GroupBrowserViewController: UIViewController {
         browserSegmentedButtonsView.segmentedControlDelegate = self
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if !loaded { groupCollectionView.reloadData() }
-    }
-    
     private func configureNavigationBar() {
         title = "Groups"
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBlue), style: .done, target: self, action: #selector(didTapCreateGroup))
@@ -89,10 +88,6 @@ class GroupBrowserViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        //groupCollectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
-        //groupCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
-        //groupCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
-        //groupCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
         groupCollectionView.register(GroupSelectorCell.self, forCellWithReuseIdentifier: groupSelectorCellReuseIdentifier)
         groupCollectionView.register(RequestSelectorCell.self, forCellWithReuseIdentifier: groupRequestSelectorCellReuseIdentifier)
         groupCollectionView.delegate = self
@@ -153,6 +148,7 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestSelectorCellReuseIdentifier, for: indexPath) as! RequestSelectorCell
+            cell.delegate = self
             return cell
         }
     }
@@ -206,6 +202,7 @@ extension GroupBrowserViewController: GroupSelectorCellDelegate {
 extension GroupBrowserViewController: SegmentedControlDelegate {
     func indexDidChange(from currentIndex: Int, to index: Int) {
         if currentIndex == index { return }
+
         let collectionBounds = self.groupCollectionView.bounds
         // Switch based on the current index of the CustomSegmentedButtonsView
         switch currentIndex {

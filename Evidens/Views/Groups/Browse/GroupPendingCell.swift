@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 class GroupPendingCell: UICollectionViewCell {
     
     var viewModel: GroupViewModel? {
@@ -15,6 +16,8 @@ class GroupPendingCell: UICollectionViewCell {
             configureGroup()
         }
     }
+    
+    weak var delegate: GroupSelectorCellDelegate?
     
     private let cellContentView = UIView()
     
@@ -41,6 +44,8 @@ class GroupPendingCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .medium
         button.configuration?.buttonSize = .mini
+        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeColor = .quaternarySystemFill
         button.translatesAutoresizingMaskIntoConstraints  = false
         return button
     }()
@@ -89,6 +94,7 @@ class GroupPendingCell: UICollectionViewCell {
         cellContentView.addSubviews(groupImageView, groupNameLabel, memberTypeButton, groupSizeLabel)
         
         NSLayoutConstraint.activate([
+
             groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 4),
             groupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 4),
             groupImageView.heightAnchor.constraint(equalToConstant: 70),
@@ -98,15 +104,24 @@ class GroupPendingCell: UICollectionViewCell {
             groupNameLabel.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
             groupNameLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            memberTypeButton.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 2),
+            memberTypeButton.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 5),
             memberTypeButton.leadingAnchor.constraint(equalTo: groupImageView.trailingAnchor, constant: 10),
             
-            groupSizeLabel.topAnchor.constraint(equalTo: memberTypeButton.bottomAnchor, constant: 2),
-            groupSizeLabel.leadingAnchor.constraint(equalTo: memberTypeButton.leadingAnchor),
-            groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            groupSizeLabel.centerYAnchor.constraint(equalTo: memberTypeButton.centerYAnchor),
+            groupSizeLabel.leadingAnchor.constraint(equalTo: memberTypeButton.trailingAnchor, constant: 10),
+            //groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
         ])
         
         groupImageView.layer.cornerRadius = 7
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 memberTypeButton.layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
     }
     
     private func configureGroup() {
@@ -115,8 +130,9 @@ class GroupPendingCell: UICollectionViewCell {
         groupNameLabel.text = viewModel.groupName
         groupSizeLabel.text = viewModel.groupSizeString
        
-        memberTypeButton.configuration?.baseForegroundColor = primaryColor
-        memberTypeButton.configuration?.baseBackgroundColor = .white
+        memberTypeButton.configuration?.baseForegroundColor = .label
+        memberTypeButton.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
+        
     }
     
     func setGroupRole(role: Group.MemberType) {
@@ -134,7 +150,7 @@ class GroupPendingCell: UICollectionViewCell {
         
         let height = max(90, autoLayoutSize.height)
         
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 90))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

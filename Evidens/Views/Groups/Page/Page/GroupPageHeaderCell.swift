@@ -205,14 +205,53 @@ class GroupPageHeaderCell: UICollectionViewCell {
         }
     }
     
-    private func addMenuItems() -> UIMenu {
-        let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
-                self.delegate?.didTapActionButton(memberType: .pending)
-            })
-        ])
+    private func addMenuItems() -> UIMenu? {
+        guard let memberType = memberType else { return nil }
         
-        return menuItems
+        switch memberType {
+        case .owner:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapActionButton(memberType: .pending)
+                }),
+                UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapActionButton(memberType: .pending)
+                }),
+                UIAction(title: Group.GroupManagement.edit.rawValue, image: Group.GroupManagement.edit.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapActionButton(memberType: .pending)
+                })
+            ])
+            customUserButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .admin:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
+                    self.delegate?.didTapActionButton(memberType: .pending)
+                })
+            ])
+            customUserButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .member:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
+                    self.delegate?.didTapActionButton(memberType: .pending)
+                })
+            ])
+            customUserButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .pending:
+            
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
+                    self.delegate?.didTapActionButton(memberType: .pending)
+                })
+            ])
+            customUserButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .external:
+            return nil
+        }
+
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -258,10 +297,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         customUserButton.configuration?.baseForegroundColor = memberType.buttonForegroundColor
         
         if memberType == .external { customUserButton.configuration?.background.strokeColor = .quaternarySystemFill }
-        if memberType == .pending {
-            customUserButton.menu = addMenuItems()
-            customUserButton.showsMenuAsPrimaryAction = true
-        } else { customUserButton.menu = nil }
+        customUserButton.menu = addMenuItems()
     }
     
     @objc func handleBannerTap() {

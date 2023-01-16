@@ -628,10 +628,15 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
         case .member:
             break
         case .pending:
-            self.memberType = .external
-            cell.memberType = .external
-            cell.isUpdatingJoiningState = false
-            cell.setNeedsUpdateConfiguration()
+            DatabaseManager.shared.unsendRequestToGroup(groupId: group.groupId) { unsend in
+                if unsend {
+                    self.memberType = .external
+                    cell.memberType = .external
+                    cell.isUpdatingJoiningState = false
+                    cell.setNeedsUpdateConfiguration()
+                }
+            }
+           
         case .external:
             DatabaseManager.shared.sendRequestToGroup(groupId: group.groupId) { send in
                 if send {

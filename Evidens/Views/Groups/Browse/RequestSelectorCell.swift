@@ -99,7 +99,7 @@ extension RequestSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionV
         
         if groups.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
-            //cell.delegate = self
+            cell.delegate = self
             cell.set(withTitle: "We could not find any active group requests.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
             return cell
         } else {
@@ -111,7 +111,10 @@ extension RequestSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if !loaded || groups.isEmpty { return }
+        let group = groups[indexPath.row]
         
+        delegate?.didSelectGroup(group, memberType: .pending)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -129,11 +132,23 @@ extension RequestSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionV
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionFooter && loaded {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier, for: indexPath) as! GroupBrowseFooter
-            //footer.delegate = self
+            footer.delegate = self
             return footer
         } else {
             return UICollectionReusableView()
         }
+    }
+}
+
+extension RequestSelectorCell: EmptyGroupCellDelegate {
+    func didTapDiscoverGroup() {
+        delegate?.didTapDiscover()
+    }
+}
+
+extension RequestSelectorCell: GroupBrowseFooterDelegate {
+    func didTapDiscoverGroups() {
+        delegate?.didTapDiscover()
     }
 }
 
