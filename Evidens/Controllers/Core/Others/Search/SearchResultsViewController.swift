@@ -173,6 +173,7 @@ extension SearchResultsViewController: UISearchBarDelegate {
 
 extension SearchResultsViewController: SegmentedControlDelegate {
     func indexDidChange(from currentIndex: Int, to index: Int) {
+        if currentIndex == index { return }
         let collectionBounds = self.collectionView.bounds
         // Switch based on the current index of the CustomSegmentedButtonsView
         switch currentIndex {

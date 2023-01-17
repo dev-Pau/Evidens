@@ -189,6 +189,8 @@
 		5F9A28102976B90A0052E618 /* GroupPostsReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */; };
 		5F9A28122976B9240052E618 /* GroupCasesReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */; };
 		5F9A28142976C0850052E618 /* GroupMembershipViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */; };
+		5F9A28162976E8290052E618 /* GroupRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28152976E8290052E618 /* GroupRequestCell.swift */; };
+		5F9A28182976F4560052E618 /* GroupUserRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */; };
 		5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */; };
 		5F9A76CB28E068270079126F /* EmptyConversationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
@@ -532,6 +534,8 @@
 		5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPostsReviewCell.swift; sourceTree = "<group>"; };
 		5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCasesReviewCell.swift; sourceTree = "<group>"; };
 		5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembershipViewController.swift; sourceTree = "<group>"; };
+		5F9A28152976E8290052E618 /* GroupRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRequestCell.swift; sourceTree = "<group>"; };
+		5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupUserRequestCell.swift; sourceTree = "<group>"; };
 		5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchConversationViewController.swift; sourceTree = "<group>"; };
 		5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyConversationSearchCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
@@ -1435,10 +1439,20 @@
 		5F9A280E2976B8E80052E618 /* Management */ = {
 			isa = PBXGroup;
 			children = (
+				5F9A28192976F45D0052E618 /* Request */,
 				5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */,
 				5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */,
 			);
 			path = Management;
+			sourceTree = "<group>";
+		};
+		5F9A28192976F45D0052E618 /* Request */ = {
+			isa = PBXGroup;
+			children = (
+				5F9A28152976E8290052E618 /* GroupRequestCell.swift */,
+				5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */,
+			);
+			path = Request;
 			sourceTree = "<group>";
 		};
 		5F9A9F842896D88F00A25152 /* Section */ = {
@@ -2230,6 +2244,7 @@
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
 				5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */,
+				5F9A28162976E8290052E618 /* GroupRequestCell.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
 				5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
@@ -2255,6 +2270,7 @@
 				5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */,
 				5F9FB29128F6CF2000BABDFD /* CategoriesExploreCasesCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
+				5F9A28182976F4560052E618 /* GroupUserRequestCell.swift in Sources */,
 				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,

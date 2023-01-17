@@ -1017,6 +1017,19 @@ extension DatabaseManager {
         }
     }
     
+    public func fetchGroupUserRequests(groupId: String, completion: @escaping([UserGroup]) -> Void) {
+        let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: 3)
+        var pendingUsers = [UserGroup]()
+        
+        groupRef.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                pendingUsers.append(UserGroup(dictionary: value))
+            }
+            completion(pendingUsers)
+        }
+    }
+    
     public func fetchUserMemberTypeForGroup(groupId: String, completion: @escaping(Group.MemberType) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)

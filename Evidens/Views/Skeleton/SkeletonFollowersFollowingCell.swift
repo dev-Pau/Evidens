@@ -55,7 +55,6 @@ class SkeletonFollowersFollowingCell: UITableViewCell, SkeletonLoadable {
     
     private func configure() {
         
-        
         profileImageLabel.translatesAutoresizingMaskIntoConstraints = false
         fullNameLabel.translatesAutoresizingMaskIntoConstraints = false
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false

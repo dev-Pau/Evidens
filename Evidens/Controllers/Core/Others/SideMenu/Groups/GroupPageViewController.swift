@@ -631,7 +631,15 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
         case .membership:
-            break
+            let controller = GroupMembershipViewController(group: group)
+            
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
         case .edit:
             let controller = CreateGroupViewController(group: group)
             controller.delegate = self
