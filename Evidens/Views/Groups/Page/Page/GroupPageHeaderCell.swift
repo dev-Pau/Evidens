@@ -15,6 +15,7 @@ protocol GroupPageHeaderCellDelegate: AnyObject {
     func didTapGroupBannerPicture()
     func didTapInfoButton()
     func didTapActionButton(memberType: Group.MemberType)
+    func didTapGroupOptions(option: Group.GroupManagement)
 }
 
 class GroupPageHeaderCell: UICollectionViewCell {
@@ -212,17 +213,18 @@ class GroupPageHeaderCell: UICollectionViewCell {
         case .owner:
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapActionButton(memberType: .pending)
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
                 }),
                 UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapActionButton(memberType: .pending)
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
                 }),
                 UIAction(title: Group.GroupManagement.edit.rawValue, image: Group.GroupManagement.edit.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapActionButton(memberType: .pending)
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.edit)
                 })
             ])
             customUserButton.showsMenuAsPrimaryAction = true
             return menuItems
+            
         case .admin:
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
@@ -251,7 +253,6 @@ class GroupPageHeaderCell: UICollectionViewCell {
         case .external:
             return nil
         }
-
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

@@ -14,6 +14,7 @@ private let createGroupImageCellReuseIdentifier = "CreateGroupImageCellReuseIden
 private let createGroupNameCellReuseIdentifier = "CreateGroupNameCellReuseIdentifier"
 private let createGroupDescriptionCellReuseIdentifier = "CreateGroupDescriptionCellReuseIdentifier"
 private let createGroupVisibilityCellReuseIdentifier = "CreateGroupVisibilityCellReuseIdentifier"
+private let createGroupPermissionCellReuseIdentifier = "CreateGroupPermissionCellReuseIdentifier"
 private let createGroupCategoriesCellReuseIdentifier = "CreateGroupCategoriesCellReuseIdentifier"
 
 protocol CreateGroupViewControllerDelegate: AnyObject {
@@ -33,6 +34,7 @@ class CreateGroupViewController: UIViewController {
         case groupName = "Name"
         case groupDescription = "Description"
         case groupVisibility = "Visibility"
+        case groupPermission = "Permission"
         case groupCategories = "Categories"
         
         var index: Int {
@@ -44,9 +46,11 @@ class CreateGroupViewController: UIViewController {
             case .groupDescription:
                 return 2
             case .groupVisibility:
-                return 3              
-            case .groupCategories:
+                return 3
+            case .groupPermission:
                 return 4
+            case .groupCategories:
+                return 5
             }
         }
     }
@@ -56,6 +60,7 @@ class CreateGroupViewController: UIViewController {
     private var groupBannerImage = UIImage()
     private var groupProfileImage = UIImage()
     private var visibilityState: Group.Visibility = .visible
+    private var groupPermissions: Group.Permissions = .invite
     private var groupCategories = [String]()
     
     private var isProfile: Bool = false
@@ -110,6 +115,7 @@ class CreateGroupViewController: UIViewController {
             viewModel.description = group.description
             viewModel.categories = group.categories
             viewModel.visibility = group.visibility
+            viewModel.permissions = group.permissions
         } else {
             viewModel.visibility = .visible
         }
@@ -123,7 +129,7 @@ class CreateGroupViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = group != nil ? "Edit group" : "Create group"
-        var buttonTitle = group != nil ? "Edit" : "Create"
+        let buttonTitle = group != nil ? "Edit" : "Create"
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
@@ -145,6 +151,7 @@ class CreateGroupViewController: UIViewController {
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: createGroupNameCellReuseIdentifier)
         collectionView.register(GroupDescriptionCell.self, forCellWithReuseIdentifier: createGroupDescriptionCellReuseIdentifier)
         collectionView.register(GroupVisibilityCell.self, forCellWithReuseIdentifier: createGroupVisibilityCellReuseIdentifier)
+        collectionView.register(GroupPermissionCell.self, forCellWithReuseIdentifier: createGroupPermissionCellReuseIdentifier)
         collectionView.register(GroupCategoriesCell.self, forCellWithReuseIdentifier: createGroupCategoriesCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -155,6 +162,7 @@ class CreateGroupViewController: UIViewController {
     }
     
     private func configureUI() {
+        print(groupPermissions)
         view.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         collectionView.frame = view.bounds
@@ -184,7 +192,7 @@ class CreateGroupViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let visibility = viewModel.visibility else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let visibility = viewModel.visibility, let permissions = viewModel.permissions else { return }
         
         var groupToUpload = Group(groupId: "", dictionary: [:])
         
@@ -192,6 +200,7 @@ class CreateGroupViewController: UIViewController {
         groupToUpload.description = groupDescription
         groupToUpload.ownerUid = uid
         groupToUpload.visibility = visibility
+        groupToUpload.permissions = permissions
         groupToUpload.categories = groupCategories
         
         if let group = group {
@@ -369,6 +378,11 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             cell.delegate = self
             if let group = group { cell.setVisibility(visibility: group.visibility) }
             return cell
+        } else if indexPath.row == 4 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupPermissionCellReuseIdentifier, for: indexPath) as! GroupPermissionCell
+            cell.delegate = self
+            if let group = group { cell.setPermissions(permissions: group.permissions) }
+            return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
             if let group = group { cell.updateCategories(categories: group.categories) }
@@ -417,6 +431,14 @@ extension CreateGroupViewController: GroupVisibilityCellDelegate {
         }
         
         viewModel.visibility = visibilityState
+        groupIsValid()
+    }
+}
+
+extension CreateGroupViewController: GroupPermissionCellDelegate {
+    func didUpdatePermissions(permissions: Group.Permissions) {
+        groupPermissions = permissions
+        viewModel.permissions = groupPermissions
         groupIsValid()
     }
 }

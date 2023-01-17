@@ -22,6 +22,7 @@ struct GroupService {
                     "members": 1,
                     "visibility": group.visibility.rawValue,
                     "categories": group.categories,
+                    "permissions": group.permissions.rawValue,
                     "bannerUrl": group.bannerUrl as Any,
                     "timestamp": Timestamp(date: Date()),
                     "profileUrl": group.profileUrl as Any
@@ -68,6 +69,7 @@ struct GroupService {
         let name = (group.name == newGroup.name) ? nil : newGroup.name
         let description = (group.description == newGroup.description) ? nil : newGroup.description
         let visibility = (group.visibility == newGroup.visibility) ? nil : newGroup.visibility.rawValue
+        let permissions = (group.permissions == newGroup.permissions) ? nil : newGroup.permissions.rawValue
         let categories = (group.categories == newGroup.categories) ? nil : newGroup.categories
         
         if bannerUrl != "" { updatedGroupData["bannerUrl"] = bannerUrl }
@@ -75,6 +77,7 @@ struct GroupService {
         if let name = name { updatedGroupData["name"] = name }
         if let description = description { updatedGroupData["description"] = description }
         if let visibility = visibility { updatedGroupData["visibility"] = visibility }
+        if let permissions = permissions { updatedGroupData["permissions"] = permissions }
         if let categories = categories { updatedGroupData["categories"] = categories }
         
         if updatedGroupData.isEmpty {

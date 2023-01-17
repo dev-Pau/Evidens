@@ -24,6 +24,13 @@ struct Group {
         }
     }
     
+    enum Permissions: Int {
+        case none = 0
+        case invite = 1
+        case review = 2
+        case all = 3
+    }
+    
     enum MemberType: Int {
         case owner
         case admin
@@ -109,9 +116,11 @@ struct Group {
     }
     
     enum GroupManagement: String, CaseIterable {
-        case posts = "Pending posts"
+        case posts = "Pending content"
         case membership = "Manage membership"
         case edit = "Edit group"
+        case leave = "Leave this group"
+        case report = "Report this group"
         
         var groupManagementImage: UIImage {
             switch self {
@@ -121,6 +130,10 @@ struct Group {
                 return UIImage(systemName: "folder.badge.person.crop", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
             case .edit:
                 return UIImage(systemName: "highlighter", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .leave:
+                return UIImage(systemName: "rectangle.portrait.and.arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .report:
+                return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
             }
         }
         
@@ -132,6 +145,7 @@ struct Group {
     var id: String
     var description: String
     var visibility: Visibility
+    var permissions: Permissions
     var categories: [String]
     var bannerUrl: String?
     var members: Int
@@ -146,6 +160,7 @@ struct Group {
         self.description = dictionary["description"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.visibility = Visibility(rawValue: dictionary["visibility"] as? Int ?? 0) ?? .visible
+        self.permissions = Permissions(rawValue: dictionary["permissions"] as? Int ?? 0) ?? .invite
         self.categories = dictionary["categories"] as? [String] ?? [""]
         self.members = dictionary["members"] as? Int ?? 0
         self.bannerUrl = dictionary["bannerUrl"] as? String ?? ""

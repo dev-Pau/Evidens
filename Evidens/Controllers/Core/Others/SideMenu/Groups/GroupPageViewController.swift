@@ -618,6 +618,36 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
 
 
 extension GroupPageViewController: GroupPageHeaderCellDelegate {
+    func didTapGroupOptions(option: Group.GroupManagement) {
+        switch option {
+        case .posts:
+            let controller = GroupContentManagementViewController()
+            
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        case .membership:
+            break
+        case .edit:
+            let controller = CreateGroupViewController(group: group)
+            controller.delegate = self
+            
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            
+            present(navVC, animated: true)
+        case .leave:
+            break
+        case .report:
+            break
+        }
+    }
+    
+    
     func didTapActionButton(memberType: Group.MemberType) {
         let cell = collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) as! GroupPageHeaderCell
         switch memberType {
@@ -710,7 +740,7 @@ extension GroupPageViewController: GroupContentCreationCellDelegate {
 }
 
 extension GroupPageViewController: GroupInformationViewControllerDelegate {
-    func didUpdateGroup(_ group: Group) {
+    func updateGroupInformation(_ group: Group) {
         self.group = group
         delegate?.didUpdateGroup(group)
         collectionView.reloadData()
@@ -739,5 +769,13 @@ extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
                 fetchGroupPosts()
             }
         }
+    }
+}
+
+extension GroupPageViewController: CreateGroupViewControllerDelegate {
+    func didUpdateGroup(_ group: Group) {
+        self.group = group
+        delegate?.didUpdateGroup(group)
+        collectionView.reloadData()
     }
 }

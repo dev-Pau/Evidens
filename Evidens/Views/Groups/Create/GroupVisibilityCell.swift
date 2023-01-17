@@ -24,6 +24,15 @@ class GroupVisibilityCell: UICollectionViewCell {
         return view
     }()
     
+    private let discoverabilityTitle: UILabel = {
+        let label = UILabel()
+        label.text = "Discoverability"
+        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .label
+        return label
+    }()
+    
     private let visibleView = GroupVisibilityView(optionTitle: "Listed", optionDescription: "Group will be visible in search results and can be displayed in your profile.")
     private let nonVisibleView = GroupVisibilityView(optionTitle: "Non listed", optionDescription: "Group does not appear either in search results or in your profile.")
     
@@ -51,21 +60,25 @@ class GroupVisibilityCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 160)
+            cellContentView.heightAnchor.constraint(equalToConstant: 180)
         ])
         
         visibleView.delegate = self
         nonVisibleView.delegate = self
         
-        addSubviews(topSeparatorView, visibleView, separatorView, nonVisibleView)
+        addSubviews(topSeparatorView, discoverabilityTitle, visibleView, separatorView, nonVisibleView)
         NSLayoutConstraint.activate([
             topSeparatorView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             topSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             topSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
             
+            discoverabilityTitle.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 5),
+            discoverabilityTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            discoverabilityTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
             visibleView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            visibleView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+            visibleView.topAnchor.constraint(equalTo: discoverabilityTitle.bottomAnchor),
             visibleView.trailingAnchor.constraint(equalTo: trailingAnchor),
             visibleView.heightAnchor.constraint(equalToConstant: 70),
             
@@ -95,7 +108,6 @@ class GroupVisibilityCell: UICollectionViewCell {
     }
     
     func setVisibility(visibility: Group.Visibility) {
-        print(visibility)
         switch visibility {
         case .visible:
             break
@@ -120,16 +132,21 @@ protocol GroupVisibilityViewDelegate: AnyObject {
     func handleVisibilityChange(isSelected: Bool)
 }
 
+protocol GroupPermissionsViewDelegate: AnyObject {
+    func handlePermissionChange(isEnabled: Bool)
+}
+
 class GroupVisibilityView: UIView {
     
     weak var delegate: GroupVisibilityViewDelegate?
+    weak var permissionDelegate: GroupPermissionsViewDelegate?
     
     private var optionTitle: String
     private var optionDescription: String
     
-    private var privacyOptionIsSelected: Bool = false
+    var privacyOptionIsSelected: Bool = false
     
-    private let selectionImage: UIImageView = {
+    var selectionImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
@@ -200,4 +217,5 @@ class GroupVisibilityView: UIView {
         privacyOptionIsSelected.toggle()
         selectionImage.image = UIImage(systemName: privacyOptionIsSelected ? "smallcircle.fill.circle.fill" : "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
     }
+    
 }

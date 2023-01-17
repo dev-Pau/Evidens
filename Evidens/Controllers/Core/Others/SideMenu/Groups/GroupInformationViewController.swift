@@ -15,7 +15,7 @@ private let groupAdminReuseIdentifier = "GroupAdminReuseIdentifier"
 private let groupPageCategoriesReuseIdentifier = "GroupPageCategoriesReuseIdentifier"
 
 protocol GroupInformationViewControllerDelegate: AnyObject {
-    func didUpdateGroup(_ group: Group)
+    func updateGroupInformation(_ group: Group)
 }
 
 class GroupInformationViewController: UIViewController {
@@ -226,7 +226,7 @@ extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UI
 extension GroupInformationViewController: CreateGroupViewControllerDelegate {
     func didUpdateGroup(_ group: Group) {
         self.group = group
-        delegate?.didUpdateGroup(group)
+        delegate?.updateGroupInformation(group)
         collectionView.reloadData()
     }
 }
