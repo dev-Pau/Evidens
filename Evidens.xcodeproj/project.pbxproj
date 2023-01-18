@@ -191,6 +191,9 @@
 		5F9A28142976C0850052E618 /* GroupMembershipViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */; };
 		5F9A28162976E8290052E618 /* GroupRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28152976E8290052E618 /* GroupRequestCell.swift */; };
 		5F9A28182976F4560052E618 /* GroupUserRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */; };
+		5F9A281D2977D90C0052E618 /* MESecondaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */; };
+		5F9A2820297805C10052E618 /* GroupSearchBarHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A281F297805C00052E618 /* GroupSearchBarHeader.swift */; };
+		5F9A2822297805F00052E618 /* GroupMembersCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A2821297805F00052E618 /* GroupMembersCell.swift */; };
 		5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */; };
 		5F9A76CB28E068270079126F /* EmptyConversationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
@@ -536,6 +539,9 @@
 		5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembershipViewController.swift; sourceTree = "<group>"; };
 		5F9A28152976E8290052E618 /* GroupRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRequestCell.swift; sourceTree = "<group>"; };
 		5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupUserRequestCell.swift; sourceTree = "<group>"; };
+		5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MESecondaryEmptyCell.swift; sourceTree = "<group>"; };
+		5F9A281F297805C00052E618 /* GroupSearchBarHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSearchBarHeader.swift; sourceTree = "<group>"; };
+		5F9A2821297805F00052E618 /* GroupMembersCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersCell.swift; sourceTree = "<group>"; };
 		5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchConversationViewController.swift; sourceTree = "<group>"; };
 		5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyConversationSearchCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
@@ -1439,6 +1445,7 @@
 		5F9A280E2976B8E80052E618 /* Management */ = {
 			isa = PBXGroup;
 			children = (
+				5F9A281E297804C30052E618 /* Members */,
 				5F9A28192976F45D0052E618 /* Request */,
 				5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */,
 				5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */,
@@ -1453,6 +1460,23 @@
 				5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */,
 			);
 			path = Request;
+			sourceTree = "<group>";
+		};
+		5F9A281A2977D8CA0052E618 /* Empty */ = {
+			isa = PBXGroup;
+			children = (
+				5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */,
+			);
+			path = Empty;
+			sourceTree = "<group>";
+		};
+		5F9A281E297804C30052E618 /* Members */ = {
+			isa = PBXGroup;
+			children = (
+				5F9A2821297805F00052E618 /* GroupMembersCell.swift */,
+				5F9A281F297805C00052E618 /* GroupSearchBarHeader.swift */,
+			);
+			path = Members;
 			sourceTree = "<group>";
 		};
 		5F9A9F842896D88F00A25152 /* Section */ = {
@@ -1931,6 +1955,7 @@
 				5FC4D88627071CC4006B7A34 /* Home */,
 				5F5888FC271067C7005E5B4F /* Launch */,
 				5F5888FB271067B8005E5B4F /* Assets */,
+				5F9A281A2977D8CA0052E618 /* Empty */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2243,6 +2268,7 @@
 				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
+				5F9A2820297805C10052E618 /* GroupSearchBarHeader.swift in Sources */,
 				5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */,
 				5F9A28162976E8290052E618 /* GroupRequestCell.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
@@ -2357,6 +2383,7 @@
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
 				5F9FB27B28EC3ACF00BABDFD /* FollowersFollowingViewController.swift in Sources */,
+				5F9A2822297805F00052E618 /* GroupMembersCell.swift in Sources */,
 				5F9A280D2976B3B10052E618 /* GroupContentManagementViewController.swift in Sources */,
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
 				5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */,
@@ -2455,6 +2482,7 @@
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,
 				5F9FB27F28EC4BE800BABDFD /* FollowersCell.swift in Sources */,
+				5F9A281D2977D90C0052E618 /* MESecondaryEmptyCell.swift in Sources */,
 				5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */,
 				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,
 				5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */,

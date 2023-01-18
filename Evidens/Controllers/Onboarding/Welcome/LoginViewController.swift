@@ -227,7 +227,7 @@ class LoginViewController: UIViewController {
                 self.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                 return
             }
-            
+
             //self.dismiss(animated: true, completion: nil)
             let controller = MainTabController()
             //let nav = UINavigationController(rootViewController: controller)

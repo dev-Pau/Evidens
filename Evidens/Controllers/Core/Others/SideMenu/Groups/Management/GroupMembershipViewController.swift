@@ -7,6 +7,7 @@
 
 import UIKit
 
+private let groupMembershipCellReuseIdentifier = "GroupMembershipCellReuseIdentifier"
 private let groupRequestsCellReuseIdentifier = "GroupInvitesCellReuseIdentifier"
 
 class GroupMembershipViewController: UIViewController {
@@ -63,10 +64,15 @@ class GroupMembershipViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Pending content"
+        title = "Manage membership"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Admins", style: .done, target: self, action: #selector(handleAdminsTap))
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }
     
+    
+    
     private func configureCollectionView() {
+        collectionView.register(GroupMembersCell.self, forCellWithReuseIdentifier: groupMembershipCellReuseIdentifier)
         collectionView.register(GroupRequestCell.self, forCellWithReuseIdentifier: groupRequestsCellReuseIdentifier)
         //groupCollectionView.register(GroupSelectorCell.self, forCellWithReuseIdentifier: groupSelectorCellReuseIdentifier)
         //groupCollectionView.register(RequestSelectorCell.self, forCellWithReuseIdentifier: groupRequestSelectorCellReuseIdentifier)
@@ -100,6 +106,10 @@ class GroupMembershipViewController: UIViewController {
         scrollDelegate = browserSegmentedButtonsView
         scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 4)
     }
+    
+    @objc func handleAdminsTap() {
+        #warning("present admins controller omegakek")
+    }
 }
 
 extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -113,11 +123,15 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestsCellReuseIdentifier, for: indexPath) as! GroupRequestCell
-        cell.group = group
-        return cell
-        
+        if indexPath.row == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupMembershipCellReuseIdentifier, for: indexPath) as! GroupMembersCell
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestsCellReuseIdentifier, for: indexPath) as! GroupRequestCell
+            cell.delegate = self
+            cell.group = group
+            return cell
+        }
     }
 }
 
@@ -186,5 +200,23 @@ extension GroupMembershipViewController: SegmentedControlDelegate {
             self.collectionView.scrollRectToVisible(frame, animated: true)
         }
         
+    }
+}
+
+extension GroupMembershipViewController: GroupRequestCellDelegate {
+    func didTapEmptyCellButton() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func didTapUser(user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

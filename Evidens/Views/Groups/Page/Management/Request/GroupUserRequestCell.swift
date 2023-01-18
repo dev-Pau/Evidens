@@ -7,6 +7,11 @@
 
 import UIKit
 
+protocol GroupUserRequestCellDelegate: AnyObject {
+    func didTapIgnore(user: User)
+    func didTapAccept(user: User)
+}
+
 class GroupUserRequestCell: UICollectionViewCell {
     
     var user: User? {
@@ -14,6 +19,8 @@ class GroupUserRequestCell: UICollectionViewCell {
             configureWithUser()
         }
     }
+    
+    weak var delegate: GroupUserRequestCellDelegate?
     
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
@@ -49,17 +56,14 @@ class GroupUserRequestCell: UICollectionViewCell {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
-
+        
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.buttonSize = .mini
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 1
         
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 14, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Accept", attributes: container)
+        button.configuration?.image = UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         
         button.addTarget(self, action: #selector(handleAcceptRequest), for: .touchUpInside)
         
@@ -108,7 +112,7 @@ class GroupUserRequestCell: UICollectionViewCell {
             
             acceptButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             acceptButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            acceptButton.widthAnchor.constraint(equalToConstant: 80),
+            acceptButton.widthAnchor.constraint(equalToConstant: 30),
             acceptButton.heightAnchor.constraint(equalToConstant: 30),
             
             ignoreButton.centerYAnchor.constraint(equalTo: acceptButton.centerYAnchor),
@@ -139,12 +143,13 @@ class GroupUserRequestCell: UICollectionViewCell {
         }
     }
     
-    
     @objc func handleIgnoreRequest() {
-        
+        guard let user = user else { return }
+        delegate?.didTapIgnore(user: user)
     }
     
     @objc func handleAcceptRequest() {
-        
+        guard let user = user else { return }
+        delegate?.didTapAccept(user: user)
     }
 }

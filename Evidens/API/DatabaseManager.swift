@@ -884,6 +884,30 @@ extension DatabaseManager {
         }
     }
     
+    public func ignoreUserRequestToGroup(groupId: String, uid: String, completion: @escaping(Bool) -> Void) {
+        let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
+        userRef.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                self.database.child("users").child(uid).child("groups").child(key).removeValue { error, _ in
+                    let groupRef = self.database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+                    groupRef.observeSingleEvent(of: .value) { snapshot in
+                        if let value = snapshot.value as? [String: Any] {
+                            guard let key = value.first?.key else { return }
+                            self.database.child("groups").child(groupId).child("users").child(key).removeValue { error, _ in
+                                if let _ = error {
+                                    
+                                }
+                                
+                                completion(true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func unsendRequestToGroup(groupId: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
@@ -1022,6 +1046,12 @@ extension DatabaseManager {
         var pendingUsers = [UserGroup]()
         
         groupRef.observeSingleEvent(of: .value) { snapshot in
+            if !snapshot.exists() {
+                print("snapshot doesnt exist")
+                completion(pendingUsers)
+                return
+            }
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
                 pendingUsers.append(UserGroup(dictionary: value))
