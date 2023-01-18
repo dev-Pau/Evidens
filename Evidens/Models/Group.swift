@@ -37,6 +37,8 @@ struct Group {
         case member
         case pending
         case external
+        case invited
+        case blocked
         
         var memberTypeString: String {
             switch self {
@@ -51,6 +53,10 @@ struct Group {
                 return "Pending"
             case .external:
                 return "External"
+            case .invited:
+                return "Invited"
+            case .blocked:
+                return "Blocked"
             }
         }
         
@@ -66,6 +72,10 @@ struct Group {
                 return 3
             case .external:
                 return 4
+            case .invited:
+                return 5
+            case .blocked:
+                return 6
             }
         }
         
@@ -81,6 +91,10 @@ struct Group {
                 return "Pending"
             case .external:
                 return "Join"
+            case .invited:
+                return "Invited"
+            case .blocked:
+                return "Blocked"
             }
         }
         
@@ -96,6 +110,10 @@ struct Group {
                 return .secondarySystemGroupedBackground
             case .external:
                 return .label
+            case .invited:
+                return .secondarySystemGroupedBackground
+            case .blocked:
+                return .secondarySystemGroupedBackground
             }
         }
         
@@ -111,6 +129,10 @@ struct Group {
                 return .label
             case .external:
                 return .systemBackground
+            case .invited:
+                return .label
+            case .blocked:
+                return .label
             }
         }
     }

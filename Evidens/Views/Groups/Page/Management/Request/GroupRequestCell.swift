@@ -128,7 +128,24 @@ extension GroupRequestCell: UICollectionViewDelegateFlowLayout, UICollectionView
 
 extension GroupRequestCell: GroupUserRequestCellDelegate {
     func didTapAccept(user: User) {
-
+        guard let group = group else { return }
+        let userIndex = users.firstIndex { arrayUser in
+            if user.uid == arrayUser.uid {
+                return true
+            }
+            
+            return false
+        }
+        
+        guard let userIndex = userIndex else { return }
+        
+        DatabaseManager.shared.acceptUserRequestToGroup(groupId: group.groupId, uid: user.uid!) { accepted in
+            self.collectionView.performBatchUpdates {
+                self.users.remove(at: userIndex)
+                self.collectionView.deleteItems(at: [IndexPath(item: userIndex, section: 0)])
+            }
+        }
+        
         //delegate?.handleAcceptUser(user: user)
     }
     

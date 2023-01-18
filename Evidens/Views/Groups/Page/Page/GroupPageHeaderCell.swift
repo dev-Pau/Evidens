@@ -252,6 +252,10 @@ class GroupPageHeaderCell: UICollectionViewCell {
             return menuItems
         case .external:
             return nil
+        case .invited:
+            return nil
+        case .blocked:
+            return nil
         }
     }
     

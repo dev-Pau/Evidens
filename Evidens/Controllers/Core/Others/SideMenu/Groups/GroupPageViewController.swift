@@ -684,6 +684,10 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                     cell.setNeedsUpdateConfiguration()
                 }
             }
+        case .invited:
+            break
+        case .blocked:
+            break
         }
     }
     

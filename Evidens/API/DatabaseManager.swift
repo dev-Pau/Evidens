@@ -908,6 +908,27 @@ extension DatabaseManager {
         }
     }
     
+    public func acceptUserRequestToGroup(groupId: String, uid: String, completion: @escaping(Bool) -> Void) {
+        let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
+        userRef.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                
+                guard let key = value.first?.key else { return }
+                self.database.child("users").child(uid).child("groups").child(key).updateChildValues(["memberType": Group.MemberType.member.rawValue]) { error, _ in
+                    let groupRef = self.database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+                    groupRef.observeSingleEvent(of: .value) { snapshot in
+                        if let value = snapshot.value as? [String: Any] {
+                            guard let key = value.first?.key else { return }
+                            self.database.child("groups").child(groupId).child("users").child(key).updateChildValues(["memberType": Group.MemberType.member.rawValue]) { error, _ in
+                                completion(true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func unsendRequestToGroup(groupId: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
@@ -1041,8 +1062,27 @@ extension DatabaseManager {
         }
     }
     
+    public func fetchGroupMembers(groupId: String, completion: @escaping([UserGroup]) -> Void) {
+        let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: Group.MemberType.member.rawValue)
+        
+        var members = [UserGroup]()
+        
+        groupRef.observeSingleEvent(of: .value) { snapshot in
+            if !snapshot.exists() {
+                completion(members)
+                return
+            }
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                members.append(UserGroup(dictionary: value))
+            }
+            completion(members)
+        }
+    }
+    
     public func fetchGroupUserRequests(groupId: String, completion: @escaping([UserGroup]) -> Void) {
-        let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: 3)
+        let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: Group.MemberType.pending.rawValue)
         var pendingUsers = [UserGroup]()
         
         groupRef.observeSingleEvent(of: .value) { snapshot in
