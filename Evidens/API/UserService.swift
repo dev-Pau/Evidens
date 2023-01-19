@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import FirebaseAuth
 import Foundation
 
 typealias FirestoreCompletion = (Error?) -> Void
@@ -13,6 +14,7 @@ typealias FirestoreCompletion = (Error?) -> Void
 struct UserService {
     
     static func updateProfileUrl(profileImageUrl: String, completion: @escaping(Bool) -> Void) {
+        
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["profileImageUrl" : profileImageUrl], merge: true) { err in
             if let err = err {
@@ -176,6 +178,28 @@ struct UserService {
             completion(isFollowed)
         }
     }
+    
+    #warning("Only for testing purposes, for counting number of likes and display without updating the document field likes")
+   
+    static func fetchUserFollowerws() {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        query.getAggregation(source: .server) { snaphsot, _ in
+            print(snaphsot?.count)
+        }
+        
+        /*let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        do {
+            let snapshot = try await query.getAggregation(source: .server)
+            print(snapshot.count)
+        } catch {
+            print(error)
+        }
+         */
+        
+        
+    }
+    
     
     static func fetchUserStats(uid: String, completion: @escaping(UserStats) -> Void) {
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in

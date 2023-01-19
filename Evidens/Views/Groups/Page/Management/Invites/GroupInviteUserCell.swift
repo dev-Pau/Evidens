@@ -1,13 +1,13 @@
 //
-//  GroupMemberUserCell.swift
+//  GroupInviteUserCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 18/1/23.
+//  Created by Pau Fernández Solà on 19/1/23.
 //
 
 import UIKit
 
-class GroupMemberUserCell: UICollectionViewCell {
+class GroupInviteUserCell: UICollectionViewCell {
     
     var user: User? {
         didSet {
@@ -45,17 +45,17 @@ class GroupMemberUserCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var threeDotsButton: UIButton = {
+    private lazy var cancelInvite: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
         
         button.configuration?.buttonSize = .mini
-        button.configuration?.baseForegroundColor = .label
+        button.configuration?.baseForegroundColor = .systemRed
         
-        button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         
-        button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapCancelInvite), for: .touchUpInside)
         
         button.isUserInteractionEnabled = true
         
@@ -72,21 +72,21 @@ class GroupMemberUserCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(profileImageView, threeDotsButton, nameLabel, userCategoryLabel)
+        addSubviews(profileImageView, cancelInvite, nameLabel, userCategoryLabel)
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             
-            threeDotsButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            threeDotsButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            threeDotsButton.widthAnchor.constraint(equalToConstant: 30),
-            threeDotsButton.heightAnchor.constraint(equalToConstant: 30),
+            cancelInvite.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            cancelInvite.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            cancelInvite.widthAnchor.constraint(equalToConstant: 30),
+            cancelInvite.heightAnchor.constraint(equalToConstant: 30),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: threeDotsButton.leadingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(equalTo: cancelInvite.leadingAnchor, constant: -10),
             
             userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
@@ -107,7 +107,9 @@ class GroupMemberUserCell: UICollectionViewCell {
         }
     }
     
-    @objc func didTapThreeDots() {
+    @objc func didTapCancelInvite() {
         #warning("show uimenu options")
     }
 }
+
+

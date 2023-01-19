@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 import Firebase
 
 struct GroupService {
@@ -19,7 +20,6 @@ struct GroupService {
                     "ownerUid": uid,
                     "id": group.groupId,
                     "description": group.description,
-                    "members": 1,
                     "visibility": group.visibility.rawValue,
                     "categories": group.categories,
                     "permissions": group.permissions.rawValue,
@@ -39,9 +39,15 @@ struct GroupService {
                 completion([])
                 return
             }
-            
-            let groups: [Group] = documents.compactMap({ Group(groupId: $0.documentID, dictionary: $0.data()) })
-            completion(groups)
+
+            var groups: [Group] = documents.compactMap({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+            groups.enumerated().forEach { index, group in
+                DatabaseManager.shared.fetchNumberOfGroupUsers(groupId: group.groupId) { members in
+                    groups[index].members = members
+                    completion(groups)
+                }
+                
+            }
         }
     }
     
@@ -54,8 +60,15 @@ struct GroupService {
             COLLECTION_GROUPS.whereField("id", isEqualTo: id).getDocuments { snapshot, error in
                 guard let documents = snapshot?.documents else { return }
                 let group = documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+                
                 userGroups.append(contentsOf: group)
-                completion(userGroups)
+                
+                userGroups.enumerated().forEach { index, group in
+                    DatabaseManager.shared.fetchNumberOfGroupUsers(groupId: group.groupId) { members in
+                        userGroups[index].members = members
+                        completion(userGroups)
+                    }
+                }
             }
         }
     }

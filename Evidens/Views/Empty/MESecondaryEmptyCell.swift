@@ -29,6 +29,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 18, weight: .bold)
         label.textColor = .label
+        label.numberOfLines = 0
         label.textAlignment = .center
         return label
     }()
@@ -38,6 +39,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .label
+        label.numberOfLines = 0
         label.textAlignment = .center
         return label
     }()

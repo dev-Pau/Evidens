@@ -8,7 +8,9 @@
 import UIKit
 
 private let groupMembershipCellReuseIdentifier = "GroupMembershipCellReuseIdentifier"
-private let groupRequestsCellReuseIdentifier = "GroupInvitesCellReuseIdentifier"
+private let groupRequestsCellReuseIdentifier = "GroupRequestsCellReuseIdentifier"
+private let groupBlockedCellReuseIdentifier = "GroupBlockedCellReuseIdentifier"
+private let groupInvitesCellReuseIdentifier = "GroupInvitesCellReuseIdentifier"
 
 class GroupMembershipViewController: UIViewController {
     
@@ -20,7 +22,7 @@ class GroupMembershipViewController: UIViewController {
     
     private lazy var browserSegmentedButtonsView: CustomSegmentedButtonsView = {
         let segmentedButtonsView = CustomSegmentedButtonsView()
-        segmentedButtonsView.setLabelsTitles(titles: ["Members", "Requests", "Invited", "Blocked"])
+        segmentedButtonsView.setLabelsTitles(titles: Group.GroupMembershipManagement.allCases.map( {$0.rawValue} ))
         segmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
         segmentedButtonsView.backgroundColor = .systemBackground
         return segmentedButtonsView
@@ -74,8 +76,8 @@ class GroupMembershipViewController: UIViewController {
     private func configureCollectionView() {
         collectionView.register(GroupMembersCell.self, forCellWithReuseIdentifier: groupMembershipCellReuseIdentifier)
         collectionView.register(GroupRequestCell.self, forCellWithReuseIdentifier: groupRequestsCellReuseIdentifier)
-        //groupCollectionView.register(GroupSelectorCell.self, forCellWithReuseIdentifier: groupSelectorCellReuseIdentifier)
-        //groupCollectionView.register(RequestSelectorCell.self, forCellWithReuseIdentifier: groupRequestSelectorCellReuseIdentifier)
+        collectionView.register(GroupInvitesCell.self, forCellWithReuseIdentifier: groupInvitesCellReuseIdentifier)
+        collectionView.register(GroupBlockedCell.self, forCellWithReuseIdentifier: groupBlockedCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -108,7 +110,15 @@ class GroupMembershipViewController: UIViewController {
     }
     
     @objc func handleAdminsTap() {
-        #warning("present admins controller omegakek")
+        let controller = GroupAdminsViewController(group: group)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -125,10 +135,21 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupMembershipCellReuseIdentifier, for: indexPath) as! GroupMembersCell
+            cell.delegate = self
+            cell.group = group
+            return cell
+        } else if indexPath.row == 1 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestsCellReuseIdentifier, for: indexPath) as! GroupRequestCell
+            cell.delegate = self
+            cell.group = group
+            return cell
+        } else if indexPath.row == 2 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupInvitesCellReuseIdentifier, for: indexPath) as! GroupInvitesCell
+            cell.delegate = self
             cell.group = group
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestsCellReuseIdentifier, for: indexPath) as! GroupRequestCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupBlockedCellReuseIdentifier, for: indexPath) as! GroupBlockedCell
             cell.delegate = self
             cell.group = group
             return cell
@@ -205,10 +226,20 @@ extension GroupMembershipViewController: SegmentedControlDelegate {
 }
 
 extension GroupMembershipViewController: GroupRequestCellDelegate {
-    func didTapEmptyCellButton() {
-        navigationController?.popViewController(animated: true)
+    func didTapEmptyCellButton(membershipOption: Group.GroupMembershipManagement) {
+        switch membershipOption {
+        case .members:
+            print("show invite view controller")
+            #warning("show invite view controller")
+        case .requests:
+            navigationController?.popViewController(animated: true)
+        case .invited:
+            break
+        case .blocked:
+            break
+        }
     }
-    
+
     func didTapUser(user: User) {
         let controller = UserProfileViewController(user: user)
         

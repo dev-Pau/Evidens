@@ -1,22 +1,23 @@
 //
-//  GroupMembersCell.swift
+//  GroupBlockedCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 18/1/23.
+//  Created by Pau Fernández Solà on 19/1/23.
 //
-
-import UIKit
 
 private let emptyGroupMembersCellReuseIdentifier = "EmptyGroupMembersCellReuseIdentifier"
 private let groupMembersHeaderReuseIdentifier = "GroupMembersHeaderReuseIdentifier"
 private let userGroupSkeletonCellReuseIdentifier = "UserGroupSkeletonnCellReuseIdentifier"
 private let groupMemberUserCellReuseIdentifier = "GroupMemberUserCellReuseIdentifier"
 
-class GroupMembersCell: UICollectionViewCell {
-    
+
+
+import UIKit
+
+class GroupBlockedCell: UICollectionViewCell {
     var group: Group? {
         didSet {
-            fetchGroupMembers()
+            fetchGroupBlocked()
         }
     }
     
@@ -61,9 +62,9 @@ class GroupMembersCell: UICollectionViewCell {
         collectionView.dataSource = self
     }
     
-    private func fetchGroupMembers() {
+    private func fetchGroupBlocked() {
         guard let group = group else { return }
-        DatabaseManager.shared.fetchGroupMembers(groupId: group.groupId) { members in
+        DatabaseManager.shared.fetchGroupBlocked(groupId: group.groupId) { members in
             if members.isEmpty {
                 self.loaded = true
                 self.collectionView.isScrollEnabled = true
@@ -82,7 +83,7 @@ class GroupMembersCell: UICollectionViewCell {
     }
 }
 
-extension GroupMembersCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension GroupBlockedCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return loaded ? (users.isEmpty ? 1 : users.count) : 20
     }
@@ -95,7 +96,7 @@ extension GroupMembersCell: UICollectionViewDelegateFlowLayout, UICollectionView
         
         if users.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: nil, title: "This group has no members - yet.", description: "Invite your network to join the group", buttonText: "  Invite  ")
+            cell.configure(image: nil, title: "No blocked members.", description: "Once you block a member from a group, they will be removed from the group and will no longer be able to request to join.", buttonText: "  Learn more  ")
             cell.delegate = self
             return cell
         }
@@ -125,10 +126,8 @@ extension GroupMembersCell: UICollectionViewDelegateFlowLayout, UICollectionView
     }
 }
 
-extension GroupMembersCell: MESecondaryEmptyCellDelegate {
+extension GroupBlockedCell: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton() {
-        delegate?.didTapEmptyCellButton(membershipOption: .members)
+        delegate?.didTapEmptyCellButton(membershipOption: .blocked)
     }
-    
-    
 }

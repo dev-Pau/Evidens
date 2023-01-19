@@ -10,12 +10,13 @@ import UIKit
 private let skeletonFollowersFollowingCell = "SkeletonFollowersFollowingCell"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 private let pendingUserCellReuseIdentifier = "PendingUserCellReuseIdentifier"
+private let userGroupSkeletonCellReuseIdentifier = "UserGroupSkeletonnCellReuseIdentifier"
 
 
 protocol GroupRequestCellDelegate: AnyObject {
     //func handleAcceptUser(user: User)
     //func handleIgnoreUser(user: User)
-    func didTapEmptyCellButton()
+    func didTapEmptyCellButton(membershipOption: Group.GroupMembershipManagement)
     func didTapUser(user: User)
 }
  
@@ -52,6 +53,7 @@ class GroupRequestCell: UICollectionViewCell {
         super.init(frame: frame)
         configure()
         fetchGroupUserRequests()
+        UserService.fetchUserFollowerws()
     }
     
     required init?(coder: NSCoder) {
@@ -63,9 +65,11 @@ class GroupRequestCell: UICollectionViewCell {
         guard let group = group else { return }
         DatabaseManager.shared.fetchGroupUserRequests(groupId: group.groupId) { pendingUsers in
             if pendingUsers.isEmpty {
+                self.loaded = true
                 self.collectionView.isScrollEnabled = true
                 self.collectionView.reloadData()
             }
+            
             let pendingUserUids = pendingUsers.map({ $0.uid })
             UserService.fetchUsers(withUids: pendingUserUids) { users in
                 self.users = users
@@ -80,9 +84,9 @@ class GroupRequestCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         addSubview(collectionView)
         collectionView.frame = bounds
+        collectionView.register(UserGroupSkeletonCell.self, forCellWithReuseIdentifier: userGroupSkeletonCellReuseIdentifier)
         collectionView.register(GroupUserRequestCell.self, forCellWithReuseIdentifier: pendingUserCellReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
-        //collectionView.register(SkeletonFollowersFollowingCell.self, forCellWithReuseIdentifier: skeletonFollowersFollowingCell)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -90,16 +94,14 @@ class GroupRequestCell: UICollectionViewCell {
 
 extension GroupRequestCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return users.isEmpty ? 1 : users.count
+        return loaded ? (users.isEmpty ? 1 : users.count) : 20
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        /*
         if !loaded {
-            let cell = tableView.dequeueReusableCell(withIdentifier: skeletonFollowersFollowingCell, for: indexPath) as! SkeletonFollowersFollowingCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userGroupSkeletonCellReuseIdentifier, for: indexPath) as! UserGroupSkeletonCell
             return cell
         }
-         */
         
         if users.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
@@ -115,14 +117,13 @@ extension GroupRequestCell: UICollectionViewDelegateFlowLayout, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if users.isEmpty { return }
+        if users.isEmpty || !loaded { return }
         let user = users[indexPath.row]
         delegate?.didTapUser(user: user)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if users.isEmpty { return CGSize(width: UIScreen.main.bounds.width, height: self.collectionView.frame.size.height * 0.9 - 51)}
-        return CGSize(width: UIScreen.main.bounds.width, height: 65)
+        return loaded ? (users.isEmpty ? CGSize(width: UIScreen.main.bounds.width, height: self.collectionView.frame.size.height * 0.9 - 51) : CGSize(width: UIScreen.main.bounds.width, height: 65)) : CGSize(width: UIScreen.main.bounds.width, height: 75)
     }
 }
 
@@ -177,6 +178,6 @@ extension GroupRequestCell: GroupUserRequestCellDelegate {
 
 extension GroupRequestCell: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton() {
-        delegate?.didTapEmptyCellButton()
+        delegate?.didTapEmptyCellButton(membershipOption: .requests)
     }
 }

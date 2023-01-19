@@ -7,6 +7,8 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
+import FirebaseCore
 import GoogleSignIn
 import Combine
 import AuthenticationServices
@@ -257,21 +259,32 @@ class WelcomeViewController: UIViewController {
         // Create Google Sign In configuration object.
         let config = GIDConfiguration(clientID: clientID)
         // Start the sign in flow!
-        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
+          //
+        //}
+        //GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
 
             if let error = error {
                 print(error.localizedDescription)
                 return
             }
             
-            guard let authentication = user?.authentication, let idToken = authentication.idToken else { return }
+            guard let signInResult = signInResult else { return }
+            
+            let user = signInResult.user
+            
+            guard let idToken = user.idToken?.tokenString else { return }
+            //guard let authentication = signInResult?.user.authentication, let idToken = authentication.idToken else { return }
             
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                           accessToken: authentication.accessToken)
+                                                           accessToken: user.accessToken.tokenString)
             
-            
+            //let credential = GoogleAuthProvider.credential(withIDToken: signInResult?.user.to, accessToken: <#T##String#>)
 
             // Firebase Auth
+            
+            
             
             Auth.auth().signIn(with: credential) { result, error in
                 if let error = error {
@@ -284,13 +297,15 @@ class WelcomeViewController: UIViewController {
 
                         // Displaying user data
                         guard let googleUser = result?.user,
+                              
                               let email = googleUser.email,
-                              let firstName = user?.profile?.givenName  else { return }
+                            
+                                let firstName = user.profile?.givenName/*user?.profile?.givenName*/else { return }
 
                         
                         var credentials = AuthCredentials(firstName: firstName, lastName: "", email: email, password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
                           
-                        if let lastName = user?.profile?.familyName {
+                        if let lastName = user.profile?.familyName {
                             credentials.lastName = lastName
                         }
                         

@@ -1,13 +1,13 @@
 //
-//  GroupMemberUserCell.swift
+//  AdminUserManagementCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 18/1/23.
+//  Created by Pau Fernández Solà on 19/1/23.
 //
 
 import UIKit
 
-class GroupMemberUserCell: UICollectionViewCell {
+class AdminUserManagementCell: UICollectionViewCell {
     
     var user: User? {
         didSet {
@@ -31,6 +31,7 @@ class GroupMemberUserCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .label
+        label.sizeToFit()
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
@@ -62,6 +63,18 @@ class GroupMemberUserCell: UICollectionViewCell {
         return button
     }()
     
+    private let userGroupRoleButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .medium
+        button.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
+        button.configuration?.baseForegroundColor = .label
+        button.configuration?.background.strokeColor = .quaternarySystemFill
+        button.configuration?.background.strokeWidth = 1
+        return button
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -71,8 +84,17 @@ class GroupMemberUserCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 userGroupRoleButton.configuration?.background.strokeColor = .quaternarySystemFill
+             }
+         }
+    }
+    
     private func configure() {
-        addSubviews(profileImageView, threeDotsButton, nameLabel, userCategoryLabel)
+        addSubviews(profileImageView, threeDotsButton, userGroupRoleButton, nameLabel, userCategoryLabel)
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -84,12 +106,16 @@ class GroupMemberUserCell: UICollectionViewCell {
             threeDotsButton.widthAnchor.constraint(equalToConstant: 30),
             threeDotsButton.heightAnchor.constraint(equalToConstant: 30),
             
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
+            nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: threeDotsButton.leadingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: threeDotsButton.leadingAnchor, constant: -5),
+
+            userGroupRoleButton.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
+            userGroupRoleButton.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            userGroupRoleButton.heightAnchor.constraint(equalToConstant: 25),
             
-            userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
-            userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            userCategoryLabel.centerYAnchor.constraint(equalTo: userGroupRoleButton.centerYAnchor),
+            userCategoryLabel.leadingAnchor.constraint(equalTo: userGroupRoleButton.trailingAnchor, constant: 5),
             userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
         ])
         
@@ -105,6 +131,12 @@ class GroupMemberUserCell: UICollectionViewCell {
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
         }
+    }
+    
+    func configureMemberType(type: Group.MemberType) {
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .medium)
+        userGroupRoleButton.configuration?.attributedTitle = AttributedString(type.memberTypeString, attributes: container)
     }
     
     @objc func didTapThreeDots() {

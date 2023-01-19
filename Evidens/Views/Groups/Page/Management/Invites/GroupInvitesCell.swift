@@ -1,8 +1,8 @@
 //
-//  GroupMembersCell.swift
+//  GroupInvitesCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 18/1/23.
+//  Created by Pau Fernández Solà on 19/1/23.
 //
 
 import UIKit
@@ -12,11 +12,11 @@ private let groupMembersHeaderReuseIdentifier = "GroupMembersHeaderReuseIdentifi
 private let userGroupSkeletonCellReuseIdentifier = "UserGroupSkeletonnCellReuseIdentifier"
 private let groupMemberUserCellReuseIdentifier = "GroupMemberUserCellReuseIdentifier"
 
-class GroupMembersCell: UICollectionViewCell {
+class GroupInvitesCell: UICollectionViewCell {
     
     var group: Group? {
         didSet {
-            fetchGroupMembers()
+            fetchGroupInvites()
         }
     }
     
@@ -61,9 +61,9 @@ class GroupMembersCell: UICollectionViewCell {
         collectionView.dataSource = self
     }
     
-    private func fetchGroupMembers() {
+    private func fetchGroupInvites() {
         guard let group = group else { return }
-        DatabaseManager.shared.fetchGroupMembers(groupId: group.groupId) { members in
+        DatabaseManager.shared.fetchGroupInvites(groupId: group.groupId) { members in
             if members.isEmpty {
                 self.loaded = true
                 self.collectionView.isScrollEnabled = true
@@ -82,7 +82,7 @@ class GroupMembersCell: UICollectionViewCell {
     }
 }
 
-extension GroupMembersCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension GroupInvitesCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return loaded ? (users.isEmpty ? 1 : users.count) : 20
     }
@@ -95,7 +95,7 @@ extension GroupMembersCell: UICollectionViewDelegateFlowLayout, UICollectionView
         
         if users.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: nil, title: "This group has no members - yet.", description: "Invite your network to join the group", buttonText: "  Invite  ")
+            cell.configure(image: nil, title: "Build your community.", description: "Invite your network to join the group", buttonText: "  Invite  ")
             cell.delegate = self
             return cell
         }
@@ -125,10 +125,9 @@ extension GroupMembersCell: UICollectionViewDelegateFlowLayout, UICollectionView
     }
 }
 
-extension GroupMembersCell: MESecondaryEmptyCellDelegate {
+extension GroupInvitesCell: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton() {
-        delegate?.didTapEmptyCellButton(membershipOption: .members)
+        delegate?.didTapEmptyCellButton(membershipOption: .invited)
     }
-    
-    
 }
+

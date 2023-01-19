@@ -30,6 +30,13 @@ struct Group {
         case review = 2
         case all = 3
     }
+
+    enum GroupMembershipManagement: String, CaseIterable {
+        case members = "Members"
+        case requests = "Requests"
+        case invited = "Invited"
+        case blocked = "Blocked"
+    }
     
     enum MemberType: Int {
         case owner
