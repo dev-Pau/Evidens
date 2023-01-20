@@ -66,7 +66,7 @@ class RequestSelectorCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .systemPink
+        backgroundColor = .systemBackground
         addSubview(collectionView)
         collectionView.frame = bounds
         collectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)

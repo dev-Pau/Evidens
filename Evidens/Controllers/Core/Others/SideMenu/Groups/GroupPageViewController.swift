@@ -91,8 +91,6 @@ class GroupPageViewController: UIViewController {
             fetchUserMemberType()
             
         }
-
-        #warning("Falta fer una funció per veure el rol de lusuari quan vé de discover group per fer collectionvoiew.ishidden = false i també per fer searchbar user interaction enabled = true quan el trobi")
     }
     
     
@@ -621,7 +619,7 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
     func didTapGroupOptions(option: Group.GroupManagement) {
         switch option {
         case .posts:
-            let controller = GroupContentManagementViewController()
+            let controller = GroupContentManagementViewController(group: group)
             
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label

@@ -8,15 +8,13 @@
 import UIKit
 
 
-private let groupSelectorCellReuseIdentifier = "GroupSelectorCellReuseIdentifier"
-private let groupRequestSelectorCellReuseIdentifier = "GroupRequesSelectorCellReuseIdentifier"
 
-private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
-private let groupBrowseSkeletonCellReuseIdentifier = "GroupBrowseSkeletonCellReuseIdentifier"
-private let groupFooterReuseIdentifier = "GroupFooterReuseIdentifier"
-private let emptyGroupCellReuseIdentifier = "EmptyGroupCellReuseIdentifier"
+private let postsReviewCellReuseIdentifier = "PostsReviewCellReuseIdentifier"
+private let casesReviewCellReuseIdentifier = "CasesReviewCellReuseIdentifier"
 
 class GroupContentManagementViewController: UIViewController {
+    
+    let group: Group
     
     weak var delegate: GroupBrowserViewControllerDelegate?
     
@@ -30,8 +28,6 @@ class GroupContentManagementViewController: UIViewController {
         segmentedButtonsView.backgroundColor = .systemBackground
         return segmentedButtonsView
     }()
-    
-    private var loaded: Bool = false
     
     private var groups = [Group]()
     
@@ -50,6 +46,15 @@ class GroupContentManagementViewController: UIViewController {
         return collectionView
     }()
     
+    init(group: Group) {
+        self.group = group
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -64,8 +69,8 @@ class GroupContentManagementViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        groupCollectionView.register(GroupSelectorCell.self, forCellWithReuseIdentifier: groupSelectorCellReuseIdentifier)
-        groupCollectionView.register(RequestSelectorCell.self, forCellWithReuseIdentifier: groupRequestSelectorCellReuseIdentifier)
+        groupCollectionView.register(PendingPostsCell.self, forCellWithReuseIdentifier: postsReviewCellReuseIdentifier)
+        groupCollectionView.register(PendingCasesCell.self, forCellWithReuseIdentifier: casesReviewCellReuseIdentifier)
         groupCollectionView.delegate = self
         groupCollectionView.dataSource = self
     }
@@ -96,15 +101,6 @@ class GroupContentManagementViewController: UIViewController {
         scrollDelegate = browserSegmentedButtonsView
         scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 2)
     }
-    
-    @objc func didTapCreateGroup() {
-        let controller = CreateGroupViewController()
-        
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        
-        present(nav, animated: true)
-    }
 }
 
 extension GroupContentManagementViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -119,18 +115,21 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupSelectorCellReuseIdentifier, for: indexPath) as! GroupSelectorCell
-            cell.delegate = self
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postsReviewCellReuseIdentifier, for: indexPath) as! PendingPostsCell
+            //cell.group = group
+            cell.fetchPendingPosts(group: group)
+            //cell.delegate = self
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestSelectorCellReuseIdentifier, for: indexPath) as! RequestSelectorCell
-            cell.delegate = self
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: casesReviewCellReuseIdentifier, for: indexPath) as! PendingCasesCell
+            cell.fetchPendingPosts(group: group)
+            //cell.delegate = self
             return cell
         }
     }
 }
 
-
+/*
 extension GroupContentManagementViewController: GroupPageViewControllerDelegate {
     func didUpdateGroup(_ group: Group) {
         let index = groups.firstIndex { currentGroup in
@@ -174,6 +173,7 @@ extension GroupContentManagementViewController: GroupSelectorCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
 }
+ */
 
 extension GroupContentManagementViewController: SegmentedControlDelegate {
     func indexDidChange(from currentIndex: Int, to index: Int) {

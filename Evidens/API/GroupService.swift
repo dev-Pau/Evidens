@@ -108,7 +108,7 @@ struct GroupService {
         }
     }
     
-    static func uploadGroupPost(groupId: String, post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
+    static func uploadGroupPost(groupId: String, post: String, type: Post.PostType, privacy: Post.PrivacyOptions, groupPermission: Group.Permissions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
         
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -127,7 +127,7 @@ struct GroupService {
         
         
         COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).setData(data, completion: completion)
-        DatabaseManager.shared.uploadRecentPostToGroup(withGroupId: groupId, withPostId: postId) { uploaded in
+        DatabaseManager.shared.uploadRecentPostToGroup(withGroupId: groupId, withPostId: postId, withPermission: groupPermission) { uploaded in
             print("post group uploaded")
         }
     }

@@ -72,7 +72,7 @@ class NotificationsViewController: NavigationBarViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        //if !loaded { collectionView.reloadData() }
+        if !loaded { collectionView.reloadData() }
     }
     
     override func viewWillAppear(_ animated: Bool) {

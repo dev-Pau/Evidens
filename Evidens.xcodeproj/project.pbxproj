@@ -186,8 +186,6 @@
 		5F9A28082975731E0052E618 /* GroupPendingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28072975731E0052E618 /* GroupPendingCell.swift */; };
 		5F9A280A29769E1B0052E618 /* GroupPermissionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280929769E1B0052E618 /* GroupPermissionCell.swift */; };
 		5F9A280D2976B3B10052E618 /* GroupContentManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280C2976B3B10052E618 /* GroupContentManagementViewController.swift */; };
-		5F9A28102976B90A0052E618 /* GroupPostsReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */; };
-		5F9A28122976B9240052E618 /* GroupCasesReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */; };
 		5F9A28142976C0850052E618 /* GroupMembershipViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */; };
 		5F9A28162976E8290052E618 /* GroupRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28152976E8290052E618 /* GroupRequestCell.swift */; };
 		5F9A28182976F4560052E618 /* GroupUserRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */; };
@@ -269,6 +267,8 @@
 		5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */; };
 		5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */; };
 		5FA0B2DB29798D83001F1274 /* AdminUserManagementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0B2DA29798D83001F1274 /* AdminUserManagementCell.swift */; };
+		5FA0B2DE297A73E4001F1274 /* PendingPostsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0B2DD297A73E4001F1274 /* PendingPostsCell.swift */; };
+		5FA0B2E0297ACD75001F1274 /* PendingCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0B2DF297ACD75001F1274 /* PendingCasesCell.swift */; };
 		5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */; };
 		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
 		5FA23F40293F24ED00A913CB /* GroupMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */; };
@@ -541,8 +541,6 @@
 		5F9A28072975731E0052E618 /* GroupPendingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPendingCell.swift; sourceTree = "<group>"; };
 		5F9A280929769E1B0052E618 /* GroupPermissionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPermissionCell.swift; sourceTree = "<group>"; };
 		5F9A280C2976B3B10052E618 /* GroupContentManagementViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentManagementViewController.swift; sourceTree = "<group>"; };
-		5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPostsReviewCell.swift; sourceTree = "<group>"; };
-		5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCasesReviewCell.swift; sourceTree = "<group>"; };
 		5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembershipViewController.swift; sourceTree = "<group>"; };
 		5F9A28152976E8290052E618 /* GroupRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRequestCell.swift; sourceTree = "<group>"; };
 		5F9A28172976F4560052E618 /* GroupUserRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupUserRequestCell.swift; sourceTree = "<group>"; };
@@ -624,6 +622,8 @@
 		5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsViewController.swift; sourceTree = "<group>"; };
 		5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionCell.swift; sourceTree = "<group>"; };
 		5FA0B2DA29798D83001F1274 /* AdminUserManagementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminUserManagementCell.swift; sourceTree = "<group>"; };
+		5FA0B2DD297A73E4001F1274 /* PendingPostsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingPostsCell.swift; sourceTree = "<group>"; };
+		5FA0B2DF297ACD75001F1274 /* PendingCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCasesCell.swift; sourceTree = "<group>"; };
 		5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
 		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
 		5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersViewController.swift; sourceTree = "<group>"; };
@@ -1460,7 +1460,6 @@
 		5F9A280E2976B8E80052E618 /* Management */ = {
 			isa = PBXGroup;
 			children = (
-				5F9A282C29796B200052E618 /* Content */,
 				5F9A281E297804C30052E618 /* Members */,
 				5F9A28192976F45D0052E618 /* Request */,
 				5F9A2827297966070052E618 /* Invites */,
@@ -1504,15 +1503,6 @@
 				5F9A282A29796A3B0052E618 /* GroupInviteUserCell.swift */,
 			);
 			path = Invites;
-			sourceTree = "<group>";
-		};
-		5F9A282C29796B200052E618 /* Content */ = {
-			isa = PBXGroup;
-			children = (
-				5F9A280F2976B9090052E618 /* GroupPostsReviewCell.swift */,
-				5F9A28112976B9240052E618 /* GroupCasesReviewCell.swift */,
-			);
-			path = Content;
 			sourceTree = "<group>";
 		};
 		5F9A282D29796B310052E618 /* Blocked */ = {
@@ -1713,6 +1703,15 @@
 			path = Admins;
 			sourceTree = "<group>";
 		};
+		5FA0B2DC297A73C5001F1274 /* Pending */ = {
+			isa = PBXGroup;
+			children = (
+				5FA0B2DD297A73E4001F1274 /* PendingPostsCell.swift */,
+				5FA0B2DF297ACD75001F1274 /* PendingCasesCell.swift */,
+			);
+			path = Pending;
+			sourceTree = "<group>";
+		};
 		5FA1FC2928CF8C0A0099BF2C /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1784,6 +1783,7 @@
 			children = (
 				5FA5726D2965C9A50068284B /* Page */,
 				5F951B43294881C800E99F34 /* Information */,
+				5FA0B2DC297A73C5001F1274 /* Pending */,
 				5F9A280E2976B8E80052E618 /* Management */,
 			);
 			path = Page;
@@ -2506,12 +2506,12 @@
 				5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */,
 				5F9A9FA22899048200A25152 /* CasePrivacyMenuLauncher.swift in Sources */,
 				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
-				5F9A28102976B90A0052E618 /* GroupPostsReviewCell.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
 				5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */,
 				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
+				5FA0B2E0297ACD75001F1274 /* PendingCasesCell.swift in Sources */,
 				5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */,
 				5F8AF97A292BD4D3005C6778 /* Group.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
@@ -2531,6 +2531,7 @@
 				5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F9FB28328F41B6400BABDFD /* FollowingCell.swift in Sources */,
+				5FA0B2DE297A73E4001F1274 /* PendingPostsCell.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
@@ -2573,7 +2574,6 @@
 				5F719B372886800B002666C0 /* CaseTextCell.swift in Sources */,
 				5F527D9D28859D3A009D5027 /* DiagnosisGenericView.swift in Sources */,
 				5FB290142886851B002FBAE1 /* Case.swift in Sources */,
-				5F9A28122976B9240052E618 /* GroupCasesReviewCell.swift in Sources */,
 				5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */,
 				5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */,
 				5F9475DA292674B900C6D44E /* Category.swift in Sources */,

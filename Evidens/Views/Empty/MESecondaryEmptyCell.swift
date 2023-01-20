@@ -97,5 +97,21 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     @objc func didTapEmptyCellButton() {
         delegate?.didTapEmptyCellButton()
     }
+    
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
+
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        
+        let height = max(UIScreen.main.bounds.height * 0.7, autoLayoutSize.height)
+
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
+        autoLayoutAttributes.frame = autoLayoutFrame
+        return autoLayoutAttributes
+    }
+     
 }
 

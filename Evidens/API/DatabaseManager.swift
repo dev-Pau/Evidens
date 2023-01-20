@@ -1183,27 +1183,37 @@ extension DatabaseManager {
         }
     }
     
-    public func uploadRecentPostToGroup(withGroupId groupId: String, withPostId postId: String, completion: @escaping (Bool) -> Void) {
-        
-        let ref = database.child("groups").child(groupId).child("content").child("all").childByAutoId()
-        let groupRef = database.child("groups").child(groupId).child("content").child("posts").child(postId).child("timestamp")
-        
+    public func uploadRecentPostToGroup(withGroupId groupId: String, withPostId postId: String, withPermission permission: Group.Permissions, completion: @escaping (Bool) -> Void) {
         let timestamp = NSDate().timeIntervalSince1970
         
         let data = ["id": postId,
                     "timestamp": timestamp,
                     "type": 1] as [String: Any]
         
-        ref.setValue(data) { error, _ in
-            if let _ = error {
-                completion(false)
-            }
+        if permission == .review || permission == .all {
+            let ref = database.child("groups").child(groupId).child("content").child("review").childByAutoId()
             
-            groupRef.setValue(timestamp) { error, _ in
+            ref.setValue(data) { error, _ in
                 if let _ = error {
                     completion(false)
                 }
                 completion(true)
+            }
+        } else {
+            let ref = database.child("groups").child(groupId).child("content").child("all").childByAutoId()
+            let groupRef = database.child("groups").child(groupId).child("content").child("posts").child(postId).child("timestamp")
+            
+            ref.setValue(data) { error, _ in
+                if let _ = error {
+                    completion(false)
+                }
+                
+                groupRef.setValue(timestamp) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                    }
+                    completion(true)
+                }
             }
         }
     }

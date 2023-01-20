@@ -435,7 +435,7 @@ class UploadPostViewController: UIViewController {
                     #warning("pujar el post amb type")
                 } else {
                     StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
-                        GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: postType, privacy: .group, postImageUrl: imageUrl) { error in
+                        GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: postType, privacy: .group, groupPermission: group.permissions, postImageUrl: imageUrl) { error in
                             self.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
@@ -451,7 +451,7 @@ class UploadPostViewController: UIViewController {
                 }
             } else {
                 
-                GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: .plainText, privacy: .group, postImageUrl: nil) { error in
+                GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, type: .plainText, privacy: .group, groupPermission: group.permissions, postImageUrl: nil) { error in
                     self.dismiss(animated: true)
                     if let error = error {
                         print("DEBUG: \(error.localizedDescription)")
