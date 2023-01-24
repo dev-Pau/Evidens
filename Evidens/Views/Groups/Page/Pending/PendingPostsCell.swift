@@ -36,6 +36,7 @@ class PendingPostsCell: UICollectionViewCell {
         collectionView.backgroundColor = .systemBackground
         collectionView.isScrollEnabled = false
         collectionView.isHidden = true
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
@@ -172,6 +173,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
         
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            cell.configureWithReviewOptions()
             return cell
             
         } else if posts[indexPath.row].type.postType == 2 {
@@ -182,6 +184,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             */
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            cell.configureWithReviewOptions()
             return cell
             
         } else if posts[indexPath.row].type.postType == 3 {
@@ -193,6 +196,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             */
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            cell.configureWithReviewOptions()
             return cell
             
         } else if posts[indexPath.row].type.postType == 4 {
@@ -203,6 +207,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             */
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            cell.configureWithReviewOptions()
             return cell
             
         }

@@ -7,14 +7,16 @@
 
 import UIKit
 
-private let skeletonPostTextCellReuseIdentifier = "SkeletonPostTextCellReuseIdentifier"
-private let skeletonPostImageCellReuseIdentifier = "SkeletonPostImageCellReuseIdentifier"
+
+private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
+private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
 private let emptyPostsCellReuseIdentifier = "EmptyPostsCellReuseIdentifier"
 
 class PendingCasesCell: UICollectionViewCell {
     
     private var clinicalCases = [Case]()
+    private var users = [User]()
     
     private var loaded: Bool = false
     private var groupNeedsToReviewContent: Bool = false
@@ -29,12 +31,13 @@ class PendingCasesCell: UICollectionViewCell {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.isScrollEnabled = false
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.isHidden = true
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
     
-    let spinner: UIActivityIndicatorView = {
+    let activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.hidesWhenStopped = true
@@ -52,70 +55,114 @@ class PendingCasesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(collectionView, spinner)
+        addSubviews(collectionView, activityIndicator)
         collectionView.frame = bounds
-        spinner.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-        spinner.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-
+        activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyPostsCellReuseIdentifier)
-        collectionView.register(SkeletonTextHomeCell.self, forCellWithReuseIdentifier: skeletonPostTextCellReuseIdentifier)
-        collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonPostImageCellReuseIdentifier)
         
-        spinner.startAnimating()
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        
+        activityIndicator.startAnimating()
     }
     
     func fetchPendingPosts(group: Group) {
-        //guard let group = group else { return }
         if group.permissions == .all || group.permissions == .review {
-            // Group needs to review posts  cases
-            // Fetch posts to be reviewed
             groupNeedsToReviewContent = true
-            loaded = true
-            spinner.stopAnimating()
-            collectionView.isHidden = false
-            collectionView.isScrollEnabled = true
-            collectionView.reloadData()
+            DatabaseManager.shared.fetchPendingCasesForGroup(withGroupId: group.groupId) { pendingCases in
+                let postIds = pendingCases.map({ $0.id })
+                if pendingCases.isEmpty {
+                    self.activityIndicator.stopAnimating()
+                    self.collectionView.isHidden = false
+                    self.collectionView.isScrollEnabled = true
+                    self.collectionView.reloadData()
+                    return
+                }
+                postIds.forEach { id in
+                    CaseService.fetchGroupCase(withGroupId: group.groupId, withCaseId: id) { clinicalCase in
+                        self.clinicalCases.append(clinicalCase)
+                        if self.clinicalCases.count == pendingCases.count {
+                            // Fetch user info
+                            self.clinicalCases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            let uniqueOwnerUids = Array(Set(self.clinicalCases.map({ $0.ownerUid })))
+                            UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
+                                self.users = users
+                                self.activityIndicator.stopAnimating()
+                                self.collectionView.isHidden = false
+                                self.collectionView.isScrollEnabled = true
+                                self.collectionView.reloadData()
+                                return
+                            }
+                        }
+                    }
+                }
+            }
         } else {
-            loaded = true
-            collectionView.isScrollEnabled = true
+            groupNeedsToReviewContent = false
+            activityIndicator.stopAnimating()
             collectionView.isHidden = false
-            spinner.stopAnimating()
+            collectionView.isScrollEnabled = true
             collectionView.reloadData()
+        }
+    }
+    
+    private func getUserForCase(clinicalCase: Case) -> User {
+        let userIndex = users.firstIndex { user in
+            if user.uid == clinicalCase.ownerUid {
+                return true
+            }
+            
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            return users[userIndex]
+        } else {
+            return User(dictionary: [:])
         }
     }
 }
 
 extension PendingCasesCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return  loaded ? (groupNeedsToReviewContent ? (clinicalCases.isEmpty ? 1 : clinicalCases.count) : 1) : 3
+        return  groupNeedsToReviewContent ? (clinicalCases.isEmpty ? 1 : clinicalCases.count) : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if !loaded {
-            
-            #warning("no es veuen les skeletoncell")
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonPostTextCellReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
-                return cell
-            
-        }
-        else {
-            if !groupNeedsToReviewContent {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: "Learn more")
-                return cell
-            }
-            
-            if clinicalCases.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new posts that need review.", buttonText: "Go to group")
-                return cell
-            }
-            // Dequeue posts
-            return UICollectionViewCell()
+        
+        if !groupNeedsToReviewContent {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: "Learn more")
+            return cell
         }
         
+        if clinicalCases.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new posts that need review.", buttonText: "Go to group")
+            return cell
+        }
+        // Dequeue cases
+        if clinicalCases[indexPath.row].type.rawValue == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+
+            cell.viewModel = CaseViewModel(clinicalCase: clinicalCases[indexPath.row])
+            cell.set(user: getUserForCase(clinicalCase: clinicalCases[indexPath.row]))
+            cell.configureWithReviewOptions()
+            //cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+
+            cell.viewModel = CaseViewModel(clinicalCase: clinicalCases[indexPath.row])
+            cell.set(user: getUserForCase(clinicalCase: clinicalCases[indexPath.row]))
+            cell.configureWithReviewOptions()
+            //cell.delegate = self
+            return cell
+        }
     }
 }
 

@@ -18,6 +18,8 @@ class HomeImageTextCell: UICollectionViewCell {
     }
     
     var user: User?
+    
+    private lazy var reviewActionButtonsView = MEReviewActionButtons()
 
     private let cellContentView = UIView()
     
@@ -129,6 +131,20 @@ class HomeImageTextCell: UICollectionViewCell {
         
         userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+    }
+    
+    
+    func configureWithReviewOptions() {
+        //private lazy var reviewActionButtonsView = MEReviewActionButtons()
+        actionButtonsView.isHidden = true
+        addSubviews(reviewActionButtonsView)
+        NSLayoutConstraint.activate([
+            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+        ])
+       
     }
     
     @objc func handleImageTap() {

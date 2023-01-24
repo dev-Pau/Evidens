@@ -108,6 +108,7 @@ class HomeTextCell: UICollectionViewCell {
     }
     
     func configureWithReviewOptions() {
+        //private lazy var reviewActionButtonsView = MEReviewActionButtons()
         actionButtonsView.isHidden = true
         addSubviews(reviewActionButtonsView)
         NSLayoutConstraint.activate([

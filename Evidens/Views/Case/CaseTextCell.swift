@@ -53,7 +53,7 @@ class CaseTextCell: UICollectionViewCell {
     var descriptionCaseLabel = MEPostLabel()
     private var updateView = MECaseUpdateView()
     private var actionButtonsView = MEPostActionButtons()
-    
+    private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
     private let caseStageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -220,6 +220,19 @@ class CaseTextCell: UICollectionViewCell {
         }
        
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+    }
+    
+    func configureWithReviewOptions() {
+        //private lazy var reviewActionButtonsView = MEReviewActionButtons()
+        actionButtonsView.isHidden = true
+        addSubviews(reviewActionButtonsView)
+        NSLayoutConstraint.activate([
+            reviewActionButtonsView.topAnchor.constraint(equalTo: compositionalCollectionView.bottomAnchor, constant: 10),
+            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+        ])
+       
     }
     
     

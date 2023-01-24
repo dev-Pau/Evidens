@@ -42,6 +42,7 @@ class GroupContentManagementViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.showsVerticalScrollIndicator = false
         collectionView.isPagingEnabled = true
         return collectionView
     }()
@@ -209,12 +210,19 @@ extension GroupContentManagementViewController: SegmentedControlDelegate {
 
 extension GroupContentManagementViewController: PresentReviewAlertContentGroupDelegate {
     func didAcceptContent() {
-        //Show popup
+        // Accept post here
+        
+        let deletedPostPopup = METopPopupView(title: "Pending post approved. It may take a few minutes to appear in the group feed.", image: "checkmark.circle.fill")
+        deletedPostPopup.showTopPopup(inView: self.view)
     }
     
     func didCancelContent() {
 
         displayMEDestructiveAlert(withTitle: "Delete post", withMessage: "Are you sure you want to delete this post", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            #warning("Delete post")
+            
+            let deletedPostPopup = METopPopupView(title: "Post successfully deleted", image: "checkmark.circle.fill")
+            deletedPostPopup.showTopPopup(inView: self.view)
             print("Did tap delete review post")
         }
     }

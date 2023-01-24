@@ -29,6 +29,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     
     var actionButtonsView = MEPostActionButtons()
     
+    private lazy var reviewActionButtonsView = MEReviewActionButtons()
+    
     private var appended: [Int] = []
     
     private lazy var postImageView: UIImageView = {
@@ -179,6 +181,21 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
+    
+    
+    func configureWithReviewOptions() {
+        //
+        actionButtonsView.isHidden = true
+        addSubviews(reviewActionButtonsView)
+        NSLayoutConstraint.activate([
+            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+        ])
+       
+    }
+    
     
     @objc func didTapPost() {
         guard let viewModel = viewModel, let user = user else { return }

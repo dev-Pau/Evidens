@@ -132,7 +132,7 @@ struct GroupService {
         }
     }
     
-    static func uploadGroupCase(groupId: String, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, completion: @escaping(Error?) -> Void) {
+    static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let caseId = COLLECTION_GROUPS.document(groupId).collection("cases").document().documentID
         
@@ -154,7 +154,7 @@ struct GroupService {
                     "caseImageUrl": caseImageUrl as Any]
         
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).setData(data, completion: completion)
-        DatabaseManager.shared.uploadRecentCaseToGroup(withGroupId: groupId, withCaseId: caseId) { uploaded in
+        DatabaseManager.shared.uploadRecentCaseToGroup(withGroupId: groupId, withCaseId: caseId, withPermission: permissions) { uploaded in
             print("case group uploaded")
         }
         

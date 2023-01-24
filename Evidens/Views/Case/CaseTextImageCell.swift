@@ -64,6 +64,7 @@ class CaseTextImageCell: UICollectionViewCell {
     var descriptionCaseLabel = MEPostLabel()
     private var updateView = MECaseUpdateView()
     private var actionButtonsView = MEPostActionButtons()
+    private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
     private var compositionalCollectionView: UICollectionView!
     
@@ -256,6 +257,19 @@ class CaseTextImageCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureWithReviewOptions() {
+        //private lazy var reviewActionButtonsView = MEReviewActionButtons()
+        actionButtonsView.isHidden = true
+        addSubviews(reviewActionButtonsView)
+        NSLayoutConstraint.activate([
+            reviewActionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor, constant: 10),
+            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+        ])
+       
     }
     
     @objc func didTapClinicalCase() {

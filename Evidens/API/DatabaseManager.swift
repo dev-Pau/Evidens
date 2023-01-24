@@ -1191,7 +1191,7 @@ extension DatabaseManager {
                     "type": 1] as [String: Any]
         
         if permission == .review || permission == .all {
-            let ref = database.child("groups").child(groupId).child("content").child("review").childByAutoId()
+            let ref = database.child("groups").child(groupId).child("content").child("review").child("posts").childByAutoId()
             
             ref.setValue(data) { error, _ in
                 if let _ = error {
@@ -1218,9 +1218,7 @@ extension DatabaseManager {
         }
     }
     
-    public func uploadRecentCaseToGroup(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
-        let ref = database.child("groups").child(groupId).child("content").child("all").childByAutoId()
-        let groupRef = database.child("groups").child(groupId).child("content").child("cases").child(caseId).child("timestamp")
+    public func uploadRecentCaseToGroup(withGroupId groupId: String, withCaseId caseId: String, withPermission permission: Group.Permissions, completion: @escaping(Bool) -> Void) {
         
         let timestamp = NSDate().timeIntervalSince1970
         
@@ -1228,18 +1226,34 @@ extension DatabaseManager {
                     "timestamp": timestamp,
                     "type": 0] as [String: Any]
         
-        ref.setValue(data) { error, _ in
-            if let _ = error {
-                completion(false)
-            }
+        if permission == .review || permission == .all {
+            let ref = database.child("groups").child(groupId).child("content").child("review").child("cases").childByAutoId()
             
-            groupRef.setValue(timestamp) { error, _ in
+            ref.setValue(data) { error, _ in
                 if let _ = error {
                     completion(false)
                 }
                 completion(true)
             }
+        } else {
+            let ref = database.child("groups").child(groupId).child("content").child("all").childByAutoId()
+            let groupRef = database.child("groups").child(groupId).child("content").child("cases").child(caseId).child("timestamp")
+            
+            
+            ref.setValue(data) { error, _ in
+                if let _ = error {
+                    completion(false)
+                }
+                
+                groupRef.setValue(timestamp) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                    }
+                    completion(true)
+                }
+            }
         }
+        
     }
     
     public func fetchAllGroupContent(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
@@ -1272,7 +1286,20 @@ extension DatabaseManager {
     
     public func fetchPendingPostsForGroup(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
         var recentContent = [ContentGroup]()
-        let postsRef = database.child("groups").child(groupId).child("content").child("review").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        let postsRef = database.child("groups").child(groupId).child("content").child("review").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        postsRef.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                recentContent.append(ContentGroup(dictionary: value))
+                //recentComments.append(value)
+            }
+            completion(recentContent.reversed())
+        }
+    }
+    
+    public func fetchPendingCasesForGroup(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
+        var recentContent = [ContentGroup]()
+        let postsRef = database.child("groups").child(groupId).child("content").child("review").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
         postsRef.observeSingleEvent(of: .value) { snapshot in
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }

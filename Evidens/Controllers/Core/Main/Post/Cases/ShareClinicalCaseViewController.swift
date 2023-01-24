@@ -760,7 +760,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         
         if let group = group {
             if collectionImages.isEmpty {
-                GroupService.uploadGroupCase(groupId: group.groupId, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text) { error in
+                GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text) { error in
                     self.progressIndicator.dismiss(animated: true)
                    
                     if let error = error {
@@ -776,7 +776,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                 }
             } else {
                 StorageManager.uploadGroupCaseImage(images: collectionImages, uid: uid, groupId: group.groupId) { imageUrl in
-                    GroupService.uploadGroupCase(groupId: group.groupId, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage) { error in
+                    GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage) { error in
                         self.progressIndicator.dismiss(animated: true)
                        
                         if let error = error {

@@ -16,6 +16,8 @@ class PopupView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.textColor = .label
+        label.numberOfLines = 2
         return label
     }()
     

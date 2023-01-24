@@ -32,9 +32,13 @@ class METopPopupView: UIView {
     
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
-        layer.borderColor = primaryColor.cgColor
-        layer.borderWidth = 1
-        backgroundColor = softPrimaryColor
+        
+        
+        
+        
+        //layer.borderColor = primaryColor.cgColor
+        //layer.borderWidth = 1
+        //backgroundColor = .systemBackground
         layer.cornerRadius = 10
         clipsToBounds = false
     }
@@ -42,8 +46,6 @@ class METopPopupView: UIView {
     func showTopPopup(inView view: UIView) {
         configurePopup(in: view)
         isUserInteractionEnabled = true
-        
-        
     }
     
     func handleDismissPopup(view: PopupView) {
@@ -57,6 +59,14 @@ class METopPopupView: UIView {
     
     
     func configurePopup(in view: UIView) {
+        let blurEffect = UIBlurEffect(style: .prominent)
+        // 3
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        //blurView.layer.cornerRadius = 10
+        //blurView.clipsToBounds = true
+        // 4
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        
         popupView = PopupView(title: title, image: image)
         
         timer = Timer.scheduledTimer(timeInterval: 4, target: self, selector: #selector(self.fireTimer), userInfo: popupView, repeats: false)
@@ -65,10 +75,19 @@ class METopPopupView: UIView {
             //window.addSubview(blackBackgroundView)
             window.addSubview(self)
             window.addSubview(popupView)
+            popupView.insertSubview(blurView, at: 0)
+            
         }
         
         frame = CGRect(x: 10, y: -55, width: UIScreen.main.bounds.width - 20, height: 50)
         popupView.frame = frame
+        blurView.frame = popupView.bounds
+        
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = UIBezierPath(roundedRect: self.bounds, cornerRadius: 10).cgPath
+        blurView.layer.mask = shapeLayer
+        
+        
         
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.alpha = 1
