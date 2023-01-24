@@ -17,7 +17,7 @@ class NavigationBarViewController: UIViewController {
     
     weak var delegate: NavigationBarViewControllerDelegate?
     weak var panDelegate: DisablePanGestureDelegate?
-    
+
     var controllerIsBeeingPushed: Bool = false
     //var wantsToHideSearchBar: Bool = false
 

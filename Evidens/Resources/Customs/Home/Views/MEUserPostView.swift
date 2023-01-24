@@ -32,10 +32,9 @@ class MEUserPostView: UIView {
     
     lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
         button.configuration?.baseForegroundColor = .label
-        button.configuration?.baseBackgroundColor = .systemBackground
         button.configuration?.buttonSize = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -131,6 +130,24 @@ class MEUserPostView: UIView {
         ])
         
         profileImageView.layer.cornerRadius = 53 / 2
+        /*
+        let handler: UIButton.ConfigurationUpdateHandler = { button in // 1
+            switch button.state { // 2
+            case [.selected, .highlighted]:
+                button.configuration?.baseForegroundColor = primaryColor
+            case .selected:
+                button.configuration?.baseForegroundColor = primaryColor
+            case .highlighted:
+                button.configuration?.baseForegroundColor = primaryColor
+            case .disabled:
+                break
+            default:
+                button.configuration?.baseForegroundColor = primaryColor
+            }
+        }
+        
+        dotsImageButton.configurationUpdateHandler = handler
+         */
         
     }
     

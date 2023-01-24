@@ -45,3 +45,14 @@ protocol DisablePanGestureDelegate: AnyObject {
 }
 
 
+protocol ReviewContentGroupDelegate: AnyObject {
+    func didTapAcceptContent()
+    func didTapCancelContent()
+}
+
+protocol PresentReviewAlertContentGroupDelegate: AnyObject {
+    func didAcceptContent()
+    func didCancelContent()
+}
+
+

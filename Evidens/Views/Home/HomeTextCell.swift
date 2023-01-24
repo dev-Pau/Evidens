@@ -17,6 +17,8 @@ class HomeTextCell: UICollectionViewCell {
         }
     }
     
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
     private var user: User?
    
     private let cellContentView = UIView()
@@ -29,6 +31,8 @@ class HomeTextCell: UICollectionViewCell {
     
     var actionButtonsView = MEPostActionButtons()
     
+    private lazy var reviewActionButtonsView = MEReviewActionButtons()
+    
     // MARK: - Lifecycle
     
     override init (frame: CGRect) {
@@ -38,6 +42,7 @@ class HomeTextCell: UICollectionViewCell {
         
         userPostView.delegate = self
         actionButtonsView.delegate = self
+        reviewActionButtonsView.delegate = self
         
         backgroundColor = .systemBackground
 
@@ -102,6 +107,18 @@ class HomeTextCell: UICollectionViewCell {
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     
+    func configureWithReviewOptions() {
+        actionButtonsView.isHidden = true
+        addSubviews(reviewActionButtonsView)
+        NSLayoutConstraint.activate([
+            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+        ])
+       
+    }
+    
     @objc func didTapPost() {
         guard let viewModel = viewModel, let user = user else { return }
         delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
@@ -154,5 +171,16 @@ extension HomeTextCell: MEPostActionButtonsDelegate {
     func handleShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
+    }
+}
+
+extension HomeTextCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        reviewDelegate?.didTapAcceptContent()
+    }
+    
+    func didTapDelete() {
+        print("second tap delete")
+        reviewDelegate?.didTapCancelContent()
     }
 }

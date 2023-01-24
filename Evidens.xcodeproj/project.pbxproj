@@ -166,6 +166,7 @@
 		5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */; };
 		5F9483B32923A76600D68B46 /* GroupDescriptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9483B22923A76600D68B46 /* GroupDescriptionCell.swift */; };
 		5F9483B52923E66A00D68B46 /* GroupCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9483B42923E66A00D68B46 /* GroupCategoriesCell.swift */; };
+		5F94DA77297FF02600FA7D5C /* MEReviewActionButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94DA76297FF02600FA7D5C /* MEReviewActionButtons.swift */; };
 		5F951B45294881E500E99F34 /* GroupDetailsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F951B44294881E500E99F34 /* GroupDetailsCell.swift */; };
 		5F951B472949D33F00E99F34 /* GroupAdminCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F951B462949D33F00E99F34 /* GroupAdminCell.swift */; };
 		5F951B49294B21FA00E99F34 /* GroupContentCreationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F951B48294B21FA00E99F34 /* GroupContentCreationCell.swift */; };
@@ -521,6 +522,7 @@
 		5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupViewController.swift; sourceTree = "<group>"; };
 		5F9483B22923A76600D68B46 /* GroupDescriptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDescriptionCell.swift; sourceTree = "<group>"; };
 		5F9483B42923E66A00D68B46 /* GroupCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCategoriesCell.swift; sourceTree = "<group>"; };
+		5F94DA76297FF02600FA7D5C /* MEReviewActionButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEReviewActionButtons.swift; sourceTree = "<group>"; };
 		5F951B44294881E500E99F34 /* GroupDetailsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetailsCell.swift; sourceTree = "<group>"; };
 		5F951B462949D33F00E99F34 /* GroupAdminCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAdminCell.swift; sourceTree = "<group>"; };
 		5F951B48294B21FA00E99F34 /* GroupContentCreationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentCreationCell.swift; sourceTree = "<group>"; };
@@ -1134,6 +1136,7 @@
 				5F77BF792858E6A200F31A75 /* MEPostStatsView.swift */,
 				5F77BF7F2858F3BF00F31A75 /* MEPostInfoView.swift */,
 				5F77BF7D2858EF5B00F31A75 /* MEPostActionButtons.swift */,
+				5F94DA76297FF02600FA7D5C /* MEReviewActionButtons.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2350,6 +2353,7 @@
 				5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */,
 				5F9FB29128F6CF2000BABDFD /* CategoriesExploreCasesCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
+				5F94DA77297FF02600FA7D5C /* MEReviewActionButtons.swift in Sources */,
 				5F9A28182976F4560052E618 /* GroupUserRequestCell.swift in Sources */,
 				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,

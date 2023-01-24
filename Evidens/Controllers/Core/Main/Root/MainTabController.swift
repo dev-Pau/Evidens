@@ -22,9 +22,18 @@ class MainTabController: UITabBarController {
     
     //MARK: Properties
     
+    private let topBlurView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private var postMenuLauncher = PostBottomMenuLauncher()
 
     weak var menuDelegate: MainTabControllerDelegate?
+    
+    private var collapsed: Bool = false
     
     var user: User? {
         didSet {
@@ -105,6 +114,7 @@ class MainTabController: UITabBarController {
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
                 UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
                 
+                
                 /*
                 let appearance = UITabBarAppearance()
                 appearance.configureWithOpaqueBackground()
@@ -115,6 +125,24 @@ class MainTabController: UITabBarController {
                 self.tabBar.scrollEdgeAppearance = appearance
                 self.tabBar.standardAppearance = appearance
                  */
+                
+                
+                /*
+                let statusBarView = UIView()
+                   statusBarView.backgroundColor = .blue
+                   statusBarView.frame = UIApplication.shared.statusBarFrame
+                   UIApplication.shared.keyWindow?.addSubview(statusBarView)
+                 */
+                
+                //self.topBlurView.frame = UIApplication.shared.statusBarFrame
+                //UIApplication.shared.keyWindow?.addSubview(self.topBlurView)
+                
+                //let blurEffect = UIBlurEffect(style: .prominent)
+                //let blurView = UIVisualEffectView(effect: blurEffect)
+                //blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                //self.topBlurView.insertSubview(blurView, at: 0)
+                //blurView.frame = self.topBlurView.bounds
+                
                 self.tabBar.isHidden = false
                 
             }
@@ -140,6 +168,7 @@ class MainTabController: UITabBarController {
         
         let homeController = HomeViewController()
         homeController.delegate = self
+        homeController.scrollDelegate = self
         homeController.panDelegate = self
         
         let casesController = CasesViewController()
@@ -285,6 +314,8 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
     
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
+            if collapsed { return }
+            //if currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha ?? 0.0 < 0.1 { return }
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa
         }
     }
@@ -324,5 +355,18 @@ extension MainTabController: DisablePanGestureDelegate {
     func disablePanGesture() {
         menuDelegate?.handleDisablePan()
     }
+}
+
+extension MainTabController: HomeViewControllerDelegate {
+    func updateAlpha(alpha: CGFloat) {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            collapsed = alpha < -1 ? true : false
+            currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alpha
+            currentNavController.viewControllers.last?.navigationItem.rightBarButtonItem?.tintColor = .label.withAlphaComponent(alpha > 1 ? 1 : alpha)
+            //currentNavController.viewControllers.last?.navigationItem.title
+        }
+    }
+    
+    
 }
 

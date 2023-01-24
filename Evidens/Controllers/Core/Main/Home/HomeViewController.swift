@@ -18,9 +18,15 @@ private let skeletonTextReuseIdentifier = "SkeletonReuseIdentifier"
 private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
 
 
+protocol HomeViewControllerDelegate: AnyObject {
+    func updateAlpha(alpha: CGFloat)
+}
+
 class HomeViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
+    
+    weak var scrollDelegate: HomeViewControllerDelegate?
 
     var user: User?
     var selectedImage: UIImageView!
@@ -62,15 +68,20 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBackground
         self.navigationController?.delegate = zoomTransitioning
         fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
+       
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if !loaded { collectionView.reloadData() }
+        //navigationController?.navigationBar.transform = .init(translationX: 0, y: 0)
+        //scrollDelegate?.updateAlpha(alpha: 1)
+        //self.navigationController?.hidesBarsOnSwipe = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -99,6 +110,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
     //MARK: - Helpers
     func configureUI() {
+        
+        
+        
         // Configure UICollectionView
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
@@ -111,7 +125,10 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        collectionView.frame = view.bounds
+
+        //collectionView.contentInset = UIEdgeInsets(top: topbarHeight / 2.5, left: 0, bottom: 0, right: 0)
+        //collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(collectionView)
 
         let refresher = UIRefreshControl()
@@ -225,6 +242,29 @@ extension HomeViewController: UICollectionViewDelegate {
             getMorePosts()
         }
     }
+    
+    /*
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let safeAreaTop = topbarHeight
+        let offset = scrollView.contentOffset.y + safeAreaTop
+        
+  
+        let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview)
+        print(translation.y)
+        if translation.y > 0 {
+            // from top to bottom
+            navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -topbarHeight/*min(-topbarHeight, translation.y)*/))
+        } else {
+            // from bottom to top
+            navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, max(-topbarHeight / 2.5, translation.y)))
+        }
+        
+        //navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, max(-topbarHeight / 2.5, -offset)))
+        let alpha = 1 - ((scrollView.contentOffset.y + safeAreaTop) / safeAreaTop) * 5
+        //scrollDelegate?.updateAlpha(alpha: alpha)
+        
+    }
+     */
 }
 
 //MARK: - UICollectionViewDataSource
@@ -419,7 +459,20 @@ extension HomeViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        //navigationController?.navigationBar.transform = .init(translationX: 0, y: 0)
+        //self.navigationController?.setNavigationBarHidden(false, animated: true)
+        
+        //let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+        //view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        //navigationController?.navigationItem.titleView = view
+        
+        //let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+        //view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        //navigationController?.navigationItem.title = "habahahaha"
+        
         displayState = displaysSinglePost ? .others : .none
+        
+        
         controller.delegate = self
        
         let backItem = UIBarButtonItem()

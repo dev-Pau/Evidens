@@ -67,7 +67,6 @@ class PendingCasesCell: UICollectionViewCell {
     }
     
     func fetchPendingPosts(group: Group) {
-        print(group)
         //guard let group = group else { return }
         if group.permissions == .all || group.permissions == .review {
             // Group needs to review posts  cases

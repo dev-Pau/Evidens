@@ -53,6 +53,21 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        
+        switch displayState {
+            
+        case .none:
+            break
+        case .photo:
+            return
+        case .others:
+            let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+            navigationItem.titleView = view
+        }
+         
+        
         loaded = true
         configureNavigationBar()
         configureCollectionView()

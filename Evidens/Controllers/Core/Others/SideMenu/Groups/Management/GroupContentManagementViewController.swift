@@ -118,6 +118,7 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postsReviewCellReuseIdentifier, for: indexPath) as! PendingPostsCell
             //cell.group = group
             cell.fetchPendingPosts(group: group)
+            cell.reviewPostCellDelegate = self
             //cell.delegate = self
             return cell
         } else {
@@ -203,5 +204,18 @@ extension GroupContentManagementViewController: SegmentedControlDelegate {
             self.groupCollectionView.scrollRectToVisible(frame, animated: true)
         }
         
+    }
+}
+
+extension GroupContentManagementViewController: PresentReviewAlertContentGroupDelegate {
+    func didAcceptContent() {
+        //Show popup
+    }
+    
+    func didCancelContent() {
+
+        displayMEDestructiveAlert(withTitle: "Delete post", withMessage: "Are you sure you want to delete this post", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            print("Did tap delete review post")
+        }
     }
 }

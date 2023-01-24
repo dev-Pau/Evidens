@@ -1268,7 +1268,19 @@ extension DatabaseManager {
                 completion(caseIds)
             }
         }
-        
+    }
+    
+    public func fetchPendingPostsForGroup(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
+        var recentContent = [ContentGroup]()
+        let postsRef = database.child("groups").child(groupId).child("content").child("review").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+        postsRef.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                recentContent.append(ContentGroup(dictionary: value))
+                //recentComments.append(value)
+            }
+            completion(recentContent.reversed())
+        }
     }
     
     public func fetchAllGroupCases(withGroupId groupId: String, completion: @escaping([String]) -> Void) {

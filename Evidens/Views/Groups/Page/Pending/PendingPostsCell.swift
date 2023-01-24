@@ -7,14 +7,20 @@
 
 import UIKit
 
-private let skeletonPostTextCellReuseIdentifier = "SkeletonPostTextCellReuseIdentifier"
-private let skeletonPostImageCellReuseIdentifier = "SkeletonPostImageCellReuseIdentifier"
+private let homeTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
+private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
+private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
+private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
+private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 
 private let emptyPostsCellReuseIdentifier = "EmptyPostsCellReuseIdentifier"
 
 class PendingPostsCell: UICollectionViewCell {
     
     private var posts = [Post]()
+    private var users = [User]()
+    
+    weak var reviewPostCellDelegate: PresentReviewAlertContentGroupDelegate?
     
     private var loaded: Bool = false
     private var groupNeedsToReviewContent: Bool = false
@@ -29,6 +35,7 @@ class PendingPostsCell: UICollectionViewCell {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.isScrollEnabled = false
+        collectionView.isHidden = true
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
@@ -59,64 +66,163 @@ class PendingPostsCell: UICollectionViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyPostsCellReuseIdentifier)
-        collectionView.register(SkeletonTextHomeCell.self, forCellWithReuseIdentifier: skeletonPostTextCellReuseIdentifier)
-        collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonPostImageCellReuseIdentifier)
+        
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
+        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
+        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
+        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        
         
         activityIndicator.startAnimating()
     }
     
     func fetchPendingPosts(group: Group) {
-        print(group)
-        //guard let group = group else { return }
         if group.permissions == .all || group.permissions == .review {
-            // Group needs to review posts  cases
-            // Fetch posts to be reviewed
             groupNeedsToReviewContent = true
-            activityIndicator.stopAnimating()
-            loaded = true
-            collectionView.isHidden = false
-            collectionView.isScrollEnabled = true
-            collectionView.reloadData()
+            DatabaseManager.shared.fetchPendingPostsForGroup(withGroupId: group.groupId) { pendingPosts in
+                print(pendingPosts)
+                let postIds = pendingPosts.map({ $0.id })
+                if pendingPosts.isEmpty {
+                    self.activityIndicator.stopAnimating()
+                    self.collectionView.isHidden = false
+                    self.collectionView.isScrollEnabled = true
+                    self.collectionView.reloadData()
+                    return
+                }
+                postIds.forEach { id in
+                    PostService.fetchGroupPost(withGroupId: group.groupId, withPostId: id) { post in
+                        self.posts.append(post)
+                        if self.posts.count == postIds.count {
+                            // Fetch user info
+                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            let uniqueOwnerUids = Array(Set(self.posts.map({ $0.ownerUid })))
+                            UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
+                                self.users = users
+                                self.activityIndicator.stopAnimating()
+                                self.collectionView.isHidden = false
+                                self.collectionView.isScrollEnabled = true
+                                self.collectionView.reloadData()
+                                return
+                            }
+                        }
+                    }
+                }
+            }
         } else {
+            groupNeedsToReviewContent = false
             activityIndicator.stopAnimating()
-            loaded = true
             collectionView.isHidden = false
             collectionView.isScrollEnabled = true
             collectionView.reloadData()
+        }
+    }
+    
+    private func getUserForPost(post: Post) -> User {
+        let userIndex = users.firstIndex { user in
+            if user.uid == post.ownerUid {
+                return true
+            }
+            
+            return false
+        }
+        
+        if let userIndex = userIndex {
+            return users[userIndex]
+        } else {
+            return User(dictionary: [:])
         }
     }
 }
 
 extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return  loaded ? (groupNeedsToReviewContent ? (posts.isEmpty ? 1 : posts.count) : 1) : 3
+        return  groupNeedsToReviewContent ? (posts.isEmpty ? 1 : posts.count) : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if !loaded {
+        
+        if !groupNeedsToReviewContent {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: nil, title: "Posts don't require admin review", description: "Group owners can activate the ability to review all group posts before they are shared with members.", buttonText: "Learn more")
+            return cell
+        }
+        
+        if posts.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: nil, title: "No pending posts.", description: "Check back for all the new posts that need review.", buttonText: "Go to group")
+            return cell
+        }
+        // Dequeue posts
+        if posts[indexPath.row].type.postType == 0 {
             
-            #warning("no es veuen les skeletoncell")
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonPostTextCellReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
-                return cell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
+            
+            //cell.delegate = self
+            cell.reviewDelegate = self
+            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            cell.configureWithReviewOptions()
+            return cell
+            
+        } else if posts[indexPath.row].type.postType == 1 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
+           
+            //cell.delegate = self
+        
+            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            return cell
+            
+        } else if posts[indexPath.row].type.postType == 2 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+            /*
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+            */
+            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            return cell
+            
+        } else if posts[indexPath.row].type.postType == 3 {
+            //print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+           /*
+            cell.delegate = self
+            cell.layer.borderWidth = 0
+            */
+            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            return cell
+            
+        } else if posts[indexPath.row].type.postType == 4 {
+            //print("post type 1")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+            /*
+            cell.delegate = self
+            */
+            cell.viewModel = PostViewModel(post: posts[indexPath.row])
+            cell.set(user: getUserForPost(post: posts[indexPath.row]))
+            return cell
             
         }
         else {
-            if !groupNeedsToReviewContent {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Posts don't require admin review", description: "Group owners can activate the ability to review all group posts before they are shared with members.", buttonText: "Learn more")
-                return cell
-            }
-            
-            if posts.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No pending posts.", description: "Check back for all the new posts that need review.", buttonText: "Go to group")
-                return cell
-            }
-            // Dequeue posts
             return UICollectionViewCell()
         }
-        
     }
+}
+
+extension PendingPostsCell: ReviewContentGroupDelegate {
+    func didTapAcceptContent() {
+        reviewPostCellDelegate?.didAcceptContent()
+    }
+    
+    func didTapCancelContent() {
+        print("3rd button tap")
+        reviewPostCellDelegate?.didCancelContent()
+    }
+    
+    
 }
 
 

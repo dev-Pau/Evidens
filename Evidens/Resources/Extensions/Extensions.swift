@@ -231,6 +231,15 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func displayMEDestructiveAlert(withTitle title: String, withMessage message: String, withCancelButtonText cancelButtonText: String, withDoneButtonText doneButtonText: String, completion: @escaping() -> Void) {
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: cancelButtonText, style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: doneButtonText, style: UIAlertAction.Style.destructive, handler: { _ in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
     func dismissDiagnosisAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Skip diagnosis", message: "Are you sure you want to solve this case without adding a diagnosis?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Add", style: UIAlertAction.Style.cancel, handler: nil))
