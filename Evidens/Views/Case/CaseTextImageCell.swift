@@ -26,6 +26,9 @@ class CaseTextImageCell: UICollectionViewCell {
     
     private var user: User?
     
+    
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
     weak var delegate: CaseCellDelegate?
     
     private let cellContentView = UIView()
@@ -112,7 +115,7 @@ class CaseTextImageCell: UICollectionViewCell {
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
-
+        reviewActionButtonsView.delegate = self
         updateView.delegate = self
     
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
@@ -374,4 +377,21 @@ extension CaseTextImageCell: CaseImageCellDelegate {
         delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
     }
 }
+
+
+extension CaseTextImageCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.clinicalCase.caseId)
+    }
+    
+    func didTapDelete() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId)
+    }
+}
+
+
+
+
 

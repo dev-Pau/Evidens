@@ -39,6 +39,13 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var filterCollectionView: UICollectionView!
     
+    private lazy var separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     enum filterCategories: String, CaseIterable {
         case all = "All"
         case recents = "Recently uploaded"
@@ -58,13 +65,27 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
         self.navigationController?.delegate = self
-       
+
         if !loaded {
             casesCollectionView.reloadData()
         }
     }
-
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.navigationBar.standardAppearance.shadowColor = .separator
+        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .separator
+    }
+    
     private func fetchFirstGroupOfCases() {
         CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
             self.casesLastSnapshot = snapshot.documents.last
@@ -149,32 +170,52 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         
         if displaysExploringWindow || displaysFilteredWindow {
             view.addSubviews(casesCollectionView)
-            NSLayoutConstraint.activate([
-                casesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
+            casesCollectionView.frame = view.bounds
             
         } else {
-            view.addSubviews(filterCollectionView, casesCollectionView)
+            view.addSubviews(casesCollectionView, filterCollectionView, separatorView)
             NSLayoutConstraint.activate([
+                //toolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                //toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                //toolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                //toolbar.heightAnchor.constraint(equalToConstant: 50),
+                
                 filterCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 filterCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 filterCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 filterCollectionView.heightAnchor.constraint(equalToConstant: 50),
                 
-                casesCollectionView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
+                separatorView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
+                separatorView.heightAnchor.constraint(equalToConstant: 1),
+                separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                
+                //casesCollectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+                casesCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
                 casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
+            
+            /*
+            let label = UILabel()
+            label.text = "KEKInsane"
+            label.translatesAutoresizingMaskIntoConstraints = false
+            toolbar.addSubview(label)
+            label.centerXAnchor.constraint(equalTo: toolbar.centerXAnchor).isActive = true
+            label.centerYAnchor.constraint(equalTo: toolbar.centerYAnchor).isActive = true
+            
+            casesCollectionView.contentInset.top = 50
+            casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
+             */
+            //filterCollectionView.backgroundColor = .clear
+           
         }
         
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(SkeletonCasesCell.self, forCellWithReuseIdentifier: caseSkeletonCellReuseIdentifier)
         casesCollectionView.register(ExploreHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier)
-        
+
         filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         filterCollectionView.register(ExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
         filterCollectionView.register(SeparatorCell.self, forCellWithReuseIdentifier: separatorCellReuseIdentifier)
@@ -670,6 +711,12 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
             cases[index].diagnosis = clinicalCase.diagnosis
             casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
+    }
+}
+
+extension CasesViewController: UIToolbarDelegate {
+   func position(for bar: UIBarPositioning) -> UIBarPosition {
+       return .topAttached
     }
 }
 

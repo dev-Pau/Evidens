@@ -181,15 +181,19 @@ class MainTabController: UITabBarController {
         
         let postController = ViewController()
         
+        let searchController = SearchViewController()
+        
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
         
-        let cases = templateNavigationController(title: "Clinical Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
+        let cases = templateNavigationController(title: "Cases", unselectedImage: UIImage(named: "cases")!, selectedImage: UIImage(named: "cases.selected")!, rootViewController: casesController)
+        
+        let search = templateNavigationController(title: "Search", unselectedImage: UIImage(named: "search")!, selectedImage: UIImage(named: "search")!, rootViewController: searchController)
         
         let post = templateNavigationController(title: "Post", unselectedImage: UIImage(named: "post")!, selectedImage: UIImage(named: "post.selected")!, rootViewController: postController)
         
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
         
-        viewControllers = [home, cases, post, notifications]
+        viewControllers = [home, cases, post, search, notifications]
         
         //
     }

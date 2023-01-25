@@ -19,6 +19,8 @@ class HomeImageTextCell: UICollectionViewCell {
     
     var user: User?
     
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
 
     private let cellContentView = UIView()
@@ -50,7 +52,7 @@ class HomeImageTextCell: UICollectionViewCell {
         
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
-        
+        reviewActionButtonsView.delegate = self
         backgroundColor = .systemBackground
         
         userPostView.delegate = self
@@ -212,3 +214,17 @@ extension HomeImageTextCell: MEPostActionButtonsDelegate {
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
     }
 }
+
+
+extension HomeImageTextCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId)
+    }
+    
+    func didTapDelete() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId)
+    }
+}
+

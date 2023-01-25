@@ -19,6 +19,10 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     
     private var user: User?
     
+    
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
+    
     weak var delegate: HomeCellDelegate?
     
     private let cellContentView = UIView()
@@ -79,7 +83,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         
         userPostView.delegate = self
-
+        reviewActionButtonsView.delegate = self
         actionButtonsView.delegate = self
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
@@ -273,5 +277,20 @@ extension HomeThreeImageTextCell: MEPostActionButtonsDelegate {
         delegate?.cell(self, didLike: viewModel.post)
     }
 }
+
+
+extension HomeThreeImageTextCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId)
+    }
+    
+    func didTapDelete() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId)
+    }
+}
+
+
 
 

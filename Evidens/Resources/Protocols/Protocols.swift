@@ -46,13 +46,13 @@ protocol DisablePanGestureDelegate: AnyObject {
 
 
 protocol ReviewContentGroupDelegate: AnyObject {
-    func didTapAcceptContent()
-    func didTapCancelContent()
+    func didTapAcceptContent(contentId: String)
+    func didTapCancelContent(contentId: String)
 }
 
 protocol PresentReviewAlertContentGroupDelegate: AnyObject {
-    func didAcceptContent()
-    func didCancelContent()
+    func didAcceptContent(type: ContentGroup.GroupContentType)
+    func didCancelContent(type: ContentGroup.GroupContentType)
 }
 
 

@@ -118,13 +118,16 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postsReviewCellReuseIdentifier, for: indexPath) as! PendingPostsCell
             //cell.group = group
+            cell.groupId = group.groupId
             cell.fetchPendingPosts(group: group)
             cell.reviewPostCellDelegate = self
             //cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: casesReviewCellReuseIdentifier, for: indexPath) as! PendingCasesCell
+            cell.groupId = group.groupId
             cell.fetchPendingPosts(group: group)
+            cell.reviewPostCellDelegate = self
             //cell.delegate = self
             return cell
         }
@@ -209,19 +212,20 @@ extension GroupContentManagementViewController: SegmentedControlDelegate {
 }
 
 extension GroupContentManagementViewController: PresentReviewAlertContentGroupDelegate {
-    func didAcceptContent() {
-        // Accept post here
+    func didAcceptContent(type: ContentGroup.GroupContentType) {
+        let title = type == .post ? "post" : "case"
         
-        let deletedPostPopup = METopPopupView(title: "Pending post approved. It may take a few minutes to appear in the group feed.", image: "checkmark.circle.fill")
-        deletedPostPopup.showTopPopup(inView: self.view)
+        let approvedPostPopup = METopPopupView(title: "Pending \(title) approved. It may take a few minutes to appear in the group feed.", image: "checkmark.circle.fill")
+        approvedPostPopup.showTopPopup(inView: self.view)
     }
     
-    func didCancelContent() {
-
-        displayMEDestructiveAlert(withTitle: "Delete post", withMessage: "Are you sure you want to delete this post", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+    func didCancelContent(type: ContentGroup.GroupContentType) {
+        let title = type == .post ? "post" : "case"
+        
+        displayMEDestructiveAlert(withTitle: "Delete \(title)", withMessage: "Are you sure you want to delete this \(title)?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
             #warning("Delete post")
             
-            let deletedPostPopup = METopPopupView(title: "Post successfully deleted", image: "checkmark.circle.fill")
+            let deletedPostPopup = METopPopupView(title: "\(title) successfully deleted", image: "checkmark.circle.fill")
             deletedPostPopup.showTopPopup(inView: self.view)
             print("Did tap delete review post")
         }

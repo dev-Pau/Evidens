@@ -38,18 +38,6 @@ class SearchViewController: UIViewController {
         return tableView
     }()
     
-    
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search", attributes: [.font: UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        //searchBar.searchTextField.backgroundColor = lightColor
-        searchBar.searchTextField.tintColor = primaryColor
-        //searchBar.setImage(UIImage(named: "magnifyingglass")?.withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)), for: .search , state: .normal)
-        return searchBar
-    }()
-     
-    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -60,11 +48,15 @@ class SearchViewController: UIViewController {
         }
         //fetchRecents()
 
-        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = searchBarContainer
+        //let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+        //searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
+        //navigationItem.titleView = searchBarContainer
         //searchBar.becomeFirstResponder()
-        searchBar.delegate = self
+        let navLabel = UILabel()
+        let navTitle = NSMutableAttributedString(string: "Notifications", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
+        navLabel.attributedText = navTitle
+        navigationItem.titleView = navLabel
+ 
         configureTableView()
         configureUI()
         //fetchUsers()
@@ -74,14 +66,10 @@ class SearchViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        searchController.isActive = true
-        searchController.searchBar.searchTextField.becomeFirstResponder()
-        searchBar.becomeFirstResponder()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        searchBar.resignFirstResponder()
     }
      
     /*
@@ -116,6 +104,16 @@ class SearchViewController: UIViewController {
         tableView.refreshControl = refresher
         view.addSubview(tableView)
         tableView.frame = view.bounds
+        
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
+        searchController.searchBar.placeholder = "Search"
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
+        
     }
     
     func fetchRecents() {

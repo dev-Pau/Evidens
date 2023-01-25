@@ -70,7 +70,7 @@ class NavigationBarViewController: UIViewController {
             let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
             searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
             searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.70).isActive = true
-            navigationItem.titleView = searchBarContainer
+            //navigationItem.titleView = searchBarContainer
         
             searchBar.delegate = self
         }

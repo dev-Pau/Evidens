@@ -83,6 +83,12 @@ class NotificationsViewController: NavigationBarViewController {
     }
     
     private func configureCollectionView() {
+        //title = "Notifications"
+        let navLabel = UILabel()
+        let navTitle = NSMutableAttributedString(string: "Notifications", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
+        navLabel.attributedText = navTitle
+        navigationItem.titleView = navLabel
+                                    
         view.addSubviews(collectionView, titleLabel, descriptionLabel)
         //collectionView.frame = view.bounds
         collectionView.delegate = self

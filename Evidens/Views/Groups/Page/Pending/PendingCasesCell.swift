@@ -18,6 +18,12 @@ class PendingCasesCell: UICollectionViewCell {
     private var clinicalCases = [Case]()
     private var users = [User]()
     
+    var groupId: String?
+    
+    
+    weak var reviewPostCellDelegate: PresentReviewAlertContentGroupDelegate?
+    
+    
     private var loaded: Bool = false
     private var groupNeedsToReviewContent: Bool = false
     
@@ -148,7 +154,7 @@ extension PendingCasesCell: UICollectionViewDelegateFlowLayout, UICollectionView
         // Dequeue cases
         if clinicalCases[indexPath.row].type.rawValue == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-
+            cell.reviewDelegate = self
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCases[indexPath.row])
             cell.set(user: getUserForCase(clinicalCase: clinicalCases[indexPath.row]))
             cell.configureWithReviewOptions()
@@ -156,13 +162,41 @@ extension PendingCasesCell: UICollectionViewDelegateFlowLayout, UICollectionView
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-
+            cell.reviewDelegate = self
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCases[indexPath.row])
             cell.set(user: getUserForCase(clinicalCase: clinicalCases[indexPath.row]))
             cell.configureWithReviewOptions()
             //cell.delegate = self
             return cell
         }
+    }
+}
+
+extension PendingCasesCell: ReviewContentGroupDelegate {
+    func didTapAcceptContent(contentId: String) {
+        guard let groupId = groupId else { return }
+        let caseIndex = clinicalCases.firstIndex { clinicalCase in
+            if clinicalCase.caseId == contentId {
+                return true
+            }
+            return false
+        }
+        
+        if let caseIndex = caseIndex {
+            DatabaseManager.shared.approveGroupCase(withGroupId: groupId, withCaseId: contentId) { approved in
+                if approved {
+                    self.collectionView.performBatchUpdates {
+                        self.clinicalCases.remove(at: caseIndex)
+                        self.collectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
+                    }
+                    self.reviewPostCellDelegate?.didAcceptContent(type: .clinicalCase)
+                }
+            }
+        }
+    }
+    
+    func didTapCancelContent(contentId: String) {
+        reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
     }
 }
 

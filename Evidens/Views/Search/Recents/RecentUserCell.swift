@@ -107,6 +107,7 @@ extension RecentUserCell: UICollectionViewDataSource {
         return cell
     }
     
+    /*
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
             let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
                 return UIMenu(title: "", subtitle: nil, image: nil, identifier: nil, options: .displayInline, children: [
@@ -117,6 +118,7 @@ extension RecentUserCell: UICollectionViewDataSource {
             }
             return config
         }
+     */
 }
 
 //MARK: - UICollectionViewDelegateFlowLayout

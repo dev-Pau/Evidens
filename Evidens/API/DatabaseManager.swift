@@ -1297,6 +1297,86 @@ extension DatabaseManager {
         }
     }
     
+    public func approveGroupPost(withGroupId groupId: String, withPostId postId: String, completion: @escaping(Bool) -> Void) {
+        let postRef = database.child("groups").child(groupId).child("content").child("review").child("posts").queryOrdered(byChild: "id").queryEqual(toValue: postId)
+        postRef.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.children.allObjects.count == 1 {
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    self.database.child("groups").child(groupId).child("content").child("review").child("posts").child(key).removeValue { error, _ in
+                        
+                        if let error = error {
+                            completion(false)
+                            return
+                        }
+                        let ref = self.database.child("groups").child(groupId).child("content").child("all").childByAutoId()
+                        let groupRef = self.database.child("groups").child(groupId).child("content").child("posts").child(postId).child("timestamp")
+                        
+                        let timestamp = NSDate().timeIntervalSince1970
+                        
+                        let data = ["id": postId,
+                                    "timestamp": timestamp,
+                                    "type": 1] as [String: Any]
+                        
+                        
+                        
+                        ref.setValue(data) { error, _ in
+                            if let _ = error {
+                                completion(false)
+                            }
+                            
+                            groupRef.setValue(timestamp) { error, _ in
+                                if let _ = error {
+                                    completion(false)
+                                }
+                                completion(true)
+                            }
+                        }
+                    } 
+                }
+            }
+        }
+    }
+    
+    public func approveGroupCase(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
+        let caseRef = database.child("groups").child(groupId).child("content").child("review").child("cases").queryOrdered(byChild: "id").queryEqual(toValue: caseId)
+        caseRef.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.children.allObjects.count == 1 {
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    self.database.child("groups").child(groupId).child("content").child("review").child("cases").child(key).removeValue { error, _ in
+                        
+                        if let error = error {
+                            completion(false)
+                            return
+                        }
+                        let ref = self.database.child("groups").child(groupId).child("content").child("all").childByAutoId()
+                        let groupRef = self.database.child("groups").child(groupId).child("content").child("cases").child(caseId).child("timestamp")
+                        
+                        let timestamp = NSDate().timeIntervalSince1970
+                        
+                        let data = ["id": caseId,
+                                    "timestamp": timestamp,
+                                    "type": 0] as [String: Any]
+                        
+                        ref.setValue(data) { error, _ in
+                            if let _ = error {
+                                completion(false)
+                            }
+                            
+                            groupRef.setValue(timestamp) { error, _ in
+                                if let _ = error {
+                                    completion(false)
+                                }
+                                completion(true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func fetchPendingCasesForGroup(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
         var recentContent = [ContentGroup]()
         let postsRef = database.child("groups").child(groupId).child("content").child("review").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)

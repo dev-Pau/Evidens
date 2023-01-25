@@ -19,6 +19,8 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     private var user: User?
     
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
     weak var delegate: HomeCellDelegate?
     
     private let cellContentView = UIView()
@@ -102,7 +104,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         userPostView.delegate = self
         actionButtonsView.delegate = self
-        
+        reviewActionButtonsView.delegate = self
         cellContentView.addSubviews(userPostView, postTextLabel, postImageView, postTwoImageView, postThreeImageView, postFourImageView, actionButtonsView)
         
         NSLayoutConstraint.activate([
@@ -271,3 +273,18 @@ extension HomeFourImageTextCell: MEPostActionButtonsDelegate {
         delegate?.cell(self, didLike: viewModel.post)
     }
 }
+
+
+extension HomeFourImageTextCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId)
+    }
+    
+    func didTapDelete() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId)
+    }
+}
+
+

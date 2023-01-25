@@ -17,6 +17,10 @@ class CaseTextCell: UICollectionViewCell {
     
     private var user: User?
     
+    
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
+    
     weak var delegate: CaseCellDelegate?
     private let cellContentView = UIView()
     
@@ -90,7 +94,7 @@ class CaseTextCell: UICollectionViewCell {
         super.init(frame: frame)
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
-        
+        reviewActionButtonsView.delegate = self
         backgroundColor = .systemBackground
         
         actionButtonsView.delegate = self
@@ -307,5 +311,19 @@ extension CaseTextCell: MECaseUpdateViewDelegate {
         delegate?.clinicalCase(self, wantsToSeeUpdatesForCase: viewModel.clinicalCase)
     }
 }
+
+
+extension CaseTextCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.clinicalCase.caseId)
+    }
+    
+    func didTapDelete() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId)
+    }
+}
+
 
 

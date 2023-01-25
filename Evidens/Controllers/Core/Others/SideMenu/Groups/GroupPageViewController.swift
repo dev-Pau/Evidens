@@ -186,7 +186,7 @@ class GroupPageViewController: UIViewController {
                 self.collectionView.reloadData()
                 return
             }
-            
+
             // If there's content, check content type and fetch accordingly
             contentGroup.forEach { content in
                 if content.type == .post {

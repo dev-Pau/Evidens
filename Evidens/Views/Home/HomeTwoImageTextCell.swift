@@ -19,6 +19,12 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     
     private var user: User?
     
+    
+    weak var reviewDelegate: ReviewContentGroupDelegate?
+    
+    
+    
+    
     weak var delegate: HomeCellDelegate?
     
     private let cellContentView = UIView()
@@ -64,7 +70,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         super.init(frame: frame)
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
-        
+        reviewActionButtonsView.delegate = self
         backgroundColor = .systemBackground
         
         userPostView.delegate = self
@@ -252,5 +258,20 @@ extension HomeTwoImageTextCell: MEPostActionButtonsDelegate {
         delegate?.cell(self, didLike: viewModel.post)
     }
 }
+
+
+extension HomeTwoImageTextCell: MEReviewActionButtonsDelegate {
+    func didTapApprove() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId)
+    }
+    
+    func didTapDelete() {
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId)
+    }
+}
+
+
 
 

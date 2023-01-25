@@ -20,6 +20,8 @@ class PendingPostsCell: UICollectionViewCell {
     private var posts = [Post]()
     private var users = [User]()
     
+    var groupId: String?
+    
     weak var reviewPostCellDelegate: PresentReviewAlertContentGroupDelegate?
     
     private var loaded: Bool = false
@@ -134,9 +136,26 @@ class PendingPostsCell: UICollectionViewCell {
             return User(dictionary: [:])
         }
     }
+    /*
+    func configureContextMenu() -> UIContextMenuConfiguration{
+        let context = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (action) -> UIMenu? in
+            
+            let edit = UIAction(title: "Edit", image: UIImage(systemName: "square.and.pencil"), identifier: nil, discoverabilityTitle: nil, state: .off) { (_) in
+                print("edit button clicked")
+            }
+            let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), identifier: nil, discoverabilityTitle: nil,attributes: .destructive, state: .off) { (_) in
+                print("delete button clicked")
+            }
+            
+            return UIMenu(title: "Options", image: nil, identifier: nil, options: UIMenu.Options.displayInline, children: [edit,delete])
+            
+        }
+        return context
+    }
+     */
 }
 
-extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return  groupNeedsToReviewContent ? (posts.isEmpty ? 1 : posts.count) : 1
     }
@@ -170,7 +189,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
            
             //cell.delegate = self
-        
+            cell.reviewDelegate = self
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
             cell.configureWithReviewOptions()
@@ -182,29 +201,30 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             cell.delegate = self
             cell.layer.borderWidth = 0
             */
+            cell.reviewDelegate = self
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
             cell.configureWithReviewOptions()
             return cell
             
         } else if posts[indexPath.row].type.postType == 3 {
-            //print("post type 1")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
            /*
             cell.delegate = self
             cell.layer.borderWidth = 0
             */
+            cell.reviewDelegate = self
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
             cell.configureWithReviewOptions()
             return cell
             
         } else if posts[indexPath.row].type.postType == 4 {
-            //print("post type 1")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as!  HomeFourImageTextCell
             /*
             cell.delegate = self
             */
+            cell.reviewDelegate = self
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
             cell.configureWithReviewOptions()
@@ -215,18 +235,40 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             return UICollectionViewCell()
         }
     }
+    /*
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        configureContextMenu()
+    }
+     */
 }
 
 extension PendingPostsCell: ReviewContentGroupDelegate {
-    func didTapAcceptContent() {
-        reviewPostCellDelegate?.didAcceptContent()
+    
+    func didTapAcceptContent(contentId: String) {
+        guard let groupId = groupId else { return }
+        let postIndex = posts.firstIndex { post in
+            if post.postId == contentId {
+                return true
+            }
+            return false
+        }
+        
+        if let postIndex = postIndex {
+            DatabaseManager.shared.approveGroupPost(withGroupId: groupId, withPostId: contentId) { approved in
+                if approved {
+                    self.collectionView.performBatchUpdates {
+                        self.posts.remove(at: postIndex)
+                        self.collectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
+                    }
+                    self.reviewPostCellDelegate?.didAcceptContent(type: .post)
+                }
+            }
+        }
     }
     
-    func didTapCancelContent() {
-        print("3rd button tap")
-        reviewPostCellDelegate?.didCancelContent()
+    func didTapCancelContent(contentId: String) {
+        reviewPostCellDelegate?.didCancelContent(type: .post)
     }
-    
     
 }
 

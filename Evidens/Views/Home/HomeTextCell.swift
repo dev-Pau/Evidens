@@ -177,11 +177,12 @@ extension HomeTextCell: MEPostActionButtonsDelegate {
 
 extension HomeTextCell: MEReviewActionButtonsDelegate {
     func didTapApprove() {
-        reviewDelegate?.didTapAcceptContent()
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId)
     }
     
     func didTapDelete() {
-        print("second tap delete")
-        reviewDelegate?.didTapCancelContent()
+        guard let viewModel = viewModel else { return }
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId)
     }
 }
