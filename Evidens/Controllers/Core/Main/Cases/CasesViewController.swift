@@ -27,8 +27,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var displayState: DisplayState = .none
     
-    private var lastIndexPath: IndexPath?
-    private var lastFilterSelected: String?
     
     var casesLastSnapshot: QueryDocumentSnapshot?
     
@@ -37,7 +35,15 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var casesCollectionView: UICollectionView!
     
+    private var magicalValue: CGFloat = 0
+    
     private var filterCollectionView: UICollectionView!
+    
+    private let exploreCasesToolbar: ExploreCasesToolbar = {
+        let toolbar = ExploreCasesToolbar(frame: .zero)
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        return toolbar
+    }()
     
     private lazy var separatorView: UIView = {
         let view = UIView()
@@ -51,7 +57,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         case recents = "Recently uploaded"
     }
     
-    private var indexSelected: Int = 2
+    private var indexSelected: Int = 1
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,7 +66,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         casesCollectionView.refreshControl = refresher
-        filterCollectionView.selectItem(at: IndexPath(item: 2, section: 0), animated: true, scrollPosition: [])
+        //filterCollectionView.selectItem(at: IndexPath(item: 2, section: 0), animated: true, scrollPosition: [])
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -138,7 +144,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             let itemWidth = availableWidth / 2
             
             let flowLayout = UICollectionViewFlowLayout()
-            flowLayout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
+            flowLayout.sectionInset = UIEdgeInsets(top: 0, left: padding, bottom: padding, right: padding)
             flowLayout.itemSize = CGSize(width: itemWidth, height: 350)
             
             return flowLayout
@@ -173,59 +179,31 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             casesCollectionView.frame = view.bounds
             
         } else {
-            view.addSubviews(casesCollectionView, filterCollectionView, separatorView)
+            view.addSubviews(casesCollectionView, exploreCasesToolbar)
             NSLayoutConstraint.activate([
-                //toolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                //toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                //toolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                //toolbar.heightAnchor.constraint(equalToConstant: 50),
-                
-                filterCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                filterCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                filterCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                filterCollectionView.heightAnchor.constraint(equalToConstant: 50),
-                
-                separatorView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
-                separatorView.heightAnchor.constraint(equalToConstant: 1),
-                separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                
-                //casesCollectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-                casesCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+                exploreCasesToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                exploreCasesToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                exploreCasesToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                exploreCasesToolbar.heightAnchor.constraint(equalToConstant: 50),
+              
+                casesCollectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
                 casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 casesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
             
-            /*
-            let label = UILabel()
-            label.text = "KEKInsane"
-            label.translatesAutoresizingMaskIntoConstraints = false
-            toolbar.addSubview(label)
-            label.centerXAnchor.constraint(equalTo: toolbar.centerXAnchor).isActive = true
-            label.centerYAnchor.constraint(equalTo: toolbar.centerYAnchor).isActive = true
+            exploreCasesToolbar.delegate = self
+            exploreCasesToolbar.exploreDelegate = self
+            exploreCasesToolbar.setShadowImage(UIImage(), forToolbarPosition: .topAttached)
             
             casesCollectionView.contentInset.top = 50
             casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
-             */
-            //filterCollectionView.backgroundColor = .clear
-           
         }
         
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(SkeletonCasesCell.self, forCellWithReuseIdentifier: caseSkeletonCellReuseIdentifier)
         casesCollectionView.register(ExploreHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier)
 
-        filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
-        filterCollectionView.register(ExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
-        filterCollectionView.register(SeparatorCell.self, forCellWithReuseIdentifier: separatorCellReuseIdentifier)
-        
-        filterCollectionView.allowsSelection = true
-        filterCollectionView.allowsMultipleSelection = false
-        
-        filterCollectionView.dataSource = self
-        filterCollectionView.delegate = self
-        
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         
@@ -323,86 +301,15 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == filterCollectionView {
-            
-            if indexPath.row == 0 {
-                // Explore
-                collectionView.selectItem(at: IndexPath(item: indexSelected, section: 0), animated: true, scrollPosition: [])
-                self.navigationController?.delegate = self
-                let controller = CasesViewController()
-                controller.controllerIsBeeingPushed = true
-                controller.displaysExploringWindow = true
-                
-                let backItem = UIBarButtonItem()
-                backItem.title = "Explore"
-                backItem.setTitleTextAttributes([.font: UIFont.boldSystemFont(ofSize: 18)], for: .normal)
-                backItem.tintColor = .black
-                navigationItem.backBarButtonItem = backItem
-                
-                navigationController?.pushViewController(controller, animated: true)
-                return
-            }
-            
-            if indexPath.row == 1 { return }
-            
-            casesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-
-            let selection = filterCategories.allCases[indexPath.row - 2]
-            
-            switch selection {
-                
-            case .all:
-                print(indexPath.row)
-                print(indexSelected)
-                if indexPath.row == indexSelected { return }
-
-                indexSelected = indexPath.row
-                loaded = false
-                casesCollectionView.reloadData()
-                
-                CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
-                    self.casesLastSnapshot = snapshot.documents.last
-                    self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                    self.checkIfUserLikedCase()
-                    self.checkIfUserBookmarkedCase()
-                    self.casesCollectionView.refreshControl?.endRefreshing()
-                    self.cases.forEach { clinicalCase in
-                        UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                            self.users.append(user)
-                            self.loaded = true
-                            self.casesCollectionView.reloadData()
-                        }
-                    }
-                }
-
-                break
-
-                //CaseService.fetchCasesWithDetailsFilter(fieldToQuery: "details", valueToQuery: "Teaching interest")
-            case .recents:
-
-                if indexPath.row == indexSelected { return }
-                indexSelected = indexPath.row
-                loaded = false
-                casesCollectionView.reloadData()
-                
-                CaseService.fetchLastUploadedClinicalCases(lastSnapshot: nil) { snapshot in
-                    self.casesLastSnapshot = snapshot.documents.last
-                    self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                    self.checkIfUserLikedCase()
-                    self.checkIfUserBookmarkedCase()
-                    self.casesCollectionView.refreshControl?.endRefreshing()
-                    self.cases.forEach { clinicalCase in
-                        UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                            self.users.append(user)
-                            self.loaded = true
-                            self.casesCollectionView.reloadData()
-                        }
-                    }
-                }
-
-                break
-            }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if magicalValue == 0 { magicalValue = scrollView.contentOffset.y }
+        
+        if scrollView.contentOffset.y <= magicalValue + 1  {
+            self.exploreCasesToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .topAttached, barMetrics: .default)
+            self.exploreCasesToolbar.setShadowImage(UIImage(), forToolbarPosition: .topAttached)
+        } else {
+            self.exploreCasesToolbar.setShadowImage(UIImage(named: ""), forToolbarPosition: .topAttached)
+            self.exploreCasesToolbar.setBackgroundImage(UIImage(named: ""), forToolbarPosition: .topAttached, barMetrics: .default)
         }
     }
     /*
@@ -411,6 +318,61 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         collectionView.selectItem(at: selectedIndexPath, animated: true, scrollPosition: [])
     }
      */
+}
+
+extension CasesViewController: ExploreCasesToolbarDelegate {
+    func wantsToSeeCategory(category: Case.FilterCategories) {
+        switch category {
+        case .explore:
+            self.navigationController?.delegate = self
+            let controller = CasesViewController()
+            controller.controllerIsBeeingPushed = true
+            controller.displaysExploringWindow = true
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            controller.title = category.rawValue
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case .all:
+            indexSelected = 1
+            CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.casesCollectionView.refreshControl?.endRefreshing()
+                self.cases.forEach { clinicalCase in
+                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                        self.users.append(user)
+                        self.loaded = true
+                        self.casesCollectionView.reloadData()
+                    }
+                }
+            }
+
+        case .recents:
+            indexSelected = 2
+            CaseService.fetchLastUploadedClinicalCases(lastSnapshot: nil) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.casesCollectionView.refreshControl?.endRefreshing()
+                self.cases.forEach { clinicalCase in
+                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                        self.users.append(user)
+                        self.loaded = true
+                        self.casesCollectionView.reloadData()
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -555,7 +517,7 @@ extension CasesViewController: ZoomTransitioningDelegate {
 
 extension CasesViewController {
     func getMoreCases() {
-        if indexSelected == 2 {
+        if indexSelected == 1 {
             CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
                 self.casesLastSnapshot = snapshot.documents.last
                 let documents = snapshot.documents
@@ -573,7 +535,7 @@ extension CasesViewController {
             }
         }
         
-        if indexSelected == 3 {
+        if indexSelected == 2 {
             // Recently uploaded
             CaseService.fetchLastUploadedClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
                 self.casesLastSnapshot = snapshot.documents.last
@@ -640,9 +602,10 @@ extension CasesViewController: ExploreHeaderCellDelegate {
         controller.displaysFilteredWindow = true
         
         let backItem = UIBarButtonItem()
-        backItem.title = profession
-        backItem.setTitleTextAttributes([.font: UIFont.boldSystemFont(ofSize: 18)], for: .normal)
-        backItem.tintColor = .black
+        backItem.title = ""
+        controller.title = profession
+        //backItem.setTitleTextAttributes([.font: UIFont.boldSystemFont(ofSize: 18)], for: .normal)
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)

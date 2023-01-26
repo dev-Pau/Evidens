@@ -17,16 +17,15 @@ class FilterCasesCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
-            backgroundColor = isSelected ? primaryColor : .secondarySystemGroupedBackground
+            //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
+            backgroundColor = isSelected ? primaryColor : .clear
             tagsLabel.textColor = isSelected ? .white : .label
         }
-
     }
     
     var tagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -44,9 +43,9 @@ class FilterCasesCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 15
-        layer.borderWidth = 1
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        backgroundColor = .secondarySystemGroupedBackground
+        //layer.borderWidth = 1
+        //layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        backgroundColor = .clear
         
         addSubviews(tagsLabel)
         
@@ -58,6 +57,7 @@ class FilterCasesCell: UICollectionViewCell {
         ])
     }
     
+    /*
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
@@ -66,6 +66,7 @@ class FilterCasesCell: UICollectionViewCell {
              }
          }
     }
+     */
     
     @objc func handleImageTap() {
         delegate?.didTapFilterImage(self)

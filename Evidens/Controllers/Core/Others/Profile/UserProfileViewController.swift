@@ -98,6 +98,20 @@ class UserProfileViewController: UIViewController {
     }()
     
     private var collectionView: UICollectionView!
+    
+    private lazy var customRightButton: UIButton = {
+        let button = UIButton()
+
+        button.configuration = .filled()
+
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.baseForegroundColor = .systemBackground
+
+        button.configuration?.cornerStyle = .capsule
+
+        //button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
+        return button
+    }()
         
     
     //MARK: - Lifecycle
@@ -137,7 +151,15 @@ class UserProfileViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationItemButton() {
-
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+            customRightButton.configuration?.attributedTitle = AttributedString("Follow", attributes: container)
+/*
         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = searchBarContainer
@@ -146,6 +168,24 @@ class UserProfileViewController: UIViewController {
         
         searchBar.text = ("\(firstName ) \(lastName)")
         searchBar.searchTextField.clearButtonMode = .never
+ */
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        //if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GroupPageHeaderCell {
+            if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 60 - topbarHeight) > 0 {
+                print("per imatge")
+            } else {
+                
+            }
+            
+            if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 10 + 30 - topbarHeight) > 0 {
+                navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
+            } else {
+                navigationItem.setRightBarButton(nil, animated: true)
+       //     }
+        }
+
     }
     
     func configureCollectionView() {
@@ -154,7 +194,7 @@ class UserProfileViewController: UIViewController {
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.backgroundColor = .systemBackground
         collectionView.register(UserProfileHeaderCell.self, forCellWithReuseIdentifier: profileHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
@@ -508,6 +548,7 @@ class UserProfileViewController: UIViewController {
 
         config.interSectionSpacing = 0
         layout.configuration = config
+        
         return layout
     }
     

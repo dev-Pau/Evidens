@@ -53,6 +53,14 @@ protocol ReviewContentGroupDelegate: AnyObject {
 protocol PresentReviewAlertContentGroupDelegate: AnyObject {
     func didAcceptContent(type: ContentGroup.GroupContentType)
     func didCancelContent(type: ContentGroup.GroupContentType)
+    func showDeleteAlertController(type: ContentGroup.GroupContentType, contentId: String)
+    func wantsToSeePost(post: Post, user: User)
+    func wantsToSeeProfile(user: User)
+}
+
+protocol DetailsContentReviewDelegate: AnyObject {
+    func didTapAcceptContent(type: ContentGroup.GroupContentType, contentId: String)
+    func didTapCancelContent(type: ContentGroup.GroupContentType, contentId: String)
 }
 
 

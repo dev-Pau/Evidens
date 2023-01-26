@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if #available(iOS 15, *) {
             let navigationBarAppearance = UINavigationBarAppearance()
-            navigationBarAppearance.configureWithOpaqueBackground()
+            navigationBarAppearance.configureWithDefaultBackground()
             
             let navigationBarAppearance2 = UINavigationBarAppearance()
             navigationBarAppearance2.configureWithOpaqueBackground()

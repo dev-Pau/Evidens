@@ -66,6 +66,12 @@ struct Case {
         }
     }
     
+    enum FilterCategories: String, CaseIterable {
+        case explore = "Explore"
+        case all = "All"
+        case recents = "Recents"
+    }
+    
     enum Privacy: Int, CaseIterable {
         case visible
         case nonVisible

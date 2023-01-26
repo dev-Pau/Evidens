@@ -136,6 +136,26 @@ class PendingPostsCell: UICollectionViewCell {
             return User(dictionary: [:])
         }
     }
+    
+    func deletePendingItem(contentId: String) {
+        let postIndex = posts.firstIndex { post in
+            if post.postId == contentId {
+                return true
+            }
+            return false
+        }
+        
+        if let postIndex = postIndex {
+            
+            self.collectionView.performBatchUpdates {
+                self.posts.remove(at: postIndex)
+                self.collectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
+            }
+            
+            self.reviewPostCellDelegate?.didAcceptContent(type: .post)
+        }
+    }
+    
     /*
     func configureContextMenu() -> UIContextMenuConfiguration{
         let context = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (action) -> UIMenu? in
@@ -178,7 +198,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
             
-            //cell.delegate = self
+            cell.delegate = self
             cell.reviewDelegate = self
             cell.viewModel = PostViewModel(post: posts[indexPath.row])
             cell.set(user: getUserForPost(post: posts[indexPath.row]))
@@ -235,6 +255,7 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
             return UICollectionViewCell()
         }
     }
+    
     /*
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         configureContextMenu()
@@ -267,8 +288,49 @@ extension PendingPostsCell: ReviewContentGroupDelegate {
     }
     
     func didTapCancelContent(contentId: String) {
-        reviewPostCellDelegate?.didCancelContent(type: .post)
+        reviewPostCellDelegate?.showDeleteAlertController(type: .post, contentId: contentId)
     }
+    
+    func deleteSelectedContent(contentId: String) {
+        guard let groupId = groupId else { return }
+            
+        let postIndex = posts.firstIndex { post in
+            if post.postId == contentId {
+                return true
+            }
+            return false
+        }
+        
+        if let postIndex = postIndex {
+            DatabaseManager.shared.denyGroupPost(withGroupId: groupId, withPostId: contentId) { denied in
+                if denied {
+                    self.collectionView.performBatchUpdates {
+                        self.posts.remove(at: postIndex)
+                        self.collectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
+                    }
+                    self.reviewPostCellDelegate?.didCancelContent(type: .post)
+                }
+            }
+        }
+    }
+}
+
+extension PendingPostsCell: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
+    func cell(_ cell: UICollectionViewCell, didBookmark post: Post) { return }
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
+    func cell(wantsToSeeLikesFor post: Post) { return }
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User) { return }
+    func cell(_ cell: UICollectionViewCell, didLike post: Post) { return }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        reviewPostCellDelegate?.wantsToSeeProfile(user: user)
+    }
+
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
+        reviewPostCellDelegate?.wantsToSeePost(post: post, user: user)
+    }
+    
     
 }
 

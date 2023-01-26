@@ -59,17 +59,23 @@ class GroupPageViewController: UIViewController {
     
     private var memberType: Group.MemberType?
     
-    private var searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        //searchBar.searchTextField.tintColor = primaryColor
-        //searchBar.searchTextField.backgroundColor = lightColor
-        return searchBar
+    private lazy var customRightButton: UIButton = {
+        let button = UIButton()
+
+        button.configuration = .filled()
+
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.baseForegroundColor = .systemBackground
+
+        button.configuration?.cornerStyle = .capsule
+
+        //button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
+        return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
+
         configureNavigationBar()
         configureSearchBar()
         configureUI()
@@ -86,6 +92,11 @@ class GroupPageViewController: UIViewController {
             // User is from group, fetch group users
             fetchGroupUsers()
             fetchGroupContent()
+            
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 15, weight: .bold)
+            customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
+            
         } else {
             // User comes from discover tab or might be pending. Fetch user member type.
             fetchUserMemberType()
@@ -113,6 +124,11 @@ class GroupPageViewController: UIViewController {
     private func fetchUserMemberType() {
         DatabaseManager.shared.fetchUserMemberTypeForGroup(groupId: group.groupId) { memberType in
             self.memberType = memberType
+            
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 15, weight: .bold)
+            self.customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
+            
             self.collectionView.isHidden = false
             self.collectionView.reloadData()
             if memberType == .external || memberType == .pending {
@@ -143,21 +159,48 @@ class GroupPageViewController: UIViewController {
         }
     }
     
-    private func configureNavigationBar() {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print(scrollView.contentOffset.y)
+        print(UIScreen.main.bounds.width / 3 + 60 - topbarHeight)
+         
+        if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GroupPageHeaderCell {
+            if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 60 - topbarHeight) > 0 {
+                print("per imatge")
+            } else {
+                
+            }
+            print(cell.frame.height - topbarHeight)
+            if scrollView.contentOffset.y - (cell.frame.height - topbarHeight) > 0 {
+                navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
+            } else {
+                navigationItem.setRightBarButton(nil, animated: true)
+            }
+        }
 
-        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-        searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8).isActive = true
+    }
+    
+    private func configureNavigationBar() {
         
-        navigationItem.titleView = searchBarContainer
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
         
-        searchBar.delegate = self
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        /*
+         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
+         searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
+         searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8).isActive = true
+         
+         navigationItem.titleView = searchBarContainer
+         
+         searchBar.delegate = self
+         */
     }
     
     private func configureSearchBar() {
         //let atrString = NSAttributedString(string: "Search content in \(group.name)", attributes: [.font : UIFont.systemFont(ofSize: 15)])
         //searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.placeholder = "Search content in \(group.name)"
+        //searchBar.searchTextField.placeholder = "Search content in \(group.name)"
     }
     
     private func configureUI() {
@@ -264,15 +307,22 @@ class GroupPageViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(collectionView)
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
         
         if memberType == nil { collectionView.isHidden = true }
-        
-        view.addSubview(collectionView)
-
+    
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
         
@@ -304,41 +354,6 @@ class GroupPageViewController: UIViewController {
         //collectionView.register(UserProfileTitleHeader.self, forCellWithReuseIdentifier: profileHeaderTitleReuseIdentifier)
         
     }
-    
-    /*
-    func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
-            if sectionNumber == 0 {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
-                group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(5))
-                let section = NSCollectionLayoutSection(group: group)
-                return section
-            } else {
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)),
-                                                                         elementKind: ElementKind.sectionHeader,
-                                                                         alignment: .top)
-                header.pinToVisibleBounds = true
-                
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
-                group.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(0), trailing: .fixed(0), bottom: .fixed(5))
-                let section = NSCollectionLayoutSection(group: group)
-                
-                section.boundarySupplementaryItems = [header]
-                return section
-            }
-
-        }
-        
-        
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 0
-        layout.configuration = config
-        return layout
-    }
-     */
     
     private func createLayout() -> UICollectionViewFlowLayout {
         let layout = UICollectionViewFlowLayout()

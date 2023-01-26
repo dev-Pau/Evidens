@@ -196,7 +196,30 @@ extension PendingCasesCell: ReviewContentGroupDelegate {
     }
     
     func didTapCancelContent(contentId: String) {
-        reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
+        reviewPostCellDelegate?.showDeleteAlertController(type: .clinicalCase, contentId: contentId)
+        //reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
+    }
+    
+    func deleteSelectedContent(contentId: String) {
+        guard let groupId = groupId else { return }
+        let caseIndex = clinicalCases.firstIndex { clinicalCase in
+            if clinicalCase.caseId == contentId {
+                return true
+            }
+            return false
+        }
+        
+        if let caseIndex = caseIndex {
+            DatabaseManager.shared.denyGroupCase(withGroupId: groupId, withCaseId: contentId) { approved in
+                if approved {
+                    self.collectionView.performBatchUpdates {
+                        self.clinicalCases.remove(at: caseIndex)
+                        self.collectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
+                    }
+                    self.reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
+                }
+            }
+        }
     }
 }
 

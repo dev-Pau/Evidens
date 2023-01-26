@@ -28,7 +28,7 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = lightColor
+        backgroundColor = .quaternarySystemFill
         layer.cornerRadius = 3
         
         addSubviews(categoryLabel)

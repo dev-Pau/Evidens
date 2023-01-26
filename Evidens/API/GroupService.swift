@@ -132,6 +132,14 @@ struct GroupService {
         }
     }
     
+    static func deleteGroupPost(groupId: String, postId: String, completion: @escaping(FirestoreCompletion)) {
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).delete(completion: completion)
+    }
+    
+    static func deleteGroupCase(groupId: String, caseId: String, completion: @escaping(FirestoreCompletion)) {
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).delete(completion: completion)
+    }
+    
     static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let caseId = COLLECTION_GROUPS.document(groupId).collection("cases").document().documentID

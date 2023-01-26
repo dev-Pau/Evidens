@@ -162,9 +162,9 @@ class GroupPageHeaderCell: UICollectionViewCell {
             groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
             groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             groupBannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            groupBannerImageView.heightAnchor.constraint(equalToConstant: 100),
+            groupBannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
             
-            groupProfileImageView.centerYAnchor.constraint(equalTo: groupBannerImageView.centerYAnchor, constant: 50),
+            groupProfileImageView.centerYAnchor.constraint(equalTo: groupBannerImageView.bottomAnchor, constant: 20),
             groupProfileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             groupProfileImageView.widthAnchor.constraint(equalToConstant: 80),
             groupProfileImageView.heightAnchor.constraint(equalToConstant: 80),

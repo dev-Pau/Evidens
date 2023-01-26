@@ -132,12 +132,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bannerImageView.heightAnchor.constraint(equalToConstant: 100),
+            bannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
             
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
+            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 20),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.widthAnchor.constraint(equalToConstant: 110),
-            profileImageView.heightAnchor.constraint(equalToConstant: 110),
+            profileImageView.widthAnchor.constraint(equalToConstant: 80),
+            profileImageView.heightAnchor.constraint(equalToConstant: 80),
             
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
@@ -162,7 +162,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
             sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
         ])
         
-        profileImageView.layer.cornerRadius = 110 / 2
+        profileImageView.layer.cornerRadius = 80 / 2
         
         followButton.configurationUpdateHandler = { [unowned self] button in
             var config = button.configuration

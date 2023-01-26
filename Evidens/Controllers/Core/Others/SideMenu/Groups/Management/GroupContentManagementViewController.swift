@@ -212,6 +212,7 @@ extension GroupContentManagementViewController: SegmentedControlDelegate {
 }
 
 extension GroupContentManagementViewController: PresentReviewAlertContentGroupDelegate {
+
     func didAcceptContent(type: ContentGroup.GroupContentType) {
         let title = type == .post ? "post" : "case"
         
@@ -219,15 +220,80 @@ extension GroupContentManagementViewController: PresentReviewAlertContentGroupDe
         approvedPostPopup.showTopPopup(inView: self.view)
     }
     
-    func didCancelContent(type: ContentGroup.GroupContentType) {
+    func showDeleteAlertController(type: ContentGroup.GroupContentType, contentId: String) {
         let title = type == .post ? "post" : "case"
+        let position = type == .post ? 0 : 1
         
         displayMEDestructiveAlert(withTitle: "Delete \(title)", withMessage: "Are you sure you want to delete this \(title)?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
-            #warning("Delete post")
+            if position == 0 {
+                let cell = self.groupCollectionView.cellForItem(at: IndexPath(item: position, section: 0)) as! PendingPostsCell
+                cell.deleteSelectedContent(contentId: contentId)
+            } else {
+                let cell = self.groupCollectionView.cellForItem(at: IndexPath(item: position, section: 0)) as! PendingCasesCell
+                cell.deleteSelectedContent(contentId: contentId)
+            }
             
-            let deletedPostPopup = METopPopupView(title: "\(title) successfully deleted", image: "checkmark.circle.fill")
-            deletedPostPopup.showTopPopup(inView: self.view)
-            print("Did tap delete review post")
         }
     }
+    
+    func didCancelContent(type: ContentGroup.GroupContentType) {
+        let capitalTitle = type == .post ? "Post" : "Case"
+        let deletedPostPopup = METopPopupView(title: "\(capitalTitle) successfully deleted", image: "checkmark.circle.fill")
+        deletedPostPopup.showTopPopup(inView: self.view)
+    }
+    
+    func wantsToSeePost(post: Post, user: User) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        //self.navigationController?.delegate = self
+        
+        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        controller.isReviewingPost = true
+        controller.reviewDelegate = self
+        controller.groupId = group.groupId
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func wantsToSeeProfile(user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
 }
+
+extension GroupContentManagementViewController: DetailsContentReviewDelegate {
+    func didTapAcceptContent(type: ContentGroup.GroupContentType, contentId: String) {
+        let position = type == .post ? 0 : 1
+        
+        if position == 0 {
+            let cell = self.groupCollectionView.cellForItem(at: IndexPath(item: position, section: 0)) as! PendingPostsCell
+            cell.deletePendingItem(contentId: contentId)
+            
+        } else {
+            let cell = self.groupCollectionView.cellForItem(at: IndexPath(item: position, section: 0)) as! PendingCasesCell
+            //cell.deleteSelectedContent(contentId: contentId)
+        }
+    }
+    
+    func didTapCancelContent(type: ContentGroup.GroupContentType, contentId: String) {
+        
+    }
+    
+}
+

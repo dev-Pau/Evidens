@@ -1338,6 +1338,33 @@ extension DatabaseManager {
         }
     }
     
+    public func denyGroupPost(withGroupId groupId: String, withPostId postId: String, completion: @escaping(Bool) -> Void) {
+        let postRef = database.child("groups").child(groupId).child("content").child("review").child("posts").queryOrdered(byChild: "id").queryEqual(toValue: postId)
+        postRef.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.children.allObjects.count == 1 {
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    self.database.child("groups").child(groupId).child("content").child("review").child("posts").child(key).removeValue { error, _ in
+                        
+                        if let error = error {
+                            completion(false)
+                            return
+                        }
+                        
+                        GroupService.deleteGroupPost(groupId: groupId, postId: postId) { error in
+                            if let error = error {
+                                completion(false)
+                                return
+                            }
+                            
+                            completion(true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func approveGroupCase(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
         let caseRef = database.child("groups").child(groupId).child("content").child("review").child("cases").queryOrdered(byChild: "id").queryEqual(toValue: caseId)
         caseRef.observeSingleEvent(of: .value) { snapshot in
@@ -1370,6 +1397,32 @@ extension DatabaseManager {
                                 }
                                 completion(true)
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public func denyGroupCase(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
+        let caseRef = database.child("groups").child(groupId).child("content").child("review").child("cases").queryOrdered(byChild: "id").queryEqual(toValue: caseId)
+        caseRef.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.children.allObjects.count == 1 {
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    self.database.child("groups").child(groupId).child("content").child("review").child("cases").child(key).removeValue { error, _ in
+                        
+                        if let error = error {
+                            completion(false)
+                            return
+                        }
+                        
+                        GroupService.deleteGroupCase(groupId: groupId, caseId: caseId) { error in
+                            if let error = error {
+                                completion(false)
+                                return
+                            }
+                            completion(true)
                         }
                     }
                 }

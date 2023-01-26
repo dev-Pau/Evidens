@@ -53,7 +53,7 @@ class ExploreHeaderCell: UICollectionReusableView {
 
             let doubleVerticalGroup = NSCollectionLayoutGroup.vertical(
 
-                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.16),
+                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.18),
                                                                heightDimension: .fractionalHeight(1.0)),
                             subitem: doubleItem, count: 3)
             

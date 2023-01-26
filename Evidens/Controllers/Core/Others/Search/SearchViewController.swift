@@ -52,10 +52,11 @@ class SearchViewController: UIViewController {
         //searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         //navigationItem.titleView = searchBarContainer
         //searchBar.becomeFirstResponder()
-        let navLabel = UILabel()
-        let navTitle = NSMutableAttributedString(string: "Notifications", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
-        navLabel.attributedText = navTitle
-        navigationItem.titleView = navLabel
+        //let navLabel = UILabel()
+        //let navTitle = NSMutableAttributedString(string: "Search", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
+        //navLabel.attributedText = navTitle
+        //navigationItem.titleView = navLabel
+        title = "Search"
  
         configureTableView()
         configureUI()

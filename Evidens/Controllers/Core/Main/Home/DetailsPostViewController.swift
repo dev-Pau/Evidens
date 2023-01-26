@@ -37,10 +37,14 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     var selectedImage: UIImageView!
     
     weak var delegate: DetailsPostViewControllerDelegate?
+    weak var reviewDelegate: DetailsContentReviewDelegate?
     
     var indexPathSelected: Int?
     
     private var loaded: Bool = false
+    
+    var isReviewingPost: Bool = false
+    var groupId: String?
     
     private var displayState: DisplayState = .none
     
@@ -206,6 +210,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
+                if isReviewingPost {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
             } else if post.type.postType == 1 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
@@ -214,6 +222,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
+                if isReviewingPost {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
                 
             } else if post.type.postType == 2 {
@@ -223,6 +235,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
+                if isReviewingPost {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
             } else if post.type.postType == 3 {
 
@@ -232,6 +248,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
+                if isReviewingPost {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
             } else if post.type.postType == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
@@ -240,6 +260,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
+                if isReviewingPost {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
                 
             }
@@ -649,4 +673,22 @@ extension DetailsPostViewController: CommentPostViewControllerDelegate {
         
         delegate?.didComment(forPost: post)
     }
+}
+
+extension DetailsPostViewController: ReviewContentGroupDelegate {
+    func didTapAcceptContent(contentId: String) {
+        guard let groupId = groupId else { return }
+        DatabaseManager.shared.approveGroupPost(withGroupId: groupId, withPostId: contentId) { approved in
+            if approved {
+                self.reviewDelegate?.didTapAcceptContent(type: .post, contentId: contentId)
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+    
+    func didTapCancelContent(contentId: String) {
+        self.reviewDelegate?.didTapCancelContent(type: .post, contentId: contentId)
+    }
+    
+    
 }
