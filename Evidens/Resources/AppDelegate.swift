@@ -19,12 +19,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if #available(iOS 15, *) {
             let navigationBarAppearance = UINavigationBarAppearance()
-            navigationBarAppearance.configureWithDefaultBackground()
+            navigationBarAppearance.configureWithOpaqueBackground()
             
             let navigationBarAppearance2 = UINavigationBarAppearance()
             navigationBarAppearance2.configureWithOpaqueBackground()
-            
-            
+            //navigationBarAppearance.backgroundColor = primaryColor
+            //navigationBarAppearance2.backgroundColor = primaryColor
+            //navigationBarAppearance.backgroundColor = primaryColor
+            //UINavigationBar.appearance().barTintColor = primaryColor
             //navigationBarAppearance.backgroundEffect = UIBlurEffect(style: .regular)
             //UINavigationBar.appearance().barTintColor = primaryColor
             //navigationBarAppearance.shadowColor = .clear

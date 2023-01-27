@@ -40,9 +40,10 @@ protocol GroupPageViewControllerDelegate: AnyObject {
 class GroupPageViewController: UIViewController {
     
     weak var delegate: GroupPageViewControllerDelegate?
+
     
     private var collectionView: UICollectionView!
-    
+   
     private var group: Group
     private var members: [User]?
     
@@ -181,10 +182,10 @@ class GroupPageViewController: UIViewController {
     
     private func configureNavigationBar() {
         
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
+        //let appearance = UINavigationBarAppearance()
+        //appearance.configureWithTransparentBackground()
         
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        //navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         /*
          let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
@@ -357,6 +358,7 @@ class GroupPageViewController: UIViewController {
     
     private func createLayout() -> UICollectionViewFlowLayout {
         let layout = UICollectionViewFlowLayout()
+        
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
@@ -534,8 +536,8 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         return UICollectionViewCell()
         
     }
-    
-    
+
+        
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
             return UICollectionReusableView()

@@ -8,6 +8,7 @@
 import UIKit
 import GoogleSignIn
 
+private let stretchyReuseIdentifier = "StretchyReuseIdentifier"
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
 private let profileHeaderTitleReuseIdentifier = "ProfileHeaderTitleReuseIdentifier"
@@ -40,6 +41,8 @@ class UserProfileViewController: UIViewController {
     
 
     //MARK: - Properties
+    private var standardAppearance = UINavigationBarAppearance()
+    
     private var user: User
     
     var recentPosts = [Post]() {
@@ -98,7 +101,7 @@ class UserProfileViewController: UIViewController {
     }()
     
     private var collectionView: UICollectionView!
-    
+  
     private lazy var customRightButton: UIButton = {
         let button = UIButton()
 
@@ -156,46 +159,62 @@ class UserProfileViewController: UIViewController {
         
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = .systemBackground
+        navigationController?.navigationBar.standardAppearance = standardAppearance
+        /*
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.view.backgroundColor = UIColor.clear
+         */
+        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
             customRightButton.configuration?.attributedTitle = AttributedString("Follow", attributes: container)
-/*
-        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = searchBarContainer
-        
-        guard let firstName = user.firstName, let lastName = user.lastName else { return }
-        
-        searchBar.text = ("\(firstName ) \(lastName)")
-        searchBar.searchTextField.clearButtonMode = .never
- */
     }
     
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        //if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GroupPageHeaderCell {
-            if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 60 - topbarHeight) > 0 {
-                print("per imatge")
-            } else {
-                
-            }
-            
-            if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 10 + 30 - topbarHeight) > 0 {
-                navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
-            } else {
-                navigationItem.setRightBarButton(nil, animated: true)
-       //     }
+        let maxVerticalOffset = (view.frame.width / 3) / 2
+        let currentVeritcalOffset = scrollView.contentOffset.y
+        let percentageOffset = currentVeritcalOffset / maxVerticalOffset
+        standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
+        navigationController?.navigationBar.standardAppearance = standardAppearance
+        
+        if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) {
+            navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
+        } else {
+            navigationItem.setRightBarButton(nil, animated: true)
         }
-
+        
+        if currentVeritcalOffset > (view.frame.width / 3 + 120 - topbarHeight) {
+            title = user.firstName
+        } else {
+            title = ""
+        }
     }
     
     func configureCollectionView() {
-        
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+       
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+       
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+      
         view.addSubview(collectionView)
+       
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.backgroundColor = .systemBackground
+        collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyReuseIdentifier)
         collectionView.register(UserProfileHeaderCell.self, forCellWithReuseIdentifier: profileHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
@@ -217,14 +236,17 @@ class UserProfileViewController: UIViewController {
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+        let layout = StretchyHeaderLayout { sectionNumber, env in
             if sectionNumber == 0 {
-
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(self.view.frame.width / 3)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
                 // Profile Header
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)))
                 //item.contentInsets.bottom = 16
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header]
                 return section
             } else if sectionNumber == 1 {
                 // About section
@@ -801,6 +823,14 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        if section == 0 {
+            return -30
+        } else {
+            return 0
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! UserProfileHeaderCell
@@ -910,6 +940,13 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         
         switch kind {
         case ElementKind.sectionHeader:
+            
+            if indexPath.section == 0 {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyReuseIdentifier, for: indexPath) as! MEStretchyHeader
+                header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
+                return header
+            }
+            
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! UserProfileTitleHeader
             header.delegate = self
             
@@ -1411,3 +1448,28 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     
 }
 
+class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        let layoutAttributes = super.layoutAttributesForElements(in: rect)
+        layoutAttributes?.forEach { attribute in
+            if attribute.representedElementKind == ElementKind.sectionHeader && attribute.indexPath.section == 0 {
+                guard let collectionView = collectionView else { return }
+                let contentOffsetY = collectionView.contentOffset.y
+                print(contentOffsetY)
+                if contentOffsetY < 0 {
+                    let width = UIScreen.main.bounds.width
+                    let height = width / 3 - contentOffsetY
+                    attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
+                    print(attribute.frame)
+                }
+            }
+        }
+        
+        return layoutAttributes
+    }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return true
+    }
+}

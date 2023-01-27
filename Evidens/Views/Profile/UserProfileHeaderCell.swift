@@ -34,6 +34,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         }
     }
     
+    /*
     private lazy var bannerImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -44,6 +45,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         iv.isUserInteractionEnabled = true
         return iv
     }()
+     */
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -116,6 +118,13 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return label
     }()
     
+    private lazy var separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
     
     //MARK: - Lifecycle
     
@@ -126,15 +135,16 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
         
-        addSubviews(bannerImageView, profileImageView, nameLabel, professionLabel, followButton, sendMessageButton, followersLabel)
+        addSubviews(profileImageView, nameLabel, professionLabel, followButton, sendMessageButton, followersLabel)
         
         NSLayoutConstraint.activate([
+            /*
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
-            
-            profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 20),
+            */
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 80),
             profileImageView.heightAnchor.constraint(equalToConstant: 80),
@@ -152,12 +162,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
             followersLabel.trailingAnchor.constraint(equalTo: professionLabel.trailingAnchor),
             followersLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            followButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
+            followButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             followButton.heightAnchor.constraint(equalToConstant: 30),
             followButton.widthAnchor.constraint(equalToConstant: 100),
             
-            sendMessageButton.topAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
+            sendMessageButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
             sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
         ])
@@ -190,7 +200,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         // Configure with user info
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-        bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
+        //bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
         nameLabel.text = "\(viewModel.firstName ) \(viewModel.lastName)"
         professionLabel.text = "\(viewModel.profession ) · \( viewModel.speciality)"
         

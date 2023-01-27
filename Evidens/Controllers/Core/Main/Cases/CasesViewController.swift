@@ -45,13 +45,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         return toolbar
     }()
     
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     enum filterCategories: String, CaseIterable {
         case all = "All"
         case recents = "Recently uploaded"
@@ -144,7 +137,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             let itemWidth = availableWidth / 2
             
             let flowLayout = UICollectionViewFlowLayout()
-            flowLayout.sectionInset = UIEdgeInsets(top: 0, left: padding, bottom: padding, right: padding)
+            flowLayout.sectionInset = UIEdgeInsets(top: 10, left: padding, bottom: padding, right: padding)
             flowLayout.itemSize = CGSize(width: itemWidth, height: 350)
             
             return flowLayout
@@ -194,8 +187,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             
             exploreCasesToolbar.delegate = self
             exploreCasesToolbar.exploreDelegate = self
-            exploreCasesToolbar.setShadowImage(UIImage(), forToolbarPosition: .topAttached)
-            
+            let appearance = UIToolbarAppearance()
+            appearance.configureWithOpaqueBackground()
+            exploreCasesToolbar.scrollEdgeAppearance = appearance
+            exploreCasesToolbar.standardAppearance = appearance
             casesCollectionView.contentInset.top = 50
             casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
         }
@@ -301,6 +296,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         }
     }
     
+    /*
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if magicalValue == 0 { magicalValue = scrollView.contentOffset.y }
         
@@ -312,6 +308,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             self.exploreCasesToolbar.setBackgroundImage(UIImage(named: ""), forToolbarPosition: .topAttached, barMetrics: .default)
         }
     }
+     */
     /*
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let selectedIndexPath = IndexPath(item: 2, section: 0)

@@ -241,7 +241,10 @@ class MainTabController: UITabBarController {
             case .groups:
                 //guard let user = user else { return }
                 let controller = GroupBrowserViewController()
+                //self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+                //self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
                 currentNavController.pushViewController(controller, animated: true)
+
             }
         }
     }

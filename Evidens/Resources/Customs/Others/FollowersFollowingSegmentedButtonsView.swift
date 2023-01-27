@@ -63,6 +63,7 @@ class FollowersFollowingSegmentedButtonsView: UIView, CollectionViewDidScrollDel
         // Add to view & configure the bottom border to track labels
         selectorView = UIView(frame: CGRect(x: 0, y: self.frame.height - 2, width: selectorWidth, height: 2))
         selectorView.backgroundColor = primaryColor
+        selectorView.layer.cornerRadius = 2 / 2
         addSubview(selectorView)
     }
     

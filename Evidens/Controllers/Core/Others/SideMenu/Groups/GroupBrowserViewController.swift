@@ -24,8 +24,11 @@ protocol GroupBrowserViewControllerDelegate: AnyObject {
 class GroupBrowserViewController: UIViewController {
     
     weak var delegate: GroupBrowserViewControllerDelegate?
-    
     weak var scrollDelegate: CollectionViewDidScrollDelegate?
+    
+    private var memberType = [MemberTypeGroup]()
+    private var groups = [Group]()
+    private var pendingGroups = [Group]()
     
     private lazy var browserSegmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
         let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
@@ -35,10 +38,14 @@ class GroupBrowserViewController: UIViewController {
         return segmentedButtonsView
     }()
     
-    private var loaded: Bool = false
-    
-    private var groups = [Group]()
-    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.isPagingEnabled = true
+        return scrollView
+    }()
+   
     private lazy var shareButton: UIButton = {
         let button = UIButton()
 
@@ -59,17 +66,47 @@ class GroupBrowserViewController: UIViewController {
 
     private let groupCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
+        layout.minimumLineSpacing = 10
         layout.minimumInteritemSpacing = 10
-        layout.scrollDirection = .horizontal
-        //layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
-        //layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+        layout.scrollDirection = .vertical
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.showsHorizontalScrollIndicator = false
-        collectionView.isPagingEnabled = true
+        collectionView.bounces = true
+        collectionView.isHidden = true
+        collectionView.alwaysBounceVertical = true
         return collectionView
+    }()
+    
+    private let requestsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 10
+        layout.scrollDirection = .vertical
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 0)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .systemBackground
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.bounces = true
+        collectionView.isHidden = true
+        collectionView.alwaysBounceVertical = true
+        return collectionView
+    }()
+    
+    private var requestsGroupsLoaded: Bool = false
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
     }()
     
     override func viewDidLoad() {
@@ -77,37 +114,111 @@ class GroupBrowserViewController: UIViewController {
         configureNavigationBar()
         configureUI()
         configureCollectionView()
+        fetchUserGroups()
         view.backgroundColor = .systemBackground
         browserSegmentedButtonsView.segmentedControlDelegate = self
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        groupCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        requestsCollectionView.frame = CGRect(x: view.frame.width, y: 0, width: view.frame.width, height: scrollView.frame.height)
+    }
+    
+    private func fetchUserGroups() {
+        DatabaseManager.shared.fetchUserIdMemberTypeGroups { memberTypeGroup in
+            switch memberTypeGroup {
+            case .success(let memberTypeGroup):
+                self.memberType = memberTypeGroup
+                let groupIds = memberTypeGroup.map({ $0.groupId })
+                GroupService.fetchUserGroups(withGroupIds: groupIds) { groups in
+                    self.groups = groups
+                    self.groupCollectionView.isHidden = false
+                    self.groupCollectionView.reloadData()
+                }
+            case .failure(_):
+                self.groupCollectionView.isHidden = false
+                self.groupCollectionView.reloadData()
+            }
+        }
+    }
+    
+    
+    private func fetchUserPendingGroups() {
+        requestsGroupsLoaded = true
+        DatabaseManager.shared.fetchUserIdPendingGroups { memberTypeGroup in
+            switch memberTypeGroup {
+            case .success(let memberTypeGroup):
+                let groupIds = memberTypeGroup.map({ $0.groupId })
+                GroupService.fetchUserGroups(withGroupIds: groupIds) { groups in
+                    self.pendingGroups = groups
+                    self.requestsCollectionView.isHidden = false
+                    self.requestsCollectionView.reloadData()
+                }
+            case .failure(_):
+                self.requestsCollectionView.isHidden = false
+                self.requestsCollectionView.reloadData()
+            }
+            
+        }
     }
     
     private func configureNavigationBar() {
         title = "Groups"
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBlue), style: .done, target: self, action: #selector(didTapCreateGroup))
-        
     }
     
     private func configureCollectionView() {
+        groupCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        groupCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
+        groupCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        groupCollectionView.delegate = self
+        groupCollectionView.dataSource = self
+        
+        requestsCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        requestsCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
+        requestsCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        requestsCollectionView.delegate = self
+        requestsCollectionView.dataSource = self
+        
+        /*
+        groupCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
         groupCollectionView.register(GroupSelectorCell.self, forCellWithReuseIdentifier: groupSelectorCellReuseIdentifier)
         groupCollectionView.register(RequestSelectorCell.self, forCellWithReuseIdentifier: groupRequestSelectorCellReuseIdentifier)
         groupCollectionView.delegate = self
         groupCollectionView.dataSource = self
+         */
     }
     
     private func configureUI() {
         browserSegmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubviews(browserSegmentedButtonsView, groupCollectionView)
+        view.addSubviews(browserSegmentedButtonsView, scrollView, separatorView)
         NSLayoutConstraint.activate([
             browserSegmentedButtonsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             browserSegmentedButtonsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             browserSegmentedButtonsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            browserSegmentedButtonsView.heightAnchor.constraint(equalToConstant: 51),
+            browserSegmentedButtonsView.heightAnchor.constraint(equalToConstant: 50),
             
-            groupCollectionView.topAnchor.constraint(equalTo: browserSegmentedButtonsView.bottomAnchor),
-            groupCollectionView.leadingAnchor.constraint(equalTo: browserSegmentedButtonsView.leadingAnchor),
-            groupCollectionView.trailingAnchor.constraint(equalTo: browserSegmentedButtonsView.trailingAnchor),
-            groupCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            separatorView.topAnchor.constraint(equalTo: browserSegmentedButtonsView.bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            scrollView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            
+            //groupCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+            //groupCollectionView.leadingAnchor.constraint(equalTo: browserSegmentedButtonsView.leadingAnchor),
+            //groupCollectionView.trailingAnchor.constraint(equalTo: browserSegmentedButtonsView.trailingAnchor),
+            //groupCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        //scrollView.backgroundColor = .systemPink
+        scrollView.delegate = self
+        scrollView.addSubview(groupCollectionView)
+        scrollView.addSubview(requestsCollectionView)
+        scrollView.contentSize.width = view.frame.width * 2
     }
     
     func scrollToFrame(scrollOffset : CGFloat) {
@@ -117,6 +228,8 @@ class GroupBrowserViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.x > scrollView.frame.width * 0.2 &&  !requestsGroupsLoaded { fetchUserPendingGroups() }
+        
         scrollDelegate = browserSegmentedButtonsView
         scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 2)
     }
@@ -134,22 +247,102 @@ class GroupBrowserViewController: UIViewController {
 extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
  
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.view.frame.width, height: groupCollectionView.frame.height)//self.view.frame.height - 150)
+        if collectionView == groupCollectionView {
+            return groups.count > 0 ? groups.count : 1
+        } else {
+            return pendingGroups.count > 0 ? pendingGroups.count : 1
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.row == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupSelectorCellReuseIdentifier, for: indexPath) as! GroupSelectorCell
-            cell.delegate = self
-            return cell
+
+        if collectionView == groupCollectionView {
+            if groups.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+                cell.set(withTitle: "We could not find any group you are a part of - yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
+                cell.delegate = self
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupBrowseCell
+                cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+                
+                let memberIndex = memberType.firstIndex { memberType in
+                    if groups[indexPath.row].groupId == memberType.groupId {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let memberIndex = memberIndex { cell.setGroupRole(role: memberType[memberIndex].memberType) }
+              
+                return cell
+            }
+            
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupRequestSelectorCellReuseIdentifier, for: indexPath) as! RequestSelectorCell
-            cell.delegate = self
-            return cell
+            if pendingGroups.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+                cell.delegate = self
+                cell.set(withTitle: "We could not find any active group requests.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupBrowseCell
+                cell.viewModel = GroupViewModel(group: pendingGroups[indexPath.row])
+                cell.setGroupRole(role: .pending)
+                return cell
+            }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+
+        if collectionView == groupCollectionView {
+            return groups.isEmpty ? CGSize.zero : CGSize(width: view.frame.width - 30, height: 50)
+        } else {
+            return pendingGroups.isEmpty ? CGSize.zero : CGSize(width: view.frame.width - 30, height: 50)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier, for: indexPath) as! GroupBrowseFooter
+        //footer.delegate = self
+        return footer
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == groupCollectionView {
+            guard !groups.isEmpty else { return }
+            let group = groups[indexPath.row]
+            
+            let memberIndex = memberType.firstIndex { memberType in
+                if group.groupId == memberType.groupId {
+                    return true
+                }
+                return false
+            }
+            
+            let controller = GroupPageViewController(group: group, memberType: memberType[memberIndex!].memberType)
+            controller.delegate = self
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            guard !pendingGroups.isEmpty else { return }
+            let group = pendingGroups[indexPath.row]
+            let controller = GroupPageViewController(group: group, memberType: Group.MemberType.pending)
+            controller.delegate = self
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
@@ -172,48 +365,18 @@ extension GroupBrowserViewController: GroupPageViewControllerDelegate {
     }
 }
 
-extension GroupBrowserViewController: GroupSelectorCellDelegate {
-    func didSelectGroup(_ group: Group, memberType: Group.MemberType) {
-        let controller = GroupPageViewController(group: group, memberType: memberType)
-        controller.delegate = self
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func didTapDiscover() {
-        let controller = DiscoverGroupsViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
 extension GroupBrowserViewController: SegmentedControlDelegate {
     func indexDidChange(from currentIndex: Int, to index: Int) {
         if currentIndex == index { return }
-
-        let collectionBounds = self.groupCollectionView.bounds
-        // Switch based on the current index of the CustomSegmentedButtonsView
         switch currentIndex {
         case 0:
             
-            let contentOffset = CGFloat(floor(self.groupCollectionView.contentOffset.x + collectionBounds.size.width))
+            let contentOffset = CGFloat(floor(self.scrollView.contentOffset.x + view.frame.width))
             self.moveToFrame(contentOffset: contentOffset)
             
         case 1:
             
-            let contentOffset = CGFloat(floor(self.groupCollectionView.contentOffset.x - collectionBounds.size.width))
+            let contentOffset = CGFloat(floor(self.scrollView.contentOffset.x - view.frame.width))
             self.moveToFrame(contentOffset: contentOffset)
             
         default:
@@ -223,9 +386,22 @@ extension GroupBrowserViewController: SegmentedControlDelegate {
     
     func moveToFrame(contentOffset : CGFloat) {
         UIView.animate(withDuration: 1) {
-            let frame: CGRect = CGRect(x : contentOffset ,y : self.groupCollectionView.contentOffset.y ,width : self.groupCollectionView.frame.width, height: self.groupCollectionView.frame.height)
-            self.groupCollectionView.scrollRectToVisible(frame, animated: true)
+            self.scrollView.setContentOffset(CGPoint(x: contentOffset, y: self.scrollView.bounds.origin.y), animated: true)
         }
         
+    }
+}
+
+extension GroupBrowserViewController: EmptyGroupCellDelegate {
+    func didTapDiscoverGroup() {
+        let controller = DiscoverGroupsViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
