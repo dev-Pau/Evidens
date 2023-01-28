@@ -362,6 +362,7 @@
 		5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE8DE96289578C3009F08F9 /* UserProfileExperienceCell.swift */; };
 		5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */; };
 		5FEB92E4289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FEB92E3289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift */; };
+		5FF1B3FC2985A671002806E6 /* MELoadingHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */; };
 		5FF5DFF728D77ECD003F9B0A /* SkeletonCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF5DFF628D77ECD003F9B0A /* SkeletonCasesCell.swift */; };
 /* End PBXBuildFile section */
 
@@ -723,6 +724,7 @@
 		5FEB92E1289BD07B004BE2E4 /* PostMenuTitleHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuTitleHeader.swift; sourceTree = "<group>"; };
 		5FEB92E3289C062F004BE2E4 /* WhoCanJoinMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoCanJoinMenuLauncher.swift; sourceTree = "<group>"; };
 		5FED53B428AE0F82002AC2E5 /* Evidens.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Evidens.entitlements; sourceTree = "<group>"; };
+		5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MELoadingHeader.swift; sourceTree = "<group>"; };
 		5FF5DFF628D77ECD003F9B0A /* SkeletonCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCasesCell.swift; sourceTree = "<group>"; };
 		7A0F9EC48AAD67669EE7A917 /* Pods_Evidens.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Evidens.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4E31D27D53CC640423530B4 /* Pods-Evidens.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Evidens.debug.xcconfig"; path = "Target Support Files/Pods-Evidens/Pods-Evidens.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1488,6 +1490,7 @@
 			isa = PBXGroup;
 			children = (
 				5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */,
+				5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */,
 			);
 			path = Empty;
 			sourceTree = "<group>";
@@ -2610,6 +2613,7 @@
 				5F11AF3D286ECF25005BC807 /* HomeImageViewController.swift in Sources */,
 				5F9A282B29796A3B0052E618 /* GroupInviteUserCell.swift in Sources */,
 				5F527D8F288291DE009D5027 /* RegisterBottomMenuLauncher.swift in Sources */,
+				5FF1B3FC2985A671002806E6 /* MELoadingHeader.swift in Sources */,
 				5F9A280629743BA70052E618 /* RequestSelectorCell.swift in Sources */,
 				5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */,
 				5FE8DE922892D1E5009F08F9 /* UserProfilePostCell.swift in Sources */,

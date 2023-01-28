@@ -19,6 +19,11 @@ class UserProfileTitleHeader: UICollectionReusableView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .quaternarySystemFill
+        view.layer.shadowColor = UIColor.quaternarySystemFill.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 0)
+        view.layer.shadowRadius = 5.0
+        view.layer.shadowOpacity = 1
+        view.layer.masksToBounds = false
         return view
     }()
     
@@ -57,7 +62,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 10),
+            separatorView.heightAnchor.constraint(equalToConstant: 5),
             
             sectionTitle.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             sectionTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

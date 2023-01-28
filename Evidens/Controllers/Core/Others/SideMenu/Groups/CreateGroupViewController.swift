@@ -46,11 +46,11 @@ class CreateGroupViewController: UIViewController {
             case .groupDescription:
                 return 2
             case .groupVisibility:
-                return 3
-            case .groupPermission:
                 return 4
-            case .groupCategories:
+            case .groupPermission:
                 return 5
+            case .groupCategories:
+                return 3
             }
         }
     }
@@ -313,23 +313,6 @@ class CreateGroupViewController: UIViewController {
         }
     }
     
-    private func createLeftAlignedLayout() -> UICollectionViewLayout {
-        let item = NSCollectionLayoutItem(          // this is your cell
-            layoutSize: NSCollectionLayoutSize(
-                widthDimension: .estimated(40),         // variable width
-                heightDimension: .absolute(40)          // fixed height
-            )
-        )
-        
-        item.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
-        
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(30)), subitems: [item])
-        group.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
-        group.interItemSpacing = .fixed(10)
-        
-        return UICollectionViewCompositionalLayout(section: .init(group: group))
-    }
     
     private func pushGroupViewController(withGroup group: Group) {
         let controller = GroupPageViewController(group: group, memberType: .owner)
@@ -374,19 +357,19 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             cell.delegate = self
             return cell
         } else if indexPath.row == 3 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
+            if let group = group { cell.updateCategories(categories: group.categories) }
+            cell.delegate = self
+            return cell
+        } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupVisibilityCellReuseIdentifier, for: indexPath) as! GroupVisibilityCell
             cell.delegate = self
             if let group = group { cell.setVisibility(visibility: group.visibility) }
             return cell
-        } else if indexPath.row == 4 {
+        } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupPermissionCellReuseIdentifier, for: indexPath) as! GroupPermissionCell
             cell.delegate = self
             if let group = group { cell.setPermissions(permissions: group.permissions) }
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
-            if let group = group { cell.updateCategories(categories: group.categories) }
-            cell.delegate = self
             return cell
         }
     }

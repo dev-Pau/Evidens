@@ -45,7 +45,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
     }
     
     weak var delegate: GroupPageHeaderCellDelegate?
-    
+    /*
     private lazy var groupBannerImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -56,26 +56,40 @@ class GroupPageHeaderCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
-    
+    */
     private lazy var groupProfileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.systemBackground.cgColor
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
+      
         return iv
     }()
     
     private let groupNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 27, weight: .semibold)
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.numberOfLines = 4
+        label.textAlignment = .left
+        label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
+        return label
+    }()
+    
+    private let groupDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.numberOfLines = 2
+        label.lineBreakMode = .byTruncatingTail
         return label
     }()
     
@@ -157,26 +171,31 @@ class GroupPageHeaderCell: UICollectionViewCell {
         membersCollectionView.dataSource = self
         
         
-        addSubviews(groupBannerImageView, groupProfileImageView, groupNameLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
+        addSubviews(groupProfileImageView, groupNameLabel, groupDescriptionLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
         NSLayoutConstraint.activate([
-            groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
-            groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            groupBannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            groupBannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
+            //groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
+            //groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            //groupBannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            //groupBannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
             
-            groupProfileImageView.centerYAnchor.constraint(equalTo: groupBannerImageView.bottomAnchor, constant: 20),
+            groupProfileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             groupProfileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            groupProfileImageView.widthAnchor.constraint(equalToConstant: 80),
-            groupProfileImageView.heightAnchor.constraint(equalToConstant: 80),
+            groupProfileImageView.widthAnchor.constraint(equalToConstant: 90),
+            groupProfileImageView.heightAnchor.constraint(equalToConstant: 90),
             
-            groupNameLabel.leadingAnchor.constraint(equalTo: groupProfileImageView.leadingAnchor),
-            groupNameLabel.topAnchor.constraint(equalTo: groupProfileImageView.bottomAnchor, constant: 10),
+            groupNameLabel.leadingAnchor.constraint(equalTo: groupProfileImageView.trailingAnchor, constant: 10),
+            groupNameLabel.topAnchor.constraint(equalTo: groupProfileImageView.topAnchor),
             groupNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            membersCollectionView.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 5),
-            membersCollectionView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
+            groupDescriptionLabel.leadingAnchor.constraint(equalTo: groupProfileImageView.trailingAnchor, constant: 10),
+            groupDescriptionLabel.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor),
+            groupDescriptionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            //groupNameLabel.bottomAnchor.constraint(equalTo: groupProfileImageView.bottomAnchor),
+            
+            membersCollectionView.bottomAnchor.constraint(equalTo: groupProfileImageView.bottomAnchor),
+            membersCollectionView.leadingAnchor.constraint(equalTo: groupDescriptionLabel.leadingAnchor),
             membersCollectionView.heightAnchor.constraint(equalToConstant: 32),
-            membersCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            membersCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             configurationButton.topAnchor.constraint(equalTo: membersCollectionView.bottomAnchor, constant: 10),
             configurationButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -184,7 +203,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
             configurationButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3 - 30),
 
             customUserButton.topAnchor.constraint(equalTo: membersCollectionView.bottomAnchor, constant: 10),
-            customUserButton.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
+            customUserButton.leadingAnchor.constraint(equalTo: groupProfileImageView.leadingAnchor),
             customUserButton.trailingAnchor.constraint(equalTo: configurationButton.leadingAnchor, constant: -10),
             customUserButton.heightAnchor.constraint(equalToConstant: 30),
             
@@ -286,9 +305,10 @@ class GroupPageHeaderCell: UICollectionViewCell {
     
     private func configureWithGroup() {
         guard let viewModel = viewModel else { return }
-        groupBannerImageView.sd_setImage(with: URL(string: viewModel.groupBannerUrl!))
+        //groupBannerImageView.sd_setImage(with: URL(string: viewModel.groupBannerUrl!))
         groupProfileImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         groupNameLabel.text = viewModel.groupName
+        groupDescriptionLabel.text = viewModel.groupDescription
     }
     
     private func configureActionButton() {

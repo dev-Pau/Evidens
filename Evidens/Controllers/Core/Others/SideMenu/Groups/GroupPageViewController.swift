@@ -7,6 +7,8 @@
 
 import UIKit
 
+
+private let stretchyHeaderReuseIdentifier = "StretchyHeaderReuseIdentifier"
 private let groupHeaderReuseIdentifier = "GroupHeaderReuseIdentifier"
 private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIdentifier"
 
@@ -40,6 +42,8 @@ protocol GroupPageViewControllerDelegate: AnyObject {
 class GroupPageViewController: UIViewController {
     
     weak var delegate: GroupPageViewControllerDelegate?
+    
+    private var standardAppearance = UINavigationBarAppearance()
 
     
     private var collectionView: UICollectionView!
@@ -161,8 +165,8 @@ class GroupPageViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print(scrollView.contentOffset.y)
-        print(UIScreen.main.bounds.width / 3 + 60 - topbarHeight)
+        //print(scrollView.contentOffset.y)
+        //print(UIScreen.main.bounds.width / 3 + 60 - topbarHeight)
          
         if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GroupPageHeaderCell {
             if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 60 - topbarHeight) > 0 {
@@ -170,7 +174,7 @@ class GroupPageViewController: UIViewController {
             } else {
                 
             }
-            print(cell.frame.height - topbarHeight)
+            //print(cell.frame.height - topbarHeight)
             if scrollView.contentOffset.y - (cell.frame.height - topbarHeight) > 0 {
                 navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
             } else {
@@ -181,21 +185,14 @@ class GroupPageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
         
-        //let appearance = UINavigationBarAppearance()
-        //appearance.configureWithTransparentBackground()
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        //navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        
-        /*
-         let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-         searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-         searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8).isActive = true
-         
-         navigationItem.titleView = searchBarContainer
-         
-         searchBar.delegate = self
-         */
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = .systemBackground
+        navigationController?.navigationBar.standardAppearance = standardAppearance
     }
     
     private func configureSearchBar() {
@@ -315,15 +312,18 @@ class GroupPageViewController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         collectionView.contentInsetAdjustmentBehavior = .never
+        collectionView.bounces = false
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
         
         if memberType == nil { collectionView.isHidden = true }
     
+        
+        collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
         
@@ -356,8 +356,8 @@ class GroupPageViewController: UIViewController {
         
     }
     
-    private func createLayout() -> UICollectionViewFlowLayout {
-        let layout = UICollectionViewFlowLayout()
+    private func createLayout() -> StretchyGroupHeaderLayout {
+        let layout = StretchyGroupHeaderLayout()
         
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
@@ -540,13 +540,15 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
-            return UICollectionReusableView()
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyHeaderReuseIdentifier, for: indexPath) as! MEStretchyHeader
+            header.setImageWithStringUrl(imageUrl: group.bannerUrl!)
+            return header
         }
         if memberType == .external || memberType == .pending {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentHeaderReuseIdentifier, for: indexPath) as! GroupAboutHeader
             if indexPath.section == 1 {
                 header.set(title: "Description")
-            } else {
+            } else if indexPath.section == 2 {
                 header.set(title: "Admin Team")
             }
             
@@ -559,7 +561,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if section == 0 { return CGSize.zero }
+        if section == 0 { return CGSize(width: view.frame.width, height: view.frame.width / 3) }
         return CGSize(width: UIScreen.main.bounds.width, height: 40)
     }
     
@@ -806,3 +808,32 @@ extension GroupPageViewController: CreateGroupViewControllerDelegate {
         collectionView.reloadData()
     }
 }
+
+
+class StretchyGroupHeaderLayout: UICollectionViewFlowLayout {
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        let layoutAttributes = super.layoutAttributesForElements(in: rect)
+        layoutAttributes?.forEach { attribute in
+            if attribute.representedElementKind == UICollectionView.elementKindSectionHeader && attribute.indexPath.section == 0  {
+                guard let collectionView = collectionView else { return }
+               
+                let contentOffsetY = collectionView.contentOffset.y
+                print(contentOffsetY)
+
+                if contentOffsetY < 0 {
+                    let width = collectionView.frame.width
+                    let height = attribute.frame.height - contentOffsetY
+                    attribute.frame = CGRect(x: 0, y: 0, width: width, height: height)
+                }
+ 
+            }
+        }
+        return layoutAttributes
+    }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return false
+    }
+}
+

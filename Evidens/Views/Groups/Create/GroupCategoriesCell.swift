@@ -65,7 +65,7 @@ class GroupCategoriesCell: UICollectionViewCell {
             cellContentView.topAnchor.constraint(equalTo: topAnchor),
             cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.heightAnchor.constraint(equalToConstant: 200)
+            cellContentView.heightAnchor.constraint(equalToConstant: 70)
         ])
         
         cellContentView.addSubviews(separatorView, categoriesTitleLabel, categoriesCollectionView)
@@ -81,13 +81,25 @@ class GroupCategoriesCell: UICollectionViewCell {
             categoriesTitleLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
             
             categoriesCollectionView.topAnchor.constraint(equalTo: categoriesTitleLabel.bottomAnchor, constant: 10),
-            categoriesCollectionView.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
-            categoriesCollectionView.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
-            categoriesCollectionView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            categoriesCollectionView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            categoriesCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     
     private func createLeftAlignedLayout() -> UICollectionViewLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                return section
+        }
+        return layout
+        /*
         let item = NSCollectionLayoutItem(          // this is your cell
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .estimated(40),         // variable width
@@ -103,6 +115,7 @@ class GroupCategoriesCell: UICollectionViewCell {
         group.interItemSpacing = .fixed(10)
         
         return UICollectionViewCompositionalLayout(section: .init(group: group))
+         */
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -115,6 +128,7 @@ class GroupCategoriesCell: UICollectionViewCell {
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
+     
     
     func updateCategories(categories: [Category]) {
         categoriesSelected.removeAll()

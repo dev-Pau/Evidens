@@ -111,9 +111,42 @@ class UserProfileViewController: UIViewController {
         button.configuration?.baseForegroundColor = .systemBackground
 
         button.configuration?.cornerStyle = .capsule
-
-        //button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
+        //button.becomeFirstResponder()
+        button.addTarget(self, action: #selector(handleUserButton), for: .touchUpInside)
         return button
+    }()
+    
+    private lazy var ellipsisRightButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .mini
+        button.configuration?.baseBackgroundColor = .label.withAlphaComponent(0.7)
+        button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        //button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var backButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .mini
+        button.configuration?.baseBackgroundColor = .label.withAlphaComponent(0.7)
+        button.configuration?.image = UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        button.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private lazy var profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFit
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.clipsToBounds = true
+        iv.backgroundColor = .quaternarySystemFill
+        return iv
     }()
         
     
@@ -154,6 +187,8 @@ class UserProfileViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationItemButton() {
+        ellipsisRightButton.menu = addEllipsisMenuItems()
+        
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         
@@ -162,16 +197,55 @@ class UserProfileViewController: UIViewController {
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
         navigationController?.navigationBar.standardAppearance = standardAppearance
-        /*
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
-        navigationController?.view.backgroundColor = UIColor.clear
-         */
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
-            customRightButton.configuration?.attributedTitle = AttributedString("Follow", attributes: container)
+        
+        let viewModel = ProfileHeaderViewModel(user: user)
+        customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
+        customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+        customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
+        
+        if !user.isCurrentUser {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
+
+        }
+       
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+        
+        let imageView = UIImageView()
+        imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.cornerRadius = 30 / 2
+        imageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        
+        let imageViewContainer = LogoContainerView(imageView: imageView)
+        imageViewContainer.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        
+        
+        navigationItem.titleView = imageViewContainer
+        navigationItem.titleView?.isHidden = true
+    }
+    
+    private func addEllipsisMenuItems() -> UIMenu? {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Report " + user.firstName!, image: UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                print("did report user")
+            })
+        ])
+        ellipsisRightButton.showsMenuAsPrimaryAction = true
+        return menuItems
+    }
+    
+    private func addUnfollowMenu() -> UIMenu? {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Unfollow " + user.firstName!, image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, attributes: .destructive, handler: { _ in
+                print("did unfollow user")
+            })
+        ])
+        customRightButton.showsMenuAsPrimaryAction = true
+        return menuItems
     }
     
     
@@ -183,15 +257,31 @@ class UserProfileViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = standardAppearance
         
         if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) {
-            navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
+            
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
+
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 14, weight: .bold)
+            
+            if self.user.isFollowed {
+                //navigationItem.rightBarButtonItem = UIBarB
+                navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis")?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
+                return
+            }
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
         } else {
+            if !user.isCurrentUser {
+                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
+            }
+
+            navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
             navigationItem.setRightBarButton(nil, animated: true)
         }
         
-        if currentVeritcalOffset > (view.frame.width / 3 + 120 - topbarHeight) {
-            title = user.firstName
+        if currentVeritcalOffset > (view.frame.width / 3 + 90 - topbarHeight) {
+            navigationItem.titleView?.isHidden = false
         } else {
-            title = ""
+            navigationItem.titleView?.isHidden = true
         }
     }
     
@@ -574,6 +664,33 @@ class UserProfileViewController: UIViewController {
         return layout
     }
     
+    @objc func handleBack() {
+        print("dismiss")
+        navigationController?.popViewController(animated: true)
+    }
+    
+    
+    @objc func handleUserButton() {
+        //button.becomeFirstResponder()
+        if user.isCurrentUser {
+            let controller = EditProfileViewController(user: user)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        } else {
+            collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+            /*
+            if user.isFollowed {
+                print("follow user and update UI")
+                //customRightButton.menu = nil
+            } else {
+                customRightButton.menu = nil
+                
+            }
+             */
+        }
+    }
+    
     //MARK: - API
     
     func fetchRecentPosts() {
@@ -741,6 +858,7 @@ class UserProfileViewController: UIViewController {
     func checkIfUserIsFollowed() {
         UserService.checkIfUserIsFollowed(uid: user.uid!) { isFollowed in
             self.user.isFollowed = isFollowed
+            //if !isFollowed { self.customRightButton.menu = self.addUnfollowMenu()}
             self.collectionView.reloadData()
         }
     }
@@ -822,7 +940,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return relatedUsers.count
         }
     }
-    
+    /*
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         if section == 0 {
             return -30
@@ -830,6 +948,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return 0
         }
     }
+     */
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
@@ -1455,21 +1574,44 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
         layoutAttributes?.forEach { attribute in
             if attribute.representedElementKind == ElementKind.sectionHeader && attribute.indexPath.section == 0 {
                 guard let collectionView = collectionView else { return }
+               
                 let contentOffsetY = collectionView.contentOffset.y
-                print(contentOffsetY)
                 if contentOffsetY < 0 {
                     let width = UIScreen.main.bounds.width
                     let height = width / 3 - contentOffsetY
                     attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
-                    print(attribute.frame)
                 }
             }
         }
-        
         return layoutAttributes
     }
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         return true
     }
+}
+
+
+class LogoContainerView: UIView {
+  let imageView: UIImageView
+  init(imageView: UIImageView) {
+      self.imageView = imageView
+    super.init(frame: CGRect.zero)
+
+    addSubview(imageView)
+  }
+
+  override convenience init(frame: CGRect) {
+    self.init(imageView: UIImageView())
+    self.frame = frame
+  }
+
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+      imageView.frame = bounds
+  }
 }

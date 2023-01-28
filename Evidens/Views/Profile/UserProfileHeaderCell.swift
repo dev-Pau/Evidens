@@ -52,8 +52,8 @@ class UserProfileHeaderCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.layer.borderWidth = 3
-        iv.layer.borderColor = UIColor.systemBackground.cgColor
+        //iv.layer.borderWidth = 3
+        //iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.backgroundColor = .quaternarySystemFill
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapProfilePicture))
         iv.addGestureRecognizer(gesture)
@@ -226,9 +226,9 @@ class UserProfileHeaderCell: UICollectionViewCell {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
                  // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
-                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
-                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
-                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 //profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 //profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 //profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
                  sendMessageButton.configuration?.background.strokeColor = .quaternarySystemFill
                  guard let viewModel = viewModel else { return }
                  followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor

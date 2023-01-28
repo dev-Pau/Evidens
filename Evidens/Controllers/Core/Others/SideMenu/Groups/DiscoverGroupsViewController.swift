@@ -38,6 +38,13 @@ class DiscoverGroupsViewController: UIViewController {
     
     private var groups = [Group]()
     
+    private let activityIndicator: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        return activityIndicator
+    }()
+    
     private var loaded: Bool = false
     
     override func viewDidLoad() {
