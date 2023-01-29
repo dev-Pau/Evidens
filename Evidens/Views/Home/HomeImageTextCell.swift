@@ -139,6 +139,7 @@ class HomeImageTextCell: UICollectionViewCell {
     func configureWithReviewOptions() {
         //private lazy var reviewActionButtonsView = MEReviewActionButtons()
         actionButtonsView.isHidden = true
+        userPostView.dotsImageButton.isHidden = true
         addSubviews(reviewActionButtonsView)
         NSLayoutConstraint.activate([
             reviewActionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
@@ -219,12 +220,12 @@ extension HomeImageTextCell: MEPostActionButtonsDelegate {
 extension HomeImageTextCell: MEReviewActionButtonsDelegate {
     func didTapApprove() {
         guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId)
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.post.postId, type: .post)
     }
     
     func didTapDelete() {
         guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId)
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.post.postId, type: .post)
     }
 }
 

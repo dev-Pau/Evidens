@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let reuseIdentifier = "CellTextReuseIdentifier"
 private let headerReuseIdentifier = "HeaderReuseIdentifier"
@@ -55,10 +56,13 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 
     private var ownerComments: [User] = []
     
+    
+    private let progressIndicator = JGProgressHUD()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        
+        /*
         switch displayState {
             
         case .none:
@@ -70,6 +74,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
         }
+         */
          
         
         loaded = true
@@ -92,7 +97,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         case .photo:
             return
         case .others:
-            let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+            let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Post")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
         }
@@ -676,9 +681,11 @@ extension DetailsPostViewController: CommentPostViewControllerDelegate {
 }
 
 extension DetailsPostViewController: ReviewContentGroupDelegate {
-    func didTapAcceptContent(contentId: String) {
+    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType) {
         guard let groupId = groupId else { return }
+        progressIndicator.show(in: view)
         DatabaseManager.shared.approveGroupPost(withGroupId: groupId, withPostId: contentId) { approved in
+            self.progressIndicator.dismiss(animated: true)
             if approved {
                 self.reviewDelegate?.didTapAcceptContent(type: .post, contentId: contentId)
                 self.navigationController?.popViewController(animated: true)
@@ -686,9 +693,17 @@ extension DetailsPostViewController: ReviewContentGroupDelegate {
         }
     }
     
-    func didTapCancelContent(contentId: String) {
-        self.reviewDelegate?.didTapCancelContent(type: .post, contentId: contentId)
+    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
+        guard let groupId = groupId else { return }
+        progressIndicator.show(in: view)
+        displayMEDestructiveAlert(withTitle: "Delete post", withMessage: "Are you sure you want to delete this post?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            DatabaseManager.shared.denyGroupPost(withGroupId: groupId, withPostId: contentId) { denied in
+                self.progressIndicator.dismiss(animated: true)
+                if denied {
+                    self.reviewDelegate?.didTapCancelContent(type: .post, contentId: contentId)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
     }
-    
-    
 }

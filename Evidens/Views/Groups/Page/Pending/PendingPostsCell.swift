@@ -152,7 +152,7 @@ class PendingPostsCell: UICollectionViewCell {
                 self.collectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
             }
             
-            self.reviewPostCellDelegate?.didAcceptContent(type: .post)
+            //self.reviewPostCellDelegate?.showAcceptContentPopUp(type: .post)
         }
     }
     
@@ -264,6 +264,14 @@ extension PendingPostsCell: UICollectionViewDelegateFlowLayout, UICollectionView
 }
 
 extension PendingPostsCell: ReviewContentGroupDelegate {
+    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType) {
+        return
+    }
+    
+    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
+        return
+    }
+    
     
     func didTapAcceptContent(contentId: String) {
         guard let groupId = groupId else { return }
@@ -281,14 +289,14 @@ extension PendingPostsCell: ReviewContentGroupDelegate {
                         self.posts.remove(at: postIndex)
                         self.collectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
                     }
-                    self.reviewPostCellDelegate?.didAcceptContent(type: .post)
+                    //self.reviewPostCellDelegate?.showAcceptContentPopUp(type: .post)
                 }
             }
         }
     }
     
     func didTapCancelContent(contentId: String) {
-        reviewPostCellDelegate?.showDeleteAlertController(type: .post, contentId: contentId)
+        //reviewPostCellDelegate?.showDeleteAlertController(type: .post, contentId: contentId)
     }
     
     func deleteSelectedContent(contentId: String) {
@@ -308,7 +316,7 @@ extension PendingPostsCell: ReviewContentGroupDelegate {
                         self.posts.remove(at: postIndex)
                         self.collectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
                     }
-                    self.reviewPostCellDelegate?.didCancelContent(type: .post)
+                    //self.reviewPostCellDelegate?.didCancelContent(type: .post)
                 }
             }
         }

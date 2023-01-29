@@ -40,6 +40,7 @@ class CaseTextImageCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.buttonSize = .mini
         button.configuration?.imagePadding = 5
+        button.tintAdjustmentMode = .normal
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -382,12 +383,12 @@ extension CaseTextImageCell: CaseImageCellDelegate {
 extension CaseTextImageCell: MEReviewActionButtonsDelegate {
     func didTapApprove() {
         guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapAcceptContent(contentId: viewModel.clinicalCase.caseId)
+        reviewDelegate?.didTapAcceptContent(contentId: viewModel.clinicalCase.caseId, type: .clinicalCase)
     }
     
     func didTapDelete() {
         guard let viewModel = viewModel else { return }
-        reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId)
+        reviewDelegate?.didTapCancelContent(contentId: viewModel.clinicalCase.caseId, type: .clinicalCase)
     }
 }
 

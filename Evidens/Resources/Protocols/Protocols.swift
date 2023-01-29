@@ -46,14 +46,14 @@ protocol DisablePanGestureDelegate: AnyObject {
 
 
 protocol ReviewContentGroupDelegate: AnyObject {
-    func didTapAcceptContent(contentId: String)
-    func didTapCancelContent(contentId: String)
+    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType)
+    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType)
 }
 
 protocol PresentReviewAlertContentGroupDelegate: AnyObject {
-    func didAcceptContent(type: ContentGroup.GroupContentType)
-    func didCancelContent(type: ContentGroup.GroupContentType)
-    func showDeleteAlertController(type: ContentGroup.GroupContentType, contentId: String)
+    //func showAcceptContentPopUp(type: ContentGroup.GroupContentType)
+    //func didCancelContent(type: ContentGroup.GroupContentType)
+    //func showDeleteAlertController(type: ContentGroup.GroupContentType, contentId: String)
     func wantsToSeePost(post: Post, user: User)
     func wantsToSeeProfile(user: User)
 }

@@ -122,6 +122,25 @@ class GroupPageViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.navigationBar.standardAppearance.shadowColor = .separator
+        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .separator
+    }
+    
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

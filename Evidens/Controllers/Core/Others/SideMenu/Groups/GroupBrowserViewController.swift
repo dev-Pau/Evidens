@@ -216,7 +216,6 @@ class GroupBrowserViewController: UIViewController {
         if scrollView.contentOffset.x > scrollView.frame.width * 0.2 &&  !requestsGroupsLoaded { fetchUserPendingGroups() }
         if scrollView.contentOffset.x == 0 { return }
         
-        print(scrollView.contentOffset.x / 2)
         scrollDelegate = browserSegmentedButtonsView
         scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 2)
     }

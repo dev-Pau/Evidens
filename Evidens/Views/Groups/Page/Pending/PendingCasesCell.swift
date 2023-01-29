@@ -172,7 +172,16 @@ extension PendingCasesCell: UICollectionViewDelegateFlowLayout, UICollectionView
     }
 }
 
+
 extension PendingCasesCell: ReviewContentGroupDelegate {
+    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType) {
+        return
+    }
+    
+    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
+        return
+    }
+    
     func didTapAcceptContent(contentId: String) {
         guard let groupId = groupId else { return }
         let caseIndex = clinicalCases.firstIndex { clinicalCase in
@@ -189,14 +198,14 @@ extension PendingCasesCell: ReviewContentGroupDelegate {
                         self.clinicalCases.remove(at: caseIndex)
                         self.collectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
                     }
-                    self.reviewPostCellDelegate?.didAcceptContent(type: .clinicalCase)
+                    //self.reviewPostCellDelegate?.showAcceptContentPopUp(type: .clinicalCase)
                 }
             }
         }
     }
     
     func didTapCancelContent(contentId: String) {
-        reviewPostCellDelegate?.showDeleteAlertController(type: .clinicalCase, contentId: contentId)
+        //reviewPostCellDelegate?.showDeleteAlertController(type: .clinicalCase, contentId: contentId)
         //reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
     }
     
@@ -216,7 +225,7 @@ extension PendingCasesCell: ReviewContentGroupDelegate {
                         self.clinicalCases.remove(at: caseIndex)
                         self.collectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
                     }
-                    self.reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
+                    //self.reviewPostCellDelegate?.didCancelContent(type: .clinicalCase)
                 }
             }
         }
