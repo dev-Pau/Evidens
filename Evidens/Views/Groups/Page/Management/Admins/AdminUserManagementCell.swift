@@ -11,6 +11,7 @@ protocol AdminUserManagementCellDelegate: AnyObject {
     func handleRemoveAdminPermissions(_ cell: UICollectionViewCell, user: User)
     func handleReportUser(user: User)
     func handlePromoteToOwner(user: User)
+    func handleDowngradeAdminToMember(_ cell: UICollectionViewCell, user: User)
     func handleBlockUser(_ cell: UICollectionViewCell, user: User)
 }
 
@@ -152,7 +153,7 @@ class AdminUserManagementCell: UICollectionViewCell {
                     
                     UIAction(title: "Remove admin permissions", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         if let user = self.user {
-                            self.delegate?.handleRemoveAdminPermissions(self, user: user)
+                            self.delegate?.handleDowngradeAdminToMember(self, user: user)
                         }
                     }),
                     

@@ -16,6 +16,7 @@ class GroupAdminsViewController: UIViewController {
     private var group: Group
     
     private var users = [User]()
+    private var filteredUsers = [User]()
     private var groupMembers = [UserGroup]()
     private let userMemberType: Group.MemberType
     
@@ -29,6 +30,7 @@ class GroupAdminsViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .interactive
         return collectionView
     }()
     
@@ -70,6 +72,7 @@ class GroupAdminsViewController: UIViewController {
             let adminUids = admins.map({ $0.uid })
             UserService.fetchUsers(withUids: adminUids) { users in
                 self.users = users
+                self.filteredUsers = users
                 self.loaded = true
                 self.collectionView.reloadData()
             }
@@ -78,16 +81,22 @@ class GroupAdminsViewController: UIViewController {
 }
 
 extension GroupAdminsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return loaded ? users.count : 0
+        if section == 0 { return 0 }
+        return loaded ? filteredUsers.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! AdminUserManagementCell
-        cell.user = users[indexPath.row]
+        cell.user = filteredUsers[indexPath.row]
         cell.delegate = self
         let userIndex = groupMembers.firstIndex { user in
-            if user.uid == users[indexPath.row].uid {
+            if user.uid == filteredUsers[indexPath.row].uid {
                 return true
             }
             
@@ -101,10 +110,11 @@ extension GroupAdminsViewController: UICollectionViewDelegateFlowLayout, UIColle
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if !loaded {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath)
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
             return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
+            header.delegate = self
             return header
         }
         
@@ -115,7 +125,11 @@ extension GroupAdminsViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width, height: 55)
+        if section == 0 {
+            return CGSize(width: UIScreen.main.bounds.width, height: 55)
+        }
+        return CGSize.zero
+      
     }
 }
 
@@ -137,7 +151,6 @@ extension GroupAdminsViewController: AdminUserManagementCellDelegate {
                 }
                 
                 // Remove admin permission for user
-#warning("Needs to be checked that it works, the upper part already works the guard owners > 1")
                 DatabaseManager.shared.removeAdminPermissions(groupId: self.group.groupId, uid: user.uid!) { removed in
                     if removed {
                         let memberIndex = self.groupMembers.firstIndex { member in
@@ -147,21 +160,67 @@ extension GroupAdminsViewController: AdminUserManagementCellDelegate {
                             return false
                         }
                         
-                        if let memberIndex = memberIndex {
+                        let memberUserIndex = self.users.firstIndex { member in
+                            if member.uid == user.uid {
+                                return true
+                            }
+                            return false
+                        }
+                        
+                        if let memberIndex = memberIndex, let memberUserIndex = memberUserIndex {
                             self.collectionView.performBatchUpdates {
                                 self.groupMembers.remove(at: memberIndex)
-                                self.users.remove(at: indexPath.row)
+                                self.filteredUsers.remove(at: indexPath.row)
+                                self.users.remove(at: memberUserIndex)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                         }
                         
-                        let popUp = METopPopupView(title: "Admin permissions successfully removed to \(user.firstName!)", image: "checkmark.circle.fill", popUpType: .regular)
+                        let popUp = METopPopupView(title: "\(user.firstName!) admin permissions successfully removed", image: "checkmark.circle.fill", popUpType: .regular)
                         popUp.showTopPopup(inView: self.view)
                         return
                     }
                 }
             }
         }
+    }
+    
+    func handleDowngradeAdminToMember(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        displayMEDestructiveAlert(withTitle: "Remove admin permissions", withMessage: "\(user.firstName!) will no longer have admin permissions but will still be a member of the group", withCancelButtonText: "Cancel", withDoneButtonText: "Remove") {
+            // Owner deletes admin permissions to admin
+            DatabaseManager.shared.removeAdminPermissions(groupId: self.group.groupId, uid: user.uid!) { removed in
+                if removed {
+                    let memberIndex = self.groupMembers.firstIndex { member in
+                        if member.uid == user.uid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    let memberUserIndex = self.users.firstIndex { member in
+                        if member.uid == user.uid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let memberIndex = memberIndex, let memberUserIndex = memberUserIndex {
+                        self.collectionView.performBatchUpdates {
+                            self.groupMembers.remove(at: memberIndex)
+                            self.filteredUsers.remove(at: indexPath.row)
+                            self.users.remove(at: memberUserIndex)
+                            self.collectionView.deleteItems(at: [indexPath])
+                        }
+                    }
+                    
+                    let popUp = METopPopupView(title: "\(user.firstName!) admin permissions successfully removed", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
+                    return
+                }
+            }
+        }
+        
     }
     
     func handleReportUser(user: User) {
@@ -171,8 +230,6 @@ extension GroupAdminsViewController: AdminUserManagementCellDelegate {
     }
     
     func handlePromoteToOwner(user: User) {
-#warning("Needs to be checked that it works")
-        print("promote to owner")
         DatabaseManager.shared.getNumberOfOwnersForGroup(groupId: group.groupId) { owners in
             guard owners < 5 else {
                 // Group already has max number of owners
@@ -194,34 +251,47 @@ extension GroupAdminsViewController: AdminUserManagementCellDelegate {
                     
                     if let memberIndex = memberIndex {
                         self.groupMembers[memberIndex].memberType = .owner
-                        self.collectionView.reloadData()
                         
-                        let popUp = METopPopupView(title: "\(user.firstName!) is now a new owner of this group", image: "checkmark.circle.fill", popUpType: .regular)
-                        popUp.showTopPopup(inView: self.view)
+                        self.collectionView.reloadData()
                     }
+
+                    let popUp = METopPopupView(title: "\(user.firstName!) is now a new owner of this group", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
                 }
             }
         }
     }
     
     func handleBlockUser(_ cell: UICollectionViewCell, user: User) {
-        print("block user")
-        #warning("Needs to be checked that it works")
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        DatabaseManager.shared.blockUser(groupId: group.groupId, uid: user.uid!) { blocked in
-            if blocked {
-                let memberIndex = self.groupMembers.firstIndex { member in
-                    if member.uid == user.uid {
-                        return true
+        
+        displayMEDestructiveAlert(withTitle: "Block user", withMessage: "\(user.firstName!) won’t be able to view the group homepage, access the group content, or interact within the group", withCancelButtonText: "Cancel", withDoneButtonText: "Block") {
+        
+            DatabaseManager.shared.blockUser(groupId: self.group.groupId, uid: user.uid!) { blocked in
+                if blocked {
+                    let memberIndex = self.groupMembers.firstIndex { member in
+                        if member.uid == user.uid {
+                            return true
+                        }
+                        return false
                     }
-                    return false
-                }
-                
-                if let memberIndex = memberIndex {
-                    self.collectionView.performBatchUpdates {
-                        self.groupMembers.remove(at: memberIndex)
-                        self.users.remove(at: indexPath.row)
-                        self.collectionView.deleteItems(at: [indexPath])
+                    
+                    let memberUserIndex = self.users.firstIndex { member in
+                        if member.uid == user.uid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let memberIndex = memberIndex, let memberUserIndex = memberUserIndex {
+                        self.collectionView.performBatchUpdates {
+                            self.groupMembers.remove(at: memberIndex)
+                            self.filteredUsers.remove(at: indexPath.row)
+                            self.users.remove(at: memberUserIndex)
+                            self.collectionView.deleteItems(at: [indexPath])
+                            
+                        }
+                        
                         
                         let popUp = METopPopupView(title: "\(user.firstName!) has been successfully blocked from this group", image: "checkmark.circle.fill", popUpType: .regular)
                         popUp.showTopPopup(inView: self.view)
@@ -230,5 +300,25 @@ extension GroupAdminsViewController: AdminUserManagementCellDelegate {
                 }
             }
         }
+    }
+}
+
+extension GroupAdminsViewController: GroupSearchBarHeaderDelegate {
+    func didSearchText(text: String) {
+        filterConversations(with: text)
+        
+    }
+    
+    func resetUsers() {
+        filteredUsers = users
+        collectionView.reloadSections(IndexSet(integer: 1))
+    }
+    
+    func filterConversations(with text: String) {
+        let result: [User] = users.filter { $0.firstName!.lowercased().contains(text) || $0.lastName!.lowercased().contains(text) }
+        // Avoid reload if filtered result is the same as previous
+        if filteredUsers == result { return }
+        filteredUsers = result
+        collectionView.reloadSections(IndexSet(integer: 1))
     }
 }

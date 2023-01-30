@@ -154,28 +154,28 @@ extension CustomSegmentedButtonsView {
                         
                         // Depending on distance of the origin.x it changes the colors accordingly
                         switch self.selectorView.frame.origin.x {
-                        case 0..<(minUnit):
+                        case 0..<(minUnit / 2):
                             firstLabel.textColor = .label
                             secondLabel.textColor = .secondaryLabel
                             thirdLabel.textColor = .secondaryLabel
                             fourLabel.textColor = .secondaryLabel
                             pastIndex = 0
                             
-                        case (minUnit)..<(minUnit * 2):
+                        case (minUnit / 2)..<(minUnit * 1.5):
                             firstLabel.textColor = .secondaryLabel
                             secondLabel.textColor = .label
                             thirdLabel.textColor = .secondaryLabel
                             fourLabel.textColor = .secondaryLabel
                             pastIndex = 1
                             
-                        case (minUnit * 2)..<(minUnit * 3):
+                        case (minUnit * 1.5)..<(minUnit * 2.5):
                             firstLabel.textColor = .secondaryLabel
                             secondLabel.textColor = .secondaryLabel
                             thirdLabel.textColor = .label
                             fourLabel.textColor = .secondaryLabel
                             pastIndex = 2
                             
-                        case (minUnit * 3)...self.frame.width:
+                        case (minUnit * 2.5)...self.frame.width:
                             firstLabel.textColor = .secondaryLabel
                             secondLabel.textColor = .secondaryLabel
                             thirdLabel.textColor = .secondaryLabel

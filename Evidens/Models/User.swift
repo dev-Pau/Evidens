@@ -116,3 +116,11 @@ struct UserStats {
     let posts: Int
     let cases: Int
 }
+
+extension User: Equatable {
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.uid == rhs.uid
+    }
+    
+    
+}
