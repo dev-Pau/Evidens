@@ -655,6 +655,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
 
 extension GroupPageViewController: GroupPageHeaderCellDelegate {
     func didTapGroupOptions(option: Group.GroupManagement) {
+        guard let memberType = memberType else { return }
         switch option {
         case .posts:
             let controller = GroupContentManagementViewController(group: group)
@@ -667,7 +668,7 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
             
             navigationController?.pushViewController(controller, animated: true)
         case .membership:
-            let controller = GroupMembershipViewController(group: group)
+            let controller = GroupMembershipViewController(group: group, userMemberType: memberType)
             
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label

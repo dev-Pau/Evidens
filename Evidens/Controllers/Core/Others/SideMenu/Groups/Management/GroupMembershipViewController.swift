@@ -20,6 +20,8 @@ class GroupMembershipViewController: UIViewController {
     
     weak var scrollDelegate: CollectionViewDidScrollDelegate?
     
+    private let userMemberType: Group.MemberType
+    
     private lazy var browserSegmentedButtonsView: CustomSegmentedButtonsView = {
         let segmentedButtonsView = CustomSegmentedButtonsView()
         segmentedButtonsView.setLabelsTitles(titles: Group.GroupMembershipManagement.allCases.map( {$0.rawValue} ))
@@ -47,8 +49,9 @@ class GroupMembershipViewController: UIViewController {
         return collectionView
     }()
     
-    init(group: Group) {
+    init(group: Group, userMemberType: Group.MemberType) {
         self.group = group
+        self.userMemberType = userMemberType
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -110,7 +113,7 @@ class GroupMembershipViewController: UIViewController {
     }
     
     @objc func handleAdminsTap() {
-        let controller = GroupAdminsViewController(group: group)
+        let controller = GroupAdminsViewController(group: group, userMemberType: userMemberType)
         
         let backItem = UIBarButtonItem()
         backItem.tintColor = .label

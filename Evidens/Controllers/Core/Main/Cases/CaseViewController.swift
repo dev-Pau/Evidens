@@ -380,13 +380,13 @@ extension CaseViewController: CaseOptionsMenuLauncherDelegate {
         if follow {
             // Unfollow user
             UserService.unfollow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
             // Follow user
             UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
             }
         }
@@ -434,7 +434,7 @@ extension CaseViewController: CaseOptionsMenuLauncherDelegate {
         reportCaseAlert {
             DatabaseManager.shared.reportCase(forUid: uid) { reported in
                 if reported {
-                    let reportPopup = METopPopupView(title: "Case reported", image: "flag.fill")
+                    let reportPopup = METopPopupView(title: "Case reported", image: "flag.fill", popUpType: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                 }
             }

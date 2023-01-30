@@ -266,6 +266,7 @@ class CaseTextImageCell: UICollectionViewCell {
     func configureWithReviewOptions() {
         //private lazy var reviewActionButtonsView = MEReviewActionButtons()
         actionButtonsView.isHidden = true
+        userPostView.dotsImageButton.isHidden = true
         addSubviews(reviewActionButtonsView)
         NSLayoutConstraint.activate([
             reviewActionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor, constant: 10),

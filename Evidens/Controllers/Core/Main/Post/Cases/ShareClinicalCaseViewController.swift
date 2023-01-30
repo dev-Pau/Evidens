@@ -796,7 +796,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         
         if collectionImages.isEmpty {
             CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user) { error in
-                self.dismissLoadingView()
+                //self.dismissLoadingView()
                 if let error = error {
                     print(error.localizedDescription)
                 } else {
@@ -808,7 +808,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         else {
             StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
                 CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user) { error in
-                    self.dismissLoadingView()
+                    //self.dismissLoadingView()
                     if let error = error {
                         print("DEBUG: \(error.localizedDescription)")
                         return

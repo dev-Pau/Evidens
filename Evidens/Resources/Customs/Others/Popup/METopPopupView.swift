@@ -7,20 +7,29 @@
 
 import UIKit
 
+
+enum PopUpType {
+    case regular
+    case destructive
+}
+
 class METopPopupView: UIView {
+    
+    private var popUpType: PopUpType
     
     private var title: String
     private var image: String
     private var userDidPanPopup: Bool = false
     
-    private var popupView = PopupView(title: "", image: "")
+    private var popupView = PopupView(title: "", image: "", popUpType: .regular)
     
     
     private var timer: Timer?
 
-    init(title: String, image: String) {
+    init(title: String, image: String, popUpType: PopUpType) {
         self.title = title
         self.image = image
+        self.popUpType = popUpType
         super.init(frame: .zero)
         configure()
     }
@@ -67,7 +76,7 @@ class METopPopupView: UIView {
         // 4
         blurView.translatesAutoresizingMaskIntoConstraints = false
         
-        popupView = PopupView(title: title, image: image)
+        popupView = PopupView(title: title, image: image, popUpType: popUpType)
         
         timer = Timer.scheduledTimer(timeInterval: 4, target: self, selector: #selector(self.fireTimer), userInfo: popupView, repeats: false)
         

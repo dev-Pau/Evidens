@@ -11,6 +11,7 @@ class PopupView: UIView {
     
     private let image: String
     private let title: String
+    private let popUpType: PopUpType
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -30,9 +31,10 @@ class PopupView: UIView {
         return button
     }()
     
-    init(title: String, image: String) {
+    init(title: String, image: String, popUpType: PopUpType) {
         self.title = title
         self.image = image
+        self.popUpType = popUpType
         super.init(frame: .zero)
         configure()
     }
@@ -43,7 +45,8 @@ class PopupView: UIView {
     
     private func configure() {
         titleLabel.text = title
-        infoButton.configuration?.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        let color = popUpType == .regular ? primaryColor : .systemRed
+        infoButton.configuration?.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(color)
         
         addSubviews(infoButton, titleLabel)
         NSLayoutConstraint.activate([

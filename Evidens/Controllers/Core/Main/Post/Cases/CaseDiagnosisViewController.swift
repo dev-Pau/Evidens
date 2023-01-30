@@ -146,7 +146,7 @@ class CaseDiagnosisViewController: UIViewController {
                     CaseService.uploadCaseStage(withCaseId: self.caseId) { uploaded in
                         if uploaded {
                             self.delegate?.handleAddDiagnosis("")
-                            let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark")
+                            let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
                             popUpView.showTopPopup(inView: self.view)
                             self.dismiss(animated: true)
                             return
@@ -161,7 +161,7 @@ class CaseDiagnosisViewController: UIViewController {
                     if uploaded {
                         // Diagnosis updated, update previous view controllers
                         self.delegate?.handleAddDiagnosis(self.diagnosisTextView.text)
-                        let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark")
+                        let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
                         popUpView.showTopPopup(inView: self.view)
 
                         self.dismiss(animated: true)

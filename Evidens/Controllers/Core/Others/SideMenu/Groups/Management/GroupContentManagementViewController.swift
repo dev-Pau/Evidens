@@ -18,13 +18,16 @@ private let emptyPostsCellReuseIdentifier = "EmptyPostsCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
-class GroupContentManagementViewController: UIViewController {
+class GroupContentManagementViewController: UIViewController, UINavigationControllerDelegate {
     
     let group: Group
     
     weak var delegate: GroupBrowserViewControllerDelegate?
+    var selectedImage: UIImageView!
     
     weak var scrollDelegate: CollectionViewDidScrollDelegate?
+    
+    private var zoomTransitioning = ZoomTransitioning()
     
     private lazy var browserSegmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
         let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
@@ -116,8 +119,14 @@ class GroupContentManagementViewController: UIViewController {
         configureUI()
         configureCollectionView()
         view.backgroundColor = .systemBackground
+        //self.navigationController?.delegate = self
         fetchPendingPosts()
         browserSegmentedButtonsView.segmentedControlDelegate = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.delegate = self
     }
     
     private func configureNavigationBar() {
@@ -283,7 +292,7 @@ class GroupContentManagementViewController: UIViewController {
     func showAcceptContentPopUp(type: ContentGroup.GroupContentType) {
         let title = type == .post ? "post" : "case"
         
-        let approvedPostPopup = METopPopupView(title: "Pending \(title) approved. It may take a few minutes to appear in the group feed.", image: "checkmark.circle.fill")
+        let approvedPostPopup = METopPopupView(title: "Pending \(title) approved. It may take a few minutes to appear in the group feed.", image: "checkmark.circle.fill", popUpType: .regular)
         approvedPostPopup.showTopPopup(inView: self.view)
     }
     
@@ -341,7 +350,7 @@ class GroupContentManagementViewController: UIViewController {
     
     func didCancelContent(type: ContentGroup.GroupContentType) {
         let capitalTitle = type == .post ? "Post" : "Case"
-        let deletedPostPopup = METopPopupView(title: "\(capitalTitle) successfully deleted", image: "checkmark.circle.fill")
+        let deletedPostPopup = METopPopupView(title: "\(capitalTitle) successfully deleted", image: "checkmark.circle.fill", popUpType: .regular)
         deletedPostPopup.showTopPopup(inView: self.view)
     }
 }
@@ -445,7 +454,7 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
                         cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                         cell.set(user: getUserForCase(clinicalCase: cases[indexPath.row]))
                         cell.configureWithReviewOptions()
-                        //cell.delegate = self
+                        cell.delegate = self
                         return cell
                     case .textWithImage:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
@@ -453,7 +462,7 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
                         cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                         cell.set(user: getUserForCase(clinicalCase: cases[indexPath.row]))
                         cell.configureWithReviewOptions()
-                        //cell.delegate = self
+                        cell.delegate = self
                         return cell
                     }
                 }
@@ -648,8 +657,6 @@ extension GroupContentManagementViewController: ReviewContentGroupDelegate {
 extension GroupContentManagementViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) { return }
-    #warning("implementar el de la imatge")
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
     func cell(wantsToSeeLikesFor post: Post) { return }
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User) { return }
     func cell(_ cell: UICollectionViewCell, didLike post: Post) { return }
@@ -673,7 +680,7 @@ extension GroupContentManagementViewController: HomeCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        //self.navigationController?.delegate = self
+        navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
         //controller.displaysta
@@ -687,6 +694,88 @@ extension GroupContentManagementViewController: HomeCellDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        selectedImage = image[index]
+        self.navigationController?.delegate = zoomTransitioning
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        //controller.customDelegate = self
+        //displayState = .photo
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .clear
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+}
+
+extension GroupContentManagementViewController: CaseCellDelegate {
+    func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) { return }
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) { return }
+    func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) { return }
+    func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) { return }
+    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) { return }
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) { return }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        self.navigationController?.delegate = zoomTransitioning
+        selectedImage = image[index]
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        //controller.customDelegate = self
+
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .clear
+        navigationItem.backBarButtonItem = backItem
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        navigationController?.delegate = self
+        
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        //controller.displaysta
+        controller.isReviewingCase = true
+        controller.reviewDelegate = self
+        controller.groupId = group.groupId
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension GroupContentManagementViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return selectedImage
     }
 }
 

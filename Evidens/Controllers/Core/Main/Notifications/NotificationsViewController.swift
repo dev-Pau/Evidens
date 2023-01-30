@@ -240,7 +240,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                     return
                 }
                 
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
@@ -260,7 +260,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                     return
                 }
 
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
             }
@@ -345,7 +345,7 @@ extension NotificationsViewController: NotificationCellDelegate {
                                 
                             }
                             
-                            let popupView = METopPopupView(title: "Notification deleted", image: "trash")
+                            let popupView = METopPopupView(title: "Notification deleted", image: "trash", popUpType: .destructive)
                             popupView.showTopPopup(inView: self.view)
                         } else {
                             print("couldnt remove notification")

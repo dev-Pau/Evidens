@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let headerReuseIdentifier = "HeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
@@ -37,7 +38,13 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
     
+    var isReviewingCase: Bool = false
+    var groupId: String?
+    
+    weak var reviewDelegate: DetailsContentReviewDelegate?
     weak var delegate: DetailsCaseViewControllerDelegate?
+    
+    private let progressIndicator = JGProgressHUD()
     
     private var comments: [Comment]? {
         didSet {
@@ -83,7 +90,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private func configureNavigationBar() {
         
-        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared anonymously" : clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName
+        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared anonymously" : user.firstName! + " " + user.lastName!
         
         let view = MENavigationBarTitleView(fullName: fullName, category: "Case")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -158,6 +165,10 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 cell.delegate = self
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.descriptionCaseLabel.numberOfLines = 0
+                if isReviewingCase {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageTextCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
@@ -166,6 +177,10 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 cell.titleCaseLabel.numberOfLines = 0
                 cell.descriptionCaseLabel.numberOfLines = 0
                 cell.delegate = self
+                if isReviewingCase {
+                    cell.reviewDelegate = self
+                    cell.configureWithReviewOptions()
+                }
                 return cell
             }
         } else {
@@ -218,7 +233,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
                                 self.comments!.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
-                            let popupView = METopPopupView(title: "Comment deleted", image: "trash")
+                            let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
                             popupView.showTopPopup(inView: self.view)
                         }
                         else {
@@ -484,7 +499,7 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
         if follow {
             // Unfollow user
             UserService.unfollow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
@@ -492,7 +507,7 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
             guard let user = tab.user else { return }
             // Follow user
             UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
@@ -504,7 +519,7 @@ extension DetailsCaseViewController: CaseOptionsMenuLauncherDelegate {
         reportCaseAlert {
             DatabaseManager.shared.reportCase(forUid: uid) { reported in
                 if reported {
-                    let reportPopup = METopPopupView(title: "Case reported", image: "flag.fill")
+                    let reportPopup = METopPopupView(title: "Case reported", image: "flag.fill", popUpType: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                 }
             }
@@ -541,5 +556,33 @@ extension DetailsCaseViewController: CaseDiagnosisViewControllerDelegate {
         clinicalCase.diagnosis = text
         collectionView.reloadData()
         delegate?.didAddDiagnosis(forCase: clinicalCase)
+    }
+}
+
+extension DetailsCaseViewController: ReviewContentGroupDelegate {
+    func didTapAcceptContent(contentId: String, type: ContentGroup.GroupContentType) {
+        guard let groupId = groupId else { return }
+        progressIndicator.show(in: view)
+        DatabaseManager.shared.approveGroupCase(withGroupId: groupId, withCaseId: contentId) { approved in
+            self.progressIndicator.dismiss(animated: true)
+            if approved {
+                self.reviewDelegate?.didTapAcceptContent(type: .clinicalCase, contentId: contentId)
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+    
+    func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
+        guard let groupId = groupId else { return }
+        displayMEDestructiveAlert(withTitle: "Delete case", withMessage: "Are you sure you want to delete this case?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            self.progressIndicator.show(in: self.view)
+            DatabaseManager.shared.denyGroupCase(withGroupId: groupId, withCaseId: contentId) { denied in
+                self.progressIndicator.dismiss(animated: true)
+                if denied {
+                    self.reviewDelegate?.didTapCancelContent(type: .clinicalCase, contentId: contentId)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
     }
 }

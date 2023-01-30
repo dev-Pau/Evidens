@@ -137,7 +137,7 @@ extension CategoryListViewController: UICollectionViewDelegateFlowLayout, UIColl
         guard let numberOfItemsSelected = collectionView.indexPathsForSelectedItems?.count as? Int else { return false }
         if numberOfItemsSelected < 3 { return true }
         // Show popup
-        let reportPopup = METopPopupView(title: "You can only choose 3 categories", image: "exclamationmark.octagon.fill")
+        let reportPopup = METopPopupView(title: "You can only choose 3 categories", image: "exclamationmark.octagon.fill", popUpType: .regular)
         reportPopup.showTopPopup(inView: self.view)
         return false
     }

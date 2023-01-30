@@ -780,7 +780,7 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
             // Unfollow user
             UserService.unfollow(uid: uid) { _ in
                 self.unfollowAlert(withUserFirstName: firstName) {
-                    let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                    let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
                 }
@@ -790,7 +790,7 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
             guard let tab = tabBarController as? MainTabController else { return }
             guard let user = tab.user else { return }
             UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
@@ -803,7 +803,7 @@ extension HomeViewController: HomeOptionsMenuLauncherDelegate {
         reportPostAlert {
             DatabaseManager.shared.reportPost(forUid: uid) { reported in
                 if reported {
-                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill")
+                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                 }
             }

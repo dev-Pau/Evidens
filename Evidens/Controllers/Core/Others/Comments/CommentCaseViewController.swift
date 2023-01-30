@@ -330,7 +330,7 @@ extension CommentCaseViewController: CommentCellDelegate {
                                 self.ownerComments.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
-                            let popupView = METopPopupView(title: "Comment deleted", image: "trash")
+                            let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
                             popupView.showTopPopup(inView: self.view)
                         }
                         else {
@@ -349,7 +349,7 @@ extension CommentCaseViewController: CommentsMenuLauncherDelegate {
         reportCommentAlert {
             DatabaseManager.shared.reportCaseComment(forCommentId: comment.id) { reported in
                 if reported {
-                    let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble")
+                    let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
                     popupView.showTopPopup(inView: self.view)
                 }
             }

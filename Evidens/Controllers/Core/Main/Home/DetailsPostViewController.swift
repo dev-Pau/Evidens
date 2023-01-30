@@ -132,11 +132,11 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureNavigationBar() {
-        let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
+        let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Post")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
 
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
@@ -604,7 +604,7 @@ extension DetailsPostViewController: CommentCellDelegate {
                                 self.comments!.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
-                            let popupView = METopPopupView(title: "Comment deleted", image: "trash")
+                            let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
                             popupView.showTopPopup(inView: self.view)
                         }
                         else {
@@ -634,7 +634,7 @@ extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
         if follow {
             // Unfollow user
             UserService.unfollow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill")
+                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
@@ -642,7 +642,7 @@ extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
             guard let user = tab.user else { return }
             // Follow user
             UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill")
+                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
@@ -654,7 +654,7 @@ extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
         reportPostAlert {
             DatabaseManager.shared.reportPost(forUid: uid) { reported in
                 if reported {
-                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill")
+                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                 }
             }
@@ -695,8 +695,8 @@ extension DetailsPostViewController: ReviewContentGroupDelegate {
     
     func didTapCancelContent(contentId: String, type: ContentGroup.GroupContentType) {
         guard let groupId = groupId else { return }
-        progressIndicator.show(in: view)
         displayMEDestructiveAlert(withTitle: "Delete post", withMessage: "Are you sure you want to delete this post?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            self.progressIndicator.show(in: self.view)
             DatabaseManager.shared.denyGroupPost(withGroupId: groupId, withPostId: contentId) { denied in
                 self.progressIndicator.dismiss(animated: true)
                 if denied {

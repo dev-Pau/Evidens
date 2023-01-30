@@ -269,8 +269,6 @@
 		5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */; };
 		5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */; };
 		5FA0B2DB29798D83001F1274 /* AdminUserManagementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0B2DA29798D83001F1274 /* AdminUserManagementCell.swift */; };
-		5FA0B2DE297A73E4001F1274 /* PendingPostsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0B2DD297A73E4001F1274 /* PendingPostsCell.swift */; };
-		5FA0B2E0297ACD75001F1274 /* PendingCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0B2DF297ACD75001F1274 /* PendingCasesCell.swift */; };
 		5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */; };
 		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
 		5FA23F40293F24ED00A913CB /* GroupMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */; };
@@ -627,8 +625,6 @@
 		5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsViewController.swift; sourceTree = "<group>"; };
 		5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionCell.swift; sourceTree = "<group>"; };
 		5FA0B2DA29798D83001F1274 /* AdminUserManagementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminUserManagementCell.swift; sourceTree = "<group>"; };
-		5FA0B2DD297A73E4001F1274 /* PendingPostsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingPostsCell.swift; sourceTree = "<group>"; };
-		5FA0B2DF297ACD75001F1274 /* PendingCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingCasesCell.swift; sourceTree = "<group>"; };
 		5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
 		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
 		5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersViewController.swift; sourceTree = "<group>"; };
@@ -1458,8 +1454,8 @@
 		5F9A280B2976B39A0052E618 /* Management */ = {
 			isa = PBXGroup;
 			children = (
-				5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */,
 				5F9A280C2976B3B10052E618 /* GroupContentManagementViewController.swift */,
+				5F9A28132976C0850052E618 /* GroupMembershipViewController.swift */,
 				5F9A28302979729D0052E618 /* GroupAdminsViewController.swift */,
 			);
 			path = Management;
@@ -1712,15 +1708,6 @@
 			path = Admins;
 			sourceTree = "<group>";
 		};
-		5FA0B2DC297A73C5001F1274 /* Pending */ = {
-			isa = PBXGroup;
-			children = (
-				5FA0B2DD297A73E4001F1274 /* PendingPostsCell.swift */,
-				5FA0B2DF297ACD75001F1274 /* PendingCasesCell.swift */,
-			);
-			path = Pending;
-			sourceTree = "<group>";
-		};
 		5FA1FC2928CF8C0A0099BF2C /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1792,7 +1779,6 @@
 			children = (
 				5FA5726D2965C9A50068284B /* Page */,
 				5F951B43294881C800E99F34 /* Information */,
-				5FA0B2DC297A73C5001F1274 /* Pending */,
 				5F9A280E2976B8E80052E618 /* Management */,
 			);
 			path = Page;
@@ -2522,7 +2508,6 @@
 				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
-				5FA0B2E0297ACD75001F1274 /* PendingCasesCell.swift in Sources */,
 				5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */,
 				5F8AF97A292BD4D3005C6778 /* Group.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
@@ -2542,7 +2527,6 @@
 				5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F9FB28328F41B6400BABDFD /* FollowingCell.swift in Sources */,
-				5FA0B2DE297A73E4001F1274 /* PendingPostsCell.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
