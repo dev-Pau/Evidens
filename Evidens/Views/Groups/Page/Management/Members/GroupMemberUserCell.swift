@@ -7,6 +7,21 @@
 
 import UIKit
 
+protocol GroupInvitedUserCellDelegate: AnyObject {
+    func didUnsendInvitation(_ cell: UICollectionViewCell, user: User)
+}
+
+protocol GroupBlockedUserCellDelegate: AnyObject {
+    func didUnblockUser(_ cell: UICollectionViewCell, user: User)
+}
+
+protocol GroupMemberUserCellDelegate: AnyObject {
+    func promoteToOwner(_ cell: UICollectionViewCell, user: User)
+    func promoteToManager(_ cell: UICollectionViewCell, user: User)
+    func removeFromGroup(_ cell: UICollectionViewCell, user: User)
+    func blockFromGroup(_ cell: UICollectionViewCell, user: User)
+}
+
 class GroupMemberUserCell: UICollectionViewCell {
     
     var user: User? {
@@ -14,6 +29,10 @@ class GroupMemberUserCell: UICollectionViewCell {
             configureWithUser()
         }
     }
+    
+    weak var delegate: GroupMemberUserCellDelegate?
+    weak var blockDelegate: GroupBlockedUserCellDelegate?
+    weak var invitedDelegate: GroupInvitedUserCellDelegate?
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -55,8 +74,8 @@ class GroupMemberUserCell: UICollectionViewCell {
         
         button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         
-        button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
-        
+        //button.addTarget(self, action: #selector(didTapThreeDots), for: .touchUpInside)
+        button.showsMenuAsPrimaryAction = true
         button.isUserInteractionEnabled = true
         
         return button
@@ -107,7 +126,107 @@ class GroupMemberUserCell: UICollectionViewCell {
         }
     }
     
-    @objc func didTapThreeDots() {
-        #warning("show uimenu options")
+    private func createMenu(currentUserType: Group.MemberType, userType: Group.MemberType) -> UIMenu? {
+        guard let user = user, let name = user.firstName else { return nil }
+        switch currentUserType {
+        case .owner:
+            switch userType {
+            case .owner:
+                return nil
+            case .admin:
+                return nil
+            case .member:
+                let menuItems = UIMenu(options: .displayInline, children: [
+                    UIAction(title: "Promote \(name) to manager", image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.delegate?.promoteToManager(self, user: user)
+                    }),
+                    UIAction(title: "Promote \(name) to owner", image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.delegate?.promoteToOwner(self, user: user)
+                    }),
+                    UIAction(title: "Remove \(name)", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.delegate?.removeFromGroup(self, user: user)
+                        
+                    }),
+                    UIAction(title: "Block \(name)", image: UIImage(systemName: "exclamationmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.delegate?.blockFromGroup(self, user: user)
+                    })
+                ])
+                
+                return menuItems
+            case .pending:
+                return nil
+            case .external:
+                return nil
+            case .invited:
+                let menuItems = UIMenu(options: .displayInline, children: [
+                    UIAction(title: "Remove \(name)'s invitation", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.invitedDelegate?.didUnsendInvitation(self, user: user)
+                    })
+                ])
+                return menuItems
+            case .blocked:
+                let menuItems = UIMenu(options: .displayInline, children: [
+                    UIAction(title: "Unblock \(name)", image: UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.blockDelegate?.didUnblockUser(self, user: user)
+                    })
+                ])
+                
+                return menuItems
+            }
+            
+        case .admin:
+            switch userType {
+            case .owner:
+                return nil
+            case .admin:
+                return nil
+            case .member:
+                let menuItems = UIMenu(options: .displayInline, children: [
+                    UIAction(title: "Remove \(name)", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.delegate?.removeFromGroup(self, user: user)
+                        
+                    }),
+                    UIAction(title: "Block \(name)", image: UIImage(systemName: "exclamationmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.delegate?.blockFromGroup(self, user: user)
+                    })
+                ])
+                return menuItems
+            case .pending:
+                return nil
+            case .external:
+                return nil
+            case .invited:
+                let menuItems = UIMenu(options: .displayInline, children: [
+                    UIAction(title: "Remove \(name)'s invitation", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.invitedDelegate?.didUnsendInvitation(self, user: user)
+                    })
+                ])
+                return menuItems
+            case .blocked:
+                let menuItems = UIMenu(options: .displayInline, children: [
+                    UIAction(title: "Unblock \(name)", image: UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                        self.blockDelegate?.didUnblockUser(self, user: user)
+                    })
+                ])
+                
+                return menuItems
+            }
+            
+            
+        case .member:
+            return nil
+        case .pending:
+            return nil
+        case .external:
+            return nil
+        case .invited:
+            return nil
+        case .blocked:
+            return nil
+        }
+    }
+    
+    func configureMemberType(currentUserType: Group.MemberType, userType: Group.MemberType) {
+        threeDotsButton.menu = createMenu(currentUserType: currentUserType, userType: userType)
     }
 }

@@ -772,7 +772,6 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                         return
                         
                     }
-                    return
                 }
             } else {
                 StorageManager.uploadGroupCaseImage(images: collectionImages, uid: uid, groupId: group.groupId) { imageUrl in
@@ -788,32 +787,31 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                             return
                             
                         }
-                        return
                     }
                 }
             }
-        }
-        
-        if collectionImages.isEmpty {
-            CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user) { error in
-                //self.dismissLoadingView()
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    self.dismiss(animated: true)
-                }
-            }
-        }
-        
-        else {
-            StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
-                CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user) { error in
+        } else {
+            if collectionImages.isEmpty {
+                CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user) { error in
                     //self.dismissLoadingView()
                     if let error = error {
-                        print("DEBUG: \(error.localizedDescription)")
-                        return
+                        print(error.localizedDescription)
                     } else {
                         self.dismiss(animated: true)
+                    }
+                }
+            }
+            
+            else {
+                StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
+                    CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user) { error in
+                        //self.dismissLoadingView()
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            self.dismiss(animated: true)
+                        }
                     }
                 }
             }

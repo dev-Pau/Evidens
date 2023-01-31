@@ -24,7 +24,7 @@ class GroupMembershipViewController: UIViewController {
     
     private let userMemberType: Group.MemberType
     
-    private let memberUsers = [User]()
+    private var memberUsers = [User]()
     private lazy var memberRequests = [User]()
     private lazy var memberInvited = [User]()
     private lazy var memberBlocked = [User]()
@@ -42,10 +42,14 @@ class GroupMembershipViewController: UIViewController {
     private var invitedLoaded: Bool = false
     private var blockedLoaded: Bool = false
     
+    private var isFetchingRequests: Bool = false
+    private var isFetchingInvited: Bool = false
+    private var isFetchingBlocked: Bool = false
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsHorizontalScrollIndicator = true
+        scrollView.showsHorizontalScrollIndicator = false
         scrollView.isPagingEnabled = true
         return scrollView
     }()
@@ -62,12 +66,14 @@ class GroupMembershipViewController: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
+        layout.sectionHeadersPinToVisibleBounds = true
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .interactive
         return collectionView
     }()
     
@@ -76,12 +82,14 @@ class GroupMembershipViewController: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
+        layout.sectionHeadersPinToVisibleBounds = true
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .interactive
         return collectionView
     }()
     
@@ -90,12 +98,14 @@ class GroupMembershipViewController: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
+        layout.sectionHeadersPinToVisibleBounds = true
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .interactive
         return collectionView
     }()
     
@@ -104,12 +114,14 @@ class GroupMembershipViewController: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
+        layout.sectionHeadersPinToVisibleBounds = true
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .interactive
         return collectionView
     }()
     
@@ -132,6 +144,7 @@ class GroupMembershipViewController: UIViewController {
         configureCollectionView()
         view.backgroundColor = .systemBackground
         browserSegmentedButtonsView.segmentedControlDelegate = self
+        fetchGroupMembers()
     }
     
     override func viewDidLayoutSubviews() {
@@ -146,6 +159,76 @@ class GroupMembershipViewController: UIViewController {
         title = "Manage membership"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Admins", style: .done, target: self, action: #selector(handleAdminsTap))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
+    }
+    
+    private func fetchGroupMembers() {
+        DatabaseManager.shared.fetchGroupMembers(groupId: group.groupId) { members in
+            if members.isEmpty {
+                self.membersLoaded = true
+                self.membersCollectionView.reloadData()
+                return
+            }
+            
+            let uids = members.map { $0.uid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.memberUsers = users
+                self.membersLoaded = true
+                self.membersCollectionView.reloadData()
+            }
+        }
+    }
+    
+    private func fetchGroupUserRequests() {
+        isFetchingRequests = true
+        DatabaseManager.shared.fetchGroupUserRequests(groupId: group.groupId) { pendingUsers in
+            if pendingUsers.isEmpty {
+                self.requestsLoaded = true
+                self.requestsCollectionView.reloadData()
+            }
+            
+            let pendingUserUids = pendingUsers.map({ $0.uid })
+            UserService.fetchUsers(withUids: pendingUserUids) { users in
+                self.memberRequests = users
+                self.requestsLoaded = true
+                self.requestsCollectionView.reloadData()
+            }
+        }
+    }
+    
+    private func fetchGroupInvites() {
+        isFetchingInvited = true
+        DatabaseManager.shared.fetchGroupInvites(groupId: group.groupId) { members in
+            if members.isEmpty {
+                self.invitedLoaded = true
+                self.invitedCollectionView.reloadData()
+                return
+            }
+            
+            let uids = members.map { $0.uid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.memberInvited = users
+                self.invitedLoaded = true
+                self.invitedCollectionView.reloadData()
+            }
+        }
+    }
+    
+    private func fetchGroupBlocked() {
+        isFetchingBlocked = true
+        DatabaseManager.shared.fetchGroupBlocked(groupId: group.groupId) { members in
+            if members.isEmpty {
+                self.blockedLoaded = true
+                self.blockedCollectionView.reloadData()
+                return
+            }
+            
+            let uids = members.map { $0.uid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.memberBlocked = users
+                self.blockedLoaded = true
+                self.blockedCollectionView.reloadData()
+            }
+        }
     }
     
     
@@ -182,14 +265,6 @@ class GroupMembershipViewController: UIViewController {
         
         blockedCollectionView.delegate = self
         blockedCollectionView.dataSource = self
-        /*
-        collectionView.register(GroupMembersCell.self, forCellWithReuseIdentifier: groupMembershipCellReuseIdentifier)
-        collectionView.register(GroupRequestCell.self, forCellWithReuseIdentifier: groupRequestsCellReuseIdentifier)
-        collectionView.register(GroupInvitesCell.self, forCellWithReuseIdentifier: groupInvitesCellReuseIdentifier)
-        collectionView.register(GroupBlockedCell.self, forCellWithReuseIdentifier: groupBlockedCellReuseIdentifier)
-        collectionView.delegate = self
-        collectionView.dataSource = self
-         */
     }
     
     private func configureUI() {
@@ -221,25 +296,14 @@ class GroupMembershipViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        //if scrollView.contentOffset.x > scrollView.frame.width * 0.2 &&  !isFetchingOrDidFetchCases { fetchPendingCases() }
+        if scrollView.contentOffset.x > scrollView.frame.width * 0.2 &&  !isFetchingRequests { fetchGroupUserRequests() }
+        if scrollView.contentOffset.x > scrollView.frame.width * 1.2 &&  !isFetchingInvited { fetchGroupInvites() }
+        if scrollView.contentOffset.x > scrollView.frame.width * 2.2 &&  !isFetchingBlocked { fetchGroupBlocked() }
         if scrollView.contentOffset.x == 0 { return }
         
         scrollDelegate = browserSegmentedButtonsView
         scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 4)
     }
-    
-    /*
-    func scrollToFrame(scrollOffset : CGFloat) {
-        guard scrollOffset <= membersCollectionView.contentSize.width - membersCollectionView.bounds.size.width else { return }
-        guard scrollOffset >= 0 else { return }
-        membersCollectionView.setContentOffset(CGPoint(x: scrollOffset, y: membersCollectionView.contentOffset.y), animated: true)
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        scrollDelegate = browserSegmentedButtonsView
-        scrollDelegate?.collectionViewDidScroll(for: scrollView.contentOffset.x / 4)
-    }
-     */
     
     @objc func handleAdminsTap() {
         let controller = GroupAdminsViewController(group: group, userMemberType: userMemberType)
@@ -274,74 +338,87 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 65)
+        if collectionView == membersCollectionView {
+            return memberUsers.isEmpty ? CGSize(width: view.frame.width, height: collectionView.frame.height - 100) : CGSize(width: view.frame.width, height: 65)
+        } else if collectionView == requestsCollectionView {
+            return memberRequests.isEmpty ? CGSize(width: view.frame.width, height: collectionView.frame.height - 100) : CGSize(width: view.frame.width, height: 65)
+        } else if collectionView == invitedCollectionView {
+            return memberInvited.isEmpty ? CGSize(width: view.frame.width, height: collectionView.frame.height - 100) : CGSize(width: view.frame.width, height: 65)
+        } else {
+            return memberBlocked.isEmpty ? CGSize(width: view.frame.width, height: collectionView.frame.height - 100) : CGSize(width: view.frame.width, height: 65)
+        }
+
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == membersCollectionView {
             if memberUsers.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "This group has no members - yet.", description: "Invite your network to join the group", buttonText: "  Invite  ")
-                //cell.delegate = self
+                cell.configure(image: nil, title: "This group has no members - yet.", description: "Invite your network to join the group.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.delegate = self
                 return cell
             }
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupMemberUserCellReuseIdentifier, for: indexPath) as! GroupMemberUserCell
             cell.user = memberUsers[indexPath.row]
+            cell.configureMemberType(currentUserType: userMemberType, userType: .member)
+            cell.delegate = self
             return cell
         
         } else if collectionView == requestsCollectionView {
             if memberRequests.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No active requests", description: "Check back for all new requests.", buttonText: "  Go to group  ")
-                //cell.delegate = self
+                cell.configure(image: nil, title: "No active requests.", description: "Check back for all new requests.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.delegate = self
                 return cell
             }
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: pendingUserCellReuseIdentifier, for: indexPath) as! GroupUserRequestCell
             cell.user = memberRequests[indexPath.row]
-            //cell.delegate = self
+            cell.delegate = self
             return cell
             
         } else if collectionView == invitedCollectionView {
             if memberInvited.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Build your community.", description: "Invite your network to join the group", buttonText: "  Invite  ")
-                //cell.delegate = self
+                cell.configure(image: nil, title: "Build your community.", description: "Invite your network to join the group.", buttonText: EmptyCellButtonOptions.invite)
+                cell.delegate = self
                 return cell
             }
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupMemberUserCellReuseIdentifier, for: indexPath) as! GroupMemberUserCell
             cell.user = memberInvited[indexPath.row]
+            cell.configureMemberType(currentUserType: userMemberType, userType: .invited)
+            cell.invitedDelegate = self
             return cell
             
         } else {
             if memberBlocked.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No blocked members.", description: "Once you block a member from a group, they will be removed from the group and will no longer be able to request to join.", buttonText: "  Learn more  ")
-                //cell.delegate = self
+                cell.configure(image: nil, title: "No blocked members.", description: "Once you block a member from a group, they will be removed from the group and will no longer be able to request to join.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.delegate = self
                 return cell
             }
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupMemberUserCellReuseIdentifier, for: indexPath) as! GroupMemberUserCell
             cell.user = memberBlocked[indexPath.row]
+            cell.configureMemberType(currentUserType: userMemberType, userType: .blocked)
+            cell.blockDelegate = self
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if section == 1 { return CGSize.zero }
-        return CGSize(width: view.frame.width, height: 55)
-        /*
+        
         if collectionView == membersCollectionView {
-            return membersLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+            return memberUsers.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
         } else if collectionView == requestsCollectionView {
-            return requestsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+            return memberRequests.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
         } else if collectionView == invitedCollectionView {
-            return invitedLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+            return memberInvited.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
         } else {
-            return blockedLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+            return memberBlocked.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
         }
-         */
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -351,7 +428,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
-                //header.delegate = self
+                header.delegate = self
                 return header
             }
             
@@ -361,7 +438,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
-                //header.delegate = self
+                header.delegate = self
                 return header
             }
         } else if collectionView == invitedCollectionView {
@@ -370,7 +447,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
-                //header.delegate = self
+                header.delegate = self
                 return header
             }
         } else {
@@ -379,10 +456,30 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
                 return header
             } else {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
-                //header.delegate = self
+                header.delegate = self
                 return header
             }
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        var user = User(dictionary: [:])
+        
+        if collectionView == membersCollectionView {
+            user = memberUsers[indexPath.row]
+        } else {
+            return
+        }
+        
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -451,30 +548,202 @@ extension GroupMembershipViewController: SegmentedControlDelegate {
     }
 }
 
-extension GroupMembershipViewController: GroupRequestCellDelegate {
-    func didTapEmptyCellButton(membershipOption: Group.GroupMembershipManagement) {
-        switch membershipOption {
-        case .members:
-            print("show invite view controller")
-            #warning("show invite view controller")
-        case .requests:
+extension GroupMembershipViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        switch option {
+        case .goToGroup:
             navigationController?.popViewController(animated: true)
-        case .invited:
-            break
-        case .blocked:
-            break
+        case .invite:
+            let controller = GroupInviteViewController()
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        case .learnMore:
+            print("present learn more")
         }
     }
+}
 
-    func didTapUser(user: User) {
-        let controller = UserProfileViewController(user: user)
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+extension GroupMembershipViewController: GroupMemberUserCellDelegate {
+    func promoteToOwner(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = membersCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        DatabaseManager.shared.getNumberOfOwnersForGroup(groupId: group.groupId) { owners in
+            guard owners < 5 else {
+                // Group already has max number of owners
+                let popUp = METopPopupView(title: "Maximum number of group owners reached.", image: "xmark.circle.fill", popUpType: .destructive)
+                popUp.showTopPopup(inView: self.view)
+                return
+            }
+            
+            DatabaseManager.shared.promoteToOwner(groupId: self.group.groupId, uid: user.uid!) { promoted in
+                if promoted {
+                    self.membersCollectionView.performBatchUpdates {
+                        self.memberUsers.remove(at: indexPath.row)
+                        self.membersCollectionView.deleteItems(at: [indexPath])
+                    }
+                    
+                    let popUp = METopPopupView(title: "\(name) is now a new owner of this group", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
+                }
+            }
+        }
     }
+    
+    func promoteToManager(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = membersCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        DatabaseManager.shared.getNumberOfAdminsForGroup(groupId: group.groupId) { admins in
+            guard admins < 10 else {
+                let popUp = METopPopupView(title: "Maximum number of group managers reached.", image: "xmark.circle.fill", popUpType: .destructive)
+                popUp.showTopPopup(inView: self.view)
+                return
+            }
+            
+            DatabaseManager.shared.promoteToAdmin(groupId: self.group.groupId, uid: user.uid!) { promoted in
+                if promoted {
+                    self.membersCollectionView.performBatchUpdates {
+                        self.memberUsers.remove(at: indexPath.row)
+                        self.membersCollectionView.deleteItems(at: [indexPath])
+                    }
+                    
+                    let popUp = METopPopupView(title: "\(name) is now a new manager of this group", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
+                }
+            }
+        }
+    }
+    
+    func removeFromGroup(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = membersCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        displayMEDestructiveAlert(withTitle: "Remove from group", withMessage: "\(name) will loose access to the group content and its rights to interact within the group", withCancelButtonText: "Cancel", withDoneButtonText: "Remove") {
+        
+            DatabaseManager.shared.removeFromGroup(groupId: self.group.groupId, uid: user.uid!) { removed in
+                if removed {
+                    self.membersCollectionView.performBatchUpdates {
+                        self.memberUsers.remove(at: indexPath.row)
+                        self.membersCollectionView.deleteItems(at: [indexPath])
+                    }
+                    
+                    let popUp = METopPopupView(title: "\(name) has been successfully removed from this group", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
+                    return
+                }
+            }
+        }
+    }
+    
+    func blockFromGroup(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = membersCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        displayMEDestructiveAlert(withTitle: "Block from group", withMessage: "\(name) won’t be able to view the group homepage, access the group content, or interact within the group", withCancelButtonText: "Cancel", withDoneButtonText: "Block") {
+            DatabaseManager.shared.blockUser(groupId: self.group.groupId, uid: user.uid!) { blocked in
+                if blocked {
+                    self.membersCollectionView.performBatchUpdates {
+                        self.memberUsers.remove(at: indexPath.row)
+                        self.membersCollectionView.deleteItems(at: [indexPath])
+                    }
+                    
+                    let popUp = METopPopupView(title: "\(name) has been successfully blocked from this group", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
+                    return
+                }
+            }
+        }
+    }
+}
+
+extension GroupMembershipViewController: GroupUserRequestCellDelegate {
+    func didTapAccept(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = requestsCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        DatabaseManager.shared.acceptUserRequestToGroup(groupId: group.groupId, uid: user.uid!) { accepted in
+            if accepted {
+                self.requestsCollectionView.performBatchUpdates {
+                    self.memberRequests.remove(at: indexPath.row)
+                    self.requestsCollectionView.deleteItems(at: [indexPath])
+                }
+                let popUp = METopPopupView(title: "\(name) has been successfully added to this group", image: "checkmark.circle.fill", popUpType: .regular)
+                popUp.showTopPopup(inView: self.view)
+                return
+                
+            }
+
+        }
+    }
+    
+    func didTapIgnore(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = requestsCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        DatabaseManager.shared.ignoreUserRequestToGroup(groupId: group.groupId, uid: user.uid!) { ignored in
+            if ignored {
+                
+                self.requestsCollectionView.performBatchUpdates {
+                    self.memberRequests.remove(at: indexPath.row)
+                    self.requestsCollectionView.deleteItems(at: [indexPath])
+                }
+                
+                let popUp = METopPopupView(title: "\(name) request has been ignored", image: "checkmark.circle.fill", popUpType: .regular)
+                popUp.showTopPopup(inView: self.view)
+                return
+            }
+        }
+    }
+}
+
+extension GroupMembershipViewController: GroupInvitedUserCellDelegate {
+    func didUnsendInvitation(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = invitedCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        DatabaseManager.shared.ignoreUserRequestToGroup(groupId: group.groupId, uid: user.uid!) { ignored in
+            if ignored {
+                
+                self.invitedCollectionView.performBatchUpdates {
+                    self.memberInvited.remove(at: indexPath.row)
+                    self.invitedCollectionView.deleteItems(at: [indexPath])
+                }
+                
+                let popUp = METopPopupView(title: "Invitation to \(name) has been removed", image: "checkmark.circle.fill", popUpType: .regular)
+                popUp.showTopPopup(inView: self.view)
+                return
+            }
+        }
+    }
+}
+
+extension GroupMembershipViewController: GroupBlockedUserCellDelegate {
+    func didUnblockUser(_ cell: UICollectionViewCell, user: User) {
+        guard let indexPath = blockedCollectionView.indexPath(for: cell), let name = user.firstName else { return }
+        DatabaseManager.shared.acceptUserRequestToGroup(groupId: group.groupId, uid: user.uid!) { unblocked in
+            if unblocked {
+                self.blockedCollectionView.performBatchUpdates {
+                    self.memberBlocked.remove(at: indexPath.row)
+                    self.blockedCollectionView.deleteItems(at: [indexPath])
+                }
+                
+                let popUp = METopPopupView(title: "\(name) has been unblocked and added to this group", image: "checkmark.circle.fill", popUpType: .regular)
+                popUp.showTopPopup(inView: self.view)
+                return
+            }
+        }
+    }
+}
+
+extension GroupMembershipViewController: GroupSearchBarHeaderDelegate {
+    func didSearchText(text: String) {
+        #warning("implementar això quan hi hagi més d'un usuari a diferents llocs per veure les searchbars sino están amagades")
+        if scrollView.contentOffset.x == 0 {
+            print("first text search bar")
+        } else if scrollView.contentOffset.x == view.frame.width {
+            print("second text search bar")
+        } else if scrollView.contentOffset.x == 2 * view.frame.width {
+            print("3rd text bar")
+        } else {
+            print("4rth text bar")
+        }
+    }
+    
+    func resetUsers() {
+        
+    }
+    
+    
 }

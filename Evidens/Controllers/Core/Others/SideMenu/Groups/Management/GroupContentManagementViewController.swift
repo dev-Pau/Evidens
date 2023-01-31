@@ -369,13 +369,13 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
         if collectionView == postsCollectionView {
             if !groupNeedsToReviewContent {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Posts don't require admin review", description: "Group owners can activate the ability to review all group posts before they are shared with members.", buttonText: "Go to group")
+                cell.configure(image: nil, title: "Posts don't require admin review", description: "Group owners can activate the ability to review all group posts before they are shared with members.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             } else {
                 if posts.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "No pending posts.", description: "Check back for all the new posts that need review.", buttonText: "Go to group")
+                    cell.configure(image: nil, title: "No pending posts.", description: "Check back for all the new posts that need review.", buttonText: EmptyCellButtonOptions.goToGroup)
                     cell.delegate = self
                     return cell
                 } else {
@@ -436,13 +436,13 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
             // Cases
             if !groupNeedsToReviewContent {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: "Go to group")
+                //cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: "Go to group")
                 cell.delegate = self
                 return cell
             } else {
                 if cases.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new cases that need review.", buttonText: "Go to group")
+                    //ell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new cases that need review.", buttonText: "Go to group")
                     cell.delegate = self
                     return cell
                 } else {
@@ -595,7 +595,7 @@ extension GroupContentManagementViewController: DetailsContentReviewDelegate {
 }
 
 extension GroupContentManagementViewController: MESecondaryEmptyCellDelegate {
-    func didTapEmptyCellButton() {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
         navigationController?.popViewController(animated: true)
     }
 }

@@ -265,7 +265,7 @@ extension GroupAdminsViewController: AdminUserManagementCellDelegate {
     func handleBlockUser(_ cell: UICollectionViewCell, user: User) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
-        displayMEDestructiveAlert(withTitle: "Block user", withMessage: "\(user.firstName!) won’t be able to view the group homepage, access the group content, or interact within the group", withCancelButtonText: "Cancel", withDoneButtonText: "Block") {
+        displayMEDestructiveAlert(withTitle: "Block from group", withMessage: "\(user.firstName!) won’t be able to view the group homepage, access the group content, or interact within the group", withCancelButtonText: "Cancel", withDoneButtonText: "Block") {
         
             DatabaseManager.shared.blockUser(groupId: self.group.groupId, uid: user.uid!) { blocked in
                 if blocked {

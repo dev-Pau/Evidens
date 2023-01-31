@@ -8,8 +8,8 @@
 import UIKit
 
 protocol GroupUserRequestCellDelegate: AnyObject {
-    func didTapIgnore(user: User)
-    func didTapAccept(user: User)
+    func didTapIgnore(_ cell: UICollectionViewCell, user: User)
+    func didTapAccept(_ cell: UICollectionViewCell, user: User)
 }
 
 class GroupUserRequestCell: UICollectionViewCell {
@@ -145,11 +145,11 @@ class GroupUserRequestCell: UICollectionViewCell {
     
     @objc func handleIgnoreRequest() {
         guard let user = user else { return }
-        delegate?.didTapIgnore(user: user)
+        delegate?.didTapIgnore(self, user: user)
     }
     
     @objc func handleAcceptRequest() {
         guard let user = user else { return }
-        delegate?.didTapAccept(user: user)
+        delegate?.didTapAccept(self, user: user)
     }
 }

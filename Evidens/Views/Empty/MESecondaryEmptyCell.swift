@@ -8,12 +8,20 @@
 import UIKit
 
 protocol MESecondaryEmptyCellDelegate: AnyObject {
-    func didTapEmptyCellButton()
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions)
+}
+
+enum EmptyCellButtonOptions: String, CaseIterable {
+    case goToGroup = "   Go to group   "
+    case invite = "   Invite   "
+    case learnMore = "   Learn more   "
 }
 
 class MESecondaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: MESecondaryEmptyCellDelegate?
+    
+    private var emptyCellOption: EmptyCellButtonOptions = .goToGroup
     
     private let emptyCellImageView: UIImageView = {
         let iv = UIImageView()
@@ -84,18 +92,18 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(image: UIImage?, title: String, description: String, buttonText: String) {
+    func configure(image: UIImage?, title: String, description: String, buttonText: EmptyCellButtonOptions) {
         emptyTitleLabel.text = title
         emptyDescriptionLabel.text = description
-        
+        emptyCellOption = buttonText
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
-        emptyCellButton.configuration?.attributedTitle = AttributedString(buttonText, attributes: container)
+        emptyCellButton.configuration?.attributedTitle = AttributedString(buttonText.rawValue, attributes: container)
         
     }
     
     @objc func didTapEmptyCellButton() {
-        delegate?.didTapEmptyCellButton()
+        delegate?.didTapEmptyCellButton(option: emptyCellOption)
     }
     
     

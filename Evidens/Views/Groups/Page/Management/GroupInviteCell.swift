@@ -1,19 +1,21 @@
 //
-//  GroupInviteUserCell.swift
+//  GroupInviteCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 19/1/23.
+//  Created by Pau Fernández Solà on 31/1/23.
 //
 
 import UIKit
 
-class GroupInviteUserCell: UICollectionViewCell {
+class GroupInviteCell: UICollectionViewCell {
     
-    var user: User? {
+    override var isSelected: Bool {
         didSet {
-            configureWithUser()
+            selectionImageView.image = UIImage(systemName: isSelected ? "smallcircle.fill.circle.fill" : "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
         }
     }
+    
+    //MARK: - Properties
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -27,88 +29,86 @@ class GroupInviteUserCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.lineBreakMode = .byTruncatingTail
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 1
         label.textColor = .label
-        label.lineBreakMode = .byTruncatingTail
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
         return label
     }()
     
     private let userCategoryLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
-        label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.numberOfLines = 1
+        label.numberOfLines = 2
         return label
     }()
     
-    private lazy var cancelInvite: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        
-        button.configuration?.buttonSize = .mini
-        button.configuration?.baseForegroundColor = .systemRed
-        
-        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        
-        button.addTarget(self, action: #selector(didTapCancelInvite), for: .touchUpInside)
-        
-        button.isUserInteractionEnabled = true
-        
-        return button
+    private let selectionImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFill
+        return iv
     }()
     
+    /*
+     smallcircle.fill.circle.fill
+     */
+    
+    
+    
+    //MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func configure() {
-        addSubviews(profileImageView, cancelInvite, nameLabel, userCategoryLabel)
+        backgroundColor = .systemBackground
+        selectionImageView.image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
+        
+        addSubviews(profileImageView, nameLabel, userCategoryLabel, selectionImageView)
+        
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             
-            cancelInvite.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            cancelInvite.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            cancelInvite.widthAnchor.constraint(equalToConstant: 30),
-            cancelInvite.heightAnchor.constraint(equalToConstant: 30),
+            selectionImageView.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            selectionImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            selectionImageView.heightAnchor.constraint(equalToConstant: 20),
+            selectionImageView.widthAnchor.constraint(equalToConstant: 20),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: cancelInvite.leadingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(equalTo: selectionImageView.leadingAnchor, constant: -10),
             
             userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            userCategoryLabel.trailingAnchor.constraint(equalTo: selectionImageView.leadingAnchor, constant: -10),
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
     }
     
-    private func configureWithUser() {
-        guard let user = user else { return }
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+    
+    //MARK: - Helpers
+    
+    func set(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         if user.category == .student {
             userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
         }
-    }
-    
-    @objc func didTapCancelInvite() {
-        #warning("show uimenu options")
     }
 }
 

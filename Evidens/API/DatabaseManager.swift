@@ -927,6 +927,38 @@ extension DatabaseManager {
         }
     }
     
+    public func removeFromGroup(groupId: String, uid: String, completion: @escaping(Bool) -> Void) {
+        let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
+        userRef.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                self.database.child("users").child(uid).child("groups").child(key).removeValue { error, _ in
+                    let groupRef = self.database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+                    groupRef.observeSingleEvent(of: .value) { snapshot in
+                        if let value = snapshot.value as? [String: Any] {
+                            guard let key = value.first?.key else { return }
+                            self.database.child("groups").child(groupId).child("users").child(key).removeValue { error, _ in
+                                if let _ = error {
+                                    
+                                }
+                                
+                                self.database.child("groups").child(groupId).child("allUsers").observeSingleEvent(of: .value) { snapshot in
+                                    if let value = snapshot.value as? Int {
+                                        self.database.child("groups").child(groupId).child("allUsers").setValue(value - 1) { error, _ in
+                                            if let _ = error { return }
+            
+                                            completion(true)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func acceptUserRequestToGroup(groupId: String, uid: String, completion: @escaping(Bool) -> Void) {
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
         userRef.observeSingleEvent(of: .value) { snapshot in
@@ -953,6 +985,19 @@ extension DatabaseManager {
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    public func inviteUsersToGroup(groupId: String, uids: [String], completion: @escaping(Bool) -> Void) {
+        uids.forEach { uid in
+
+            let userRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+            userRef.observeSingleEvent(of: .value) { snapshot in
+                guard !snapshot.exists() else { return }
+                // User is not a member of the group
+                #warning("afegir una estructura d'invitaicó al node dins del grup però no cal al de l'usuari")
+                #warning("Enviar notificació")
             }
         }
     }
@@ -984,8 +1029,18 @@ extension DatabaseManager {
         }
     }
     
+    
+    
     public func getNumberOfOwnersForGroup(groupId: String, completion: @escaping(Int) -> Void) {
         let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: Group.MemberType.owner.rawValue)
+        groupRef.observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value as? [String: Any] else { return }
+            completion(value.count)
+        }
+    }
+    
+    public func getNumberOfAdminsForGroup(groupId: String, completion: @escaping(Int) -> Void) {
+        let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: Group.MemberType.admin.rawValue)
         groupRef.observeSingleEvent(of: .value) { snapshot in
             guard let value = snapshot.value as? [String: Any] else { return }
             completion(value.count)
@@ -1050,6 +1105,35 @@ extension DatabaseManager {
         }
     }
     
+    public func promoteToAdmin(groupId: String, uid: String, completion: @escaping(Bool) -> Void) {
+        let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
+        userRef.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                
+                self.database.child("users").child(uid).child("groups").child(key).child("memberType").setValue(Group.MemberType.admin.rawValue) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                    
+                    let groupRef = self.database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+                    groupRef.observeSingleEvent(of: .value) { snapshot in
+                        if let value = snapshot.value as? [String: Any] {
+                            guard let key = value.first?.key else { return }
+                            self.database.child("groups").child(groupId).child("users").child(key).child("memberType").setValue(Group.MemberType.admin.rawValue) { error, _ in
+                                if let _ = error {
+                                    
+                                }
+                                completion(true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func blockUser(groupId: String, uid: String, completion: @escaping(Bool) -> Void) {
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
         userRef.observeSingleEvent(of: .value) { snapshot in
@@ -1070,7 +1154,16 @@ extension DatabaseManager {
                                 if let _ = error {
                                     
                                 }
-                                completion(true)
+                                
+                                self.database.child("groups").child(groupId).child("allUsers").observeSingleEvent(of: .value) { snapshot in
+                                    if let value = snapshot.value as? Int {
+                                        self.database.child("groups").child(groupId).child("allUsers").setValue(value - 1) { error, _ in
+                                            if let _ = error { return }
+            
+                                            completion(true)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1078,8 +1171,7 @@ extension DatabaseManager {
             }
         }
     }
-        
-        
+    
     public func fetchUserIdMemberTypeGroups(completion: @escaping(Result<[MemberTypeGroup], Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         

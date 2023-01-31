@@ -157,7 +157,7 @@ class AdminUserManagementCell: UICollectionViewCell {
                         }
                     }),
                     
-                    UIAction(title: "Block \(user.firstName!)", image: UIImage(systemName: "exclamationmark.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Block \(user.firstName!)", image: UIImage(systemName: "exclamationmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         if let user = self.user {
                             self.delegate?.handleBlockUser(self, user: user)
                         }
@@ -177,7 +177,7 @@ class AdminUserManagementCell: UICollectionViewCell {
             }
         case .admin:
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: "Report \(user.firstName!)", image: UIImage(systemName: "flagl", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                UIAction(title: "Report \(user.firstName!)", image: UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                     if let user = self.user {
                         self.delegate?.handleReportUser(user: user)
                     }
