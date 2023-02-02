@@ -175,14 +175,14 @@ class GroupBrowserViewController: UIViewController {
         groupCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         groupCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         groupCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
-        groupCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        groupCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
         groupCollectionView.delegate = self
         groupCollectionView.dataSource = self
         
         requestsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         requestsCollectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         requestsCollectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
-        requestsCollectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        requestsCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
         requestsCollectionView.delegate = self
         requestsCollectionView.dataSource = self
     }
@@ -244,7 +244,7 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
 
         if collectionView == groupCollectionView {
             if groups.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                 cell.set(withTitle: "We could not find any group you are a part of - yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
                 cell.delegate = self
                 return cell
@@ -266,7 +266,7 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
             
         } else {
             if pendingGroups.isEmpty {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                 cell.delegate = self
                 cell.set(withTitle: "We could not find any active group requests.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
                 return cell

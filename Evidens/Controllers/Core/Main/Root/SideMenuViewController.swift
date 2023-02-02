@@ -23,6 +23,7 @@ class SideMenuViewController: UIViewController {
     enum MenuOptions: String, CaseIterable {
         case bookmarks = "Bookmarks"
         case groups = "Groups"
+        case jobs = "Jobs"
 
         var imageName: String {
             switch self {
@@ -30,6 +31,8 @@ class SideMenuViewController: UIViewController {
                 return "bookmark.fill"
             case .groups:
                 return "groups.selected"
+            case .jobs:
+                return "bag.fill"
             }
         }
     }

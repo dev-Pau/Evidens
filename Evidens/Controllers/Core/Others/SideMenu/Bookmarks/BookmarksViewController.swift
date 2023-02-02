@@ -8,15 +8,13 @@
 import UIKit
 import Firebase
 
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let categoriesCellReuseIdentifier = "ContentTypeCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 
 private let postTextCellReuseIdentifier = "PostTextCellReuseIdentifier"
 private let postImageCellReuseIdentifier = "PostImageCellReuseIdentifier"
-
-private let skeletonCaseImageCell = "SkeletonCaseImageCell"
-private let skeletonCaseTextCell = "SkeletonCaseTextCell"
 
 private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentifier"
 
@@ -55,7 +53,7 @@ class BookmarksViewController: UIViewController {
     private let categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.estimatedItemSize = CGSize(width: 100, height: 40)
+        layout.estimatedItemSize = CGSize(width: 100, height: 30)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
@@ -71,16 +69,23 @@ class BookmarksViewController: UIViewController {
     private let contentCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 10
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 150)
+        layout.minimumLineSpacing = 0
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
-        collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+        //collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.isScrollEnabled = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         return collectionView
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
     }()
     
     override func viewDidLoad() {
@@ -177,20 +182,23 @@ class BookmarksViewController: UIViewController {
         contentCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         contentCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
-        contentCollectionView.register(SekeletonCaseBookmarksImageTextCell.self, forCellWithReuseIdentifier: skeletonCaseImageCell)
-        contentCollectionView.register(SekeletonCaseBookmarksTextCell.self, forCellWithReuseIdentifier: skeletonCaseTextCell)
-        
-        contentCollectionView.register(EmptyBookmarkCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
-        
-        view.addSubviews(categoriesCollectionView, contentCollectionView)
+        contentCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        contentCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
+      
+        view.addSubviews(categoriesCollectionView, separatorView, contentCollectionView)
         
         NSLayoutConstraint.activate([
             categoriesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             categoriesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             categoriesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 50),
+            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 40),
+            
+            separatorView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         
-            contentCollectionView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor, constant: 1),
+            contentCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             contentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -214,10 +222,27 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             return CategoriesType.allCases.count
         } else {
             if selectedCategory == 0 {
-                return caseLoaded ? (cases.count > 0 ? cases.count : 1) : 10
+                return caseLoaded ? (cases.count > 0 ? cases.count : 1) : 0
 
             } else {
-                return postLoaded ? (posts.count > 0 ? posts.count : 1) : 10
+                return postLoaded ? (posts.count > 0 ? posts.count : 1) : 0
+            }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if collectionView == categoriesCollectionView {
+            return CGSize.zero
+        } else {
+            if selectedCategory == 0 {
+                return caseLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
+            } else {
+                return postLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
             }
         }
     }
@@ -233,19 +258,10 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         } else {
             if selectedCategory == 0 {
                 // Cases
-                if !caseLoaded {
-                    if indexPath.row == 0 {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseImageCell, for: indexPath) as! SekeletonCaseBookmarksImageTextCell
-                        return cell
-                    } else {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseTextCell, for: indexPath) as! SekeletonCaseBookmarksTextCell
-                        return cell
-                    }
-                }
-                
                 if cases.count == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyBookmarkCell
-                    cell.set(title: "No saved cases yet", description: "Cases you save will show up here.")
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: nil, title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                    cell.delegate = self
                     return cell
                 }
 
@@ -286,20 +302,10 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     return cell
                 }
             } else {
-                
-                if !postLoaded {
-                    if indexPath.row == 0 {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseImageCell, for: indexPath) as! SekeletonCaseBookmarksImageTextCell
-                        return cell
-                    } else {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonCaseTextCell, for: indexPath) as! SekeletonCaseBookmarksTextCell
-                        return cell
-                    }
-                }
-                
                 if posts.count == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! EmptyBookmarkCell
-                    cell.set(title: "No saved posts yet", description: "Posts you save will show up here.")
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: nil, title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                    cell.delegate = self
                     return cell
                 }
                 
@@ -424,6 +430,11 @@ extension BookmarksViewController {
                 }
             }
         }
-        
+    }
+}
+
+extension BookmarksViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        navigationController?.popViewController(animated: true)
     }
 }

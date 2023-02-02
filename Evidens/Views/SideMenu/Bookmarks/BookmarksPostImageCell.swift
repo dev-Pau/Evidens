@@ -47,7 +47,6 @@ class BookmarksPostImageCell: UICollectionViewCell {
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        label.text = "24 · 36 comments"
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
@@ -55,6 +54,14 @@ class BookmarksPostImageCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -76,7 +83,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
         let userPostViewHeightConstraint = userPostView.heightAnchor.constraint(equalToConstant: 67)
         userPostViewHeightConstraint.priority = UILayoutPriority(999)
 
-        addSubviews(userPostView, postTextLabel, postImage, likesButton, likesCommentsLabel)
+        addSubviews(userPostView, postTextLabel, postImage, likesButton, likesCommentsLabel, separatorView)
         
         NSLayoutConstraint.activate([
             
@@ -94,15 +101,19 @@ class BookmarksPostImageCell: UICollectionViewCell {
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
             
-            likesButton.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 3),
-            likesButton.leadingAnchor.constraint(equalTo: postTextLabel.leadingAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 10),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            //likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
     
@@ -131,9 +142,9 @@ class BookmarksPostImageCell: UICollectionViewCell {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 185)
 
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes

@@ -72,7 +72,7 @@ class RequestSelectorCell: UICollectionViewCell {
         collectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
         collectionView.register(GroupPendingCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         collectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
-        collectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
+        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -98,7 +98,7 @@ extension RequestSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionV
         }
         
         if groups.isEmpty {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
             cell.delegate = self
             cell.set(withTitle: "We could not find any active group requests.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
             return cell

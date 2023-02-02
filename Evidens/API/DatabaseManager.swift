@@ -992,12 +992,42 @@ extension DatabaseManager {
     public func inviteUsersToGroup(groupId: String, uids: [String], completion: @escaping(Bool) -> Void) {
         uids.forEach { uid in
 
-            let userRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
-            userRef.observeSingleEvent(of: .value) { snapshot in
-                guard !snapshot.exists() else { return }
-                // User is not a member of the group
-                #warning("afegir una estructura d'invitaicó al node dins del grup però no cal al de l'usuari")
-                #warning("Enviar notificació")
+            let existsRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+            existsRef.observeSingleEvent(of: .value) { snapshot in
+                guard !snapshot.exists() else {
+                    print("user is already in the group")
+                    return
+                }
+                
+                let groupData = ["groupId": groupId,
+                                 "memberType": Group.MemberType.invited.rawValue] as [String : Any]
+                
+                
+                let userRef = self.database.child("users").child(uid).child("groups").childByAutoId()
+                userRef.setValue(groupData) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                    
+                    let groupRef = self.database.child("groups").child(groupId).child("users").childByAutoId()
+                    
+                    let invitedDateTimestamp = NSDate().timeIntervalSince1970
+                    
+                    let invitedUser = ["uid": uid,
+                                       "timestamp": invitedDateTimestamp,
+                                       "memberType": Group.MemberType.invited.rawValue] as [String : Any]
+                    
+                    groupRef.setValue(invitedUser) { error, _ in
+                        if let _ = error {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    }
+                }
+              
+                #warning("Enviar notificació al nou usuari")
             }
         }
     }

@@ -194,6 +194,8 @@ class UserProfileViewController: UIViewController {
         
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
+        
+        
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
         navigationController?.navigationBar.standardAppearance = standardAppearance

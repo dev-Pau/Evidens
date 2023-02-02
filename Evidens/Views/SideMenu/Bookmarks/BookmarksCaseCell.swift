@@ -23,7 +23,6 @@ class BookmarksCaseCell: UICollectionViewCell {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 10, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Solved", attributes: container)
         
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -65,6 +64,13 @@ class BookmarksCaseCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -80,7 +86,7 @@ class BookmarksCaseCell: UICollectionViewCell {
         
         
         backgroundColor = .systemBackground
-        addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel)
+        addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, separatorView)
         
         NSLayoutConstraint.activate([
             
@@ -101,16 +107,19 @@ class BookmarksCaseCell: UICollectionViewCell {
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            likesButton.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
-            likesButton.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-        
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
     

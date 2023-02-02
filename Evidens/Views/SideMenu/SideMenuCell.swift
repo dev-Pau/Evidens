@@ -45,7 +45,11 @@ class SideMenuCell: UICollectionViewCell {
     
     func set(title: String, image: String) {
         titleLabel.text = title
-        titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label).withRenderingMode(.alwaysOriginal)
+        if title == "Jobs" {
+            titleImage.image = UIImage(systemName: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label).withRenderingMode(.alwaysOriginal)
+        } else {
+            titleImage.image = UIImage(named: image)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label).withRenderingMode(.alwaysOriginal)
+        }
     }
     
     required init?(coder: NSCoder) {

@@ -40,7 +40,7 @@ class BookmarkCategoriesCell: UICollectionViewCell {
     
     private func configure() {
         
-        layer.cornerRadius = 20
+        layer.cornerRadius = 30/2
         layer.borderColor = UIColor.secondaryLabel.cgColor
         layer.borderWidth = 1
         
@@ -71,7 +71,7 @@ class BookmarkCategoriesCell: UICollectionViewCell {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 40)
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 30)
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.defaultLow, verticalFittingPriority: UILayoutPriority.required)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))

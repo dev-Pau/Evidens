@@ -15,6 +15,7 @@ enum EmptyCellButtonOptions: String, CaseIterable {
     case goToGroup = "   Go to group   "
     case invite = "   Invite   "
     case learnMore = "   Learn more   "
+    case dismiss = "   Dismiss   "
 }
 
 class MESecondaryEmptyCell: UICollectionViewCell {

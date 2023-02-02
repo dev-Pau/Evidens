@@ -7,14 +7,17 @@
 
 import UIKit
 
-
 class NotificationLikeCommentCell: UICollectionViewCell {
     
     //MARK: - Properties
     
     weak var delegate: NotificationCellDelegate?
     
-    var viewModel: NotificationViewModel?
+    var viewModel: NotificationViewModel? {
+        didSet {
+            dotsImageButton.menu = addMenuItems()
+        }
+    }
     
     private var user: User?
     
@@ -40,27 +43,41 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         return label
     }()
     
-    private let postText: UILabel = {
+    private lazy var contentImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFit
+        return iv
+    }()
+    
+    private lazy var contentText: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = .label
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
-      
-        label.numberOfLines = 3
+        label.lineBreakMode = .byTruncatingTail
+        label.numberOfLines = 2
         return label
     }()
     
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")
+        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
-        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
         return button
+    }()
+    
+    lazy var separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
     }()
     
     //MARK: - Lifecycle
@@ -84,7 +101,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
    
-        cellContentView.addSubviews(profileImageView, dotsImageButton, fullNameLabel)
+        cellContentView.addSubviews(profileImageView, dotsImageButton, fullNameLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -100,9 +117,25 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
+    }
+    
+    func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel else { return nil }
+        let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            UIAction(title: "Delete notification", image: UIImage(systemName: "trash"), handler: { (_) in
+                self.delegate?.cell(self, didPressThreeDotsFor: viewModel.notification, option: .delete)
+            })
+        ])
+        dotsImageButton.showsMenuAsPrimaryAction = true
+        return menuItem
     }
     
     func set(user: User) {
@@ -124,21 +157,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     }
     
     //MARK: - Actions
-    @objc func handleFollow() {
-        guard let viewModel = viewModel else { return }
-        if viewModel.notification.userIsFollowed {
-            delegate?.cell(self, wantsToUnfollow: viewModel.notification.uid, firstName: viewModel.notification.firstName)
-        } else {
-            delegate?.cell(self, wantsToFollow: viewModel.notification.uid, firstName: viewModel.notification.firstName)
-        }
-    }
-    
-    @objc func handleThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.notification)
-        
-    }
-    
+   
     @objc func handleAction() {
         guard let viewModel = viewModel else { return }
         let type = viewModel.notification.type
@@ -160,6 +179,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)

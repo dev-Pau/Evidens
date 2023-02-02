@@ -246,25 +246,34 @@ class GroupPageHeaderCell: UICollectionViewCell {
             
         case .admin:
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
-                    self.delegate?.didTapActionButton(memberType: .pending)
+                UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
+                }),
+                UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
                 })
             ])
             customUserButton.showsMenuAsPrimaryAction = true
             return menuItems
         case .member:
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
-                    self.delegate?.didTapActionButton(memberType: .pending)
+                UIAction(title: Group.GroupManagement.leave.rawValue, image: Group.GroupManagement.leave.groupManagementImage, attributes: .destructive, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.leave)
+                }),
+                UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
                 })
+                
             ])
             customUserButton.showsMenuAsPrimaryAction = true
             return menuItems
         case .pending:
-            
             let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: "Withdraw request", image: UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), attributes: .destructive, handler: { _ in
-                    self.delegate?.didTapActionButton(memberType: .pending)
+                UIAction(title: Group.GroupManagement.withdraw.rawValue, image: Group.GroupManagement.withdraw.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.withdraw)
+                }),
+                UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
                 })
             ])
             customUserButton.showsMenuAsPrimaryAction = true
@@ -272,7 +281,19 @@ class GroupPageHeaderCell: UICollectionViewCell {
         case .external:
             return nil
         case .invited:
-            return nil
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.accept.rawValue, image: Group.GroupManagement.accept.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.accept)
+                }),
+                UIAction(title: Group.GroupManagement.ignore.rawValue, image: Group.GroupManagement.ignore.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.ignore)
+                }),
+                UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
+                    self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                })
+            ])
+            customUserButton.showsMenuAsPrimaryAction = true
+            return menuItems
         case .blocked:
             return nil
         }
@@ -343,12 +364,14 @@ class GroupPageHeaderCell: UICollectionViewCell {
         if memberType == .external {
             isUpdatingJoiningState = true
             delegate?.didTapActionButton(memberType: memberType)
-        } else if memberType == .pending {
+        }
+        /*else if memberType == .pending {
             //customUserButton.menu = addMenuItems()
             //customUserButton.showsMenuAsPrimaryAction = true
         } else {
             delegate?.didTapActionButton(memberType: memberType)
         }
+         */
 
     }
 }

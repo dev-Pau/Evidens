@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let searchBarHeaderReuseIdentifier = "SearchBarHeaderReuseIdentifier"
 private let headerLoadingReuseIdentifier = "HeaderLoadingReuseIdentifier"
@@ -14,6 +15,7 @@ private let groupInviteReuseIdentifier = "GroupInviteReuseIdentifier"
 
 class GroupInviteViewController: UIViewController {
     
+    private var group: Group
     private var usersSelected = [User]()
     private var users = [User]()
     
@@ -21,11 +23,22 @@ class GroupInviteViewController: UIViewController {
     
     private var collectionView: UICollectionView!
     
+    private let activityIndicator = JGProgressHUD()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureCollectionView()
         fetchUsers()
+    }
+    
+    init(group: Group) {
+        self.group = group
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func configureNavigationBar() {
@@ -96,8 +109,15 @@ class GroupInviteViewController: UIViewController {
     }
     
     @objc func handleInviteMembers() {
-        #warning("S'ha d'implmenetar invitarlos")
-        print("Needs to be implemented")
+        let uids = usersSelected.map { $0.uid! }
+        activityIndicator.show(in: view)
+        DatabaseManager.shared.inviteUsersToGroup(groupId: group.groupId, uids: uids) { invited in
+            self.activityIndicator.dismiss(animated: true)
+            
+            let popUp = METopPopupView(title: uids.count > 1 ? "Invitations have been sent successfully" : "Invitation has been sent successfully", image: "checkmark.circle.fill", popUpType: .regular)
+            popUp.showTopPopup(inView: self.view)
+            self.navigationController?.popViewController(animated: true)
+        }
     }
 }
 

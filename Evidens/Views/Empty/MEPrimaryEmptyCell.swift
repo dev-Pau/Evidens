@@ -11,29 +11,37 @@ protocol EmptyGroupCellDelegate: AnyObject {
     func didTapDiscoverGroup()
 }
 
-class EmptyGroupCell: UICollectionViewCell {
+class MEPrimaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: EmptyGroupCellDelegate?
     
     private let cellContentView = UIView()
     
+    private let imageView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.backgroundColor = .quaternarySystemFill
+        iv.layer.cornerRadius = 5
+        return iv
+    }()
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        //label.text = "We could not find any group you are a part of - yet."
         label.font = .systemFont(ofSize: 35, weight: .heavy)
         label.textColor = .label
         label.numberOfLines = 0
         return label
     }()
     
-    private let groupTitle: UILabel = {
+    private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
-        //label.text = "Discover listed groups or communities that share your interests, vision or goals."
         return label
     }()
     
@@ -42,11 +50,6 @@ class EmptyGroupCell: UICollectionViewCell {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
-
-        //var container = AttributeContainer()
-        //container.font = .systemFont(ofSize: 15, weight: .bold)
-        //button.configuration?.attributedTitle = AttributedString("Discover", attributes: container)
-        
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.baseBackgroundColor = .label
         
@@ -76,27 +79,33 @@ class EmptyGroupCell: UICollectionViewCell {
             cellContentView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.6)
         ])
         
-        cellContentView.addSubviews(titleLabel, groupTitle, discoverButton)
+        cellContentView.addSubviews(imageView, titleLabel, descriptionLabel, discoverButton)
         
         NSLayoutConstraint.activate([
-            groupTitle.centerXAnchor.constraint(equalTo: cellContentView.centerXAnchor),
-            groupTitle.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 20),
-            groupTitle.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -20),
-            groupTitle.centerYAnchor.constraint(equalTo: cellContentView.centerYAnchor),
+            imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 60),
+            imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
+            imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),
+            imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 60),
             
-            discoverButton.topAnchor.constraint(equalTo: groupTitle.bottomAnchor, constant: 30),
-            discoverButton.leadingAnchor.constraint(equalTo: groupTitle.leadingAnchor),
-            discoverButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30),
+            titleLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor),
+           
+            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+        
+            discoverButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            discoverButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            discoverButton.heightAnchor.constraint(equalToConstant: 50),
             discoverButton.widthAnchor.constraint(equalToConstant: 130),
-            
-            titleLabel.bottomAnchor.constraint(equalTo: groupTitle.topAnchor, constant: -10),
-            titleLabel.leadingAnchor.constraint(equalTo: groupTitle.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: groupTitle.trailingAnchor)
+          
         ])
     }
     
     func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
-        groupTitle.text = description
+        descriptionLabel.text = description
         titleLabel.text = title
         if let buttonText = buttonText {
             var container = AttributeContainer()

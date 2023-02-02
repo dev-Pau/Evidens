@@ -150,6 +150,9 @@ struct Group {
         case edit = "Edit group"
         case leave = "Leave this group"
         case report = "Report this group"
+        case withdraw = "Withdraw request"
+        case accept = "Accept invitation"
+        case ignore = "Ignore invitation"
         
         var groupManagementImage: UIImage {
             switch self {
@@ -163,7 +166,14 @@ struct Group {
                 return UIImage(systemName: "rectangle.portrait.and.arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
             case .report:
                 return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .withdraw:
+                return UIImage(systemName: "arrow.turn.up.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .accept:
+                return UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
+            case .ignore:
+                return UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!
             }
+            
         }
         
     }

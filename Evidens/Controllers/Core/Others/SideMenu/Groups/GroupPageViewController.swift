@@ -359,7 +359,7 @@ class GroupPageViewController: UIViewController {
         collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonImageReuseIdentifier)
         
         // Content cells
-        collectionView.register(EmptyGroupCell.self, forCellWithReuseIdentifier: emptyGroupContentCellReuseIdentifier)
+        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupContentCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCell)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCell)
@@ -465,7 +465,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                     
                 case .all:
                     if content.isEmpty {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! EmptyGroupCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                         cell.set(withTitle: "Be the first to share content in this group and get the conversation going.", withDescription: "Create your first post or clinical case")
                         return cell
                     }
@@ -686,9 +686,62 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
             
             present(navVC, animated: true)
         case .leave:
-            break
+            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            displayMEDestructiveAlert(withTitle: "Leave group", withMessage: "You will loose access to the group content and its rights to interact within the group", withCancelButtonText: "Cancel", withDoneButtonText: "Leave") {
+                
+                let cell = self.collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) as! GroupPageHeaderCell
+                DatabaseManager.shared.removeFromGroup(groupId: self.group.groupId, uid: uid) { ignored in
+                    if ignored {
+                        self.memberType = .external
+                        cell.memberType = .external
+                        cell.isUpdatingJoiningState = false
+                        cell.setNeedsUpdateConfiguration()
+                        
+                        let reportPopup = METopPopupView(title: "You are no longer a member of this group", image: "hand.wave.fill", popUpType: .regular)
+                        reportPopup.showTopPopup(inView: self.view)
+                    }
+                }
+            }
+            
         case .report:
-            break
+            let reportPopup = METopPopupView(title: "Group has been reported", image: "flag.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+        case .withdraw:
+            let cell = collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) as! GroupPageHeaderCell
+            DatabaseManager.shared.unsendRequestToGroup(groupId: group.groupId) { unsend in
+                if unsend {
+                    self.memberType = .external
+                    cell.memberType = .external
+                    cell.isUpdatingJoiningState = false
+                    cell.setNeedsUpdateConfiguration()
+                    
+                    
+                }
+            }
+        case .accept:
+            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            let cell = collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) as! GroupPageHeaderCell
+            DatabaseManager.shared.acceptUserRequestToGroup(groupId: group.groupId, uid: uid) { accepted in
+                if accepted {
+                    self.memberType = .member
+                    cell.memberType = .member
+                    cell.isUpdatingJoiningState = false
+                    cell.setNeedsUpdateConfiguration()
+                    
+                    let reportPopup = METopPopupView(title: "You are now a new member of this group", image: "hand.thumbsup.fill", popUpType: .destructive)
+                    reportPopup.showTopPopup(inView: self.view)
+                }
+            }
+        case .ignore:
+            let cell = collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) as! GroupPageHeaderCell
+            DatabaseManager.shared.unsendRequestToGroup(groupId: group.groupId) { ignored in
+                if ignored {
+                    self.memberType = .external
+                    cell.memberType = .external
+                    cell.isUpdatingJoiningState = false
+                    cell.setNeedsUpdateConfiguration()
+                }
+            }
         }
     }
     
@@ -703,15 +756,7 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
         case .member:
             break
         case .pending:
-            DatabaseManager.shared.unsendRequestToGroup(groupId: group.groupId) { unsend in
-                if unsend {
-                    self.memberType = .external
-                    cell.memberType = .external
-                    cell.isUpdatingJoiningState = false
-                    cell.setNeedsUpdateConfiguration()
-                }
-            }
-           
+            break
         case .external:
             DatabaseManager.shared.sendRequestToGroup(groupId: group.groupId) { send in
                 if send {
@@ -719,6 +764,9 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                     cell.memberType = .pending
                     cell.isUpdatingJoiningState = false
                     cell.setNeedsUpdateConfiguration()
+                    
+                    let popUp = METopPopupView(title: "Group request sent", image: "envelope.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
                 }
             }
         case .invited:

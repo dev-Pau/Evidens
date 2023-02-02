@@ -245,6 +245,8 @@ class MainTabController: UITabBarController {
                 //self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
                 currentNavController.pushViewController(controller, animated: true)
 
+            case .jobs:
+                #warning("put jobs VC")
             }
         }
     }

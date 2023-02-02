@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 
 struct NotificationService {
     
@@ -74,14 +75,20 @@ struct NotificationService {
     }
      */
     
-    static func fetchNotifications(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchNotifications(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 15)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot else {
+                    completion(nil)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(nil)
+                    return
+                }
                 completion(snapshot)
             }
         } else {

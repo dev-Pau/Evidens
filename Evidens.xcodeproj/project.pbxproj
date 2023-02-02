@@ -291,7 +291,7 @@
 		5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA57264295F14F80068284B /* GroupBrowseFooter.swift */; };
 		5FA572672962E2FB0068284B /* GroupPageCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */; };
 		5FA572692962ECAF0068284B /* GroupCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA572682962ECAF0068284B /* GroupCategoryCell.swift */; };
-		5FA572702965CC1A0068284B /* EmtpyGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5726F2965CC1A0068284B /* EmtpyGroupCell.swift */; };
+		5FA572702965CC1A0068284B /* MEPrimaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5726F2965CC1A0068284B /* MEPrimaryEmptyCell.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
@@ -328,7 +328,7 @@
 		5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F028A6422C007EF79D /* METopPopupView.swift */; };
 		5FBCB9F428A6521F007EF79D /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F328A6521F007EF79D /* PopupView.swift */; };
 		5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */; };
-		5FBCB9F828A7745A007EF79D /* NotificationsLikeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */; };
+		5FBCB9F828A7745A007EF79D /* NotificationsLikeCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F728A7745A007EF79D /* NotificationsLikeCommentCell.swift */; };
 		5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */; };
 		5FBCB9FC28A80A3D007EF79D /* CaseUpdatesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FB28A80A3D007EF79D /* CaseUpdatesViewController.swift */; };
 		5FBCB9FE28A8D8EE007EF79D /* AddCaseUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */; };
@@ -645,7 +645,7 @@
 		5FA57264295F14F80068284B /* GroupBrowseFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupBrowseFooter.swift; sourceTree = "<group>"; };
 		5FA572662962E2FB0068284B /* GroupPageCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageCategoriesCell.swift; sourceTree = "<group>"; };
 		5FA572682962ECAF0068284B /* GroupCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCategoryCell.swift; sourceTree = "<group>"; };
-		5FA5726F2965CC1A0068284B /* EmtpyGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmtpyGroupCell.swift; sourceTree = "<group>"; };
+		5FA5726F2965CC1A0068284B /* MEPrimaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPrimaryEmptyCell.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
@@ -682,7 +682,7 @@
 		5FBCB9F028A6422C007EF79D /* METopPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METopPopupView.swift; sourceTree = "<group>"; };
 		5FBCB9F328A6521F007EF79D /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		5FBCB9F528A6AC0F007EF79D /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
-		5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsLikeCell.swift; sourceTree = "<group>"; };
+		5FBCB9F728A7745A007EF79D /* NotificationsLikeCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsLikeCommentCell.swift; sourceTree = "<group>"; };
 		5FBCB9F928A77DD1007EF79D /* NotificationMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMenuLauncher.swift; sourceTree = "<group>"; };
 		5FBCB9FB28A80A3D007EF79D /* CaseUpdatesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseUpdatesViewController.swift; sourceTree = "<group>"; };
 		5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCaseUpdateViewController.swift; sourceTree = "<group>"; };
@@ -1091,6 +1091,7 @@
 			children = (
 				5F9A27F6296EBEAC0052E618 /* Bookmarks */,
 				5F9A27F7296EBEB20052E618 /* Groups */,
+				5F98F99A298A7F7100F21074 /* Jobs */,
 				5F9A27F8296EBEBD0052E618 /* Settings */,
 			);
 			path = SideMenu;
@@ -1398,6 +1399,13 @@
 			path = Other;
 			sourceTree = "<group>";
 		};
+		5F98F99A298A7F7100F21074 /* Jobs */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Jobs;
+			sourceTree = "<group>";
+		};
 		5F992B0228ACE46E0030F7F1 /* Cases */ = {
 			isa = PBXGroup;
 			children = (
@@ -1489,6 +1497,7 @@
 		5F9A281A2977D8CA0052E618 /* Empty */ = {
 			isa = PBXGroup;
 			children = (
+				5FA5726F2965CC1A0068284B /* MEPrimaryEmptyCell.swift */,
 				5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */,
 				5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */,
 			);
@@ -1755,7 +1764,6 @@
 				5F9A28072975731E0052E618 /* GroupPendingCell.swift */,
 				5F944789291D4645003B3DA0 /* GroupCell.swift */,
 				5FA57264295F14F80068284B /* GroupBrowseFooter.swift */,
-				5FA5726F2965CC1A0068284B /* EmtpyGroupCell.swift */,
 			);
 			path = Browse;
 			sourceTree = "<group>";
@@ -1882,7 +1890,7 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */,
-				5FBCB9F728A7745A007EF79D /* NotificationsLikeCell.swift */,
+				5FBCB9F728A7745A007EF79D /* NotificationsLikeCommentCell.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -2424,7 +2432,7 @@
 				5F9A280D2976B3B10052E618 /* GroupContentManagementViewController.swift in Sources */,
 				5FBC2DF527329AAB004F92CE /* UploadPostViewController.swift in Sources */,
 				5FA57265295F14F80068284B /* GroupBrowseFooter.swift in Sources */,
-				5FBCB9F828A7745A007EF79D /* NotificationsLikeCell.swift in Sources */,
+				5FBCB9F828A7745A007EF79D /* NotificationsLikeCommentCell.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
 				5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */,
 				5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */,
@@ -2501,7 +2509,7 @@
 				5FA0875028BFC64600D44829 /* Sections.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
-				5FA572702965CC1A0068284B /* EmtpyGroupCell.swift in Sources */,
+				5FA572702965CC1A0068284B /* MEPrimaryEmptyCell.swift in Sources */,
 				5FF5DFF728D77ECD003F9B0A /* SkeletonCasesCell.swift in Sources */,
 				5F9E42902880186B00C2153B /* MECategoryView.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,

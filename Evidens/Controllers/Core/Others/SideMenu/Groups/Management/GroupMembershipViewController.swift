@@ -554,7 +554,7 @@ extension GroupMembershipViewController: MESecondaryEmptyCellDelegate {
         case .goToGroup:
             navigationController?.popViewController(animated: true)
         case .invite:
-            let controller = GroupInviteViewController()
+            let controller = GroupInviteViewController(group: group)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -564,6 +564,8 @@ extension GroupMembershipViewController: MESecondaryEmptyCellDelegate {
             navigationController?.pushViewController(controller, animated: true)
         case .learnMore:
             print("present learn more")
+        case .dismiss:
+            navigationController?.popViewController(animated: true)
         }
     }
 }

@@ -44,6 +44,13 @@ class BookmarkPostCell: UICollectionViewCell {
         return label
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -57,7 +64,7 @@ class BookmarkPostCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
         
-        addSubviews(userPostView, postTextLabel, likesButton, likesCommentsLabel)
+        addSubviews(userPostView, postTextLabel, likesButton, likesCommentsLabel, separatorView)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -69,15 +76,20 @@ class BookmarkPostCell: UICollectionViewCell {
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            likesButton.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
-            likesButton.leadingAnchor.constraint(equalTo: postTextLabel.leadingAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            
         ])
     }
     

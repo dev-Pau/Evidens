@@ -74,6 +74,10 @@ struct NotificationViewModel {
         return notification.userIsFollowed ? .label : .white
     }
     
+    var followButtonCornerWidth: CGFloat {
+        return notification.userIsFollowed ? 1 : 0
+    }
+    
     var notificationPostText: String? {
         if notification.type == .likeCase {
             return notification.caseText

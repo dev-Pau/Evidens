@@ -57,6 +57,24 @@ struct Notification {
         }
     }
     
+    enum NotificationMenuOptions {
+        case delete
+        
+        var notificationMenuText: String {
+            switch self {
+            case .delete:
+                return "Delete notification"
+            }
+        }
+        
+        var notificationMenuImage: UIImage {
+            switch self {
+            case .delete:
+                return UIImage(systemName: "trash")!
+            }
+        }
+    }
+    
 
     
     init(dictionary: [String: Any]) {

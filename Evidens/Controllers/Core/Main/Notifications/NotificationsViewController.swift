@@ -10,7 +10,8 @@ import Firebase
 
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
-private let skeletonNotificationCellReuseIdentifier = "SekeletonNotificationCellReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 
 class NotificationsViewController: NavigationBarViewController {
     
@@ -18,6 +19,8 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var notifications = [Notification]()
     private var users = [User]()
+    private var posts = [Post]()
+    private var cases = [Case]()
     
     private var loaded: Bool = false
     
@@ -35,114 +38,48 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        collectionView.isScrollEnabled = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "No notifications yet"
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .label
-        return label
-    }()
-    
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Complete your profile and connect with people you know to start receive notifications about your activity."
-        label.textAlignment = .center
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        return label
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.isHidden = false
-        titleLabel.isHidden = true
-        descriptionLabel.isHidden = true
         configureCollectionView()
         fetchNotifications()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if !loaded { collectionView.reloadData() }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if loaded {
-            fetchNotifications()
-        }
-    }
-    
     private func configureCollectionView() {
         title = "Notifications"
-        //let navLabel = UILabel()
-        //let navTitle = NSMutableAttributedString(string: "Notifications", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
-        //navLabel.attributedText = navTitle
-        //navigationItem.titleView = navLabel
-                                    
-        view.addSubviews(collectionView, titleLabel, descriptionLabel)
-        //collectionView.frame = view.bounds
+                               
+        view.addSubviews(collectionView)
+        collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
-        collectionView.register(SkeletonNotificationCell.self, forCellWithReuseIdentifier: skeletonNotificationCellReuseIdentifier)
-       
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            
-            titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30)
-        ])
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
     }
     
     private func fetchNotifications() {
-
         NotificationService.fetchNotifications(lastSnapshot: nil) { snapshot in
-
-            if snapshot.count == 0 {
-                // User don't have any notification, display view
-                self.titleLabel.isHidden = false
-                self.descriptionLabel.isHidden = false
-                self.collectionView.isHidden = true
+            guard let snapshot = snapshot else {
+                self.loaded = true
+                self.collectionView.reloadData()
                 return
             }
-
+            
             self.notificationsLastSnapshot = snapshot.documents.last
             self.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
             
-            self.notifications.forEach { notification in
-                UserService.fetchUser(withUid: notification.uid) { user in
-                    self.users.append(user)
-                    self.loaded = true
-                    self.collectionView.isScrollEnabled = true
-                    self.collectionView.reloadData()
-                }
+            let userUids = self.notifications.map { $0.uid }
+            let uniqueUserUids = Array(Set(userUids))
+            UserService.fetchUsers(withUids: uniqueUserUids) { users in
+                self.users = users
+                self.checkIfUserIsFollowed()
+                self.loaded = true
+                self.collectionView.reloadData()
             }
-            
-            self.collectionView.isHidden = false
-            self.titleLabel.isHidden = true
-            self.descriptionLabel.isHidden = true
-            self.checkIfUserIsFollowed()
-            
         }
     }
     
@@ -153,6 +90,7 @@ class NotificationsViewController: NavigationBarViewController {
             UserService.checkIfUserIsFollowed(uid: notification.uid) { isFollowed in
                 if let index = self.notifications.firstIndex(where: { $0.id == notification.id }) {
                     self.notifications[index].userIsFollowed = isFollowed
+                    self.collectionView.reloadData()
                 }
             }
         }
@@ -162,55 +100,64 @@ class NotificationsViewController: NavigationBarViewController {
 extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return loaded ? notifications.count : 15
+        return loaded ? notifications.isEmpty ? 1 : notifications.count : 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        if !loaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonNotificationCellReuseIdentifier, for: indexPath) as! SkeletonNotificationCell
-            return cell
-        }
-        
-        if notifications[indexPath.row].type.rawValue == 2 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
-            cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
-            cell.delegate = self
-            
-            let userIndex = users.firstIndex { user in
-                if user.uid == notifications[indexPath.row].uid {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.set(user: users[userIndex])
-            }
-            
-            return cell
-        }
-        else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
-            cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
-            cell.delegate = self
-            
-            
-            let userIndex = users.firstIndex { user in
-                if user.uid == notifications[indexPath.row].uid {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.set(user: users[userIndex])
-            }
-            
-            return cell
-        }
 
+        if notifications.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+            cell.set(withTitle: "No notifications - yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
+            return cell
+        } else {
+            if notifications[indexPath.row].type.rawValue == 2 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
+                cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
+                cell.delegate = self
+                
+                let userIndex = users.firstIndex { user in
+                    if user.uid == notifications[indexPath.row].uid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+                
+                return cell
+            }
+            else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: likeCellReuseIdentifier, for: indexPath) as! NotificationLikeCommentCell
+                cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
+                cell.delegate = self
+                
+                
+                let userIndex = users.firstIndex { user in
+                    if user.uid == notifications[indexPath.row].uid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+                
+                return cell
+            }
+        }
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -225,9 +172,28 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
 }
 
 extension NotificationsViewController: NotificationCellDelegate {
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: Notification.NotificationMenuOptions) {
+        
+        switch option {
+        case .delete:
+            if let indexPath = collectionView.indexPath(for: cell) {
+                NotificationService.deleteNotification(withUid: notification.id) { removed in
+                    if removed {
+                        self.collectionView.performBatchUpdates {
+                            self.notifications.remove(at: indexPath.row)
+                            self.collectionView.deleteItems(at: [indexPath])
+                            let popupView = METopPopupView(title: "Notification successfully deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                            popupView.showTopPopup(inView: self.view)
+                        }
+                    }
+                }
+            }
+        }
+    }
     
-
-    func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String, firstName: String) {
+    
+    func cell(_ cell: UICollectionViewCell, wantsToFollow uid: String) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
@@ -240,8 +206,9 @@ extension NotificationsViewController: NotificationCellDelegate {
                     return
                 }
                 
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
-                reportPopup.showTopPopup(inView: self.view)
+                self.notifications[indexPath.row].userIsFollowed = true
+                currentCell.isUpdatingFollowingState = false
+                currentCell.setNeedsUpdateConfiguration()
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
             }
@@ -250,18 +217,21 @@ extension NotificationsViewController: NotificationCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String, firstName: String) {
+    func cell(_ cell: UICollectionViewCell, wantsToUnfollow uid: String) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
         switch cell {
         case is NotificationFollowCell:
             let currentCell = cell as! NotificationFollowCell
             currentCell.viewModel?.notification.userIsFollowed = false
+            print(currentCell.viewModel?.notification.userIsFollowed)
             UserService.unfollow(uid: uid) { error in
                 if let _ = error {
                     return
                 }
-
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .regular)
-                reportPopup.showTopPopup(inView: self.view)
+                
+                self.notifications[indexPath.row].userIsFollowed = false
+                currentCell.isUpdatingFollowingState = false
+                currentCell.setNeedsUpdateConfiguration()
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
             }
         default:
@@ -288,6 +258,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
+            backItem.tintColor = .label
             self.navigationItem.backBarButtonItem = backItem
             
             self.navigationController?.pushViewController(controller, animated: true)
@@ -314,46 +285,12 @@ extension NotificationsViewController: NotificationCellDelegate {
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
+            backItem.tintColor = .label
             self.navigationItem.backBarButtonItem = backItem
             
             self.navigationController?.pushViewController(controller, animated: true)
         }
-
-    }
-    
-    
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification) {
-        notificationMenu.showNotificationSettings(in: view)
-        notificationMenu.completion = { delete in
-            print("Completion delete")
-            if delete {
-                print("DELETE Go")
-
-                if let indexPath = self.collectionView.indexPath(for: cell) {
-                    NotificationService.deleteNotification(withUid: notification.id) { removed in
-                        if removed {
-                            self.collectionView.performBatchUpdates {
-                                self.notifications.remove(at: indexPath.item)
-                                self.users.remove(at: indexPath.item)
-                                self.collectionView.deleteItems(at: [indexPath])
-                            }
-                            
-                            if self.notifications.count == 0 {
-                                self.collectionView.isHidden = true
-                                self.titleLabel.isHidden = false
-                                self.descriptionLabel.isHidden = false
-                                
-                            }
-                            
-                            let popupView = METopPopupView(title: "Notification deleted", image: "trash", popUpType: .destructive)
-                            popupView.showTopPopup(inView: self.view)
-                        } else {
-                            print("couldnt remove notification")
-                        }
-                    }
-                }
-            }
-        }
+        
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String) {
@@ -381,16 +318,22 @@ extension NotificationsViewController: NotificationCellDelegate {
 extension NotificationsViewController {
     func getMoreNotifications() {
         NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { snapshot in
+            guard let snapshot = snapshot else {
+            #warning("No mor enotifications? maybe show alert saying it idk")
+                return
+            }
             self.notificationsLastSnapshot = snapshot.documents.last
             let documents = snapshot.documents
             let newNotifications = documents.map({ Notification(dictionary: $0.data()) })
             self.notifications.append(contentsOf: newNotifications)
-            
-            newNotifications.forEach { notification in
-                UserService.fetchUser(withUid: notification.uid) { user in
-                    self.users.append(user)
-                    self.collectionView.reloadData()
-                }
+
+            let newNotificationUserUids = newNotifications.map { $0.uid }
+            let newNotificationUniqueUserUids = Array(Set(newNotificationUserUids))
+        #warning("Befroe fetching check if some of the new users are already present in the previous user array")
+
+            UserService.fetchUsers(withUids: newNotificationUserUids) { users in
+                self.users.append(contentsOf: users)
+                self.collectionView.reloadData()
             }
         }
     }
