@@ -8,7 +8,7 @@ import UIKit
 import SDWebImage
 
 
-class NewConversationCell: UITableViewCell {
+class NewConversationCell: UICollectionViewCell {
     
     //MARK: - Properties
     
@@ -39,15 +39,20 @@ class NewConversationCell: UITableViewCell {
         return label
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
     
-
     //MARK: - Lifecycle
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubviews(profileImageView, nameLabel, userCategoryLabel)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubviews(profileImageView, nameLabel, userCategoryLabel, separatorView)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -57,18 +62,23 @@ class NewConversationCell: UITableViewCell {
         backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            
+            separatorView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            separatorView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2

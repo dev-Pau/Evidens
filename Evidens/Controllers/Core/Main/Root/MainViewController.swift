@@ -83,10 +83,10 @@ extension MainViewController: MainTabControllerDelegate {
 }
 
 extension MainViewController: ConversationViewControllerDelegate {
-    func didBeginEditingCell(isEditing editing: Bool) {
-        delegate?.handleDisablePanWhileEditing(editing: editing)
+    func handleTooglePan() {
+        delegate?.handleDisablePan()
     }
-    
+
     func didTapHideConversations() {
         delegate?.hideConversations()
     }

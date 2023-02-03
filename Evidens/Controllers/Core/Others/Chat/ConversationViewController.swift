@@ -7,11 +7,13 @@
 
 import UIKit
 
-private let reuseIdentifier = "cell"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
+private let messageCellReuseIdentifier = "messageUserCellReuseIdentifier"
 
 protocol ConversationViewControllerDelegate: AnyObject {
     func didTapHideConversations()
-    func didBeginEditingCell(isEditing editing: Bool)
+    func handleTooglePan()
 }
 
 /// Controller that shows list of conversations
@@ -21,51 +23,58 @@ class ConversationViewController: UIViewController {
     
     private var conversations = [Conversation]()
     private var users = [User]()
+    private var searchController: UISearchController!
+    
+    private var conversationsLoaded: Bool = false
     
     weak var delegate: ConversationViewControllerDelegate?
     
-    private let tableView: UITableView = {
-        let table = UITableView()
-        table.separatorStyle = .singleLine
-        table.isHidden = true
-        table.keyboardDismissMode = .onDrag
-        table.register(ChatCell.self,
-                       forCellReuseIdentifier: reuseIdentifier)
-        return table
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .onDrag
+        return collectionView
     }()
-    
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search conversations", attributes: [.font : UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.tintColor = primaryColor
-        //searchBar.searchTextField.backgroundColor = lightColor
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
-    }()
-    
-    private let emptyConversationsLabel: UILabel = {
-        let label = UILabel()
-        label.text = "No conversations"
-        label.textAlignment = .center
-        label.textColor = .gray
-        label.font = .systemFont(ofSize: 21, weight: .medium)
-        label.isHidden = true
-        return label
-    }()
-    
-    
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigationBar()
+        configureUI()
+        configureCollectionView()
+        startListeningForConversations()
+      
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        collectionView.frame = view.bounds
+    }
+    
+    //MARK: - Helpers
+    
+    private func configureNavigationBar() {
+        title = "Messages"
+        let controller = SearchConversationViewController()
+        controller.delegate = self
+        searchController = UISearchController(searchResultsController: controller)
+        searchController.searchResultsUpdater = controller
+        searchController.searchBar.delegate = controller
+        searchController.searchBar.placeholder = "Search conversations"
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        searchController.showsSearchResultsController = true
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
         
-        let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-        searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        navigationItem.titleView = searchBarContainer
-        searchBar.delegate = self
-        
+       
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
     
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
@@ -73,78 +82,58 @@ class ConversationViewController: UIViewController {
         backButton.title = ""
         backButton.tintColor = .label
         navigationItem.leftBarButtonItem = backButton
-        
-        configureUI()
-        configureTableView()
-        startListeningForConversations()
-        
     }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        tableView.frame = view.bounds
-        emptyConversationsLabel.frame = CGRect(x: 10, y: (view.bounds.height-100)/2, width: view.bounds.width - 20, height: 100)
-    }
-    
-    //MARK: - Helpers
     
     func configureUI() {
         view.backgroundColor = .systemBackground
-        view.addSubview(tableView)
-        view.addSubview(emptyConversationsLabel)
+        view.addSubview(collectionView)
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        searchBar.resignFirstResponder()
-    }
-    
+        
     private func startListeningForConversations() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
         DatabaseManager.shared.getAllConversations(forUid: uid, completion: { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let conversations):
                 guard !conversations.isEmpty else {
-                    self?.tableView.isHidden = true
-                    self?.emptyConversationsLabel.isHidden = false
+                    self.conversationsLoaded = true
+                    self.collectionView.reloadData()
                     return
                 }
-                self?.emptyConversationsLabel.isHidden = true
-                self?.tableView.isHidden = false
-                self?.conversations = conversations
-                
-                self?.conversations.sort(by: { $0.latestMessage.date > $1.latestMessage.date })
-                self?.users.removeAll()
+                self.conversations = conversations
+                self.conversations.sort(by: { $0.latestMessage.date > $1.latestMessage.date })
+                self.users.removeAll()
                 conversations.forEach { conversation in
-                    // Fetch users here
-                    
                     UserService.fetchUser(withUid: conversation.otherUserUid) { user in
-                        self?.users.append(user)
+                        self.users.append(user)
+                        self.conversationsLoaded = true
                         DispatchQueue.main.async {
-                            self?.tableView.reloadData()
+                            self.collectionView.reloadData()
                         }
                     }
                 }
                 
             case .failure(let error):
-                self?.tableView.isHidden = true
-                self?.emptyConversationsLabel.isHidden = false
                 print("failed to get conversations: \(error)")
             }
         })
     }
     
-    private func configureTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
+    private func configureCollectionView() {
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        collectionView.register(ChatCell.self, forCellWithReuseIdentifier: messageCellReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
     }
     
     //MARK: - Actions
     
     //Creates a new conversation
     @objc private func didTapComposeButton() {
-        let vc = NewConversationViewController()
+        /*
+        let vc = NewMessageViewController()
         vc.completion = { [weak self] user in
             //Check if user conversation already exists
             guard let strongSelf = self else { return }
@@ -171,6 +160,7 @@ class ConversationViewController: UIViewController {
         
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true)
+         */
     }
     
     @objc func didTapHideConversations() {
@@ -227,17 +217,48 @@ class ConversationViewController: UIViewController {
 
 //MARK: - UITableViewDelegate, UITableViewDataSource
                        
-extension ConversationViewController: UITableViewDelegate, UITableViewDataSource {
-            
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return conversations.count
+extension ConversationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return conversationsLoaded ? conversations.isEmpty ? 1 : conversations.count : 0
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! ChatCell
-        
-        cell.viewModel = ConversationViewModel(conversation: conversations[indexPath.row])
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return conversationsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 70)
+    }
+            
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if conversations.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+            cell.set(withTitle: "Welcome to your inbox.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "   Write a message   ")
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageCellReuseIdentifier, for: indexPath) as! ChatCell
+          
+            cell.viewModel = ConversationViewModel(conversation: conversations[indexPath.row])
+            
+            let userIndex = users.firstIndex { user in
+                if user.uid == conversations[indexPath.row].otherUserUid {
+                    return true
+                }
+                return false
+            }
+            if let userIndex = userIndex {
+                cell.set(user: users[userIndex])
+            }
+            
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if conversations.isEmpty { return }
+        let model = conversations[indexPath.row]
         
         let userIndex = users.firstIndex { user in
             if user.uid == conversations[indexPath.row].otherUserUid {
@@ -247,12 +268,11 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         }
         
         if let userIndex = userIndex {
-            cell.set(user: users[userIndex])
+            let user = users[userIndex]
+            openConversation(with: user, with: model)
         }
-        
-        return cell
     }
-    
+    /*
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let model = conversations[indexPath.row]
@@ -270,6 +290,11 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         }
         
     }
+     */
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return conversations.isEmpty ? CGSize(width: view.frame.width, height: view.frame.width) : CGSize(width: view.frame.width, height: 71)
+    }
     
     func openConversation(with user: User, with model: Conversation) {
         let controller = ChatViewController(with: user, id: model.id, creationDate: model.creationDate)
@@ -283,65 +308,10 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
         
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 71
-    }
-    
-    //Swipe the row away
-    /*
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        return .delete
-    }
-    
-    func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-        delegate?.didBeginEditingCell(isEditing: false)
-    }
-    
-    func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
-        print("begin")
-        delegate?.didBeginEditingCell(isEditing: true)
-    }
-     */
-    
-    
-    
-    /*
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            
-            let userIndex = users.firstIndex { user in
-                if user.uid == conversations[indexPath.row].otherUserUid {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                let user = users[userIndex]
-                deleteConversationAlert(withUserFirstName: user.firstName!) {
-                    //Get the conversationId for current indexPath row
-                    let conversationId = self.conversations[indexPath.row].id
-                    
-                    tableView.beginUpdates()
-                    self.conversations.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath], with: .left)
-                    //Delete the conversation in the database
-                    DatabaseManager.shared.deleteConversation(conversationId: conversationId) { success in
-                        if !success {
-                            // Add model and row back and show error alert
-                            print("Failed to delete conversation")
-                        }
-                    }
-                    tableView.endUpdates()
-                }
-            }
-        }
-    }
-     */
 }
 
 extension ConversationViewController: UISearchBarDelegate {
+    /*
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         
         let backItem = UIBarButtonItem()
@@ -356,6 +326,7 @@ extension ConversationViewController: UISearchBarDelegate {
         navigationController?.pushViewController(controller, animated: true)
         
     }
+     */
 }
 
 extension ConversationViewController: SearchConversationViewControllerDelegate {
@@ -371,6 +342,14 @@ extension ConversationViewController: SearchConversationViewControllerDelegate {
             let conversation = conversations[userIndex]
             openConversation(with: user, with: conversation)
         }
+    }
+    
+    func updatePan() {
+        delegate?.handleTooglePan()
+    }
+    
+    func didTapTextToSearch(text: String) {
+        searchController.searchBar.text = text
     }
 }
 
@@ -392,10 +371,12 @@ extension ConversationViewController: ChatViewControllerDelegate {
         }
         
         if let conversationIndex = conversationIndex, let userIndex = userIndex {
-            tableView.beginUpdates()
-            conversations.remove(at: conversationIndex)
-            users.remove(at: userIndex)
-            tableView.deleteRows(at: [IndexPath(row: conversationIndex, section: 0)], with: .left)
+            collectionView.performBatchUpdates {
+                conversations.remove(at: conversationIndex)
+                users.remove(at: userIndex)
+                collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
+            }
+           
             //Delete the conversation in the database
             
             DatabaseManager.shared.deleteConversation(conversationId: id) { success in
@@ -404,10 +385,29 @@ extension ConversationViewController: ChatViewControllerDelegate {
                 }
                 print("Conversation deleted")
             }
-             
-            tableView.endUpdates()
+
         } else {
             return
         }
     }
 }
+/*
+ extension ConversationViewController: UISearchResultsUpdating {
+ func updateSearchResults(for searchController: UISearchController) {
+ guard let text = searchController.searchBar.text else { return }
+ 
+ }
+ 
+ 
+ 
+ func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+ delegate?.handleTooglePan()
+ }
+ 
+ func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+ delegate?.handleTooglePan()
+ }
+ 
+ 
+ }
+ */

@@ -9,7 +9,7 @@ import UIKit
 import SDWebImage
 
 
-class ChatCell: UITableViewCell {
+class ChatCell: UICollectionViewCell {
     
     var viewModel: ConversationViewModel? {
         didSet {
@@ -65,11 +65,18 @@ class ChatCell: UITableViewCell {
         return iv
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
     //MARK: - Lifecycle
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel, messageUnreadImage)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubviews(profileImageView, usernameLabel, userMessageLabel, dateLabel, messageUnreadImage, separatorView)
     }
     
     required init?(coder: NSCoder) {
@@ -80,11 +87,11 @@ class ChatCell: UITableViewCell {
         super.layoutSubviews()
         
         NSLayoutConstraint.activate([
-            dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            dateLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            dateLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 50),
             profileImageView.widthAnchor.constraint(equalToConstant: 50),
         
@@ -96,10 +103,15 @@ class ChatCell: UITableViewCell {
             userMessageLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
             usernameLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
             
-            messageUnreadImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            messageUnreadImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             messageUnreadImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             messageUnreadImage.widthAnchor.constraint(equalToConstant: 10),
             messageUnreadImage.heightAnchor.constraint(equalToConstant: 10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor)
         ])
     }
 

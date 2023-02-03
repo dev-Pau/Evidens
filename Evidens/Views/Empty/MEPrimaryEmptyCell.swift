@@ -82,7 +82,7 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         cellContentView.addSubviews(imageView, titleLabel, descriptionLabel, discoverButton)
         
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 60),
+            imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 30),
             imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
             imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),
             imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 60),
@@ -99,8 +99,6 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
             discoverButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
             discoverButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
             discoverButton.heightAnchor.constraint(equalToConstant: 50),
-            discoverButton.widthAnchor.constraint(equalToConstant: 130),
-          
         ])
     }
     

@@ -31,7 +31,7 @@
 		5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F11AF3E286EFEF3005BC807 /* MEScrollImageView.swift */; };
 		5F1ACB6628E56761008E3E25 /* ConversationMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1ACB6528E56761008E3E25 /* ConversationMenuLauncher.swift */; };
 		5F25908B28D0CE360018965C /* SearchBarContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F25908A28D0CE360018965C /* SearchBarContainerView.swift */; };
-		5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */; };
+		5F26BE78279AA74600D2AF11 /* NewMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F26BE77279AA74600D2AF11 /* NewMessageViewController.swift */; };
 		5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B499282FF1020079F8CF /* RecentHeader.swift */; };
 		5F39B49C283005890079F8CF /* RecentUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B49B283005890079F8CF /* RecentUserCell.swift */; };
 		5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B49D283007E70079F8CF /* UserCollectionViewCell.swift */; };
@@ -40,7 +40,6 @@
 		5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */; };
 		5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */; };
 		5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BF27620415008FD6ED /* DatabaseManager.swift */; };
-		5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */; };
 		5F4493EB27748CEA008FD6ED /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85F27070274006B7A34 /* SceneDelegate.swift */; };
 		5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */; };
 		5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */; };
@@ -178,6 +177,8 @@
 		5F979C5E286DDB3D00C05D57 /* CasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* CasesCell.swift */; };
 		5F98F99729895C4C00F21074 /* MEPreviewSelectedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F99629895C4C00F21074 /* MEPreviewSelectedCell.swift */; };
 		5F98F9992989668300F21074 /* GroupInviteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F9982989668300F21074 /* GroupInviteCell.swift */; };
+		5F98F9BC298CF8E900F21074 /* SearchRecentsHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F9BB298CF8E900F21074 /* SearchRecentsHeader.swift */; };
+		5F98F9BE298D1E0000F21074 /* RecentContentSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F9BD298D1E0000F21074 /* RecentContentSearchCell.swift */; };
 		5F992AF828AB6D0B0030F7F1 /* CommentsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AF728AB6D0B0030F7F1 /* CommentsMenuLauncher.swift */; };
 		5F992AFC28ACC7CD0030F7F1 /* TopPostTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */; };
 		5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */; };
@@ -198,7 +199,7 @@
 		5F9A282629784B150052E618 /* UserGroupSkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A282529784B150052E618 /* UserGroupSkeletonCell.swift */; };
 		5F9A28312979729D0052E618 /* GroupAdminsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28302979729D0052E618 /* GroupAdminsViewController.swift */; };
 		5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */; };
-		5F9A76CB28E068270079126F /* EmptyConversationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */; };
+		5F9A76CB28E068270079126F /* EmptyRecentsSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */; };
 		5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */; };
 		5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F7E289678CB00A25152 /* CustomSectionCell.swift */; };
 		5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */; };
@@ -386,7 +387,7 @@
 		5F11AF3E286EFEF3005BC807 /* MEScrollImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEScrollImageView.swift; sourceTree = "<group>"; };
 		5F1ACB6528E56761008E3E25 /* ConversationMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationMenuLauncher.swift; sourceTree = "<group>"; };
 		5F25908A28D0CE360018965C /* SearchBarContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarContainerView.swift; sourceTree = "<group>"; };
-		5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
+		5F26BE77279AA74600D2AF11 /* NewMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMessageViewController.swift; sourceTree = "<group>"; };
 		5F39B499282FF1020079F8CF /* RecentHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentHeader.swift; sourceTree = "<group>"; };
 		5F39B49B283005890079F8CF /* RecentUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentUserCell.swift; sourceTree = "<group>"; };
 		5F39B49D283007E70079F8CF /* UserCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -395,7 +396,6 @@
 		5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCellViewModel.swift; sourceTree = "<group>"; };
 		5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		5F4493BF27620415008FD6ED /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
-		5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBlurEffect.swift; sourceTree = "<group>"; };
 		5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTypeCell.swift; sourceTree = "<group>"; };
 		5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterUserTypeCell.swift; sourceTree = "<group>"; };
 		5F4493F827941D0F008FD6ED /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
@@ -532,6 +532,8 @@
 		5F979C5D286DDB3D00C05D57 /* CasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCell.swift; sourceTree = "<group>"; };
 		5F98F99629895C4C00F21074 /* MEPreviewSelectedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPreviewSelectedCell.swift; sourceTree = "<group>"; };
 		5F98F9982989668300F21074 /* GroupInviteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInviteCell.swift; sourceTree = "<group>"; };
+		5F98F9BB298CF8E900F21074 /* SearchRecentsHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRecentsHeader.swift; sourceTree = "<group>"; };
+		5F98F9BD298D1E0000F21074 /* RecentContentSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentContentSearchCell.swift; sourceTree = "<group>"; };
 		5F992AF728AB6D0B0030F7F1 /* CommentsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsMenuLauncher.swift; sourceTree = "<group>"; };
 		5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopPostTextCell.swift; sourceTree = "<group>"; };
 		5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCaseImageCell.swift; sourceTree = "<group>"; };
@@ -552,7 +554,7 @@
 		5F9A282529784B150052E618 /* UserGroupSkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserGroupSkeletonCell.swift; sourceTree = "<group>"; };
 		5F9A28302979729D0052E618 /* GroupAdminsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupAdminsViewController.swift; sourceTree = "<group>"; };
 		5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchConversationViewController.swift; sourceTree = "<group>"; };
-		5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyConversationSearchCell.swift; sourceTree = "<group>"; };
+		5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyRecentsSearchCell.swift; sourceTree = "<group>"; };
 		5F9A9F7C289665C400A25152 /* EditCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryCell.swift; sourceTree = "<group>"; };
 		5F9A9F7E289678CB00A25152 /* CustomSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSectionCell.swift; sourceTree = "<group>"; };
 		5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureSectionViewController.swift; sourceTree = "<group>"; };
@@ -748,7 +750,8 @@
 			children = (
 				5F05206A27BD4D9C001E7D8F /* ChatCell.swift */,
 				5F05207027C4D04F001E7D8F /* NewConversationCell.swift */,
-				5F9A76CA28E068270079126F /* EmptyConversationSearchCell.swift */,
+				5F9A76CA28E068270079126F /* EmptyRecentsSearchCell.swift */,
+				5F98F9BB298CF8E900F21074 /* SearchRecentsHeader.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -876,7 +879,7 @@
 			children = (
 				5F4493F827941D0F008FD6ED /* ConversationViewController.swift */,
 				5F4493FB27942818008FD6ED /* ChatViewController.swift */,
-				5F26BE77279AA74600D2AF11 /* NewConversationViewController.swift */,
+				5F26BE77279AA74600D2AF11 /* NewMessageViewController.swift */,
 				5F9A76C828E01CC30079126F /* SearchConversationViewController.swift */,
 			);
 			path = Chat;
@@ -1300,6 +1303,7 @@
 				5F39B49B283005890079F8CF /* RecentUserCell.swift */,
 				5F39B4A2283108A70079F8CF /* RecentTextCell.swift */,
 				5F39B49D283007E70079F8CF /* UserCollectionViewCell.swift */,
+				5F98F9BD298D1E0000F21074 /* RecentContentSearchCell.swift */,
 			);
 			path = Recents;
 			sourceTree = "<group>";
@@ -1619,7 +1623,6 @@
 				5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */,
 				5FBC2DF62732B1AA004F92CE /* InputTextView.swift */,
 				5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */,
-				5F4493C32771E3F7008FD6ED /* CustomBlurEffect.swift */,
 				5F9458D52832DE62008EEAAC /* CustomSegmentedButtonsView.swift */,
 				5F8E52AF286846A20053F011 /* METextField.swift */,
 				5FB2902E288AF185002FBAE1 /* CommentInputTextView.swift */,
@@ -2317,18 +2320,17 @@
 				5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
 				5F71C18228CD18B700A16571 /* SideMenuCell.swift in Sources */,
-				5F9A76CB28E068270079126F /* EmptyConversationSearchCell.swift in Sources */,
+				5F9A76CB28E068270079126F /* EmptyRecentsSearchCell.swift in Sources */,
 				5F992AF828AB6D0B0030F7F1 /* CommentsMenuLauncher.swift in Sources */,
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
 				5F9A28312979729D0052E618 /* GroupAdminsViewController.swift in Sources */,
 				5F0A4F3B271C29E800700304 /* ProfileCell.swift in Sources */,
 				5FA2FB2D28DC7DC600B37424 /* EmptyContentCell.swift in Sources */,
 				5F719B322885B534002666C0 /* PollConfiguratorViewController.swift in Sources */,
-				5F4493C42771E3F7008FD6ED /* CustomBlurEffect.swift in Sources */,
 				5F9A9FAA2899843F00A25152 /* DriverLicenseViewController.swift in Sources */,
 				5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */,
 				5F951B45294881E500E99F34 /* GroupDetailsCell.swift in Sources */,
-				5F26BE78279AA74600D2AF11 /* NewConversationViewController.swift in Sources */,
+				5F26BE78279AA74600D2AF11 /* NewMessageViewController.swift in Sources */,
 				5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */,
 				5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
@@ -2402,6 +2404,7 @@
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
 				5FA3985E2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift in Sources */,
+				5F98F9BE298D1E0000F21074 /* RecentContentSearchCell.swift in Sources */,
 				5F9FB28628F42FD500BABDFD /* UserFollow.swift in Sources */,
 				5F71C18428CE359100A16571 /* MainViewController.swift in Sources */,
 				5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */,
@@ -2541,6 +2544,7 @@
 				5F77BF7A2858E6A200F31A75 /* MEPostStatsView.swift in Sources */,
 				5F8AF981292CEA61005C6778 /* GroupPageViewController.swift in Sources */,
 				5F9A9F9D2898F57E00A25152 /* UserProfilePatentCell.swift in Sources */,
+				5F98F9BC298CF8E900F21074 /* SearchRecentsHeader.swift in Sources */,
 				5FB2902F288AF186002FBAE1 /* CommentInputTextView.swift in Sources */,
 				5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */,
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
