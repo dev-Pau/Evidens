@@ -140,7 +140,7 @@ struct UserService {
         }
     }
     
-    static func fetchFollowing(forUid uid: String, completion: @escaping([String?]) -> Void) {
+    static func fetchFollowing(forUid uid: String, completion: @escaping([String]) -> Void) {
         var userUids = [String]()
          
          COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments { snapshot, error in

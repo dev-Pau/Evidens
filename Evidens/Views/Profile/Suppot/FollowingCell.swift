@@ -69,13 +69,12 @@ class FollowingCell: UICollectionViewCell {
         guard let user = user else { return }
 
         UserService.fetchFollowing(forUid: user.uid!, completion: { uids in
-            print(uids)
             uids.forEach { uid in
                 
-                UserService.fetchUser(withUid: uid!) { user in
+                UserService.fetchUser(withUid: uid) { user in
                     self.users.append(user)
                     
-                    UserService.checkIfUserIsFollowed(uid: uid!) { followed in
+                    UserService.checkIfUserIsFollowed(uid: uid) { followed in
                         self.userIsFollowing.append(followed)
                         if self.userIsFollowing.count == uids.count {
                             self.tableView.isScrollEnabled = true

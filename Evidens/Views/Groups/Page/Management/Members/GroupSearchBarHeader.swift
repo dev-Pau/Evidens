@@ -16,6 +16,8 @@ class GroupSearchBarHeader: UICollectionReusableView {
     
     weak var delegate: GroupSearchBarHeaderDelegate?
     
+    var invalidateInstantSearch: Bool = false
+    
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.translatesAutoresizingMaskIntoConstraints = false
@@ -52,6 +54,7 @@ extension GroupSearchBarHeader: UISearchBarDelegate {
             delegate?.resetUsers()
             return
         }
+        if invalidateInstantSearch { return }
         delegate?.didSearchText(text: text.lowercased())
     }
     

@@ -11,6 +11,7 @@ import InputBarAccessoryView
 import SDWebImage
 import AVFoundation
 import AVKit
+import PhotosUI
 
 protocol ChatViewControllerDelegate: AnyObject {
     func didDeleteConversation(withUser user: User, withConversationId id: String)
@@ -69,16 +70,26 @@ class ChatViewController: MessagesViewController {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleConversationMenu))
         
-        let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemRed), attributes: .destructive) { action in
-            self.deleteConversationAlert(withUserFirstName: self.user.firstName!) {
-                if let conversationId = self.conversationId {
-                    self.delegate?.didDeleteConversation(withUser: self.user, withConversationId: conversationId)
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
+        let reportAction = UIAction(title: "Report \(user.firstName!)", image: UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!) { action in
+            
+            let reportPopup = METopPopupView(title: "\(self.user.firstName!) has been reported", image: "checkmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            return
         }
         
-        let markAsUnreadAction = UIAction(title: "Mark as Unread", image: UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let deleteAction = UIAction(title: "Delete conversation", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+            self.displayMEDestructiveAlert(withTitle: "Delete conversation", withMessage: "This conversation will be deleted from your inbox. Other people in the conversation will still be able to see it.", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+                self.deleteConversationAlert(withUserFirstName: self.user.firstName!) {
+                    if let conversationId = self.conversationId {
+                        self.delegate?.didDeleteConversation(withUser: self.user, withConversationId: conversationId)
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                }
+            }
+            
+        }
+        
+        let markAsUnreadAction = UIAction(title: "Mark as unread", image: UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             if let conversationId = self.conversationId {
                 DatabaseManager.shared.makeLastMessageStateToIsRead(conversationID: conversationId, isReadState: false)
             }
@@ -88,7 +99,7 @@ class ChatViewController: MessagesViewController {
             title: "Add",
             image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label),
             primaryAction: nil,
-            menu: UIMenu(title: "", children: [deleteAction, markAsUnreadAction])
+            menu: UIMenu(title: "", children: [reportAction, deleteAction, markAsUnreadAction])
         )
         
         self.navigationItem.rightBarButtonItem = menuBarButton
@@ -153,9 +164,13 @@ class ChatViewController: MessagesViewController {
         let inputButton = InputBarButtonItem()
         inputButton.setSize(CGSize(width: 35, height: 35), animated: false)
         inputButton.setImage(UIImage(systemName: "paperclip")?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor), for: .normal)
+        inputButton.showsMenuAsPrimaryAction = true
+       
         inputButton.onTouchUpInside { [weak self] _ in
+            self?.messageInputBar.inputTextView.resignFirstResponder()
             self?.presentInputActionSheet()
         }
+        
         messageInputBar.sendButton.setTitleColor(primaryColor, for: .normal)
         messageInputBar.setLeftStackViewWidthConstant(to: 36, animated: false)
         messageInputBar.setStackViewItems([inputButton], forStack: .left, animated: false)
@@ -165,6 +180,7 @@ class ChatViewController: MessagesViewController {
     
 
     private func presentInputActionSheet() {
+
         let actionSheet = UIAlertController(title: nil,
                                             message: nil,
                                             preferredStyle: .actionSheet)
@@ -189,11 +205,10 @@ class ChatViewController: MessagesViewController {
             picker.delegate = self
             picker.allowsEditing = true
             self?.present(picker, animated: true)
-
         }))
         
         
-        actionSheet.addAction(UIAlertAction(title: "Video",
+        actionSheet.addAction(UIAlertAction(title: "Video Library",
                                             style: .default,
                                             handler: { [weak self] _ in
             let picker = UIImagePickerController()
@@ -211,6 +226,7 @@ class ChatViewController: MessagesViewController {
         }))
         
         present(actionSheet, animated: true)
+         
     }
     
     private func removeMessageAvatars() {

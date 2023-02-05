@@ -18,6 +18,7 @@ protocol SearchConversationViewControllerDelegate: AnyObject {
     func didTapUser(user: User)
     func updatePan()
     func didTapTextToSearch(text: String)
+    func filterConversationsWithText(text: String, completion: @escaping([User]) -> Void)
 }
 
 class SearchConversationViewController: UIViewController {
@@ -159,6 +160,7 @@ extension SearchConversationViewController: UICollectionViewDelegateFlowLayout, 
         if !isInSearchMode {
             return CGSize(width: view.frame.width, height: 40)
         } else {
+            if filteredUsers.isEmpty { return CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.6) }
             return CGSize(width: view.frame.width, height: 70)
         }
     }
@@ -169,18 +171,12 @@ extension SearchConversationViewController: UICollectionViewDelegateFlowLayout, 
             let searchedText = recentSearches[indexPath.row]
             delegate?.didTapTextToSearch(text: searchedText)
             // Perform query
+        } else {
+            guard !filteredUsers.isEmpty else { return }
+            let user = filteredUsers[indexPath.row]
+            delegate?.didTapUser(user: user)
+            
         }
-    }
-}
-
-//MARK: - UITableViewDelegate
-
-extension SearchConversationViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard !users.isEmpty else { return }
-        let user = filteredUsers[indexPath.row]
-        navigationController?.popViewController(animated: true)
-        delegate?.didTapUser(user: user)
     }
 }
 
@@ -220,10 +216,12 @@ extension SearchConversationViewController: UISearchBarDelegate {
         recentSearches.insert(searchText, at: 0)
         isInSearchMode = true
         searchedText = searchText
-        
-        #warning("perform query")
-        dataLoaded = true
-        collectionView.reloadData()
+        delegate?.filterConversationsWithText(text: searchText.lowercased(), completion: { users in
+            #warning("We also need to search for messages")
+            self.filteredUsers = users
+            self.dataLoaded = true
+            self.collectionView.reloadData()
+        })
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
@@ -238,7 +236,6 @@ extension SearchConversationViewController: UISearchBarDelegate {
 extension SearchConversationViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else {
-            print("show recent searches vc")
             if !dataLoaded { return }
             isInSearchMode = false
             dataLoaded = true
