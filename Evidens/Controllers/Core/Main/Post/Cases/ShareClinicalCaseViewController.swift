@@ -25,6 +25,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private var viewModel = ShareCaseViewModel()
     
+    private var professionsSelected = [Profession]()
     private var specialitiesSelected: [String] = []
     private var caseTypesSelected: [String] = []
     private var caseStageSelected: String = ""
@@ -109,6 +110,19 @@ class ShareClinicalCaseViewController: UIViewController {
         return collectionView
     }()
     
+    private var professionsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = CGSize(width: 100, height: 40)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceHorizontal = true
+        return collectionView
+    }()
+    
     private let specialitiesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -186,6 +200,13 @@ class ShareClinicalCaseViewController: UIViewController {
     }()
     
     private let privacySeparatorLabel: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let professionSeparatorLabel: UIView = {
         let view = UIView()
         view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -278,6 +299,7 @@ class ShareClinicalCaseViewController: UIViewController {
         return tv
     }()
     
+    private lazy var professionsView = CaseDetailsView(title: "Professions")
     private lazy var specialitiesView = CaseDetailsView(title: "Specialities")
     private lazy var clinicalTypeView = CaseDetailsView(title: "Type details")
     private lazy var caseStageView = CaseDetailsView(title: "Stage details")
@@ -314,6 +336,7 @@ class ShareClinicalCaseViewController: UIViewController {
                                               name: UIResponder.keyboardWillHideNotification,
                                               object:nil)
         
+        professionsView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToProfessionsViewController)))
         specialitiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSpecialitiesController)))
         clinicalTypeView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToClinicalTypeController)))
         caseStageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToCaseStageController)))
@@ -335,6 +358,9 @@ class ShareClinicalCaseViewController: UIViewController {
             casePrivacy = .group
             self.group = group
         }
+        
+        // Assign primary user profession to categorize the clinical case
+        professionsSelected = [Profession(profession: user.profession!)]
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -368,25 +394,27 @@ class ShareClinicalCaseViewController: UIViewController {
         
         view.addSubview(scrollView)
 
+        professionsView.configure(collectionView: professionsCollectionView)
+        
         titleTextTracker.isHidden = true
         descriptionTextTracker.isHidden = true
         diagnosisView.isHidden = true
         diagnosisUnresolvedView.isHidden = true
         diagnosisGenericView.isHidden = true
         
-        
-
         //caseStageView.delegate = self
+        //professionsView.delegate = self
         diagnosisView.delegate = self
         diagnosisGenericView.delegate = self
         casePrivacyMenuLauncher.delegate = self
         
         scrollView.keyboardDismissMode = .onDrag
         
+        professionsCollectionView.delegate = self
+        professionsCollectionView.dataSource = self
+        professionsCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: professionCellReuseIdentifier)
         
-        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, titleDescriptionSeparatorLabel, privacyTypeImage, privacyLabel, titleLabel, titleTextTracker, titleTextField, descriptionTextView, descriptionLabel, descriptionTextTracker, privacySeparatorLabel, specialitiesView, clinicalTypeView, caseStageView, diagnosisView, diagnosisUnresolvedView, diagnosisGenericView)
-        
-        //view.addSubview(shareCaseButton)
+        scrollView.addSubviews(imageBackgroundView, photoImage, infoImageLabel, imageTitleSeparatorLabel, professionSeparatorLabel, professionsView, titleDescriptionSeparatorLabel, privacyTypeImage, privacyLabel, titleLabel, titleTextTracker, titleTextField, descriptionTextView, descriptionLabel, descriptionTextTracker, specialitiesView, clinicalTypeView, caseStageView, diagnosisView, diagnosisUnresolvedView, diagnosisGenericView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -422,14 +450,19 @@ class ShareClinicalCaseViewController: UIViewController {
             privacyLabel.leadingAnchor.constraint(equalTo: privacyTypeImage.trailingAnchor, constant: 10),
             privacyLabel.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
          
-            privacySeparatorLabel.topAnchor.constraint(equalTo: privacyTypeImage.bottomAnchor, constant: 20),
-            privacySeparatorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            privacySeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            privacySeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            professionsView.topAnchor.constraint(equalTo: privacyLabel.bottomAnchor, constant: 20),
+            professionsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            professionsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            professionsView.heightAnchor.constraint(equalToConstant: 62),
             
-            titleTextField.topAnchor.constraint(equalTo: privacySeparatorLabel.bottomAnchor, constant: 20),
-            titleTextField.leadingAnchor.constraint(equalTo: privacySeparatorLabel.leadingAnchor),
-            titleTextField.trailingAnchor.constraint(equalTo: privacySeparatorLabel.trailingAnchor),
+            professionSeparatorLabel.topAnchor.constraint(equalTo: professionsView.bottomAnchor),
+            professionSeparatorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            professionSeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            professionSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            
+            titleTextField.topAnchor.constraint(equalTo: professionSeparatorLabel.bottomAnchor, constant: 20),
+            titleTextField.leadingAnchor.constraint(equalTo: professionSeparatorLabel.leadingAnchor),
+            titleTextField.trailingAnchor.constraint(equalTo: professionSeparatorLabel.trailingAnchor),
             titleTextField.heightAnchor.constraint(equalToConstant: 35),
             
             titleTextTracker.topAnchor.constraint(equalTo: titleTextField.bottomAnchor),
@@ -671,6 +704,18 @@ class ShareClinicalCaseViewController: UIViewController {
         scrollView.resizeScrollViewContentSize(keyboardHeight)
     }
     
+    @objc func goToProfessionsViewController() {
+        let controller = ProfessionListViewController(professionsSelected: professionsSelected)
+        controller.delegate = self
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .label
+        navigationItem.backBarButtonItem = backButton
+                
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     
     @objc func goToSpecialitiesController() {
         let controller = SpecialitiesListViewController(specialitiesSelected: specialitiesSelected)
@@ -760,7 +805,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         
         if let group = group {
             if collectionImages.isEmpty {
-                GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text) { error in
+                GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, professions: professionsSelected) { error in
                     self.progressIndicator.dismiss(animated: true)
                    
                     if let error = error {
@@ -775,7 +820,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                 }
             } else {
                 StorageManager.uploadGroupCaseImage(images: collectionImages, uid: uid, groupId: group.groupId) { imageUrl in
-                    GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage) { error in
+                    GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, professions: self.professionsSelected) { error in
                         self.progressIndicator.dismiss(animated: true)
                        
                         if let error = error {
@@ -792,7 +837,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             }
         } else {
             if collectionImages.isEmpty {
-                CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user) { error in
+                CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user, professions: professionsSelected) { error in
                     //self.dismissLoadingView()
                     if let error = error {
                         print(error.localizedDescription)
@@ -804,7 +849,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             
             else {
                 StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
-                    CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user) { error in
+                    CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user, professions: self.professionsSelected) { error in
                         //self.dismissLoadingView()
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
@@ -821,7 +866,9 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
 
 extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == caseImagesCollectionView {
+        if collectionView == professionsCollectionView {
+            return professionsSelected.count
+        } else if collectionView == caseImagesCollectionView {
             return collectionImages.count
         } else if collectionView == specialitiesCollectionView {
             return specialitiesSelected.count
@@ -833,7 +880,14 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == caseImagesCollectionView {
+        if collectionView == professionsCollectionView {
+            let cell = professionsCollectionView.dequeueReusableCell(withReuseIdentifier: professionCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+            cell.backgroundColor = primaryColor
+            cell.specialityLabel.textColor = .white
+            cell.specialityLabel.text = professionsSelected[indexPath.row].profession
+            return cell
+          
+        }else if collectionView == caseImagesCollectionView {
             let cell = caseImagesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
             cell.delegate = self
             cell.set(image: collectionImages[indexPath.row])
@@ -860,6 +914,8 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
             if collectionImages.count == 1 {
                 return CGSize(width: caseImagesCollectionView.frame.width - 10, height: caseImagesCollectionView.frame.height)
             } else { return CGSize(width: newCellWidth[indexPath.item], height: caseImagesCollectionView.frame.height) }
+        } else if collectionView == professionsCollectionView {
+            return CGSize(width: size(forHeight: 30, forText: professionsSelected[indexPath.item].profession).width + 30, height: 30)
         } else if collectionView == specialitiesCollectionView {
             //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
             //let width = cell.size(forHeight: 50).width
@@ -936,6 +992,13 @@ extension ShareClinicalCaseViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         //descriptionIndicator.isHidden = true
         descriptionTextTracker.isHidden = true
+    }
+}
+
+extension ShareClinicalCaseViewController: ProfessionListViewControllerDelegate {
+    func didTapAddProfessions(profession: [Profession]) {
+        professionsSelected = profession
+        professionsCollectionView.reloadData()
     }
 }
 

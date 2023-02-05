@@ -14,7 +14,7 @@ class PostPrivacyHeader: UICollectionReusableView {
     
     private let separator: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .tertiarySystemFill
         view.layer.cornerRadius = 3
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -23,6 +23,7 @@ class PostPrivacyHeader: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Privacy information"
+        label.textColor = .label
         label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -34,6 +35,7 @@ class PostPrivacyHeader: UICollectionReusableView {
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
+        label.textColor = .secondaryLabel
         return label
     }()
     

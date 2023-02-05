@@ -11,7 +11,7 @@ import AlgoliaSearchClient
 
 struct CaseService {
     
-    static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, completion: @escaping(Error?) -> Void) {
+    static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, professions: [Profession], completion: @escaping(Error?) -> Void) {
         
         let data = ["title": caseTitle,
                     "description": caseDescription,
@@ -23,6 +23,7 @@ struct CaseService {
                     "comments": 0,
                     "bookmarks": 0,
                     "views": 0,
+                    "professions": professions.map({ $0.profession }),
                     "diagnosis": diagnosis as Any,
                     "ownerUid": user.uid as Any,
                     "ownerCategory": user.category.rawValue,

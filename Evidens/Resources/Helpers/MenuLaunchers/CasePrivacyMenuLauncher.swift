@@ -36,14 +36,14 @@ class CasePrivacyMenuLauncher: NSObject {
     
     weak var delegate: CasePrivacyMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 110 + CGFloat(Case.Privacy.allCases.count) * 55
+    private var menuHeight: CGFloat = 110 + CGFloat(Case.Privacy.allCases.count) * 55 + 20
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = UIColor.init(named: "bottomSecondaryMenuBackgroundColor")
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -175,7 +175,7 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostPrivacyCell
-        
+        //cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
         if comesFromGroup {
             cell.configureWithGroupData(group: group)
             cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")

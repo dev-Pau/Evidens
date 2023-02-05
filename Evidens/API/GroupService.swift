@@ -140,7 +140,7 @@ struct GroupService {
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).delete(completion: completion)
     }
     
-    static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, completion: @escaping(Error?) -> Void) {
+    static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, professions: [Profession], completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let caseId = COLLECTION_GROUPS.document(groupId).collection("cases").document().documentID
         
@@ -151,6 +151,7 @@ struct GroupService {
                     "updates": "",
                     "likes": 0,
                     "stage": stage.caseStage,
+                    "professions": professions.map({ $0.profession }),
                     "comments": 0,
                     "bookmarks": 0,
                     "views": 0,

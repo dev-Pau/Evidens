@@ -23,6 +23,7 @@ struct Case {
     let timestamp: Timestamp
     let caseId: String
     let type: CaseType
+    let professions: [Profession]
     var stage: CaseStage
     let privacyOptions: Privacy
     let ownerProfession: String
@@ -145,6 +146,7 @@ struct Case {
         self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
         self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""       
         self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
+        self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
         
         self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .visible
     }

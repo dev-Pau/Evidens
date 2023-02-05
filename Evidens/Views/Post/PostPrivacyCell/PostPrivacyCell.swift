@@ -23,7 +23,7 @@ class PostPrivacyCell: UICollectionViewCell {
     private lazy var postTyeButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = lightColor
+        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.1)
 
         button.configuration?.cornerStyle = .capsule
         
@@ -37,7 +37,7 @@ class PostPrivacyCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -45,7 +45,7 @@ class PostPrivacyCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = grayColor
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -104,14 +104,14 @@ class PostPrivacyCell: UICollectionViewCell {
     }
     
     func set(withText text: String, withSubtitle subtitle: String, withImage image: UIImage) {
-        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         postTypeSubLabel.text = subtitle
         postTypeLabel.text = text
       
     }
     
     func configureWithGroupData(group: Group) {
-        postTyeButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
+        postTyeButton.configuration?.image = Post.PrivacyOptions.group.privacyImage.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         postTypeSubLabel.text = "Members of this group"
         postTypeLabel.text = group.name
     }

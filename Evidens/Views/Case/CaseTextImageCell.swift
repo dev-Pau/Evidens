@@ -118,7 +118,7 @@ class CaseTextImageCell: UICollectionViewCell {
         userPostView.delegate = self
         reviewActionButtonsView.delegate = self
         updateView.delegate = self
-    
+        
         compositionalCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         compositionalCollectionView.register(CaseImageCell.self, forCellWithReuseIdentifier: imageCellReuseIdentifier)
         compositionalCollectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)

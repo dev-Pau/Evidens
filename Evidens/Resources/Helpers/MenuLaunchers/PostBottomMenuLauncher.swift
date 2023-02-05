@@ -49,7 +49,7 @@ class PostBottomMenuLauncher: NSObject {
     
     weak var delegate: PostBottomMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 185
+    private let menuHeight: CGFloat = 185 //110 + 60 + 60 + 30 - 260
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
