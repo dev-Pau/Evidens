@@ -252,9 +252,7 @@
 		5F9F373A28AE4836002C59E4 /* CommentsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */; };
 		5F9FB27B28EC3ACF00BABDFD /* FollowersFollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */; };
 		5F9FB27D28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */; };
-		5F9FB27F28EC4BE800BABDFD /* FollowersCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27E28EC4BE800BABDFD /* FollowersCell.swift */; };
 		5F9FB28128EC4E3400BABDFD /* UsersFollowFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28028EC4E3400BABDFD /* UsersFollowFollowingCell.swift */; };
-		5F9FB28328F41B6400BABDFD /* FollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28228F41B6400BABDFD /* FollowingCell.swift */; };
 		5F9FB28628F42FD500BABDFD /* UserFollow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28528F42FD500BABDFD /* UserFollow.swift */; };
 		5F9FB28828F53EF100BABDFD /* FilterCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */; };
 		5F9FB28A28F68E7B00BABDFD /* ExploreCasesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */; };
@@ -609,9 +607,7 @@
 		5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSectionHeader.swift; sourceTree = "<group>"; };
 		5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingViewController.swift; sourceTree = "<group>"; };
 		5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingSegmentedButtonsView.swift; sourceTree = "<group>"; };
-		5F9FB27E28EC4BE800BABDFD /* FollowersCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersCell.swift; sourceTree = "<group>"; };
 		5F9FB28028EC4E3400BABDFD /* UsersFollowFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersFollowFollowingCell.swift; sourceTree = "<group>"; };
-		5F9FB28228F41B6400BABDFD /* FollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingCell.swift; sourceTree = "<group>"; };
 		5F9FB28528F42FD500BABDFD /* UserFollow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFollow.swift; sourceTree = "<group>"; };
 		5F9FB28728F53EF100BABDFD /* FilterCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCasesCell.swift; sourceTree = "<group>"; };
 		5F9FB28928F68E7B00BABDFD /* ExploreCasesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCasesCell.swift; sourceTree = "<group>"; };
@@ -1694,8 +1690,6 @@
 			isa = PBXGroup;
 			children = (
 				5FA0875228C099EE00D44829 /* SupportSectionCell.swift */,
-				5F9FB27E28EC4BE800BABDFD /* FollowersCell.swift */,
-				5F9FB28228F41B6400BABDFD /* FollowingCell.swift */,
 				5F9FB28028EC4E3400BABDFD /* UsersFollowFollowingCell.swift */,
 			);
 			path = Suppot;
@@ -1858,8 +1852,8 @@
 				5FB2904128910008002FBAE1 /* EditProfileViewController.swift */,
 				5F9A9F802896906100A25152 /* ConfigureSectionViewController.swift */,
 				5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */,
-				5F9A9F842896D88F00A25152 /* Section */,
 				5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */,
+				5F9A9F842896D88F00A25152 /* Section */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -2537,7 +2531,6 @@
 				5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */,
 				5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
-				5F9FB28328F41B6400BABDFD /* FollowingCell.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
@@ -2545,7 +2538,6 @@
 				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,
-				5F9FB27F28EC4BE800BABDFD /* FollowersCell.swift in Sources */,
 				5F9A281D2977D90C0052E618 /* MESecondaryEmptyCell.swift in Sources */,
 				5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */,
 				5F8B7C4628730644005094A5 /* MECharacterIndicatorView.swift in Sources */,

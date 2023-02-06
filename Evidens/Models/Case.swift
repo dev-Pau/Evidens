@@ -67,6 +67,29 @@ struct Case {
         }
     }
     
+    enum CaseMenuOptions: String, CaseIterable {
+        case delete = "Delete case"
+        case update = "Add an update"
+        case solved = "Change to solved"
+        case edit = "Edit diagnosis"
+        case report = "Report case"
+        
+        var menuOptionsImage: UIImage {
+            switch self {
+            case .delete:
+                return UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .update:
+                return UIImage(systemName: "book", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .solved:
+                return UIImage(systemName: "checkmark.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .edit:
+                return UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .report:
+                return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            }
+        }
+    }
+    
     enum FilterCategories: String, CaseIterable {
         case explore = "Explore"
         case all = "All"

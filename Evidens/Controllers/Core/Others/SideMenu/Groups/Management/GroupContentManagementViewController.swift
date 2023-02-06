@@ -31,7 +31,6 @@ class GroupContentManagementViewController: UIViewController, UINavigationContro
     
     private lazy var browserSegmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
         let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
-        //segmentedButtonsView.setLabelsTitles(titles: ["Members", "Requests", "Invites", "Blocked"])
         segmentedButtonsView.setLabelsTitles(titles: ["Posts", "Cases"])
         segmentedButtonsView.translatesAutoresizingMaskIntoConstraints = false
         segmentedButtonsView.backgroundColor = .systemBackground
@@ -715,6 +714,10 @@ extension GroupContentManagementViewController: HomeCellDelegate {
 }
 
 extension GroupContentManagementViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+        #warning("implement")
+    }
+    
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) { return }
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) { return }
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) { return }

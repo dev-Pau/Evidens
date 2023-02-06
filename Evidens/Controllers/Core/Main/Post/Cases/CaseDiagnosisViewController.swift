@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CaseDiagnosisViewControllerDelegate: AnyObject {
-    func handleAddDiagnosis(_ text: String)
+    func handleAddDiagnosis(_ text: String, caseId: String)
 }
 
 class CaseDiagnosisViewController: UIViewController {
@@ -145,7 +145,7 @@ class CaseDiagnosisViewController: UIViewController {
                     // User changes state to solved without diagnosis
                     CaseService.uploadCaseStage(withCaseId: self.caseId) { uploaded in
                         if uploaded {
-                            self.delegate?.handleAddDiagnosis("")
+                            self.delegate?.handleAddDiagnosis("", caseId: self.caseId)
                             let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
                             popUpView.showTopPopup(inView: self.view)
                             self.dismiss(animated: true)
@@ -160,7 +160,7 @@ class CaseDiagnosisViewController: UIViewController {
                     self.dismissLoadingView()
                     if uploaded {
                         // Diagnosis updated, update previous view controllers
-                        self.delegate?.handleAddDiagnosis(self.diagnosisTextView.text)
+                        self.delegate?.handleAddDiagnosis(self.diagnosisTextView.text, caseId: self.caseId)
                         let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
                         popUpView.showTopPopup(inView: self.view)
 
@@ -172,7 +172,7 @@ class CaseDiagnosisViewController: UIViewController {
             }
 
         } else {
-            delegate?.handleAddDiagnosis(diagnosisTextView.text)
+            delegate?.handleAddDiagnosis(diagnosisTextView.text, caseId: caseId)
             dismiss(animated: true)
         }
 

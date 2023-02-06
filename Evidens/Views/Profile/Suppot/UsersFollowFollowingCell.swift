@@ -7,10 +7,23 @@
 
 import UIKit
 
+protocol UsersFollowCellDelegate: AnyObject {
+    func didFollowOnFollower(_ cell: UICollectionViewCell, user: User)
+    func didUnfollowOnFollower(_ cell: UICollectionViewCell, user: User)
+}
 
-class UsersFollowFollowingCell: UITableViewCell {
+protocol UsersFollowingCellDelegate: AnyObject {
+    func didFollowOnFollowing(_ cell: UICollectionViewCell, user: User)
+    func didUnfollowOnFollowing(_ cell: UICollectionViewCell, user: User)
+}
+
+
+class UsersFollowFollowingCell: UICollectionViewCell {
     
     //MARK: - Properties
+    
+    weak var followerDelegate: UsersFollowCellDelegate?
+    weak var followingDelegate: UsersFollowingCellDelegate?
     
     var user: User? {
         didSet {
@@ -71,32 +84,37 @@ class UsersFollowFollowingCell: UITableViewCell {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 1
         
-        button.addTarget(self, action: #selector(handleFollowUnfollow), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleFollow), for: .touchUpInside)
         
         button.isUserInteractionEnabled = true
         
         return button
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     //MARK: - Lifecycle
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         isUpdatingFollowState = false
         
-        contentView.heightAnchor.constraint(equalToConstant: 65).isActive = true
         backgroundColor = .systemBackground
         
-        contentView.addSubviews(followButton, profileImageView, nameLabel, userCategoryLabel)
+        addSubviews(followButton, profileImageView, nameLabel, userCategoryLabel, separatorView)
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             
             followButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            followButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            followButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             followButton.widthAnchor.constraint(equalToConstant: 100),
             followButton.heightAnchor.constraint(equalToConstant: 30),
             
@@ -107,21 +125,22 @@ class UsersFollowFollowingCell: UITableViewCell {
             userCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            
+            separatorView.topAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
         
         followButton.configurationUpdateHandler = { [unowned self] button in
-            var config = button.configuration
-            config?.showsActivityIndicator = self.isUpdatingFollowState!
+            let config = button.configuration
             button.isUserInteractionEnabled = self.isUpdatingFollowState! ? false : true
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 14, weight: .bold)
-            config?.attributedTitle = self.isUpdatingFollowState! ? "" : AttributedString((button.configuration?.title)!, attributes: container)
             button.configuration = config
         }
     }
-    
+  
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -148,32 +167,28 @@ class UsersFollowFollowingCell: UITableViewCell {
         followButton.configuration?.baseBackgroundColor = userIsFollowing ? .secondarySystemGroupedBackground : .label
         followButton.configuration?.baseForegroundColor = userIsFollowing ? .label : .systemBackground
         followButton.configuration?.background.strokeColor = userIsFollowing ? .quaternarySystemFill : .label
+        followButton.menu = userIsFollowing ? addMenuItems() : nil
     }
     
-    @objc func handleFollowUnfollow() {
-        guard let userIsFollowing = userIsFollowing, let uid = user?.uid else { return }
-        isUpdatingFollowState = true
-        if userIsFollowing {
-            // Handle unfollow
-            UserService.unfollow(uid: uid) { error in
-                self.isUpdatingFollowState = false
-                if let _ = error {
-                    return
-                }
-                self.userIsFollowing = false
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
-            }
-        } else {
-            // Handle follow
-            UserService.follow(uid: uid) { error in
-                self.isUpdatingFollowState = false
-                if let _ = error {
-                    return
-                }
-                self.userIsFollowing = true
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
-            }
-        }
+    private func addMenuItems() -> UIMenu? {
+        guard let user = user else { return nil }
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Unfollow \(user.firstName!)", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
+                self.isUpdatingFollowState = true
+                self.followerDelegate?.didUnfollowOnFollower(self, user: user)
+                self.followingDelegate?.didUnfollowOnFollowing(self, user: user)
+            })
+        ])
+        followButton.showsMenuAsPrimaryAction = true
+        return menuItems
     }
+    
+    
+    @objc func handleFollow() {
+        guard let user = user else { return }
+        followerDelegate?.didFollowOnFollower(self, user: user)
+        followingDelegate?.didFollowOnFollowing(self, user: user)
+    }
+     
 }
 

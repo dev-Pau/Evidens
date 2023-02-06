@@ -13,8 +13,6 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 
 class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
-    var caseMenuLauncher = CaseOptionsMenuLauncher()
-    
     var user: User
     
     var casesLastSnapshot: QueryDocumentSnapshot?
@@ -192,6 +190,48 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
 
 
 extension CaseViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+        switch option {
+        case .delete:
+            #warning("Implement delete")
+            print("delete")
+        case .update:
+            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            controller.controllerIsPushed = true
+#warning("Implement delegate")
+            controller.delegate = self
+            
+            navigationController?.pushViewController(controller, animated: true)
+        case .solved:
+            let controller = CaseDiagnosisViewController(diagnosisText: "")
+            controller.stageIsUpdating = true
+#warning("Implement delete")
+            controller.delegate = self
+            controller.caseId = clinicalCase.caseId
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        case .report:
+            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+        case .edit:
+            let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
+            controller.diagnosisIsUpdating = true
+#warning("Implement delete")
+            controller.delegate = self
+            controller.caseId = clinicalCase.caseId
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        }
+    }
+    
 
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
@@ -242,11 +282,7 @@ extension CaseViewController: CaseCellDelegate {
         
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) {
-        caseMenuLauncher.clinicalCase = clinicalCase
-        caseMenuLauncher.delegate = self
-        caseMenuLauncher.showImageSettings(in: view)
-    }
+    func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) { return }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
         return
@@ -375,73 +411,6 @@ extension CaseViewController: CaseCellDelegate {
     }
 }
 
-extension CaseViewController: CaseOptionsMenuLauncherDelegate {
-    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
-        if follow {
-            // Unfollow user
-            UserService.unfollow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
-                reportPopup.showTopPopup(inView: self.view)
-            }
-        } else {
-            // Follow user
-            UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
-                reportPopup.showTopPopup(inView: self.view)
-            }
-        }
-    }
-    
-    func didTapEditDiagnosis(forCaseUid uid: String, withDiagnosisText text: String) {
-        let controller = CaseDiagnosisViewController(diagnosisText: text)
-        controller.diagnosisIsUpdating = true
-        controller.caseId = uid
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    func didTapAddDiagnosis(forCaseUid uid: String) {
-        let controller = CaseDiagnosisViewController(diagnosisText: "")
-        controller.diagnosisIsUpdating = true
-        controller.caseId = uid
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    func didTapAddCaseUpdate(forCase clinicalCase: Case) {
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    func didTapChangeStateToSolved(forCaseUid uid: String) {
-        let controller = CaseDiagnosisViewController(diagnosisText: "")
-        controller.stageIsUpdating = true
-        controller.caseId = uid
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
-    func didTapDeleteCase() {
-        print("Delete Case")
-    }
-    
-    func didTapReportCase(forCaseUid uid: String) {
-        reportCaseAlert {
-            DatabaseManager.shared.reportCase(forUid: uid) { reported in
-                if reported {
-                    let reportPopup = METopPopupView(title: "Case reported", image: "flag.fill", popUpType: .destructive)
-                    reportPopup.showTopPopup(inView: self.view)
-                }
-            }
-        }
-    }
-}
-
 extension CaseViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
@@ -554,7 +523,39 @@ extension CaseViewController: CommentCaseViewControllerDelegate {
             collectionView.reloadData()
         }
     }
+}
+
+extension CaseViewController: CaseUpdatesViewControllerDelegate {
+    func didAddUpdateToCase(withUpdates updates: [String], caseId: String) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            cases[index].caseUpdates = updates
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+}
+
+extension CaseViewController: CaseDiagnosisViewControllerDelegate {
+    func handleAddDiagnosis(_ text: String, caseId: String) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            cases[index].stage = .resolved
+            cases[index].diagnosis = text
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
     
     
 }
-

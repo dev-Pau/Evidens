@@ -9,6 +9,7 @@ import UIKit
 import Firebase
 import MessageUI
 
+private let loadingHeaderCellReuseIdentifier = "LoadingHeaderCellReuseIdentifier"
 private let exploreHeaderCellReuseIdentifier = "ExploreHeaderCellReuseIdentifier"
 private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
@@ -20,13 +21,12 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     var users = [User]()
     private var cases = [Case]()
     
-    var loaded = false
+    private var casesLoaded = false
     
     var displaysExploringWindow = false
     var displaysFilteredWindow = false
     
     private var displayState: DisplayState = .none
-    
     
     var casesLastSnapshot: QueryDocumentSnapshot?
     
@@ -36,8 +36,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private var casesCollectionView: UICollectionView!
     
     private var magicalValue: CGFloat = 0
-    
-    private var filterCollectionView: UICollectionView!
     
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
@@ -59,44 +57,64 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         casesCollectionView.refreshControl = refresher
-        //filterCollectionView.selectItem(at: IndexPath(item: 2, section: 0), animated: true, scrollPosition: [])
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
-        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
         self.navigationController?.delegate = self
 
-        if !loaded {
+        if !casesLoaded {
             casesCollectionView.reloadData()
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
-        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.navigationController?.navigationBar.standardAppearance.shadowColor = .separator
-        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .separator
-    }
-    
     private func fetchFirstGroupOfCases() {
-        CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
-            self.casesLastSnapshot = snapshot.documents.last
-            self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            self.checkIfUserLikedCase()
-            self.checkIfUserBookmarkedCase()
-            self.casesCollectionView.refreshControl?.endRefreshing()
-            self.cases.forEach { clinicalCase in
-                UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                    self.users.append(user)
-                    self.loaded = true
-                    self.casesCollectionView.reloadData()
+        if displaysFilteredWindow {
+            
+            CaseService.fetchCasesWithProfession(lastSnapshot: nil, profession: navigationItem.title!) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.casesCollectionView.refreshControl?.endRefreshing()
+                self.cases.forEach { clinicalCase in
+                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                        self.users.append(user)
+                        self.casesLoaded = true
+                        self.casesCollectionView.reloadData()
+                    }
+                }
+            }
+        } else if displaysExploringWindow {
+            #warning("Need to find a way to get the trending")
+            CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.casesCollectionView.refreshControl?.endRefreshing()
+                self.cases.forEach { clinicalCase in
+                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                        self.users.append(user)
+                        self.casesLoaded = true
+                        self.casesCollectionView.reloadData()
+                    }
+                }
+            }
+        } else {
+            // Main cases view
+            CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.casesCollectionView.refreshControl?.endRefreshing()
+                self.cases.forEach { clinicalCase in
+                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                        self.users.append(user)
+                        self.casesLoaded = true
+                        self.casesCollectionView.reloadData()
+                    }
                 }
             }
         }
@@ -143,30 +161,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             return flowLayout
         }
     
-    private func createFilterCellLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .fractionalHeight(1)))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .absolute(30)), subitems: [item])
-            let section = NSCollectionLayoutSection(group: group)
-            section.orthogonalScrollingBehavior = .continuous
-            section.interGroupSpacing = 10
-            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-            return section
-        }
-        return layout
-    }
-    
     private func configureCollectionView() {
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowLayout())
-        filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        filterCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        filterCollectionView.bounces = true
-        filterCollectionView.alwaysBounceVertical = false
-        filterCollectionView.alwaysBounceHorizontal = true
-        
+
         if displaysExploringWindow || displaysFilteredWindow {
             view.addSubviews(casesCollectionView)
             casesCollectionView.frame = view.bounds
@@ -195,8 +193,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
         }
         
+        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderCellReuseIdentifier)
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(SkeletonCasesCell.self, forCellWithReuseIdentifier: caseSkeletonCellReuseIdentifier)
         casesCollectionView.register(ExploreHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier)
 
         casesCollectionView.delegate = self
@@ -214,61 +212,31 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == filterCollectionView {
-            return filterCategories.allCases.count + 2
-        }
-        
-        if !loaded {
-            return 6
-        }
-        return cases.count
+        return casesLoaded ? cases.count : 0
     }
     
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if displaysExploringWindow {
+        if casesLoaded {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier, for: indexPath) as! ExploreHeaderCell
             header.delegate = self
             return header
+        } else {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderCellReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
         }
-        
-        return UICollectionReusableView()
+
     }
-     
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if displaysExploringWindow {
-            return CGSize(width: view.frame.width, height: 350)
+        if casesLoaded {
+            return displaysExploringWindow ? CGSize(width: view.frame.width, height: 350) : CGSize.zero
+        } else {
+            return CGSize(width: view.frame.width, height: 55)
         }
-        return CGSize.zero
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        if collectionView == filterCollectionView {
-            
-            if indexPath.row == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! ExploreCasesCell
-                return cell
-            }
-            
-            if indexPath.row == 1 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: separatorCellReuseIdentifier, for: indexPath) as! SeparatorCell
-                return cell
-            }
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
-            cell.tagsLabel.text = filterCategories.allCases[indexPath.row - 2].rawValue
-            cell.delegate = self
-            return cell
-        }
-        
-        
-        if !loaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseSkeletonCellReuseIdentifier, for: indexPath) as! SkeletonCasesCell
-            return cell
-        }
-        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
         cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
         let userIndex = users.firstIndex { user in
@@ -295,26 +263,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             getMoreCases()
         }
     }
-    
-    /*
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if magicalValue == 0 { magicalValue = scrollView.contentOffset.y }
-        
-        if scrollView.contentOffset.y <= magicalValue + 1  {
-            self.exploreCasesToolbar.setBackgroundImage(UIImage(), forToolbarPosition: .topAttached, barMetrics: .default)
-            self.exploreCasesToolbar.setShadowImage(UIImage(), forToolbarPosition: .topAttached)
-        } else {
-            self.exploreCasesToolbar.setShadowImage(UIImage(named: ""), forToolbarPosition: .topAttached)
-            self.exploreCasesToolbar.setBackgroundImage(UIImage(named: ""), forToolbarPosition: .topAttached, barMetrics: .default)
-        }
-    }
-     */
-    /*
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        let selectedIndexPath = IndexPath(item: 2, section: 0)
-        collectionView.selectItem(at: selectedIndexPath, animated: true, scrollPosition: [])
-    }
-     */
 }
 
 extension CasesViewController: ExploreCasesToolbarDelegate {
@@ -346,7 +294,7 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                 self.cases.forEach { clinicalCase in
                     UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
                         self.users.append(user)
-                        self.loaded = true
+                        self.casesLoaded = true
                         self.casesCollectionView.reloadData()
                     }
                 }
@@ -363,7 +311,7 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                 self.cases.forEach { clinicalCase in
                     UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
                         self.users.append(user)
-                        self.loaded = true
+                        self.casesLoaded = true
                         self.casesCollectionView.reloadData()
                     }
                 }
@@ -374,6 +322,53 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
 
 
 extension CasesViewController: CaseCellDelegate {
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+        switch option {
+        case .delete:
+            break
+        case .update:
+            let index = cases.firstIndex { homeCase in
+                if homeCase.caseId == clinicalCase.caseId {
+                    return true
+                }
+                return false
+            }
+            
+            if let index = index {
+                cases[index].caseUpdates = clinicalCase.caseUpdates
+                casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        case .solved:
+            let index = cases.firstIndex { homeCase in
+                if homeCase.caseId == clinicalCase.caseId {
+                    return true
+                }
+                return false
+            }
+            
+            if let index = index {
+                cases[index].stage = .resolved
+                cases[index].diagnosis = clinicalCase.diagnosis
+                casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        case .edit:
+            let index = cases.firstIndex { homeCase in
+                if homeCase.caseId == clinicalCase.caseId {
+                    return true
+                }
+                return false
+            }
+            
+            if let index = index {
+                cases[index].stage = .resolved
+                cases[index].diagnosis = clinicalCase.diagnosis
+                casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        case .report:
+            break
+        }
+    }
+    
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         
@@ -476,14 +471,16 @@ extension CasesViewController: CaseCellDelegate {
             if clinicalCase.didLike {
                 //Unlike post here
                 CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                    //currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                     self.cases[indexPath.row].didLike = false
+                    self.cases[indexPath.row].likes -= 1
                 }
             } else {
                 //Like post here
                 CaseService.likeCase(clinicalCase: clinicalCase) { _ in
-                    //currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
+                    self.cases[indexPath.row].likes += 1
                     NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
@@ -514,8 +511,8 @@ extension CasesViewController: ZoomTransitioningDelegate {
 
 extension CasesViewController {
     func getMoreCases() {
-        if indexSelected == 1 {
-            CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
+        if displaysFilteredWindow {
+            CaseService.fetchCasesWithProfession(lastSnapshot: casesLastSnapshot, profession: navigationItem.title!) { snapshot in
                 self.casesLastSnapshot = snapshot.documents.last
                 let documents = snapshot.documents
                 let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
@@ -530,65 +527,48 @@ extension CasesViewController {
                     }
                 }
             }
-        }
-        
-        if indexSelected == 2 {
-            // Recently uploaded
-            CaseService.fetchLastUploadedClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
-                self.casesLastSnapshot = snapshot.documents.last
-                let documents = snapshot.documents
-                let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                self.cases.append(contentsOf: newCases)
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                
-                newCases.forEach { clinicalCase in
-                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                        self.users.append(user)
-                        self.casesCollectionView.reloadData()
-                    }
-                }
-            }
-        }
-    }
-}
-
-extension CasesViewController: FilterCasesCellDelegate {
-    func didTapFilterImage(_ cell: UICollectionViewCell) {
-        if let indexPath = filterCollectionView.indexPath(for: cell) {
-            if let cell = filterCollectionView.cellForItem(at: indexPath) as? FilterCasesCell {
-                let optionTapped = filterCategories.allCases[indexPath.row]
-                if cell.isSelected {
-                    print("Clear filter here")
-                    return
-                }
-                print("Open options")
-                switch optionTapped {
-
-                case .all:
-                    break
-                /*
-                case .trending:
-                    break
-                case .specialities:
-                    break
-                case .details:
-                   
-                    let controller = ClinicalTypeViewController(selectedTypes: [""])
-                    controller.controllerIsPresented = true
-                    controller.delegate = self
-                    let nav = UINavigationController(rootViewController: controller)
-                    nav.modalPresentationStyle = .fullScreen
-                    present(nav, animated: true, completion: nil)
-                 */
-                case .recents:
+            #warning("Need to put an else if with DisplaysExploreWidnow to show trending")
+        } else {
+            
+            if indexSelected == 1 {
+                CaseService.fetchClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
+                    self.casesLastSnapshot = snapshot.documents.last
+                    let documents = snapshot.documents
+                    let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                    self.cases.append(contentsOf: newCases)
+                    self.checkIfUserLikedCase()
+                    self.checkIfUserBookmarkedCase()
                     
-                    break
+                    newCases.forEach { clinicalCase in
+                        UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                            self.users.append(user)
+                            self.casesCollectionView.reloadData()
+                        }
+                    }
                 }
-                 
+            }
+            
+            if indexSelected == 2 {
+                // Recently uploaded
+                CaseService.fetchLastUploadedClinicalCases(lastSnapshot: casesLastSnapshot) { snapshot in
+                    self.casesLastSnapshot = snapshot.documents.last
+                    let documents = snapshot.documents
+                    let newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                    self.cases.append(contentsOf: newCases)
+                    self.checkIfUserLikedCase()
+                    self.checkIfUserBookmarkedCase()
+                    
+                    newCases.forEach { clinicalCase in
+                        UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
+                            self.users.append(user)
+                            self.casesCollectionView.reloadData()
+                        }
+                    }
+                }
             }
         }
     }
+        
 }
 
 extension CasesViewController: ExploreHeaderCellDelegate {

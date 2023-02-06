@@ -1080,7 +1080,7 @@ extension ShareClinicalCaseViewController: CaseStageViewDelegate {
  */
 
 extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
-    func handleAddDiagnosis(_ text: String) {
+    func handleAddDiagnosis(_ text: String, caseId: String) {
         diagnosisText = text
         configureDiagnosisView()
     }

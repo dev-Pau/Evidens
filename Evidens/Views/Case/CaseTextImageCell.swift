@@ -191,7 +191,8 @@ class CaseTextImageCell: UICollectionViewCell {
         
         userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-       
+        userPostView.dotsImageButton.menu = addMenuItems()
+        
         descriptionCaseLabel.text = viewModel.caseDescription
         
         if viewModel.caseResolvedWithDiagnosis {
@@ -233,18 +234,6 @@ class CaseTextImageCell: UICollectionViewCell {
     func set(user: User) {
         guard let viewModel = viewModel else { return }
         self.user = user
-        
-        //userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
-        
-        /*
-        if viewModel.caseIsAnonymous {
-            #warning("Choose anonymous image")
-            userPostView.profileImageView.image = UIImage(systemName: "")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        } else {
-            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-        }
-         */
-        
         if viewModel.caseIsAnonymous {
             #warning("Add anonymous images")
             updateView.profileImageView.image = UIImage(named: "")
@@ -274,7 +263,49 @@ class CaseTextImageCell: UICollectionViewCell {
             reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
-       
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        if uid == viewModel.clinicalCase.ownerUid {
+            // Owner
+            if viewModel.clinicalCase.stage == .resolved {
+                let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                    UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
+                    }),
+                    UIAction(title: Case.CaseMenuOptions.edit.rawValue, image: Case.CaseMenuOptions.edit.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .edit)
+                    })
+                   
+                ])
+                userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+                return menuItems
+            } else {
+                let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                    UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
+                    }),
+                    UIAction(title: Case.CaseMenuOptions.update.rawValue, image: Case.CaseMenuOptions.update.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .update)
+                    }),
+                    UIAction(title: Case.CaseMenuOptions.solved.rawValue, image: Case.CaseMenuOptions.solved.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .solved)
+                    })
+                ])
+                userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+                return menuItems
+            }
+        } else {
+            //  Not owner
+            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                UIAction(title: Case.CaseMenuOptions.report.rawValue, image: Case.CaseMenuOptions.report.menuOptionsImage, handler: { (_) in
+                    self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
+                })
+            ])
+            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        }
     }
     
     @objc func didTapClinicalCase() {
@@ -336,13 +367,8 @@ extension CaseTextImageCell: MEUserPostViewDelegate {
         guard let viewModel = viewModel, let user = user, !viewModel.caseIsAnonymous else { return }
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
-    
-    func didTapThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(self, didPressThreeDotsFor: viewModel.clinicalCase)
-    }
-    
-    
+
+    func didTapThreeDots() { return }
 }
 
 extension CaseTextImageCell: MEPostActionButtonsDelegate {

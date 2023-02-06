@@ -7,11 +7,12 @@
 
 import UIKit
 
+private let emptyUpdatesCellReuseIdentifier = "EmptyUpdatesCellReuseIdentifier"
 private let updateCaseCellReuseIdentifier = "UpdateCaseCellReuseIdentifier"
 private let diagnosisCaseCellReuseIdentifier = "DiagnosisCaseCellReuseIdentifier"
 
 protocol CaseUpdatesViewControllerDelegate: AnyObject {
-    func didAddUpdateToCase(withUpdates updates: [String])
+    func didAddUpdateToCase(withUpdates updates: [String], caseId: String)
 }
 
 class CaseUpdatesViewController: UIViewController {
@@ -24,6 +25,7 @@ class CaseUpdatesViewController: UIViewController {
     
     private var clinicalCase: Case
     private var user: User
+    private var updatesLoaded: Bool = false
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -32,22 +34,10 @@ class CaseUpdatesViewController: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        //collectionView.bounces = true
-        //collectionView.alwaysBounceVertical = true
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
         collectionView.showsVerticalScrollIndicator = false
-        collectionView.isHidden = true
         return collectionView
-    }()
-    
-    private let emptyUpdatesLabel: UILabel = {
-        let label = UILabel()
-        label.text = "This case doesn't have any updates"
-        label.textAlignment = .center
-        label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 21, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
-        return label
     }()
     
     override func viewDidLoad() {
@@ -69,15 +59,9 @@ class CaseUpdatesViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Updates"
-        
-        if !controllerIsPushed {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = .label
-        } else {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(handleAddUpdate))
-            navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        }
+        title = "Case updates"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(handleAddUpdate))
+        navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }
     
     private func configureCollectionView() {
@@ -87,8 +71,11 @@ class CaseUpdatesViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
+
+        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyUpdatesCellReuseIdentifier)
         collectionView.register(UpdateCaseCell.self, forCellWithReuseIdentifier: updateCaseCellReuseIdentifier)
         collectionView.register(DiagnosisCaseCell.self, forCellWithReuseIdentifier: diagnosisCaseCellReuseIdentifier)
+        
         if clinicalCase.diagnosis != "" {
             clinicalCase.caseUpdates.append(clinicalCase.diagnosis)
             clinicalCase.caseUpdates.reverse()
@@ -99,22 +86,8 @@ class CaseUpdatesViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        view.addSubviews(emptyUpdatesLabel)
-        NSLayoutConstraint.activate([
-            emptyUpdatesLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            emptyUpdatesLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        ])
-        
-        if clinicalCase.caseUpdates.isEmpty {
-            emptyUpdatesLabel.isHidden = false
-            collectionView.isHidden = true
-        } else {
-            emptyUpdatesLabel.isHidden = true
-            collectionView.isHidden = false
-        }
-        
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        navigationItem.rightBarButtonItem?.tintColor = clinicalCase.ownerUid == uid ? .black : .white
+        navigationItem.rightBarButtonItem?.tintColor = clinicalCase.ownerUid == uid ? .label : .clear
         navigationItem.rightBarButtonItem?.isEnabled = clinicalCase.ownerUid == uid ? true : false
     }
     
@@ -145,10 +118,16 @@ class CaseUpdatesViewController: UIViewController {
 
 extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return clinicalCase.caseUpdates.count
+        return clinicalCase.caseUpdates.isEmpty ? 1 : clinicalCase.caseUpdates.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if clinicalCase.caseUpdates.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyUpdatesCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.delegate = self
+            cell.configure(image: nil, title: "This case does not have any updates - yet.", description: "Check back for all the new updates that might get posted.", buttonText: .dismiss)
+            return cell
+        }
         
         if clinicalCase.diagnosis != "" && indexPath.row == 0 {
             // Diagnosis added by the user
@@ -191,9 +170,15 @@ extension CaseUpdatesViewController: AddCaseUpdateViewControllerDelegate {
                 let positionToAdd = self.clinicalCase.diagnosis != "" ? 1 : 0
                 self.clinicalCase.caseUpdates.insert(text, at: positionToAdd)
                 self.collectionView.reloadData()
-                self.delegate?.didAddUpdateToCase(withUpdates: self.clinicalCase.caseUpdates.reversed())
+                self.delegate?.didAddUpdateToCase(withUpdates: self.clinicalCase.caseUpdates.reversed(), caseId: self.clinicalCase.caseId)
             }
         }
+    }
+}
+
+extension CaseUpdatesViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        navigationController?.popViewController(animated: true)
     }
 }
 

@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 import AlgoliaSearchClient
 
 struct CaseService {
@@ -113,6 +114,36 @@ struct CaseService {
             }
         }
     }
+    
+    static func fetchCasesWithProfession(lastSnapshot: QueryDocumentSnapshot?, profession: String, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: profession).limit(to: 10)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_CASES.whereField("professions", isEqualTo: profession).start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    /*
+     static func fetchCasesWithDetailsFilter(fieldToQuery: String, valueToQuery: String) {
+         COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in
+             guard let documents = snapshot?.documents else { return }
+             let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+             cases.forEach { clinicalCase in
+                 print(clinicalCase.caseDescription)
+             }
+         }
+     }
+     */
      
     
     static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, completion: @escaping(Bool) -> Void) {
@@ -331,18 +362,6 @@ struct CaseService {
                 completion(cases)
             }
         })
-    }
-    
-    // Filter
-    
-    static func fetchCasesWithDetailsFilter(fieldToQuery: String, valueToQuery: String) {
-        COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else { return }
-            let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            cases.forEach { clinicalCase in
-                print(clinicalCase.caseDescription)
-            }
-        }
     }
 }
 

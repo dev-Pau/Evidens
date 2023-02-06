@@ -12,7 +12,7 @@ class ExploreFooter: UICollectionReusableView {
     private let dividerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = lightColor
+        view.backgroundColor = .quaternarySystemFill
         return view
     }()
     
@@ -21,7 +21,7 @@ class ExploreFooter: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Trending"
         label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     

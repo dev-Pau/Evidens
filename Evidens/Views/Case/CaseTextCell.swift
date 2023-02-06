@@ -20,8 +20,8 @@ class CaseTextCell: UICollectionViewCell {
     
     weak var reviewDelegate: ReviewContentGroupDelegate?
     
-    
     weak var delegate: CaseCellDelegate?
+    
     private let cellContentView = UIView()
     
     private lazy var caseStateButton: UIButton = {
@@ -170,9 +170,9 @@ class CaseTextCell: UICollectionViewCell {
         caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
         caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
     
-        
         userPostView.postTimeLabel.text = viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
+        userPostView.dotsImageButton.menu = addMenuItems()
         
         descriptionCaseLabel.text = viewModel.caseDescription
         
@@ -206,6 +206,49 @@ class CaseTextCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        if uid == viewModel.clinicalCase.ownerUid {
+            // Owner
+            if viewModel.clinicalCase.stage == .resolved {
+                let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                    UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
+                    }),
+                    UIAction(title: Case.CaseMenuOptions.edit.rawValue, image: Case.CaseMenuOptions.edit.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .edit)
+                    })
+                   
+                ])
+                userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+                return menuItems
+            } else {
+                let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                    UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
+                    }),
+                    UIAction(title: Case.CaseMenuOptions.update.rawValue, image: Case.CaseMenuOptions.update.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .update)
+                    }),
+                    UIAction(title: Case.CaseMenuOptions.solved.rawValue, image: Case.CaseMenuOptions.solved.menuOptionsImage, handler: { (_) in
+                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .solved)
+                    })
+                ])
+                userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+                return menuItems
+            }
+        } else {
+            //  Not owner
+            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                UIAction(title: Case.CaseMenuOptions.report.rawValue, image: Case.CaseMenuOptions.report.menuOptionsImage, handler: { (_) in
+                    self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
+                })
+            ])
+            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        }
     }
     
     func set(user: User) {
@@ -277,10 +320,7 @@ extension CaseTextCell: MEUserPostViewDelegate {
         delegate?.clinicalCase(self, wantsToShowProfileFor: user)
     }
     
-    func didTapThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.clinicalCase(self, didPressThreeDotsFor: viewModel.clinicalCase)
-    }
+    func didTapThreeDots() { return }
 }
 
 extension CaseTextCell: MEPostActionButtonsDelegate {
