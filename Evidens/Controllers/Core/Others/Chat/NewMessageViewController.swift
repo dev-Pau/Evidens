@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
@@ -21,6 +22,8 @@ class NewMessageViewController: UIViewController {
     private var users = [User]()
     private var filteredUsers = [User]()
     private var usersLoaded: Bool = false
+    
+    private var usersLastSnapshot: QueryDocumentSnapshot?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -58,7 +61,9 @@ class NewMessageViewController: UIViewController {
     
     private func fetchFirstGroupOfUsers() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        UserService.fetchFollowing(forUid: uid) { uids in
+        UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { snapshot in
+            self.usersLastSnapshot = snapshot.documents.last!
+            let uids = snapshot.documents.map({ $0.documentID })
             UserService.fetchUsers(withUids: uids) { users in
                 self.users = users
                 self.filteredUsers = users
@@ -238,74 +243,3 @@ extension NewMessageViewController: ChatViewControllerDelegate {
     }
     
 }
-
-
-//MARK: - UITableViewDelegate, UITableViewDataSource
-/*
- extension NewMessageViewController: UITableViewDelegate, UITableViewDataSource {
- 
- func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
- return users.count
- }
- 
- func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
- let cell = tableView.dequeueReusableCell(withIdentifier: reusableIdentifier, for: indexPath) as! NewConversationCell
- cell.set(user: users[indexPath.row])
- return cell
- }
- 
- func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
- tableView.deselectRow(at: indexPath, animated: true)
- //Start conversation
- let targetUserData = users[indexPath.row]
- 
- dismiss(animated: true, completion: { [weak self] in
- self?.completion?(targetUserData)
- })
- }
- 
- func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
- return 70
- }
- }
- 
- extension NewConversationViewController: UISearchBarDelegate {
- 
- func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
- guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
- 
- searchBar.resignFirstResponder()
- users.removeAll()
- UserService.fetchUsersWithText(text: text.trimmingCharacters(in: .whitespaces)) { users in
- self.users = users
- self.filterUsers()
- 
- }
- }
- 
- func filterUsers() {
- //Update the UI: Either show results or show no results label
- guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
- 
- let fetchedUsers: [User] = users.filter { user in
- if user.uid == uid { return false }
- return true
- }
- 
- users = fetchedUsers
- updateUI()
- }
- 
- func updateUI() {
- if users.isEmpty {
- noResultsLabel.isHidden = false
- tableView.isHidden = true
- } else {
- noResultsLabel.isHidden = true
- tableView.isHidden = false
- tableView.reloadData()
- 
- }
- }
- }
- */

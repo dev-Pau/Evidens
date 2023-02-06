@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
@@ -71,7 +72,9 @@ class FollowersFollowingViewController: UIViewController {
     }()
     
     private var followersLoaded: Bool = false
+    private var followersLastSnapshot: QueryDocumentSnapshot?
     private var followingLoaded: Bool = false
+    private var followingLastSnapshot: QueryDocumentSnapshot?
     private var isFetchingOrDidFetchFollowing: Bool = false
     
     private var followers = [User]()
@@ -156,33 +159,80 @@ class FollowersFollowingViewController: UIViewController {
     }
     
     private func fetchFollowerUsers() {
-        UserService.fetchFollowers(forUid: user.uid!, completion: { uids in
-            uids.forEach { uid in
-                UserService.fetchUser(withUid: uid!) { user in
-                    self.followers.append(user)
-                    UserService.checkIfUserIsFollowed(uid: uid!) { followed in
-                        self.followerIsFollowed.append(UserFollow(dictionary: ["uid": uid!, "isFollow": followed]))
-                        if self.followerIsFollowed.count == uids.count {
+        UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: nil) { snapshot in
+            self.followersLastSnapshot = snapshot.documents.last
+            let uids = snapshot.documents.map({ $0.documentID })
+            UserService.fetchUsers(withUids: uids) { users in
+                self.followers = users
+                users.forEach { user in
+                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                        self.followerIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
+                        if self.followerIsFollowed.count == users.count {
                             self.followersLoaded = true
                             self.followersCollectionView.reloadData()
                         }
                     }
                 }
             }
-        })
+        }
     }
     
     func fetchFollowingUsers() {
         isFetchingOrDidFetchFollowing = true
-        UserService.fetchFollowing(forUid: user.uid!, completion: { uids in
+        UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: nil) { snapshot in
+            self.followingLastSnapshot = snapshot.documents.last
+            let uids = snapshot.documents.map({ $0.documentID })
             UserService.fetchUsers(withUids: uids) { users in
                 self.following = users
                 users.forEach({ self.followingIsFollowed.append(UserFollow(dictionary: ["uid": $0.uid!, "isFollow": true])) })
                 self.followingLoaded = true
                 self.followingCollectionView.reloadData()
-                #warning("Create an array followoingIsfollowed with all to true in case user unfollows any following")
             }
-        })
+        }
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        if offsetY > contentHeight - height {
+            if self.scrollView.contentOffset.x == 0 {
+                getMoreFollowers()
+            } else {
+                getMoreFollowing()
+            }
+        }
+    }
+    
+    private func getMoreFollowers() {
+        UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: followersLastSnapshot) { snapshot in
+            self.followersLastSnapshot = snapshot.documents.last
+            let uids = snapshot.documents.map({ $0.documentID })
+            UserService.fetchUsers(withUids: uids) { users in
+                self.followers.append(contentsOf: users)
+                users.forEach { user in
+                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                        self.followerIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
+                        if self.followerIsFollowed.count == self.followers.count {
+                            self.followersCollectionView.reloadData()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private func getMoreFollowing() {
+        UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: followingLastSnapshot) { snapshot in
+            self.followingLastSnapshot = snapshot.documents.last
+            let uids = snapshot.documents.map({ $0.documentID })
+            UserService.fetchUsers(withUids: uids) { users in
+                self.following.append(contentsOf: users)
+                users.forEach({ self.followingIsFollowed.append(UserFollow(dictionary: ["uid": $0.uid!, "isFollow": true])) })
+                self.followingCollectionView.reloadData()
+            }
+        }
     }
 }
 
@@ -238,7 +288,7 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 65)
+        return CGSize(width: view.frame.width, height: 66)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

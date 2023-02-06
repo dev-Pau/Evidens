@@ -126,9 +126,55 @@ struct UserService {
         }
     }
     
+    /*
+     static func fetchHomeDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+         guard let uid = Auth.auth().currentUser?.uid else { return }
+         
+         if lastSnapshot == nil {
+             // Fetch first group of posts
+             let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
+             firstGroupToFetch.getDocuments { snapshot, error in
+                 guard let snapshot = snapshot else { return }
+                 guard snapshot.documents.last != nil else { return }
+                 completion(snapshot)
+             }
+         } else {
+             // Append new posts
+             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+                 
+             nextGroupToFetch.getDocuments { snapshot, error in
+                 guard let snapshot = snapshot else { return }
+                 guard snapshot.documents.last != nil else { return }
+                 completion(snapshot)
+             }
+         }
+     }
+     */
+    
+    static func fetchFollowers(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            // Fetch first group of posts
+            let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 50)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            // Append new posts
+            let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 50)
+                
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    /*
     static func fetchFollowers(forUid uid: String, completion: @escaping([String?]) -> Void) {
        var userUids = [String]()
-        
         
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in
             guard let uids = snapshot?.documents  else {
@@ -139,7 +185,30 @@ struct UserService {
             completion(userUids)
         }
     }
+     */
     
+    static func fetchFollowing(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            // Fetch first group of posts
+            let firstGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 50)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            // Append new posts
+            let nextGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 50)
+                
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
+    /*
     static func fetchFollowing(forUid uid: String, completion: @escaping([String]) -> Void) {
         var userUids = [String]()
          
@@ -152,6 +221,7 @@ struct UserService {
              completion(userUids)
          }
      }
+     */
     
     static func follow(uid: String, completion: @escaping(FirestoreCompletion)) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
