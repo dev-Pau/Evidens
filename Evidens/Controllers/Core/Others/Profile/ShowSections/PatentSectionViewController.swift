@@ -11,6 +11,8 @@ private let patentCellReuseIdentifier = "PatentCellReuseIdentifier"
 
 class PatentSectionViewController: UICollectionViewController {
     
+    private let user: User
+    
     weak var delegate: EditProfileViewControllerDelegate?
     
     private var patents = [[String: String]]()
@@ -21,8 +23,13 @@ class PatentSectionViewController: UICollectionViewController {
         configureCollectionView()
         title = "Patents"
     }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
-    init(patents: [[String: String]], isCurrentUser: Bool) {
+    init(user: User, patents: [[String: String]], isCurrentUser: Bool) {
+        self.user = user
         self.patents = patents
         self.isCurrentUser = isCurrentUser
         
@@ -44,10 +51,7 @@ class PatentSectionViewController: UICollectionViewController {
         super.init(collectionViewLayout: layout)
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+
     private func configureCollectionView() {
         collectionView.register(UserProfilePatentCell.self, forCellWithReuseIdentifier: patentCellReuseIdentifier)
         collectionView.backgroundColor = .systemBackground
@@ -78,7 +82,7 @@ class PatentSectionViewController: UICollectionViewController {
 extension PatentSectionViewController: UserProfilePatentCellDelegate {
     func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String) {
 
-        let controller = AddPatentViewController()
+        let controller = AddPatentViewController(user: user)
         controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""

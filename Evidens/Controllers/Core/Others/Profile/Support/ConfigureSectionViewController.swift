@@ -20,14 +20,19 @@ protocol ConfigureSectionViewControllerDelegate: AnyObject {
 
 class ConfigureSectionViewController: UIViewController {
     
+    private let user: User
+    
     weak var delegate: ConfigureSectionViewControllerDelegate?
     
-    private let dataSource: [String] = ["Add about", "Add experience", "Add education", "Add patent", "Add publication", "Add language"]
+    private let dataSource: [String] = ["About", "Experience", "Education", "Patent", "Publication", "Language"]
+    private let dataImages: [String] = ["person", "cross.case", "books.vertical", "book", "heart.text.square", "character.bubble"]
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        layout.itemSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -43,8 +48,17 @@ class ConfigureSectionViewController: UIViewController {
         configureCollectionView()
     }
     
+    init(user: User) {
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private func configureNavigationBar() {
-        navigationItem.title = "Sections"
+        navigationItem.title = "Add sections"
     }
     
     private func configureCollectionView() {
@@ -66,7 +80,7 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: configureSectionTitleCellReuseIdentifier, for: indexPath) as! ConfigureSectionTitleCell
-        cell.set(title: dataSource[indexPath.row])
+        cell.set(title: dataSource[indexPath.row], image: dataImages[indexPath.row])
         return cell
     }
     
@@ -94,7 +108,7 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
             controller.title = "Education"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 3 {
-            let controller = AddPatentViewController()
+            let controller = AddPatentViewController(user: user)
             controller.delegate = self
             controller.title = "Patent"
             navigationController?.pushViewController(controller, animated: true)

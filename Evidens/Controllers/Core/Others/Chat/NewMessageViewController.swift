@@ -232,8 +232,6 @@ extension NewMessageViewController: GroupSearchBarHeaderDelegate {
         filteredUsers = users
         collectionView.reloadSections(IndexSet(integer: 1))
     }
-    
-    
 }
 
 

@@ -1342,7 +1342,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         case "Patents":
-            let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
+            let controller = PatentSectionViewController(user: user, patents: patents, isCurrentUser: user.isCurrentUser)
             controller.title = "Patents"
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1478,7 +1478,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             
             
         case "Show patents":
-            let controller = PatentSectionViewController(patents: patents, isCurrentUser: user.isCurrentUser)
+            let controller = PatentSectionViewController(user: user, patents: patents, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1525,8 +1525,8 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
             self.user.stats = stats
             self.collectionView.reloadSections(IndexSet(integer: 0))
  
-            guard let tab = self.tabBarController as? MainTabController else { return }
-            tab.updateUser(user: user)
+            //guard let tab = self.tabBarController as? MainTabController else { return }
+            //tab.updateUser(user: user)
         }
     }
     

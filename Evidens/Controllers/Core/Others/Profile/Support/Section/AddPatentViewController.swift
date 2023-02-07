@@ -13,6 +13,8 @@ protocol AddPatentViewControllerDelegate: AnyObject {
 
 class AddPatentViewController: UIViewController {
     
+    private let user: User
+    
     weak var delegate: AddPatentViewControllerDelegate?
     
     private var userIsEditing = false
@@ -106,12 +108,17 @@ class AddPatentViewController: UIViewController {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.buttonSize = .mini
-        button.configuration?.title = "Contributor"
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .medium)
+        button.configuration?.attributedTitle = AttributedString("Contributor", attributes: container)
+        
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.imagePlacement = .leading
         button.configuration?.imagePadding = 5
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleAddContributors), for: .touchUpInside)
         return button
     }()
     
@@ -119,6 +126,15 @@ class AddPatentViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+    }
+    
+    init(user: User) {
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func configureNavigationBar() {
@@ -229,6 +245,18 @@ class AddPatentViewController: UIViewController {
         }
         
         updatePatentForm()
+    }
+    
+    @objc func handleAddContributors() {
+        let controller = AddContributorsViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {

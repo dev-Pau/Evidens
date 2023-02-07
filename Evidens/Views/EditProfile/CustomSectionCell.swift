@@ -7,15 +7,10 @@
 
 import UIKit
 
-protocol CustomSectionCellDelegate: AnyObject {
-    func didTapConfigureSections()
-}
 
 class CustomSectionCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
-    
-    weak var delegate: CustomSectionCellDelegate?
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -40,13 +35,14 @@ class CustomSectionCell: UICollectionViewCell {
     
     private lazy var addSectionButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.buttonSize = .mini
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.image = UIImage(systemName: "chevron.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        //button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.image = UIImage(systemName: "arrow.right.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleConfigureSections), for: .touchUpInside)
+        button.isUserInteractionEnabled = false
+        //button.addTarget(self, action: #selector(handleConfigureSections), for: .touchUpInside)
         return button
     }()
     
@@ -92,8 +88,8 @@ class CustomSectionCell: UICollectionViewCell {
             
             addSectionButton.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             addSectionButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            addSectionButton.heightAnchor.constraint(equalToConstant: 20),
-            addSectionButton.widthAnchor.constraint(equalToConstant: 20),
+            addSectionButton.heightAnchor.constraint(equalToConstant: 30),
+            addSectionButton.widthAnchor.constraint(equalToConstant: 30),
             
             titleLabel.centerYAnchor.constraint(equalTo: addSectionButton.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
@@ -115,9 +111,5 @@ class CustomSectionCell: UICollectionViewCell {
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 1))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
-    }
-    
-    @objc func handleConfigureSections() {
-        delegate?.didTapConfigureSections()
     }
 }

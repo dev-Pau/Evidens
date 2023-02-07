@@ -205,27 +205,6 @@ class EditProfileViewController: UIViewController {
                 }
             }
         }
-        
-        /*
-    if userDidChangeProfilePicture {
-            updateProfileImage(image: newUserProfilePicture)
-        }
-        
-        if userDidChangeBannerPicture {
-            updateBannerImage(image: newUserProfileBanner)
-        }
-        
-        if firstNameDidChange {
-            updateUserFirstName()
-            
-        }
-        
-        if lastNameDidChange {
-           updateUserLastName()
-        }
-        
-*/
-        
     }
     
     @objc func handleDismiss() {
@@ -233,59 +212,6 @@ class EditProfileViewController: UIViewController {
     }
     
     //MARK: - API
-    private func updateProfileImage(image: UIImage) {
-        guard let uid = user.uid else { return }
-        StorageManager.uploadProfileImage(image: image, uid: uid) { imageUrl in
-            UserService.updateProfileUrl(profileImageUrl: imageUrl) { updated in
-                if updated {
-                    self.user.profileImageUrl = imageUrl
-                    self.collectionView.reloadData()
-                    self.delegate?.fetchNewUserValues(withUid: uid)
-                }
-            }
-        }
-    }
-    
-    private func updateBannerImage(image: UIImage) {
-        guard let uid = user.uid else { return }
-        StorageManager.uploadBannerImage(image: image, uid: uid) { bannerUrl in
-            UserService.updateBannerUrl(bannerImageUrl: bannerUrl) { updated in
-                if updated {
-                    self.user.bannerImageUrl = bannerUrl
-                    self.collectionView.reloadData()
-                    self.delegate?.fetchNewUserValues(withUid: uid)
-                }
-            }
-        }
-    }
-    
-    private func updateUserLastName() {
-        guard let uid = user.uid else { return }
-        DatabaseManager.shared.updateUserLastName(lastName: lastName) { updated in
-            if updated {
-                UserService.updateUserLastName(lastName: self.lastName) { error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                    }
-                    self.delegate?.fetchNewUserValues(withUid: uid)
-                }
-            }
-        }
-    }
-    
-    private func updateUserFirstName() {
-        guard let uid = user.uid else { return }
-        DatabaseManager.shared.updateUserFirstName(firstName: firstName) { updated in
-            if updated {
-                UserService.updateUserFirstName(firstName: self.firstName) { error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                    }
-                    self.delegate?.fetchNewUserValues(withUid: uid)
-                }
-            }
-        }
-    }
     
     private func groupIsValid() {
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.profileIsValid
@@ -330,7 +256,6 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! CustomSectionCell
-            cell.delegate = self
             return cell
         }
     }
@@ -351,6 +276,16 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
             backItem.title = ""
             
             navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        } else if indexPath.row == 6 {
+            let controller = ConfigureSectionViewController(user: user)
+            controller.delegate = self
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            backItem.tintColor = .label
             
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -387,19 +322,6 @@ extension EditProfileViewController: EditNameCellDelegate {
                 groupIsValid()
             }
         }
-    }
-}
-
-extension EditProfileViewController: CustomSectionCellDelegate {
-    func didTapConfigureSections() {
-        let controller = ConfigureSectionViewController()
-        controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        backItem.tintColor = .label
-        
-        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -522,13 +444,3 @@ extension EditProfileViewController: SpecialityRegistrationViewControllerDelegat
         groupIsValid()
     }
 }
-
-/*
- extension EditProfileViewController: ProfessionListViewControllerDelegate {
- func didTapAddProfessions(profession: [Profession]) {
- let cell = collectionView.cellForItem(at: IndexPath(item: 4, section: 0)) as! EditCategoryCell
- cell.updateProfession(profession: profession.first!.profession)
- user.profession = profession.first!.profession
- }
- }
- */

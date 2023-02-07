@@ -9,8 +9,6 @@ import UIKit
 
 class ConfigureSectionTitleCell: UICollectionViewCell {
     
-    private let cellContentView = UIView()
-    
     private let titleSectionLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .regular)
@@ -19,13 +17,26 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
         return label
     }()
     
-    private let chevronImageView: UIImageView = {
+    private let sectionImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         return iv
+    }()
+    
+    private let chevronButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
     }()
     
     
@@ -40,42 +51,37 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
-        cellContentView.backgroundColor = .systemBackground
-        NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-        cellContentView.addSubviews(titleSectionLabel, chevronImageView)
+        
+        addSubviews(sectionImageView, titleSectionLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
-            chevronImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            chevronImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            chevronImageView.heightAnchor.constraint(equalToConstant: 15),
-            chevronImageView.widthAnchor.constraint(equalToConstant: 15),
+
+            sectionImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            sectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            sectionImageView.heightAnchor.constraint(equalToConstant: 25),
+            sectionImageView.widthAnchor.constraint(equalToConstant: 25),
             
-            titleSectionLabel.centerYAnchor.constraint(equalTo: chevronImageView.centerYAnchor),
-            titleSectionLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            titleSectionLabel.trailingAnchor.constraint(equalTo: chevronImageView.leadingAnchor, constant: -10),
-            titleSectionLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            chevronButton.centerYAnchor.constraint(equalTo: sectionImageView.centerYAnchor),
+            chevronButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            chevronButton.heightAnchor.constraint(equalToConstant: 15),
+            chevronButton.widthAnchor.constraint(equalToConstant: 15),
+            
+            titleSectionLabel.centerYAnchor.constraint(equalTo: sectionImageView.centerYAnchor),
+            titleSectionLabel.leadingAnchor.constraint(equalTo: sectionImageView.trailingAnchor, constant: 10),
+            titleSectionLabel.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -10),
+            //titleSectionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: titleSectionLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         ])
     }
     
-    func set(title: String) {
+    func set(title: String, image: String) {
         titleSectionLabel.text = title
-    }
-    
-    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
-        autoLayoutAttributes.frame = autoLayoutFrame
-        return autoLayoutAttributes
+        sectionImageView.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        
+        chevronButton.configuration?.image = UIImage(systemName: "chevron.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.tertiaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
     }
 }

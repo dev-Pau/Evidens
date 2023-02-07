@@ -97,8 +97,13 @@ struct UserService {
       
         if bannerUrl != "" { updatedProfileData["bannerImageUrl"] = bannerUrl }
         if profileUrl != "" { updatedProfileData["profileImageUrl"] = profileUrl }
-        if let firstName = firstName { updatedProfileData["firstName"] = firstName }
-        if let lastName = lastName { updatedProfileData["lastName"] = lastName }
+        if let firstName = firstName {
+            updatedProfileData["firstName"] = firstName
+            DatabaseManager.shared.updateUserFirstName(firstName: firstName) { _ in }
+        }
+        if let lastName = lastName { updatedProfileData["lastName"] = lastName
+            DatabaseManager.shared.updateUserLastName(lastName: lastName) { _ in }
+        }
         if let speciality = speciality { updatedProfileData["speciality"] = speciality }
   
         if updatedProfileData.isEmpty {
