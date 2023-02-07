@@ -1516,6 +1516,20 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
 }
 
 extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate {
+    func didUpdateProfile(user: User) {
+        self.user = user
+        UserDefaults.standard.set(user.profileImageUrl, forKey: "userProfileImageUrl")
+        UserDefaults.standard.set(user.firstName! + " " + user.lastName!, forKey: "name")
+        
+        UserService.fetchUserStats(uid: user.uid!) { stats in
+            self.user.stats = stats
+            self.collectionView.reloadSections(IndexSet(integer: 0))
+ 
+            guard let tab = self.tabBarController as? MainTabController else { return }
+            tab.updateUser(user: user)
+        }
+    }
+    
     func updateLanguageValues() {
         fetchUserStats()
         fetchLanguages()
@@ -1595,25 +1609,25 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
 
 
 class LogoContainerView: UIView {
-  let imageView: UIImageView
-  init(imageView: UIImageView) {
-      self.imageView = imageView
-    super.init(frame: CGRect.zero)
-
-    addSubview(imageView)
-  }
-
-  override convenience init(frame: CGRect) {
-    self.init(imageView: UIImageView())
-    self.frame = frame
-  }
-
-  required init?(coder aDecoder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
-  override func layoutSubviews() {
-    super.layoutSubviews()
-      imageView.frame = bounds
-  }
+    let imageView: UIImageView
+    init(imageView: UIImageView) {
+        self.imageView = imageView
+        super.init(frame: CGRect.zero)
+        
+        addSubview(imageView)
+    }
+    
+    override convenience init(frame: CGRect) {
+        self.init(imageView: UIImageView())
+        self.frame = frame
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageView.frame = bounds
+    }
 }

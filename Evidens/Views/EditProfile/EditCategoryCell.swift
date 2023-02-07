@@ -30,12 +30,11 @@ class EditCategoryCell: UICollectionViewCell {
         return label
     }()
     
-    private let chevronImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
+    private let chevronButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
         
     private let separatorView: UIView = {
@@ -70,7 +69,7 @@ class EditCategoryCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(titleLabel, subtitleLabel, chevronImageView, separatorView)
+        cellContentView.addSubviews(titleLabel, subtitleLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -83,16 +82,15 @@ class EditCategoryCell: UICollectionViewCell {
             titleLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             titleLabel.widthAnchor.constraint(equalToConstant: 100),
             
-            chevronImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            chevronImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            chevronImageView.widthAnchor.constraint(equalToConstant: 15),
-            chevronImageView.heightAnchor.constraint(equalToConstant: 15),
+            chevronButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            chevronButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            chevronButton.widthAnchor.constraint(equalToConstant: 15),
+            chevronButton.heightAnchor.constraint(equalToConstant: 15),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             subtitleLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
-            subtitleLabel.trailingAnchor.constraint(equalTo: chevronImageView.leadingAnchor, constant: -5)
-
+            subtitleLabel.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -5)
         ])
     }
     
@@ -110,7 +108,11 @@ class EditCategoryCell: UICollectionViewCell {
     func set(title: String, subtitle: String, image: String) {
         titleLabel.text = title
         subtitleLabel.text = subtitle
-        chevronImageView.image = UIImage(systemName: image)?.withRenderingMode(.alwaysOriginal).withTintColor(.quaternarySystemFill)
+        chevronButton.configuration?.image = UIImage(systemName: image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.tertiaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
+    }
+    
+    func updateSpeciality(speciality: String) {
+        subtitleLabel.text = speciality
     }
 }
 

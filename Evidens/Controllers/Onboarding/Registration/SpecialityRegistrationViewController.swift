@@ -10,10 +10,18 @@ import JGProgressHUD
 
 private let registerCellReuseIdentifier = "RegisterCellReuseIdentifier"
 
+protocol SpecialityRegistrationViewControllerDelegate: AnyObject {
+    func didEditSpeciality(speciality: String)
+}
+
 class SpecialityRegistrationViewController: UIViewController {
     
     private var user: User
     
+    weak var delegate: SpecialityRegistrationViewControllerDelegate?
+    
+    var isEditingProfileSpeciality: Bool = false
+
     enum Section { case main }
     
     private let collectionView: UICollectionView = {
@@ -36,7 +44,7 @@ class SpecialityRegistrationViewController: UIViewController {
     private var specialities: [Speciality] = []
     private var filteredSpecialities: [Speciality] = []
     
-    private var selectedSpeciality: String = ""
+    var selectedSpeciality: String = ""
     private var isSearching: Bool = false
     
     private let searchController = UISearchController()
@@ -62,11 +70,11 @@ class SpecialityRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Add Speciality"
+        title = isEditingProfileSpeciality ? "Speciality" : "Add Speciality"
         navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
+        //navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBack))
        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(handleNext))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: isEditingProfileSpeciality ? "Change" : "Next", style: .done, target: self, action: #selector(handleNext))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -145,7 +153,7 @@ class SpecialityRegistrationViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
-        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+        collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: registerCellReuseIdentifier)
         view.addSubview(collectionView)
@@ -155,6 +163,14 @@ class SpecialityRegistrationViewController: UIViewController {
         dataSource = UICollectionViewDiffableDataSource<Section, Speciality>(collectionView: collectionView, cellProvider: { collectionView, indexPath, speciality in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: registerCellReuseIdentifier, for: indexPath) as! RegisterCell
             cell.set(value: speciality.name)
+            /*
+             if self.specialitiesSelected.contains(speciality.name) {
+                 collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left)
+             }
+             */
+            if self.isEditingProfileSpeciality {
+                if speciality.name == self.user.speciality! { collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left) }
+            }
             return cell
         })
     }
@@ -182,6 +198,12 @@ class SpecialityRegistrationViewController: UIViewController {
     }
     
     @objc func handleNext() {
+        if isEditingProfileSpeciality {
+            delegate?.didEditSpeciality(speciality: selectedSpeciality)
+            navigationController?.popViewController(animated: true)
+            return
+        }
+        
         guard let email = user.email,
               let profession = user.profession,
               let speciality = user.speciality,
@@ -205,14 +227,14 @@ class SpecialityRegistrationViewController: UIViewController {
         }
     }
 }
-    
-    extension SpecialityRegistrationViewController: UISearchResultsUpdating, UISearchBarDelegate {
-        func updateSearchResults(for searchController: UISearchController) {
-            guard let filter = searchController.searchBar.text, !filter.isEmpty else {
-                filteredSpecialities.removeAll()
-        updateData(on: specialities)
-        isSearching = false
-        return
+
+extension SpecialityRegistrationViewController: UISearchResultsUpdating, UISearchBarDelegate {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let filter = searchController.searchBar.text, !filter.isEmpty else {
+            filteredSpecialities.removeAll()
+            updateData(on: specialities)
+            isSearching = false
+            return
         }
         
         isSearching = true

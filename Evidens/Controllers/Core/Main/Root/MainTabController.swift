@@ -16,6 +16,7 @@ protocol MainTabControllerDelegate: AnyObject {
     func handleDisablePan()
     func handleConversations()
     func handleDisableRightPan()
+    func updateUser(user: User)
 }
 
 class MainTabController: UITabBarController {
@@ -38,8 +39,8 @@ class MainTabController: UITabBarController {
     var user: User? {
         didSet {
             //guard let controller = viewControllers?[0] as? ContainerViewController else { return }
-            guard let user = user else { return }
-            configureViewControllers(withUser: user)
+            //guard let user = user else { return }
+            //configureViewControllers(withUser: user)
             //controller.user = user
         }
     }
@@ -81,6 +82,7 @@ class MainTabController: UITabBarController {
         UserService.fetchUser(withUid: uid) { user in
             //Set user property
             self.user = user
+            self.configureViewControllers()
             
             switch user.phase {
             case .categoryPhase:
@@ -162,7 +164,7 @@ class MainTabController: UITabBarController {
     //MARK: - Helpers
     
     //Setup ViewControllers for the TabBarController
-    func configureViewControllers(withUser user: User) {
+    func configureViewControllers() {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
@@ -249,6 +251,11 @@ class MainTabController: UITabBarController {
                 #warning("put jobs VC")
             }
         }
+    }
+    
+    func updateUser(user: User) {
+        self.user = user
+        menuDelegate?.updateUser(user: user)
     }
     
     func pushSettingsViewController() {

@@ -13,7 +13,7 @@ struct StorageManager {
     
     /// Uploads a profile image for a specific user to firebase storage with url string to download
     static func uploadProfileImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
         //let filename = NSUUID().uuidString
         let filename = uid
         let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
@@ -32,7 +32,7 @@ struct StorageManager {
     }
     
     static func uploadBannerImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
         let filename = uid
         let ref = Storage.storage().reference(withPath: "/banners/\(filename)")
         
@@ -45,6 +45,39 @@ struct StorageManager {
             ref.downloadURL { url, error in
                 guard let bannerUrl = url?.absoluteString else { return }
                 completion(bannerUrl)
+            }
+        }
+    }
+    
+    static func uploadProfileImages(images: [UIImage], userUid: String, completion: @escaping([String]) -> Void) {
+        var groupImagesUrl: [String] = []
+        var index = 0
+        var order = 0
+        let filename = userUid
+        
+        images.forEach { image in
+            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+
+            let fileRef = (order == 0) ? "/banners/" : "/profile_images/"
+            let ref = Storage.storage().reference(withPath: "\(fileRef)\(filename)")
+            order += 1
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    index += 1
+                    guard let imageUrl = url?.absoluteString else { return }
+                    groupImagesUrl.append(imageUrl)
+
+                    
+                    if images.count == index {
+                        completion(groupImagesUrl)
+                    }
+                }
             }
         }
     }

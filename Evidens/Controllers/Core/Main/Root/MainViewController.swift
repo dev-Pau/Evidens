@@ -14,6 +14,7 @@ protocol MainViewControllerDelegate: AnyObject {
     func showConversations()
     func handleDisableRightPan()
     func handleDisablePanWhileEditing(editing: Bool)
+    func updateUser(user: User)
 }
 
 class MainViewController: UIViewController {
@@ -65,6 +66,10 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController: MainTabControllerDelegate {
+    func updateUser(user: User) {
+        delegate?.updateUser(user: user)
+    }
+    
     func handleConversations() {
         delegate?.showConversations()
     }

@@ -206,6 +206,11 @@ class ContainerViewController: UIViewController {
 }
 
 extension ContainerViewController: MainViewControllerDelegate {
+    func updateUser(user: User) {
+        print("before reload data")
+        menuController.collectionView.reloadData()
+    }
+    
     func handleDisablePanWhileEditing(editing: Bool) {
         //panGestureRecognizer.isEnabled = !editing
         //isEditingConversation = editing ? true : false

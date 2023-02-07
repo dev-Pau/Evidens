@@ -18,6 +18,7 @@ private let customSectionCellReuseIdentifier = "CustomSectionsCellReuseIdentifie
 private let aboutCellReuseIdentifier = "AboutCellReuseIdentifier"
 
 protocol EditProfileViewControllerDelegate: AnyObject {
+    func didUpdateProfile(user: User)
     func fetchNewUserValues(withUid uid: String)
     func fetchNewAboutValues(withUid uid: String)
     func fetchNewExperienceValues(withUid uid: String)
@@ -28,14 +29,29 @@ protocol EditProfileViewControllerDelegate: AnyObject {
 }
 
 
-class EditProfileViewController: UICollectionViewController {
+class EditProfileViewController: UIViewController {
     
     private var user: User
     private let imageBottomMenuLanucher = RegisterBottomMenuLauncher()
     
+    private var viewModel = ProfileViewModel()
+    
     private var progressIndicator = JGProgressHUD()
     
     weak var delegate: EditProfileViewControllerDelegate?
+    
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        collectionView.showsVerticalScrollIndicator = false
+        return collectionView
+    }()
     
     private var userDidChangeProfilePicture: Bool = false
     private var userDidChangeBannerPicture: Bool = false
@@ -62,11 +78,12 @@ class EditProfileViewController: UICollectionViewController {
     
     init(user: User) {
         self.user = user
-        let layout = UICollectionViewFlowLayout()
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 0
-        super.init(collectionViewLayout: layout)
+        
+        viewModel.firstName = user.firstName!
+        viewModel.lastName = user.lastName!
+        viewModel.speciality = user.speciality!
+      
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -87,19 +104,20 @@ class EditProfileViewController: UICollectionViewController {
     }
     
     private func configureCollectionView() {
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.showsVerticalScrollIndicator = false
         collectionView.backgroundColor = .systemBackground
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: profilePictureReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: nameCellReuseIdentifier)
         collectionView.register(EditCategoryCell.self, forCellWithReuseIdentifier: categoryCellReuseIdentifier)
         collectionView.register(CustomSectionCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
 
     }
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
+        view.addSubview(collectionView)
+        collectionView.frame = view.bounds
         //delegate?.fetchNewUserValues(withUid: user.uid!)
     }
     
@@ -131,9 +149,65 @@ class EditProfileViewController: UICollectionViewController {
     //MARK: - Actions
     
     @objc func handleDone() {
-        showLoadingView()
         
-        if userDidChangeProfilePicture {
+        guard let firstName = viewModel.firstName, let lastName = viewModel.lastName, let speciality = viewModel.speciality else { return }
+        var newProfile = User(dictionary: [:])
+        newProfile.firstName = firstName
+        newProfile.lastName = lastName
+        newProfile.speciality = speciality
+
+        progressIndicator.show(in: view)
+        
+        if userDidChangeBannerPicture && userDidChangeProfilePicture {
+            StorageManager.uploadProfileImages(images: [newUserProfileBanner, newUserProfilePicture], userUid: user.uid!) { urls in
+                newProfile.bannerImageUrl = urls.first(where: { url in
+                    url.contains("banners")
+                })
+                
+                newProfile.profileImageUrl = urls.first(where: { url in
+                    url.contains("profile_images")
+                })
+                
+                UserService.updateUser(from: self.user, to: newProfile) { user in
+                    self.progressIndicator.dismiss(animated: true)
+                    self.dismiss(animated: true)
+                    self.delegate?.didUpdateProfile(user: user)
+                }
+            }
+        } else {
+            if userDidChangeBannerPicture {
+                // Banner group image has changed
+                StorageManager.uploadBannerImage(image: newUserProfileBanner, uid: user.uid!) { url in
+                    newProfile.profileImageUrl = url
+                    
+                    UserService.updateUser(from: self.user, to: newProfile) { user in
+                        self.progressIndicator.dismiss(animated: true)
+                        self.dismiss(animated: true)
+                        self.delegate?.didUpdateProfile(user: user)
+                    }
+                }
+            } else if userDidChangeProfilePicture {
+                // Profile group image has changed
+                StorageManager.uploadProfileImage(image: newUserProfilePicture, uid: user.uid!) { url in
+                    newProfile.profileImageUrl = url
+                    UserService.updateUser(from: self.user, to: newProfile) { user in
+                        self.progressIndicator.dismiss(animated: true)
+                        self.dismiss(animated: true)
+                        self.delegate?.didUpdateProfile(user: user)
+                    }
+                }
+            } else {
+                // Other group fields have changed
+                UserService.updateUser(from: self.user, to: newProfile) { user in
+                    self.progressIndicator.dismiss(animated: true)
+                    self.dismiss(animated: true)
+                    self.delegate?.didUpdateProfile(user: user)
+                }
+            }
+        }
+        
+        /*
+    if userDidChangeProfilePicture {
             updateProfileImage(image: newUserProfilePicture)
         }
         
@@ -150,7 +224,7 @@ class EditProfileViewController: UICollectionViewController {
            updateUserLastName()
         }
         
-        self.dismissLoadingView()
+*/
         
     }
     
@@ -212,10 +286,14 @@ class EditProfileViewController: UICollectionViewController {
             }
         }
     }
+    
+    private func groupIsValid() {
+        navigationItem.rightBarButtonItem?.isEnabled = viewModel.profileIsValid
+    }
 }
 
-extension EditProfileViewController {
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+extension EditProfileViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profilePictureReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
@@ -239,15 +317,16 @@ extension EditProfileViewController {
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Category", subtitle: "Professional", image: "lock")
+            cell.set(title: "Category", subtitle: user.category.userCategoryString, image: "lock")
+            
             return cell
         } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Profession", subtitle: "Odontology", image: "chevron.right")
+            cell.set(title: "Profession", subtitle: user.profession!, image: "lock")
             return cell
         } else if indexPath.row == 5 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! EditCategoryCell
-            cell.set(title: "Speciality", subtitle: "General Odontology", image: "chevron.right")
+            cell.set(title: "Speciality", subtitle: user.speciality!, image: "chevron.right")
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: customSectionCellReuseIdentifier, for: indexPath) as! CustomSectionCell
@@ -256,8 +335,25 @@ extension EditProfileViewController {
         }
     }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 7
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.row == 5 {
+            // Speciality
+            let controller = SpecialityRegistrationViewController(user: user)
+            controller.isEditingProfileSpeciality = true
+            controller.delegate = self
+
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }
 
@@ -281,12 +377,14 @@ extension EditProfileViewController: EditNameCellDelegate {
         if let indexPath = collectionView.indexPath(for: cell) {
             if indexPath.row == 1 {
                 // First name edited
-                firstNameDidChange = true
                 firstName = text
+                viewModel.firstName = text
+                groupIsValid()
             } else {
                 // Last name edited
-                lastNameDidChange = true
                 lastName = text
+                viewModel.lastName = text
+                groupIsValid()
             }
         }
     }
@@ -369,7 +467,8 @@ extension EditProfileViewController: CropViewControllerDelegate {
         self.newUserProfilePicture = image
         self.userDidChangeProfilePicture = true
         cell.hideProfileHint()
-        self.navigationItem.rightBarButtonItem?.isEnabled = true
+        viewModel.profileImage = true
+        groupIsValid()
     }
     
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
@@ -378,7 +477,8 @@ extension EditProfileViewController: CropViewControllerDelegate {
         cell.bannerImageView.image = image
         self.newUserProfileBanner = image
         self.userDidChangeBannerPicture = true
-        self.navigationItem.rightBarButtonItem?.isEnabled = true
+        viewModel.profileBanner = true
+        groupIsValid()
     }
 }
 
@@ -411,6 +511,24 @@ extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         delegate?.fetchNewAboutValues(withUid: uid)
     }
-    
-    
 }
+
+extension EditProfileViewController: SpecialityRegistrationViewControllerDelegate {
+    func didEditSpeciality(speciality: String) {
+        let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditCategoryCell
+        cell.updateSpeciality(speciality: speciality)
+        user.speciality = speciality
+        viewModel.speciality = speciality
+        groupIsValid()
+    }
+}
+
+/*
+ extension EditProfileViewController: ProfessionListViewControllerDelegate {
+ func didTapAddProfessions(profession: [Profession]) {
+ let cell = collectionView.cellForItem(at: IndexPath(item: 4, section: 0)) as! EditCategoryCell
+ cell.updateProfession(profession: profession.first!.profession)
+ user.profession = profession.first!.profession
+ }
+ }
+ */

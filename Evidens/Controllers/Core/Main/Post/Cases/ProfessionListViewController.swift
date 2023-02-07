@@ -17,7 +17,6 @@ class ProfessionListViewController: UIViewController {
     
     weak var delegate: ProfessionListViewControllerDelegate?
     
-    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -25,7 +24,6 @@ class ProfessionListViewController: UIViewController {
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.allowsSelection = true
-        collectionView.allowsMultipleSelection = true
         return collectionView
     }()
     
@@ -51,7 +49,7 @@ class ProfessionListViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Case professions"
+        title = "Add professions"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddProfessions))
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -68,6 +66,7 @@ class ProfessionListViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(RegisterCell.self, forCellWithReuseIdentifier: professionCellReuseIdentifier)
+        collectionView.allowsMultipleSelection = true
     }
     
     @objc func handleAddProfessions() {
@@ -95,7 +94,6 @@ extension ProfessionListViewController: UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
         professionsSelected.append(professions[indexPath.row])
         navigationItem.rightBarButtonItem?.isEnabled = true
     }

@@ -39,7 +39,7 @@ class SideMenuViewController: UIViewController {
     
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
     
-    private let collectionView: UICollectionView = {
+    let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)

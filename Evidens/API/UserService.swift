@@ -85,6 +85,39 @@ struct UserService {
         }
     }
     
+    static func updateUser(from user: User, to newUser: User, completion: @escaping(User) -> Void) {
+        // Check what profile values have changed
+        var updatedProfileData = [String: Any]()
+        
+        let bannerUrl = (user.bannerImageUrl! == newUser.bannerImageUrl!) ? "" : newUser.bannerImageUrl
+        let profileUrl = (user.profileImageUrl! == newUser.profileImageUrl!) ? "" : newUser.profileImageUrl
+        let firstName = (user.firstName == newUser.firstName) ? nil : newUser.firstName
+        let lastName = (user.lastName == newUser.lastName) ? nil : newUser.lastName
+        let speciality = (user.speciality == newUser.speciality) ? nil : newUser.speciality
+      
+        if bannerUrl != "" { updatedProfileData["bannerImageUrl"] = bannerUrl }
+        if profileUrl != "" { updatedProfileData["profileImageUrl"] = profileUrl }
+        if let firstName = firstName { updatedProfileData["firstName"] = firstName }
+        if let lastName = lastName { updatedProfileData["lastName"] = lastName }
+        if let speciality = speciality { updatedProfileData["speciality"] = speciality }
+  
+        if updatedProfileData.isEmpty {
+            completion(user)
+            return
+        }
+        
+        COLLECTION_USERS.document(user.uid!).updateData(updatedProfileData) { error in
+            if error != nil { return }
+            COLLECTION_USERS.document(user.uid!).getDocument { snapshot, error in
+                guard let dictionary = snapshot?.data() else { return }
+                let user = User(dictionary: dictionary)
+                completion(user)
+            }
+        }
+    }
+    
+    
+    
     static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
         var usersFetched: [User] = []
         COLLECTION_USERS.whereField("profession", isEqualTo: profession).limit(to: 10).getDocuments { snapshot, error in
@@ -272,6 +305,7 @@ struct UserService {
     
     
     static func fetchUserStats(uid: String, completion: @escaping(UserStats) -> Void) {
+        #warning("Fer el count i no descarregar tots els documents, com per comptar likes")
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in
             let followers = snapshot?.documents.count ?? 0
             
