@@ -37,7 +37,7 @@ class PassportViewController: UIViewController {
         let button = UIButton()
         button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = .quaternarySystemFill
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
         button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
@@ -47,8 +47,7 @@ class PassportViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
      
         button.isUserInteractionEnabled = true
-
-        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        button.showsMenuAsPrimaryAction = true
         return button
     }()
     
@@ -167,7 +166,6 @@ class PassportViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        helperBottomRegistrationMenuLauncher.delegate = self
     }
     
     init(user: User) {
@@ -182,6 +180,7 @@ class PassportViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Verification"
+        helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
@@ -304,6 +303,31 @@ class PassportViewController: UIViewController {
         uploadSubmitButtonState()
     }
     
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if MFMailComposeViewController.canSendMail() {
+                    let controller = MFMailComposeViewController()
+                    controller.setToRecipients(["support@myevidens.com"])
+                    controller.mailComposeDelegate = self
+                    self.present(controller, animated: true)
+                } else {
+                    print("Device cannot send email")
+                }
+            }),
+            
+            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                AuthService.logout()
+                AuthService.googleLogout()
+                let controller = WelcomeViewController()
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true)
+            })
+        ])
+        return menuItems
+    }
+    
 }
 
 
@@ -335,28 +359,6 @@ extension PassportViewController: MFMailComposeViewControllerDelegate {
             controller.dismiss(animated: true)
         }
         controller.dismiss(animated: true)
-    }
-}
-
-extension PassportViewController: HelperBottomMenuLauncherDelegate {
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
-        }
-    }
-    
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
     }
 }
 

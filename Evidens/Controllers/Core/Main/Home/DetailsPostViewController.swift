@@ -27,6 +27,7 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
     func didTapLikeAction(forPost post: Post)
     func didTapBookmarkAction(forPost post: Post)
     func didComment(forPost post: Post)
+    func didEditPost(forPost post: Post)
 }
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate {
@@ -677,5 +678,6 @@ extension DetailsPostViewController: EditPostViewControllerDelegate {
     func didEditPost(post: Post) {
         self.post = post
         collectionView.reloadSections(IndexSet(integer: 0))
+        delegate?.didEditPost(forPost: post)
     }
 }

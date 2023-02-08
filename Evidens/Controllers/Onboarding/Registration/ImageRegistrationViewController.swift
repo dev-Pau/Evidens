@@ -18,8 +18,7 @@ class ImageRegistrationViewController: UIViewController {
     private var imageSelected: Bool = false
     
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
-    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
-                                                                                                                                
+                                                                                     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -110,10 +109,8 @@ class ImageRegistrationViewController: UIViewController {
     private lazy var helpButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-
         button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
         button.configuration?.baseForegroundColor = .label
-
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
@@ -121,8 +118,7 @@ class ImageRegistrationViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
         
         button.isUserInteractionEnabled = true
-
-        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        button.showsMenuAsPrimaryAction = true
         return button
     }()
     
@@ -130,9 +126,6 @@ class ImageRegistrationViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        registerBottomMenuLauncher.delegate = self
-        helperBottomRegistrationMenuLauncher.delegate = self
-        
     }
     
     init(user: User) {
@@ -146,6 +139,7 @@ class ImageRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Account details"
+        helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
@@ -185,6 +179,31 @@ class ImageRegistrationViewController: UIViewController {
             continueButton.leadingAnchor.constraint(equalTo: instructionsImageLabel.leadingAnchor),
             continueButton.trailingAnchor.constraint(equalTo: instructionsImageLabel.trailingAnchor)
         ])
+    }
+    
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if MFMailComposeViewController.canSendMail() {
+                    let controller = MFMailComposeViewController()
+                    controller.setToRecipients(["support@myevidens.com"])
+                    controller.mailComposeDelegate = self
+                    self.present(controller, animated: true)
+                } else {
+                    print("Device cannot send email")
+                }
+            }),
+            
+            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                AuthService.logout()
+                AuthService.googleLogout()
+                let controller = WelcomeViewController()
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true)
+            })
+        ])
+        return menuItems
     }
     
     @objc func handleUploadPicture() {
@@ -239,10 +258,6 @@ class ImageRegistrationViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    @objc func handleHelp() {
-        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
-    }
-    
     func showCrop(image: UIImage) {
         let controller = TOCropViewController(croppingStyle: .circular, image: image)
         
@@ -257,49 +272,6 @@ class ImageRegistrationViewController: UIViewController {
         self.present(navVC, animated: true)
     }
          
-}
-
-extension ImageRegistrationViewController: HelperBottomMenuLauncherDelegate {
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
-        }
-    }
-    
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-}
-
-extension ImageRegistrationViewController: RegisterBottomMenuLauncherDelegate {
-    func didTapImportFromGallery() {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 1
-        config.preferredAssetRepresentationMode = .current
-        config.filter = PHPickerFilter.any(of: [.images])
-        
-        let vc = PHPickerViewController(configuration: config)
-        vc.delegate = self
-        present(vc, animated: true)
-    }
-    
-    func didTapImportFromCamera() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = .camera
-        picker.allowsEditing = true
-        present(picker, animated: true, completion: nil)
-    }
 }
 
 extension ImageRegistrationViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {

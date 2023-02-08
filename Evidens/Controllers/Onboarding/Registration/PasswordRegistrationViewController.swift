@@ -207,8 +207,6 @@ class PasswordRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Create account"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .label
     }
     
     private func setUpDelegates() {

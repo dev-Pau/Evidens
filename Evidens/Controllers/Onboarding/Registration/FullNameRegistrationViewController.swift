@@ -11,7 +11,6 @@ import MessageUI
 class FullNameRegistrationViewController: UIViewController {
     
     private var user: User
-    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
     
     private var firstNameSelected: Bool = false
     private var lastNameSelected: Bool = false
@@ -84,8 +83,8 @@ class FullNameRegistrationViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
      
         button.isUserInteractionEnabled = true
+        button.showsMenuAsPrimaryAction = true
 
-        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
         return button
     }()
     
@@ -110,11 +109,11 @@ class FullNameRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Account details"
+        helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
     private func configureNotificationObservers() {
-        helperBottomRegistrationMenuLauncher.delegate = self
         firstNameTextField.delegate = self
         firstNameTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         lastNameTextField.delegate = self
@@ -156,6 +155,31 @@ class FullNameRegistrationViewController: UIViewController {
         ])
     }
     
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if MFMailComposeViewController.canSendMail() {
+                    let controller = MFMailComposeViewController()
+                    controller.setToRecipients(["support@myevidens.com"])
+                    controller.mailComposeDelegate = self
+                    self.present(controller, animated: true)
+                } else {
+                    print("Device cannot send email")
+                }
+            }),
+            
+            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                AuthService.logout()
+                AuthService.googleLogout()
+                let controller = WelcomeViewController()
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true)
+            })
+        ])
+        return menuItems
+    }
+    
     @objc func textDidChange() {
         if firstNameTextField.text != "" && lastNameTextField.text != "" {
             nextButton.isUserInteractionEnabled = true
@@ -164,10 +188,6 @@ class FullNameRegistrationViewController: UIViewController {
             nextButton.isUserInteractionEnabled = false
             nextButton.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
         }
-    }
-    
-    @objc func handleHelp() {
-        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleNext() {
@@ -214,28 +234,6 @@ extension FullNameRegistrationViewController: UITextFieldDelegate {
                 lastNameTextField.layer.borderColor = lastNameSelected ? primaryColor.cgColor : UIColor.systemBackground.cgColor
             }
         }
-    }
-}
-
-extension FullNameRegistrationViewController: HelperBottomMenuLauncherDelegate {
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
-        }
-    }
-    
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
     }
 }
 

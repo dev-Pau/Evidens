@@ -15,8 +15,7 @@ class DriverLicenseViewController: UIViewController {
     private var user: User
     
     private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
-    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
-    
+   
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
     private var backSelected: Bool = false
@@ -38,7 +37,7 @@ class DriverLicenseViewController: UIViewController {
         let button = UIButton()
         button.configuration = .filled()
 
-        button.configuration?.baseBackgroundColor = .quaternarySystemFill
+        button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
         button.configuration?.baseForegroundColor = .label
 
         button.configuration?.cornerStyle = .capsule
@@ -48,8 +47,7 @@ class DriverLicenseViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
      
         button.isUserInteractionEnabled = true
-
-        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        button.showsMenuAsPrimaryAction = true
         return button
     }()
     
@@ -201,7 +199,6 @@ class DriverLicenseViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        helperBottomRegistrationMenuLauncher.delegate = self
     }
     
     init(user: User) {
@@ -216,6 +213,7 @@ class DriverLicenseViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Verification"
+        helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
     }
     
@@ -284,6 +282,31 @@ class DriverLicenseViewController: UIViewController {
         ])
     }
     
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if MFMailComposeViewController.canSendMail() {
+                    let controller = MFMailComposeViewController()
+                    controller.setToRecipients(["support@myevidens.com"])
+                    controller.mailComposeDelegate = self
+                    self.present(controller, animated: true)
+                } else {
+                    print("Device cannot send email")
+                }
+            }),
+            
+            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                AuthService.logout()
+                AuthService.googleLogout()
+                let controller = WelcomeViewController()
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true)
+            })
+        ])
+        return menuItems
+    }
+    
     private func uploadSubmitButtonState() {
         if backSelected && frontSelected {
             
@@ -302,10 +325,6 @@ class DriverLicenseViewController: UIViewController {
     
     @objc func textDidChange() {
         uploadSubmitButtonState()
-    }
-    
-    @objc func handleHelp() {
-        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handlePhotoAction(_ sender: UIButton) {
@@ -358,29 +377,6 @@ class DriverLicenseViewController: UIViewController {
     }
 }
        
-
-extension DriverLicenseViewController: HelperBottomMenuLauncherDelegate {
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
-        }
-    }
-    
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-}
-
 extension DriverLicenseViewController: MFMailComposeViewControllerDelegate {
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {

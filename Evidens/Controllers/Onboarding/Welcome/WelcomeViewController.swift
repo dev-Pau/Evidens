@@ -241,11 +241,24 @@ class WelcomeViewController: UIViewController {
     //MARK: - Actions
     @objc func loginButtonPressed() {
         let controller = LoginViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
         navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func signupButtonPressed() {
         let controller = EmailRegistrationViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
     }

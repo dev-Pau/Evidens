@@ -11,9 +11,7 @@ import MessageUI
 class CategoryRegistrationViewController: UIViewController {
     
     private var user: User
-    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
-    private var whoCanJoinMenuLauncher = WhoCanJoinMenuLauncher()
-    
+   
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -28,7 +26,6 @@ class CategoryRegistrationViewController: UIViewController {
         return label
     }()
     
-
     private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -47,16 +44,13 @@ class CategoryRegistrationViewController: UIViewController {
 
         button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
         button.configuration?.baseForegroundColor = .label
-
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
-        
-        button.isUserInteractionEnabled = true
 
-        button.addTarget(self, action: #selector(handleHelp), for: .touchUpInside)
+        button.showsMenuAsPrimaryAction = true
         return button
     }()
     
@@ -67,8 +61,6 @@ class CategoryRegistrationViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
-        
-        helperBottomRegistrationMenuLauncher.delegate = self
         professionalCategory.delegate = self
         studentCategory.delegate = self
     }
@@ -84,7 +76,9 @@ class CategoryRegistrationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Configure account"
+        helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        
     }
     
     private func configureUI() {
@@ -116,6 +110,31 @@ class CategoryRegistrationViewController: UIViewController {
         ])
     }
     
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if MFMailComposeViewController.canSendMail() {
+                    let controller = MFMailComposeViewController()
+                    controller.setToRecipients(["support@myevidens.com"])
+                    controller.mailComposeDelegate = self
+                    self.present(controller, animated: true)
+                } else {
+                    print("Device cannot send email")
+                }
+            }),
+            
+            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                AuthService.logout()
+                AuthService.googleLogout()
+                let controller = WelcomeViewController()
+                let nav = UINavigationController(rootViewController: controller)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true)
+            })
+        ])
+        return menuItems
+    }
+    
     @objc func handleNext() {
         let controller = ProfessionRegistrationViewController(user: user)
         
@@ -127,29 +146,8 @@ class CategoryRegistrationViewController: UIViewController {
         
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    @objc func handleHelp() {
-        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
-    }
 }
 
-extension CategoryRegistrationViewController: UITextViewDelegate {
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        if URL.absoluteString == "presentCommunityInformation" {
-            whoCanJoinMenuLauncher.showImageSettings(in: view)
-            return false
-        }
-        return true
-    }
-    
-    func textViewDidChangeSelection(_ textView: UITextView) {
-        if textView.selectedTextRange != nil {
-            textView.delegate = nil
-            textView.selectedTextRange = nil
-            textView.delegate = self
-        }
-    }
-}
 
 extension CategoryRegistrationViewController: MECategoryViewDelegate {
     func didTapCategory(_ view: MECategoryView, completion: @escaping (Bool) -> Void) {
@@ -167,28 +165,6 @@ extension CategoryRegistrationViewController: MECategoryViewDelegate {
             user.category = .none
         }
         completion(true)
-    }
-}
-
-extension CategoryRegistrationViewController: HelperBottomMenuLauncherDelegate {
-    func didTapContactSupport() {
-        if MFMailComposeViewController.canSendMail() {
-            let controller = MFMailComposeViewController()
-            controller.setToRecipients(["support@myevidens.com"])
-            controller.mailComposeDelegate = self
-            present(controller, animated: true)
-        } else {
-            print("Device cannot send email")
-        }
-    }
-    
-    func didTapLogout() {
-        AuthService.logout()
-        AuthService.googleLogout()
-        let controller = WelcomeViewController()
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
     }
 }
 

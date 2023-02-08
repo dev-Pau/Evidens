@@ -88,7 +88,7 @@ class LoginViewController: UIViewController {
         configureUI()
         configureEye()
         setUpDelegates()
-        configureNavigationItemButton()
+        //configureNavigationItemButton()
         configureNotificationsObservers()
     }
     
@@ -148,11 +148,6 @@ class LoginViewController: UIViewController {
         imageIcon.addGestureRecognizer(tapGestureRecognizer)
     }
     
-    func configureNavigationItemButton() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "chevron.backward", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .plain, target: self, action: #selector(didTapBack))
-        navigationController?.navigationBar.tintColor = .label
-    }
-    
     func setUpDelegates() {
         emailTextField.delegate = self
         passwordTextField.delegate = self
@@ -204,8 +199,16 @@ class LoginViewController: UIViewController {
         let backItem = UIBarButtonItem()
         backItem.tintColor = .label
         backItem.title = ""
-        
+
         navigationItem.backBarButtonItem = backItem
+
+        let transition = CATransition()
+        transition.duration = 0.2
+        transition.type = .reveal
+        transition.subtype = .fromRight
+        
+        navigationController?.view.layer.add(transition, forKey: "kek")
+        
         
         self.navigationController?.pushViewController(controller, animated: true)
     }

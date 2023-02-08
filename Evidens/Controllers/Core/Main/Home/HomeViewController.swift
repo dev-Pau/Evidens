@@ -501,6 +501,7 @@ extension HomeViewController: HomeCellDelegate {
             print("delete post here")
         case .edit:
             let controller = EditPostViewController(post: post)
+            controller.delegate = self
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             
@@ -877,6 +878,13 @@ extension HomeViewController {
 }
 
 extension HomeViewController: DetailsPostViewControllerDelegate {
+    func didEditPost(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex] = post
+            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 1)])
+        }
+    }
+    
     func didTapLikeAction(forPost post: Post) {
         let index = posts.firstIndex { homePost in
             if homePost.postId == post.postId {
@@ -990,6 +998,15 @@ extension HomeViewController: CommentPostViewControllerDelegate {
             case .video:
                 break
             }
+        }
+    }
+}
+
+extension HomeViewController: EditPostViewControllerDelegate {
+    func didEditPost(post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex] = post
+            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 1)])
         }
     }
 }
