@@ -21,6 +21,7 @@ protocol ConfigureSectionViewControllerDelegate: AnyObject {
 class ConfigureSectionViewController: UIViewController {
     
     private let user: User
+
     
     weak var delegate: ConfigureSectionViewControllerDelegate?
     
@@ -113,7 +114,7 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
             controller.title = "Patent"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 4 {
-            let controller = AddPublicationViewController()
+            let controller = AddPublicationViewController(user: user)
             controller.delegate = self
             controller.title = "Publication"
             navigationController?.pushViewController(controller, animated: true)
@@ -152,4 +153,3 @@ extension ConfigureSectionViewController: AddAboutViewControllerDelegate, AddExp
         delegate?.aboutSectionDidChange()
     }
 }
-

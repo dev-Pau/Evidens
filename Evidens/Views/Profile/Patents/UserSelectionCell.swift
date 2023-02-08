@@ -17,7 +17,7 @@ class UserSelectionCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectionImageView.image = UIImage(systemName: isSelected ? "smallcircle.fill.circle.fill" : "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
+            selectionImageView.image = UIImage(systemName: isSelected ? "circle.inset.filled" : "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
         }
     }
     
@@ -59,6 +59,7 @@ class UserSelectionCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor)
         iv.contentMode = .scaleAspectFill
         return iv
     }()

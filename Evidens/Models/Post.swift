@@ -116,6 +116,24 @@ struct Post {
         }
     }
     
+    enum PostMenuOptions: String, CaseIterable {
+        case delete = "Delete post"
+        case edit = "Edit post"
+        case report = "Report post"
+        
+        var menuOptionsImage: UIImage {
+            switch self {
+            case .delete:
+                return UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .edit:
+                return UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .report:
+                return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            }
+        }
+    }
+    
+    
     let postDocumentUrl: String
     let documentPages: Int
     let documentTitle: String

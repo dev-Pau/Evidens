@@ -104,8 +104,6 @@ struct PostService {
     }
     
     static func editPost(withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-         
         let postData = ["post": text,
                         "edited": true] as [String : Any]
         

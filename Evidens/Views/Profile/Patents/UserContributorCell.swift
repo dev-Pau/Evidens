@@ -14,7 +14,7 @@ class UserContributorCell: UICollectionViewCell {
     
     private var cellUser: User?
     
-    weak var delegate: UserContributorCellDelegate?
+    //weak var delegate: UserContributorCellDelegate?
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -47,7 +47,7 @@ class UserContributorCell: UICollectionViewCell {
         return label
     }()
     
-    private let xmarkButton: UIButton = {
+    var xmarkButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()

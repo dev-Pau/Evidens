@@ -67,7 +67,7 @@ class UserProfileViewController: UIViewController {
     
     var relatedUsers = [User]() {
         didSet {
-            print(relatedUsers)
+
             collectionView.reloadData()
         }
     }
@@ -82,10 +82,10 @@ class UserProfileViewController: UIViewController {
     
     //Patents
     private var hasPatents: Bool = false
-    private var patents = [[String: String]]()
+    private var patents = [[String: Any]]()
     
     //Publications
-    private var publications = [[String: String]]()
+    private var publications = [[String: Any]]()
     
     //Education
     private var hasEducation: Bool = false
@@ -827,6 +827,8 @@ class UserProfileViewController: UIViewController {
                 //self.collectionView.reloadSections(IndexSet(integer: 1))
                 self.hasPatents = true
                 self.patents = patents
+                print("patents are: ")
+                print(self.patents)
                 self.collectionView.reloadData()
             case .failure(_):
                 print("No Patents")
@@ -1375,7 +1377,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         case "Publications":
-            let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
+            let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
             controller.title = "Publications"
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1489,7 +1491,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
 
             
         case "Show publications":
-            let controller = PublicationSectionViewController(publications: publications, isCurrentUser: user.isCurrentUser)
+            let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""

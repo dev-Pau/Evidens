@@ -10,10 +10,17 @@ import Photos
 import PhotosUI
 import Firebase
 import SDWebImage
+import JGProgressHUD
+
+protocol EditPostViewControllerDelegate: AnyObject {
+    func didEditPost(post: Post)
+}
 
 class EditPostViewController: UIViewController {
     
     //MARK: - Properties
+    
+    weak var delegate: EditPostViewControllerDelegate?
     
     private var post: Post
     
@@ -36,7 +43,7 @@ class EditPostViewController: UIViewController {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .lightGray
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -73,42 +80,30 @@ class EditPostViewController: UIViewController {
    
     private lazy var editButton: UIButton = {
         let button = UIButton()
-        
         button.configuration = .filled()
-        
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
-        
-        button.isUserInteractionEnabled = false
-        
         button.configuration?.cornerStyle = .capsule
-        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Save", attributes: container)
-        
         button.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
         return button
     }()
     
     private lazy var plusImagesButton: UIButton = {
         let button = UIButton()
-        
         button.configuration = .filled()
-        
         button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.7)
         button.configuration?.baseForegroundColor = .white
-        
         button.configuration?.buttonSize = .mini
-        
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         button.isUserInteractionEnabled = false
-        
         button.configuration?.cornerStyle = .capsule
-
         return button
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     
     //MARK: - Lifecycle
@@ -147,7 +142,7 @@ class EditPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Edit your post"
+        title = "Edit post"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
@@ -161,7 +156,6 @@ class EditPostViewController: UIViewController {
         view.backgroundColor = .systemBackground
         postTextView.text = post.postText
         postTextView.handleTextDidChange()
-        
         
         view.addSubview(scrollView)
         scrollView.addSubviews(profileImageView, fullName, postTextView)
@@ -264,11 +258,13 @@ class EditPostViewController: UIViewController {
     @objc func didTapEdit() {
         guard let postText = postTextView.text else { return }
     
-        showLoadingView()
+        progressIndicator.show(in: view)
         
         PostService.editPost(withPostUid: post.postId, withNewText: postText) { uploaded in
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
             if uploaded {
+                self.post.postText = postText
+                self.delegate?.didEditPost(post: self.post)
                 self.dismiss(animated: true)
             } else {
                 //Post not uploaded

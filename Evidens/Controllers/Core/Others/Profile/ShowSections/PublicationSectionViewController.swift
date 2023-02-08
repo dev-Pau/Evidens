@@ -11,9 +11,11 @@ private let publicationCellReuseIdentifier = "PublicationCellReuseIdentifier"
 
 class PublicationSectionViewController: UICollectionViewController {
     
+    private let user: User
+    
     weak var delegate: EditProfileViewControllerDelegate?
     
-    private var publications = [[String: String]]()
+    private var publications = [[String: Any]]()
     private var isCurrentUser: Bool
     
     override func viewDidLoad() {
@@ -22,7 +24,8 @@ class PublicationSectionViewController: UICollectionViewController {
         title = "Publications"
     }
     
-    init(publications: [[String: String]], isCurrentUser: Bool) {
+    init(user: User, publications: [[String: Any]], isCurrentUser: Bool) {
+        self.user = user
         self.publications = publications
         self.isCurrentUser = isCurrentUser
         
@@ -77,7 +80,7 @@ class PublicationSectionViewController: UICollectionViewController {
 
 extension PublicationSectionViewController: UserProfilePublicationCellDelegate {
     func didTapEditPublication(_ cell: UICollectionViewCell, publicationTitle: String, publicationDate: String, publicationUrl: String) {
-        let controller = AddPublicationViewController()
+        let controller = AddPublicationViewController(user: user)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""

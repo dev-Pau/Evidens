@@ -32,7 +32,6 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate {
     
     private var commentMenu = CommentsMenuLauncher()
-    var homeMenuLauncher = HomeOptionsMenuLauncher()
     private var zoomTransitioning = ZoomTransitioning()
 
     var selectedImage: UIImageView!
@@ -142,7 +141,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     func configureCollectionView() {
-        homeMenuLauncher.delegate = self
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -309,6 +307,24 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 }
 
 extension DetailsPostViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+        switch option {
+        case .delete:
+            print("delete post here")
+        case .edit:
+            let controller = EditPostViewController(post: post)
+            controller.delegate = self
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            
+            present(nav, animated: true)
+        case .report:
+            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            
+        }
+    }
+
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         let controller = CommentPostViewController(post: post, user: user)
         controller.hidesBottomBarWhenPushed = true
@@ -447,11 +463,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         
     }
     
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) {
-        homeMenuLauncher.user = user
-        homeMenuLauncher.post = post
-        homeMenuLauncher.showImageSettings(in: view)
-    }
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         switch cell {
@@ -617,53 +629,6 @@ extension DetailsPostViewController: CommentCellDelegate {
     }
 }
 
-extension DetailsPostViewController: HomeOptionsMenuLauncherDelegate {
-    func didTapDeletePost(forPostUid uid: String) {
-        print("Delete here")
-    }
-    
-    func didTapEditPost(forPost post: Post) {
-        let controller = EditPostViewController(post: post)
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        
-        present(nav, animated: true)
-    }
-    
-    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
-        if follow {
-            // Unfollow user
-            UserService.unfollow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
-                reportPopup.showTopPopup(inView: self.view)
-            }
-        } else {
-            guard let tab = tabBarController as? MainTabController else { return }
-            guard let user = tab.user else { return }
-            // Follow user
-            UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
-                reportPopup.showTopPopup(inView: self.view)
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
-                NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
-            }
-        }
-    }
-    
-    func didTapReportPost(forPostUid uid: String) {
-        reportPostAlert {
-            DatabaseManager.shared.reportPost(forUid: uid) { reported in
-                if reported {
-                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .destructive)
-                    reportPopup.showTopPopup(inView: self.view)
-                }
-            }
-        }
-    }
-    
-    
-}
-
 extension DetailsPostViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
@@ -705,5 +670,12 @@ extension DetailsPostViewController: ReviewContentGroupDelegate {
                 }
             }
         }
+    }
+}
+
+extension DetailsPostViewController: EditPostViewControllerDelegate {
+    func didEditPost(post: Post) {
+        self.post = post
+        collectionView.reloadSections(IndexSet(integer: 0))
     }
 }

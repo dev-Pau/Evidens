@@ -15,7 +15,7 @@ class PatentSectionViewController: UICollectionViewController {
     
     weak var delegate: EditProfileViewControllerDelegate?
     
-    private var patents = [[String: String]]()
+    private var patents = [[String: Any]]()
     private var isCurrentUser: Bool
     
     override func viewDidLoad() {
@@ -28,7 +28,7 @@ class PatentSectionViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(user: User, patents: [[String: String]], isCurrentUser: Bool) {
+    init(user: User, patents: [[String: Any]], isCurrentUser: Bool) {
         self.user = user
         self.patents = patents
         self.isCurrentUser = isCurrentUser
@@ -91,7 +91,6 @@ extension PatentSectionViewController: UserProfilePatentCellDelegate {
         
         controller.configureWithPublication(patentTitle: patentTitle, patentNumber: patentNumber, patentDescription: patentDescription)
         navigationController?.pushViewController(controller, animated: true)
-        
     }
 }
 
@@ -99,7 +98,5 @@ extension PatentSectionViewController: AddPatentViewControllerDelegate {
     func handleUpdatePatent() {
         delegate?.fetchNewPatentValues()
     }
-    
-    
 }
 

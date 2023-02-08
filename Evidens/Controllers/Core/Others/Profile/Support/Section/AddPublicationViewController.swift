@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import JGProgressHUD
+
+private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
 protocol AddPublicationViewControllerDelegate: AnyObject {
     func handleUpdatePublication()
@@ -14,6 +17,11 @@ protocol AddPublicationViewControllerDelegate: AnyObject {
 class AddPublicationViewController: UIViewController {
     
     weak var delegate: AddPublicationViewControllerDelegate?
+    
+    private let progressIndicator = JGProgressHUD()
+    
+    private let user: User
+    private var contributors: [User]?
     
     private var userIsEditing = false
     private var previousPublication: String = ""
@@ -135,18 +143,25 @@ class AddPublicationViewController: UIViewController {
         return label
     }()
     
-    private let addContributorsButton: UIButton = {
+    private lazy var addContributorsButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.buttonSize = .mini
-        button.configuration?.title = "Contributor"
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .medium)
+        button.configuration?.attributedTitle = AttributedString("Contributor", attributes: container)
+        
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.imagePlacement = .leading
         button.configuration?.imagePadding = 5
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleAddContributors), for: .touchUpInside)
         return button
     }()
+    
+    private var collectionView: UICollectionView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -155,10 +170,34 @@ class AddPublicationViewController: UIViewController {
         configureUI()
     }
     
+    init(user: User) {
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+    
+    private func createLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(120)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.25), heightDimension: .absolute(120)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.orthogonalScrollingBehavior = .continuous
+            return section
+        }
+        
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.interSectionSpacing = 0
+        layout.configuration = config
+        return layout
     }
     
     private func configureDatePicker() {
@@ -176,6 +215,12 @@ class AddPublicationViewController: UIViewController {
     }
     
     private func configureUI() {
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.register(UserContributorCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
         publicationTitleLabel.attributedText = generateSuperscriptFor(text: "Publication title")
         urlPublicationLabel.attributedText = generateSuperscriptFor(text: "Publication URL")
         publicationDateLabel.attributedText = generateSuperscriptFor(text: "Date")
@@ -183,7 +228,7 @@ class AddPublicationViewController: UIViewController {
         view.backgroundColor = .secondaryLabel
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(publicationTitleLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField)
+        scrollView.addSubviews(publicationTitleLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField, collectionView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -231,6 +276,11 @@ class AddPublicationViewController: UIViewController {
             contributorsDescriptionLabel.topAnchor.constraint(equalTo: addContributorsButton.bottomAnchor, constant: 5),
             contributorsDescriptionLabel.leadingAnchor.constraint(equalTo: contributorsLabel.leadingAnchor),
             contributorsDescriptionLabel.trailingAnchor.constraint(equalTo: contributorsLabel.trailingAnchor),
+            
+            collectionView.topAnchor.constraint(equalTo: contributorsDescriptionLabel.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: 120)
         ])
     }
     
@@ -242,29 +292,44 @@ class AddPublicationViewController: UIViewController {
     @objc func handleDone() {
         guard let title = publicationTitleTextField.text, let url = urlPublicationTextField.text, let date = publicationDateTextField.text else { return }
         
-        showLoadingView()
+        var patentContributors = [String]()
+        
+        if let contributors = contributors {
+            patentContributors = contributors.map({ $0.uid! })
+        } else {
+            patentContributors = [user.uid!]
+        }
+        
+        progressIndicator.show(in: view)
+    
         if userIsEditing {
-            print("user is editing calling to update")
-            print(previousPublication)
-            DatabaseManager.shared.updatePublication(previousPublication: previousPublication, publicationTitle: title, publicationUrl: url, publicationDate: date) { uploaded in
-                
-                self.dismissLoadingView()
+            DatabaseManager.shared.updatePublication(previousPublication: previousPublication, publicationTitle: title, publicationUrl: url, publicationDate: date, contributors: patentContributors) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
                 self.delegate?.handleUpdatePublication()
                 if let count = self.navigationController?.viewControllers.count {
                     self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
                 }
-   
             }
         } else {
-            DatabaseManager.shared.uploadPublication(title: title, url: url, date: date) { uploaded in
-                
-                self.dismissLoadingView()
+            DatabaseManager.shared.uploadPublication(title: title, url: url, date: date, contributors: patentContributors) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
                 self.delegate?.handleUpdatePublication()
                 self.navigationController?.popViewController(animated: true)
-                
             }
         }
+    }
+    
+    @objc func handleAddContributors() {
+        let controller = AddContributorsViewController(user: user, selectedUsers: contributors)
+        controller.delegate = self
         
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func handleAddDate() {
@@ -332,3 +397,29 @@ class AddPublicationViewController: UIViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }
+
+
+extension AddPublicationViewController: AddContributorsViewControllerDelegate {
+    func didAddContributors(contributors: [User]) {
+        self.contributors = contributors
+        collectionView.reloadData()
+    }
+}
+
+extension AddPublicationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return contributors?.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserContributorCell
+        cell.xmarkButton.isHidden = true
+        cell.set(user: contributors![indexPath.row])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        handleAddContributors()
+    }
+}
+

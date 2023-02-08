@@ -138,9 +138,9 @@ class UserProfilePublicationCell: UICollectionViewCell {
     
     
     
-    func set(publicationInfo: [String: String]) {
-        publicationTitleLabel.text = publicationInfo["title"]
-        publicationUrlLabel.text = publicationInfo["url"]
-        publicationDateLabel.text = publicationInfo["date"]
+    func set(publicationInfo: [String: Any]) {
+        publicationTitleLabel.text = publicationInfo["title"] as? String
+        publicationUrlLabel.text = publicationInfo["url"] as? String
+        publicationDateLabel.text = publicationInfo["date"] as? String
     }
 }

@@ -30,7 +30,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
     var user: User?
     var selectedImage: UIImageView!
-    var homeMenuLauncher = HomeOptionsMenuLauncher()
     
     var loaded = false
     
@@ -42,6 +41,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
+    
+    private var collectionView: UICollectionView!
+    /*
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -59,6 +61,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+     */
     
     var users = [User]()
     
@@ -110,7 +113,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
     //MARK: - Helpers
     func configureUI() {
-        
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         
         
         // Configure UICollectionView
@@ -125,17 +128,55 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.frame = view.bounds
 
-        //collectionView.contentInset = UIEdgeInsets(top: topbarHeight / 2.5, left: 0, bottom: 0, right: 0)
-        //collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(collectionView)
 
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
+    }
+    
+    func createLayout() -> UICollectionViewCompositionalLayout {
         
-        homeMenuLauncher.delegate = self
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            
+            if sectionNumber == 0 {
+
+                #warning("if user has completed steps or has hide it, show this, instead, show another with a header to put title and three dots + add section.orthogonalScrollingBehavior = true")
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                //section.orthogonalScrollingBehavior = .continuous
+                //section.interGroupSpacing = 10
+                //section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                
+                let config = UICollectionViewCompositionalLayoutConfiguration()
+                
+                //config.interSectionSpacing = 10
+                //config.scrollDirection = .horizontal
+                return section
+                 
+            } else {
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                //section.orthogonalScrollingBehavior = .continuous
+                //section.interGroupSpacing = 10
+                //section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                
+                let config = UICollectionViewCompositionalLayoutConfiguration()
+                //config.interSectionSpacing = 10
+                //config.scrollDirection = .horizontal
+                return section
+            }
+
+        }
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        
+        config.interSectionSpacing = 0
+        layout.configuration = config
+        
+        return layout
     }
     
     func configureNavigationItemButtons() {
@@ -270,7 +311,13 @@ extension HomeViewController: UICollectionViewDelegate {
 //MARK: - UICollectionViewDataSource
 
 extension HomeViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        2
+    }
+    
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if section == 0 { return 0 }
         if !loaded {
             return 4
         }
@@ -448,6 +495,23 @@ extension HomeViewController: UICollectionViewDataSource {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+        switch option {
+        case .delete:
+            print("delete post here")
+        case .edit:
+            let controller = EditPostViewController(post: post)
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            
+            present(nav, animated: true)
+        case .report:
+            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            
+        }
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
     
         let layout = UICollectionViewFlowLayout()
@@ -659,11 +723,7 @@ extension HomeViewController: HomeCellDelegate {
         
     }
     
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) {
-        homeMenuLauncher.user = user
-        homeMenuLauncher.post = post
-        homeMenuLauncher.showImageSettings(in: view)
-    }
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
     
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
@@ -772,57 +832,6 @@ extension HomeViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return selectedImage
     }
-}
-
-extension HomeViewController: HomeOptionsMenuLauncherDelegate {
-    func didTapFollowAction(forUid uid: String, isFollowing follow: Bool, forUserFirstName firstName: String) {
-        if follow {
-            // Unfollow user
-            UserService.unfollow(uid: uid) { _ in
-                self.unfollowAlert(withUserFirstName: firstName) {
-                    let reportPopup = METopPopupView(title: "You unfollowed \(firstName)", image: "xmark.circle.fill", popUpType: .destructive)
-                    reportPopup.showTopPopup(inView: self.view)
-                    PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
-                }
-            }
-        } else {
-            // Follow user
-            guard let tab = tabBarController as? MainTabController else { return }
-            guard let user = tab.user else { return }
-            UserService.follow(uid: uid) { _ in
-                let reportPopup = METopPopupView(title: "You followed \(firstName)", image: "plus.circle.fill", popUpType: .regular)
-                reportPopup.showTopPopup(inView: self.view)
-                PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
-                NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
-                
-            }
-        }
-    }
-    
-    func didTapReportPost(forPostUid uid: String) {
-        reportPostAlert {
-            DatabaseManager.shared.reportPost(forUid: uid) { reported in
-                if reported {
-                    let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .destructive)
-                    reportPopup.showTopPopup(inView: self.view)
-                }
-            }
-        }
-    }
-    
-    func didTapDeletePost(forPostUid uid: String) {
-        deletePostAlert {
-            print("Delete post here")
-        }
-    }
-    
-    func didTapEditPost(forPost post: Post) {
-        let controller = EditPostViewController(post: post)
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-    
 }
 
 extension HomeViewController {

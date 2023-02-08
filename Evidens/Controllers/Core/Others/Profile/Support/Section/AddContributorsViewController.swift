@@ -13,9 +13,15 @@ private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
 private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
+protocol AddContributorsViewControllerDelegate: AnyObject {
+    func didAddContributors(contributors: [User])
+}
+
 class AddContributorsViewController: UIViewController {
     
     //MARK: - Properties
+    weak var delegate: AddContributorsViewControllerDelegate?
+    
     private let user: User
 
     private var users = [User]()
@@ -35,9 +41,14 @@ class AddContributorsViewController: UIViewController {
         fetchFirstGroupOfUsers()
     }
     
-    init(user: User) {
+    init(user: User, selectedUsers: [User]? = nil) {
         self.user = user
-        self.usersSelected = [user]
+        if let selectedUsers = selectedUsers {
+            self.usersSelected = selectedUsers
+        } else {
+            self.usersSelected = [user]
+        }
+
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -94,6 +105,9 @@ class AddContributorsViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Contributors"
+        let rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddContributors))
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     private func configureCollectionView() {
@@ -106,9 +120,19 @@ class AddContributorsViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.allowsSelection = true
+        collectionView.allowsMultipleSelection = true
         
         view.backgroundColor = .systemBackground
         view.addSubviews(collectionView)
+    }
+    
+    private func validateUsers() {
+        navigationItem.rightBarButtonItem?.isEnabled = usersSelected.count > 1 ? true : false
+    }
+    
+    @objc func handleAddContributors() {
+        delegate?.didAddContributors(contributors: usersSelected)
+        navigationController?.popViewController(animated: true)
     }
 }
 
@@ -140,22 +164,47 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: conversationCellReuseIdentifier, for: indexPath) as! UserSelectionCell
             cell.set(user: filteredUsers[indexPath.row])
+            if usersSelected.contains(filteredUsers[indexPath.row]) {
+                collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+            }
             return cell
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(indexPath.section)
         if indexPath.section == 0 {
             guard usersSelected[indexPath.row].uid != user.uid! else { return }
-            usersSelected.remove(at: indexPath.row)
-            collectionView.deleteItems(at: [indexPath])
+            if let index = filteredUsers.firstIndex(where: { $0.uid == usersSelected[indexPath.row].uid }) {
+                usersSelected.remove(at: indexPath.row)
+                collectionView.deleteItems(at: [indexPath])
+                collectionView.deselectItem(at: IndexPath(item: index, section: 1), animated: true)
+            } else {
+                usersSelected.remove(at: indexPath.row)
+                collectionView.deleteItems(at: [indexPath])
+            }
+            
         } else {
             guard filteredUsers.count > 0 else { return }
             let selectedUser = filteredUsers[indexPath.row]
             guard !usersSelected.contains(selectedUser) else { return }
             usersSelected.insert(selectedUser, at: 0)
             collectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
+        }
+        validateUsers()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if indexPath.section == 1 {
+            let selectedUser = filteredUsers[indexPath.row]
+            if let index = usersSelected.firstIndex(where: { $0.uid == selectedUser.uid }) {
+                usersSelected.remove(at: index)
+                collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                validateUsers()
+            }
         }
     }
 }
@@ -174,9 +223,4 @@ extension AddContributorsViewController: GroupSearchBarHeaderDelegate {
         filteredUsers = users
         self.collectionView.reloadSections(IndexSet(integer: 1))
     }
-}
-
-
-protocol UserContributorCellDelegate: AnyObject {
-    func didTapProfile(forUser user: User)
 }

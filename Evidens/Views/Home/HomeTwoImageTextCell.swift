@@ -145,7 +145,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
 
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        
+        userPostView.dotsImageButton.menu = addMenuItems()
         postTextLabel.text = viewModel.postText
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
@@ -169,6 +169,33 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        if uid == viewModel.post.ownerUid {
+            // Owner
+            
+            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                UIAction(title: Post.PostMenuOptions.delete.rawValue, image: Post.PostMenuOptions.delete.menuOptionsImage, handler: { (_) in
+                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .delete)
+                }),
+                UIAction(title: Post.PostMenuOptions.edit.rawValue, image: Post.PostMenuOptions.edit.menuOptionsImage, handler: { (_) in
+                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .edit)
+                })
+            ])
+            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        } else {
+            //  Not owner
+            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                UIAction(title: Post.PostMenuOptions.report.rawValue, image: Post.PostMenuOptions.report.menuOptionsImage, handler: { (_) in
+                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .report)
+                })
+            ])
+            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        }
     }
     
     func set(user: User) {
@@ -214,10 +241,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
 
 
 extension HomeTwoImageTextCell: MEUserPostViewDelegate {
-    func didTapThreeDots() {
-        guard let viewModel = viewModel, let user = user else { return }
-        delegate?.cell(self, didPressThreeDotsFor: viewModel.post, forAuthor: user)
-    }
+    func didTapThreeDots() { return }
     
     func didTapProfile() {
         guard let user = user else { return }

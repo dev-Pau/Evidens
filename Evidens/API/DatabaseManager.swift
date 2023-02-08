@@ -584,11 +584,13 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadPatent(title: String, number: String, completion: @escaping(Bool) -> Void) {
+    public func uploadPatent(title: String, number: String, contributors: [String], completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let patentData = ["title": title,
-                          "number": number]
+                          "number": number,
+                          "contributors": contributors] as [String : Any]
+                         
         
         let ref = database.child("users").child(uid).child("patents").childByAutoId()
         
@@ -602,24 +604,25 @@ extension DatabaseManager {
     }
     
     
-    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+    public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("patents")
-        var recentPatents = [[String: String]]()
+        var recentPatents = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: String] else { return }
+                guard let value = child.value as? [String: Any] else { return }
                 recentPatents.append(value)
             }
             completion(.success(recentPatents))
         }
     }
     
-    public func updatePatent(previousPatent: String, patentTitle: String, patentNumber: String, completion: @escaping(Bool) -> Void) {
+    public func updatePatent(previousPatent: String, patentTitle: String, patentNumber: String, contributors: [String], completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let patentData = ["title": patentTitle,
-                          "number": patentNumber]
+                          "number": patentNumber,
+                          "contributors": contributors] as [String: Any]
             
         
         let ref = database.child("users").child(uid).child("patents").queryOrdered(byChild: "title").queryEqual(toValue: previousPatent)
@@ -646,12 +649,13 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadPublication(title: String, url: String, date: String, completion: @escaping(Bool) -> Void) {
+    public func uploadPublication(title: String, url: String, date: String, contributors: [String], completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let publicationData = ["title": title,
                                "url": url,
-                               "date": date]
+                               "date": date,
+                               "contributors": contributors] as [String: Any]
         
         let ref = database.child("users").child(uid).child("publications").childByAutoId()
         
@@ -668,7 +672,7 @@ extension DatabaseManager {
     }
     
     
-    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
+    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("publications")
         var recentPublications = [[String: String]]()
         
@@ -681,12 +685,13 @@ extension DatabaseManager {
         }
     }
     
-    public func updatePublication(previousPublication: String, publicationTitle: String, publicationUrl: String, publicationDate: String, completion: @escaping(Bool) -> Void) {
+    public func updatePublication(previousPublication: String, publicationTitle: String, publicationUrl: String, publicationDate: String, contributors: [String], completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let publicationData = ["title": publicationTitle,
                                "url": publicationUrl,
-                               "date": publicationDate]
+                               "date": publicationDate,
+                               "contributors": contributors] as [String: Any]
         
         //let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
         let ref = database.child("users").child(uid).child("publications").queryOrdered(byChild: "title").queryEqual(toValue: previousPublication)

@@ -654,6 +654,23 @@ extension GroupContentManagementViewController: ReviewContentGroupDelegate {
 }
 
 extension GroupContentManagementViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+        switch option {
+        case .delete:
+            print("delete post here")
+        case .edit:
+            let controller = EditPostViewController(post: post)
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            
+            present(nav, animated: true)
+        case .report:
+            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            
+        }
+    }
+    
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User) { return }
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post) { return }
     func cell(wantsToSeeLikesFor post: Post) { return }
