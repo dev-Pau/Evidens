@@ -34,6 +34,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
         }
     }
     
+    var updateButtonAfterAction: Bool? {
+        didSet {
+            updateButton()
+        }
+    }
+    
     /*
     private lazy var bannerImageView: UIImageView = {
         let iv = UIImageView()
@@ -67,6 +73,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .label
+        label.textAlignment = .center
         return label
     }()
     
@@ -76,6 +83,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.numberOfLines = 2
+        label.textAlignment = .center
         label.lineBreakMode = .byTruncatingTail
         label.textColor = .label
         return label
@@ -111,6 +119,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
     private lazy var followersLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
+        label.textAlignment = .center
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowingFollowers)))
@@ -135,7 +144,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
         
-        addSubviews(profileImageView, nameLabel, professionLabel, followButton, sendMessageButton, followersLabel)
+        addSubviews(profileImageView, nameLabel, professionLabel, followButton, followersLabel)
         
         NSLayoutConstraint.activate([
             /*
@@ -144,12 +153,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
             */
+            profileImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 80),
             profileImageView.heightAnchor.constraint(equalToConstant: 80),
             
-            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
@@ -167,24 +176,15 @@ class UserProfileHeaderCell: UICollectionViewCell {
             followButton.heightAnchor.constraint(equalToConstant: 30),
             followButton.widthAnchor.constraint(equalToConstant: 100),
             
-            sendMessageButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
-            sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
+            //sendMessageButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            //sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
+            //sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
         ])
         
         profileImageView.layer.cornerRadius = 80 / 2
         
         followButton.configurationUpdateHandler = { [unowned self] button in
-            var config = button.configuration
-            config?.showsActivityIndicator = self.isUpdatingFollowState!
             button.isUserInteractionEnabled = self.isUpdatingFollowState! ? false : true
-            
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 14, weight: .bold)
-            
-            config?.attributedTitle = self.isUpdatingFollowState! ? "" : AttributedString((button.configuration?.title)!, attributes: container)
-
-            button.configuration = config
         }
     }
     
@@ -211,6 +211,8 @@ class UserProfileHeaderCell: UICollectionViewCell {
         followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
         followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
         followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+
+        followButton.menu = addMenuItems()
         
         // Message
         sendMessageButton.isUserInteractionEnabled = viewModel.user.isCurrentUser ? false : true
@@ -220,6 +222,18 @@ class UserProfileHeaderCell: UICollectionViewCell {
         followersLabel.attributedText = viewModel.followingFollowersText
         
         //pointsMessageButton.configuration?.attributedTitle = AttributedString(viewModel.pointsMessageText, attributes: container)
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel, viewModel.user.isFollowed else { return nil }
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Unfollow \(viewModel.firstName)", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
+                self.delegate?.headerCell(self, didTapEditProfileFor: viewModel.user)
+            })
+        ])
+        followButton.showsMenuAsPrimaryAction = true
+        return menuItems
+        
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -234,6 +248,16 @@ class UserProfileHeaderCell: UICollectionViewCell {
                  followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
              }
          }
+    }
+    
+    func updateButton() {
+        guard let viewModel = viewModel else { return }
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 14, weight: .bold)
+        followButton.configuration?.attributedTitle = AttributedString(viewModel.followButtonText, attributes: container)
+        followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
+        followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+        followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
     }
     
     

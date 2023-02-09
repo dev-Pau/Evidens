@@ -201,14 +201,6 @@ class LoginViewController: UIViewController {
         backItem.title = ""
 
         navigationItem.backBarButtonItem = backItem
-
-        let transition = CATransition()
-        transition.duration = 0.2
-        transition.type = .reveal
-        transition.subtype = .fromRight
-        
-        navigationController?.view.layer.add(transition, forKey: "kek")
-        
         
         self.navigationController?.pushViewController(controller, animated: true)
     }

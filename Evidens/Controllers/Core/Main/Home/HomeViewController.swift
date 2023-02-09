@@ -89,6 +89,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("top bar height is \(topbarHeight)")
+        print("top bar height is \(topbarHeight)")
+        print("top bar height is \(topbarHeight)")
+        print("top bar height is \(topbarHeight)")
+        print("top bar height is \(topbarHeight)")
 
         self.navigationController?.delegate = zoomTransitioning
         

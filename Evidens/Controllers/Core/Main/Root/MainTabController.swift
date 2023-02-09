@@ -196,6 +196,7 @@ class MainTabController: UITabBarController {
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
         
         viewControllers = [home, cases, post, search, notifications]
+    
         
         //
     }
@@ -224,6 +225,7 @@ class MainTabController: UITabBarController {
             let userProfileController = UserProfileViewController(user: user)
             
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
+     
             currentNavController.pushViewController(userProfileController, animated: true)
         }
     }

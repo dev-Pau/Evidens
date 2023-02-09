@@ -71,6 +71,8 @@ class UserProfileViewController: UIViewController {
             collectionView.reloadData()
         }
     }
+    
+    private var scrollViewDidScrollHigherThanActionButton: Bool = false
         
     //About
     private var hasAbout: Bool = false
@@ -125,6 +127,7 @@ class UserProfileViewController: UIViewController {
         button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
         //button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+
         return button
     }()
     
@@ -187,15 +190,13 @@ class UserProfileViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationItemButton() {
-        ellipsisRightButton.menu = addEllipsisMenuItems()
-        
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
+        self.navigationItem.scrollEdgeAppearance = appearance
+        //navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        
-        
-        
+        ellipsisRightButton.menu = addEllipsisMenuItems()
+
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
         navigationController?.navigationBar.standardAppearance = standardAppearance
@@ -207,13 +208,18 @@ class UserProfileViewController: UIViewController {
         customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
         customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
         customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+        customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
         customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
         
         if !user.isCurrentUser {
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
-
+            if !user.isFollowed {
+                customRightButton.menu = addUnfollowMenu()
+                customRightButton.showsMenuAsPrimaryAction = false
+            }
         }
-       
+        
+        //
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         
         let imageView = UIImageView()
@@ -224,8 +230,7 @@ class UserProfileViewController: UIViewController {
         
         let imageViewContainer = LogoContainerView(imageView: imageView)
         imageViewContainer.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-        
-        
+
         navigationItem.titleView = imageViewContainer
         navigationItem.titleView?.isHidden = true
     }
@@ -243,7 +248,20 @@ class UserProfileViewController: UIViewController {
     private func addUnfollowMenu() -> UIMenu? {
         let menuItems = UIMenu(options: .displayInline, children: [
             UIAction(title: "Unfollow " + user.firstName!, image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, attributes: .destructive, handler: { _ in
-                print("did unfollow user")
+                UserService.unfollow(uid: self.user.uid!) { error in
+                    print("did unfollow")
+                    self.user.isFollowed = false
+                    let viewModel = ProfileHeaderViewModel(user: self.user)
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 14, weight: .bold)
+                    self.customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
+                    self.customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+                    self.customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+                    self.customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
+                    
+                }
+                self.customRightButton.showsMenuAsPrimaryAction = false
             })
         ])
         customRightButton.showsMenuAsPrimaryAction = true
@@ -258,7 +276,9 @@ class UserProfileViewController: UIViewController {
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
         navigationController?.navigationBar.standardAppearance = standardAppearance
         
-        if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) {
+        if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) && !scrollViewDidScrollHigherThanActionButton {
+            // User pass over the edit profile / follow button
+            scrollViewDidScrollHigherThanActionButton.toggle()
             
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
@@ -268,17 +288,23 @@ class UserProfileViewController: UIViewController {
             if self.user.isFollowed {
                 //navigationItem.rightBarButtonItem = UIBarB
                 navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis")?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
-                return
+            } else {
+                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
             }
-            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
-        } else {
+            
+            
+        } else if currentVeritcalOffset < (view.frame.width / 3 + 10 + 30 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
+            scrollViewDidScrollHigherThanActionButton.toggle()
+            
+            navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+            // Follow button or edit profile are still visible
             if !user.isCurrentUser {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: ellipsisRightButton)
+            } else {
+                navigationItem.setRightBarButton(nil, animated: true)
             }
-
-            navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-            navigationItem.setRightBarButton(nil, animated: true)
         }
+        
         
         if currentVeritcalOffset > (view.frame.width / 3 + 90 - topbarHeight) {
             navigationItem.titleView?.isHidden = false
@@ -290,7 +316,7 @@ class UserProfileViewController: UIViewController {
     func configureCollectionView() {
        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-       
+        collectionView.delaysContentTouches = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
       
         view.addSubview(collectionView)
@@ -673,23 +699,30 @@ class UserProfileViewController: UIViewController {
     
     
     @objc func handleUserButton() {
+        print("kek")
         //button.becomeFirstResponder()
         if user.isCurrentUser {
             let controller = EditProfileViewController(user: user)
             let navVC = UINavigationController(rootViewController: controller)
+
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)
         } else {
-            collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
-            /*
-            if user.isFollowed {
-                print("follow user and update UI")
-                //customRightButton.menu = nil
-            } else {
-                customRightButton.menu = nil
-                
+            customRightButton.isUserInteractionEnabled = false
+            UserService.follow(uid: user.uid!) { error in
+                self.customRightButton.isUserInteractionEnabled = true
+                self.user.isFollowed = true
+                self.fetchUserStats()
+                self.customRightButton.showsMenuAsPrimaryAction = true
+                let viewModel = ProfileHeaderViewModel(user: self.user)
+                var container = AttributeContainer()
+                container.font = .systemFont(ofSize: 14, weight: .bold)
+                self.customRightButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
+                self.customRightButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
+                self.customRightButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
+                self.customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
+                self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
             }
-             */
         }
     }
     
@@ -1146,6 +1179,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.section == 2 {
             // Posts
+            guard !recentCases.isEmpty else { return }
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -1274,6 +1308,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     self.user.isFollowed = false
                     self.fetchUserStats()
                     currentCell.isUpdatingFollowState = false
+                    currentCell.updateButtonAfterAction = true
                     // Delete user feed posts related to the unfollowed user
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
                 }
@@ -1283,6 +1318,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     self.user.isFollowed = true
                     self.fetchUserStats()
                     currentCell.isUpdatingFollowState = false
+                    currentCell.updateButtonAfterAction = true
                     NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)
                     //Update user feed posts related to the followed user
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
@@ -1593,11 +1629,20 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
             if attribute.representedElementKind == ElementKind.sectionHeader && attribute.indexPath.section == 0 {
                 guard let collectionView = collectionView else { return }
                
+
                 let contentOffsetY = collectionView.contentOffset.y
+                print(contentOffsetY)
                 if contentOffsetY < 0 {
                     let width = UIScreen.main.bounds.width
                     let height = width / 3 - contentOffsetY
                     attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
+                } else {
+                    let width = UIScreen.main.bounds.width
+                    let height = width / 3
+                    let translation = height - contentOffsetY > 131 ? height - contentOffsetY : 131
+                    print(translation)
+                    
+                    attribute.frame = CGRect(x: 0, y: 0, width: width, height: translation)
                 }
             }
         }

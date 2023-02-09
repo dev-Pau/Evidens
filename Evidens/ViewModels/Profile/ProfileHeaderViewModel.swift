@@ -77,6 +77,10 @@ struct ProfileHeaderViewModel {
         return user.isCurrentUser || user.isFollowed ? .quaternarySystemFill : .label
     }
     
+    var followButtonBorderWidth: CGFloat {
+        return user.isFollowed || user.isCurrentUser ? 1 : 0
+    }
+    
     var editBannerButton: Bool {
         return user.isCurrentUser ? false : true
     }
@@ -105,7 +109,7 @@ struct ProfileHeaderViewModel {
     func followersString(valueFollowers: Int) -> NSAttributedString {
         let followers = String(valueFollowers)
 
-        let aString = NSMutableAttributedString(string: followers + " followers       ")
+        let aString = NSMutableAttributedString(string: followers + " followers      " + " · ")
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: followers))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: followers))
@@ -116,7 +120,7 @@ struct ProfileHeaderViewModel {
     func followingString(valueFollowing: Int) -> NSAttributedString {
         let following = String(valueFollowing)
         
-        let aString = NSMutableAttributedString(string: following + " following")
+        let aString = NSMutableAttributedString(string: "      " + following + " following")
         
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16, weight: .bold), range: (aString.string as NSString).range(of: following))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: (aString.string as NSString).range(of: following))
