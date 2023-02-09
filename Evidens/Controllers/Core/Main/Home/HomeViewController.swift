@@ -8,6 +8,9 @@
 import UIKit
 import Firebase
 
+private let helperHeaderReuseIdentifier = "HelperHeaderReuseIdentifier"
+private let helperCellReuseIdentifier = "HelperCellReuseIdentifier"
+
 private let reuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
@@ -31,11 +34,12 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     var user: User?
     var selectedImage: UIImageView!
     
-    var loaded = false
+    private var loaded = false
+    private var homeHelper = true
+    private var numberOfSections: Int = 2
     
     var displaysSinglePost: Bool = false
     private var displayState: DisplayState = .none
-    
     
     private var postsLastSnapshot: QueryDocumentSnapshot?
     private var postLastTimestamp: Int64?
@@ -43,28 +47,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private var zoomTransitioning = ZoomTransitioning()
     
     private var collectionView: UICollectionView!
-    /*
-    
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing  = 0
-        layout.minimumLineSpacing = 0
-        
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
-
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
-        
-        collectionView.bounces = true
-        collectionView.alwaysBounceVertical = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-     */
     
     var users = [User]()
-    
     var posts = [Post]()
     
     //MARK: - Lifecycle
@@ -76,9 +60,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
-       
     }
     
+    /*
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if !loaded { collectionView.reloadData() }
@@ -86,15 +70,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         //scrollDelegate?.updateAlpha(alpha: 1)
         //self.navigationController?.hidesBarsOnSwipe = true
     }
+     */
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("top bar height is \(topbarHeight)")
-        print("top bar height is \(topbarHeight)")
-        print("top bar height is \(topbarHeight)")
-        print("top bar height is \(topbarHeight)")
-        print("top bar height is \(topbarHeight)")
-
+        
         self.navigationController?.delegate = zoomTransitioning
         
         if displaysSinglePost {
@@ -119,9 +99,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Helpers
     func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        
-        
         // Configure UICollectionView
+        collectionView.register(OnboardingHomeHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: helperHeaderReuseIdentifier)
+        collectionView.register(OnboardingHomeCell.self, forCellWithReuseIdentifier: helperCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
@@ -142,25 +122,28 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     }
     
     func createLayout() -> UICollectionViewCompositionalLayout {
-        
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
             if sectionNumber == 0 {
-
-                #warning("if user has completed steps or has hide it, show this, instead, show another with a header to put title and three dots + add section.orthogonalScrollingBehavior = true")
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
-                //section.orthogonalScrollingBehavior = .continuous
-                //section.interGroupSpacing = 10
-                //section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-                
-                let config = UICollectionViewCompositionalLayoutConfiguration()
-                
-                //config.interSectionSpacing = 10
-                //config.scrollDirection = .horizontal
-                return section
-                 
+                if self.homeHelper {
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                             elementKind: ElementKind.sectionHeader,
+                                                                             alignment: .top)
+                    
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(200), heightDimension: .estimated(150)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(200), heightDimension: .estimated(150)), subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.orthogonalScrollingBehavior = .continuous
+                    section.boundarySupplementaryItems = [header]
+                    section.interGroupSpacing = 10
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                    return section
+                    
+                } else {
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)), subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    return section
+                }
             } else {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
@@ -169,15 +152,15 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 //section.interGroupSpacing = 10
                 //section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
                 
-                let config = UICollectionViewCompositionalLayoutConfiguration()
+                //let config = UICollectionViewCompositionalLayoutConfiguration()
                 //config.interSectionSpacing = 10
                 //config.scrollDirection = .horizontal
                 return section
             }
 
         }
-        let config = UICollectionViewCompositionalLayoutConfiguration()
         
+        let config = UICollectionViewCompositionalLayoutConfiguration()
         config.interSectionSpacing = 0
         layout.configuration = config
         
@@ -322,14 +305,24 @@ extension HomeViewController: UICollectionViewDataSource {
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return 0 }
+        if section == 0 { return homeHelper ? 3 : 0 }
         if !loaded {
             return 4
         }
         return posts.count
     }
     
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: helperHeaderReuseIdentifier, for: indexPath) as! OnboardingHomeHeader
+        header.delegate = self
+        return header
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: helperCellReuseIdentifier, for: indexPath) as! OnboardingHomeCell
+            return cell
+        }
         
         if !loaded {
             if indexPath.row == 0 {
@@ -1012,6 +1005,16 @@ extension HomeViewController: EditPostViewControllerDelegate {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex] = post
             collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 1)])
+        }
+    }
+}
+
+extension HomeViewController: OnboardingHomeHeaderDelegate {
+    func didTapHideSetUp() {
+        DatabaseManager.shared.updateHomeHelper { updated in
+            // PRINT IS NOT IMPLEMENTED!!!!!!!!!!!!!
+            self.homeHelper = false
+            self.collectionView.reloadSections(IndexSet(integer: 0))
         }
     }
 }

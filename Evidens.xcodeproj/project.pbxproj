@@ -254,6 +254,8 @@
 		5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */; };
 		5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */; };
 		5F9F373A28AE4836002C59E4 /* CommentsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */; };
+		5F9F977929954BAB0087293B /* OnboardingHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F977829954BAB0087293B /* OnboardingHomeCell.swift */; };
+		5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */; };
 		5F9FB27B28EC3ACF00BABDFD /* FollowersFollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */; };
 		5F9FB27D28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */; };
 		5F9FB28128EC4E3400BABDFD /* UsersFollowFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB28028EC4E3400BABDFD /* UsersFollowFollowingCell.swift */; };
@@ -613,6 +615,8 @@
 		5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyHeader.swift; sourceTree = "<group>"; };
 		5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementsMenuLauncher.swift; sourceTree = "<group>"; };
 		5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSectionHeader.swift; sourceTree = "<group>"; };
+		5F9F977829954BAB0087293B /* OnboardingHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomeCell.swift; sourceTree = "<group>"; };
+		5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomeHeader.swift; sourceTree = "<group>"; };
 		5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingViewController.swift; sourceTree = "<group>"; };
 		5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingSegmentedButtonsView.swift; sourceTree = "<group>"; };
 		5F9FB28028EC4E3400BABDFD /* UsersFollowFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersFollowFollowingCell.swift; sourceTree = "<group>"; };
@@ -2086,6 +2090,8 @@
 				5F9F089D2861C3CF0069FD2C /* HomeFourImageTextCell.swift */,
 				5F9F0896285F83780069FD2C /* HomeLikesCell.swift */,
 				5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */,
+				5F9F977829954BAB0087293B /* OnboardingHomeCell.swift */,
+				5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -2362,6 +2368,7 @@
 				5F26BE78279AA74600D2AF11 /* NewMessageViewController.swift in Sources */,
 				5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */,
 				5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */,
+				5F9F977929954BAB0087293B /* OnboardingHomeCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
 				5F25908B28D0CE360018965C /* SearchBarContainerView.swift in Sources */,
@@ -2458,6 +2465,7 @@
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
 				5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */,
+				5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */,
 				5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,

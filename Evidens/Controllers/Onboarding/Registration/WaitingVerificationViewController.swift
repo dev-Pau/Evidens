@@ -73,8 +73,9 @@ class WaitingVerificationViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         
-        #warning("Guardar tota la info de l'usuari a UserDefaults, nom, profile image si en té i l'uid així quan estigui verifiat i entri per primer cop ja tindrà totes les imatges i tot carregades.")
-        #warning("Al fer logout, fer que s'esborrin tots els user defaults.")
+        UserDefaults.standard.set(user.uid, forKey: "uid")
+        UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+        UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
         
         configureUI()
     }

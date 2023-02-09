@@ -17,7 +17,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     private lazy var sectionAboutTitle: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = .systemFont(ofSize: 17  , weight: .semibold)
         label.textAlignment = .center
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -47,7 +47,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
         addSubviews(sectionAboutTitle, separatorView)
         
         NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),

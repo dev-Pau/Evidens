@@ -45,14 +45,6 @@ class UserProfileCommentCell: UICollectionViewCell {
         return label
     }()
     
-    private var commentHeightView: UIView = {
-        let view = UIView()
-        view.backgroundColor = primaryColor
-        view.layer.cornerRadius = 3
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     private var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .quaternarySystemFill
@@ -72,7 +64,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .systemBackground
         
-        addSubviews(caseTitleLabel, profileImageView, commentTextLabel, commentUserLabel, separatorView, commentHeightView)
+        addSubviews(caseTitleLabel, profileImageView, commentTextLabel, commentUserLabel, separatorView)
         
         NSLayoutConstraint.activate([
             
@@ -88,21 +80,17 @@ class UserProfileCommentCell: UICollectionViewCell {
             caseTitleLabel.topAnchor.constraint(equalTo: commentTextLabel.bottomAnchor, constant: 10),
             caseTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             caseTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+
+            profileImageView.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
+            profileImageView.heightAnchor.constraint(equalToConstant: 20),
+            profileImageView.widthAnchor.constraint(equalToConstant: 20),
+            profileImageView.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 5),
             
-            commentUserLabel.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 10),
-            commentUserLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 50),
+            commentUserLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
+            commentUserLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             commentUserLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            commentHeightView.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 10),
-            commentHeightView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            commentHeightView.widthAnchor.constraint(equalToConstant: 5),
-            commentHeightView.bottomAnchor.constraint(equalTo: commentUserLabel.bottomAnchor),
-            
-            profileImageView.leadingAnchor.constraint(equalTo: commentHeightView.trailingAnchor, constant: 5),
-            profileImageView.heightAnchor.constraint(equalToConstant: 20),
-            profileImageView.widthAnchor.constraint(equalToConstant: 20),
-            profileImageView.topAnchor.constraint(equalTo: commentHeightView.topAnchor)
         ])
         
         profileImageView.layer.cornerRadius = 20 / 2

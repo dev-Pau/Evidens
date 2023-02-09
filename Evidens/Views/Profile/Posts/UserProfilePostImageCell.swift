@@ -92,31 +92,28 @@ class UserProfilePostImageCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            postImage.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            timeLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            //timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
+            
+            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
+            likesButton.widthAnchor.constraint(equalToConstant: 12),
+            likesButton.heightAnchor.constraint(equalToConstant: 12),
+            
+            postImage.topAnchor.constraint(equalTo: likesCommentsLabel.bottomAnchor, constant: 5),
             postImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postImage.widthAnchor.constraint(equalToConstant: 75),
             postImage.heightAnchor.constraint(equalToConstant: 75),
             
-            timeLabel.topAnchor.constraint(equalTo: postImage.topAnchor),
-            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
             
             postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 5),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
-            
-            likesButton.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 3),
-            likesButton.leadingAnchor.constraint(equalTo: postTextLabel.leadingAnchor),
-            likesButton.widthAnchor.constraint(equalToConstant: 12),
-            likesButton.heightAnchor.constraint(equalToConstant: 12),
-            
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
-
         ])
-        
     }
     
     private func configure() {
@@ -126,7 +123,6 @@ class UserProfilePostImageCell: UICollectionViewCell {
         timeLabel.text = viewModel.timestampString! + " ago"
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
-        
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -135,7 +131,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 115))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

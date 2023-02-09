@@ -40,18 +40,6 @@ struct User {
                 return "Research scientist"
             }
         }
-        
-        
-        /*
-        var notificationMessage: String {
-            switch self {
-            case .likePost: return " liked your post"
-            case .likeReply: return " liked your reply"
-            case .follow: return " followed you"
-            case .comment: return " commented on your post"
-            }
-        }
-         */
     }
     
     var firstName: String?

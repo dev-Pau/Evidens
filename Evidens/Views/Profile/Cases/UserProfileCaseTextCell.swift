@@ -105,7 +105,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
+            timeLabel.topAnchor.constraint(equalTo: separatorView.topAnchor, constant: 15),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
             caseStateButton.centerYAnchor.constraint(equalTo: timeLabel.centerYAnchor),
@@ -118,16 +118,15 @@ class UserProfileCaseTextCell: UICollectionViewCell {
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            descriptionCaseLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            likesButton.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
-            likesButton.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
-            
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         
         ])
     }

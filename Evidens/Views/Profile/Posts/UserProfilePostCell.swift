@@ -87,16 +87,17 @@ class UserProfilePostCell: UICollectionViewCell {
             postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            likesButton.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
-            likesButton.leadingAnchor.constraint(equalTo: postTextLabel.leadingAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+
         ])
         
     }

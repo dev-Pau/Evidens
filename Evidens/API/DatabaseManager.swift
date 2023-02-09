@@ -31,8 +31,27 @@ extension DatabaseManager {
     public func insertUser(with user: ChatUser) {
         //Create user entry based on UID
         database.child("users").child(user.uid).setValue(["firstName": user.firstName.capitalized,
-                                           "lastName": user.lastName.capitalized,
-                                           "emailAddress": user.emailAddress])
+                                                          "lastName": user.lastName.capitalized,
+                                                          "emailAddress": user.emailAddress,
+                                                          "helpers": ["home": true]])
+    }
+    
+    public func fetchHomeHelper(completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        database.child("users").child(uid).child("helpers").getData { error, snapshot in
+            guard error == nil else {
+                completion(false)
+                return
+            }
+            
+            if let result = snapshot?.value as? [String: Bool] {
+                completion(result["home"] ?? false)
+            }
+        }
+    }
+    
+    func updateHomeHelper(completion: @escaping(Bool) -> Void) {
+       completion(true)
     }
     
     

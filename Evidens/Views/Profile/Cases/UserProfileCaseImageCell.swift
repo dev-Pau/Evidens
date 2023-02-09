@@ -115,8 +115,17 @@ class UserProfileCaseImageCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
+            timeLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            //timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
+            
+            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
+            likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
+            likesButton.widthAnchor.constraint(equalToConstant: 12),
+            likesButton.heightAnchor.constraint(equalToConstant: 12),
             
             caseStateButton.centerYAnchor.constraint(equalTo: timeLabel.centerYAnchor),
             caseStateButton.leadingAnchor.constraint(equalTo: timeLabel.trailingAnchor, constant: 10),
@@ -133,16 +142,6 @@ class UserProfileCaseImageCell: UICollectionViewCell {
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
-            
-            likesButton.topAnchor.constraint(equalTo: caseImageView.bottomAnchor, constant: 10),
-            likesButton.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            likesButton.widthAnchor.constraint(equalToConstant: 12),
-            likesButton.heightAnchor.constraint(equalToConstant: 12),
-            
-            likesCommentsLabel.centerYAnchor.constraint(equalTo: likesButton.centerYAnchor),
-            likesCommentsLabel.leadingAnchor.constraint(equalTo: likesButton.trailingAnchor, constant: 2),
-            likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         ])
     }
     
@@ -167,7 +166,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 120))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
