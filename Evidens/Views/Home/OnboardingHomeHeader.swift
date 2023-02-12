@@ -53,7 +53,7 @@ class OnboardingHomeHeader: UICollectionReusableView {
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor),

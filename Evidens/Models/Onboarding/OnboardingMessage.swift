@@ -32,4 +32,35 @@ extension OnboardingMessage {
     }
 }
 
+extension OnboardingMessage {
+    
+    enum HomeHelper: String, CaseIterable {
+        case profile = "Complete your profile"
+        case follow = "Follow 3 accounts"
+        case notifications = "Turn on notifications"
+        
+        var homeHelperImage: UIImage {
+            switch self {
+            case .profile:
+                return UIImage(named: "homeHelperBlue")!
+            case .follow:
+                return UIImage(named: "homeHelperOrange")!
+            case .notifications:
+                return UIImage(named: "homeHelperGreen")!
+            }
+        }
+        
+        var homeHelperHintImage: UIImage {
+            switch self {
+            case .profile:
+                return (UIImage(systemName: "person", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.white))!
+            case .follow:
+                return (UIImage(systemName: "person.badge.plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.white))!
+            case .notifications:
+                return (UIImage(systemName: "bell", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.white))!
+            }
+        }
+    }
+}
+
 

@@ -1557,6 +1557,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     func didUpdateProfile(user: User) {
         self.user = user
         UserDefaults.standard.set(user.profileImageUrl, forKey: "userProfileImageUrl")
+        UserDefaults.standard.set(user.bannerImageUrl, forKey: "userProfileBannerUrl")
         UserDefaults.standard.set(user.firstName! + " " + user.lastName!, forKey: "name")
         
         UserService.fetchUserStats(uid: user.uid!) { stats in

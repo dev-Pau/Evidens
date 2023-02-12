@@ -129,8 +129,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                                                                              elementKind: ElementKind.sectionHeader,
                                                                              alignment: .top)
                     
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(200), heightDimension: .estimated(150)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(200), heightDimension: .estimated(150)), subitems: [item])
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(170), heightDimension: .estimated(150)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(170), heightDimension: .estimated(150)), subitems: [item])
                     let section = NSCollectionLayoutSection(group: group)
                     section.orthogonalScrollingBehavior = .continuous
                     section.boundarySupplementaryItems = [header]
@@ -305,7 +305,7 @@ extension HomeViewController: UICollectionViewDataSource {
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return homeHelper ? 3 : 0 }
+        if section == 0 { return homeHelper ? OnboardingMessage.HomeHelper.allCases.count : 0 }
         if !loaded {
             return 4
         }
@@ -321,6 +321,7 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: helperCellReuseIdentifier, for: indexPath) as! OnboardingHomeCell
+            cell.configure(onboardingOption: OnboardingMessage.HomeHelper.allCases[indexPath.row])
             return cell
         }
         
@@ -485,6 +486,18 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.layoutIfNeeded()
                 
                 return cell
+            }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            if indexPath.row == 0 {
+                pushConfigureProfileController()
+            } else if indexPath.row == 1 {
+                // Follow accounts
+            } else {
+                // Activate notifications
             }
         }
     }
@@ -1012,10 +1025,27 @@ extension HomeViewController: EditPostViewControllerDelegate {
 extension HomeViewController: OnboardingHomeHeaderDelegate {
     func didTapHideSetUp() {
         DatabaseManager.shared.updateHomeHelper { updated in
-            // PRINT IS NOT IMPLEMENTED!!!!!!!!!!!!!
+            // update home helper IS NOT IMPLEMENTED!!!!!!!!!!!!!
             self.homeHelper = false
-            self.collectionView.reloadSections(IndexSet(integer: 0))
+            self.collectionView.performBatchUpdates {
+                self.collectionView.reloadSections(IndexSet(integer: 0))
+            }
         }
+    }
+    
+    func pushConfigureProfileController() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        //let url = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String
+        //let bannerUrl = UserDefaults.standard.value(forKey: "userProfileImageBanner") as? String
+        
+        let controller = ImageRegistrationViewController(user: user)
+        controller.comesFromHomeOnboarding = true
+        
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        
+        present(navVC, animated: true)
     }
 }
 

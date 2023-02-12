@@ -13,7 +13,11 @@ import CropViewController
 
 class ImageRegistrationViewController: UIViewController {
     
-    private var user: User
+    private let user: User
+    
+    var comesFromHomeOnboarding: Bool = false
+    
+    private lazy var viewModel = OnboardingViewModel()
     
     private var imageSelected: Bool = false
     
@@ -102,7 +106,7 @@ class ImageRegistrationViewController: UIViewController {
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleContinue)))
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSkip)))
         return label
     }()
     
@@ -124,6 +128,7 @@ class ImageRegistrationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        registerBottomMenuLauncher.delegate = self
         configureNavigationBar()
         configureUI()
     }
@@ -138,13 +143,21 @@ class ImageRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Account details"
-        helpButton.menu = addMenuItems()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        if comesFromHomeOnboarding {
+            //newUser = user
+            if let _ = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String {
+                profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+                continueButton.backgroundColor = primaryColor
+                continueButton.isUserInteractionEnabled = true
+            }
+        } else {
+            title = "Account details"
+            helpButton.menu = addMenuItems()
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
+        }
     }
     
     private func configureUI() {
-        
         profileImageView.layer.cornerRadius = 200 / 2
 
         view.backgroundColor = .systemBackground
@@ -207,51 +220,78 @@ class ImageRegistrationViewController: UIViewController {
     }
     
     @objc func handleUploadPicture() {
-        imageSelected ? registerBottomMenuLauncher.showImageSettings(in: view) : registerBottomMenuLauncher.showImageSettings(in: view)
+        //imageSelected ? registerBottomMenuLauncher.showImageSettings(in: view) : registerBottomMenuLauncher.showImageSettings(in: view)
+        registerBottomMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleContinue() {
-        guard let uid = user.uid,
-              let firstName = user.firstName,
-              let lastName = user.lastName else { return }
+        if comesFromHomeOnboarding {
+            let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
         
-        let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "")
-        
-        progressIndicator.show(in: view)
-        
-        AuthService.updateUserRegistrationNameDetails(withUid: uid, withCredentials: credentials) { error in
-            if let error = error {
-                print(error.localizedDescription)
-            } else {
-                if self.imageSelected {
-                    guard let image = self.profileImageView.image else { return }
-                    StorageManager.uploadProfileImage(image: image, uid: uid) { url in
-                        UserService.updateProfileImageUrl(profileImageUrl: url) { error in
-                            self.user.profileImageUrl = url
-                            //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
-                            self.progressIndicator.dismiss(animated: true)
-                            
-                            if let error = error {
-                                print(error.localizedDescription)
-                            } else {
-                                let controller = VerificationRegistrationViewController(user: self.user)
-                                let nav = UINavigationController(rootViewController: controller)
-                                nav.modalPresentationStyle = .fullScreen
-                                self.present(nav, animated: true)
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            guard let uid = user.uid,
+                  let firstName = user.firstName,
+                  let lastName = user.lastName else { return }
+            
+            let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "")
+            
+            progressIndicator.show(in: view)
+            
+            AuthService.updateUserRegistrationNameDetails(withUid: uid, withCredentials: credentials) { error in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    if self.imageSelected {
+                        guard let image = self.profileImageView.image else { return }
+                        StorageManager.uploadProfileImage(image: image, uid: uid) { url in
+                            UserService.updateProfileImageUrl(profileImageUrl: url) { error in
+                                //self.newUser.profileImageUrl = url
+                                //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
+                                self.progressIndicator.dismiss(animated: true)
+                                
+                                if let error = error {
+                                    print(error.localizedDescription)
+                                } else {
+                                    let controller = VerificationRegistrationViewController(user: self.user)
+                                    let nav = UINavigationController(rootViewController: controller)
+                                    nav.modalPresentationStyle = .fullScreen
+                                    self.present(nav, animated: true)
+                                }
                             }
                         }
+                    } else {
+                        self.progressIndicator.dismiss(animated: true)
+                        //self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
+                        let controller = VerificationRegistrationViewController(user: self.user)
+                        
+                        let nav = UINavigationController(rootViewController: controller)
+                        nav.modalPresentationStyle = .fullScreen
+                        self.present(nav, animated: true)
                     }
-                } else {
-                    self.progressIndicator.dismiss(animated: true)
-                    //self.user.profileImageUrl = "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/profile_images%2FprofileImage.png?alt=media&token=30c5ae77-8f49-4f1b-9edf-49eda8a7e58f"
-                    let controller = VerificationRegistrationViewController(user: self.user)
-                    
-                    let nav = UINavigationController(rootViewController: controller)
-                    nav.modalPresentationStyle = .fullScreen
-                    self.present(nav, animated: true)
                 }
             }
         }
+    }
+    
+    @objc func handleSkip() {
+        viewModel.profileImage = nil
+        
+        let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+    
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func didTapBack() {
@@ -271,8 +311,29 @@ class ImageRegistrationViewController: UIViewController {
         
         self.present(navVC, animated: true)
     }
-         
 }
+
+extension ImageRegistrationViewController: RegisterBottomMenuLauncherDelegate {
+    func didTapImportFromGallery() {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.preferredAssetRepresentationMode = .current
+        config.filter = PHPickerFilter.any(of: [.images])
+        
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func didTapImportFromCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
+    }
+}
+
 
 extension ImageRegistrationViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -314,6 +375,7 @@ extension ImageRegistrationViewController: TOCropViewControllerDelegate {
         self.continueButton.isUserInteractionEnabled = true
         self.continueButton.backgroundColor = primaryColor
         self.imageSelected = true
+        if comesFromHomeOnboarding { viewModel.profileImage = image }
     }
     
     func cropViewController(_ cropViewController: TOCropViewController, didFinishCancelled cancelled: Bool) {

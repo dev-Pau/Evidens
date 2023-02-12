@@ -1837,6 +1837,8 @@ extension DatabaseManager {
             
             if let section = snapshot?.value as? String {
                 completion(.success(section))
+            } else {
+                completion(.success(String()))
             }
         }
     }

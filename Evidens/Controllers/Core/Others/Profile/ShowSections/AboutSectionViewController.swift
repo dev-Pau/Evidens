@@ -46,7 +46,6 @@ class AboutSectionViewController: UIViewController {
     }
 
     private func configureUI() {
-
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         

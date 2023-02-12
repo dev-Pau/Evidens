@@ -9,8 +9,10 @@ import UIKit
 
 class OnboardingHomeCell: UICollectionViewCell {
     
-    private let gradientView: UIView = {
-        let view = UIView()
+    private let gradientView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -31,18 +33,18 @@ class OnboardingHomeCell: UICollectionViewCell {
         return button
     }()
     
+    private let hintImageView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = false
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        //gradientView.image = UIImage(named: "profileGradient")?.scalePreservingAspectRatio(targetSize: CGSize(width: gradientView.frame.width, height: gradientView.frame.height))
-        let gradient = CAGradientLayer(start: .bottomLeft, end: .centerRight, colors: [UIColor.systemOrange.cgColor, UIColor.systemCyan.cgColor], type: .axial)
-        gradient.frame = gradientView.bounds
-        gradient.cornerRadius = 10
-        gradientView.layer.addSublayer(gradient)
     }
     
     required init?(coder: NSCoder) {
@@ -51,7 +53,7 @@ class OnboardingHomeCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .clear
-        addSubviews(gradientView, onboardingMessageLabel)
+        addSubviews(gradientView, onboardingMessageLabel, hintImageView)
         NSLayoutConstraint.activate([
             onboardingMessageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
             onboardingMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -60,10 +62,19 @@ class OnboardingHomeCell: UICollectionViewCell {
             gradientView.topAnchor.constraint(equalTo: topAnchor),
             gradientView.leadingAnchor.constraint(equalTo: leadingAnchor),
             gradientView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            gradientView.bottomAnchor.constraint(equalTo: onboardingMessageLabel.topAnchor, constant: -10)
+            gradientView.bottomAnchor.constraint(equalTo: onboardingMessageLabel.topAnchor, constant: -10),
+            
+            hintImageView.centerXAnchor.constraint(equalTo: gradientView.centerXAnchor),
+            hintImageView.centerYAnchor.constraint(equalTo: gradientView.centerYAnchor),
+            hintImageView.heightAnchor.constraint(equalToConstant: 30),
+            hintImageView.widthAnchor.constraint(equalToConstant: 30)
         ])
-
         gradientView.layer.cornerRadius = 10
-
+    }
+    
+    func configure(onboardingOption: OnboardingMessage.HomeHelper) {
+        onboardingMessageLabel.text = onboardingOption.rawValue
+        gradientView.image = onboardingOption.homeHelperImage.scalePreservingAspectRatio(targetSize: CGSize(width: gradientView.frame.width, height: gradientView.frame.height))
+        hintImageView.image = onboardingOption.homeHelperHintImage
     }
 }

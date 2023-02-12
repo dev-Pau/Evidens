@@ -13,6 +13,11 @@ protocol AddAboutViewControllerDelegate: AnyObject {
 
 class AddAboutViewController: UIViewController {
     
+    var comesFromOnboarding: Bool = false
+    
+    var viewModel: OnboardingViewModel?
+    var user: User?
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .systemBackground
@@ -24,18 +29,58 @@ class AddAboutViewController: UIViewController {
         return scrollView
     }()
     
-    weak var delegate: AddAboutViewControllerDelegate?
+    private lazy var continueButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Continue", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.layer.cornerRadius = 26
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
+        button.isUserInteractionEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
-    private let infoLabel: UILabel = {
+    private lazy var skipLabel: UILabel = {
         let label = UILabel()
+        label.text = "Skip for now"
+        label.sizeToFit()
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 16, weight: .bold)
+        let textRange = NSRange(location: 0, length: label.text!.count)
+        let attributedText = NSMutableAttributedString(string: label.text!)
+        attributedText.addAttribute(.underlineStyle,
+                                    value: NSUnderlineStyle.single.rawValue,
+                                    range: textRange)
+        label.attributedText = attributedText
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.text = "Your about me section briefly summarize the most important information you want the community to know from you. It can be used to showcase your professional experience, skills, your professional brand or any other information you want to share."
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleContinue)))
         return label
     }()
     
+    weak var delegate: AddAboutViewControllerDelegate?
+    
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "About yourself")
+        return label
+    }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your about me section briefly summarize the most important information you want the community to know from you. It can be used to showcase your professional experience, skills, your professional brand or any other information you want to share."
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     private lazy var aboutTextView: InputTextView = {
         let tv = InputTextView()
@@ -77,26 +122,33 @@ class AddAboutViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
-        navigationItem.rightBarButtonItem?.isEnabled = false
+        if comesFromOnboarding {
+            #warning("Put app icon on bar")
+        } else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
+            navigationItem.rightBarButtonItem?.tintColor = primaryColor
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        }
     }
     
     private func configureUI() {
-        //NotificationCenter.addObserver(<#T##self: NotificationCenter##NotificationCenter#>)
-        
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(infoLabel, aboutTextView)
+        scrollView.addSubviews(infoLabel, titleLabel, aboutTextView)
         
         NSLayoutConstraint.activate([
+            
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            infoLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
@@ -105,9 +157,23 @@ class AddAboutViewController: UIViewController {
             aboutTextView.trailingAnchor.constraint(equalTo: infoLabel.trailingAnchor),
             aboutTextView.heightAnchor.constraint(equalToConstant: 200)
         ])
+        
+        if comesFromOnboarding {
+            scrollView.addSubviews(continueButton, skipLabel)
+            NSLayoutConstraint.activate([
+                skipLabel.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+                skipLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+                skipLabel.widthAnchor.constraint(equalToConstant: 150),
+                
+                continueButton.bottomAnchor.constraint(equalTo: skipLabel.topAnchor, constant: -10),
+                continueButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor, constant: 10),
+                continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: -10),
+            ])
+        }
     }
     
     @objc func handleDone() {
+        
         print("Update About")
         guard let text = aboutTextView.text else { return }
         showLoadingView()
@@ -121,10 +187,37 @@ class AddAboutViewController: UIViewController {
             }
         }
     }
+    
+    @objc func handleContinue() {
+        let controller = ProfileCompletedViewController(user: user!, viewModel: viewModel!)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func handleSkip() {
+        viewModel?.aboutText = nil
+        let controller = ProfileCompletedViewController(user: user!, viewModel: viewModel!)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
 }
 
 extension AddAboutViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        if comesFromOnboarding { viewModel?.aboutText = textView.text }
         navigationItem.rightBarButtonItem?.isEnabled = true
     }
 }
