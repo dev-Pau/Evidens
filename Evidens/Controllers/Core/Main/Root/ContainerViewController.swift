@@ -207,8 +207,8 @@ class ContainerViewController: UIViewController {
 
 extension ContainerViewController: MainViewControllerDelegate {
     func updateUser(user: User) {
-        print("before reload data")
-        menuController.collectionView.reloadData()
+        print("before update data")
+        menuController.updateUserData()
     }
     
     func handleDisablePanWhileEditing(editing: Bool) {

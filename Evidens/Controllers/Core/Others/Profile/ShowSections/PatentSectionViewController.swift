@@ -80,6 +80,19 @@ class PatentSectionViewController: UICollectionViewController {
 }
 
 extension PatentSectionViewController: UserProfilePatentCellDelegate {
+    func didTapShowContributors(users: [User]) {
+        #warning("Show contributors")
+        let controller = ContributorsViewController(users: users)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String) {
 
         let controller = AddPatentViewController(user: user)

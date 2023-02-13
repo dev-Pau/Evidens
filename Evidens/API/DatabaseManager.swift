@@ -693,11 +693,11 @@ extension DatabaseManager {
     
     public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("publications")
-        var recentPublications = [[String: String]]()
+        var recentPublications = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: String] else { return }
+                guard let value = child.value as? [String: Any] else { return }
                 recentPublications.append(value)
             }
             completion(.success(recentPublications))

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 protocol AddAboutViewControllerDelegate: AnyObject {
     func handleUpdateAbout()
@@ -15,9 +16,11 @@ class AddAboutViewController: UIViewController {
     
     var comesFromOnboarding: Bool = false
     
+    private let progressIndicator = JGProgressHUD()
+    
     var viewModel: OnboardingViewModel?
     var user: User?
-    
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .systemBackground
@@ -137,30 +140,47 @@ class AddAboutViewController: UIViewController {
         
         scrollView.addSubviews(infoLabel, titleLabel, aboutTextView)
         
-        NSLayoutConstraint.activate([
-            
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            
-            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+        if !comesFromOnboarding {
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+                titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                
+                infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+                infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
-            aboutTextView.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
-            aboutTextView.leadingAnchor.constraint(equalTo: infoLabel.leadingAnchor),
-            aboutTextView.trailingAnchor.constraint(equalTo: infoLabel.trailingAnchor),
-            aboutTextView.heightAnchor.constraint(equalToConstant: 200)
-        ])
-        
-        if comesFromOnboarding {
+                aboutTextView.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
+                aboutTextView.leadingAnchor.constraint(equalTo: infoLabel.leadingAnchor),
+                aboutTextView.trailingAnchor.constraint(equalTo: infoLabel.trailingAnchor),
+                aboutTextView.heightAnchor.constraint(equalToConstant: 200)
+            ])
+        } else {
             scrollView.addSubviews(continueButton, skipLabel)
             NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+                titleLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+                titleLabel.widthAnchor.constraint(equalToConstant: view.frame.width * 0.8),
+                
+                infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+                infoLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+                infoLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+                
+                aboutTextView.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
+                aboutTextView.leadingAnchor.constraint(equalTo: infoLabel.leadingAnchor),
+                aboutTextView.trailingAnchor.constraint(equalTo: infoLabel.trailingAnchor),
+                aboutTextView.heightAnchor.constraint(equalToConstant: 200),
+
                 skipLabel.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
                 skipLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
                 skipLabel.widthAnchor.constraint(equalToConstant: 150),
@@ -172,24 +192,49 @@ class AddAboutViewController: UIViewController {
         }
     }
     
-    @objc func handleDone() {
+    func uploadUserOnboardingChanges() {
+        guard let viewModel = viewModel, let user = user else { return }
+        progressIndicator.show(in: view)
+        if let text = viewModel.aboutText { DatabaseManager.shared.uploadAboutSection(with: text) { _ in }}
         
-        print("Update About")
-        guard let text = aboutTextView.text else { return }
-        showLoadingView()
-        DatabaseManager.shared.uploadAboutSection(with: text) { completed in
-            self.dismissLoadingView()
-            if completed {
-                print("Text uploaded")
-                self.delegate?.handleUpdateAbout()
-                self.navigationController?.popViewController(animated: true)
+        if viewModel.hasProfile && viewModel.hasBanner {
+            StorageManager.uploadProfileImages(images: [viewModel.bannerImage!, viewModel.profileImage!], userUid: user.uid!) { urls in
+
+                let bannerUrl = urls.first(where: { url in
+                    url.contains("banners")
+                })!
                 
+                let profileUrl = urls.first(where: { url in
+                    url.contains("profile_images")
+                })!
+                
+                UserService.updateUserProfileImages(bannerImageUrl: bannerUrl, profileImageUrl: profileUrl) { user in
+                    self.progressIndicator.dismiss(animated: true)
+                    self.goToCompleteOnboardingVC(user: user)
+                }
             }
+        } else if viewModel.hasProfile {
+            StorageManager.uploadProfileImage(image: viewModel.profileImage!, uid: user.uid!) { url in
+                UserService.updateUserProfileImages(profileImageUrl: url) { user in
+                    self.progressIndicator.dismiss(animated: true)
+                    self.goToCompleteOnboardingVC(user: user)
+                }
+            }
+        } else if viewModel.hasBanner {
+            StorageManager.uploadBannerImage(image: viewModel.bannerImage!, uid: user.uid!) { url in
+                UserService.updateUserProfileImages(bannerImageUrl: url) { user in
+                    self.progressIndicator.dismiss(animated: true)
+                    self.goToCompleteOnboardingVC(user: user)
+                }
+            }
+        } else {
+            progressIndicator.dismiss(animated: true)
+            goToCompleteOnboardingVC(user: self.user!)
         }
     }
     
-    @objc func handleContinue() {
-        let controller = ProfileCompletedViewController(user: user!, viewModel: viewModel!)
+    func goToCompleteOnboardingVC(user: User) {
+        let controller = ProfileCompletedViewController(user: user, viewModel: viewModel!)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -198,6 +243,23 @@ class AddAboutViewController: UIViewController {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    @objc func handleDone() {
+        guard let text = aboutTextView.text else { return }
+        progressIndicator.show(in: view)
+        DatabaseManager.shared.uploadAboutSection(with: text) { completed in
+            self.progressIndicator.dismiss(animated: true)
+            if completed {
+                self.delegate?.handleUpdateAbout()
+                self.navigationController?.popViewController(animated: true)
+                
+            }
+        }
+    }
+    
+    @objc func handleContinue() {
+        uploadUserOnboardingChanges()
     }
     
     @objc func handleSkip() {
@@ -212,12 +274,16 @@ class AddAboutViewController: UIViewController {
         
         navigationController?.pushViewController(controller, animated: true)
     }
-    
 }
 
 extension AddAboutViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        if comesFromOnboarding { viewModel?.aboutText = textView.text }
-        navigationItem.rightBarButtonItem?.isEnabled = true
+        if comesFromOnboarding {
+            viewModel?.aboutText = textView.text
+            continueButton.backgroundColor = textView.text.isEmpty ? primaryColor.withAlphaComponent(0.5) : primaryColor
+            continueButton.isUserInteractionEnabled = textView.text.isEmpty ? false : true
+        }
+        
+        navigationItem.rightBarButtonItem?.isEnabled = textView.text.isEmpty ? false : true
     }
 }

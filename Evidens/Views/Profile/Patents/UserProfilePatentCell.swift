@@ -7,13 +7,22 @@
 
 import UIKit
 
+private let userCellReuseIdentifier = "UserCellReuseIdentifier"
+
 protocol UserProfilePatentCellDelegate: AnyObject {
     func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String)
+    func didTapShowContributors(users: [User])
 }
 
 class UserProfilePatentCell: UICollectionViewCell {
     
     weak var delegate: UserProfilePatentCellDelegate?
+    
+    var users: [User]? {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     
     private let patentTitleLabel: UILabel = {
         let label = UILabel()
@@ -47,6 +56,15 @@ class UserProfilePatentCell: UICollectionViewCell {
         return button
     }()
     
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumInteritemSpacing = 0
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    
     
     var separatorView: UIView = {
         let view = UIView()
@@ -65,8 +83,11 @@ class UserProfilePatentCell: UICollectionViewCell {
     }
     
     private func configureUI() {
+        collectionView.register(GroupUserCell.self, forCellWithReuseIdentifier: userCellReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
         backgroundColor = .systemBackground
-        addSubviews(patentTitleLabel, patentNumberLabel, separatorView, buttonImage)
+        addSubviews(patentTitleLabel, patentNumberLabel, separatorView, buttonImage, collectionView)
         
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: topAnchor),
@@ -81,7 +102,12 @@ class UserProfilePatentCell: UICollectionViewCell {
             patentNumberLabel.topAnchor.constraint(equalTo: patentTitleLabel.bottomAnchor, constant: 5),
             patentNumberLabel.leadingAnchor.constraint(equalTo: patentTitleLabel.leadingAnchor),
             patentNumberLabel.trailingAnchor.constraint(equalTo: patentTitleLabel.trailingAnchor),
-            patentNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            patentNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -52),
+            
+            collectionView.topAnchor.constraint(equalTo: patentNumberLabel.bottomAnchor, constant: 10),
+            collectionView.leadingAnchor.constraint(equalTo: patentNumberLabel.leadingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: 32),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
@@ -91,6 +117,13 @@ class UserProfilePatentCell: UICollectionViewCell {
     func set(patentInfo: [String: Any]) {
         patentTitleLabel.text = patentInfo["title"] as? String
         patentNumberLabel.text = patentInfo["number"] as? String
+        
+        if let contributorsUid = patentInfo["contributors"] as? [String] {
+            UserService.fetchUsers(withUids: contributorsUid) { users in
+                self.users = users
+                self.collectionView.reloadData()
+            }
+        }
     }
     
     @objc func handleEditPatent() {
@@ -98,3 +131,34 @@ class UserProfilePatentCell: UICollectionViewCell {
         delegate?.didTapEditPatent(self, patentTitle: title, patentNumber: number, patentDescription: description)
     }
 }
+
+extension UserProfilePatentCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return users?.count ?? 0
+        
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! GroupUserCell
+        cell.set(user: users?[indexPath.row] ?? User(dictionary: [:]))
+        return cell
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+            return CGSize(width: 32, height: 32)
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+            return -10
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let users = users, users.count > 1 else { return }
+        delegate?.didTapShowContributors(users: users)
+    }
+}
+

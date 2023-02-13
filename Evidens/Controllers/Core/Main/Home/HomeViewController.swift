@@ -8,9 +8,7 @@
 import UIKit
 import Firebase
 
-private let helperHeaderReuseIdentifier = "HelperHeaderReuseIdentifier"
-private let helperCellReuseIdentifier = "HelperCellReuseIdentifier"
-
+private let emptyPrimaryCellReuseIdentifier = "EmptyPrimaryCellReuseIdentifier"
 private let reuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
@@ -51,6 +49,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     var users = [User]()
     var posts = [Post]()
     
+    private let activityIndicator = MEProgressHUD(frame: .zero)
+    
+   
     //MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -62,6 +63,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         configureNavigationItemButtons()
     }
     
+
     /*
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -100,8 +102,10 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         // Configure UICollectionView
-        collectionView.register(OnboardingHomeHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: helperHeaderReuseIdentifier)
-        collectionView.register(OnboardingHomeCell.self, forCellWithReuseIdentifier: helperCellReuseIdentifier)
+        collectionView.isHidden = true
+        //collectionView.register(OnboardingHomeHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: helperHeaderReuseIdentifier)
+        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
+        //collectionView.register(OnboardingHomeCell.self, forCellWithReuseIdentifier: helperCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
@@ -114,7 +118,15 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.delegate = self
         collectionView.dataSource = self
 
-        view.addSubview(collectionView)
+        view.addSubviews(activityIndicator, collectionView)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200)
+        ])
+        
+        //activityIndicator.startAnimating()
 
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -123,41 +135,10 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            if sectionNumber == 0 {
-                if self.homeHelper {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(170), heightDimension: .estimated(150)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(170), heightDimension: .estimated(150)), subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.orthogonalScrollingBehavior = .continuous
-                    section.boundarySupplementaryItems = [header]
-                    section.interGroupSpacing = 10
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-                    return section
-                    
-                } else {
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(250), heightDimension: .estimated(150)), subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    return section
-                }
-            } else {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
-                //section.orthogonalScrollingBehavior = .continuous
-                //section.interGroupSpacing = 10
-                //section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-                
-                //let config = UICollectionViewCompositionalLayoutConfiguration()
-                //config.interSectionSpacing = 10
-                //config.scrollDirection = .horizontal
-                return section
-            }
-
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            return section
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
@@ -176,7 +157,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
             
             navigationItem.rightBarButtonItem = rightBarButtonItem
-
         }
     }
     
@@ -186,6 +166,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         if displaysSinglePost { return }
         HapticsManager.shared.vibrate(for: .success)
         fetchFirstPostsGroup()
+        
     }
     
     //MARK: - API
@@ -203,7 +184,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                         UserService.fetchUser(withUid: post.ownerUid) { user in
                             self.users.append(user)
                             self.loaded = true
+                            self.activityIndicator.stop()
                             self.collectionView.reloadData()
+                            self.collectionView.isHidden = false
                         }
                     }
                 }
@@ -212,7 +195,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
                 switch result {
-                    
                 case .success(let uids):
                     uids.forEach { uid in
                         PostService.fetchPost(withPostId: uid) { fetchedPosts in
@@ -222,7 +204,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                             self.postLastTimestamp = self.posts.last?.timestamp.seconds
                             self.checkIfUserLikedPosts()
                             self.checkIfUserBookmarkedPost()
+                            self.activityIndicator.stop()
                             self.loaded = true
+                            self.collectionView.isHidden = false
                         }
                     }
                 case .failure(let error):
@@ -300,40 +284,21 @@ extension HomeViewController: UICollectionViewDelegate {
 
 extension HomeViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        2
+        1
     }
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return homeHelper ? OnboardingMessage.HomeHelper.allCases.count : 0 }
-        if !loaded {
-            return 4
-        }
-        return posts.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: helperHeaderReuseIdentifier, for: indexPath) as! OnboardingHomeHeader
-        header.delegate = self
-        return header
+        //if section == 0 { return homeHelper ? OnboardingMessage.HomeHelper.allCases.count : 0 }
+        return posts.isEmpty ? 1 : posts.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: helperCellReuseIdentifier, for: indexPath) as! OnboardingHomeCell
-            cell.configure(onboardingOption: OnboardingMessage.HomeHelper.allCases[indexPath.row])
+        if posts.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+            cell.set(withTitle: "Welcome to your timeline", withDescription: "It's empty now, but it won't be for long. Start following people and you'll see all their content show up here.", withButtonText: "    Get started    ")
+            cell.delegate = self
             return cell
-        }
-        
-        if !loaded {
-            if indexPath.row == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
-                return cell
-            }
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
-            return cell
-            
         } else {
             
             if posts[indexPath.row].type.postType == 0 {
@@ -486,18 +451,6 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell.layoutIfNeeded()
                 
                 return cell
-            }
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
-            if indexPath.row == 0 {
-                pushConfigureProfileController()
-            } else if indexPath.row == 1 {
-                // Follow accounts
-            } else {
-                // Activate notifications
             }
         }
     }
@@ -1022,30 +975,28 @@ extension HomeViewController: EditPostViewControllerDelegate {
     }
 }
 
-extension HomeViewController: OnboardingHomeHeaderDelegate {
-    func didTapHideSetUp() {
-        DatabaseManager.shared.updateHomeHelper { updated in
-            // update home helper IS NOT IMPLEMENTED!!!!!!!!!!!!!
-            self.homeHelper = false
-            self.collectionView.performBatchUpdates {
-                self.collectionView.reloadSections(IndexSet(integer: 0))
-            }
-        }
-    }
-    
-    func pushConfigureProfileController() {
+extension HomeViewController: EmptyGroupCellDelegate {
+    func didTapDiscoverGroup() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        //let url = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String
-        //let bannerUrl = UserDefaults.standard.value(forKey: "userProfileImageBanner") as? String
         
-        let controller = ImageRegistrationViewController(user: user)
-        controller.comesFromHomeOnboarding = true
         
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
+        let controller = HomeOnboardingViewController(user: user)
+        controller.delegate = self
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
         
-        present(navVC, animated: true)
+        navigationItem.backBarButtonItem = backItem
+    
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension HomeViewController: HomeOnboardingViewControllerDelegate {
+    func didUpdateUser(user: User) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        tab.user = user
     }
 }
 

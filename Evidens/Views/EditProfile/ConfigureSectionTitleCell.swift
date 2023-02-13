@@ -52,22 +52,22 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        addSubviews(sectionImageView, titleSectionLabel, chevronButton, separatorView)
+        addSubviews(titleSectionLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
 
-            sectionImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            sectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            sectionImageView.heightAnchor.constraint(equalToConstant: 25),
-            sectionImageView.widthAnchor.constraint(equalToConstant: 25),
+            //sectionImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            //sectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            //sectionImageView.heightAnchor.constraint(equalToConstant: 25),
+            //sectionImageView.widthAnchor.constraint(equalToConstant: 25),
             
-            chevronButton.centerYAnchor.constraint(equalTo: sectionImageView.centerYAnchor),
+            chevronButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             chevronButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             chevronButton.heightAnchor.constraint(equalToConstant: 15),
             chevronButton.widthAnchor.constraint(equalToConstant: 15),
             
-            titleSectionLabel.centerYAnchor.constraint(equalTo: sectionImageView.centerYAnchor),
-            titleSectionLabel.leadingAnchor.constraint(equalTo: sectionImageView.trailingAnchor, constant: 10),
+            titleSectionLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleSectionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleSectionLabel.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -10),
             //titleSectionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             

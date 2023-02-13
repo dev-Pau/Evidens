@@ -94,6 +94,9 @@
 		5F5F894B299651570014F378 /* BannerRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5F894A299651570014F378 /* BannerRegistrationViewController.swift */; };
 		5F5F894D299686D90014F378 /* ProfileCompletedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5F894C299686D90014F378 /* ProfileCompletedViewController.swift */; };
 		5F5F895129993F910014F378 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F5F895029993F910014F378 /* OnboardingViewModel.swift */; };
+		5F6076BF299A40140015AA16 /* HomeOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */; };
+		5F6076C1299A7BBF0015AA16 /* MEProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076C0299A7BBF0015AA16 /* MEProgressHUD.swift */; };
+		5F6076C3299A9AB40015AA16 /* ContributorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */; };
 		5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607EE2854D36500FCF895 /* ViewController.swift */; };
 		5F6607F22854DB6800FCF895 /* PostBottomMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F12854DB6800FCF895 /* PostBottomMenuLauncher.swift */; };
 		5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6607F52854EB5500FCF895 /* PostMenuCell.swift */; };
@@ -458,6 +461,9 @@
 		5F5F894A299651570014F378 /* BannerRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F5F894C299686D90014F378 /* ProfileCompletedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCompletedViewController.swift; sourceTree = "<group>"; };
 		5F5F895029993F910014F378 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeOnboardingViewController.swift; sourceTree = "<group>"; };
+		5F6076C0299A7BBF0015AA16 /* MEProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEProgressHUD.swift; sourceTree = "<group>"; };
+		5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorsViewController.swift; sourceTree = "<group>"; };
 		5F6607EE2854D36500FCF895 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		5F6607F12854DB6800FCF895 /* PostBottomMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostBottomMenuLauncher.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		5F6607F52854EB5500FCF895 /* PostMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostMenuCell.swift; sourceTree = "<group>"; };
@@ -1001,6 +1007,7 @@
 				5FC4D87A2707058D006B7A34 /* HomeViewController.swift */,
 				5F11AF3C286ECF25005BC807 /* HomeImageViewController.swift */,
 				5FB29030288BFB67002FBAE1 /* DetailsPostViewController.swift */,
+				5F5F8952299A3F840014F378 /* Onboarding */,
 				5F9F0892285F7A830069FD2C /* Others */,
 			);
 			path = Home;
@@ -1051,6 +1058,14 @@
 				5F5F894C299686D90014F378 /* ProfileCompletedViewController.swift */,
 			);
 			path = Others;
+			sourceTree = "<group>";
+		};
+		5F5F8952299A3F840014F378 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				5F6076BE299A40140015AA16 /* HomeOnboardingViewController.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		5F6607F02854DB3D00FCF895 /* Helpers */ = {
@@ -1676,6 +1691,7 @@
 				5F9A9FA32899433900A25152 /* MERegistrationDocumentView.swift */,
 				5F25908A28D0CE360018965C /* SearchBarContainerView.swift */,
 				5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */,
+				5F6076C0299A7BBF0015AA16 /* MEProgressHUD.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -1892,6 +1908,7 @@
 				5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */,
 				5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */,
 				5F9A9F842896D88F00A25152 /* Section */,
+				5F6076C2299A9AB40015AA16 /* ContributorsViewController.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -2355,6 +2372,7 @@
 				5F527D9728845006009D5027 /* RegistrationListView.swift in Sources */,
 				5F0D2AFF28C346FD00BE5DD5 /* SettingsSubOptionCell.swift in Sources */,
 				5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */,
+				5F6076C3299A9AB40015AA16 /* ContributorsViewController.swift in Sources */,
 				5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */,
 				5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */,
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
@@ -2547,6 +2565,7 @@
 				5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */,
 				5FA2FB2F28DD7AAE00B37424 /* PrivacyPolicyViewController.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
+				5F6076BF299A40140015AA16 /* HomeOnboardingViewController.swift in Sources */,
 				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
@@ -2625,6 +2644,7 @@
 				5FB290142886851B002FBAE1 /* Case.swift in Sources */,
 				5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */,
 				5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */,
+				5F6076C1299A7BBF0015AA16 /* MEProgressHUD.swift in Sources */,
 				5F9475DA292674B900C6D44E /* Category.swift in Sources */,
 				5F8AF97D292BED19005C6778 /* GroupViewModel.swift in Sources */,
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,

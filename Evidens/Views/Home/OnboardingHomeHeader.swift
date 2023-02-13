@@ -8,7 +8,7 @@
 import UIKit
 
 protocol OnboardingHomeHeaderDelegate: AnyObject {
-    func didTapHideSetUp()
+    func didTapConfigureProfile()
 }
 
 class OnboardingHomeHeader: UICollectionReusableView {
@@ -24,19 +24,38 @@ class OnboardingHomeHeader: UICollectionReusableView {
         return label
     }()
     
-    lazy var dotsImageButton: UIButton = {
+    private lazy var configureProfileButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = .label
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .label
+        button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.buttonSize = .small
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("  Profile  ", attributes: container)
+        button.addTarget(self, action: #selector(handleConfigureTap), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isUserInteractionEnabled = true
-        button.showsMenuAsPrimaryAction = true
         return button
     }()
     
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "See who you already know on MyEvidens. You can also complete your profile to increase your discoverability"
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        return label
+    }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -48,28 +67,28 @@ class OnboardingHomeHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(titleLabel, dotsImageButton)
+        addSubviews(titleLabel, descriptionLabel, configureProfileButton, separatorView)
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
             
-            dotsImageButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
-            dotsImageButton.widthAnchor.constraint(equalToConstant: 20)
+            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            
+            configureProfileButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            configureProfileButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            configureProfileButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
-        
-        dotsImageButton.menu = addMenuItems()
     }
     
-    private func addMenuItems() -> UIMenu {
-        let menuItems = UIMenu(children: [
-            UIAction(title: "Show less often", handler: { _ in
-                self.delegate?.didTapHideSetUp()
-            })
-        ])
-        return menuItems
+    @objc func handleConfigureTap() {
+        delegate?.didTapConfigureProfile()
     }
 }

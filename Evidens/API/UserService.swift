@@ -42,6 +42,22 @@ struct UserService {
         }
     }
     
+    static func updateUserProfileImages(bannerImageUrl: String? = nil, profileImageUrl: String? = nil, completion: @escaping(User) -> Void) {
+        var dataToUpload = [String: Any]()
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let bannerImageUrl = bannerImageUrl { dataToUpload["bannerImageUrl"] = bannerImageUrl }
+        if let profileImageUrl = profileImageUrl { dataToUpload["profileImageUrl"] = profileImageUrl }
+
+        COLLECTION_USERS.document(uid).updateData(dataToUpload) { error in
+            if error != nil { return }
+            COLLECTION_USERS.document(uid).getDocument { snapshot, error in
+                guard let dictionary = snapshot?.data() else { return }
+                let user = User(dictionary: dictionary)
+                completion(user)
+            }
+        }
+    }
+    
     static func updateUserFirstName(firstName: String, completion: @escaping(Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["firstName": firstName.capitalized], merge: true) { err in
@@ -121,6 +137,10 @@ struct UserService {
         }
     }
     
+    static func updateUserOnboarding(viewModel: OnboardingViewModel, completion: @escaping(User) -> Void) {
+        
+    }
+    
     
     
     static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
@@ -156,7 +176,7 @@ struct UserService {
     }
     
     static func fetchUsers(completion: @escaping([User]) -> Void) {
-        COLLECTION_USERS.getDocuments { (snapshot, error) in
+        COLLECTION_USERS.limit(to: 50).getDocuments { (snapshot, error) in
             guard let snapshot = snapshot else { return }
             
             let users = snapshot.documents.map({ User(dictionary: $0.data()) })

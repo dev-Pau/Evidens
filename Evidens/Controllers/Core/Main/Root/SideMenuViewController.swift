@@ -112,6 +112,11 @@ class SideMenuViewController: UIViewController {
     @objc func handleSettingsTap() {
         delegate?.didTapSettings()
     }
+    
+    func updateUserData() {
+        let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
+        header.configure()
+    }
 }
 
 extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {

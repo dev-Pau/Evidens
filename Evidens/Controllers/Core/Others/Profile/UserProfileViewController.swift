@@ -860,8 +860,6 @@ class UserProfileViewController: UIViewController {
                 //self.collectionView.reloadSections(IndexSet(integer: 1))
                 self.hasPatents = true
                 self.patents = patents
-                print("patents are: ")
-                print(self.patents)
                 self.collectionView.reloadData()
             case .failure(_):
                 print("No Patents")
@@ -874,10 +872,9 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchPublications(forUid: uid) { result in
             switch result {
             case .success(let publications):
-                //self.aboutText = sectionText
-                //self.collectionView.reloadSections(IndexSet(integer: 1))
-
                 self.publications = publications
+                print("publications are: ")
+                print(self.publications)
                 self.collectionView.reloadData()
             case .failure(_):
                 print("No publications")
@@ -1071,11 +1068,14 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
             cell.set(patentInfo: patents[indexPath.row])
+            cell.delegate = self
+            //cell.users = [user]
             return cell
             
         } else if indexPath.section == 8 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
             cell.set(publicationInfo: publications[indexPath.row])
+            cell.delegate = self
             return cell
             
         } else if indexPath.section == 9 {
@@ -1553,6 +1553,28 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
     }
 }
 
+extension UserProfileViewController: UserProfilePatentCellDelegate {
+    func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String) { return }
+    
+    func didTapShowContributors(users: [User]) {
+        let controller = ContributorsViewController(users: users)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension UserProfileViewController: UserProfilePublicationCellDelegate {
+    func didTapEditPublication(_ cell: UICollectionViewCell, publicationTitle: String, publicationDate: String, publicationUrl: String) { return }
+    
+    
+}
+
 extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate {
     func didUpdateProfile(user: User) {
         self.user = user
@@ -1563,9 +1585,14 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
         UserService.fetchUserStats(uid: user.uid!) { stats in
             self.user.stats = stats
             self.collectionView.reloadSections(IndexSet(integer: 0))
- 
-            //guard let tab = self.tabBarController as? MainTabController else { return }
-            //tab.updateUser(user: user)
+            
+            NotificationCenter.default.post(name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil, userInfo: nil)
+            
+            guard let tab = self.tabBarController as? MainTabController else { return }
+            tab.updateUser(user: user)
+            
+            
+            
         }
     }
     
@@ -1618,9 +1645,9 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
             self.collectionView.reloadData()
         }
     }
-    
-    
 }
+
+
 
 class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
     
@@ -1632,7 +1659,7 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
                
 
                 let contentOffsetY = collectionView.contentOffset.y
-                print(contentOffsetY)
+
                 if contentOffsetY < 0 {
                     let width = UIScreen.main.bounds.width
                     let height = width / 3 - contentOffsetY
@@ -1641,7 +1668,6 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
                     let width = UIScreen.main.bounds.width
                     let height = width / 3
                     let translation = height - contentOffsetY > 131 ? height - contentOffsetY : 131
-                    print(translation)
                     
                     attribute.frame = CGRect(x: 0, y: 0, width: width, height: translation)
                 }

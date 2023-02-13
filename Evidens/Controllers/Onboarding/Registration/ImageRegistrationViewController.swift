@@ -147,8 +147,8 @@ class ImageRegistrationViewController: UIViewController {
             //newUser = user
             if let _ = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String {
                 profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-                continueButton.backgroundColor = primaryColor
-                continueButton.isUserInteractionEnabled = true
+                //continueButton.backgroundColor = primaryColor
+                //continueButton.isUserInteractionEnabled = true
             }
         } else {
             title = "Account details"

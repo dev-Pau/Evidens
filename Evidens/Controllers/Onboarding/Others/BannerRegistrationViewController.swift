@@ -179,6 +179,11 @@ class BannerRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
+        if let _ = UserDefaults.standard.value(forKey: "userProfileBannerUrl") as? String {
+            bannerImageView.sd_setImage(with: URL(string: user.bannerImageUrl!))
+            //continueButton.backgroundColor = primaryColor
+            //continueButton.isUserInteractionEnabled = true
+        }
         /*
         if isFirstHomeOnboardingStep {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))

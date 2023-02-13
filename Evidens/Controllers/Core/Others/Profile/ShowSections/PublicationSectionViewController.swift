@@ -79,6 +79,18 @@ class PublicationSectionViewController: UICollectionViewController {
 }
 
 extension PublicationSectionViewController: UserProfilePublicationCellDelegate {
+    func didTapShowContributors(users: [User]) {
+        let controller = ContributorsViewController(users: users)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didTapEditPublication(_ cell: UICollectionViewCell, publicationTitle: String, publicationDate: String, publicationUrl: String) {
         let controller = AddPublicationViewController(user: user)
         

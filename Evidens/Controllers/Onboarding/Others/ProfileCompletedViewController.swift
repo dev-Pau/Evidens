@@ -36,13 +36,13 @@ class ProfileCompletedViewController: UIViewController {
         button.layer.cornerRadius = 26
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
-        button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        updateUserDefaults()
         configureNavigationBar()
         configureUI()
     }
@@ -50,7 +50,6 @@ class ProfileCompletedViewController: UIViewController {
     init(user: User, viewModel: OnboardingViewModel) {
         self.user = user
         self.viewModel = viewModel
-        print(viewModel)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -58,9 +57,17 @@ class ProfileCompletedViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func updateUserDefaults() {
+        if let _ = viewModel.profileImage {
+            UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+        }
+        if let _ = viewModel.bannerImage {
+            UserDefaults.standard.set(user.bannerImageUrl!, forKey: "userProfileBannerUrl")
+        }
+    }
+    
     private func configureNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = .label
+       
     }
     
     private func configureUI() {
@@ -82,12 +89,7 @@ class ProfileCompletedViewController: UIViewController {
     }
     
     @objc func handleContinue() {
-        
-    }
-    
-    @objc func handleDismiss() {
         dismiss(animated: true)
+        NotificationCenter.default.post(name: NSNotification.Name("UserUpdateIdentifier"), object: nil, userInfo: ["user": user])
     }
-    
-    
 }

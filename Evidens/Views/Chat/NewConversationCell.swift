@@ -75,7 +75,7 @@ class NewConversationCell: UICollectionViewCell {
             userCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
-            separatorView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)

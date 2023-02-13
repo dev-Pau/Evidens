@@ -20,7 +20,7 @@ class SideMenuHeader: UICollectionReusableView {
         iv.layer.masksToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightGrayColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.isUserInteractionEnabled = false
         return iv
     }()
@@ -88,7 +88,7 @@ class SideMenuHeader: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configure() {
+    func configure() {
         if let imageString = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String {
             userImageView.sd_setImage(with: URL(string: imageString))
         }

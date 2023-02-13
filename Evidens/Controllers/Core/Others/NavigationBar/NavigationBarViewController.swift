@@ -51,6 +51,8 @@ class NavigationBarViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
+        
         if !controllerIsBeeingPushed {
             
             
@@ -64,9 +66,7 @@ class NavigationBarViewController: UIViewController {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
 
             navigationItem.rightBarButtonItem?.tintColor = .label
-                                                  
-                                                  
-                                                  
+                                                                                      
             let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
             searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
             searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.70).isActive = true
@@ -95,6 +95,11 @@ class NavigationBarViewController: UIViewController {
     
     @objc func didTapChat() {
         delegate?.didTapConversationsButton()
+    }
+    
+    @objc func didReceiveNotification(notification: NSNotification) {
+        print("navigation bar received notification :)")
+        userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
     }
 }
 

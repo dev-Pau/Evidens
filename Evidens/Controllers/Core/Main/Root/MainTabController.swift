@@ -384,7 +384,4 @@ extension MainTabController: HomeViewControllerDelegate {
             //currentNavController.viewControllers.last?.navigationItem.title
         }
     }
-    
-    
 }
-
