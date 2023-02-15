@@ -19,15 +19,7 @@ struct Post {
     let timestamp: Timestamp
     let postId: String
     let type: PostType
-    let ownerCategory: String
     let edited: Bool
-    let ownerProfession: String
-    let ownerSpeciality: String
-    
-    let ownerImageUrl: String
-    let ownerFirstName: String
-    let ownerLastName: String
-    
     let privacyOptions: PrivacyOptions
     let imageHeight: CGFloat
     let postImageUrl: [String]
@@ -146,15 +138,10 @@ struct Post {
         self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0
         self.numberOfShares = dictionary["shares"] as? Int ?? 0
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
-        self.ownerCategory = dictionary["ownerCategory"] as? String ?? ""
+       
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = PostType(rawValue: dictionary["type"] as? Int ?? 0) ?? .plainText
-        self.ownerFirstName = dictionary["ownerFirstName"] as? String ?? ""
-        self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
-        self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""
-        self.ownerProfession = dictionary["profession"] as? String ?? ""
-        self.ownerSpeciality = dictionary["speciality"] as? String ?? ""
-        
+      
         self.imageHeight = dictionary["imageHeight"] as? CGFloat ?? 0.0
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [""]
         

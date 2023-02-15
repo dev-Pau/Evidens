@@ -145,10 +145,13 @@ class UserProfileViewController: UIViewController {
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
+        iv.layer.borderWidth = 3
+        iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.backgroundColor = .quaternarySystemFill
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
     }()
         
@@ -157,7 +160,6 @@ class UserProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         fetchUserStats()
-        
         fetchRecentPosts()
         fetchRecentCases()
         fetchLanguages()
@@ -177,7 +179,12 @@ class UserProfileViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     }
-        
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollViewDidScroll(collectionView)
+    }
+    
     init(user: User) {
         self.user = user
         super.init(nibName: nil, bundle: nil)
@@ -272,6 +279,9 @@ class UserProfileViewController: UIViewController {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let maxVerticalOffset = (view.frame.width / 3) / 2
         let currentVeritcalOffset = scrollView.contentOffset.y
+        
+        profileImageView.frame.origin.y = (view.frame.width / 3 - 40) - currentVeritcalOffset
+        
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
         navigationController?.navigationBar.standardAppearance = standardAppearance
@@ -279,12 +289,10 @@ class UserProfileViewController: UIViewController {
         if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) && !scrollViewDidScrollHigherThanActionButton {
             // User pass over the edit profile / follow button
             scrollViewDidScrollHigherThanActionButton.toggle()
-            
+            profileImageView.isHidden = true
+            navigationItem.titleView?.isHidden = false
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 14, weight: .bold)
-            
             if self.user.isFollowed {
                 //navigationItem.rightBarButtonItem = UIBarB
                 navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis")?.withTintColor(.label).withRenderingMode(.alwaysOriginal), menu: addEllipsisMenuItems())
@@ -295,7 +303,8 @@ class UserProfileViewController: UIViewController {
             
         } else if currentVeritcalOffset < (view.frame.width / 3 + 10 + 30 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
             scrollViewDidScrollHigherThanActionButton.toggle()
-            
+            profileImageView.isHidden = false
+            navigationItem.titleView?.isHidden = true
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
             // Follow button or edit profile are still visible
             if !user.isCurrentUser {
@@ -304,29 +313,38 @@ class UserProfileViewController: UIViewController {
                 navigationItem.setRightBarButton(nil, animated: true)
             }
         }
-        
-        
-        if currentVeritcalOffset > (view.frame.width / 3 + 90 - topbarHeight) {
-            navigationItem.titleView?.isHidden = false
-        } else {
-            navigationItem.titleView?.isHidden = true
-        }
     }
     
     func configureCollectionView() {
        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.delaysContentTouches = true
+        //collectionView.delaysContentTouches = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
       
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView, profileImageView)
        
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.width / 3 - 40),
+            profileImageView.heightAnchor.constraint(equalToConstant: 80),
+            profileImageView.widthAnchor.constraint(equalToConstant: 80),
+            profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
         ])
+        
+        //profileImageView.frame.origin.y = view.frame.width / 3 - 40
+        
+        //profileImageView.frame.origin.x = view.frame.width / 2 - 40
+        //profileImageView.frame.origin.y = view.frame.width / 3 - 40
+
+        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        //profileImageView.frame = CGRect(x: view.frame.width / 2 - 40, y: view.frame.width / 3 - 40, width: 80, height: 80)
+        profileImageView.layer.cornerRadius = 80 / 2
+        //profileImageView.image.dimen
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -723,6 +741,16 @@ class UserProfileViewController: UIViewController {
                 self.customRightButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
                 self.customRightButton.configuration?.attributedTitle = AttributedString(viewModel.customFollowButtonText, attributes: container)
             }
+        }
+    }
+    
+    @objc func handleProfileImageTap() {
+        let controller = ProfileImageViewController(isBanner: false)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            controller.profileImageView.sd_setImage(with: URL(string: self.user.profileImageUrl!))
+            controller.modalPresentationStyle = .overFullScreen
+            self.present(controller, animated: true)
         }
     }
     

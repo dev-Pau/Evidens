@@ -11,7 +11,7 @@ private let reuseIdentifier = "RecentUserCell"
 private let recentTextReuseIdentifier = "RecentTextCell"
 private let recentHeaderReuseIdentifier = "RecentHeaderCell"
 
-class SearchViewController: UIViewController {
+class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
     

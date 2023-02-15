@@ -56,6 +56,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         view.backgroundColor = .systemBackground
         self.navigationController?.delegate = zoomTransitioning
         fetchFirstPostsGroup()
@@ -76,7 +77,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         self.navigationController?.delegate = zoomTransitioning
         
         if displaysSinglePost {
@@ -91,10 +92,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
                 navigationItem.titleView = view
             }
-        }
-        
-        if !loaded {
-            collectionView.reloadData()
         }
     }
 
@@ -123,7 +120,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200)
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
         ])
         
         //activityIndicator.startAnimating()
@@ -845,7 +842,7 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
     func didEditPost(forPost post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex] = post
-            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 1)])
+            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 0)])
         }
     }
     
@@ -970,7 +967,7 @@ extension HomeViewController: EditPostViewControllerDelegate {
     func didEditPost(post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex] = post
-            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 1)])
+            collectionView.reloadItems(at: [IndexPath(item: postIndex, section: 0)])
         }
     }
 }

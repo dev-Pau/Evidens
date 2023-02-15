@@ -21,8 +21,8 @@ class NavigationBarViewController: UIViewController {
     var controllerIsBeeingPushed: Bool = false
     //var wantsToHideSearchBar: Bool = false
 
-    let searchController = UISearchController(searchResultsController: nil)
-    
+    //let searchController = UISearchController(searchResultsController: nil)
+
     private lazy var userImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
@@ -35,18 +35,6 @@ class NavigationBarViewController: UIViewController {
         return iv
     }()
     
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        let atrString = NSAttributedString(string: "Search", attributes: [.font : UIFont.systemFont(ofSize: 15)])
-        searchBar.searchTextField.attributedPlaceholder = atrString
-        searchBar.searchTextField.tintColor = primaryColor
-        //searchBar.searchTextField.backgroundColor = .tertiarySystemFill
-        
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        
-        return searchBar
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -54,7 +42,6 @@ class NavigationBarViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
         
         if !controllerIsBeeingPushed {
-            
             
             userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
             userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
@@ -66,19 +53,12 @@ class NavigationBarViewController: UIViewController {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
 
             navigationItem.rightBarButtonItem?.tintColor = .label
-                                                                                      
-            let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-            searchBarContainer.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            searchBarContainer.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.70).isActive = true
-            //navigationItem.titleView = searchBarContainer
-        
-            searchBar.delegate = self
         }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        searchBar.resignFirstResponder()
+       
         //if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
         panDelegate?.disablePanGesture()
     }
@@ -102,13 +82,3 @@ class NavigationBarViewController: UIViewController {
         userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
     }
 }
-
-extension NavigationBarViewController: UISearchBarDelegate {
-    
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        delegate?.didTapSearchBar()
-        return true
-    }
-}
-
-

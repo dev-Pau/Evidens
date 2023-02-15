@@ -144,7 +144,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
         
-        addSubviews(profileImageView, nameLabel, professionLabel, followButton, followersLabel)
+        addSubviews(nameLabel, professionLabel, followButton, followersLabel)
         
         NSLayoutConstraint.activate([
             /*
@@ -153,13 +153,14 @@ class UserProfileHeaderCell: UICollectionViewCell {
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
             */
+            /*
             profileImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 80),
             profileImageView.heightAnchor.constraint(equalToConstant: 80),
-            
+            */
             nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 50),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),

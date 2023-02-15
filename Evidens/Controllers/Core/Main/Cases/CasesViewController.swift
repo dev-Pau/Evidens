@@ -9,7 +9,6 @@ import UIKit
 import Firebase
 import MessageUI
 
-private let loadingHeaderCellReuseIdentifier = "LoadingHeaderCellReuseIdentifier"
 private let exploreHeaderCellReuseIdentifier = "ExploreHeaderCellReuseIdentifier"
 private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
@@ -37,9 +36,12 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private var magicalValue: CGFloat = 0
     
+    private let activityIndicator = MEProgressHUD(frame: .zero)
+    
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
+        toolbar.isHidden = true
         return toolbar
     }()
     
@@ -81,6 +83,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
                         self.users.append(user)
                         self.casesLoaded = true
+                        self.activityIndicator.stop()
+                        self.casesCollectionView.isHidden = false
                         self.casesCollectionView.reloadData()
                     }
                 }
@@ -97,6 +101,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
                         self.users.append(user)
                         self.casesLoaded = true
+                        self.activityIndicator.stop()
+                        self.casesCollectionView.isHidden = false
                         self.casesCollectionView.reloadData()
                     }
                 }
@@ -113,7 +119,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
                         self.users.append(user)
                         self.casesLoaded = true
+                        self.activityIndicator.stop()
                         self.casesCollectionView.reloadData()
+                        self.casesCollectionView.isHidden = false
+                        self.exploreCasesToolbar.isHidden = false
                     }
                 }
             }
@@ -164,6 +173,15 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private func configureCollectionView() {
         casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowLayout())
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        casesCollectionView.isHidden = true
+        
+        view.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200)
+        ])
 
         if displaysExploringWindow || displaysFilteredWindow {
             view.addSubviews(casesCollectionView)
@@ -193,7 +211,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
         }
         
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderCellReuseIdentifier)
+        //casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderCellReuseIdentifier)
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(ExploreHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier)
 
@@ -217,22 +235,16 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if casesLoaded {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier, for: indexPath) as! ExploreHeaderCell
-            header.delegate = self
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderCellReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
-
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier, for: indexPath) as! ExploreHeaderCell
+        header.delegate = self
+        return header
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if casesLoaded {
             return displaysExploringWindow ? CGSize(width: view.frame.width, height: 350) : CGSize.zero
         } else {
-            return CGSize(width: view.frame.width, height: 55)
+            return CGSize.zero
         }
     }
     

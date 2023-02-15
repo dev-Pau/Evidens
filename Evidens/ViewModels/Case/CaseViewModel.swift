@@ -101,26 +101,6 @@ struct CaseViewModel {
         return clinicalCase.diagnosis
     }
     
-    var userIsProfessional: Bool {
-        return ownerCategory == "Professional" ? true : false
-    }
-    
-    var ownerCategory: String {
-        return clinicalCase.ownerCategory.userCategoryString
-    }
-    
-    var userInfo: NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: "\(ownerProfession), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        
-        if userIsProfessional {
-            attributedText.append(NSAttributedString(string: "\(ownerSpeciality)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-        } else {
-            attributedText.append(NSAttributedString(string: "\(ownerSpeciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-            attributedText.append(NSAttributedString(string: ownerCategory, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .semibold), .foregroundColor: primaryColor]))
-        }
-        return attributedText
-    }
-    
     var timestampString: String? {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
@@ -133,26 +113,6 @@ struct CaseViewModel {
         return clinicalCase.type.rawValue
     }
         
-    var fullName: String {
-        return caseIsAnonymous ? "Shared anonymously" : clinicalCase.ownerFirstName + " " + clinicalCase.ownerLastName
-    }
-    
-    var ownerProfession: String {
-        return clinicalCase.ownerProfession
-    }
-    
-    var ownerSpeciality: String {
-        return clinicalCase.ownerSpeciality
-    }
-    
-    var ownerFullProfession: String {
-        return clinicalCase.ownerProfession + " · " + clinicalCase.ownerSpeciality
-    }
-    
-    var userProfileImageUrl: String? {
-        return caseIsAnonymous ? nil : clinicalCase.ownerImageUrl
-    }
-    
     var caseImagesCount: Int {
         return clinicalCase.caseImageUrl.count
     }

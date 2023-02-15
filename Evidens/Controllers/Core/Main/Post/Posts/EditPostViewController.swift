@@ -153,6 +153,8 @@ class EditPostViewController: UIViewController {
     
     
     private func configureUI() {
+        guard let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, let name = UserDefaults.standard.value(forKey: "name") as? String else { return }
+        
         view.backgroundColor = .systemBackground
         postTextView.text = post.postText
         postTextView.handleTextDidChange()
@@ -183,8 +185,9 @@ class EditPostViewController: UIViewController {
         
         profileImageView.layer.cornerRadius = 50/2
         
-        profileImageView.sd_setImage(with: URL(string: post.ownerImageUrl))
-        fullName.text = post.ownerFirstName + " " + post.ownerLastName
+        
+        profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        fullName.text = name
         
         if post.postImageUrl.count != 0 {
             postImageView.sd_setImage(with: URL(string: post.postImageUrl.first!)) { image, _, cacheType, _ in

@@ -7,11 +7,9 @@
 
 import UIKit
 
-
 private let stretchyHeaderReuseIdentifier = "StretchyHeaderReuseIdentifier"
 private let groupHeaderReuseIdentifier = "GroupHeaderReuseIdentifier"
 private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIdentifier"
-
 
 private let groupContentSelectionReuseIdentifier = "GroupContentSelectionReuseIdentifier"
 private let groupContentCollectionViewReuseIdentifier = "GroupContentCollectionViewReuseIdentifier"
@@ -43,9 +41,10 @@ class GroupPageViewController: UIViewController {
     
     weak var delegate: GroupPageViewControllerDelegate?
     
+    private var scrollViewDidScrollHigherThanActionButton: Bool = false
+    
     private var standardAppearance = UINavigationBarAppearance()
 
-    
     private var collectionView: UICollectionView!
    
     private var group: Group
@@ -71,16 +70,41 @@ class GroupPageViewController: UIViewController {
 
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
-
+       
         button.configuration?.cornerStyle = .capsule
 
         //button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
     }()
     
+    private lazy var groupProfileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.layer.borderWidth = 3
+        iv.layer.borderColor = UIColor.systemBackground.cgColor
+        iv.backgroundColor = .quaternarySystemFill
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
+        iv.isUserInteractionEnabled = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+      
+        return iv
+    }()
+    
+    private lazy var backButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .mini
+        button.configuration?.baseBackgroundColor = .label.withAlphaComponent(0.7)
+        button.configuration?.image = UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
+        button.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureNavigationBar()
         configureSearchBar()
         configureUI()
@@ -100,15 +124,22 @@ class GroupPageViewController: UIViewController {
             
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 15, weight: .bold)
+            customRightButton.configuration?.baseBackgroundColor = .systemBackground
+            customRightButton.configuration?.baseForegroundColor = .label
+            customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
+            customRightButton.configuration?.background.strokeWidth = 1
             customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
             
         } else {
             // User comes from discover tab or might be pending. Fetch user member type.
             fetchUserMemberType()
-            
         }
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollViewDidScroll(collectionView)
+    }
     
     init(group: Group, memberType: Group.MemberType? = nil) {
         self.group = group
@@ -122,25 +153,6 @@ class GroupPageViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
-        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
-        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.navigationController?.navigationBar.standardAppearance.shadowColor = .separator
-        self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .separator
-    }
-    
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -153,6 +165,13 @@ class GroupPageViewController: UIViewController {
             container.font = .systemFont(ofSize: 15, weight: .bold)
             self.customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
             
+            if memberType != .external {
+                self.customRightButton.configuration?.baseBackgroundColor = .systemBackground
+                self.customRightButton.configuration?.baseForegroundColor = .label
+                self.customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
+                self.customRightButton.configuration?.background.strokeWidth = 1
+            }
+            
             self.collectionView.isHidden = false
             self.collectionView.reloadData()
             if memberType == .external || memberType == .pending {
@@ -163,6 +182,10 @@ class GroupPageViewController: UIViewController {
                 return
             }
         }
+    }
+    
+    private func createLayout() -> UICollectionViewCompositionalLayout {
+        return UICollectionViewCompositionalLayout()
     }
     
     private func fetchGroupAdminTeam() {
@@ -184,34 +207,53 @@ class GroupPageViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        //print(scrollView.contentOffset.y)
-        //print(UIScreen.main.bounds.width / 3 + 60 - topbarHeight)
-         
-        if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? GroupPageHeaderCell {
-            if scrollView.contentOffset.y - (UIScreen.main.bounds.width / 3 + 60 - topbarHeight) > 0 {
-                print("per imatge")
-            } else {
-                
-            }
-            //print(cell.frame.height - topbarHeight)
-            if scrollView.contentOffset.y - (cell.frame.height - topbarHeight) > 0 {
-                navigationItem.setRightBarButton(UIBarButtonItem(customView: customRightButton), animated: true)
-            } else {
-                navigationItem.setRightBarButton(nil, animated: true)
-            }
+        let maxVerticalOffset = (view.frame.width / 3) / 2
+        let currentVeritcalOffset = scrollView.contentOffset.y
+        groupProfileImageView.frame.origin.y = (view.frame.width / 3 - 35) - currentVeritcalOffset
+        let percentageOffset = currentVeritcalOffset / maxVerticalOffset
+        standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
+        navigationController?.navigationBar.standardAppearance = standardAppearance
+        
+        if currentVeritcalOffset > (view.frame.width / 3 + 40 - topbarHeight) && !scrollViewDidScrollHigherThanActionButton  {
+            scrollViewDidScrollHigherThanActionButton.toggle()
+            navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
+            groupProfileImageView.isHidden = true
+            navigationItem.titleView?.isHidden = false
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
+        } else if currentVeritcalOffset < (view.frame.width / 3 + 40 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
+            scrollViewDidScrollHigherThanActionButton.toggle()
+            groupProfileImageView.isHidden = false
+            navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+            navigationItem.setRightBarButton(nil, animated: true)
+            navigationItem.titleView?.isHidden = true
         }
-
     }
     
     private func configureNavigationBar() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
+        self.navigationItem.scrollEdgeAppearance = appearance
+        //let appearance = UINavigationBarAppearance()
+        //appearance.configureWithTransparentBackground()
         
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        //navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
         navigationController?.navigationBar.standardAppearance = standardAppearance
+        
+        let imageView = UIImageView()
+        imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.cornerRadius = 3
+        imageView.sd_setImage(with: URL(string: group.profileUrl!))
+        
+        let imageViewContainer = LogoContainerView(imageView: imageView)
+        imageViewContainer.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+
+        navigationItem.titleView = imageViewContainer
+        navigationItem.titleView?.isHidden = true
     }
     
     private func configureSearchBar() {
@@ -326,13 +368,22 @@ class GroupPageViewController: UIViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView, groupProfileImageView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            groupProfileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.width / 3 - 35 ),
+            groupProfileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            groupProfileImageView.widthAnchor.constraint(equalToConstant: 65),
+            groupProfileImageView.heightAnchor.constraint(equalToConstant: 65),
         ])
+        
+        groupProfileImageView.sd_setImage(with: URL(string: group.profileUrl!))
+        groupProfileImageView.layer.cornerRadius = 10
+        
         collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.bounces = false
         collectionView.delegate = self
@@ -385,6 +436,14 @@ class GroupPageViewController: UIViewController {
         //layout.sectionHeadersPinToVisibleBounds = true
         //layout.sectionHeadersPinToVisibleBounds = true
         return layout
+    }
+    
+    @objc func handleBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc func handleProfileTap() {
+        
     }
     
     
@@ -563,6 +622,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             header.setImageWithStringUrl(imageUrl: group.bannerUrl!)
             return header
         }
+        
         if memberType == .external || memberType == .pending {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentHeaderReuseIdentifier, for: indexPath) as! GroupAboutHeader
             if indexPath.section == 1 {
@@ -581,7 +641,8 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if section == 0 { return CGSize(width: view.frame.width, height: view.frame.width / 3) }
-        return CGSize(width: UIScreen.main.bounds.width, height: 40)
+        
+        return CGSize(width: UIScreen.main.bounds.width, height: 50)
     }
     
     func displayPostCell(post: Post, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {

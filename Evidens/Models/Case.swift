@@ -26,13 +26,13 @@ struct Case {
     let professions: [Profession]
     var stage: CaseStage
     let privacyOptions: Privacy
-    let ownerProfession: String
-    let ownerCategory: User.UserCategory
+    //let ownerProfession: String
+    //let ownerCategory: User.UserCategory
     var diagnosis: String
-    let ownerSpeciality: String
-    let ownerImageUrl: String
-    let ownerFirstName: String
-    let ownerLastName: String
+    //let ownerSpeciality: String
+    //let ownerImageUrl: String
+    //let ownerFirstName: String
+    //let ownerLastName: String
     
     let caseImageUrl: [String]
     
@@ -160,14 +160,14 @@ struct Case {
         self.numberOfViews = dictionary["views"] as? Int ?? 0
         self.diagnosis = dictionary["diagnosis"] as? String ?? ""
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
-        self.ownerCategory = User.UserCategory(rawValue: dictionary["ownerCategory"] as? Int ?? 00) ?? .professional
+        //self.ownerCategory = User.UserCategory(rawValue: dictionary["ownerCategory"] as? Int ?? 00) ?? .professional
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = CaseType(rawValue: dictionary["type"] as? Int ?? 0) ?? .text
-        self.ownerFirstName = dictionary["ownerFirstName"] as? String ?? ""
-        self.ownerProfession = dictionary["ownerProfession"] as? String ?? ""
-        self.ownerSpeciality = dictionary["ownerSpeciality"] as? String ?? ""
-        self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
-        self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""       
+        //self.ownerFirstName = dictionary["ownerFirstName"] as? String ?? ""
+        //self.ownerProfession = dictionary["ownerProfession"] as? String ?? ""
+        //self.ownerSpeciality = dictionary["ownerSpeciality"] as? String ?? ""
+        //self.ownerImageUrl = dictionary["ownerImageUrl"] as? String ?? ""
+        //self.ownerLastName = dictionary["ownerLastName"] as? String ?? ""       
         self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
         self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
         

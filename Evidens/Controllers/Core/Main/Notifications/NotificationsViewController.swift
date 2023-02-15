@@ -10,7 +10,6 @@ import Firebase
 
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
-private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 
 class NotificationsViewController: NavigationBarViewController {
@@ -38,9 +37,12 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.isHidden = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+    
+    private let activityIndicator = MEProgressHUD(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +52,14 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureCollectionView() {
         title = "Notifications"
+        
+        view.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200)
+        ])
                                
         view.addSubviews(collectionView)
         collectionView.frame = view.bounds
@@ -57,7 +67,7 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.dataSource = self
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+       
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
     }
     
@@ -78,7 +88,9 @@ class NotificationsViewController: NavigationBarViewController {
                 self.users = users
                 self.checkIfUserIsFollowed()
                 self.loaded = true
+                self.activityIndicator.stop()
                 self.collectionView.reloadData()
+                self.collectionView.isHidden = false
             }
         }
     }
@@ -102,16 +114,6 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return loaded ? notifications.isEmpty ? 1 : notifications.count : 0
     }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-        return header
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return loaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
-    }
-    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 

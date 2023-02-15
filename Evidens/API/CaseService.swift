@@ -27,15 +27,9 @@ struct CaseService {
                     "professions": professions.map({ $0.profession }),
                     "diagnosis": diagnosis as Any,
                     "ownerUid": user.uid as Any,
-                    "ownerCategory": user.category.rawValue,
                     "privacy": privacy.rawValue,
                     "timestamp": Timestamp(date: Date()),
                     "type": type.rawValue,
-                    "ownerFirstName": user.firstName as Any,
-                    "ownerProfession": user.profession as Any,
-                    "ownerSpeciality": user.speciality as Any,
-                    "ownerLastName": user.lastName as Any,
-                    "ownerImageUrl": user.profileImageUrl as Any,
                     "caseImageUrl": caseImageUrl as Any
         ]
         

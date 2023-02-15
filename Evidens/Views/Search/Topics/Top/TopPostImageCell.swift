@@ -109,14 +109,14 @@ class TopPostImageCell: UITableViewCell {
     //MARK: - Helpers
     func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.usernameLabel.text = viewModel.fullName
-        userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
+        //userPostView.usernameLabel.text = viewModel.fullName
+        //userPostView.profileImageView.sd_setImage(with: viewModel.userProfileImageUrl)
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
         
         postImageView.sd_setImage(with: viewModel.postImageUrl.first)
         
-        userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
+        //userPostView.userInfoCategoryLabel.attributedText =  viewModel.userInfo
         
         postTextLabel.text = viewModel.postText
         

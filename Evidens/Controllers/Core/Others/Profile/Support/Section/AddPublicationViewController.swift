@@ -37,6 +37,23 @@ class AddPublicationViewController: UIViewController {
         return scrollView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "Add publication")
+        return label
+    }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Adding publications is a great way to showcase your expertise in a particular field."
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let publicationTitleLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
@@ -228,7 +245,7 @@ class AddPublicationViewController: UIViewController {
         view.backgroundColor = .secondaryLabel
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(publicationTitleLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField, collectionView)
+        scrollView.addSubviews(publicationTitleLabel, titleLabel, infoLabel, publicationTitleTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, urlPublicationTextField, urlPublicationLabel, publicationDateLabel, publicationDateTextField, collectionView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -236,7 +253,16 @@ class AddPublicationViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            publicationTitleTextField.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            
+            publicationTitleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
             publicationTitleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             publicationTitleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             publicationTitleTextField.heightAnchor.constraint(equalToConstant: 35),

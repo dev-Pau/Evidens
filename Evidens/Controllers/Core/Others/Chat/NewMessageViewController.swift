@@ -100,7 +100,7 @@ class NewMessageViewController: UIViewController {
             let controller = ChatViewController(with: user, id: targetConversation.id, creationDate: targetConversation.creationDate)
             controller.isNewConversation = false
             controller.delegate = self
-            controller.title = targetConversation.name
+            controller.title = user.firstName! + " " + user.lastName!
             
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label

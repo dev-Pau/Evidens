@@ -33,6 +33,23 @@ class AddExperienceViewController: UIViewController {
         return scrollView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "Add experience")
+        return label
+    }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your experience section lets you add, change, or remove a job, internship or contract position among others in the Experience section on your profile."
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let roleLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
@@ -221,7 +238,7 @@ class AddExperienceViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(roleLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
+        scrollView.addSubviews(roleLabel, titleLabel, infoLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -229,7 +246,15 @@ class AddExperienceViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            roleTextField.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            roleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
             roleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             roleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             roleTextField.heightAnchor.constraint(equalToConstant: 35),

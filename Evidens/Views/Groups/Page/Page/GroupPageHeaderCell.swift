@@ -57,6 +57,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         return iv
     }()
     */
+    /*
     private lazy var groupProfileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -70,7 +71,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
       
         return iv
     }()
-    
+    */
     private let groupNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 20, weight: .semibold)
@@ -171,43 +172,43 @@ class GroupPageHeaderCell: UICollectionViewCell {
         membersCollectionView.dataSource = self
         
         
-        addSubviews(groupProfileImageView, groupNameLabel, groupDescriptionLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
+        addSubviews(groupNameLabel, groupDescriptionLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
         NSLayoutConstraint.activate([
             //groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
             //groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             //groupBannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             //groupBannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
             
-            groupProfileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            groupProfileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            groupProfileImageView.widthAnchor.constraint(equalToConstant: 90),
-            groupProfileImageView.heightAnchor.constraint(equalToConstant: 90),
+            //groupProfileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            //groupProfileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            //groupProfileImageView.widthAnchor.constraint(equalToConstant: 90),
+            //groupProfileImageView.heightAnchor.constraint(equalToConstant: 90),
             
-            groupNameLabel.leadingAnchor.constraint(equalTo: groupProfileImageView.trailingAnchor, constant: 10),
-            groupNameLabel.topAnchor.constraint(equalTo: groupProfileImageView.topAnchor),
+            groupNameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
+            groupNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 60),
             groupNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            groupDescriptionLabel.leadingAnchor.constraint(equalTo: groupProfileImageView.trailingAnchor, constant: 10),
-            groupDescriptionLabel.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor),
-            groupDescriptionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            groupDescriptionLabel.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
+            groupDescriptionLabel.topAnchor.constraint(equalTo: groupNameLabel.bottomAnchor, constant: 5),
+            groupDescriptionLabel.trailingAnchor.constraint(equalTo: groupNameLabel.trailingAnchor),
             //groupNameLabel.bottomAnchor.constraint(equalTo: groupProfileImageView.bottomAnchor),
             
-            membersCollectionView.bottomAnchor.constraint(equalTo: groupProfileImageView.bottomAnchor),
+            configurationButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            configurationButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            configurationButton.heightAnchor.constraint(equalToConstant: 30),
+            configurationButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3 - 30),
+            
+            customUserButton.topAnchor.constraint(equalTo: configurationButton.topAnchor),
+            customUserButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 100),
+            customUserButton.trailingAnchor.constraint(equalTo: configurationButton.leadingAnchor, constant: -10),
+            customUserButton.heightAnchor.constraint(equalToConstant: 30),
+
+            membersCollectionView.topAnchor.constraint(equalTo: groupDescriptionLabel.bottomAnchor, constant: 10),
             membersCollectionView.leadingAnchor.constraint(equalTo: groupDescriptionLabel.leadingAnchor),
             membersCollectionView.heightAnchor.constraint(equalToConstant: 32),
             membersCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            configurationButton.topAnchor.constraint(equalTo: membersCollectionView.bottomAnchor, constant: 10),
-            configurationButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            configurationButton.heightAnchor.constraint(equalToConstant: 30),
-            configurationButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3 - 30),
-
-            customUserButton.topAnchor.constraint(equalTo: membersCollectionView.bottomAnchor, constant: 10),
-            customUserButton.leadingAnchor.constraint(equalTo: groupProfileImageView.leadingAnchor),
-            customUserButton.trailingAnchor.constraint(equalTo: configurationButton.leadingAnchor, constant: -10),
-            customUserButton.heightAnchor.constraint(equalToConstant: 30),
-            
-            groupSizeLabel.topAnchor.constraint(equalTo: customUserButton.bottomAnchor),
+            groupSizeLabel.topAnchor.constraint(equalTo: membersCollectionView.bottomAnchor),
             groupSizeLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             groupSizeLabel.trailingAnchor.constraint(equalTo: membersCollectionView.leadingAnchor, constant: -5),
             groupSizeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
@@ -218,7 +219,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        groupProfileImageView.layer.cornerRadius = 7
+        //groupProfileImageView.layer.cornerRadius = 7
         
         customUserButton.configurationUpdateHandler = { [unowned self] button in
             button.isUserInteractionEnabled = self.isUpdatingJoiningState! ? false : true
@@ -303,7 +304,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
                  // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
-                 groupProfileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 //groupProfileImageView.layer.borderColor = UIColor.systemBackground.cgColor
              }
          }
     }
@@ -327,7 +328,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
     private func configureWithGroup() {
         guard let viewModel = viewModel else { return }
         //groupBannerImageView.sd_setImage(with: URL(string: viewModel.groupBannerUrl!))
-        groupProfileImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        //groupProfileImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
         groupNameLabel.text = viewModel.groupName
         groupDescriptionLabel.text = viewModel.groupDescription
     }

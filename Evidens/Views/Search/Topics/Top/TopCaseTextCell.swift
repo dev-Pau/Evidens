@@ -120,6 +120,7 @@ class TopCaseTextCell: UITableViewCell {
     //MARK: - Helpers
     func configure() {
         guard let viewModel = viewModel else { return }
+        /*
         userPostView.usernameLabel.text = viewModel.fullName
         
         if viewModel.userProfileImageUrl != nil {
@@ -127,9 +128,9 @@ class TopCaseTextCell: UITableViewCell {
         } else {
             userPostView.profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
         }
-        
+        */
         userPostView.postTimeLabel.text = viewModel.timestampString
-        userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
+        //userPostView.userInfoCategoryLabel.attributedText = viewModel.userInfo
         
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription

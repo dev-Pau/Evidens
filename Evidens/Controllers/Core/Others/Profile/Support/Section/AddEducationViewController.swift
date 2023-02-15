@@ -34,6 +34,23 @@ class AddEducationViewController: UIViewController {
         return scrollView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "Add education")
+        return label
+    }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Adding educational qualifications is a great way to showcase your knowledge and achievements. You can add, change, or remove an education entry in the Education section on your profile."
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let schoolLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
@@ -245,7 +262,7 @@ class AddEducationViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(schoolLabel, schoolTextField, degreeTypeLabel, degreeTypeTextField, fieldOfStudyLabel, fieldOfStudyTextField, squareButton, educationConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
+        scrollView.addSubviews(schoolLabel, titleLabel, infoLabel, schoolTextField, degreeTypeLabel, degreeTypeTextField, fieldOfStudyLabel, fieldOfStudyTextField, squareButton, educationConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -253,7 +270,15 @@ class AddEducationViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            schoolTextField.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            schoolTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
             schoolTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             schoolTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             schoolTextField.heightAnchor.constraint(equalToConstant: 35),

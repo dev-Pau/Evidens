@@ -52,10 +52,7 @@ struct DocumentPostViewModel {
         }
     }
     
-    var userProfileImageUrl: URL? {
-        return URL(string: post.ownerImageUrl)
-    }
-    
+   
     var documentURL: URL? {
         return URL(string: post.postDocumentUrl)
     }
@@ -74,19 +71,6 @@ struct DocumentPostViewModel {
     
     var documentPageText: String {
         return post.documentPages > 1 ? "\(documentPages) pages" : "\(documentPages) page"
-    }
-    
-    
-    var firstName: String {
-        return post.ownerFirstName
-    }
-    
-    var lastName: String {
-        return post.ownerLastName
-    }
-    
-    var fullName: String {
-        return post.ownerFirstName + " " + post.ownerLastName
     }
     
     var likes: Int {

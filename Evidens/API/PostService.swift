@@ -22,13 +22,7 @@ struct PostService {
                     "shares": 0,
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
-                    "bookmarks": 0,
-                    "profession": user.profession as Any,
-                    "speciality": user.speciality as Any,
-                    "ownerFirstName": user.firstName as Any,
-                    "ownerCategory": user.category.userCategoryString as Any,
-                    "ownerLastName": user.lastName as Any,
-                    "ownerImageUrl": user.profileImageUrl as Any]
+                    "bookmarks": 0] as [String : Any]
                    
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
@@ -52,13 +46,7 @@ struct PostService {
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
                     "bookmarks": 0,
-                    "profession": user.profession as Any,
-                    "speciality": user.speciality as Any,
-                    "ownerFirstName": user.firstName as Any,
-                    "ownerCategory": user.category.userCategoryString as Any,
-                    "ownerLastName": user.lastName as Any,
                     "imageHeight": imageHeight,
-                    "ownerImageUrl": user.profileImageUrl as Any,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
 
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
@@ -84,12 +72,6 @@ struct PostService {
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
                     "bookmarks": 0,
-                    "profession": user.profession as Any,
-                    "speciality": user.speciality as Any,
-                    "ownerFirstName": user.firstName as Any,
-                    "ownerCategory": user.category.userCategoryString as Any,
-                    "ownerLastName": user.lastName as Any,
-                    "ownerImageUrl": user.profileImageUrl as Any,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
                    
         
@@ -117,34 +99,6 @@ struct PostService {
                 return
             }
         }
-    }
-    
-    static func uploadDocumentPost(post: String, documentURL: String, documentTitle: String, documentPages: Int, user: User, type: Post.PostType, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        let data = ["post": post,
-                    "timestamp": Timestamp(date: Date()),
-                    "likes": 0,
-                    "ownerUid": uid,
-                    "comments": 0,
-                    "shares": 0,
-                    "type": type.rawValue,
-                    "bookmarks": 0,
-                    "ownerFirstName": user.firstName as Any,
-                    "ownerCategory": user.category.userCategoryString as Any,
-                    "ownerLastName": user.lastName as Any,
-                    "ownerImageUrl": user.profileImageUrl as Any,
-                    "documentPages": documentPages as Any,
-                    "documentTitle": documentTitle as Any,
-                    "postDocumentUrl": documentURL as Any] as [String : Any]
-                   
-        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
-        
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
-            print("Post uploaded to recents")
-        }
-        
-        self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
     static func fetchPosts(completion: @escaping([Post]) -> Void) {

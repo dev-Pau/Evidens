@@ -55,7 +55,6 @@ class ConfigureSectionTitleCell: UICollectionViewCell {
         addSubviews(titleSectionLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
-
             //sectionImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             //sectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             //sectionImageView.heightAnchor.constraint(equalToConstant: 25),

@@ -22,10 +22,7 @@ struct NotificationService {
         var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
                                    "uid": fromUser.uid as Any,
                                    "type": type.rawValue,
-                                   "id": docRef.documentID,
-                                   "userProfileImageUrl": fromUser.profileImageUrl as Any,
-                                   "firstName": fromUser.firstName as Any,
-                                   "lastName": fromUser.lastName as Any]
+                                   "id": docRef.documentID]
         
         //Notifications could not have a post associated
         if let post = post {

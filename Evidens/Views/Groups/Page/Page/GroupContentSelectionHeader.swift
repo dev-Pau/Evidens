@@ -50,7 +50,12 @@ class GroupContentSelectionHeader: UICollectionReusableView {
         categoriesCollectionView.dataSource = self
         
         addSubview(categoriesCollectionView)
-        categoriesCollectionView.frame = bounds
+        NSLayoutConstraint.activate([
+            categoriesCollectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            categoriesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            categoriesCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 30)
+        ])
         categoriesCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
         //categoriesCollectionView.reloadData()
     }

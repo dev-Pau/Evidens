@@ -18,13 +18,7 @@ struct CommentService {
                                    "comment": comment,
                                    "id": commentRef.documentID,
                                    "timestamp": Timestamp(date: Date()),
-                                   "firstName": user.firstName as Any,
-                                   "category": user.category.userCategoryString as Any,
-                                   "speciality": user.speciality as Any,
-                                   "profession": user.profession as Any,
-                                   "lastName": user.lastName as Any,
-                                   "isAuthor": isAuthor,
-                                   "profileImageUrl": user.profileImageUrl as Any]
+                                   "isAuthor": isAuthor]
         
         commentRef.setData(data) { _ in
             
@@ -56,13 +50,7 @@ struct CommentService {
                                    "comment": comment,
                                    "id": commentRef.documentID,
                                    "timestamp": Timestamp(date: Date()),
-                                   "firstName": user.firstName as Any,
-                                   "category": user.category.userCategoryString as Any,
-                                   "speciality": user.speciality as Any,
-                                   "profession": user.profession as Any,
-                                   "lastName": user.lastName as Any,
-                                   "isAuthor": isAuthor,
-                                   "profileImageUrl": user.profileImageUrl as Any]
+                                   "isAuthor": isAuthor]
     
         commentRef.setData(data) { _ in
             //Update recent comments for the user
@@ -82,10 +70,7 @@ struct CommentService {
                                    "id": commentRef.documentID,
                                    "timestamp": Timestamp(date: Date()),
                                    "anonymous": true,
-                                   "category": user.category.userCategoryString as Any,
-                                   "speciality": user.speciality as Any,
-                                   "isAuthor": true,
-                                   "profession": user.profession as Any]
+                                   "isAuthor": true]
         
         commentRef.setData(data) { _ in
             //Update recent comments for the user

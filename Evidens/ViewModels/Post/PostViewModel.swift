@@ -50,26 +50,10 @@ struct PostViewModel {
         return post.edited
     }
     
-    var userProfileImageUrl: URL? {
-        return URL(string: post.ownerImageUrl)
-    }
-    
     var postImageUrl: [URL] {
         post.postImageUrl.map { image in
             URL(string: image)!
         }
-    }
-    
-    var firstName: String {
-        return post.ownerFirstName
-    }
-    
-    var lastName: String {
-        return post.ownerLastName
-    }
-    
-    var fullName: String {
-        return post.ownerFirstName + " " + post.ownerLastName
     }
     
     var likes: Int {
@@ -127,36 +111,6 @@ struct PostViewModel {
             return "\(likes) · \(comments) \(commentText)"
         }
     }
-    
-    
-    var profession: String {
-        return post.ownerProfession
-    }
-    
-    var userIsProfessional: Bool {
-        return category == "Professional" ? true : false
-    }
-    
-    var category: String {
-        return post.ownerCategory
-    }
-    
-    var speciality: String {
-        return post.ownerSpeciality
-    }
-    
-    var userInfo: NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: "\(profession), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
-        if userIsProfessional {
-            attributedText.append(NSAttributedString(string: "\(speciality)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-        } else {
-            attributedText.append(NSAttributedString(string: "\(speciality) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-            attributedText.append(NSAttributedString(string: category, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
-            
-        }
-        return attributedText
-    }
-    
 
     var timestampString: String? {
         let formatter = DateComponentsFormatter()

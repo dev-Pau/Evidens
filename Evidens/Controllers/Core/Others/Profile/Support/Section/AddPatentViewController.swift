@@ -37,6 +37,23 @@ class AddPatentViewController: UIViewController {
         return scrollView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "Add patent")
+        return label
+    }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Adding patents is a great way to showcase your expertise in a particular field."
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .left
+        label.numberOfLines = 0
+        label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let patentTitleLabel: UILabel = {
         let label = UILabel()
         //label.text = "Title"
@@ -179,7 +196,7 @@ class AddPatentViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(patentTitleLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, collectionView)
+        scrollView.addSubviews(patentTitleLabel, titleLabel, infoLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, collectionView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -187,7 +204,16 @@ class AddPatentViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            patentTitleTextField.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            
+            patentTitleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
             patentTitleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             patentTitleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             patentTitleTextField.heightAnchor.constraint(equalToConstant: 35),

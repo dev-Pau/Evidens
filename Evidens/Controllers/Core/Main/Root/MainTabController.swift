@@ -131,11 +131,11 @@ class MainTabController: UITabBarController {
                 
                 /*
                 let statusBarView = UIView()
-                   statusBarView.backgroundColor = .blue
+                   statusBarView.backgroundColor = .systemBackground
                    statusBarView.frame = UIApplication.shared.statusBarFrame
                    UIApplication.shared.keyWindow?.addSubview(statusBarView)
-                 */
-                
+                 
+                */
                 //self.topBlurView.frame = UIApplication.shared.statusBarFrame
                 //UIApplication.shared.keyWindow?.addSubview(self.topBlurView)
                 
@@ -184,6 +184,8 @@ class MainTabController: UITabBarController {
         let postController = ViewController()
         
         let searchController = SearchViewController()
+        searchController.panDelegate = self
+        searchController.delegate = self
         
         let home = templateNavigationController(title: "Home", unselectedImage: UIImage(named: "home")!, selectedImage: UIImage(named: "home.selected")!, rootViewController: homeController)
         
@@ -195,7 +197,7 @@ class MainTabController: UITabBarController {
         
         let notifications = templateNavigationController(title: "Notifications", unselectedImage: UIImage(named: "notifications")!, selectedImage: UIImage(named: "notifications.selected")!, rootViewController: notificationsController)
         
-        viewControllers = [home, cases, post, search, notifications]
+        viewControllers = [home, cases, post, notifications, search]
     
         
         //
@@ -250,7 +252,10 @@ class MainTabController: UITabBarController {
                 currentNavController.pushViewController(controller, animated: true)
 
             case .jobs:
-                #warning("put jobs VC")
+                let controller = JobsBrowserViewController()
+                //self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
+                //self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
+                currentNavController.pushViewController(controller, animated: true)
             }
         }
     }
