@@ -390,7 +390,7 @@ extension CasesViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
         controller.delegate = self
         
         let backItem = UIBarButtonItem()

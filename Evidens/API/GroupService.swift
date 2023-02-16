@@ -120,6 +120,7 @@ struct GroupService {
                     "ownerUid": uid,
                     "comments": 0,
                     "shares": 0,
+                    "groupId": groupId,
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
                     "bookmarks": 0,
@@ -155,6 +156,7 @@ struct GroupService {
                     "comments": 0,
                     "bookmarks": 0,
                     "views": 0,
+                    "groupId": groupId,
                     "diagnosis": diagnosis as Any,
                     "ownerUid": uid,
                     "privacy": Case.Privacy.group.rawValue,
@@ -165,10 +167,105 @@ struct GroupService {
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).setData(data, completion: completion)
         DatabaseManager.shared.uploadRecentCaseToGroup(withGroupId: groupId, withCaseId: caseId, withPermission: permissions) { uploaded in
             print("case group uploaded")
-        }
-        
-        
+        }  
     }
     
+    static func likeGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        //Add a new like to the post
+        //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes + 1])
+        
+        //Update posts likes collection to track likes for a particular post
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
+            //Update user likes collection to track likes for a particular user
+            COLLECTION_USERS.document(uid).collection("user-group-likes").document(post.postId).setData([:], completion: completion)
+        }
+    }
+    
+    static func likeGroupCase(groupId: String, clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        //Add a new like to the post
+        //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes + 1])
+        
+        //Update posts likes collection to track likes for a particular post
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").document(uid).setData([:]) { _ in
+            //Update user likes collection to track likes for a particular user
+            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).setData([:], completion: completion)
+        }
+    }
+    
+    static func unlikeGroupCase(groupId: String, clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        //Add a new like to the post
+        //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes + 1])
+        
+        //Update posts likes collection to track likes for a particular post
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").document(uid).delete() { _ in
+            //Update user likes collection to track likes for a particular user
+            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).delete(completion: completion)
+        }
+    }
+    
+    static func unlikeGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard post.likes > 0 else { return }
+        
+        //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes - 1])
 
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").document(uid).delete() { _ in
+            COLLECTION_USERS.document(uid).collection("user-group-likes").document(post.postId).delete(completion: completion)
+        }
+    }
+    
+    #warning("NEEDS TO BE ENDED")
+    static func bookmarkGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
+            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData(["timestamp": Timestamp(date: Date()), "groupId": groupId], completion: completion)
+            
+        }
+    }
+    
+    static func unbookmarkGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard post.numberOfBookmarks > 0 else { return }
+        
+        //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes - 1])
+        
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
+            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).delete(completion: completion)
+        }
+    }
+    
+    
+    
+    static func fetchLikesForGroupPost(groupId: String, postId: String, completion: @escaping(Int) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        let likesRef = COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).collection("posts-likes").count
+        likesRef.getAggregation(source: .server) { snaphsot, _ in
+            //guard let snaphsot = snaphsot else { return }
+            if let likes = snaphsot?.count {
+                completion(likes.intValue)
+            }
+        }
+    }
+    
+    static func fetchLikesForGroupCase(groupId: String, postId: String, completion: @escaping(Int) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        let likesRef = COLLECTION_GROUPS.document(groupId).collection("cases").document(postId).collection("case-likes").count
+        likesRef.getAggregation(source: .server) { snaphsot, _ in
+            //guard let snaphsot = snaphsot else { return }
+            if let likes = snaphsot?.count {
+                completion(likes.intValue)
+            }
+        }
+    }
 }
+
+

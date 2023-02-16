@@ -65,9 +65,7 @@ struct PostService {
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
-                    "likes": 0,
                     "ownerUid": uid,
-                    "comments": 0,
                     "shares": 0,
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
@@ -83,6 +81,22 @@ struct PostService {
         
         
         self.updateUserFeedAfterPost(postId: docRef.documentID)
+    }
+    
+    static func editGroupPost(withGroupId groupId: String, withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
+        let postData = ["post": text,
+                        "edited": true] as [String : Any]
+        
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(postUid).setData(postData, merge: true) { error in
+            if let err = error {
+                print("Error writing document: \(err)")
+                completion(false)
+                return
+            } else {
+                completion(true)
+                return
+            }
+        }
     }
     
     static func editPost(withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
@@ -210,8 +224,14 @@ struct PostService {
         COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            let post = Post(postId: snapshot.documentID, dictionary: data)
-            completion(post)
+            var post = Post(postId: snapshot.documentID, dictionary: data)
+            GroupService.fetchLikesForGroupPost(groupId: groupId, postId: postId) { likes in
+                post.likes = likes
+                CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
+                    post.numberOfComments = comments
+                    completion(post)
+                }
+            }
         }
     }
     
@@ -277,8 +297,6 @@ struct PostService {
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).delete(completion: completion)
         }
-        
-        
     }
     
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Bool) -> Void) {
@@ -302,10 +320,18 @@ struct PostService {
     }
     
     static func getAllLikesFor(post: Post, completion: @escaping([String]) -> Void) {
-        COLLECTION_POSTS.document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
-            guard let uid = snapshot?.documents else { return }
-            let docIDs = uid.map({ $0.documentID })
-            completion(docIDs)
+        if let groupId = post.groupId {
+            COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
+                guard let uid = snapshot?.documents else { return }
+                let docIDs = uid.map({ $0.documentID })
+                completion(docIDs)
+            }
+        } else {
+            COLLECTION_POSTS.document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
+                guard let uid = snapshot?.documents else { return }
+                let docIDs = uid.map({ $0.documentID })
+                completion(docIDs)
+            }
         }
     }
     
@@ -363,11 +389,23 @@ struct PostService {
     
     static func fetchBookmarkedPosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
+
         snapshot.documents.forEach({ document in
-            fetchPost(withPostId: document.documentID) { post in
-                posts.append(post)
-                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                completion(posts)
+            let data = document.data()
+            if let value = data["groupId"] as? String {
+                fetchGroupPost(withGroupId: value, withPostId: document.documentID) { post in
+
+                    posts.append(post)
+                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    completion(posts)
+                }
+            } else {
+                
+                fetchPost(withPostId: document.documentID) { post in
+                    posts.append(post)
+                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    completion(posts)
+                }
             }
         })
     }

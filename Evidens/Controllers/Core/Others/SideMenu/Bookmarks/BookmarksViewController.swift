@@ -382,8 +382,14 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
                 
                 if let userIndex = userIndex {
-                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], collectionViewFlowLayout: layout)
-                    navigationController?.pushViewController(controller, animated: true)
+                    if let groupId = cases[indexPath.row].groupId {
+                        let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .group, collectionViewFlowLayout: layout)
+                        navigationController?.pushViewController(controller, animated: true)
+                    } else {
+                        let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .regular, collectionViewFlowLayout: layout)
+                        navigationController?.pushViewController(controller, animated: true)
+                    }
+                   
                 }
             } else {
                 
@@ -395,8 +401,14 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
                 
                 if let userIndex = userIndex {
-                    let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], collectionViewLayout: layout)
-                    navigationController?.pushViewController(controller, animated: true)
+                    if let groupId = posts[indexPath.row].groupId {
+                        let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .group, collectionViewLayout: layout)
+                        navigationController?.pushViewController(controller, animated: true)
+                    } else {
+                        let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .regular, collectionViewLayout: layout)
+                        navigationController?.pushViewController(controller, animated: true)
+                    }
+
                 }
             }
         }

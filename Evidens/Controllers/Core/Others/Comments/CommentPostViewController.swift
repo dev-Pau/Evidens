@@ -21,12 +21,13 @@ class CommentPostViewController: UICollectionViewController {
     
     private var post: Post
     private var user: User
+    private var type: Comment.CommentType
     
     private var comments = [Comment]()
     private var ownerComments = [User]()
     
     private var commentMenu = CommentsMenuLauncher()
- 
+    
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.delegate = self
@@ -35,9 +36,10 @@ class CommentPostViewController: UICollectionViewController {
     
     //MARK: - Lifecycle
     
-    init(post: Post, user: User) {
+    init(post: Post, user: User, type: Comment.CommentType) {
         self.post = post
         self.user = user
+        self.type = type
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -82,7 +84,7 @@ class CommentPostViewController: UICollectionViewController {
     //MARK: - API
     
     func fetchComments() {
-        CommentService.fetchComments(forPost: post.postId) { comments in
+        CommentService.fetchComments(forPost: post, forType: type) { comments in
             self.comments.removeAll()
             // If user post has text, append it as first element of the comment list with the owner user information
             if !self.post.postText.isEmpty {
@@ -277,14 +279,16 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
         //Show loader to block user interactions
 
         //Upload commento to Firebase
-        CommentService.uploadPostComment(comment: comment, post: post, user: currentUser) { ids in
+        CommentService.uploadPostComment(comment: comment, post: post, user: currentUser, type: type) { ids in
             //Unshow loader
             let commentUid = ids[0]
             let postUid = ids[1]
             
-            DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: postUid, title: "", comment: comment, type: .post, withTimestamp: Date()) { uploaded in
+            if self.type == .regular {
+                DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: postUid, title: "", comment: comment, type: .post, withTimestamp: Date()) { uploaded in
+                }
             }
-            
+
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
@@ -321,7 +325,6 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.delegate?.didCommentPost(post: self.post, user: self.user, comment: addedComment)
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withComment: comment)
-
         }
     }
 }

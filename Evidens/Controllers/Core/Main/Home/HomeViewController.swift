@@ -30,7 +30,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     weak var scrollDelegate: HomeViewControllerDelegate?
 
     var user: User?
-    var selectedImage: UIImageView!
+
     
     private var loaded = false
     private var homeHelper = true
@@ -43,6 +43,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
+    var selectedImage: UIImageView!
     
     private var collectionView: UICollectionView!
     
@@ -484,18 +485,8 @@ extension HomeViewController: HomeCellDelegate {
         
         self.navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
-        //navigationController?.navigationBar.transform = .init(translationX: 0, y: 0)
-        //self.navigationController?.setNavigationBarHidden(false, animated: true)
-        
-        //let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
-        //view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        //navigationController?.navigationItem.titleView = view
-        
-        //let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
-        //view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        //navigationController?.navigationItem.title = "habahahaha"
-        
+        let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
+
         displayState = displaysSinglePost ? .others : .none
         
         
@@ -539,7 +530,7 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let controller = CommentPostViewController(post: post, user: user)
+        let controller = CommentPostViewController(post: post, user: user, type: .regular)
         controller.delegate = self
         displayState = displaysSinglePost ? .others : .none
         let backItem = UIBarButtonItem()

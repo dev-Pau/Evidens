@@ -263,19 +263,30 @@ class EditPostViewController: UIViewController {
     
         progressIndicator.show(in: view)
         
-        PostService.editPost(withPostUid: post.postId, withNewText: postText) { uploaded in
-            self.progressIndicator.dismiss(animated: true)
-            if uploaded {
-                self.post.postText = postText
-                self.delegate?.didEditPost(post: self.post)
-                self.dismiss(animated: true)
-            } else {
-                //Post not uploaded
+        if let groupId = post.groupId {
+            PostService.editGroupPost(withGroupId: groupId, withPostUid: post.postId, withNewText: postText) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    self.post.postText = postText
+                    self.delegate?.didEditPost(post: self.post)
+                    self.dismiss(animated: true)
+                } else {
+                    //Post not uploaded
+                }
+            }
+        } else {
+            
+            PostService.editPost(withPostUid: post.postId, withNewText: postText) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    self.post.postText = postText
+                    self.delegate?.didEditPost(post: self.post)
+                    self.dismiss(animated: true)
+                } else {
+                    //Post not uploaded
+                }
             }
         }
-
-        
-        
     }
     
     //MARK: - Helpers

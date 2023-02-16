@@ -9,6 +9,11 @@ import Firebase
 
 struct Comment {
     
+    enum CommentType {
+        case regular
+        case group
+    }
+    
     let uid: String
     let id: String
     let timestamp: Timestamp

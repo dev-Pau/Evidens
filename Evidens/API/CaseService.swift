@@ -246,11 +246,18 @@ struct CaseService {
     }
     
     static func fetchGroupCase(withGroupId groupId: String, withCaseId caseId: String, completion: @escaping(Case) -> Void) {
+        
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
-            completion(clinicalCase)
+            var clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+            GroupService.fetchLikesForGroupCase(groupId: groupId, postId: caseId) { likes in
+                clinicalCase.likes = likes
+                CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .group) { comments in
+                    clinicalCase.numberOfComments = comments
+                    completion(clinicalCase)
+                }
+            }
         }
     }
     
@@ -320,10 +327,18 @@ struct CaseService {
     }
     
     static func getAllLikesFor(clinicalCase: Case, completion: @escaping([String]) -> Void) {
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
-            guard let uid = snapshot?.documents else { return }
-            let docIDs = uid.map({ $0.documentID })
-            completion(docIDs)
+        if let groupId = clinicalCase.groupId {
+            COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
+                guard let uid = snapshot?.documents else { return }
+                let docIDs = uid.map({ $0.documentID })
+                completion(docIDs)
+            }
+        } else {
+            COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
+                guard let uid = snapshot?.documents else { return }
+                let docIDs = uid.map({ $0.documentID })
+                completion(docIDs)
+            }
         }
     }
     

@@ -20,6 +20,7 @@ struct Post {
     let postId: String
     let type: PostType
     let edited: Bool
+    let groupId: String?
     let privacyOptions: PrivacyOptions
     let imageHeight: CGFloat
     let postImageUrl: [String]
@@ -149,6 +150,7 @@ struct Post {
         self.documentPages = dictionary["documentPages"] as? Int ?? 0
         self.documentTitle = dictionary["documentTitle"] as? String ?? ""
         
+        self.groupId = dictionary["groupId"] as? String ?? nil
         self.privacyOptions = PrivacyOptions(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .all
         self.edited = dictionary["edited"] as? Bool ?? false
     }

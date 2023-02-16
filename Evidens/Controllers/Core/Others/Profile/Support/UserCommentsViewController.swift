@@ -95,7 +95,7 @@ class UserCommentsViewController: UICollectionViewController {
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
+                        let controller = DetailsPostViewController(post: post, user: self.user, type: .regular, collectionViewLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.title = ""
@@ -118,7 +118,7 @@ class UserCommentsViewController: UICollectionViewController {
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, type: .regular, collectionViewFlowLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.title = ""

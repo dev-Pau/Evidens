@@ -21,6 +21,8 @@ class CommentCaseViewController: UICollectionViewController {
     
     private var commentMenu = CommentsMenuLauncher()
     
+    private var type: Comment.CommentType
+    
     private var clinicalCase: Case
     private var user: User
     
@@ -35,9 +37,10 @@ class CommentCaseViewController: UICollectionViewController {
     
     //MARK: - Lifecycle
     
-    init(clinicalCase: Case, user: User) {
+    init(clinicalCase: Case, user: User, type: Comment.CommentType) {
         self.clinicalCase = clinicalCase
         self.user = user
+        self.type = type
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -81,7 +84,7 @@ class CommentCaseViewController: UICollectionViewController {
     //MARK: - API
     
     func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { commentsFetched in
+        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type) { commentsFetched in
             
             self.comments.removeAll()
             // Append the description of the case as comment
@@ -205,7 +208,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
         
         if clinicalCase.ownerUid == currentUser.uid && clinicalCase.privacyOptions == .nonVisible {
             // Owner of the anonymous case
-            CommentService.uploadAnonymousComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
+            CommentService.uploadAnonymousComment(comment: comment, clinicalCase: clinicalCase, user: currentUser, type: type) { ids in
                 // As comment is anonymous, there's no need to upload the comment to recent comments
                 let commentUid = ids[0]
                 let caseUid = ids[1]
@@ -249,13 +252,15 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
 
             }
         } else {
-            CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser) { ids in
+            CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser, type: type) { ids in
                 //Unshow loader
                 let commentUid = ids[0]
                 let caseUid = ids[1]
                 
-                DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in }
-                
+                if self.type == .regular {
+                    DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in }
+                }
+               
                 self.clinicalCase.numberOfComments += 1
                 inputView.clearCommentTextView()
                 

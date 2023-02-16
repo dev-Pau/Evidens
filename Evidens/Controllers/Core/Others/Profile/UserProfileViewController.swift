@@ -444,7 +444,7 @@ class UserProfileViewController: UIViewController {
                     
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
+                     
                     let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionFooter,
                                                                              alignment: .bottom)
@@ -717,8 +717,7 @@ class UserProfileViewController: UIViewController {
     
     
     @objc func handleUserButton() {
-        print("kek")
-        //button.becomeFirstResponder()
+
         if user.isCurrentUser {
             let controller = EditProfileViewController(user: user)
             let navVC = UINavigationController(rootViewController: controller)
@@ -1214,7 +1213,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, collectionViewLayout: layout)
+            let controller = DetailsPostViewController(post: recentPosts[indexPath.row], user: user, type: .regular, collectionViewLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1231,7 +1230,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
-            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, collectionViewFlowLayout: layout)
+            let controller = DetailsCaseViewController(clinicalCase: recentCases[indexPath.row], user: user, type: .regular, collectionViewFlowLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1256,7 +1255,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsPostViewController(post: post, user: self.user, collectionViewLayout: layout)
+                        let controller = DetailsPostViewController(post: post, user: self.user, type: .regular, collectionViewLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.title = ""
@@ -1278,7 +1277,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         layout.minimumLineSpacing = 0
                         layout.minimumInteritemSpacing = 0
                         
-                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, collectionViewFlowLayout: layout)
+                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: self.user, type: .regular, collectionViewFlowLayout: layout)
                         
                         let backItem = UIBarButtonItem()
                         backItem.tintColor = .label
@@ -1689,15 +1688,10 @@ class StretchyHeaderLayout: UICollectionViewCompositionalLayout {
                 let contentOffsetY = collectionView.contentOffset.y
 
                 if contentOffsetY < 0 {
+                
                     let width = UIScreen.main.bounds.width
                     let height = width / 3 - contentOffsetY
                     attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
-                } else {
-                    let width = UIScreen.main.bounds.width
-                    let height = width / 3
-                    let translation = height - contentOffsetY > 131 ? height - contentOffsetY : 131
-                    
-                    attribute.frame = CGRect(x: 0, y: 0, width: width, height: translation)
                 }
             }
         }

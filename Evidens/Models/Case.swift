@@ -20,6 +20,7 @@ struct Case {
     var numberOfViews: Int
     var numberOfBookmarks: Int
     let ownerUid: String
+    var groupId: String?
     let timestamp: Timestamp
     let caseId: String
     let type: CaseType
@@ -160,6 +161,7 @@ struct Case {
         self.numberOfViews = dictionary["views"] as? Int ?? 0
         self.diagnosis = dictionary["diagnosis"] as? String ?? ""
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
+        self.groupId = dictionary["groupId"] as? String ?? nil
         //self.ownerCategory = User.UserCategory(rawValue: dictionary["ownerCategory"] as? Int ?? 00) ?? .professional
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = CaseType(rawValue: dictionary["type"] as? Int ?? 0) ?? .text

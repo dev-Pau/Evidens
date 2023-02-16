@@ -32,6 +32,8 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var ownerComments: [User] = []
     
+    private var type: Comment.CommentType
+    
     private var commentMenu = CommentsMenuLauncher()
   
     private var zoomTransitioning = ZoomTransitioning()
@@ -51,9 +53,10 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
     }
 
-    init(clinicalCase: Case, user: User, collectionViewFlowLayout: UICollectionViewFlowLayout) {
+    init(clinicalCase: Case, user: User, type: Comment.CommentType, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
         self.user = user
+        self.type = type
         super.init(collectionViewLayout: collectionViewFlowLayout)
     }
     
@@ -111,7 +114,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase.caseId) { fetchedComments in
+        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type) { fetchedComments in
             self.comments = fetchedComments
             
             fetchedComments.forEach { comment in
@@ -321,7 +324,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         displayState = .others

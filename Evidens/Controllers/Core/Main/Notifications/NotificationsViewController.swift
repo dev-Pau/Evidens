@@ -256,7 +256,7 @@ extension NotificationsViewController: NotificationCellDelegate {
         PostService.fetchPost(withPostId: postId) { post in
             self.dismissLoadingView()
             
-            let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+            let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -283,7 +283,7 @@ extension NotificationsViewController: NotificationCellDelegate {
             
             self.dismissLoadingView()
             
-            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+            let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""

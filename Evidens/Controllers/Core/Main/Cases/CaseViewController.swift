@@ -232,7 +232,6 @@ extension CaseViewController: CaseCellDelegate {
         }
     }
     
-
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -240,7 +239,7 @@ extension CaseViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
         controller.delegate = self
         displayState = .others
         let backItem = UIBarButtonItem()
@@ -399,7 +398,7 @@ extension CaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user)
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         displayState = .others

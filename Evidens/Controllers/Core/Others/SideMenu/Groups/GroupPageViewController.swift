@@ -37,16 +37,19 @@ protocol GroupPageViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
 }
 
-class GroupPageViewController: UIViewController {
+class GroupPageViewController: UIViewController, UINavigationControllerDelegate {
     
     weak var delegate: GroupPageViewControllerDelegate?
+    
+    private var zoomTransitioning = ZoomTransitioning()
+    var selectedImage: UIImageView!
     
     private var scrollViewDidScrollHigherThanActionButton: Bool = false
     
     private var standardAppearance = UINavigationBarAppearance()
 
     private var collectionView: UICollectionView!
-   
+    
     private var group: Group
     private var members: [User]?
     
@@ -55,6 +58,7 @@ class GroupPageViewController: UIViewController {
     
     private var contentIndexSelected: ContentGroup.ContentTopics = .all
     private var content = [ContentGroup]()
+    
     private var posts = [Post]()
     private var cases = [Case]()
     private var users = [User]()
@@ -72,8 +76,8 @@ class GroupPageViewController: UIViewController {
         button.configuration?.baseForegroundColor = .systemBackground
        
         button.configuration?.cornerStyle = .capsule
-
-        //button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
+        
+        button.addTarget(self, action: #selector(handleGroupButton), for: .touchUpInside)
         return button
     }()
     
@@ -105,12 +109,23 @@ class GroupPageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureNavigationBar()
         configureSearchBar()
         configureUI()
         configureCollectionView()
         
         if let memberType = memberType {
+            
+            customRightButton.menu = addMenuItems()
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 15, weight: .bold)
+            customRightButton.configuration?.baseBackgroundColor = .systemBackground
+            customRightButton.configuration?.baseForegroundColor = .label
+            customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
+            customRightButton.configuration?.background.strokeWidth = 1
+            customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
+            
             collectionView.isHidden = false
             // User is from group or is pending
             // If user is pending, don't have access to members
@@ -122,18 +137,15 @@ class GroupPageViewController: UIViewController {
             fetchGroupUsers()
             fetchGroupContent()
             
-            var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 15, weight: .bold)
-            customRightButton.configuration?.baseBackgroundColor = .systemBackground
-            customRightButton.configuration?.baseForegroundColor = .label
-            customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
-            customRightButton.configuration?.background.strokeWidth = 1
-            customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
-            
         } else {
             // User comes from discover tab or might be pending. Fetch user member type.
             fetchUserMemberType()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.delegate = self
     }
     
     override func viewDidLayoutSubviews() {
@@ -160,12 +172,12 @@ class GroupPageViewController: UIViewController {
     private func fetchUserMemberType() {
         DatabaseManager.shared.fetchUserMemberTypeForGroup(groupId: group.groupId) { memberType in
             self.memberType = memberType
-            
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 15, weight: .bold)
             self.customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
             
             if memberType != .external {
+                self.customRightButton.menu = self.addMenuItems()
                 self.customRightButton.configuration?.baseBackgroundColor = .systemBackground
                 self.customRightButton.configuration?.baseForegroundColor = .label
                 self.customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
@@ -182,10 +194,6 @@ class GroupPageViewController: UIViewController {
                 return
             }
         }
-    }
-    
-    private func createLayout() -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout()
     }
     
     private func fetchGroupAdminTeam() {
@@ -209,7 +217,7 @@ class GroupPageViewController: UIViewController {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let maxVerticalOffset = (view.frame.width / 3) / 2
         let currentVeritcalOffset = scrollView.contentOffset.y
-        groupProfileImageView.frame.origin.y = (view.frame.width / 3 - 35) - currentVeritcalOffset
+        groupProfileImageView.frame.origin.y = (view.frame.width / 3 - 25) - currentVeritcalOffset
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
         navigationController?.navigationBar.standardAppearance = standardAppearance
@@ -219,7 +227,14 @@ class GroupPageViewController: UIViewController {
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
             groupProfileImageView.isHidden = true
             navigationItem.titleView?.isHidden = false
-            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
+            
+            if memberType == .external || memberType == .admin || memberType == .owner {
+                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
+            } else {
+                navigationItem.setRightBarButton(nil, animated: true)
+            }
+            
+         
         } else if currentVeritcalOffset < (view.frame.width / 3 + 40 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
             scrollViewDidScrollHigherThanActionButton.toggle()
             groupProfileImageView.isHidden = false
@@ -246,7 +261,7 @@ class GroupPageViewController: UIViewController {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 3
+        imageView.layer.cornerRadius = 5
         imageView.sd_setImage(with: URL(string: group.profileUrl!))
         
         let imageViewContainer = LogoContainerView(imageView: imageView)
@@ -299,7 +314,7 @@ class GroupPageViewController: UIViewController {
                             let ownerUniqueUids = Array(Set(ownerUids))
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
-                                print(self.users)
+
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
@@ -375,17 +390,17 @@ class GroupPageViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            groupProfileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.width / 3 - 35 ),
+            groupProfileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.width / 3 - 25),
             groupProfileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            groupProfileImageView.widthAnchor.constraint(equalToConstant: 65),
-            groupProfileImageView.heightAnchor.constraint(equalToConstant: 65),
+            groupProfileImageView.widthAnchor.constraint(equalToConstant: 70),
+            groupProfileImageView.heightAnchor.constraint(equalToConstant: 70),
         ])
         
         groupProfileImageView.sd_setImage(with: URL(string: group.profileUrl!))
-        groupProfileImageView.layer.cornerRadius = 10
+        groupProfileImageView.layer.cornerRadius = 7
         
         collectionView.contentInsetAdjustmentBehavior = .never
-        collectionView.bounces = false
+        collectionView.bounces = true
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
@@ -393,15 +408,15 @@ class GroupPageViewController: UIViewController {
         if memberType == nil { collectionView.isHidden = true }
     
         
-        collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
+        collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
         
-        collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
+        collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
         
         // External users
         collectionView.register(GroupAdminCell.self, forCellWithReuseIdentifier: groupContentAdminReuseIdentifier)
-        collectionView.register(GroupAboutHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: groupContentHeaderReuseIdentifier)
+        collectionView.register(GroupAboutHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentHeaderReuseIdentifier)
         
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: groupContentDescriptionReuseIdentifier)
         
@@ -426,16 +441,136 @@ class GroupPageViewController: UIViewController {
         
     }
     
-    private func createLayout() -> StretchyGroupHeaderLayout {
-        let layout = StretchyGroupHeaderLayout()
+    private func createLayout() -> StretchyHeaderLayout {
+        let layout = StretchyHeaderLayout { sectionNumber, env in
+            if sectionNumber == 0 {
+                // Just the profile header
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(self.view.frame.width / 3)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+                // Profile Header
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)))
+
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header]
+                return section
+            } else if sectionNumber == 1 {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+    
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: group)
+                section.boundarySupplementaryItems = [header]
+                //section.orthogonalScrollingBehavior = .continuous
+                return section
+            } else {
+                if self.memberType == .external || self.memberType == .pending {
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                             elementKind: ElementKind.sectionHeader,
+                                                                             alignment: .top)
         
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        //layout.sectionHeadersPinToVisibleBounds = true
-        //layout.sectionHeadersPinToVisibleBounds = true
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)))
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.boundarySupplementaryItems = [header]
+                    //section.orthogonalScrollingBehavior = .continuous
+                    return section
+                } else {
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)))
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    //section.orthogonalScrollingBehavior = .continuous
+                    return section
+                    
+                }
+            }
+        }
+        
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+
+        config.interSectionSpacing = 0
+        layout.configuration = config
+        
         return layout
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let memberType = memberType else { return nil }
+        
+        switch memberType {
+        case .owner:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
+                }),
+                UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
+                }),
+                UIAction(title: Group.GroupManagement.edit.rawValue, image: Group.GroupManagement.edit.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.edit)
+                })
+            ])
+            customRightButton.showsMenuAsPrimaryAction = true
+            return menuItems
+            
+        case .admin:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
+                }),
+                UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
+                })
+            ])
+            customRightButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .member:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.leave.rawValue, image: Group.GroupManagement.leave.groupManagementImage, attributes: .destructive, handler: { _ in
+                    #warning("update leave")
+                }),
+                UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                })
+                
+            ])
+            customRightButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .pending:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.withdraw.rawValue, image: Group.GroupManagement.withdraw.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.withdraw)
+                }),
+                UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                })
+            ])
+            customRightButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .external:
+            return nil
+        case .invited:
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Group.GroupManagement.accept.rawValue, image: Group.GroupManagement.accept.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.accept)
+                }),
+                UIAction(title: Group.GroupManagement.ignore.rawValue, image: Group.GroupManagement.ignore.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.ignore)
+                }),
+                UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
+                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                })
+            ])
+            customRightButton.showsMenuAsPrimaryAction = true
+            return menuItems
+        case .blocked:
+            return nil
+        }
     }
     
     @objc func handleBack() {
@@ -444,6 +579,34 @@ class GroupPageViewController: UIViewController {
     
     @objc func handleProfileTap() {
         
+    }
+    
+    @objc func handleGroupButton() {
+        guard let memberType = memberType else { return }
+        if memberType == .external {
+            customRightButton.isUserInteractionEnabled = false
+            DatabaseManager.shared.sendRequestToGroup(groupId: group.groupId) { send in
+                self.customRightButton.isUserInteractionEnabled = true
+                if send {
+                    self.customRightButton.showsMenuAsPrimaryAction = true
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 14, weight: .bold)
+                    self.customRightButton.configuration?.baseBackgroundColor = .systemBackground
+                    self.customRightButton.configuration?.baseForegroundColor = .label
+                    self.customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
+                    self.customRightButton.configuration?.background.strokeWidth = 1
+                    self.memberType = .pending
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(self.memberType?.buttonText ?? "Pending", attributes: container)
+                    
+                    let cell = self.collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as! GroupPageHeaderCell
+                    cell.memberType = self.memberType!
+                    self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
+                    
+                    let popUp = METopPopupView(title: "Group request sent", image: "checkmark.circle.fill", popUpType: .regular)
+                    popUp.showTopPopup(inView: self.view)
+                }
+            }
+        }
     }
     
     
@@ -459,7 +622,7 @@ extension GroupPageViewController: UISearchBarDelegate {
 extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return (memberType == .external || memberType == .pending) ? 3 : 2
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -481,7 +644,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
             }
         } else {
-            return adminUserRoles.count
+            return (memberType == .external || memberType == .pending) ? adminUserRoles.count : 0
         }
     }
     
@@ -639,12 +802,13 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         }
     }
     
+    /*
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if section == 0 { return CGSize(width: view.frame.width, height: view.frame.width / 3) }
         
         return CGSize(width: UIScreen.main.bounds.width, height: 50)
     }
-    
+    */
     func displayPostCell(post: Post, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
         let userIndex = users.firstIndex { user in
             if user.uid == post.ownerUid {
@@ -658,26 +822,31 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         case .plainText:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
             cell.viewModel = PostViewModel(post: post)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCell, for: indexPath) as! HomeImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithTwoImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCell, for: indexPath) as! HomeTwoImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithThreeImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCell, for: indexPath) as! HomeThreeImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithFourImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCell, for: indexPath) as! HomeFourImageTextCell
             cell.viewModel = PostViewModel(post: post)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .document:
@@ -702,11 +871,13 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         case .text:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         case .textWithImage:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
+            cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
         }
@@ -758,6 +929,14 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                         cell.isUpdatingJoiningState = false
                         cell.setNeedsUpdateConfiguration()
                         
+                        var container = AttributeContainer()
+                        container.font = .systemFont(ofSize: 15, weight: .bold)
+                        self.customRightButton.configuration?.baseBackgroundColor = .label
+                        self.customRightButton.configuration?.baseForegroundColor = .systemBackground
+                        self.customRightButton.configuration?.background.strokeWidth = 0
+                        self.customRightButton.configuration?.attributedTitle = AttributedString(self.memberType!.buttonText, attributes: container)
+                        self.customRightButton.showsMenuAsPrimaryAction = false
+                        
                         let reportPopup = METopPopupView(title: "You are no longer a member of this group", image: "hand.wave.fill", popUpType: .regular)
                         reportPopup.showTopPopup(inView: self.view)
                     }
@@ -773,6 +952,15 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                 if unsend {
                     self.memberType = .external
                     cell.memberType = .external
+                    
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 15, weight: .bold)
+                    self.customRightButton.configuration?.baseBackgroundColor = .label
+                    self.customRightButton.configuration?.baseForegroundColor = .systemBackground
+                    self.customRightButton.configuration?.background.strokeWidth = 0
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(self.memberType!.buttonText, attributes: container)
+                    self.customRightButton.showsMenuAsPrimaryAction = false
+                    
                     cell.isUpdatingJoiningState = false
                     cell.setNeedsUpdateConfiguration()
                     
@@ -789,6 +977,11 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                     cell.isUpdatingJoiningState = false
                     cell.setNeedsUpdateConfiguration()
                     
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 15, weight: .bold)
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(self.memberType!.buttonText, attributes: container)
+                    self.customRightButton.showsMenuAsPrimaryAction = true
+                    
                     let reportPopup = METopPopupView(title: "You are now a new member of this group", image: "hand.thumbsup.fill", popUpType: .destructive)
                     reportPopup.showTopPopup(inView: self.view)
                 }
@@ -800,6 +993,15 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                     self.memberType = .external
                     cell.memberType = .external
                     cell.isUpdatingJoiningState = false
+                    
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 15, weight: .bold)
+                    self.customRightButton.configuration?.baseBackgroundColor = .label
+                    self.customRightButton.configuration?.baseForegroundColor = .systemBackground
+                    self.customRightButton.configuration?.background.strokeWidth = 0
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(self.memberType!.buttonText, attributes: container)
+                    self.customRightButton.showsMenuAsPrimaryAction = false
+                    
                     cell.setNeedsUpdateConfiguration()
                 }
             }
@@ -826,8 +1028,18 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
                     cell.isUpdatingJoiningState = false
                     cell.setNeedsUpdateConfiguration()
                     
-                    let popUp = METopPopupView(title: "Group request sent", image: "envelope.fill", popUpType: .regular)
+                    var container = AttributeContainer()
+                    container.font = .systemFont(ofSize: 15, weight: .bold)
+                    self.customRightButton.configuration?.baseBackgroundColor = .systemBackground
+                    self.customRightButton.configuration?.baseForegroundColor = .label
+                    self.customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
+                    self.customRightButton.configuration?.background.strokeWidth = 1
+                    self.customRightButton.configuration?.attributedTitle = AttributedString(self.memberType!.buttonText, attributes: container)
+                    self.customRightButton.showsMenuAsPrimaryAction = true
+                    
+                    let popUp = METopPopupView(title: "Group request sent", image: "checkmark.circle.fill", popUpType: .regular)
                     popUp.showTopPopup(inView: self.view)
+                    
                 }
             }
         case .invited:
@@ -948,7 +1160,6 @@ class StretchyGroupHeaderLayout: UICollectionViewFlowLayout {
                 guard let collectionView = collectionView else { return }
                
                 let contentOffsetY = collectionView.contentOffset.y
-                print(contentOffsetY)
 
                 if contentOffsetY < 0 {
                     let width = collectionView.frame.width
@@ -965,4 +1176,737 @@ class StretchyGroupHeaderLayout: UICollectionViewFlowLayout {
         return false
     }
 }
+
+extension GroupPageViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User) {
+        let controller = CommentPostViewController(post: post, user: forAuthor, type: .group)
+        controller.delegate = self
+       // displayState = displaysSinglePost ? .others : .none
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        controller.hidesBottomBarWhenPushed = true
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didLike post: Post) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        } else {
+            guard let index = collectionView.indexPath(for: cell) else { return }
+            indexPath = index
+        }
+
+        HapticsManager.shared.vibrate(for: .success)
+        
+        switch cell {
+        case is HomeTextCell:
+            let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is HomeTwoImageTextCell:
+            let currentCell = cell as! HomeTwoImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                    
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is HomeThreeImageTextCell:
+            let currentCell = cell as! HomeThreeImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        case is HomeFourImageTextCell:
+            let currentCell = cell as! HomeFourImageTextCell
+            currentCell.viewModel?.post.didLike.toggle()
+            
+            if post.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    self.posts[indexPath.row].didLike = false
+                    self.posts[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    self.posts[indexPath.row].didLike = true
+                    self.posts[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                }
+            }
+            
+        default:
+            break
+        }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
+        switch option {
+        case .delete:
+            print("delete post here")
+        case .edit:
+            let controller = EditPostViewController(post: post)
+            controller.delegate = self
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            
+            present(nav, animated: true)
+        case .report:
+            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            
+        }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didBookmark post: Post) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        } else {
+            guard let index = collectionView.indexPath(for: cell) else { return }
+            indexPath = index
+        }
+        
+        switch cell {
+        case is HomeTextCell:
+            let currentCell = cell as! HomeTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+        case is HomeImageTextCell:
+            let currentCell = cell as! HomeImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+            
+        case is HomeTwoImageTextCell:
+            let currentCell = cell as! HomeTwoImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+            
+        case is HomeThreeImageTextCell:
+            let currentCell = cell as! HomeThreeImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+            
+        case is HomeFourImageTextCell:
+            let currentCell = cell as! HomeFourImageTextCell
+            currentCell.viewModel?.post.didBookmark.toggle()
+            
+            if post.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                    self.posts[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupPost(groupId: group.groupId, post: post) { _ in
+                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                    self.posts[indexPath.row].didBookmark = true
+                }
+            }
+
+        default:
+            break
+        }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        selectedImage = image[index]
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        self.navigationController?.delegate = zoomTransitioning
+        //displayState = .photo
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .clear
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(wantsToSeeLikesFor post: Post) {
+        let controller = PostLikesViewController(contentType: post)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        //displayState = displaysSinglePost ? .others : .none
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsPostViewController(post: post, user: user, type: .group, collectionViewLayout: layout)
+        controller.delegate = self
+       
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension GroupPageViewController: EditPostViewControllerDelegate {
+    func didEditPost(post: Post) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+                    posts[postIndex] = post
+                } else { return }
+            } else { return }
+        } else {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                posts[index] = post
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        }
+        
+        collectionView.reloadItems(at: [indexPath])
+    }
+}
+
+extension GroupPageViewController: CommentPostViewControllerDelegate {
+    func didCommentPost(post: Post, user: User, comment: Comment) {
+        if let postIndex = posts.firstIndex (where: { $0.postId == post.postId } ) {
+            posts[postIndex].numberOfComments += 1
+            
+            var indexPath = IndexPath()
+            if contentIndexSelected == .all {
+                if let index = content.firstIndex(where: { $0.id == post.postId }) {
+                    indexPath = IndexPath(item: index, section: 1)
+                } else { return }
+                
+            } else {
+                indexPath = IndexPath(item: postIndex, section: 1)
+            }
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: indexPath) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: indexPath) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: indexPath) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: indexPath) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: indexPath) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+}
+
+extension GroupPageViewController: ZoomTransitioningDelegate {
+    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
+        return selectedImage
+    }
+}
+
+extension GroupPageViewController: DetailsPostViewControllerDelegate {
+    func didTapLikeAction(forPost post: Post) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == post.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) {
+                    self.cell(cell, didLike: post)
+                }
+            } else { return }
+
+
+        } else {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let cell = collectionView.cellForItem(at: indexPath) {
+                    self.cell(cell, didLike: post)
+                }
+            } else { return }
+        }
+    }
+    
+    func didTapBookmarkAction(forPost post: Post) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == post.postId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) {
+                    self.cell(cell, didBookmark: post)
+                }
+            } else { return }
+
+        } else {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let cell = collectionView.cellForItem(at: indexPath) {
+                    self.cell(cell, didBookmark: post)
+                }
+            } else { return }
+        }
+    }
+    
+    func didComment(forPost post: Post) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+                    posts[postIndex].numberOfComments += 1
+                } else { return }
+            } else { return }
+        } else {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                posts[index].numberOfComments += 1
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        }
+        
+        switch post.type {
+        case .plainText:
+            let cell = collectionView.cellForItem(at: indexPath) as! HomeTextCell
+            cell.viewModel?.post.numberOfComments += 1
+            
+        case .textWithImage:
+            let cell = collectionView.cellForItem(at: indexPath) as! HomeImageTextCell
+            cell.viewModel?.post.numberOfComments += 1
+            
+        case .textWithTwoImage:
+            let cell = collectionView.cellForItem(at: indexPath) as! HomeTwoImageTextCell
+            cell.viewModel?.post.numberOfComments += 1
+            
+        case .textWithThreeImage:
+            let cell = collectionView.cellForItem(at: indexPath) as! HomeThreeImageTextCell
+            cell.viewModel?.post.numberOfComments += 1
+            
+        case .textWithFourImage:
+            let cell = collectionView.cellForItem(at: indexPath) as! HomeFourImageTextCell
+            cell.viewModel?.post.numberOfComments += 1
+            
+        case .document:
+            break
+        case .poll:
+            break
+        case .video:
+            break
+        }
+    }
+    
+    func didEditPost(forPost post: Post) {
+        print("editing")
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == post.postId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+                    posts[postIndex] = post
+                } else { return }
+            } else { return }
+        } else {
+            if let index = posts.firstIndex(where: { $0.postId == post.postId }) {
+                posts[index] = post
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        }
+        
+        collectionView.reloadItems(at: [indexPath])
+    }
+}
+
+extension GroupPageViewController: CaseCellDelegate {
+    func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {
+        let controller = PostLikesViewController(contentType: clinicalCase)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        //displayState = displaysSinglePost ? .others : .none
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .group)
+        controller.delegate = self
+       // displayState = displaysSinglePost ? .others : .none
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        controller.hidesBottomBarWhenPushed = true
+
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        } else {
+            guard let index = collectionView.indexPath(for: cell) else { return }
+            indexPath = index
+        }
+
+        HapticsManager.shared.vibrate(for: .success)
+        
+        switch cell {
+        case is CaseTextCell:
+            let currentCell = cell as! CaseTextCell
+            currentCell.viewModel?.clinicalCase.didLike.toggle()
+            
+            if clinicalCase.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    self.cases[indexPath.row].didLike = false
+                    self.cases[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    self.cases[indexPath.row].didLike = true
+                    self.cases[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
+                }
+            }
+        case is CaseTextImageCell:
+            let currentCell = cell as! CaseTextImageCell
+            currentCell.viewModel?.clinicalCase.didLike.toggle()
+            
+            if clinicalCase.didLike {
+                //Unlike post here
+                GroupService.unlikeGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    self.cases[indexPath.row].didLike = false
+                    self.cases[indexPath.row].likes -= 1
+                }
+            } else {
+                //Like post here
+                GroupService.likeGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    self.cases[indexPath.row].didLike = true
+                    self.cases[indexPath.row].likes += 1
+                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
+                }
+            }
+
+        default:
+            break
+        }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
+        
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        
+        switch option {
+        case .delete:
+            print("delete")
+        case .update:
+            
+            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            controller.controllerIsPushed = true
+
+            //controller.delegate = self
+            
+            navigationController?.pushViewController(controller, animated: true)
+            
+        case .solved:
+            let controller = CaseDiagnosisViewController(diagnosisText: "")
+            controller.stageIsUpdating = true
+#warning("Implement delete")
+            //controller.delegate = self
+            controller.caseId = clinicalCase.caseId
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        case .report:
+            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+        case .edit:
+            let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
+            controller.diagnosisIsUpdating = true
+#warning("Implement delete")
+            //controller.delegate = self
+            controller.caseId = clinicalCase.caseId
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
+        let controller = UserProfileViewController(user: user)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+        controller.controllerIsPushed = true
+        //displayState = .others
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .black
+        self.navigationItem.backBarButtonItem = backItem
+        
+        self.navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
+        let map: [UIImage] = image.compactMap { $0.image }
+        selectedImage = image[index]
+        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
+        self.navigationController?.delegate = zoomTransitioning
+        //displayState = .photo
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .clear
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
+        //controller.delegate = self
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension GroupPageViewController: CommentCaseViewControllerDelegate {
+    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
+        if let caseIndex = cases.firstIndex (where: { $0.caseId == clinicalCase.caseId } ) {
+            cases[caseIndex].numberOfComments += 1
+            
+            var indexPath = IndexPath()
+            if contentIndexSelected == .all {
+                if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                    indexPath = IndexPath(item: index, section: 1)
+                } else { return }
+                
+            } else {
+                indexPath = IndexPath(item: caseIndex, section: 1)
+            }
+            
+            switch clinicalCase.type {
+            case .text:
+                let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
+                cell.viewModel?.clinicalCase.numberOfComments += 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
+                cell.viewModel?.clinicalCase.numberOfComments += 1
+            }
+        }
+    }
+}
+
 

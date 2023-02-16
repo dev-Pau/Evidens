@@ -51,6 +51,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     
     private var post: Post
     private var user: User
+    private var type: Comment.CommentType
 
     private var comments: [Comment]?
 
@@ -103,9 +104,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         }
     }
 
-    init(post: Post, user: User, collectionViewLayout: UICollectionViewFlowLayout) {
+    init(post: Post, user: User, type: Comment.CommentType, collectionViewLayout: UICollectionViewFlowLayout) {
         self.post = post
         self.user = user
+        self.type = type
 
         super.init(collectionViewLayout: collectionViewLayout)
     }
@@ -115,7 +117,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     func fetchComments() {
-        CommentService.fetchComments(forPost: post.postId) { fetchedComments in
+        CommentService.fetchComments(forPost: post, forType: type) { fetchedComments in
             self.comments = fetchedComments
             
             fetchedComments.forEach { comment in
@@ -182,7 +184,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             self.collectionView.reloadData()
         }
     }
-    
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 3
@@ -327,7 +328,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
 
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let controller = CommentPostViewController(post: post, user: user)
+        let controller = CommentPostViewController(post: post, user: user, type: type)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         
@@ -344,7 +345,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-
+        
         HapticsManager.shared.vibrate(for: .success)
         
         switch cell {
@@ -353,17 +354,33 @@ extension DetailsPostViewController: HomeCellDelegate {
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
+                switch type {
+                case .regular:
+                    PostService.unlikePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes - 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                    //  currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
-                    
+                    // }
                 }
+                
             } else {
                 //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
+                switch type {
+                case .regular:
+                    PostService.likePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes + 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                    //  currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    //}
                 }
             }
             
@@ -373,19 +390,35 @@ extension DetailsPostViewController: HomeCellDelegate {
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
+                switch type {
+                case .regular:
+                    PostService.unlikePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes - 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                    //  currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
+                    // }
                 }
+                
             } else {
                 //Like post here
-                PostService.likePost(post: post) { _ in
-
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                switch type {
+                case .regular:
+                    PostService.likePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes + 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    self.delegate?.didTapLikeAction(forPost: post)
+                    //}
                 }
+            }
             
         case is HomeTwoImageTextCell:
             let currentCell = cell as! HomeTwoImageTextCell
@@ -393,37 +426,74 @@ extension DetailsPostViewController: HomeCellDelegate {
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
+                switch type {
+                case .regular:
+                    PostService.unlikePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes - 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    self.delegate?.didTapLikeAction(forPost: post)
+                    // }
+                }
+                
+            } else {
+                //Like post here
+                switch type {
+                case .regular:
+                    PostService.likePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes + 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    self.delegate?.didTapLikeAction(forPost: post)
+                    //}
+                }
+            }
+        
+        
+    case is HomeThreeImageTextCell:
+        let currentCell = cell as! HomeThreeImageTextCell
+        
+        currentCell.viewModel?.post.didLike.toggle()
+        if post.didLike {
+            //Unlike post here
+            switch type {
+            case .regular:
                 PostService.unlikePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes - 1
                     self.delegate?.didTapLikeAction(forPost: post)
                 }
-            } else {
-                //Like post here
+            case .group:
+                //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                //  currentCell.viewModel?.post.likes = post.likes + 1
+                self.delegate?.didTapLikeAction(forPost: post)
+                // }
+            }
+            
+        } else {
+            //Like post here
+            switch type {
+            case .regular:
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
+            case .group:
+                //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                //  currentCell.viewModel?.post.likes = post.likes + 1
+                self.delegate?.didTapLikeAction(forPost: post)
+                //}
             }
-            
-        case is HomeThreeImageTextCell:
-            let currentCell = cell as! HomeThreeImageTextCell
-            
-            currentCell.viewModel?.post.didLike.toggle()
-            if post.didLike {
-                //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                }
-            } else {
-                //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
-                }
-            }
+        }
+    
+        
             
         case is HomeFourImageTextCell:
             let currentCell = cell as! HomeFourImageTextCell
@@ -431,16 +501,33 @@ extension DetailsPostViewController: HomeCellDelegate {
             currentCell.viewModel?.post.didLike.toggle()
             if post.didLike {
                 //Unlike post here
-                PostService.unlikePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes - 1
-                    self.delegate?.didTapLikeAction(forPost: post)
+                switch type {
+                case .regular:
+                    PostService.unlikePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes - 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                      //  currentCell.viewModel?.post.likes = post.likes + 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                   // }
                 }
+                
             } else {
                 //Like post here
-                PostService.likePost(post: post) { _ in
-                    currentCell.viewModel?.post.likes = post.likes + 1
-                    self.delegate?.didTapLikeAction(forPost: post)
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                switch type {
+                case .regular:
+                    PostService.likePost(post: post) { _ in
+                        currentCell.viewModel?.post.likes = post.likes + 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                case .group:
+                    //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                      //  currentCell.viewModel?.post.likes = post.likes + 1
+                        self.delegate?.didTapLikeAction(forPost: post)
+                    //}
                 }
             }
             
@@ -472,15 +559,26 @@ extension DetailsPostViewController: HomeCellDelegate {
             let currentCell = cell as! HomeTextCell
             currentCell.viewModel?.post.didBookmark.toggle()
             if post.didBookmark {
-                //Unbookmark post here
-                PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                switch type {
+                case .regular:
+                    PostService.unbookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
+                //Unbookmark post here
             } else {
-                //Bookmark post here
-                PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                switch type {
+                case .regular:
+                    //Bookmark post here
+                    PostService.bookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                        
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
@@ -488,15 +586,26 @@ extension DetailsPostViewController: HomeCellDelegate {
             let currentCell = cell as! HomeImageTextCell
             currentCell.viewModel?.post.didBookmark.toggle()
             if post.didBookmark {
-                //Unbookmark post here
-                PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                switch type {
+                case .regular:
+                    PostService.unbookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
+                //Unbookmark post here
             } else {
-                //Bookmark post here
-                PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                switch type {
+                case .regular:
+                    //Bookmark post here
+                    PostService.bookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                        
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
@@ -505,15 +614,26 @@ extension DetailsPostViewController: HomeCellDelegate {
             let currentCell = cell as! HomeTwoImageTextCell
             currentCell.viewModel?.post.didBookmark.toggle()
             if post.didBookmark {
-                //Unbookmark post here
-                PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                switch type {
+                case .regular:
+                    PostService.unbookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
+                //Unbookmark post here
             } else {
-                //Bookmark post here
-                PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                switch type {
+                case .regular:
+                    //Bookmark post here
+                    PostService.bookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                        
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
@@ -522,15 +642,26 @@ extension DetailsPostViewController: HomeCellDelegate {
             let currentCell = cell as! HomeThreeImageTextCell
             currentCell.viewModel?.post.didBookmark.toggle()
             if post.didBookmark {
-                //Unbookmark post here
-                PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                switch type {
+                case .regular:
+                    PostService.unbookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
+                //Unbookmark post here
             } else {
-                //Bookmark post here
-                PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                switch type {
+                case .regular:
+                    //Bookmark post here
+                    PostService.bookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                        
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }
@@ -539,15 +670,26 @@ extension DetailsPostViewController: HomeCellDelegate {
             let currentCell = cell as! HomeFourImageTextCell
             currentCell.viewModel?.post.didBookmark.toggle()
             if post.didBookmark {
-                //Unbookmark post here
-                PostService.unbookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                switch type {
+                case .regular:
+                    PostService.unbookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
+                //Unbookmark post here
             } else {
-                //Bookmark post here
-                PostService.bookmarkPost(post: post) { _ in
-                    currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                switch type {
+                case .regular:
+                    //Bookmark post here
+                    PostService.bookmarkPost(post: post) { _ in
+                        currentCell.viewModel?.post.numberOfBookmarks = post.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forPost: post)
+                        
+                    }
+                case .group:
                     self.delegate?.didTapBookmarkAction(forPost: post)
                 }
             }

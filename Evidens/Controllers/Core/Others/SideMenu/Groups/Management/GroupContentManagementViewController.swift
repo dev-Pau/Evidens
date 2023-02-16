@@ -435,13 +435,13 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
             // Cases
             if !groupNeedsToReviewContent {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                //cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: "Go to group")
+                cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             } else {
                 if cases.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    //ell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new cases that need review.", buttonText: "Go to group")
+                    cell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new cases that need review.", buttonText: EmptyCellButtonOptions.goToGroup)
                     cell.delegate = self
                     return cell
                 } else {
@@ -698,7 +698,7 @@ extension GroupContentManagementViewController: HomeCellDelegate {
         
         navigationController?.delegate = self
         
-        let controller = DetailsPostViewController(post: post, user: user, collectionViewLayout: layout)
+        let controller = DetailsPostViewController(post: post, user: user, type: .group, collectionViewLayout: layout)
         //controller.displaysta
         controller.isReviewingPost = true
         controller.reviewDelegate = self
@@ -778,7 +778,7 @@ extension GroupContentManagementViewController: CaseCellDelegate {
         
         navigationController?.delegate = self
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, collectionViewFlowLayout: layout)
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .group, collectionViewFlowLayout: layout)
         //controller.displaysta
         controller.isReviewingCase = true
         controller.reviewDelegate = self

@@ -69,7 +69,7 @@ class GroupAdminCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
             
