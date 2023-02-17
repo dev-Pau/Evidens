@@ -362,7 +362,8 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    //  currentCell.viewModel?.post.likes = post.likes + 1+
+                    currentCell.viewModel?.post.likes = post.likes - 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     // }
                 }
@@ -380,6 +381,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
                     //  currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
+                    currentCell.viewModel?.post.likes = post.likes + 1
                     //}
                 }
             }
@@ -398,7 +400,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    currentCell.viewModel?.post.likes = post.likes - 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     // }
                 }
@@ -414,7 +416,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     //}
                 }
@@ -434,7 +436,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    currentCell.viewModel?.post.likes = post.likes - 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     // }
                 }
@@ -450,7 +452,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                    //  currentCell.viewModel?.post.likes = post.likes + 1
+                    currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
                     //}
                 }
@@ -471,7 +473,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                 }
             case .group:
                 //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                //  currentCell.viewModel?.post.likes = post.likes + 1
+                currentCell.viewModel?.post.likes = post.likes - 1
                 self.delegate?.didTapLikeAction(forPost: post)
                 // }
             }
@@ -487,7 +489,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                 }
             case .group:
                 //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                //  currentCell.viewModel?.post.likes = post.likes + 1
+                currentCell.viewModel?.post.likes = post.likes + 1
                 self.delegate?.didTapLikeAction(forPost: post)
                 //}
             }
@@ -509,7 +511,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                      //  currentCell.viewModel?.post.likes = post.likes + 1
+                      currentCell.viewModel?.post.likes = post.likes - 1
                         self.delegate?.didTapLikeAction(forPost: post)
                    // }
                 }
@@ -525,7 +527,7 @@ extension DetailsPostViewController: HomeCellDelegate {
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                      //  currentCell.viewModel?.post.likes = post.likes + 1
+                      currentCell.viewModel?.post.likes = post.likes + 1
                         self.delegate?.didTapLikeAction(forPost: post)
                     //}
                 }

@@ -192,7 +192,7 @@ struct GroupService {
         //Update posts likes collection to track likes for a particular post
         COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").document(uid).setData([:]) { _ in
             //Update user likes collection to track likes for a particular user
-            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-group-likes").document(clinicalCase.caseId).setData([:], completion: completion)
         }
     }
     
@@ -205,7 +205,7 @@ struct GroupService {
         //Update posts likes collection to track likes for a particular post
         COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").document(uid).delete() { _ in
             //Update user likes collection to track likes for a particular user
-            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).delete(completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-group-likes").document(clinicalCase.caseId).delete(completion: completion)
         }
     }
     
@@ -220,7 +220,15 @@ struct GroupService {
         }
     }
     
-    #warning("NEEDS TO BE ENDED")
+    static func bookmarkGroupCase(groupId: String, clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-bookmarks").document(uid).setData([:]) { _ in
+            COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).setData(["timestamp": Timestamp(date: Date()), "groupId": groupId], completion: completion)
+            
+        }
+    }
+    
     static func bookmarkGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -232,12 +240,23 @@ struct GroupService {
     
     static func unbookmarkGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        guard post.numberOfBookmarks > 0 else { return }
+        //guard post.numberOfBookmarks > 0 else { return }
         
         //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes - 1])
         
         COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).delete(completion: completion)
+        }
+    }
+    
+    static func unbookmarkGroupCase(groupId: String, clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        //guard clinicalCase.numberOfBookmarks > 0 else { return }
+        
+        //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes - 1])
+        
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-bookmarks").document(uid).delete() { _ in
+            COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).delete(completion: completion)
         }
     }
     

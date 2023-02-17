@@ -140,34 +140,65 @@ struct CaseService {
      */
      
     
-    static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, completion: @escaping(Bool) -> Void) {
-        COLLECTION_CASES.document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
-            if let _ = error {
-                print("error uploading")
-                completion(false)
+    static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
+        if let groupId = groupId {
+            COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
+                if let _ = error {
+                    print("error uploading diagnosis")
+                    completion(false)
+                }
+                completion(true)
             }
-            completion(true)
+        } else {
+            COLLECTION_CASES.document(caseId).updateData(["updates": FieldValue.arrayUnion([text])]) { error in
+                if let _ = error {
+                    print("error uploading")
+                    completion(false)
+                }
+                completion(true)
+            }
         }
     }
     
-    static func uploadCaseStage(withCaseId caseId: String, completion: @escaping(Bool) -> Void) {
-        COLLECTION_CASES.document(caseId).updateData(["stage": Case.CaseStage.resolved.rawValue]) { error in
-            if let _ = error {
-                print("error uploading diagnosis")
-                completion(false)
+    static func uploadCaseStage(withCaseId caseId: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
+        if let groupId = groupId {
+            COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).updateData(["stage": Case.CaseStage.resolved.rawValue]) { error in
+                if let _ = error {
+                    print("error uploading diagnosis")
+                    completion(false)
+                }
+                completion(true)
             }
-            completion(true)
+        } else {
+            COLLECTION_CASES.document(caseId).updateData(["stage": Case.CaseStage.resolved.rawValue]) { error in
+                if let _ = error {
+                    print("error uploading diagnosis")
+                    completion(false)
+                }
+                completion(true)
+            }
         }
     }
     
-    static func uploadCaseDiagnosis(withCaseId caseId: String, withDiagnosis text: String, completion: @escaping(Bool) -> Void) {
-        COLLECTION_CASES.document(caseId).updateData(["diagnosis": text, "stage": Case.CaseStage.resolved.rawValue]) { error in
-            if let _ = error {
-                print("error uploading diagnosis")
-                completion(false)
+    static func uploadCaseDiagnosis(withCaseId caseId: String, withDiagnosis text: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
+        if let groupId = groupId {
+            COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).updateData(["diagnosis": text, "stage": Case.CaseStage.resolved.rawValue]) { error in
+                if let _ = error {
+                    print("error uploading diagnosis")
+                    completion(false)
+                }
+                completion(true)
             }
-            completion(true)
+        } else {
+            COLLECTION_CASES.document(caseId).updateData(["diagnosis": text, "stage": Case.CaseStage.resolved.rawValue]) { error in
+                if let _ = error {
+                    print("error uploading diagnosis")
+                    completion(false)
+                }
+                completion(true)
+            }
         }
+        
     }
     
     
@@ -286,11 +317,19 @@ struct CaseService {
     }
     
     static func checkIfUserLikedCase(clinicalCase: Case, completion: @escaping(Bool) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).getDocument { (snapshot, _) in
-            //If the snapshot (document) exists, means current user did like the post
-            guard let didLike = snapshot?.exists else { return }
-            completion(didLike)
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let _ = clinicalCase.groupId {
+            COLLECTION_USERS.document(uid).collection("user-group-likes").document(clinicalCase.caseId).getDocument { (snapshot, _) in
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        } else {
+            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).getDocument { (snapshot, _) in
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
         }
     }
 
@@ -308,7 +347,7 @@ struct CaseService {
     
     static func unbookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard clinicalCase.numberOfBookmarks > 0 else { return }
+        //guard clinicalCase.numberOfBookmarks > 0 else { return }
         
         COLLECTION_CASES.document(clinicalCase.caseId).updateData(["bookmarks" : clinicalCase.numberOfBookmarks - 1])
         

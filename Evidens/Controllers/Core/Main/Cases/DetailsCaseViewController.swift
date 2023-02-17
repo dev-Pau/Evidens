@@ -285,6 +285,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
             
             controller.controllerIsPushed = true
             controller.delegate = self
+            controller.groupId = groupId
             
             navigationController?.pushViewController(controller, animated: true)
         case .solved:
@@ -292,6 +293,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
             controller.stageIsUpdating = true
             controller.delegate = self
             controller.caseId = clinicalCase.caseId
+            controller.groupId = groupId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
@@ -303,6 +305,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
             controller.diagnosisIsUpdating = true
             controller.delegate = self
             controller.caseId = clinicalCase.caseId
+            controller.groupId = groupId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
@@ -347,16 +350,28 @@ extension DetailsCaseViewController: CaseCellDelegate {
             currentCell.viewModel?.clinicalCase.didLike.toggle()
             if clinicalCase.didLike {
                 //Unlike post here
-                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
+                    }
+                case .group:
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
                     self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             } else {
                 //Like post here
-                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.likeCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
+                        NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
+                    }
+                case .group:
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
@@ -364,17 +379,28 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let currentCell = cell as! CaseTextImageCell
             currentCell.viewModel?.clinicalCase.didLike.toggle()
             if clinicalCase.didLike {
-                //Unlike post here
-                CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
-                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
+                switch type {
+                case .regular:
+                    CaseService.unlikeCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
+                    }
+                case .group:
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    self.delegate?.didTapLikeAction(forCase: clinicalCase)
                 }
             } else {
                 //Like post here
-                CaseService.likeCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.likeCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                        self.delegate?.didTapLikeAction(forCase: clinicalCase)
+                        NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
+                    }
+                case .group:
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
         default:
@@ -390,36 +416,64 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let currentCell = cell as! CaseTextCell
             currentCell.viewModel?.clinicalCase.didBookmark.toggle()
             if clinicalCase.didBookmark {
-                //Unlike post here
-                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
+                    }
+                case .group:
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
                     self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
+
             } else {
-                //Like post here
-                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
+                        //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                    
+                case .group:
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
+                //Like post here
+                
             }
             
         case is CaseTextImageCell:
             let currentCell = cell as! CaseTextImageCell
             currentCell.viewModel?.clinicalCase.didBookmark.toggle()
             if clinicalCase.didBookmark {
-                //Unlike post here
-                CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.unbookmarkCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
+                    }
+                case .group:
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
                     self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
+
             } else {
-                //Like post here
-                CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
+                switch type {
+                case .regular:
+                    CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
+                        currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                        self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
+                        //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
+                    }
+                    
+                case .group:
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
+                //Like post here
+                
             }
         default:
             print("Cell not registered")

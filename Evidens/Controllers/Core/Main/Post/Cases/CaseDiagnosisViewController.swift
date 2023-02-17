@@ -20,6 +20,7 @@ class CaseDiagnosisViewController: UIViewController {
     var stageIsUpdating: Bool = false
     var diagnosisIsUpdating: Bool = false
     var caseId: String = ""
+    var groupId: String?
     
     private var diagnosisText: String
     
@@ -143,7 +144,7 @@ class CaseDiagnosisViewController: UIViewController {
             if diagnosisTextView.text.count == 0 {
                 dismissDiagnosisAlert {
                     // User changes state to solved without diagnosis
-                    CaseService.uploadCaseStage(withCaseId: self.caseId) { uploaded in
+                    CaseService.uploadCaseStage(withCaseId: self.caseId, withGroupId: self.groupId) { uploaded in
                         if uploaded {
                             self.delegate?.handleAddDiagnosis("", caseId: self.caseId)
                             let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
@@ -156,7 +157,7 @@ class CaseDiagnosisViewController: UIViewController {
             } else {
                 // Clinical Case has diagnosis, update the case with it
                 showLoadingView()
-                CaseService.uploadCaseDiagnosis(withCaseId: caseId, withDiagnosis: diagnosisTextView.text) { uploaded in
+                CaseService.uploadCaseDiagnosis(withCaseId: caseId, withDiagnosis: diagnosisTextView.text, withGroupId: groupId) { uploaded in
                     self.dismissLoadingView()
                     if uploaded {
                         // Diagnosis updated, update previous view controllers

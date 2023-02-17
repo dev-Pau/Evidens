@@ -15,6 +15,8 @@ class AddCaseUpdateViewController: UIViewController {
     
     private var previousValue: Int = 0
     
+    var groupId: String?
+    
     weak var delegate: AddCaseUpdateViewControllerDelegate?
     
     private lazy var profileImageView: UIImageView = {

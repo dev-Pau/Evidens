@@ -23,6 +23,8 @@ class CaseUpdatesViewController: UIViewController {
     
     var clinicalCaseData: [String] = []
     
+    var groupId: String?
+    
     private var clinicalCase: Case
     private var user: User
     private var updatesLoaded: Bool = false
@@ -94,6 +96,7 @@ class CaseUpdatesViewController: UIViewController {
     @objc func handleAddUpdate() {
         let controller = AddCaseUpdateViewController()
         controller.delegate = self
+        controller.groupId = groupId
         let navController = UINavigationController(rootViewController: controller)
         
         if let presentationController = navController.presentationController as? UISheetPresentationController {
@@ -105,6 +108,7 @@ class CaseUpdatesViewController: UIViewController {
     @objc func handleChangeState() {
         let controller = CaseDiagnosisViewController(diagnosisText: "")
         controller.stageIsUpdating = true
+        controller.groupId = groupId
         controller.caseId = clinicalCase.caseId
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
@@ -163,9 +167,9 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
 
 extension CaseUpdatesViewController: AddCaseUpdateViewControllerDelegate {
     func didTapUploadCaseUpdate(withText text: String) {
-        showLoadingView()
-        CaseService.uploadCaseUpdate(withCaseId: clinicalCase.caseId, withUpdate: text) { uploaded in
-            self.dismissLoadingView()
+        //showLoadingView()
+        CaseService.uploadCaseUpdate(withCaseId: clinicalCase.caseId, withUpdate: text, withGroupId: groupId) { uploaded in
+            //self.dismissLoadingView()
             if uploaded {
                 let positionToAdd = self.clinicalCase.diagnosis != "" ? 1 : 0
                 self.clinicalCase.caseUpdates.insert(text, at: positionToAdd)

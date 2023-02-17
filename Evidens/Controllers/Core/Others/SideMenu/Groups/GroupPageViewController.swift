@@ -291,6 +291,62 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         }
     }
     
+    func checkIfUserLikedPosts() {
+            //For every post in array fetched
+            self.posts.forEach { post in
+                //Check if user did like
+                PostService.checkIfUserLikedPost(post: post) { didLike in
+                    //Check the postId of the current post looping
+                    if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
+                        //Change the didLike according if user did like post
+                        self.posts[index].didLike = didLike
+                        //self.updateData(on: self.posts)
+                        self.collectionView.reloadData()
+                    }
+            }
+        }
+    }
+    
+    func checkIfUserBookmarkedPost() {
+        //For every post in array fetched
+        self.posts.forEach { post in
+            PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
+                if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
+                    self.posts[index].didBookmark = didBookmark
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    func checkIfUserLikedCase() {
+        self.cases.forEach { clinicalCase in
+            //Check if user did like
+            CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
+                //Check the postId of the current post looping
+                if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId}) {
+                    //Change the didLike according if user did like post
+                    self.cases[index].didLike = didLike
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    func checkIfUserBookmarkedCase() {
+        self.cases.forEach { clinicalCase in
+            CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
+                if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId}) {
+                    self.cases[index].didBookmark = didBookmark
+                    self.collectionView.reloadData()
+
+                }
+            }
+        }
+    }
+    
+    
+    
     private func fetchGroupContent() {
         // Fetch the post/cases id's ordered by timestamp
         // For each id obtained, fetch the case or post associated
@@ -314,7 +370,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             let ownerUniqueUids = Array(Set(ownerUids))
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
-
+                                self.checkIfUserLikedPosts()
+                                self.checkIfUserLikedCase()
+                                self.checkIfUserBookmarkedCase()
+                                self.checkIfUserBookmarkedPost()
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
@@ -331,8 +390,11 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
                             let ownerUniqueUids = Array(Set(ownerUids))
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
+                                self.checkIfUserLikedPosts()
+                                self.checkIfUserLikedCase()
+                                self.checkIfUserBookmarkedCase()
+                                self.checkIfUserBookmarkedPost()
                                 self.users = users
-                                print(self.users)
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
@@ -355,6 +417,8 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                         // Obtain all cases owner uids & make the array unique
                         let uniqueOwnerUids = Array(Set(self.cases.map({ $0.ownerUid })))
                         UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
+                            self.checkIfUserLikedCase()
+                            self.checkIfUserBookmarkedCase()
                             self.users = users
                             self.loaded = true
                             self.collectionView.reloadData()
@@ -372,8 +436,15 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                     self.posts.append(post)
                     if postIds.count == self.posts.count {
                         self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                        self.loaded = true
-                        self.collectionView.reloadData()
+                        
+                        let uniqueOwnerUids = Array(Set(self.posts.map({ $0.ownerUid })))
+                        UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
+                            self.checkIfUserLikedPosts()
+                            self.checkIfUserBookmarkedPost()
+                            self.users = users
+                            self.loaded = true
+                            self.collectionView.reloadData()
+                        }
                     }
                 }
             }
@@ -506,13 +577,13 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         case .owner:
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
+                    self.didTapGroupOptions(option: Group.GroupManagement.posts)
                 }),
                 UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
+                    self.didTapGroupOptions(option: Group.GroupManagement.membership)
                 }),
                 UIAction(title: Group.GroupManagement.edit.rawValue, image: Group.GroupManagement.edit.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.edit)
+                    self.didTapGroupOptions(option: Group.GroupManagement.edit)
                 })
             ])
             customRightButton.showsMenuAsPrimaryAction = true
@@ -521,10 +592,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         case .admin:
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Group.GroupManagement.posts.rawValue, image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
+                    self.didTapGroupOptions(option: Group.GroupManagement.posts)
                 }),
                 UIAction(title: Group.GroupManagement.membership.rawValue, image: Group.GroupManagement.membership.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
+                    self.didTapGroupOptions(option: Group.GroupManagement.membership)
                 })
             ])
             customRightButton.showsMenuAsPrimaryAction = true
@@ -535,7 +606,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                     #warning("update leave")
                 }),
                 UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                    self.didTapGroupOptions(option: Group.GroupManagement.report)
                 })
                 
             ])
@@ -544,10 +615,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         case .pending:
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Group.GroupManagement.withdraw.rawValue, image: Group.GroupManagement.withdraw.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.withdraw)
+                    self.didTapGroupOptions(option: Group.GroupManagement.withdraw)
                 }),
                 UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                    self.didTapGroupOptions(option: Group.GroupManagement.report)
                 })
             ])
             customRightButton.showsMenuAsPrimaryAction = true
@@ -557,13 +628,13 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         case .invited:
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Group.GroupManagement.accept.rawValue, image: Group.GroupManagement.accept.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.accept)
+                    self.didTapGroupOptions(option: Group.GroupManagement.accept)
                 }),
                 UIAction(title: Group.GroupManagement.ignore.rawValue, image: Group.GroupManagement.ignore.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.ignore)
+                    self.didTapGroupOptions(option: Group.GroupManagement.ignore)
                 }),
                 UIAction(title: Group.GroupManagement.report.rawValue, image: Group.GroupManagement.report.groupManagementImage, handler: { _ in
-                    //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.report)
+                    self.didTapGroupOptions(option: Group.GroupManagement.report)
                 })
             ])
             customRightButton.showsMenuAsPrimaryAction = true
@@ -1773,7 +1844,55 @@ extension GroupPageViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        } else {
+            guard let index = collectionView.indexPath(for: cell) else { return }
+            indexPath = index
+        }
         
+        switch cell {
+        case is CaseTextCell:
+            let currentCell = cell as! CaseTextCell
+            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
+            
+            if clinicalCase.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.cases[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    self.cases[indexPath.row].didBookmark = true
+                }
+            }
+        case is CaseTextImageCell:
+            let currentCell = cell as! CaseTextImageCell
+            currentCell.viewModel?.clinicalCase.didBookmark.toggle()
+            
+            if clinicalCase.didBookmark {
+                //Unlike post here
+                GroupService.unbookmarkGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks - 1
+                    self.cases[indexPath.row].didBookmark = false
+                }
+            } else {
+                //Like post here
+                GroupService.bookmarkGroupCase(groupId: group.groupId, clinicalCase: clinicalCase) { _ in
+                    currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
+                    self.cases[indexPath.row].didBookmark = true
+                }
+            }
+            
+        default:
+            break
+        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
@@ -1785,24 +1904,21 @@ extension GroupPageViewController: CaseCellDelegate {
         case .delete:
             print("delete")
         case .update:
-            
             let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-            
             controller.controllerIsPushed = true
-
-            //controller.delegate = self
-            
+            controller.delegate = self
+            controller.groupId = group.groupId
             navigationController?.pushViewController(controller, animated: true)
             
         case .solved:
             let controller = CaseDiagnosisViewController(diagnosisText: "")
             controller.stageIsUpdating = true
-#warning("Implement delete")
-            //controller.delegate = self
+            controller.groupId = group.groupId
+            controller.delegate = self
             controller.caseId = clinicalCase.caseId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
@@ -1813,8 +1929,8 @@ extension GroupPageViewController: CaseCellDelegate {
         case .edit:
             let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
             controller.diagnosisIsUpdating = true
-#warning("Implement delete")
-            //controller.delegate = self
+            controller.groupId = group.groupId
+            controller.delegate = self
             controller.caseId = clinicalCase.caseId
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
@@ -1869,8 +1985,8 @@ extension GroupPageViewController: CaseCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
-        //controller.delegate = self
+        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .group, collectionViewFlowLayout: layout)
+        controller.delegate = self
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -1907,6 +2023,153 @@ extension GroupPageViewController: CommentCaseViewControllerDelegate {
             }
         }
     }
+}
+
+extension GroupPageViewController: DetailsCaseViewControllerDelegate {
+    func didTapLikeAction(forCase clinicalCase: Case) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) {
+                    self.clinicalCase(cell, didLike: clinicalCase)
+                }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let cell = collectionView.cellForItem(at: indexPath) {
+                    self.clinicalCase(cell, didLike: clinicalCase)
+                }
+            } else { return }
+        }
+    }
+    
+    func didTapBookmarkAction(forCase clinicalCase: Case) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 1)) {
+                    self.clinicalCase(cell, didBookmark: clinicalCase)
+                }
+            } else { return }
+
+        } else {
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let cell = collectionView.cellForItem(at: indexPath) {
+                    self.clinicalCase(cell, didBookmark: clinicalCase)
+                }
+            } else { return }
+        }
+    }
+    
+    func didComment(forCase clinicalCase: Case) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    cases[caseIndex].numberOfComments += 1
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                cases[index].numberOfComments += 1
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        }
+        
+        switch clinicalCase.type {
+        case .text:
+            let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
+            cell.viewModel?.clinicalCase.numberOfComments += 1
+        case .textWithImage:
+            let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
+            cell.viewModel?.clinicalCase.numberOfComments += 1
+        }
+    }
+    
+    func didAddUpdate(forCase clinicalCase: Case) {
+        // cases[index].caseUpdates = clinicalCase.caseUpdates
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                let indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    cases[caseIndex].caseUpdates = clinicalCase.caseUpdates
+                    collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.groupId == clinicalCase.caseId }) {
+                cases[index].caseUpdates = clinicalCase.caseUpdates
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+            } else { return }
+        }
+    }
+    
+    func didAddDiagnosis(forCase clinicalCase: Case) {
+
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                let indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    cases[caseIndex].diagnosis = clinicalCase.diagnosis
+                    cases[caseIndex].stage = .resolved
+                    collectionView.reloadItems(at: [indexPath])
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.groupId == clinicalCase.caseId }) {
+                cases[index].diagnosis = clinicalCase.diagnosis
+                cases[index].stage = .resolved
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+            } else { return }
+        }
+    }
+}
+
+extension GroupPageViewController: CaseDiagnosisViewControllerDelegate {
+    func handleAddDiagnosis(_ text: String, caseId: String) {
+        // just search the case and add
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == caseId }) {
+                let indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == caseId }) {
+                    cases[caseIndex].diagnosis = text
+                    cases[caseIndex].stage = .resolved
+                    collectionView.reloadItems(at: [indexPath])
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.groupId == caseId }) {
+                cases[index].diagnosis = text
+                cases[index].stage = .resolved
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+            } else { return }
+        }
+    }
+}
+
+extension GroupPageViewController: CaseUpdatesViewControllerDelegate {
+    func didAddUpdateToCase(withUpdates updates: [String], caseId: String) {
+        // just search the case and add
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == caseId }) {
+                let indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == caseId }) {
+                    cases[caseIndex].caseUpdates = updates
+                    collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.groupId == caseId }) {
+                cases[index].caseUpdates = updates
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+            } else { return }
+        }
+    }
+    
+
 }
 
 

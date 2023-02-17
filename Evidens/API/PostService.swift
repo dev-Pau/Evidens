@@ -290,7 +290,7 @@ struct PostService {
     
     static func unbookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard post.numberOfBookmarks > 0 else { return }
+        //guard post.numberOfBookmarks > 0 else { return }
         
         COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks - 1])
         
@@ -300,17 +300,27 @@ struct PostService {
     }
     
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Bool) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { (snapshot, _) in
-            
-            //If the snapshot (document) exists, means current user did like the post
-            guard let didLike = snapshot?.exists else { return }
-            completion(didLike)
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let _ = post.groupId {
+            COLLECTION_USERS.document(uid).collection("user-group-likes").document(post.postId).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        } else {
+            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
         }
+
     }
     
     static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Bool) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).getDocument { (snapshot, _) in
             
             //If the snapshot (document) exists, means current user did like the post
