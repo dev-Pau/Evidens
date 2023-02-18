@@ -1573,17 +1573,29 @@ extension DatabaseManager {
         
     }
     
-    public func fetchAllGroupContent(withGroupId groupId: String, completion: @escaping([ContentGroup]) -> Void) {
+    public func fetchAllGroupContent(withGroupId groupId: String, lastTimestampValue: Int64?, completion: @escaping([ContentGroup]) -> Void) {
         var recentContent = [ContentGroup]()
-        let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
-        contentRef.observeSingleEvent(of: .value) { snapshot in
-            
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                recentContent.append(ContentGroup(dictionary: value))
-                //recentComments.append(value)
+        
+        if lastTimestampValue == nil {
+            let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            contentRef.observeSingleEvent(of: .value) { snapshot in
+                
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    recentContent.append(ContentGroup(dictionary: value))
+                }
+                completion(recentContent.reversed())
             }
-            completion(recentContent.reversed())
+        } else {
+            let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+            contentRef.observeSingleEvent(of: .value) { snapshot in
+                
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    recentContent.append(ContentGroup(dictionary: value))
+                }
+                completion(recentContent.reversed())
+            }
         }
     }
     

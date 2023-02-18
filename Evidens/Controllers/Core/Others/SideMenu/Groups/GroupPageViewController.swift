@@ -59,12 +59,13 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     
     private var contentIndexSelected: ContentGroup.ContentTopics = .all
     private var content = [ContentGroup]()
-    private var contentLastSnapshot: QueryDocumentSnapshot?
+    private var contentLastTimestamp: Int64?
     
     private var posts = [Post]()
     private var postLastTimestamp: Int64?
     private var cases = [Case]()
     private var casesLastTimestamp: Int64?
+    
     private var users = [User]()
     
     private var loaded: Bool = false
@@ -355,7 +356,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         // Fetch the post/cases id's ordered by timestamp
         // For each id obtained, fetch the case or post associated
         // Update collection view
-        DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId) { contentGroup in
+        DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId, lastTimestampValue: contentLastTimestamp) { contentGroup in
             self.content = contentGroup
             // There's no content published in the group
             if contentGroup.isEmpty {
@@ -372,6 +373,13 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                         if contentGroup.count == self.cases.count + self.posts.count {
                             let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
                             let ownerUniqueUids = Array(Set(ownerUids))
+                            
+                            if let lastTimestamp = self.content.last {
+                                self.contentLastTimestamp = lastTimestamp.timestamp.milliseconds / 1000
+                            } else {
+                                return
+                            }
+                            
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
                                 self.checkIfUserLikedPosts()
@@ -391,8 +399,16 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                     CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: content.id) { clinicalCase in
                         self.cases.append(clinicalCase)
                         if contentGroup.count == self.cases.count + self.posts.count {
+                            //self.content.last?.timestamp.self.sec
                             let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
                             let ownerUniqueUids = Array(Set(ownerUids))
+                            
+                            if let lastTimestamp = self.content.last {
+                                self.contentLastTimestamp = lastTimestamp.timestamp.milliseconds / 1000
+                            } else {
+                                return
+                            }
+                            
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.checkIfUserLikedPosts()
                                 self.checkIfUserLikedCase()
@@ -417,6 +433,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                     if caseIds.count == self.cases.count {
                         // Sort cases by timestamp
                         self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        self.casesLastTimestamp = self.cases.last?.timestamp.seconds
                         // Obtain all cases owner uids & make the array unique
                         let uniqueOwnerUids = Array(Set(self.cases.map({ $0.ownerUid })))
                         UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
@@ -698,7 +715,76 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     private func getMoreContent() {
         switch contentIndexSelected {
         case .all:
-            break
+            DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId, lastTimestampValue: contentLastTimestamp) { contentGroup in
+                var newOwners = [String]()
+                self.content.append(contentsOf: contentGroup)
+                // There's no content published in the group
+                if contentGroup.isEmpty {
+                    self.loaded = true
+                    self.collectionView.reloadData()
+                    return
+                }
+
+                // If there's content, check content type and fetch accordingly
+                contentGroup.forEach { content in
+                    if content.type == .post {
+                        PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: content.id) { post in
+                            self.posts.append(post)
+                            newOwners.append(post.ownerUid)
+                            if newOwners.count == contentGroup.count {
+                                let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
+                                let ownerUniqueUids = Array(Set(ownerUids))
+                                
+                                if let lastTimestamp = self.content.last {
+                                    self.contentLastTimestamp = lastTimestamp.timestamp.milliseconds / 1000
+                                } else {
+                                    return
+                                }
+                                
+                                UserService.fetchUsers(withUids: newOwners) { users in
+                                    self.users.append(contentsOf: users)
+                                    self.checkIfUserLikedPosts()
+                                    self.checkIfUserLikedCase()
+                                    self.checkIfUserBookmarkedCase()
+                                    self.checkIfUserBookmarkedPost()
+                                    self.loaded = true
+                                    self.collectionView.reloadData()
+                                }
+                                // get all uids from posts & cases into a new array
+                                // make it unique so all duplicates get deleted
+                                // fetch users with uids.
+
+                            }
+                        }
+                    } else {
+                        CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: content.id) { clinicalCase in
+                            self.cases.append(clinicalCase)
+                            newOwners.append(clinicalCase.ownerUid)
+                            if newOwners.count == contentGroup.count {
+                                //self.content.last?.timestamp.self.sec
+                                let ownerUids = self.posts.map { $0.ownerUid } + self.cases.map { $0.ownerUid }
+                                let ownerUniqueUids = Array(Set(ownerUids))
+                                
+                                if let lastTimestamp = self.content.last {
+                                    self.contentLastTimestamp = lastTimestamp.timestamp.milliseconds / 1000
+                                } else {
+                                    return
+                                }
+                                
+                                UserService.fetchUsers(withUids: newOwners) { users in
+                                    self.checkIfUserLikedPosts()
+                                    self.checkIfUserLikedCase()
+                                    self.checkIfUserBookmarkedCase()
+                                    self.checkIfUserBookmarkedPost()
+                                    self.users.append(contentsOf: users)
+                                    self.loaded = true
+                                    self.collectionView.reloadData()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         case .cases:
             DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId, lastTimestampValue: casesLastTimestamp) { caseIds in
                 var newOwners = [String]()
@@ -715,7 +801,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             UserService.fetchUsers(withUids: newOwners) { users in
                                 self.checkIfUserLikedCase()
                                 self.checkIfUserBookmarkedCase()
-                                self.users = users
+                                self.users.append(contentsOf: users)
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
