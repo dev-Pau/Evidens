@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 private let stretchyHeaderReuseIdentifier = "StretchyHeaderReuseIdentifier"
 private let groupHeaderReuseIdentifier = "GroupHeaderReuseIdentifier"
@@ -58,9 +59,12 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     
     private var contentIndexSelected: ContentGroup.ContentTopics = .all
     private var content = [ContentGroup]()
+    private var contentLastSnapshot: QueryDocumentSnapshot?
     
     private var posts = [Post]()
+    private var postLastTimestamp: Int64?
     private var cases = [Case]()
+    private var casesLastTimestamp: Int64?
     private var users = [User]()
     
     private var loaded: Bool = false
@@ -406,8 +410,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     }
     
     private func fetchGroupCases() {
-        DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId) { caseIds in
-
+        DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId, lastTimestampValue: nil) { caseIds in
             caseIds.forEach { id in
                 CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: id) { clinicalCase in
                     self.cases.append(clinicalCase)
@@ -430,13 +433,14 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     }
     
     private func fetchGroupPosts() {
-        DatabaseManager.shared.fetchAllGroupPosts(withGroupId: self.group.groupId) { postIds in
+        DatabaseManager.shared.fetchAllGroupPosts(withGroupId: self.group.groupId, lastTimestampValue: nil) { postIds in
             postIds.forEach { id in
                 PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: id) { post in
                     self.posts.append(post)
                     if postIds.count == self.posts.count {
                         self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                        
+                        self.postLastTimestamp = self.posts.last?.timestamp.seconds
+
                         let uniqueOwnerUids = Array(Set(self.posts.map({ $0.ownerUid })))
                         UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
                             self.checkIfUserLikedPosts()
@@ -680,14 +684,74 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         }
     }
     
-    
-    @objc func handleGroupOptions() {
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
         
+        if offsetY > contentHeight - height {
+            print("get more content")
+            getMoreContent()
+        }
     }
-}
-
-extension GroupPageViewController: UISearchBarDelegate {
     
+    private func getMoreContent() {
+        switch contentIndexSelected {
+        case .all:
+            break
+        case .cases:
+            DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId, lastTimestampValue: casesLastTimestamp) { caseIds in
+                var newOwners = [String]()
+                caseIds.forEach { id in
+                    CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: id) { clinicalCase in
+                        self.cases.append(clinicalCase)
+                        newOwners.append(clinicalCase.ownerUid)
+                        if newOwners.count == caseIds.count {
+                            // Sort cases by timestamp
+                            self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            self.casesLastTimestamp = self.cases.last?.timestamp.seconds
+                            // Obtain all cases owner uids & make the array unique
+                            //let uniqueOwnerUids = Array(Set(self.cases.map({ $0.ownerUid })))
+                            UserService.fetchUsers(withUids: newOwners) { users in
+                                self.checkIfUserLikedCase()
+                                self.checkIfUserBookmarkedCase()
+                                self.users = users
+                                self.loaded = true
+                                self.collectionView.reloadData()
+                            }
+                        }
+                    }
+                }
+            }
+        case .posts:
+            DatabaseManager.shared.fetchAllGroupPosts(withGroupId: self.group.groupId, lastTimestampValue: postLastTimestamp) { postIds in
+                var newOwners = [String]()
+                
+                postIds.forEach { id in
+                    PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: id) { post in
+                        newOwners.append(post.ownerUid)
+                        self.posts.append(post)
+                        if newOwners.count == postIds.count {
+                        //if postIds.count == self.posts.count {
+                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
+
+                            //let uniqueOwnerUids = Array(Set(self.posts.map({ $0.ownerUid })))
+                            UserService.fetchUsers(withUids: newOwners) { users in
+                                self.checkIfUserLikedPosts()
+                                self.checkIfUserBookmarkedPost()
+                                self.users.append(contentsOf: users)
+                                self.loaded = true
+                                self.collectionView.reloadData()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+   
 }
 
 extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
