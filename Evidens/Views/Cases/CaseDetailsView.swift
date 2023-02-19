@@ -45,7 +45,7 @@ class CaseDetailsView: UIView {
         return button
     }()
     
-    private let topView: UIView = {
+    var topView: UIView = {
         let view = UIView()
         view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false

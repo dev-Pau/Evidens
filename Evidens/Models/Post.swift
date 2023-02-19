@@ -19,6 +19,7 @@ struct Post {
     let timestamp: Timestamp
     let postId: String
     let type: PostType
+    let professions: [Profession]
     let edited: Bool
     let groupId: String?
     let privacyOptions: PrivacyOptions
@@ -139,7 +140,7 @@ struct Post {
         self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0
         self.numberOfShares = dictionary["shares"] as? Int ?? 0
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
-       
+        self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = PostType(rawValue: dictionary["type"] as? Int ?? 0) ?? .plainText
       

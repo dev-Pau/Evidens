@@ -11,7 +11,7 @@ import PhotosUI
 import Firebase
 import SDWebImage
 
-private let pollCellReuseIdentifier = "PollCellReuseIdentifier"
+private let professionPostCellReuseIdentifier = "ProfessionCellReuseIdentifier"
 
 class UploadPostViewController: UIViewController {
     
@@ -26,11 +26,27 @@ class UploadPostViewController: UIViewController {
     
     private var postImages: [UIImage] = []
     
+    private var selectedProfessions = [Profession]()
+    
     private var privacyType: Post.PrivacyOptions = .all
     
     var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
     
     var newHeight: CGFloat = 0.0
+    
+    private let topSeparatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -50,7 +66,21 @@ class UploadPostViewController: UIViewController {
         return toolbar
     }()
     
+    private lazy var professionsView = CaseDetailsView(title: "")
     
+    private var professionsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = CGSize(width: 100, height: 40)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.bounces = true
+        collectionView.alwaysBounceHorizontal = true
+        return collectionView
+    }()
+
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -185,6 +215,8 @@ class UploadPostViewController: UIViewController {
             self.group = group
         }
         
+        selectedProfessions = [Profession(profession: user.profession!)]
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -216,7 +248,7 @@ class UploadPostViewController: UIViewController {
         
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(profileImageView, fullName, postTextView, settingsPostButton)
+        scrollView.addSubviews(profileImageView, fullName, topSeparatorView, separatorView, professionsView, postTextView, settingsPostButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -240,11 +272,33 @@ class UploadPostViewController: UIViewController {
             settingsPostButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 24),
             settingsPostButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
-            postTextView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
+            topSeparatorView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
+            topSeparatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            professionsView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+            professionsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            professionsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            professionsView.heightAnchor.constraint(equalToConstant: 62),
+            
+            separatorView.topAnchor.constraint(equalTo: professionsView.bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: professionsView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: professionsView.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            postTextView.topAnchor.constraint(equalTo: professionsView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
 
         ])
+        
+        professionsView.configure(collectionView: professionsCollectionView)
+        professionsView.topView.isHidden = true
+        
+        professionsCollectionView.delegate = self
+        professionsCollectionView.dataSource = self
+        professionsCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: professionCellReuseIdentifier)
 
         profileImageView.layer.cornerRadius = 50/2
         profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
@@ -487,7 +541,7 @@ class UploadPostViewController: UIViewController {
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
                         // post: postTextView, type: .plainText, privacy: privacyType, user: user
-                        PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
+                        PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, professions: self.selectedProfessions, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
                             self.dismissLoadingView()
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
@@ -503,7 +557,7 @@ class UploadPostViewController: UIViewController {
                 case 2:
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
-                        PostService.uploadPost(post: postTextView, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                        PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                             self.dismissLoadingView()
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
@@ -516,7 +570,7 @@ class UploadPostViewController: UIViewController {
                 case 3:
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
-                        PostService.uploadPost(post: postTextView, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                        PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                             self.dismissLoadingView()
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
@@ -529,7 +583,7 @@ class UploadPostViewController: UIViewController {
                 case 4:
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
-                        PostService.uploadPost(post: postTextView, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
+                        PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                             self.dismissLoadingView()
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
@@ -544,7 +598,7 @@ class UploadPostViewController: UIViewController {
                 }
             } else {
                 // Post has text only
-                PostService.uploadTextPost(post: postTextView, type: .plainText, privacy: privacyType, user: user) { error in
+                PostService.uploadTextPost(post: postTextView, type: .plainText, professions: selectedProfessions, privacy: privacyType, user: user) { error in
                     if let error = error {
                         self.dismissLoadingView()
                         print("DEBUG: \(error.localizedDescription)")
@@ -554,9 +608,6 @@ class UploadPostViewController: UIViewController {
                     }
                 }
             }
-            
-            
-            
         }
     }
     
@@ -675,5 +726,33 @@ extension UploadPostViewController: PostGroupSelectionViewControllerDelegate {
         privacyType = .group
         self.group = group
         postPrivacyMenuLauncher.updatePrivacyWithGroupOptions(group: group)
+    }
+}
+
+extension UploadPostViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return selectedProfessions.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = professionsCollectionView.dequeueReusableCell(withReuseIdentifier: professionCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
+        cell.backgroundColor = primaryColor
+        cell.specialityLabel.textColor = .white
+        cell.specialityLabel.text = selectedProfessions[indexPath.row].profession
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: size(forHeight: 30, forText: selectedProfessions[indexPath.item].profession).width + 30, height: 30)
+    }
+    
+    func size(forHeight height: CGFloat, forText text: String) -> CGSize {
+        let label = UILabel()
+        label.numberOfLines = 2
+        label.text = text
+        label.lineBreakMode = .byWordWrapping
+        label.heightAnchor.constraint(equalToConstant: height).isActive = true
+        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
 }

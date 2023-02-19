@@ -1629,7 +1629,7 @@ extension DatabaseManager {
     public func fetchAllGroupCases(withGroupId groupId: String, lastTimestampValue: Int64?, completion: @escaping([String]) -> Void) {
         var caseIds = [String]()
         if lastTimestampValue == nil {
-            let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 1)
+            let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             casesRef.observeSingleEvent(of: .value) { snapshot in
                 
                 if let values = snapshot.value as? [String: Any] {
@@ -1640,7 +1640,7 @@ extension DatabaseManager {
                 }
             }
         } else {
-            let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 1)
+            let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
             casesRef.observeSingleEvent(of: .value) { snapshot in
                 
                 if let values = snapshot.value as? [String: Any] {

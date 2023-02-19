@@ -11,15 +11,16 @@ import FirebaseAuth
 
 struct PostService {
     
-    static func uploadTextPost(post: String, type: Post.PostType, privacy: Post.PrivacyOptions, user: User, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+    static func uploadTextPost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, user: User, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
-                    "likes": 0,
+                    //"likes": 0,
                     "ownerUid": uid,
-                    "comments": 0,
-                    "shares": 0,
+                    "professions": professions.map({ $0.profession }),
+                    //"comments": 0,
+                    //"shares": 0,
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
                     "bookmarks": 0] as [String : Any]
@@ -34,7 +35,7 @@ struct PostService {
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
-    static func uploadSingleImagePost(post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, imageHeight: CGFloat, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadSingleImagePost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, postImageUrl: [String]?, imageHeight: CGFloat, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
@@ -43,6 +44,7 @@ struct PostService {
                     "ownerUid": uid,
                     "comments": 0,
                     "shares": 0,
+                    "professions": professions.map({ $0.profession }),
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
                     "bookmarks": 0,
@@ -59,17 +61,18 @@ struct PostService {
     }
     
     
-    static func uploadPost(post: String, type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadPost(post: String, professions: [Profession], type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
         
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
                     "ownerUid": uid,
-                    "shares": 0,
+                    //"shares": 0,
+                    "professions": professions.map({ $0.profession }),
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
-                    "bookmarks": 0,
+                    //"bookmarks": 0,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
                    
         
@@ -142,20 +145,23 @@ struct PostService {
         
     }
     
-    static func fetchFeedPosts(completion: @escaping([Post]) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        var posts = [Post]()
-        
-        COLLECTION_USERS.document(uid).collection("user-home-feed").getDocuments { snapshot, error in
-            snapshot?.documents.forEach({ document in
-                fetchPost(withPostId: document.documentID) { post in
-                    posts.append(post)
-                    
-                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                    
-                    completion(posts)
-                }
-            })
+    static func fetchLikesForPost(postId: String, completion: @escaping(Int) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likesRef = COLLECTION_POSTS.document(postId).collection("posts-likes").count
+        likesRef.getAggregation(source: .server) { snaphsot, _ in
+            if let likes = snaphsot?.count {
+                completion(likes.intValue)
+            }
+        }
+    }
+    
+    static func fetchCommentsForPost(postId: String, completion: @escaping(Int) -> Void) {
+        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likesRef = COLLECTION_POSTS.document(postId).collection("comments").count
+        likesRef.getAggregation(source: .server) { snaphsot, _ in
+            if let likes = snaphsot?.count {
+                completion(likes.intValue)
+            }
         }
     }
     
@@ -215,8 +221,15 @@ struct PostService {
         COLLECTION_POSTS.document(postId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            let post = Post(postId: snapshot.documentID, dictionary: data)
-            completion(post)
+
+            var post = Post(postId: snapshot.documentID, dictionary: data)
+            fetchLikesForPost(postId: postId) { likes in
+                post.likes = likes
+                fetchCommentsForPost(postId: postId) { comments in
+                    post.numberOfComments = comments
+                    completion(post)
+                }
+            }
         }
     }
     
