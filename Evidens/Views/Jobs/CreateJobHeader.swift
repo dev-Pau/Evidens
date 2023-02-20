@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol CreateJobHeaderDelegate: AnyObject {
+    func didTapAddExistingCompany()
+    func didTappCreateNewCompany()
+}
+
 class CreateJobHeader: UICollectionReusableView {
+    
+    weak var delegate: CreateJobHeaderDelegate?
     
     private lazy var companyImageButton: UIButton = {
         let button = UIButton()
@@ -98,10 +105,10 @@ class CreateJobHeader: UICollectionReusableView {
     }
     
     @objc func handleAddExistingCompany() {
-        
+        delegate?.didTapAddExistingCompany()
     }
     
     @objc func handleCreateCompany() {
-        
+        delegate?.didTappCreateNewCompany()
     }
 }

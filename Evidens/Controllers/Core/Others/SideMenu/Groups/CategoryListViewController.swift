@@ -20,7 +20,8 @@ class CategoryListViewController: UIViewController {
     
     private let searchBar = UISearchController()
     
-    private var categories: [Category] = Category.allCategories()
+    //private var categories: [Category] = Category.allCategories()
+    private var categories: [Category]
     private var filteredCategories: [Category] = []
     
     private var isSearching: Bool = false
@@ -43,11 +44,13 @@ class CategoryListViewController: UIViewController {
         return collectionView
     }()
     
-    init(selectedCategories: [Category]) {
+    init(selectedCategories: [Category], categories: [Category]) {
         self.selectedCategories = selectedCategories
-        if self.selectedCategories.last?.name == "Add category" {
+        self.categories = categories
+        if self.selectedCategories.last?.name == "Add" {
             self.selectedCategories.removeLast()
         }
+        
         super.init(nibName: nil, bundle: nil)
     }
     

@@ -20,7 +20,7 @@ class CategoryCell: UICollectionViewCell {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Add category", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Add", attributes: container)
         
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.imagePlacement = .trailing

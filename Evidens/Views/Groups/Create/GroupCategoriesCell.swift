@@ -19,7 +19,7 @@ class GroupCategoriesCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
     
-    private var categoriesSelected: [Category] = [Category(name: "Add category")]
+    private var categoriesSelected: [Category] = [Category(name: "Add")]
     
     private let separatorView: UIView = {
         let view = UIView()
@@ -132,23 +132,25 @@ class GroupCategoriesCell: UICollectionViewCell {
     
     func updateCategories(categories: [Category]) {
         categoriesSelected.removeAll()
-        
         categoriesSelected = categories
-
+        print(categories)
         categoriesCollectionView.reloadData()
     }
     
     func updateCategories(categories: [String]) {
         categoriesSelected.removeAll()
-        
+
         var categoriesArray = [Category]()
         categories.forEach { category in
             categoriesArray.append(Category(name: category))
         }
         
         categoriesSelected = categoriesArray
-
         categoriesCollectionView.reloadData()
+    }
+    
+    func updateText(text: String) {
+        categoriesTitleLabel.text = text
     }
 }
 
@@ -159,7 +161,7 @@ extension GroupCategoriesCell: UICollectionViewDelegateFlowLayout, UICollectionV
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: categoryCellReuseIdentifier, for: indexPath) as! CategoryCell
-        if categoriesSelected.first?.name == "Add category" {
+        if categoriesSelected.first?.name == "Add" {
             return cell
         }
         

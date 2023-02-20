@@ -45,12 +45,12 @@ class CreateGroupViewController: UIViewController {
                 return 1
             case .groupDescription:
                 return 2
+            case .groupCategories:
+                return 3
             case .groupVisibility:
                 return 4
             case .groupPermission:
                 return 5
-            case .groupCategories:
-                return 3
             }
         }
     }
@@ -313,7 +313,6 @@ class CreateGroupViewController: UIViewController {
         }
     }
     
-    
     private func pushGroupViewController(withGroup group: Group) {
         let controller = GroupPageViewController(group: group, memberType: .owner)
         
@@ -378,7 +377,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
 extension CreateGroupViewController: GroupCategoriesCellDelegate {
 
     func didSelectAddCategory(withSelectedCategories categories: [Category]) {
-        let controller = CategoryListViewController(selectedCategories: categories.reversed())
+        let controller = CategoryListViewController(selectedCategories: categories.reversed(), categories: Category.allCategories())
         controller.delegate = self
         
         let backItem = UIBarButtonItem()
@@ -429,8 +428,9 @@ extension CreateGroupViewController: GroupPermissionCellDelegate {
 extension CreateGroupViewController: CategoryListViewControllerDelegate {
     func didTapAddCategories(categories: [Category]) {
         if let cell = collectionView.cellForItem(at: IndexPath(item: GroupSections.groupCategories.index, section: 0)) as? GroupCategoriesCell {
-            cell.updateCategories(categories: categories)
             groupCategories.removeAll()
+            cell.updateCategories(categories: categories)
+            
 
             categories.forEach { category in
                 groupCategories.append(category.name)

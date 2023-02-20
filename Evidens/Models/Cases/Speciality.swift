@@ -417,4 +417,38 @@ extension Speciality {
         
         return specialities
     }
+    
+    static func getSpecialitiesByProfession(profession: Profession.Professions) -> [Speciality] {
+        switch profession {
+        case .medicine:
+            return medicineSpecialities()
+        case .odontology:
+            return odontologySpecialities()
+        case .pharmacy:
+            return pharmacySpecialities()
+        case .physiotherapy:
+            return physiotherapySpecialities()
+        case .nursing:
+            return nursingSpecialities()
+        case .veterinary:
+            return veterinarySpecialities()
+        case .psychology:
+            return psychologySpecialities()
+        case .podiatry:
+            return podiatrySpecialities()
+        case .nutrition:
+            return nutritionSpecialities()
+        case .optics:
+            return opticsSpecialities()
+        case .biomedical:
+            return biomedicalSpecialities()
+        case .physical:
+            #warning("pending to configure physical ones")
+            return physiotherapySpecialities()
+        case .speech:
+#warning("pending to configure speech ones")
+            return physiotherapySpecialities()
+        }
+        
+    }
 }

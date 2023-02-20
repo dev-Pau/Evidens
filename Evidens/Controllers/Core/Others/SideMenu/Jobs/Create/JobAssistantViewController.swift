@@ -9,7 +9,6 @@ import UIKit
 
 private let jobTypeCellReuseIdentifier = "JobTypeCellReuseIdentifier"
 
-
 protocol JobAssistantViewControllerDelegate: AnyObject {
     func didSelectItem(_ text: String)
 }
@@ -27,6 +26,7 @@ class JobAssistantViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
         return collectionView
     }()
     
@@ -37,7 +37,6 @@ class JobAssistantViewController: UIViewController {
         searchBar.placeholder = "Search location"
         return searchBar
     }()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,7 +87,7 @@ class JobAssistantViewController: UIViewController {
         case .type:
             title = "Type"
         case .professions:
-            break
+            title = "Profession"
         }
     }
     
@@ -97,6 +96,16 @@ class JobAssistantViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(ClinicalTypeCell.self, forCellWithReuseIdentifier: jobTypeCellReuseIdentifier)
+        if jobSection == .title {
+            #warning("search all industries and put it here, bow we have job type just to search if it works")
+            //dataSource = Company.AllIndustry()
+            dataSource = ["Clinical Liaison",
+                          "Clinical Nurse Manager",
+                          "Clinical Research Associate",
+                          "Clinical Research Coordinator",
+                          "Clinical Reviewer",
+                          "Clinical Specialist"]
+        }
        
         if jobSection == .location {
             searchBar.delegate = self
@@ -129,11 +138,6 @@ extension JobAssistantViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
         cell.set(title: dataSource[indexPath.row])
-        //if let text = cell.typeTitle.text {
-          //  if selectedType == text {
-            //    collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
-            //}
-        //}
         return cell
     }
     

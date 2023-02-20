@@ -19,7 +19,7 @@ struct Job {
     let jobType: String
     let activePeriod: String
     let timestamp: Timestamp
-    let professions: [Profession]
+    let professions: Profession
     
     let companyId: String
     
@@ -32,7 +32,7 @@ struct Job {
         self.jobType = dictionary["jobType"] as? String ?? ""
         self.activePeriod = dictionary["activePeriod"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
+        self.professions = dictionary["professions"] as? Profession ?? Profession(profession: "")
         self.companyId = dictionary["companyId"] as? String ?? ""
     }
 }
@@ -84,7 +84,22 @@ extension Job {
 
 struct Company {
     let id: String
+    let ownerUid: String
     let location: String
     let name: String
+    let description: String
     let companyImageUrl: String?
+    let industry: String
+    let specialities: [Speciality]
+    
+    init(dictionary: [String: Any]) {
+        self.id = dictionary["id"] as? String ?? ""
+        self.ownerUid = dictionary["ownerUid"] as? String ?? ""
+        self.location = dictionary["location"] as? String ?? ""
+        self.name = dictionary["name"] as? String ?? ""
+        self.description = dictionary["description"] as? String ?? ""
+        self.companyImageUrl = dictionary["companyImageUrl"] as? String ?? ""
+        self.industry = dictionary["industry"] as? String ?? ""
+        self.specialities = dictionary["specialities"] as? [Speciality] ?? [Speciality(name: "")]
+    }
 }

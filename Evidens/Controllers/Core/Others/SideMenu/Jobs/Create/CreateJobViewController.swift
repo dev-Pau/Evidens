@@ -70,7 +70,7 @@ class CreateJobViewController: UIViewController {
     
     init(user: User) {
         self.user = user
-        viewModel.professions = [Profession(profession: user.profession!)]
+        viewModel.profession = user.profession!
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -79,9 +79,6 @@ class CreateJobViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-
-        //viewModel.professions = [Profession(profession: user.profession!)]
-        
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -109,6 +106,7 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: jobHeaderReuseIdentifier, for: indexPath) as! CreateJobHeader
+        header.delegate = self
         return header
     }
     
@@ -157,11 +155,10 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
             cell.disableTextField()
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobProfessionCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
-            let category = user.category
-            cell.updateCategories(categories: [Category(name: user.profession!)])
-            //if let group = group { cell.updateCategories(categories: group.categories) }
-            cell.delegate = self
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobNameCellReuseIdentifier, for: indexPath) as! EditNameCell
+            cell.set(title: Job.JobSections.professions.rawValue, placeholder: "Profession", name: "")
+            cell.disableTextField()
+            cell.set(text: viewModel.profession!)
             return cell
         }
     }
@@ -187,6 +184,10 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 5 {
             let controller = JobAssistantViewController(jobSection: .type)
+            controller.delegate = self
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.row == 6 {
+            let controller = JobAssistantViewController(jobSection: .professions)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         }
@@ -215,8 +216,7 @@ extension CreateJobViewController: JobAssistantViewControllerDelegate {
             break
         case .description:
             break
-        case .professions:
-            break
+        
         case .role:
             let cell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as! EditNameCell
             cell.set(text: text)
@@ -233,32 +233,28 @@ extension CreateJobViewController: JobAssistantViewControllerDelegate {
             let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.jobType = text
-
+        case .professions:
+            let cell = collectionView.cellForItem(at: IndexPath(item: 6, section: 0)) as! EditNameCell
+            cell.set(text: text)
+            viewModel.profession = text
         }
     }
 }
 
-extension CreateJobViewController: GroupCategoriesCellDelegate {
-    func didSelectAddCategory(withSelectedCategories categories: [Category]) {
-        let controller = CategoryListViewController(selectedCategories: categories.reversed())
-        controller.delegate = self
+extension CreateJobViewController: CreateJobHeaderDelegate {
+    func didTapAddExistingCompany() {
+        
+    }
+    
+    func didTappCreateNewCompany() {
+        let controller = CreateCompanyViewController(user: user)
         
         let backItem = UIBarButtonItem()
+        backItem.title = ""
         backItem.tintColor = .label
-        backItem.title = ""  
+        
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension CreateJobViewController: CategoryListViewControllerDelegate {
-    func didTapAddCategories(categories: [Category]) {
-        if let cell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as? GroupCategoriesCell {
-            cell.updateCategories(categories: categories)
-            viewModel.professions = categories.map({ Profession(profession: $0.name) })
-            collectionView.reloadData()
-            jobIsValid()
-        }
     }
 }
