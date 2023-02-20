@@ -108,7 +108,7 @@ struct GroupService {
         }
     }
     
-    static func uploadGroupPost(groupId: String, post: String, type: Post.PostType, privacy: Post.PrivacyOptions, groupPermission: Group.Permissions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
+    static func uploadGroupPost(groupId: String, post: String, professions: [Profession], type: Post.PostType, privacy: Post.PrivacyOptions, groupPermission: Group.Permissions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
         
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -120,6 +120,7 @@ struct GroupService {
                     "ownerUid": uid,
                     "comments": 0,
                     "shares": 0,
+                    "professions": professions.map({ $0.profession }),
                     "groupId": groupId,
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,

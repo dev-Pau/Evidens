@@ -37,7 +37,7 @@ extension DatabaseManager {
     }
     
     public func fetchHomeHelper(completion: @escaping(Bool) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         database.child("users").child(uid).child("helpers").getData { error, snapshot in
             guard error == nil else {
                 completion(false)
@@ -1179,7 +1179,7 @@ extension DatabaseManager {
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
         userRef.observeSingleEvent(of: .value) { snapshot in
             if let value = snapshot.value as? [String: Any] {
-                guard let key = value.first?.key else { return }
+                guard let key = value.first?.key else { return }
                 
                 self.database.child("users").child(uid).child("groups").child(key).child("memberType").setValue(Group.MemberType.member.rawValue) { error, _ in
                     if let _ = error {
@@ -1849,6 +1849,19 @@ extension DatabaseManager {
             }
         }
     }
+    
+    public func checkIfUserHasMoreThanThreeVisibleCases(forUid uid: String, completion: @escaping(Int) -> Void) {
+        let ref = database.child("users").child(uid).child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 4)
+        ref.observeSingleEvent(of: .value) { snapshot  in
+            if let values = snapshot.value as? [String: Any] {
+                completion(values.count)
+                return
+            
+            } else {
+                completion(0)
+            }
+        }
+    }
 }
 
 //MARK: - User Sections
@@ -1877,7 +1890,7 @@ extension DatabaseManager {
             if let section = snapshot?.value as? String {
                 completion(.success(section))
             } else {
-                completion(.success(String()))
+                completion(.failure(DatabaseError.failedToFetch))
             }
         }
     }

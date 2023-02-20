@@ -818,6 +818,7 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
             switch result {
             case .success(let sectionText):
+                print("HAS ABOUT BRO")
                 self.aboutText = sectionText
                 self.hasAbout = true
                 //self.collectionView.reloadSections(IndexSet(integer: 1))

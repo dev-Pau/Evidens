@@ -18,18 +18,29 @@ class JobsBrowserViewController: UIViewController {
     private func configureNavigationBar() {
         title = "Jobs"
         
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBlue), style: .done, target: self, action: #selector(didTapCreateJob))]
+        let jobAction = UIAction(title: "Post a job", image: UIImage(systemName: "bag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+            guard let tab = self.tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
+            let controller = CreateJobViewController(user: user)
+            
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+
+            self.present(navVC, animated: true)
+        }
+        
+        let companyAction = UIAction(title: "Add your company", image: UIImage(systemName: "building", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+            
+        }
+        
+        let menuBarButton = UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), primaryAction: nil, menu: UIMenu(title: "", children: [jobAction, companyAction]))
+        navigationItem.rightBarButtonItem = menuBarButton
     }
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
     }
-    
-    @objc func didTapCreateJob() {
-        
-    }
-    
+
     @objc func didTapBookmarkJobs() {
         
     }

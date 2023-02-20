@@ -211,14 +211,14 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
             CommentService.uploadAnonymousComment(comment: comment, clinicalCase: clinicalCase, user: currentUser, type: type) { ids in
                 // As comment is anonymous, there's no need to upload the comment to recent comments
                 let commentUid = ids[0]
-                let caseUid = ids[1]
+                let _ = ids[1]
                 
               
                 self.clinicalCase.numberOfComments += 1
                 inputView.clearCommentTextView()
                 
                 
-                let isAuthor = currentUser.uid == self.clinicalCase.ownerUid ? true : false
+                let _ = currentUser.uid == self.clinicalCase.ownerUid ? true : false
                 
                 let newComment = Comment(dictionary: [
                     "comment": comment,

@@ -138,7 +138,15 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId}) {
                     //Change the didLike according if user did like post
                     self.cases[index].didLike = didLike
-                    self.casesCollectionView.reloadData()
+                    CaseService.fetchLikesForCase(caseId: clinicalCase.caseId) { likes in
+                        self.cases[index].likes = likes
+                        CaseService.fetchCommentsForCase(caseId: clinicalCase.caseId) { comments in
+                            self.cases[index].numberOfComments = comments
+                            self.casesCollectionView.reloadData()
+                            print(self.cases[index].likes)
+                            print(self.cases[index].numberOfComments)
+                        }
+                    }
                 }
             }
         }

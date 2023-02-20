@@ -269,7 +269,7 @@ struct PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         //Add a new like to the post
-        COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes + 1])
+        //COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes + 1])
         
         //Update posts likes collection to track likes for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
@@ -281,7 +281,7 @@ struct PostService {
     static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
-        COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks + 1])
+        //COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks + 1])
         
         //Update post bookmark collection to track bookmarks for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
@@ -294,7 +294,7 @@ struct PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         guard post.likes > 0 else { return }
         
-        COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes - 1])
+        //COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes - 1])
 
         COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete(completion: completion)
@@ -305,7 +305,7 @@ struct PostService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         //guard post.numberOfBookmarks > 0 else { return }
         
-        COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks - 1])
+        //COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks - 1])
         
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).delete(completion: completion)

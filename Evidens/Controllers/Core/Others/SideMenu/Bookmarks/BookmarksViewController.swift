@@ -382,7 +382,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
                 
                 if let userIndex = userIndex {
-                    if let groupId = cases[indexPath.row].groupId {
+                    if let _ = cases[indexPath.row].groupId {
                         let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .group, collectionViewFlowLayout: layout)
                         navigationController?.pushViewController(controller, animated: true)
                     } else {
@@ -401,7 +401,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 }
                 
                 if let userIndex = userIndex {
-                    if let groupId = posts[indexPath.row].groupId {
+                    if let _ = posts[indexPath.row].groupId {
                         let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .group, collectionViewLayout: layout)
                         navigationController?.pushViewController(controller, animated: true)
                     } else {

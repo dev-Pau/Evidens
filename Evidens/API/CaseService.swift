@@ -70,6 +70,24 @@ struct CaseService {
         }
     }
     
+    static func fetchLikesForCase(caseId: String, completion: @escaping(Int) -> Void) {
+        let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").count
+        likesRef.getAggregation(source: .server) { snaphsot, _ in
+            if let likes = snaphsot?.count {
+                completion(likes.intValue)
+            }
+        }
+    }
+    
+    static func fetchCommentsForCase(caseId: String, completion: @escaping(Int) -> Void) {
+        let likesRef = COLLECTION_CASES.document(caseId).collection("comments").count
+        likesRef.getAggregation(source: .server) { snaphsot, _ in
+            if let likes = snaphsot?.count {
+                completion(likes.intValue)
+            }
+        }
+    }
+    
     static func fetchUserVisibleCases(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         
         if lastSnapshot == nil {
@@ -293,10 +311,10 @@ struct CaseService {
     }
     
     static func likeCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         //Add a new like to the post
-        COLLECTION_CASES.document(clinicalCase.caseId).updateData(["likes": clinicalCase.likes + 1])
+        //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["likes": clinicalCase.likes + 1])
         
         //Update posts likes collection to track likes for a particular post
         COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).setData([:]) { _ in
@@ -306,10 +324,10 @@ struct CaseService {
     }
     
     static func unlikeCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         guard clinicalCase.likes > 0 else { return }
         
-        COLLECTION_CASES.document(clinicalCase.caseId).updateData(["likes" : clinicalCase.likes - 1])
+        //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["likes" : clinicalCase.likes - 1])
 
         COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).delete(completion: completion)

@@ -330,7 +330,46 @@ struct UserService {
     
     
     static func fetchUserStats(uid: String, completion: @escaping(UserStats) -> Void) {
-        #warning("Fer el count i no descarregar tots els documents, com per comptar likes")
+        /*
+         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+         let likesRef = COLLECTION_POSTS.document(postId).collection("posts-likes").count
+         likesRef.getAggregation(source: .server) { snaphsot, _ in
+         if let likes = snaphsot?.count {
+         completion(likes.intValue)
+         }
+         }
+         */
+        var userStats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
+        
+        
+        let followersRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        followersRef.getAggregation(source: .server) { snapshot, _ in
+            if let followers = snapshot?.count {
+                userStats.followers = followers.intValue
+                
+                let followingRef = COLLECTION_FOLLOWING.document(uid).collection("user-following").count
+                followingRef.getAggregation(source: .server) { snapshot, _ in
+                    if let following = snapshot?.count {
+                        userStats.following = following.intValue
+                        
+                        let postsRef = COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).count
+                        postsRef.getAggregation(source: .server) { snapshot, _ in
+                            if let posts = snapshot?.count {
+                                userStats.posts = posts.intValue
+                                
+                                DatabaseManager.shared.checkIfUserHasMoreThanThreeVisibleCases(forUid: uid) { numOfCases in
+                                    userStats.cases = numOfCases
+                                    completion(userStats)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+        /*
         COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments { snapshot, error in
             let followers = snapshot?.documents.count ?? 0
             
@@ -364,8 +403,8 @@ struct UserService {
                 }
             }
         }
-    }
-    
+         */
+
     static func fetchUsersWithText(text: String, completion: @escaping([User]) -> Void) {
         var users = [User]()
         

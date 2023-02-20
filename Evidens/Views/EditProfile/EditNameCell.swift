@@ -106,6 +106,14 @@ class EditNameCell: UICollectionViewCell {
         firstNameTextField.placeholder = placeholder
     }
     
+    func set(text: String) {
+        firstNameTextField.text = text
+    }
+    
+    func disableTextField() {
+        firstNameTextField.isUserInteractionEnabled = false
+    }
+    
     @objc func textDidChange() {
         guard let text = firstNameTextField.text else { return }
         delegate?.textDidChange(self, text: text)

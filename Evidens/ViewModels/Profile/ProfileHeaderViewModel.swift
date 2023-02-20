@@ -101,11 +101,11 @@ struct ProfileHeaderViewModel {
     var followingFollowersText: NSAttributedString {
         return followingUserStats(valueFollowers: numberOfFollowers, valueFollowing: numberOfFollowing)
     }
-    
+    /*
     var numberOfPosts: String {
         return String(user.stats.posts)
     }
-    
+    */
     func followersString(valueFollowers: Int) -> NSAttributedString {
         let followers = String(valueFollowers)
 

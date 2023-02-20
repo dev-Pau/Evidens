@@ -81,7 +81,6 @@ class PatentSectionViewController: UICollectionViewController {
 
 extension PatentSectionViewController: UserProfilePatentCellDelegate {
     func didTapShowContributors(users: [User]) {
-        #warning("Show contributors")
         let controller = ContributorsViewController(users: users)
         
         let backItem = UIBarButtonItem()

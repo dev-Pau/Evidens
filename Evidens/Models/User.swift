@@ -99,10 +99,10 @@ extension User {
 }
 
 struct UserStats {
-    let followers: Int
-    let following: Int
-    let posts: Int
-    let cases: Int
+    var followers: Int
+    var following: Int
+    var posts: Int
+    var cases: Int
 }
 
 extension User: Equatable {

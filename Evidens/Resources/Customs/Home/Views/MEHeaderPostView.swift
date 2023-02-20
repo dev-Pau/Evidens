@@ -30,7 +30,7 @@ class MEHeaderPostView: UIView {
     
     private lazy var subCategoryPostButton = MECategoryPostButton(title: "", color: lightGrayColor, titleColor: .black)
     
-    private var dotsImageButton: UIButton = {
+    private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         
         button.configuration = .plain()
