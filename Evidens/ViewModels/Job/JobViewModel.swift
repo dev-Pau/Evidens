@@ -14,9 +14,42 @@ struct JobViewModel {
         self.job = job
     }
     
+    var jobName: String {
+        return job.title
+    }
     
+    var jobLocation: String {
+        return job.location
+    }
     
+    var jobTimestampString: String? {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        formatter.maximumUnitCount = 1
+        formatter.unitsStyle = .abbreviated
+        return formatter.string(from: job.timestamp.dateValue(), to: Date())
+    }
     
+    var jobType: String {
+        return job.jobType
+    }
+    
+    var jobId: String {
+        return job.jobId
+    }
+    
+    var jobProfession: String {
+        return job.profession
+    }
+    
+    var jobWorkplaceType: String {
+        return job.workplaceType
+    }
+    
+    var bookMarkImage: UIImage? {
+        let imageName = job.didBookmark ? "bookmark.fill" : "bookmark"
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label)
+    }
 }
 
 struct CreateJobViewModel {

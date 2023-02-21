@@ -17,8 +17,11 @@ struct Job {
     var workplaceType: String
     var jobType: String
     let timestamp: Timestamp
-    var professions: Profession
+    var profession: String
     var companyId: String
+    var location: String
+    
+    var didBookmark = false
     
     init(jobId: String, dictionary: [String: Any]) {
         self.jobId = jobId
@@ -28,8 +31,9 @@ struct Job {
         self.workplaceType = dictionary["workplaceType"] as? String ?? ""
         self.jobType = dictionary["jobType"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.professions = dictionary["professions"] as? Profession ?? Profession(profession: "")
+        self.profession = dictionary["profession"] as? String ?? ""
         self.companyId = dictionary["companyId"] as? String ?? ""
+        self.location = dictionary["location"] as? String ?? ""
     }
 }
 

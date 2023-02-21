@@ -102,17 +102,18 @@ class CreateJobViewController: UIViewController {
     }
     
     @objc func handleCreateJob() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let worksplaceType = viewModel.workplaceType, let jobType = viewModel.jobType, let professions = viewModel.profession, let companyId = viewModel.companyId else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let worksplaceType = viewModel.workplaceType, let jobType = viewModel.jobType, let location = viewModel.location, let profession = viewModel.profession, let companyId = viewModel.companyId else { return }
         
         var jobToUpload = Job(jobId: "", dictionary: [:])
         
         jobToUpload.jobId = COLLECTION_JOBS.document().documentID
         jobToUpload.ownerUid = uid
         jobToUpload.title = title
+        jobToUpload.location = location
         jobToUpload.description = description
         jobToUpload.workplaceType = worksplaceType
         jobToUpload.jobType = jobType
-        jobToUpload.professions = Profession(profession: professions)
+        jobToUpload.profession = profession
         jobToUpload.companyId = companyId
         
         progressIndicator.show(in: view)

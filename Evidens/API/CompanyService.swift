@@ -30,6 +30,27 @@ struct CompanyService {
         DatabaseManager.shared.uploadCompany(companyId: company.id) { _ in }
     }
     
+    static func fetchCompany(withId companyId: String, completion: @escaping(Company) -> Void) {
+        COLLECTION_COMPANIES.document(companyId).getDocument { snapshot, _ in
+            guard let snapshot = snapshot else { return }
+            guard let data = snapshot.data() else { return }
+            var company = Company(dictionary: data)
+            completion(company)
+        }
+    }
+    
+    static func fetchCompanies(withIds ids: [String], completion: @escaping([Company]) -> Void) {
+        var companies = [Company]()
+        ids.forEach({
+            fetchCompany(withId: $0) { company in
+                companies.append(company)
+                if companies.count == ids.count {
+                    completion(companies)
+                }
+            }
+        })
+    }
+    
     static func fetchCompaniesDocuments(completion: @escaping(QuerySnapshot) -> Void) {
         let firstCompaniesToFetch = COLLECTION_COMPANIES.limit(to: 20)
         firstCompaniesToFetch.getDocuments { snapshot, error in
