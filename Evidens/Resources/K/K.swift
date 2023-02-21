@@ -29,4 +29,6 @@ let COLLECTION_POSTS = Firestore.firestore().collection("posts")
 let COLLECTION_CASES = Firestore.firestore().collection("cases")
 let COLLECTION_NOTIFICATIONS = Firestore.firestore().collection("notifications")
 let COLLECTION_GROUPS = Firestore.firestore().collection("groups")
+let COLLECTION_COMPANIES = Firestore.firestore().collection("companies")
+let COLLECTION_JOBS = Firestore.firestore().collection("jobs")
 

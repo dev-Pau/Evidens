@@ -1811,10 +1811,70 @@ extension DatabaseManager {
             completion(recentContent.reversed())
         }
     }
-    
-    
 }
 
+//MARK: - Companies
+
+extension DatabaseManager {
+    public func uploadCompany(companyId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("companies").child(companyId).child("managers").childByAutoId()
+        let creationTimestampDate = NSDate().timeIntervalSince1970
+        
+        let managerUser = ["uid": uid,
+                           "tiestamp": creationTimestampDate] as [String : Any]
+        
+        ref.setValue(managerUser) { error, _ in
+            let userRef = self.database.child("users").child(uid).child("companies").childByAutoId()
+            
+            let newCompany = ["companyId": companyId,
+                            "memberType": 0]
+            
+            userRef.setValue(newCompany) { error, _ in
+                if let _ = error {
+                    completion(false)
+                    return
+                }
+                
+                self.database.child("companies").child(companyId).child("allUsers").setValue(1) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                    
+                    completion(true)
+                }
+            }
+        }
+    }
+}
+
+extension DatabaseManager {
+    public func uploadJob(jobId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("jobs").child(jobId).child("managers").childByAutoId()
+        let creationTimestampDate = NSDate().timeIntervalSince1970
+        
+        let managerUser = ["uid": uid,
+                           "tiestamp": creationTimestampDate] as [String : Any]
+        
+        ref.setValue(managerUser) { error, _ in
+            let userRef = self.database.child("users").child(uid).child("jobs").childByAutoId()
+            
+            let newCompany = ["jobId": jobId,
+                              "type": 0]
+            
+            userRef.setValue(newCompany) { error, _ in
+                if let _ = error {
+                    completion(false)
+                    return
+                }
+                
+                completion(true)
+            }
+        }
+    }
+}
 
 
 //MARK: - User Recent Cases

@@ -8,6 +8,14 @@
 import UIKit
 
 struct JobViewModel {
+    var job: Job
+    
+    init(job: Job) {
+        self.job = job
+    }
+    
+    
+    
     
 }
 

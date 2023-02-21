@@ -191,7 +191,6 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
             header.delegate = self
             return header
         }
-        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {

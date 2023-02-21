@@ -9,7 +9,7 @@ import UIKit
 import CoreLocation
 import MapKit
 
-class LocationService {
+struct LocationService {
     
     static func findLocations(with text: String, completion: @escaping([Location]) -> Void) {
         let geoCoder = CLGeocoder()

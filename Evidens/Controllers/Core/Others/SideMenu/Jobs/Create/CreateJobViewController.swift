@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let jobHeaderReuseIdentifier = "JobHeaderReuseIdentifier"
 private let createJobNameCellReuseIdentifier = "CreateJobNameReuseIdentifier"
@@ -27,6 +28,7 @@ class CreateJobViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        collectionView.keyboardDismissMode = .onDrag
         collectionView.showsVerticalScrollIndicator = false
         return collectionView
     }()
@@ -43,6 +45,8 @@ class CreateJobViewController: UIViewController {
         button.addTarget(self, action: #selector(handleCreateJob), for: .touchUpInside)
         return button
     }()
+    
+    private let progressIndicator = JGProgressHUD()
     
     private var sectionSelected: Job.JobSections = .title
 
@@ -98,7 +102,28 @@ class CreateJobViewController: UIViewController {
     }
     
     @objc func handleCreateJob() {
-        print("Create job")
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let worksplaceType = viewModel.workplaceType, let jobType = viewModel.jobType, let professions = viewModel.profession, let companyId = viewModel.companyId else { return }
+        
+        var jobToUpload = Job(jobId: "", dictionary: [:])
+        
+        jobToUpload.jobId = COLLECTION_JOBS.document().documentID
+        jobToUpload.ownerUid = uid
+        jobToUpload.title = title
+        jobToUpload.description = description
+        jobToUpload.workplaceType = worksplaceType
+        jobToUpload.jobType = jobType
+        jobToUpload.professions = Profession(profession: professions)
+        jobToUpload.companyId = companyId
+        
+        progressIndicator.show(in: view)
+        JobService.uploadJob(job: jobToUpload) { error in
+            self.progressIndicator.dismiss(animated: true)
+            guard error == nil else { return }
+            let reportPopup = METopPopupView(title: "Job succesfully uploaded", image: "checkmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            self.dismiss(animated: true)
+            //self.pushGroupViewController(withGroup: groupToUpload)
+        }
     }
 }
 
@@ -243,12 +268,8 @@ extension CreateJobViewController: JobAssistantViewControllerDelegate {
 
 extension CreateJobViewController: CreateJobHeaderDelegate {
     func didTapAddExistingCompany() {
-        
-    }
-    
-    func didTappCreateNewCompany() {
-        let controller = CreateCompanyViewController(user: user)
-        
+        let controller = CompanyBrowserViewController()
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
@@ -256,5 +277,40 @@ extension CreateJobViewController: CreateJobHeaderDelegate {
         navigationItem.backBarButtonItem = backItem
         
         navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func didTappCreateNewCompany() {
+        let controller = CreateCompanyViewController(user: user)
+        controller.delegate = self
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension CreateJobViewController: CreateCompanyViewControllerDelegate {
+    func didCreateCompany(company: Company) {
+     
+        if let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as? CreateJobHeader {
+            header.setWithCompany(company: company)
+            viewModel.companyId = company.id
+            jobIsValid()
+            //collectionView.reloadData()
+        }
+    }
+}
+
+extension CreateJobViewController: CompanyBrowserViewControllerDelegate {
+    func didSelectCompany(company: Company) {
+        if let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as? CreateJobHeader {
+            header.setWithCompany(company: company)
+            viewModel.companyId = company.id
+            jobIsValid()
+            //collectionView.reloadData()
+        }
     }
 }

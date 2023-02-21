@@ -32,6 +32,7 @@ class CreateJobHeader: UICollectionReusableView {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         return iv
     }()
@@ -97,8 +98,6 @@ class CreateJobHeader: UICollectionReusableView {
             companyImageView.heightAnchor.constraint(equalToConstant: 70),
             companyImageView.widthAnchor.constraint(equalToConstant: 70)
         ])
-        
-        companyImageView.layer.cornerRadius = 70 / 2
         
         companyLabel.text = company.name
         companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))

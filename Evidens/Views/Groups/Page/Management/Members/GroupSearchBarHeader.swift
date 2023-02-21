@@ -61,6 +61,10 @@ extension GroupSearchBarHeader: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         delegate?.resetUsers()
     }
+    
+    func setSearchBarPlaceholder(text: String) {
+        searchBar.placeholder = text
+    }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }

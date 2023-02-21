@@ -206,7 +206,7 @@ struct StorageManager {
     }
     
     static func uploadGroupImage(image: UIImage, isProfile: Bool, groupId: String, completion: @escaping(String) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.75) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
         let filename = groupId
         let fileRef = isProfile ? "/profiles/" : "/banners/"
         let ref = Storage.storage().reference(withPath: "/group_images/\(fileRef)\(filename)")
@@ -223,7 +223,27 @@ struct StorageManager {
             }
         }
     }
-    
+        
+        static func uploadCompanyImage(image: UIImage, companyId: String, completion: @escaping(String) -> Void) {
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
+            let filename = companyId
+            let fileRef = "/profiles/"
+            let ref = Storage.storage().reference(withPath: "/company_images/\(fileRef)\(filename)")
+            
+            ref.putData(imageData, metadata: nil) { metadata, error in
+                if let error = error {
+                    print("DEBUG: Failed to upload image \(error.localizedDescription)")
+                    return
+                }
+                
+                ref.downloadURL { url, error in
+                    guard let imageUrl = url?.absoluteString else { return }
+                    completion(imageUrl)
+                }
+            }
+        }
+        
+        
     static func uploadGroupCaseImage(images: [UIImage], uid: String, groupId: String, completion: @escaping([String]) -> Void) {
 
         var caseImagesUrl: [String] = []

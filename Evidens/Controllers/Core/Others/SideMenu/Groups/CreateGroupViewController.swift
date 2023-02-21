@@ -78,6 +78,7 @@ class CreateGroupViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
+        collectionView.keyboardDismissMode = .onDrag
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
@@ -141,7 +142,6 @@ class CreateGroupViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createGroupButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
-
     }
     
     
