@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseFirestore
 
 struct JobService {
     
@@ -53,7 +54,7 @@ struct JobService {
         COLLECTION_JOBS.document(id).getDocument { snapshot, error in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            var job = Job(jobId: snapshot.documentID, dictionary: data)
+            let job = Job(jobId: snapshot.documentID, dictionary: data)
             completion(job)
         }
     }
@@ -88,19 +89,26 @@ struct JobService {
     /*
      
      */
-     static func fetchBookmarkedJobsDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+     static func fetchBookmarkedJobsDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot?) -> Void) {
          guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-         
+
          if lastSnapshot == nil {
              let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-job-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
-             firstGroupToFetch.addSnapshotListener { snapshot, error in
-                 guard let snapshot = snapshot else { return }
-                 guard snapshot.documents.last != nil else { return }
+             firstGroupToFetch.getDocuments { snapshot, error in
+                 guard let snapshot = snapshot else {
+                     completion(snapshot)
+                     return
+                 }
+                 guard snapshot.documents.last != nil else {
+                     completion(snapshot)
+                     return
+                     
+                 }
                  completion(snapshot)
              }
          } else {
              let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-job-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
-             nextGroupToFetch.addSnapshotListener { snapshot, error in
+             nextGroupToFetch.getDocuments { snapshot, error in
                  guard let snapshot = snapshot else { return }
                  guard snapshot.documents.last != nil else { return }
                  completion(snapshot)

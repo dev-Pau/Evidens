@@ -69,7 +69,7 @@ class JobsBrowserViewController: UIViewController {
         
         let myJobs = UIAction(title: "My jobs", image: UIImage(systemName: "book", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             let controller = MyJobsViewController()
-            
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
@@ -148,10 +148,13 @@ extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UIColle
         if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
             let controller = JobDetailsViewController(job: jobs[indexPath.row], company: companies[companyIndex])
             let navController = UINavigationController(rootViewController: controller)
-            navController.setNavigationBarHidden(true, animated: true)
+            
+            //let scrollAppearance = UINavigationBarAppearance().configureWithTransparentBackground()
+            
+            //navController.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance.configure
             
             if let presentationController = navController.presentationController as? UISheetPresentationController {
-                presentationController.detents = [.medium()]
+                presentationController.detents = [.medium(), .large()]
             }
             
             present(navController, animated: true)
@@ -182,6 +185,15 @@ extension JobsBrowserViewController: BrowseJobCellDelegate {
             
         default:
             print("No cell registered for this type")
+        }
+    }
+}
+
+extension JobsBrowserViewController: MyJobsViewControllerDelegate {
+    func didUnsaveJob(job: Job) {
+        if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
+            jobs[jobIndex].didBookmark = false
+            collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
         }
     }
 }

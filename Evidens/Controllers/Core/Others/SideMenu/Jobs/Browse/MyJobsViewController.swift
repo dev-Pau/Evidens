@@ -11,14 +11,24 @@ import Firebase
 private let jobCellReuseIdentifier = "JobCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
+private let categoriesCellReuseIdentifier = "CategoriesCellReuseIdentifier"
+
+protocol MyJobsViewControllerDelegate: AnyObject {
+    func didUnsaveJob(job: Job)
+}
 
 class MyJobsViewController: UIViewController {
+    weak var delegate: MyJobsViewControllerDelegate?
     
-    private var jobsLoaded: Bool = false
-    private var jobs = [Job]()
-    private var companies = [Company]()
+    private var savedLoaded: Bool = false
+    private var applicationsLoaded: Bool = false
+    private var savedJobs = [Job]()
+    private var applicationJobs = [Job]()
+    private var savedCompanies = [Company]()
+    private var applicationCompanies = [Company]()
     
-    var jobsLastSnapshot: QueryDocumentSnapshot?
+    var savedJobLastSnapshot: QueryDocumentSnapshot?
+    var applicationJobLastSnapshot: QueryDocumentSnapshot?
     
     private let categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -47,6 +57,29 @@ class MyJobsViewController: UIViewController {
         return collectionView
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
+    
+    enum CategoriesType: String, CaseIterable {
+        case saved = "Saved"
+        case applications = "Applications"
+        
+        var index: Int {
+            switch self {
+            case .saved:
+                return 0
+            case .applications:
+                return 1
+            }
+        }
+    }
+    
+    private var selectedIndex = CategoriesType.saved
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -61,33 +94,56 @@ class MyJobsViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        view.addSubview(jobsCollectionView)
-        jobsCollectionView.frame = view.bounds
+        view.addSubviews(categoriesCollectionView, separatorView, jobsCollectionView)
+        
+        NSLayoutConstraint.activate([
+            categoriesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            categoriesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            categoriesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 40),
+            
+            separatorView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+        
+            jobsCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+            jobsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            jobsCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            jobsCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
     }
     
     private func configureCollectionView() {
+        categoriesCollectionView.register(BookmarkCategoriesCell.self, forCellWithReuseIdentifier: categoriesCellReuseIdentifier)
+        categoriesCollectionView.delegate = self
+        categoriesCollectionView.dataSource = self
+        
         jobsCollectionView.delegate = self
         jobsCollectionView.dataSource = self
         jobsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         jobsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         jobsCollectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: jobCellReuseIdentifier)
+        
+        categoriesCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
     }
     
     private func fetchJobs() {
         JobService.fetchBookmarkedJobsDocuments(lastSnapshot: nil) { snapshot in
-            if snapshot.count == 0 {
-                self.jobsLoaded = true
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                self.savedLoaded = true
                 self.jobsCollectionView.reloadData()
-            } else {
-                JobService.fetchBookmarkedJobs(snapshot: snapshot) { jobs in
-                    self.jobsLastSnapshot = snapshot.documents.last
-                    self.jobs = jobs
-                    let companyIds = jobs.map { $0.companyId }
-                    CompanyService.fetchCompanies(withIds: companyIds) { companies in
-                        self.jobsLoaded = true
-                        self.companies = companies
-                        self.jobsCollectionView.reloadData()
-                    }
+                return
+            }
+            JobService.fetchBookmarkedJobs(snapshot: snapshot) { jobs in
+                self.savedJobLastSnapshot = snapshot.documents.last
+                self.savedJobs = jobs
+                let companyIds = jobs.map { $0.companyId }
+                CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                    self.savedLoaded = true
+                    self.savedCompanies = companies
+                    self.jobsCollectionView.reloadData()
+                    
                 }
             }
         }
@@ -97,7 +153,16 @@ class MyJobsViewController: UIViewController {
 extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return jobsLoaded ? jobs.isEmpty ? 1 : jobs.count : 0
+        if collectionView == categoriesCollectionView {
+            return CategoriesType.allCases.count
+        } else {
+            switch selectedIndex {
+            case .saved:
+                return savedLoaded ? savedJobs.isEmpty ? 1 : savedJobs.count : 0
+            case .applications:
+                return applicationsLoaded ? applicationJobs.isEmpty ? 1 : applicationJobs.count : 0
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -106,37 +171,95 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return jobsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+        if collectionView == categoriesCollectionView {
+            return CGSize.zero
+        } else {
+            switch selectedIndex {
+            case .saved:
+                return savedLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+            case .applications:
+                return applicationsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if jobs.isEmpty  {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: nil, title: "Save jobs you are interested in.", description: "Jobs you save will show up here.", buttonText: .dismiss)
+        if collectionView == categoriesCollectionView {
+            let cell = categoriesCollectionView.dequeueReusableCell(withReuseIdentifier: categoriesCellReuseIdentifier, for: indexPath) as! BookmarkCategoriesCell
+            cell.set(category: CategoriesType.allCases[indexPath.row].rawValue)
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
-            cell.viewModel = JobViewModel(job: jobs[indexPath.row])
-            
-            if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
-                cell.configureWithCompany(company: companies[companyIndex])
+            switch selectedIndex {
+            case .saved:
+                if savedJobs.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: nil, title: "Save jobs you are interested in.", description: "Jobs you save will show up here.", buttonText: .dismiss)
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
+                    cell.viewModel = JobViewModel(job: savedJobs[indexPath.row])
+                    cell.configureWithBookmarkOptions()
+                    cell.savedDelegate = self
+                    if let companyIndex = savedCompanies.firstIndex(where: { $0.id == savedJobs[indexPath.row].companyId }) {
+                        cell.configureWithCompany(company: savedCompanies[companyIndex])
+                    }
+                    return cell
+                }
+            case .applications:
+                if applicationJobs.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                    cell.configure(image: nil, title: "Apply jobs you are interested in.", description: "Your applications will show up here.", buttonText: .dismiss)
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
+                    cell.viewModel = JobViewModel(job: applicationJobs[indexPath.row])
+                    
+                    if let companyIndex = applicationCompanies.firstIndex(where: { $0.id == applicationJobs[indexPath.row].companyId }) {
+                        cell.configureWithCompany(company: applicationCompanies[companyIndex])
+                    }
+                    return cell
+                }
             }
-            return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard jobs.count > 0 else { return }
-        if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
-            let controller = JobDetailsViewController(job: jobs[indexPath.row], company: companies[companyIndex])
-            let navController = UINavigationController(rootViewController: controller)
-            navController.setNavigationBarHidden(true, animated: true)
-            
-            if let presentationController = navController.presentationController as? UISheetPresentationController {
-                presentationController.detents = [.medium()]
+        if collectionView == categoriesCollectionView {
+            collectionView.cellForItem(at: indexPath)?.isSelected = true
+            guard selectedIndex != CategoriesType.allCases[indexPath.row] else { return }
+            selectedIndex = CategoriesType.allCases[indexPath.row]
+            if selectedIndex == .applications && applicationJobs.isEmpty {
+                // Fetch applications
+                //reload data
+            } else {
+                jobsCollectionView.reloadData()
             }
-            
-            present(navController, animated: true)
+        } else {
+            switch selectedIndex {
+            case .saved:
+                print("present job")
+            case .applications:
+                print("present job")
+            }
+        }
+    }
+}
+
+extension MyJobsViewController: BrowseSavedJobCellDelegate {
+    func didApplyJob(_ cell: UICollectionViewCell, job: Job) {
+        print("apply job here")
+    }
+    
+    func didUnsaveJob(_ cell: UICollectionViewCell, job: Job) {
+        JobService.unbookmarkJob(job: job) { error in
+            guard error == nil else { return }
+            if let indexPath = self.jobsCollectionView.indexPath(for: cell) {
+                self.jobsCollectionView.performBatchUpdates {
+                    self.savedJobs.remove(at: indexPath.row)
+                    self.jobsCollectionView.deleteItems(at: [indexPath])
+                    self.delegate?.didUnsaveJob(job: job)
+                }
+            }
         }
     }
 }

@@ -322,6 +322,7 @@
 		5FA9D17829A4DE17004EF26A /* MyJobsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17729A4DE17004EF26A /* MyJobsViewController.swift */; };
 		5FA9D17A29A4E216004EF26A /* BrowseJobCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17929A4E216004EF26A /* BrowseJobCell.swift */; };
 		5FA9D17C29A5160A004EF26A /* JobDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17B29A5160A004EF26A /* JobDetailsViewController.swift */; };
+		5FA9D17F29A6358A004EF26A /* JobHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17E29A6358A004EF26A /* JobHeaderCell.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
 		5FAC98CA294355D000C72228 /* GroupMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98C9294355D000C72228 /* GroupMenuLauncher.swift */; };
 		5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */; };
@@ -703,6 +704,7 @@
 		5FA9D17729A4DE17004EF26A /* MyJobsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyJobsViewController.swift; sourceTree = "<group>"; };
 		5FA9D17929A4E216004EF26A /* BrowseJobCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseJobCell.swift; sourceTree = "<group>"; };
 		5FA9D17B29A5160A004EF26A /* JobDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobDetailsViewController.swift; sourceTree = "<group>"; };
+		5FA9D17E29A6358A004EF26A /* JobHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobHeaderCell.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
 		5FAC98C9294355D000C72228 /* GroupMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMenuLauncher.swift; sourceTree = "<group>"; };
 		5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageHeaderCell.swift; sourceTree = "<group>"; };
@@ -1867,6 +1869,7 @@
 			children = (
 				5FA6938D29A3594800DF3ADC /* CreateJobHeader.swift */,
 				5FA9D17929A4E216004EF26A /* BrowseJobCell.swift */,
+				5FA9D17E29A6358A004EF26A /* JobHeaderCell.swift */,
 			);
 			path = Jobs;
 			sourceTree = "<group>";
@@ -2517,6 +2520,7 @@
 				5F9A280429743B9C0052E618 /* GroupSelectorCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
+				5FA9D17F29A6358A004EF26A /* JobHeaderCell.swift in Sources */,
 				5FA2EAE928F967DE0054BA5B /* ExploreFooter.swift in Sources */,
 				5F1ACB6628E56761008E3E25 /* ConversationMenuLauncher.swift in Sources */,
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,

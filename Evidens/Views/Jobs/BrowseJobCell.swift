@@ -11,8 +11,14 @@ protocol BrowseJobCellDelegate: AnyObject {
     func didBookmarkJob(_ cell: UICollectionViewCell, job: Job)
 }
 
+protocol BrowseSavedJobCellDelegate: AnyObject {
+    func didUnsaveJob(_ cell: UICollectionViewCell, job: Job)
+    func didApplyJob(_ cell: UICollectionViewCell, job: Job)
+}
+
 class BrowseJobCell: UICollectionViewCell {
     weak var delegate: BrowseJobCellDelegate?
+    weak var savedDelegate: BrowseSavedJobCellDelegate?
     
     var viewModel: JobViewModel? {
         didSet {
@@ -43,7 +49,6 @@ class BrowseJobCell: UICollectionViewCell {
         button.configuration?.buttonSize = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
-        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
         return button
     }()
     
@@ -198,20 +203,18 @@ class BrowseJobCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Apply", image: Group.GroupManagement.posts.groupManagementImage, handler: { _ in
-                //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.posts)
+            UIAction(title: "Apply", image: UIImage(systemName: "square.and.arrow.up", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
+                guard let viewModel = self.viewModel else { return }
+                self.savedDelegate?.didApplyJob(self, job: viewModel.job)
             }),
-            UIAction(title: "Unsave", image: UIImage(systemName: "", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)) , handler: { _ in
-                //self.delegate?.didTapGroupOptions(option: Group.GroupManagement.membership)
+            UIAction(title: "Unsave", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)) , handler: { _ in
+                guard let viewModel = self.viewModel else { return }
+                self.savedDelegate?.didUnsaveJob(self, job: viewModel.job)
             })
         ])
         
         dotsImageButton.showsMenuAsPrimaryAction = true
         return menuItems
-    }
-    
-    @objc func handleThreeDots() {
-        
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
