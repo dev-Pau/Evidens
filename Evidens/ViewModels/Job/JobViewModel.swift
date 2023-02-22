@@ -18,6 +18,10 @@ struct JobViewModel {
         return job.title
     }
     
+    var jobDescription: String {
+        return job.description
+    }
+    
     var jobLocation: String {
         return job.location
     }

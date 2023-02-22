@@ -147,15 +147,14 @@ extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UIColle
         guard jobs.count > 0 else { return }
         if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
             let controller = JobDetailsViewController(job: jobs[indexPath.row], company: companies[companyIndex])
+            controller.delegate = self
             let navController = UINavigationController(rootViewController: controller)
             
             //let scrollAppearance = UINavigationBarAppearance().configureWithTransparentBackground()
             
             //navController.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance.configure
             
-            if let presentationController = navController.presentationController as? UISheetPresentationController {
-                presentationController.detents = [.medium(), .large()]
-            }
+            navController.modalPresentationStyle = .fullScreen
             
             present(navController, animated: true)
         }
@@ -193,6 +192,15 @@ extension JobsBrowserViewController: MyJobsViewControllerDelegate {
     func didUnsaveJob(job: Job) {
         if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
             jobs[jobIndex].didBookmark = false
+            collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
+        }
+    }
+}
+
+extension JobsBrowserViewController: JobDetailsViewControllerDelegate {
+    func didBookmark(job: Job) {
+        if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
+            jobs[jobIndex].didBookmark.toggle()
             collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
         }
     }
