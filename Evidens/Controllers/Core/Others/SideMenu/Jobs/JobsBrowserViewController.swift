@@ -8,6 +8,8 @@
 import UIKit
 import Firebase
 
+private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let jobCellReuseIdentifier = "JobCellReuseIdentifier"
 
 class JobsBrowserViewController: UIViewController {
@@ -64,7 +66,15 @@ class JobsBrowserViewController: UIViewController {
         }
         
         let manageJobs = UIAction(title: "Manage job posts", image: UIImage(systemName: "tray.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
-
+            let controller = JobsManagerViewController()
+            //controller.delegate = self
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            
+            self.navigationItem.backBarButtonItem = backItem
+            
+            self.navigationController?.pushViewController(controller, animated: true)
         }
         
         let myJobs = UIAction(title: "My jobs", image: UIImage(systemName: "book", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
@@ -94,6 +104,8 @@ class JobsBrowserViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: jobCellReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
     }
     
     private func fetchJobs() {
@@ -128,31 +140,45 @@ extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return jobsLoaded ? jobs.count : 0
+        return jobsLoaded ? jobs.isEmpty ? 1 : jobs.count : 0
         
     }
     
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return jobsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
-        cell.viewModel = JobViewModel(job: jobs[indexPath.row])
-        cell.delegate = self
-        if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
-            cell.configureWithCompany(company: companies[companyIndex])
+        if jobs.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+            cell.set(withTitle: "We could not find any job offer - yet.", withDescription: "Comeo back here to check for new job updates or share your own.", withButtonText: "Post a job")
+            cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
+            cell.viewModel = JobViewModel(job: jobs[indexPath.row])
+            cell.delegate = self
+            if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
+                cell.configureWithCompany(company: companies[companyIndex])
+            }
+            return cell
         }
-
-        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard jobs.count > 0 else { return }
+        guard let tab = self.tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
-            let controller = JobDetailsViewController(job: jobs[indexPath.row], company: companies[companyIndex])
+            let controller = JobDetailsViewController(job: jobs[indexPath.row], company: companies[companyIndex], user: user)
             controller.delegate = self
             let navController = UINavigationController(rootViewController: controller)
-            
-            //let scrollAppearance = UINavigationBarAppearance().configureWithTransparentBackground()
-            
-            //navController.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance.configure
             
             navController.modalPresentationStyle = .fullScreen
             
@@ -185,6 +211,20 @@ extension JobsBrowserViewController: BrowseJobCellDelegate {
         default:
             print("No cell registered for this type")
         }
+    }
+}
+
+extension JobsBrowserViewController: EmptyGroupCellDelegate {
+    func didTapDiscoverGroup() {
+        guard let tab = self.tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let controller = CreateJobViewController(user: user)
+
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+
+        self.present(navVC, animated: true)
     }
 }
 

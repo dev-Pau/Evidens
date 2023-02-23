@@ -62,7 +62,7 @@ struct CreateJobViewModel {
     
     var title: String?
     var description: String?
-    var role: String?
+
     var workplaceType: String?
     var location: String?
     var jobType: String?
@@ -83,10 +83,6 @@ struct CreateJobViewModel {
         return description?.isEmpty == false
     }
     
-    var hasRole: Bool {
-        return role?.isEmpty == false
-    }
-    
     var hasWorkplaceType: Bool {
         return workplaceType?.isEmpty == false
     }
@@ -100,7 +96,7 @@ struct CreateJobViewModel {
     }
     
     var jobIsValid: Bool {
-        return hasTitle && hasDescription && hasRole && hasWorkplaceType && hasLocation && hasJobType && hasProfession && hasCompanyId
+        return hasTitle && hasDescription && hasWorkplaceType && hasLocation && hasJobType && hasProfession && hasCompanyId
     }
 }
 

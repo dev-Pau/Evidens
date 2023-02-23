@@ -13,11 +13,18 @@ private let createJobNameCellReuseIdentifier = "CreateJobNameReuseIdentifier"
 private let createJobDescriptionCellReuseIdentifier = "CreateJobDescriptionReuseIdentifier"
 private let createJobProfessionCellReuseIdentifier = "CreateJobProfessionCellReuseIdentifier"
 
+protocol CreateJobViewControllerDelegate: AnyObject {
+    func didUpdateJob(job: Job)
+}
+
 class CreateJobViewController: UIViewController {
+    weak var delegate: CreateJobViewControllerDelegate?
     
     private var viewModel = CreateJobViewModel()
     
     private let user: User
+    private var job: Job?
+    private var company: Company?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -39,9 +46,6 @@ class CreateJobViewController: UIViewController {
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Post", attributes: container)
         button.addTarget(self, action: #selector(handleCreateJob), for: .touchUpInside)
         return button
     }()
@@ -63,7 +67,12 @@ class CreateJobViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
-        title = "Post a job"
+        title = job != nil ? "Edit job" : "Post a job"
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 17, weight: .bold)
+        let text = job != nil ? "Edit" : "Post"
+        createGroupButton.configuration?.attributedTitle = AttributedString(text, attributes: container)
     }
     
     private func configureUI() {
@@ -72,9 +81,22 @@ class CreateJobViewController: UIViewController {
         collectionView.frame = view.bounds
     }
     
-    init(user: User) {
+    init(user: User, job: Job? = nil, company: Company? = nil) {
         self.user = user
         viewModel.profession = user.profession!
+        self.job = job
+        self.company = company
+        
+        if let job = job {
+            viewModel.title = job.title
+            viewModel.location = job.location
+            viewModel.description = job.description
+            viewModel.workplaceType = job.workplaceType
+            viewModel.jobType = job.jobType
+            viewModel.profession = job.profession
+            viewModel.companyId = job.companyId
+        }
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -116,15 +138,27 @@ class CreateJobViewController: UIViewController {
         jobToUpload.profession = profession
         jobToUpload.companyId = companyId
         
-        progressIndicator.show(in: view)
-        JobService.uploadJob(job: jobToUpload) { error in
-            self.progressIndicator.dismiss(animated: true)
-            guard error == nil else { return }
-            let reportPopup = METopPopupView(title: "Job succesfully uploaded", image: "checkmark.circle.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
-            self.dismiss(animated: true)
-            //self.pushGroupViewController(withGroup: groupToUpload)
+        if let job = job, let company = company {
+            progressIndicator.show(in: view)
+            JobService.updateGroup(from: job, to: jobToUpload) { job in
+                self.delegate?.didUpdateJob(job: job)
+                self.progressIndicator.dismiss(animated: true)
+                let reportPopup = METopPopupView(title: "Job succesfully updated", image: "checkmark.circle.fill", popUpType: .regular)
+                reportPopup.showTopPopup(inView: self.view)
+                self.dismiss(animated: true)
+            }
+        } else {
+            progressIndicator.show(in: view)
+            JobService.uploadJob(job: jobToUpload) { error in
+                self.progressIndicator.dismiss(animated: true)
+                guard error == nil else { return }
+                let reportPopup = METopPopupView(title: "Job succesfully uploaded", image: "checkmark.circle.fill", popUpType: .regular)
+                reportPopup.showTopPopup(inView: self.view)
+                self.dismiss(animated: true)
+                //self.pushGroupViewController(withGroup: groupToUpload)
+            }
         }
+
     }
 }
 
@@ -132,7 +166,12 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: jobHeaderReuseIdentifier, for: indexPath) as! CreateJobHeader
-        header.delegate = self
+        if let company = company {
+            header.setWithCompany(company: company)
+        } else {
+            header.delegate = self
+        }
+
         return header
     }
     
@@ -149,35 +188,32 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobNameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.set(title: Job.JobSections.title.rawValue, placeholder: "Job title", name: "")
             cell.delegate = self
+            if let job = job { cell.set(text: job.title)}
             return cell
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobDescriptionCellReuseIdentifier, for: indexPath) as! GroupDescriptionCell
             cell.set(title: Job.JobSections.description.rawValue)
             cell.set(placeholder: "Add skills and requirements")
-            //if let group = group { cell.set(description: group.description) }
+            if let job = job { cell.set(description: job.description) }
             cell.delegate = self
             return cell
         } else if indexPath.row == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobNameCellReuseIdentifier, for: indexPath) as! EditNameCell
-            cell.set(title: Job.JobSections.role.rawValue, placeholder: "Role", name: "")
+            cell.set(title: Job.JobSections.workplace.rawValue, placeholder: "Workplace", name: "")
             cell.disableTextField()
-            //cell.delegate = self
+            if let job = job { cell.set(text: job.workplaceType) }
             return cell
         } else if indexPath.row == 3 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobNameCellReuseIdentifier, for: indexPath) as! EditNameCell
-            cell.set(title: Job.JobSections.workplace.rawValue, placeholder: "Workplace", name: "")
+            cell.set(title: Job.JobSections.location.rawValue, placeholder: "Location", name: "")
             cell.disableTextField()
-            //cell.delegate = self
+            if let job = job { cell.set(text: job.location) }
             return cell
             
         } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobNameCellReuseIdentifier, for: indexPath) as! EditNameCell
-            cell.set(title: Job.JobSections.location.rawValue, placeholder: "Location", name: "")
-            cell.disableTextField()
-            return cell
-        } else if indexPath.row == 5 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createJobNameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.set(title: Job.JobSections.type.rawValue, placeholder: "Type", name: "")
+            if let job = job { cell.set(text: job.jobType) }
             cell.disableTextField()
             return cell
         } else {
@@ -197,22 +233,18 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
         navigationItem.backBarButtonItem = backItem
         
         if indexPath.row == 2 {
-            let controller = JobAssistantViewController(jobSection: .role)
-            controller.delegate = self
-            navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 3 {
             let controller = JobAssistantViewController(jobSection: .workplace)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 4 {
+        } else if indexPath.row == 3 {
             let controller = JobAssistantViewController(jobSection: .location)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 5 {
+        } else if indexPath.row == 4 {
             let controller = JobAssistantViewController(jobSection: .type)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
-        } else if indexPath.row == 6 {
+        } else if indexPath.row == 5 {
             let controller = JobAssistantViewController(jobSection: .professions)
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
@@ -243,24 +275,20 @@ extension CreateJobViewController: JobAssistantViewControllerDelegate {
         case .description:
             break
         
-        case .role:
-            let cell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as! EditNameCell
-            cell.set(text: text)
-            viewModel.role = text
         case .workplace:
-            let cell = collectionView.cellForItem(at: IndexPath(item: 3, section: 0)) as! EditNameCell
+            let cell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.workplaceType = text
         case .location:
-            let cell = collectionView.cellForItem(at: IndexPath(item: 4, section: 0)) as! EditNameCell
+            let cell = collectionView.cellForItem(at: IndexPath(item: 3, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.location = text
         case .type:
-            let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditNameCell
+            let cell = collectionView.cellForItem(at: IndexPath(item: 4, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.jobType = text
         case .professions:
-            let cell = collectionView.cellForItem(at: IndexPath(item: 6, section: 0)) as! EditNameCell
+            let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.profession = text
         }
@@ -311,7 +339,6 @@ extension CreateJobViewController: CompanyBrowserViewControllerDelegate {
             header.setWithCompany(company: company)
             viewModel.companyId = company.id
             jobIsValid()
-            //collectionView.reloadData()
         }
     }
 }

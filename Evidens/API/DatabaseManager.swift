@@ -1874,6 +1874,21 @@ extension DatabaseManager {
             }
         }
     }
+    
+    public func fetchManagingJobIds(completion: @escaping([String]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        var jobIds = [String]()
+        let ref = database.child("users").child(uid).child("jobs").queryOrdered(byChild: "type").queryEqual(toValue: Job.UserJobType.manager.rawValue)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else { return }
+                if let jobId = value["jobId"] as? String {
+                    jobIds.append(jobId)
+                }
+            }
+            completion(jobIds)
+        }
+    }
 }
 
 

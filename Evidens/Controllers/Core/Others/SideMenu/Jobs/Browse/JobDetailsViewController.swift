@@ -60,6 +60,7 @@ class JobDetailsViewController: UIViewController {
     
     private var job: Job
     private var company: Company
+    private var user: User
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,9 +69,10 @@ class JobDetailsViewController: UIViewController {
     }
     
     
-    init(job: Job, company: Company) {
+    init(job: Job, company: Company, user: User) {
         self.job = job
         self.company = company
+        self.user = user
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -106,6 +108,8 @@ class JobDetailsViewController: UIViewController {
         container.font = .systemFont(ofSize: 15, weight: .bold)
         let text = job.didBookmark ? "  Saved  " : "  Save  "
         saveButton.configuration?.attributedTitle = AttributedString(text, attributes: container)
+        
+        applyButton.isEnabled = user.uid! == job.ownerUid ? false : true
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -130,7 +134,15 @@ class JobDetailsViewController: UIViewController {
     }
     
     @objc func handleApplyJob() {
-        // Push
+        let controller = ApplyJobViewController(job: job, company: company, user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        self.navigationItem.backBarButtonItem = backItem
+        
+        self.navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func handleSaveJob() {

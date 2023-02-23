@@ -325,6 +325,14 @@
 		5FA9D17F29A6358A004EF26A /* JobHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17E29A6358A004EF26A /* JobHeaderCell.swift */; };
 		5FA9D18229A6625B004EF26A /* JobDescriptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18129A6625A004EF26A /* JobDescriptionCell.swift */; };
 		5FA9D18429A66555004EF26A /* JobHiringTeamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18329A66555004EF26A /* JobHiringTeamCell.swift */; };
+		5FA9D18729A74C24004EF26A /* JobsManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18629A74C24004EF26A /* JobsManagerViewController.swift */; };
+		5FA9D18A29A75116004EF26A /* ManageJobCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18929A75116004EF26A /* ManageJobCell.swift */; };
+		5FA9D18C29A76F50004EF26A /* JobManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18B29A76F50004EF26A /* JobManagerViewController.swift */; };
+		5FA9D18E29A77198004EF26A /* ManageJobHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18D29A77198004EF26A /* ManageJobHeaderCell.swift */; };
+		5FA9D19029A796EA004EF26A /* JobParticipantsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D18F29A796EA004EF26A /* JobParticipantsViewController.swift */; };
+		5FA9D19329A79B81004EF26A /* ApplyJobViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19229A79B81004EF26A /* ApplyJobViewController.swift */; };
+		5FA9D19529A7B5A5004EF26A /* ApplyJobHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19429A7B5A5004EF26A /* ApplyJobHeader.swift */; };
+		5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
 		5FAC98CA294355D000C72228 /* GroupMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98C9294355D000C72228 /* GroupMenuLauncher.swift */; };
 		5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */; };
@@ -709,6 +717,14 @@
 		5FA9D17E29A6358A004EF26A /* JobHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobHeaderCell.swift; sourceTree = "<group>"; };
 		5FA9D18129A6625A004EF26A /* JobDescriptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobDescriptionCell.swift; sourceTree = "<group>"; };
 		5FA9D18329A66555004EF26A /* JobHiringTeamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobHiringTeamCell.swift; sourceTree = "<group>"; };
+		5FA9D18629A74C24004EF26A /* JobsManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsManagerViewController.swift; sourceTree = "<group>"; };
+		5FA9D18929A75116004EF26A /* ManageJobCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageJobCell.swift; sourceTree = "<group>"; };
+		5FA9D18B29A76F50004EF26A /* JobManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobManagerViewController.swift; sourceTree = "<group>"; };
+		5FA9D18D29A77198004EF26A /* ManageJobHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageJobHeaderCell.swift; sourceTree = "<group>"; };
+		5FA9D18F29A796EA004EF26A /* JobParticipantsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobParticipantsViewController.swift; sourceTree = "<group>"; };
+		5FA9D19229A79B81004EF26A /* ApplyJobViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyJobViewController.swift; sourceTree = "<group>"; };
+		5FA9D19429A7B5A5004EF26A /* ApplyJobHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyJobHeader.swift; sourceTree = "<group>"; };
+		5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobAttachementsCell.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
 		5FAC98C9294355D000C72228 /* GroupMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMenuLauncher.swift; sourceTree = "<group>"; };
 		5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageHeaderCell.swift; sourceTree = "<group>"; };
@@ -1493,6 +1509,7 @@
 				5FA85B66299BDAB5002FCEF3 /* JobsBrowserViewController.swift */,
 				5FA9D16F29A4A8B7004EF26A /* Browse */,
 				5FA85B68299BDE47002FCEF3 /* Create */,
+				5FA9D19129A79B69004EF26A /* Apply */,
 			);
 			path = Jobs;
 			sourceTree = "<group>";
@@ -1871,6 +1888,8 @@
 		5FA6938C29A3593B00DF3ADC /* Jobs */ = {
 			isa = PBXGroup;
 			children = (
+				5FA9D19629A7B5A9004EF26A /* Apply */,
+				5FA9D18829A7510C004EF26A /* Manage */,
 				5FA9D18029A6622D004EF26A /* Page */,
 				5FA6938D29A3594800DF3ADC /* CreateJobHeader.swift */,
 				5FA9D17929A4E216004EF26A /* BrowseJobCell.swift */,
@@ -1902,6 +1921,9 @@
 				5FA9D17029A4A8C5004EF26A /* CompanyBrowserViewController.swift */,
 				5FA9D17729A4DE17004EF26A /* MyJobsViewController.swift */,
 				5FA9D17B29A5160A004EF26A /* JobDetailsViewController.swift */,
+				5FA9D18629A74C24004EF26A /* JobsManagerViewController.swift */,
+				5FA9D18B29A76F50004EF26A /* JobManagerViewController.swift */,
+				5FA9D18F29A796EA004EF26A /* JobParticipantsViewController.swift */,
 			);
 			path = Browse;
 			sourceTree = "<group>";
@@ -1922,6 +1944,32 @@
 				5FA9D18329A66555004EF26A /* JobHiringTeamCell.swift */,
 			);
 			path = Page;
+			sourceTree = "<group>";
+		};
+		5FA9D18829A7510C004EF26A /* Manage */ = {
+			isa = PBXGroup;
+			children = (
+				5FA9D18929A75116004EF26A /* ManageJobCell.swift */,
+				5FA9D18D29A77198004EF26A /* ManageJobHeaderCell.swift */,
+			);
+			path = Manage;
+			sourceTree = "<group>";
+		};
+		5FA9D19129A79B69004EF26A /* Apply */ = {
+			isa = PBXGroup;
+			children = (
+				5FA9D19229A79B81004EF26A /* ApplyJobViewController.swift */,
+			);
+			path = Apply;
+			sourceTree = "<group>";
+		};
+		5FA9D19629A7B5A9004EF26A /* Apply */ = {
+			isa = PBXGroup;
+			children = (
+				5FA9D19429A7B5A5004EF26A /* ApplyJobHeader.swift */,
+				5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */,
+			);
+			path = Apply;
 			sourceTree = "<group>";
 		};
 		5FAC98CB29470CB300C72228 /* Page */ = {
@@ -2500,6 +2548,7 @@
 				5FA9D17A29A4E216004EF26A /* BrowseJobCell.swift in Sources */,
 				5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */,
 				5F204F972992BD55009A416A /* UserSelectionCell.swift in Sources */,
+				5FA9D18729A74C24004EF26A /* JobsManagerViewController.swift in Sources */,
 				5F951B45294881E500E99F34 /* GroupDetailsCell.swift in Sources */,
 				5F26BE78279AA74600D2AF11 /* NewMessageViewController.swift in Sources */,
 				5FA6939929A3A17F00DF3ADC /* CreateCompanyViewController.swift in Sources */,
@@ -2530,6 +2579,7 @@
 				5FA6939229A3809400DF3ADC /* Location.swift in Sources */,
 				5FA32DC828E1E85700D83759 /* OnboardingMessage.swift in Sources */,
 				5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */,
+				5FA9D18C29A76F50004EF26A /* JobManagerViewController.swift in Sources */,
 				5F9483B32923A76600D68B46 /* GroupDescriptionCell.swift in Sources */,
 				5F9A280429743B9C0052E618 /* GroupSelectorCell.swift in Sources */,
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
@@ -2556,6 +2606,7 @@
 				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */,
+				5FA9D19529A7B5A5004EF26A /* ApplyJobHeader.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
 				5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */,
 				5F9E42962880583D00C2153B /* ProfessionRegistrationViewController.swift in Sources */,
@@ -2601,6 +2652,7 @@
 				5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */,
 				5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */,
 				5F05206D27BD5461001E7D8F /* Conversation.swift in Sources */,
+				5FA9D19329A79B81004EF26A /* ApplyJobViewController.swift in Sources */,
 				5F6607EF2854D36500FCF895 /* ViewController.swift in Sources */,
 				5FA572692962ECAF0068284B /* GroupCategoryCell.swift in Sources */,
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
@@ -2669,6 +2721,7 @@
 				5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */,
 				5FB290282886FD43002FBAE1 /* CaseImageCell.swift in Sources */,
 				5F0D2AF828C0EEFD00BE5DD5 /* SettingsOptionFooter.swift in Sources */,
+				5FA9D18E29A77198004EF26A /* ManageJobHeaderCell.swift in Sources */,
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
@@ -2695,6 +2748,7 @@
 				5F8AF97A292BD4D3005C6778 /* Group.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
 				5F992AFC28ACC7CD0030F7F1 /* TopPostTextCell.swift in Sources */,
+				5FA9D19029A796EA004EF26A /* JobParticipantsViewController.swift in Sources */,
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5FA0875028BFC64600D44829 /* Sections.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
@@ -2705,6 +2759,7 @@
 				5FA6939029A36E5700DF3ADC /* JobAssistantViewController.swift in Sources */,
 				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,
 				5FA0874D28BFC22700D44829 /* SupportSectionViewController.swift in Sources */,
+				5FA9D18A29A75116004EF26A /* ManageJobCell.swift in Sources */,
 				5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */,
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */,
@@ -2735,6 +2790,7 @@
 				5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */,
 				5F204F932992933E009A416A /* AddContributorsViewController.swift in Sources */,
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
+				5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */,
 				5F8E52B0286846A20053F011 /* METextField.swift in Sources */,
 				5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */,
 				5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */,

@@ -52,9 +52,6 @@ class JobAssistantViewController: UIViewController {
             break
         case .description:
             break
-        case .role:
-            #warning("Need to get all roles")
-            dataSource = ["Doctor", "Dentist"]
         case .workplace:
             dataSource = Job.WorksplaceType.allCases.map({ $0.rawValue })
         case .location:
@@ -78,8 +75,6 @@ class JobAssistantViewController: UIViewController {
             break
         case .description:
             break
-        case .role:
-            title = "Role"
         case .workplace:
             title = "Worksplace"
         case .location:

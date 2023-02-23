@@ -32,6 +32,48 @@ struct JobService {
         DatabaseManager.shared.uploadJob(jobId: job.jobId) { _ in }
     }
     
+    static func updateGroup(from job: Job, to newJob: Job, completion: @escaping(Job) -> Void) {
+        // Check what group values have changed
+        var updatedJobData = [String: Any]()
+        /*
+
+
+         jobToUpload.profession = profession
+         jobToUpload.companyId = companyId
+         */
+
+        
+        let title = (job.title == newJob.title) ? nil : newJob.title
+        let description = (job.description == newJob.description) ? nil : newJob.description
+        let location = (job.location == newJob.location) ? nil : newJob.location
+        let workplaceType = (job.workplaceType == newJob.workplaceType) ? nil : newJob.workplaceType
+        let type = (job.jobType == newJob.jobType) ? nil : newJob.jobType
+        let profession = (job.profession == newJob.profession) ? nil : newJob.profession
+        
+
+        if let title = title { updatedJobData["title"] = title }
+        if let description = description { updatedJobData["description"] = description }
+        if let location = location { updatedJobData["location"] = location }
+        if let workplaceType = workplaceType { updatedJobData["workplaceType"] = workplaceType }
+        if let type = type { updatedJobData["type"] = type }
+        if let profession = profession { updatedJobData["profession"] = profession }
+        
+        if updatedJobData.isEmpty {
+            completion(job)
+            return
+        }
+        
+        COLLECTION_JOBS.document(job.jobId).updateData(updatedJobData) { error in
+            if error != nil { return }
+            COLLECTION_JOBS.document(job.jobId).getDocument { snapshot, error in
+                guard let dictionary = snapshot?.data() else { return }
+                let job = Job(jobId: job.jobId, dictionary: dictionary)
+                completion(job)
+            }
+        }
+    }
+    
+    
     static func fetchJobs(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             let firstJobsToFetch = COLLECTION_JOBS.limit(to: 10)
@@ -56,6 +98,18 @@ struct JobService {
             guard let data = snapshot.data() else { return }
             let job = Job(jobId: snapshot.documentID, dictionary: data)
             completion(job)
+        }
+    }
+    
+    static func fetchJobs(withJobIds ids: [String], completion: @escaping([Job]) -> Void) {
+        var jobs = [Job]()
+        ids.forEach { id in
+            fetchJob(withJobId: id) { job in
+                jobs.append(job)
+                if jobs.count == ids.count {
+                    completion(jobs)
+                }
+            }
         }
     }
     

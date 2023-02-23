@@ -68,11 +68,15 @@ extension Job {
     enum JobSections: String, CaseIterable {
         case title = "Title"
         case description = "Description"
-        case role = "Role"
         case workplace = "Workplace"
         case location = "Location"
         case type = "Type"
         case professions = "Profession"
+    }
+    
+    enum UserJobType: Int, CaseIterable {
+        case manager = 0
+        case applicant = 1
     }
     
     /*
