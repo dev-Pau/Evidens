@@ -86,6 +86,18 @@ extension Job {
      */
 }
 
+struct JobApplicant {
+    var jobId: String
+    var documentUrl: String
+    var timestamp: Timestamp
+    
+    init(dictionary: [String: Any]) {
+        self.jobId = dictionary["jobId"] as? String ?? ""
+        self.documentUrl = dictionary["documentUrl"] as? String ?? ""
+        self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
+    }
+}
+
 struct Company {
     var id: String
     var ownerUid: String

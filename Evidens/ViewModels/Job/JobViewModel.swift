@@ -56,6 +56,23 @@ struct JobViewModel {
     }
 }
 
+struct ApplyJobViewModel {
+    var documentUrl: URL?
+    var phoneNumber: String?
+    
+    var hasDocument: Bool {
+        return documentUrl == nil ? false : true
+    }
+    
+    var hasPhone: Bool {
+        return phoneNumber?.isEmpty == false
+    }
+    
+    var jobIsValid: Bool {
+        return hasDocument && hasPhone
+    }
+}
+
 struct CreateJobViewModel {
     var companyId: String?
     var profession: String?

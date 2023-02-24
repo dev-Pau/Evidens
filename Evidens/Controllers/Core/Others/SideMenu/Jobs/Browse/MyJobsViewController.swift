@@ -12,6 +12,7 @@ private let jobCellReuseIdentifier = "JobCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 private let categoriesCellReuseIdentifier = "CategoriesCellReuseIdentifier"
+private let applicantsCellReuseIdentifier = "ApplicantsCellReuseIdentifier"
 
 protocol MyJobsViewControllerDelegate: AnyObject {
     func didUnsaveJob(job: Job)
@@ -124,6 +125,7 @@ class MyJobsViewController: UIViewController {
         jobsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         jobsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
         jobsCollectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: jobCellReuseIdentifier)
+        jobsCollectionView.register(ApplicantsJobCell.self, forCellWithReuseIdentifier: applicantsCellReuseIdentifier)
         
         categoriesCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
     }
@@ -144,6 +146,26 @@ class MyJobsViewController: UIViewController {
                     self.savedCompanies = companies
                     self.jobsCollectionView.reloadData()
                     
+                }
+            }
+        }
+    }
+    
+    private func fetchApplications() {
+        DatabaseManager.shared.fetchJobApplicationsForUser { applicants in
+            if applicants.isEmpty {
+                self.applicationsLoaded = true
+                self.jobsCollectionView.reloadData()
+            } else {
+                let jobIds = applicants.map { $0.jobId }
+                JobService.fetchJobs(withJobIds: jobIds) { jobs in
+                    self.applicationJobs = jobs
+                    let companyIds = jobs.map { $0.companyId }
+                    CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                        self.applicationCompanies = companies
+                        self.applicationsLoaded = true
+                        self.jobsCollectionView.reloadData()
+                    }
                 }
             }
         }
@@ -211,9 +233,9 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
                     cell.configure(image: nil, title: "Apply jobs you are interested in.", description: "Your applications will show up here.", buttonText: .dismiss)
                     return cell
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: applicantsCellReuseIdentifier, for: indexPath) as! ApplicantsJobCell
                     cell.viewModel = JobViewModel(job: applicationJobs[indexPath.row])
-                    
+                    cell.delegate = self
                     if let companyIndex = applicationCompanies.firstIndex(where: { $0.id == applicationJobs[indexPath.row].companyId }) {
                         cell.configureWithCompany(company: applicationCompanies[companyIndex])
                     }
@@ -230,10 +252,10 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
             selectedIndex = CategoriesType.allCases[indexPath.row]
             if selectedIndex == .applications && applicationJobs.isEmpty {
                 // Fetch applications
-                //reload data
-            } else {
-                jobsCollectionView.reloadData()
+                fetchApplications()
+                return
             }
+            jobsCollectionView.reloadData()
         } else {
             switch selectedIndex {
             case .saved:
@@ -260,6 +282,18 @@ extension MyJobsViewController: BrowseSavedJobCellDelegate {
                     self.delegate?.didUnsaveJob(job: job)
                 }
             }
+        }
+    }
+}
+
+extension MyJobsViewController: ApplicantsJobCellDelegate {
+    func didTapRemoveApplicant(job: Job) {
+        displayMEDestructiveAlert(withTitle: "Remove request", withMessage: "Are you sure you want to delete this job request?", withCancelButtonText: "Cancel", withDoneButtonText: "Remove") {
+            
+            #warning("API CALL TO REMOVE REQUEST")
+            
+            let reportPopup = METopPopupView(title: "Request removed", image: "checkmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
         }
     }
 }

@@ -276,6 +276,23 @@ struct StorageManager {
         }
     }
     
+    static func uploadJobDocument(jobId: String, fileName: String, url: URL, completion: @escaping(String) -> Void) {
+        let jobRef = Storage.storage().reference(withPath: "/jobs/\(jobId)/applicants/\(fileName)")
+        jobRef.putFile(from: url, metadata: nil) { metadata, error in
+            if let error = error {
+                print("DEBUG: Failed to upload job document \(error.localizedDescription)")
+                return
+            }
+            jobRef.downloadURL { url, error in
+                guard let downloadUrl = url else { return }
+                completion(downloadUrl.absoluteString)
+            }
+            
+        }
+    }
+    
+    
+    
     static func uploadGroupPostImage(images: [UIImage], uid: String, groupId: String, completion: @escaping([String]) -> Void) {
         let ordered = ["IMAGE_ORDER_0", "IMAGE_ORDER_1", "IMAGE_ORDER_2", "IMAGE_ORDER_3"]
 

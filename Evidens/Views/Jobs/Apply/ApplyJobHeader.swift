@@ -8,7 +8,7 @@
 import UIKit
 
 protocol ApplyJobHeaderDelegate: AnyObject {
-    func phoneNumberIsValid(number: String, isValid: Bool)
+    func phoneNumberIsValid(number: String?)
 }
 
 class ApplyJobHeader: UICollectionReusableView {
@@ -183,9 +183,9 @@ class ApplyJobHeader: UICollectionReusableView {
     @objc func textDidChange() {
         guard let text = phoneNumberTextField.text else { return }
         if text.count >= 9 {
-            delegate?.phoneNumberIsValid(number: "+34" + text, isValid: true)
+            delegate?.phoneNumberIsValid(number: "+34" + text)
         } else {
-            delegate?.phoneNumberIsValid(number: "+34" + text, isValid: false)
+            delegate?.phoneNumberIsValid(number: nil)
         }
     }
 }

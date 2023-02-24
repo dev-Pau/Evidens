@@ -333,6 +333,8 @@
 		5FA9D19329A79B81004EF26A /* ApplyJobViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19229A79B81004EF26A /* ApplyJobViewController.swift */; };
 		5FA9D19529A7B5A5004EF26A /* ApplyJobHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19429A7B5A5004EF26A /* ApplyJobHeader.swift */; };
 		5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */; };
+		5FA9D19A29A8B452004EF26A /* ReviewDocumentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19929A8B452004EF26A /* ReviewDocumentViewController.swift */; };
+		5FA9D19D29A8DBE2004EF26A /* ApplicantsJobCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19C29A8DBE2004EF26A /* ApplicantsJobCell.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
 		5FAC98CA294355D000C72228 /* GroupMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98C9294355D000C72228 /* GroupMenuLauncher.swift */; };
 		5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */; };
@@ -725,6 +727,8 @@
 		5FA9D19229A79B81004EF26A /* ApplyJobViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyJobViewController.swift; sourceTree = "<group>"; };
 		5FA9D19429A7B5A5004EF26A /* ApplyJobHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyJobHeader.swift; sourceTree = "<group>"; };
 		5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobAttachementsCell.swift; sourceTree = "<group>"; };
+		5FA9D19929A8B452004EF26A /* ReviewDocumentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewDocumentViewController.swift; sourceTree = "<group>"; };
+		5FA9D19C29A8DBE2004EF26A /* ApplicantsJobCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicantsJobCell.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
 		5FAC98C9294355D000C72228 /* GroupMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMenuLauncher.swift; sourceTree = "<group>"; };
 		5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageHeaderCell.swift; sourceTree = "<group>"; };
@@ -1893,6 +1897,7 @@
 				5FA9D18029A6622D004EF26A /* Page */,
 				5FA6938D29A3594800DF3ADC /* CreateJobHeader.swift */,
 				5FA9D17929A4E216004EF26A /* BrowseJobCell.swift */,
+				5FA9D19C29A8DBE2004EF26A /* ApplicantsJobCell.swift */,
 			);
 			path = Jobs;
 			sourceTree = "<group>";
@@ -1959,6 +1964,7 @@
 			isa = PBXGroup;
 			children = (
 				5FA9D19229A79B81004EF26A /* ApplyJobViewController.swift */,
+				5FA9D19929A8B452004EF26A /* ReviewDocumentViewController.swift */,
 			);
 			path = Apply;
 			sourceTree = "<group>";
@@ -2542,6 +2548,7 @@
 				5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */,
 				5F9A28312979729D0052E618 /* GroupAdminsViewController.swift in Sources */,
 				5FA2FB2D28DC7DC600B37424 /* EmptyContentCell.swift in Sources */,
+				5FA9D19A29A8B452004EF26A /* ReviewDocumentViewController.swift in Sources */,
 				5FA6938B29A34BE800DF3ADC /* Job.swift in Sources */,
 				5F719B322885B534002666C0 /* PollConfiguratorViewController.swift in Sources */,
 				5F9A9FAA2899843F00A25152 /* DriverLicenseViewController.swift in Sources */,
@@ -2807,6 +2814,7 @@
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
 				5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */,
 				5FA6939429A380D600DF3ADC /* LocationService.swift in Sources */,
+				5FA9D19D29A8DBE2004EF26A /* ApplicantsJobCell.swift in Sources */,
 				5F204F91299230AB009A416A /* ProfileViewModel.swift in Sources */,
 				5F951B4C29505F7000E99F34 /* PostGroupSelectionViewController.swift in Sources */,
 				5F719B372886800B002666C0 /* CaseTextCell.swift in Sources */,

@@ -73,6 +73,12 @@ class JobsManagerViewController: UIViewController {
     
     private func fetchJobs() {
         DatabaseManager.shared.fetchManagingJobIds { jobIds in
+            if jobIds.isEmpty {
+                self.jobsLoaded = true
+                self.collectionView.reloadData()
+                return
+            }
+            
             JobService.fetchJobs(withJobIds: jobIds) { jobs in
                 self.jobs = jobs
                 let companyIds = jobs.map { $0.companyId }

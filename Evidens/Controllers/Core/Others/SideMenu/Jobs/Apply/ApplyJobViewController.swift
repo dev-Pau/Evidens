@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import UniformTypeIdentifiers
+import JGProgressHUD
 
 private let applyJobHeaderReuseIdentifier = "ApplyJobHeaderReuseIdentifier"
 private let jobAttachementsCellReuseIdentifier = "JobAttachementsCellReuseIdentifier"
@@ -14,6 +16,8 @@ class ApplyJobViewController: UIViewController {
     private var job: Job
     private var company: Company
     private var user: User
+    
+    private var viewModel = ApplyJobViewModel()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -50,6 +54,11 @@ class ApplyJobViewController: UIViewController {
         view.layer.borderWidth = 1
         return view
     }()
+    
+    private let progressIndicator = JGProgressHUD()
+    
+    private var userDocUrl: URL?
+    private var userDocName: String?
     
     init(job: Job, company: Company, user: User) {
         self.user = user
@@ -100,7 +109,18 @@ class ApplyJobViewController: UIViewController {
     }
     
     @objc func handleApplyJob() {
-        
+        let fileName = user.uid!
+        progressIndicator.show(in: view)
+        StorageManager.uploadJobDocument(jobId: job.jobId, fileName: fileName, url: userDocUrl!) { url in
+            DatabaseManager.shared.sendJobApplication(jobId: self.job.jobId, documentURL: url) { sent in
+                self.progressIndicator.dismiss(animated: true)
+                if sent {
+                    let reportPopup = METopPopupView(title: "Job application sent", image: "checkmark.circle.fill", popUpType: .regular)
+                    reportPopup.showTopPopup(inView: self.view)
+                    self.dismiss(animated: true)
+                }
+            }
+        }
     }
 }
 
@@ -112,6 +132,7 @@ extension ApplyJobViewController: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: applyJobHeaderReuseIdentifier, for: indexPath) as! ApplyJobHeader
         header.user = user
+        header.delegate = self
         return header
     }
     
@@ -121,6 +142,61 @@ extension ApplyJobViewController: UICollectionViewDelegateFlowLayout, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobAttachementsCellReuseIdentifier, for: indexPath) as! JobAttachementsCell
+        cell.delegate = self
         return cell
+    }
+}
+
+extension ApplyJobViewController: JobAttachementsCellDelegate {
+    func didSelectAddFile() {
+        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.pdf])
+        documentPicker.delegate = self
+        documentPicker.allowsMultipleSelection = false
+        documentPicker.shouldShowFileExtensions = true
+        present(documentPicker, animated: true)
+    }
+    
+    func didSelectReviewFile() {
+        guard let userDocUrl = userDocUrl else { return }
+        let controller = ReviewDocumentViewController(url: userDocUrl)
+        controller.modalPresentationStyle = .fullScreen
+        present(controller, animated: true)
+    }
+    
+    func applicationIsValid() {
+        applyButton.isEnabled = viewModel.jobIsValid
+    }
+}
+
+extension ApplyJobViewController: ApplyJobHeaderDelegate {
+    func phoneNumberIsValid(number: String?) {
+        viewModel.phoneNumber = number
+        applicationIsValid()
+    }
+}
+
+extension ApplyJobViewController: UIDocumentPickerDelegate {
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else { return }
+        guard url.startAccessingSecurityScopedResource() else {
+            return
+        }
+        
+        defer {
+            url.stopAccessingSecurityScopedResource()
+        }
+        
+        userDocUrl = url
+        viewModel.documentUrl = userDocUrl
+        updateButtonAfterSelectingDocument()
+    }
+    
+    func updateButtonAfterSelectingDocument() {
+        if let cell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? JobAttachementsCell, let userDocUrl = userDocUrl {
+            cell.updateButtonWithDocument(fileName: userDocUrl.lastPathComponent)
+            applicationIsValid()
+        }
     }
 }

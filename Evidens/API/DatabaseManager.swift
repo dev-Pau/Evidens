@@ -1856,7 +1856,7 @@ extension DatabaseManager {
         let creationTimestampDate = NSDate().timeIntervalSince1970
         
         let managerUser = ["uid": uid,
-                           "tiestamp": creationTimestampDate] as [String : Any]
+                           "timestamp": creationTimestampDate] as [String : Any]
         
         ref.setValue(managerUser) { error, _ in
             let userRef = self.database.child("users").child(uid).child("jobs").childByAutoId()
@@ -1880,17 +1880,69 @@ extension DatabaseManager {
         var jobIds = [String]()
         let ref = database.child("users").child(uid).child("jobs").queryOrdered(byChild: "type").queryEqual(toValue: Job.UserJobType.manager.rawValue)
         ref.observeSingleEvent(of: .value) { snapshot in
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                if let jobId = value["jobId"] as? String {
-                    jobIds.append(jobId)
+            if snapshot.children.allObjects.isEmpty {
+                completion(jobIds)
+                return
+            } else {
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    if let jobId = value["jobId"] as? String {
+                        jobIds.append(jobId)
+                    }
                 }
+                completion(jobIds)
             }
-            completion(jobIds)
+            
+        }
+    }
+    
+    public func sendJobApplication(jobId: String, documentURL: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("jobs").child(jobId).child("applicants").childByAutoId()
+        
+        let applicantJobRequestTimes = NSDate().timeIntervalSince1970
+        
+        let applicantUser = ["uid": uid,
+                             "documentUrl": documentURL,
+                             "timestamp": applicantJobRequestTimes] as [String : Any]
+        
+        ref.setValue(applicantUser) { error, _ in
+            let userRef = self.database.child("users").child(uid).child("jobs").childByAutoId()
+            
+            let newJob = ["jobId": jobId,
+                          "documentUrl": documentURL,
+                          "type": Job.UserJobType.applicant.rawValue,
+                          "timestamp": applicantJobRequestTimes] as [String : Any]
+            
+            userRef.setValue(newJob) { error, _ in
+                if let _ = error {
+                    completion(false)
+                    return
+                }
+                
+                completion(true)
+            }
+        }
+    }
+    
+    public func fetchJobApplicationsForUser(completion: @escaping([JobApplicant]) -> Void) {
+        var applicants = [JobApplicant]()
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child(uid).child("jobs").queryOrdered(byChild: "type").queryEqual(toValue: Job.UserJobType.applicant.rawValue)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.children.allObjects.isEmpty {
+                completion(applicants)
+                return
+            } else {
+                for child in snapshot.children.allObjects as! [DataSnapshot] {
+                    guard let value = child.value as? [String: Any] else { return }
+                    applicants.append(JobApplicant(dictionary: value))
+                }
+                completion(applicants)
+            }
         }
     }
 }
-
 
 //MARK: - User Recent Cases
 
