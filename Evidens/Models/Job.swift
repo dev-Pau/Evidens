@@ -20,8 +20,10 @@ struct Job {
     var profession: String
     var companyId: String
     var location: String
+    var stage: Job.JobStage
     
     var didBookmark = false
+    var didApply = false
     
     init(jobId: String, dictionary: [String: Any]) {
         self.jobId = jobId
@@ -34,6 +36,8 @@ struct Job {
         self.profession = dictionary["profession"] as? String ?? ""
         self.companyId = dictionary["companyId"] as? String ?? ""
         self.location = dictionary["location"] as? String ?? ""
+        self.stage = JobStage(rawValue: dictionary["stage"] as? Int ?? 0) ?? .review
+        //self.category = UserCategory(rawValue: dictionary["category"] as? Int ?? 00) ?? .professional
     }
 }
 
@@ -77,6 +81,12 @@ extension Job {
     enum UserJobType: Int, CaseIterable {
         case manager = 0
         case applicant = 1
+    }
+    
+    enum JobStage: Int, CaseIterable {
+        case review = 0
+        case open = 1
+        case closed = 2
     }
     
     /*

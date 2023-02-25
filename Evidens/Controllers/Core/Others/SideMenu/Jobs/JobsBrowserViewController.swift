@@ -238,7 +238,7 @@ extension JobsBrowserViewController: MyJobsViewControllerDelegate {
 }
 
 extension JobsBrowserViewController: JobDetailsViewControllerDelegate {
-    func didBookmark(job: Job) {
+    func didBookmark(job: Job, company: Company) {
         if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
             jobs[jobIndex].didBookmark.toggle()
             collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])

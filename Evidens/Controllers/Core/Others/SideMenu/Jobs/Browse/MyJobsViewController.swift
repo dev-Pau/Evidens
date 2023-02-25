@@ -246,6 +246,9 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let tab = self.tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         if collectionView == categoriesCollectionView {
             collectionView.cellForItem(at: indexPath)?.isSelected = true
             guard selectedIndex != CategoriesType.allCases[indexPath.row] else { return }
@@ -257,21 +260,31 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
             }
             jobsCollectionView.reloadData()
         } else {
+            
             switch selectedIndex {
             case .saved:
-                print("present job")
+                if let companyIndex = savedCompanies.firstIndex(where: { $0.id == savedJobs[indexPath.row].companyId }) {
+                    savedJobs[indexPath.row].didBookmark = true
+                    let controller = JobDetailsViewController(job: savedJobs[indexPath.row] , company: savedCompanies[companyIndex], user: user)
+                    controller.delegate = self
+                    let navVC = UINavigationController(rootViewController: controller)
+                    navVC.modalPresentationStyle = .fullScreen
+                    present(navVC, animated: true)
+                }
             case .applications:
-                print("present job")
+                if let companyIndex = applicationCompanies.firstIndex(where: { $0.id == applicationJobs[indexPath.row].companyId }) {
+                    let controller = JobDetailsViewController(job: applicationJobs[indexPath.row] , company: applicationCompanies[companyIndex], user: user)
+                    controller.delegate = self
+                    let navVC = UINavigationController(rootViewController: controller)
+                    navVC.modalPresentationStyle = .fullScreen
+                    present(navVC, animated: true)
+                }
             }
         }
     }
 }
 
 extension MyJobsViewController: BrowseSavedJobCellDelegate {
-    func didApplyJob(_ cell: UICollectionViewCell, job: Job) {
-        print("apply job here")
-    }
-    
     func didUnsaveJob(_ cell: UICollectionViewCell, job: Job) {
         JobService.unbookmarkJob(job: job) { error in
             guard error == nil else { return }
@@ -286,14 +299,39 @@ extension MyJobsViewController: BrowseSavedJobCellDelegate {
     }
 }
 
+extension MyJobsViewController: JobDetailsViewControllerDelegate {
+    func didBookmark(job: Job, company: Company) {
+        let jobIsBookmarked = job.didBookmark
+        if jobIsBookmarked {
+            savedJobs.insert(job, at: 0)
+            savedCompanies.append(company)
+        } else {
+            if let jobIndex = savedJobs.firstIndex(where: { $0.jobId == job.jobId }) {
+                self.jobsCollectionView.performBatchUpdates {
+                    self.savedJobs.remove(at: jobIndex)
+                    self.jobsCollectionView.deleteItems(at: [IndexPath(item: jobIndex, section: 0)])
+                }
+            }
+        }
+    }
+}
+
 extension MyJobsViewController: ApplicantsJobCellDelegate {
     func didTapRemoveApplicant(job: Job) {
         displayMEDestructiveAlert(withTitle: "Remove request", withMessage: "Are you sure you want to delete this job request?", withCancelButtonText: "Cancel", withDoneButtonText: "Remove") {
-            
-            #warning("API CALL TO REMOVE REQUEST")
-            
-            let reportPopup = METopPopupView(title: "Request removed", image: "checkmark.circle.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            DatabaseManager.shared.removeJobApplication(jobId: job.jobId) { removed in
+                if removed {
+                    if let jobIndex = self.applicationJobs.firstIndex(where: { $0.jobId == job.jobId }) {
+                        self.jobsCollectionView.performBatchUpdates {
+                            self.applicationJobs.remove(at: jobIndex)
+                            self.jobsCollectionView.deleteItems(at: [IndexPath(item: jobIndex, section: 0)])
+                        }
+                    }
+                    
+                    let reportPopup = METopPopupView(title: "Request removed", image: "checkmark.circle.fill", popUpType: .regular)
+                    reportPopup.showTopPopup(inView: self.view)
+                }
+            }
         }
     }
 }

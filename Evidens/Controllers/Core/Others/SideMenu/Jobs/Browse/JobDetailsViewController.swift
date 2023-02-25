@@ -12,7 +12,8 @@ private let jobDescriptionCellReuseIdentifier = "JobDescriptionCellReuseIdentifi
 private let jobHiringTeamCellReuseIdentifier = "JobHiringTeamCellReuseIdentifier"
 
 protocol JobDetailsViewControllerDelegate: AnyObject {
-    func didBookmark(job: Job)
+
+    func didBookmark(job: Job, company: Company)
 }
 
 class JobDetailsViewController: UIViewController {
@@ -26,7 +27,7 @@ class JobDetailsViewController: UIViewController {
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
-        
+        button.isEnabled = false
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("  Apply  ", attributes: container)
@@ -106,10 +107,23 @@ class JobDetailsViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
-        let text = job.didBookmark ? "  Saved  " : "  Save  "
-        saveButton.configuration?.attributedTitle = AttributedString(text, attributes: container)
         
-        applyButton.isEnabled = user.uid! == job.ownerUid ? false : true
+        if user.uid! == job.ownerUid {
+            applyButton.isEnabled = false
+        } else {
+            // Check if user did already applied
+            DatabaseManager.shared.checkIfUserDidApplyForJob(jobId: job.jobId) { didApply in
+                let text = didApply ? "  Applied  " : "  Apply  "
+                self.applyButton.configuration?.attributedTitle = AttributedString(text, attributes: container)
+                self.applyButton.isEnabled = didApply ? false : true
+            }
+        }
+        
+        JobService.checkIfUserBookmarkedJob(job: job) { bookmarked in
+            self.job.didBookmark = bookmarked
+            let text = self.job.didBookmark ? "  Saved  " : "  Save  "
+            self.saveButton.configuration?.attributedTitle = AttributedString(text, attributes: container)
+        }
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -135,7 +149,7 @@ class JobDetailsViewController: UIViewController {
     
     @objc func handleApplyJob() {
         let controller = ApplyJobViewController(job: job, company: company, user: user)
-        
+
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
@@ -157,14 +171,14 @@ class JobDetailsViewController: UIViewController {
                 self.saveButton.isUserInteractionEnabled = true
                 guard error == nil else { return }
                 self.job.didBookmark = false
-                self.delegate?.didBookmark(job: self.job)
+                self.delegate?.didBookmark(job: self.job, company: self.company)
             }
         } else {
             JobService.bookmarkJob(job: job) { error in
                 self.saveButton.isUserInteractionEnabled = true
                 guard error == nil else { return }
                 self.job.didBookmark = true
-                self.delegate?.didBookmark(job: self.job)
+                self.delegate?.didBookmark(job: self.job, company: self.company)
             }
         }
     }
@@ -195,3 +209,4 @@ extension JobDetailsViewController: UICollectionViewDelegateFlowLayout, UICollec
         }
     }
 }
+

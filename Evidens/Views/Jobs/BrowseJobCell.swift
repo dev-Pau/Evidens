@@ -13,7 +13,6 @@ protocol BrowseJobCellDelegate: AnyObject {
 
 protocol BrowseSavedJobCellDelegate: AnyObject {
     func didUnsaveJob(_ cell: UICollectionViewCell, job: Job)
-    func didApplyJob(_ cell: UICollectionViewCell, job: Job)
 }
 
 class BrowseJobCell: UICollectionViewCell {
@@ -203,10 +202,6 @@ class BrowseJobCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Apply", image: UIImage(systemName: "square.and.arrow.up", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
-                guard let viewModel = self.viewModel else { return }
-                self.savedDelegate?.didApplyJob(self, job: viewModel.job)
-            }),
             UIAction(title: "Unsave", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)) , handler: { _ in
                 guard let viewModel = self.viewModel else { return }
                 self.savedDelegate?.didUnsaveJob(self, job: viewModel.job)

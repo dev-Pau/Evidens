@@ -22,6 +22,7 @@ struct JobService {
                     "location": job.location,
                     "description": job.description,
                     "workplaceType": job.workplaceType,
+                    "stage": Job.JobStage.review.rawValue,
                     "jobType": job.jobType,
                     "profession": job.profession,
                     "companyId": job.companyId,
@@ -173,8 +174,8 @@ struct JobService {
      static func fetchBookmarkedJobs(snapshot: QuerySnapshot, completion: @escaping([Job]) -> Void) {
          var jobs = [Job]()
          snapshot.documents.forEach({ document in
-                 fetchJob(withJobId: document.documentID) { post in
-                     jobs.append(post)
+                 fetchJob(withJobId: document.documentID) { job in
+                     jobs.append(job)
                      jobs.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                      completion(jobs)
              }

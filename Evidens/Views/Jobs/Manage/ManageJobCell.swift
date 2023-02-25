@@ -58,7 +58,6 @@ class ManageJobCell: UICollectionViewCell {
     private let jobStageButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .systemYellow
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -105,13 +104,9 @@ class ManageJobCell: UICollectionViewCell {
             jobTitle.leadingAnchor.constraint(equalTo: companyImageView.trailingAnchor, constant: 10),
             jobTitle.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
             
-            companyName.topAnchor.constraint(equalTo: jobTitle.bottomAnchor),
-            companyName.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
-            companyName.trailingAnchor.constraint(equalTo: jobTitle.trailingAnchor),
-            
-            locationWorksplaceLabel.topAnchor.constraint(equalTo: companyName.bottomAnchor),
-            locationWorksplaceLabel.leadingAnchor.constraint(equalTo: companyName.leadingAnchor),
-            locationWorksplaceLabel.trailingAnchor.constraint(equalTo: companyName.trailingAnchor),
+            locationWorksplaceLabel.topAnchor.constraint(equalTo: jobTitle.bottomAnchor),
+            locationWorksplaceLabel.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
+            locationWorksplaceLabel.trailingAnchor.constraint(equalTo: jobTitle.trailingAnchor),
             
             jobStageButton.topAnchor.constraint(equalTo: locationWorksplaceLabel.bottomAnchor, constant: 10),
             jobStageButton.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
@@ -144,6 +139,7 @@ class ManageJobCell: UICollectionViewCell {
         companyName.text = company.name
         locationWorksplaceLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
         timestampLabel.text = "· Created " + viewModel.jobTimestampString! + " ago"
+        jobStageButton.configuration?.baseBackgroundColor = v
         
     }
 }

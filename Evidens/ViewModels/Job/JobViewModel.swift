@@ -50,6 +50,55 @@ struct JobViewModel {
         return job.workplaceType
     }
     
+    var jobStageText: String {
+        switch job.stage {
+            
+        case .review:
+            return "Under review"
+        case .open:
+            return "Open"
+        case .closed:
+            return "Closed"
+        }
+    }
+    
+    var jobStageBackgroundColor: UIColor {
+        switch job.stage {
+            
+        case .review:
+            <#code#>
+        case .open:
+            <#code#>
+        case .closed:
+            <#code#>
+        }
+    }
+    
+    /*
+     
+     var jobStageString: String {
+         switch self {
+         case .review:
+             return "Under review"
+         case .open:
+             return "Open"
+         case .closed:
+             return "Closed"
+         }
+     }
+     
+     var jobStageColor: UIColor {
+         switch self {
+         case .review:
+             return .systemYellow
+         case .open:
+             return .systemGreen
+         case .closed:
+             return .systemRed
+         }
+     }
+     */
+    
     var bookMarkImage: UIImage? {
         let imageName = job.didBookmark ? "bookmark.fill" : "bookmark"
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label)

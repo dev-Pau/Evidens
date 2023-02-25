@@ -13,6 +13,7 @@ private let applyJobHeaderReuseIdentifier = "ApplyJobHeaderReuseIdentifier"
 private let jobAttachementsCellReuseIdentifier = "JobAttachementsCellReuseIdentifier"
 
 class ApplyJobViewController: UIViewController {
+
     private var job: Job
     private var company: Company
     private var user: User

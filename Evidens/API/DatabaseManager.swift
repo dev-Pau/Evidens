@@ -1925,6 +1925,41 @@ extension DatabaseManager {
         }
     }
     
+    public func removeJobApplication(jobId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("jobs").child(jobId).child("applicants").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.children.allObjects.count == 1 {
+                if let value = snapshot.value as? [String: Any] {
+                    guard let key = value.first?.key else { return }
+                    self.database.child("jobs").child(jobId).child("applicants").child(key).removeValue { error, _ in
+                        if let _ = error {
+                            completion(false)
+                            return
+                        }
+                    }
+                    
+                    let userRef = self.database.child("users").child(uid).child("jobs").queryOrdered(byChild: "type").queryEqual(toValue: Job.UserJobType.applicant.rawValue)
+                    userRef.observeSingleEvent(of: .value) { snapshot in
+                        if snapshot.children.allObjects.count == 1 {
+                            if let value = snapshot.value as? [String: Any] {
+                                guard let key = value.first?.key else { return }
+                                self.database.child("users").child(uid).child("jobs").child(key).removeValue { error, _ in
+                                    if let _ = error {
+                                        completion(false)
+                                        return
+                                    }
+                                    
+                                    completion(true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public func fetchJobApplicationsForUser(completion: @escaping([JobApplicant]) -> Void) {
         var applicants = [JobApplicant]()
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -1939,6 +1974,18 @@ extension DatabaseManager {
                     applicants.append(JobApplicant(dictionary: value))
                 }
                 completion(applicants)
+            }
+        }
+    }
+    
+    public func checkIfUserDidApplyForJob(jobId: String, completion: @escaping(Bool) ->Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("jobs").child(jobId).child("applicants").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if snapshot.exists() {
+                completion(true)
+            } else {
+                completion(false)
             }
         }
     }
