@@ -89,6 +89,17 @@ extension Job {
         case closed = 2
     }
     
+    enum ManageJobOptions: String, CaseIterable {
+        case edit = "Edit"
+        case applicants = "Applicants"
+        case delete = "Delete"
+    }
+    
+    enum ApplicantJobOptions: String, CaseIterable {
+        case review = "Review"
+        case reject = "Reject"
+    }
+    
     /*
     enum JobTitle: String, CaseIterable {
 
@@ -107,6 +118,19 @@ struct JobApplicant {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
     }
 }
+
+struct JobUserApplicant {
+    var uid: String
+    var documentUrl: String
+    var timestamp: TimeInterval
+    
+    init(dictionary: [String: Any]) {
+        self.uid = dictionary["uid"] as? String ?? ""
+        self.documentUrl = dictionary["documentUrl"] as? String ?? ""
+        self.timestamp = dictionary["timestamp"] as? TimeInterval ?? TimeInterval()
+    }
+}
+
 
 struct Company {
     var id: String

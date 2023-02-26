@@ -66,38 +66,13 @@ struct JobViewModel {
         switch job.stage {
             
         case .review:
-            <#code#>
+            return .systemYellow
         case .open:
-            <#code#>
+            return .systemGreen
         case .closed:
-            <#code#>
+            return .systemRed
         }
     }
-    
-    /*
-     
-     var jobStageString: String {
-         switch self {
-         case .review:
-             return "Under review"
-         case .open:
-             return "Open"
-         case .closed:
-             return "Closed"
-         }
-     }
-     
-     var jobStageColor: UIColor {
-         switch self {
-         case .review:
-             return .systemYellow
-         case .open:
-             return .systemGreen
-         case .closed:
-             return .systemRed
-         }
-     }
-     */
     
     var bookMarkImage: UIImage? {
         let imageName = job.didBookmark ? "bookmark.fill" : "bookmark"

@@ -7,8 +7,13 @@
 
 import UIKit
 
+protocol ManageJobCellDelegate: AnyObject {
+    func didTapManageOption(_ cell: UICollectionViewCell, _ option: Job.ManageJobOptions)
+}
+
 class ManageJobCell: UICollectionViewCell {
-    
+    weak var delegate: ManageJobCellDelegate?
+
     private let companyImageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -38,15 +43,6 @@ class ManageJobCell: UICollectionViewCell {
         return label
     }()
     
-    private let companyName: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        label.numberOfLines = 1
-        return label
-    }()
-    
     private let locationWorksplaceLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
@@ -59,6 +55,7 @@ class ManageJobCell: UICollectionViewCell {
         let button = UIButton()
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -68,6 +65,7 @@ class ManageJobCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
+        label.numberOfLines = 1
         return label
     }()
     
@@ -88,7 +86,7 @@ class ManageJobCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(companyImageView, dotsImageButton, companyName, jobTitle, locationWorksplaceLabel, jobStageButton, timestampLabel, separatorView)
+        addSubviews(companyImageView, dotsImageButton, jobTitle, locationWorksplaceLabel, jobStageButton, timestampLabel, separatorView)
         NSLayoutConstraint.activate([
             companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             companyImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -108,13 +106,12 @@ class ManageJobCell: UICollectionViewCell {
             locationWorksplaceLabel.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
             locationWorksplaceLabel.trailingAnchor.constraint(equalTo: jobTitle.trailingAnchor),
             
-            jobStageButton.topAnchor.constraint(equalTo: locationWorksplaceLabel.bottomAnchor, constant: 10),
+            jobStageButton.topAnchor.constraint(equalTo: locationWorksplaceLabel.bottomAnchor, constant: 5),
             jobStageButton.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
-            jobStageButton.widthAnchor.constraint(equalToConstant: 50),
             
-            timestampLabel.centerYAnchor.constraint(equalTo: jobStageButton.centerYAnchor),
+            timestampLabel.topAnchor.constraint(equalTo: jobStageButton.bottomAnchor, constant: 5),
             timestampLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            timestampLabel.leadingAnchor.constraint(equalTo: jobStageButton.trailingAnchor, constant: 3),
+            timestampLabel.leadingAnchor.constraint(equalTo: locationWorksplaceLabel.leadingAnchor),
             timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -122,6 +119,25 @@ class ManageJobCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
+        
+        dotsImageButton.menu = addMenuItems()
+    }
+    
+    private func addMenuItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: Job.ManageJobOptions.edit.rawValue, image: UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
+                self.delegate?.didTapManageOption(self, .edit)
+            }),
+            UIAction(title: Job.ManageJobOptions.applicants.rawValue, image: UIImage(systemName: "person", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
+                self.delegate?.didTapManageOption(self, .applicants)
+            }),
+            UIAction(title: Job.ManageJobOptions.delete.rawValue, image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), attributes: .destructive, handler: { _ in
+                self.delegate?.didTapManageOption(self, .delete)
+            })
+        ])
+        
+        dotsImageButton.showsMenuAsPrimaryAction = true
+        return menuItems
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -136,10 +152,12 @@ class ManageJobCell: UICollectionViewCell {
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
         companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
         jobTitle.text = viewModel.jobName
-        companyName.text = company.name
         locationWorksplaceLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
-        timestampLabel.text = "· Created " + viewModel.jobTimestampString! + " ago"
-        jobStageButton.configuration?.baseBackgroundColor = v
+        timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago"
+        jobStageButton.configuration?.baseBackgroundColor = viewModel.jobStageBackgroundColor
         
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 13, weight: .medium)
+        jobStageButton.configuration?.attributedTitle = AttributedString(viewModel.jobStageText, attributes: container)
     }
 }

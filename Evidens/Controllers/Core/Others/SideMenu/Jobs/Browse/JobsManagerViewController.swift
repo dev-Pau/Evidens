@@ -127,6 +127,7 @@ extension JobsManagerViewController: UICollectionViewDelegateFlowLayout, UIColle
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: manageJobCellReuseIdentifier, for: indexPath) as! ManageJobCell
+            cell.delegate = self
             if let index = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
                 cell.configure(withJob: JobViewModel(job: jobs[indexPath.row]), withCompany: companies[index])
             }
@@ -156,11 +157,46 @@ extension JobsManagerViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension JobsManagerViewController: JobManagerViewControllerDelegate {
+extension JobsManagerViewController: JobManagerViewControllerDelegate, CreateJobViewControllerDelegate {
     func didUpdateJob(job: Job) {
         if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
             jobs[jobIndex] = job
             collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
+        }
+    }
+}
+
+extension JobsManagerViewController: ManageJobCellDelegate {
+    func didTapManageOption(_ cell: UICollectionViewCell, _ option: Job.ManageJobOptions) {
+        guard let tab = self.tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        if let companyIndex = companies.firstIndex(where:  { $0.id == jobs[indexPath.row].companyId }) {
+            switch option {
+            case .edit:
+                let controller = CreateJobViewController(user:user, job: jobs[indexPath.row] , company: companies[companyIndex])
+                controller.delegate = self
+                
+                let navVC = UINavigationController(rootViewController: controller)
+                navVC.modalPresentationStyle = .fullScreen
+                present(navVC, animated: true)
+                
+            case .applicants:
+                // Cretate applicant controller
+                let controller = JobApplicantsViewController(job: jobs[indexPath.row])
+                let backItem = UIBarButtonItem()
+                backItem.tintColor = .label
+                backItem.title = ""
+                navigationItem.backBarButtonItem = backItem
+                navigationController?.pushViewController(controller, animated: true)
+            case .delete:
+                displayMEDestructiveAlert(withTitle: "Delete job", withMessage: "Are you sure you want to delete this job?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+                    let reportPopup = METopPopupView(title: "Job successfully deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                    reportPopup.showTopPopup(inView: self.view)
+                }
+            }
         }
     }
 }

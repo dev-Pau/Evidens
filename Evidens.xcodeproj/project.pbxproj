@@ -166,6 +166,8 @@
 		5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8E52BB2869FFE50053F011 /* PostPollCell.swift */; };
 		5F8ECF8A2982AE4800BF5067 /* ExploreCasesToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8ECF892982AE4800BF5067 /* ExploreCasesToolbar.swift */; };
 		5F8F094029A49A2400927270 /* CompanyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8F093F29A49A2400927270 /* CompanyService.swift */; };
+		5F9136CF29AB62A000675BCE /* JobApplicantsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136CE29AB62A000675BCE /* JobApplicantsViewController.swift */; };
+		5F9136D129AB6BF200675BCE /* JobUserApplicationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136D029AB6BF200675BCE /* JobUserApplicationCell.swift */; };
 		5F91C15828AFB951006F1BAD /* UserCommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
@@ -560,6 +562,8 @@
 		5F8E52BB2869FFE50053F011 /* PostPollCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPollCell.swift; sourceTree = "<group>"; };
 		5F8ECF892982AE4800BF5067 /* ExploreCasesToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCasesToolbar.swift; sourceTree = "<group>"; };
 		5F8F093F29A49A2400927270 /* CompanyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyService.swift; sourceTree = "<group>"; };
+		5F9136CE29AB62A000675BCE /* JobApplicantsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobApplicantsViewController.swift; sourceTree = "<group>"; };
+		5F9136D029AB6BF200675BCE /* JobUserApplicationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobUserApplicationCell.swift; sourceTree = "<group>"; };
 		5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCommentsViewController.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
@@ -1929,6 +1933,7 @@
 				5FA9D18629A74C24004EF26A /* JobsManagerViewController.swift */,
 				5FA9D18B29A76F50004EF26A /* JobManagerViewController.swift */,
 				5FA9D18F29A796EA004EF26A /* JobParticipantsViewController.swift */,
+				5F9136CE29AB62A000675BCE /* JobApplicantsViewController.swift */,
 			);
 			path = Browse;
 			sourceTree = "<group>";
@@ -1974,6 +1979,7 @@
 			children = (
 				5FA9D19429A7B5A5004EF26A /* ApplyJobHeader.swift */,
 				5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */,
+				5F9136D029AB6BF200675BCE /* JobUserApplicationCell.swift */,
 			);
 			path = Apply;
 			sourceTree = "<group>";
@@ -2745,6 +2751,7 @@
 				5F9A9FA22899048200A25152 /* CasePrivacyMenuLauncher.swift in Sources */,
 				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
+				5F9136D129AB6BF200675BCE /* JobUserApplicationCell.swift in Sources */,
 				5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */,
 				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */,
@@ -2874,6 +2881,7 @@
 				5FB2903D288FBCA2002FBAE1 /* MECaseUpdateView.swift in Sources */,
 				5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */,
 				5F9A9FA42899433A00A25152 /* MERegistrationDocumentView.swift in Sources */,
+				5F9136CF29AB62A000675BCE /* JobApplicantsViewController.swift in Sources */,
 				5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */,
 				5F78D30728917B3900FE0C99 /* UserProfileTitleHeader.swift in Sources */,
 				5FB2904528910DF5002FBAE1 /* EditNameCell.swift in Sources */,
