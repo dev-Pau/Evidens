@@ -167,7 +167,7 @@ extension DatabaseManager {
                     return
                 }
 
-                if recentSearches.count == 5 {
+                if recentSearches.count == 10 {
                     recentSearches.removeFirst()
                     recentSearches.append(userUid)
                 } else {

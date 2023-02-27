@@ -61,13 +61,11 @@ class SearchConversationViewController: UIViewController {
     }
     
     private func fetchRecentSearches() {
-        print("start fetching")
         DatabaseManager.shared.fetchRecentMessageSearches { result in
             switch result {
             case .success(let searches):
                 guard !searches.isEmpty else {
                     self.dataLoaded = true
-                    print("data is empty")
                     self.collectionView.reloadData()
                     return
                 }

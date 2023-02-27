@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopSearchHeader: UICollectionReusableView {
+class MainSearchHeader: UICollectionReusableView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -17,12 +17,12 @@ class TopSearchHeader: UICollectionReusableView {
         return label
     }()
     
-    private let seeAllLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryColor
-        return label
+    private let seeAllButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.baseForegroundColor = primaryColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     override init(frame: CGRect) {
@@ -36,20 +36,24 @@ class TopSearchHeader: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(titleLabel, seeAllLabel)
+        addSubviews(titleLabel, seeAllButton)
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            seeAllLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            seeAllLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            seeAllButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
 
     }
     
     func configureWith(title: String, linkText: String) {
         titleLabel.text = title
-        seeAllLabel.text = linkText
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .medium)
+        seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
+        
     }
+
 }
