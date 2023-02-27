@@ -55,6 +55,7 @@ class ReviewDocumentViewController: UIViewController {
         view.addSubviews(pdfView, dismissButton)
         guard let document = PDFDocument(url: url) else { return }
         pdfView.document = document
+        
     }
     
     @objc func handleDismiss() {

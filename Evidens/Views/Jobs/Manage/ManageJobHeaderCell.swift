@@ -13,6 +13,7 @@ protocol ManageJobHeaderCellDelegate: AnyObject {
 
 class ManageJobHeaderCell: UICollectionReusableView {
     weak var delegate: ManageJobHeaderCellDelegate?
+    var applicantNumber: Int = 0
     
     private let companyImageView: UIImageView = {
         let iv = UIImageView()
@@ -47,6 +48,7 @@ class ManageJobHeaderCell: UICollectionReusableView {
         button.configuration?.baseBackgroundColor = .systemYellow
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration?.buttonSize = .mini
         return button
     }()
     
@@ -69,15 +71,13 @@ class ManageJobHeaderCell: UICollectionReusableView {
     
     private lazy var applicantsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowApplicants)))
         return label
     }()
-    
-    
     
     private let separatorView: UIView = {
         let view = UIView()
@@ -112,39 +112,51 @@ class ManageJobHeaderCell: UICollectionReusableView {
             locationWorksplaceLabel.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
             locationWorksplaceLabel.trailingAnchor.constraint(equalTo: jobTitle.trailingAnchor),
             
-            jobStageButton.topAnchor.constraint(equalTo: locationWorksplaceLabel.bottomAnchor, constant: 10),
-            jobStageButton.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
-            jobStageButton.widthAnchor.constraint(equalToConstant: 50),
-            
-            timestampLabel.centerYAnchor.constraint(equalTo: jobStageButton.centerYAnchor),
-            timestampLabel.leadingAnchor.constraint(equalTo: jobStageButton.trailingAnchor, constant: 3),
-            timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            applicantsImageView.topAnchor.constraint(equalTo: companyImageView.bottomAnchor, constant: 10),
-            applicantsImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            applicantsImageView.topAnchor.constraint(equalTo: locationWorksplaceLabel.bottomAnchor, constant: 3),
+            applicantsImageView.leadingAnchor.constraint(equalTo: companyImageView.trailingAnchor, constant: 10),
             applicantsImageView.heightAnchor.constraint(equalToConstant: 20),
             applicantsImageView.widthAnchor.constraint(equalToConstant: 20),
             
             applicantsLabel.centerYAnchor.constraint(equalTo: applicantsImageView.centerYAnchor),
             applicantsLabel.leadingAnchor.constraint(equalTo: applicantsImageView.trailingAnchor, constant: 3),
-            applicantsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+          
+            jobStageButton.topAnchor.constraint(equalTo: companyImageView.bottomAnchor, constant: 10),
+            jobStageButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            
+            timestampLabel.centerYAnchor.constraint(equalTo: jobStageButton.centerYAnchor),
+            timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
+
+        
+        
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
+        
+        DatabaseManager.shared.fetchJobApplicationsForJob(withJobId: viewModel.jobId) { applicants in
+            self.applicantNumber = applicants.count
+            let text = applicants.count == 1 ? " applicant" : " applicants"
+            self.applicantsLabel.text = self.applicantNumber == 0 ? "No applicants" : "\(self.applicantNumber)\(text)"
+        }
+        
         companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
         jobTitle.text = viewModel.jobName
         locationWorksplaceLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
-        timestampLabel.text = "· Created " + viewModel.jobTimestampString! + " ago"
-        applicantsLabel.text = "4 applicants"
+        timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago"
+        jobStageButton.configuration?.baseBackgroundColor = viewModel.jobStageBackgroundColor
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 13, weight: .medium)
+        jobStageButton.configuration?.attributedTitle = AttributedString(viewModel.jobStageText, attributes: container)
     }
-    
+
     @objc func handleShowApplicants() {
+        guard applicantNumber > 0 else { return }
         delegate?.didTapShowParticipants()
     }
 }

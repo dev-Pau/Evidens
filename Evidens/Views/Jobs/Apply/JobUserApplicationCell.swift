@@ -139,6 +139,6 @@ class JobUserApplicationCell: UICollectionViewCell {
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
-        timestampLabel.text = formatter.string(from: Date(milliseconds: Int(applicant.timestamp.milliseconds)), to: Date())
+        timestampLabel.text = "Sent \(formatter.string(from: Date(milliseconds: Int(applicant.timestamp.milliseconds)), to: Date())!) ago"
     }
 }

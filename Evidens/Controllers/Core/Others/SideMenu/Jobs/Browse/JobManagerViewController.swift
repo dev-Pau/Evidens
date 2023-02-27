@@ -95,7 +95,7 @@ extension JobManagerViewController: UICollectionViewDelegateFlowLayout, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 115)
+        return CGSize(width: view.frame.width, height: 123)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -115,6 +115,11 @@ extension JobManagerViewController: CreateJobViewControllerDelegate {
 
 extension JobManagerViewController: ManageJobHeaderCellDelegate {
     func didTapShowParticipants() {
-        // participants controller
+        let controller = JobApplicantsViewController(job: job)
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

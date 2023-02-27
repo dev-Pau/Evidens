@@ -1896,7 +1896,7 @@ extension DatabaseManager {
         }
     }
     
-    public func sendJobApplication(jobId: String, documentURL: String, completion: @escaping(Bool) -> Void) {
+    public func sendJobApplication(jobId: String, documentURL: String, phoneNumber: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("jobs").child(jobId).child("applicants").childByAutoId()
         
@@ -1904,6 +1904,7 @@ extension DatabaseManager {
         
         let applicantUser = ["uid": uid,
                              "documentUrl": documentURL,
+                             "phoneNumber": phoneNumber,
                              "timestamp": applicantJobRequestTimes] as [String : Any]
         
         ref.setValue(applicantUser) { error, _ in

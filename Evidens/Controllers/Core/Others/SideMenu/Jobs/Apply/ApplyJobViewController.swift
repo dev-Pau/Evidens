@@ -113,7 +113,7 @@ class ApplyJobViewController: UIViewController {
         let fileName = user.uid!
         progressIndicator.show(in: view)
         StorageManager.uploadJobDocument(jobId: job.jobId, fileName: fileName, url: userDocUrl!) { url in
-            DatabaseManager.shared.sendJobApplication(jobId: self.job.jobId, documentURL: url) { sent in
+            DatabaseManager.shared.sendJobApplication(jobId: self.job.jobId, documentURL: url, phoneNumber: self.viewModel.phoneNumber!) { sent in
                 self.progressIndicator.dismiss(animated: true)
                 if sent {
                     let reportPopup = METopPopupView(title: "Job application sent", image: "checkmark.circle.fill", popUpType: .regular)

@@ -55,7 +55,6 @@ class JobApplicantsViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .systemBackground
         collectionView.frame = view.bounds
-        collectionView.backgroundColor = .systemBackground
         view.addSubview(collectionView)
     }
     
@@ -115,7 +114,13 @@ extension JobApplicantsViewController: UICollectionViewDataSource, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("did select")
+        if let index = applicants.firstIndex(where: { $0.uid == users[indexPath.row].uid! }) {
+            let controller = ReviewApplicantViewController(user: users[indexPath.row], job: job, applicant: applicants[index])
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
     }
 }
 
@@ -130,7 +135,14 @@ extension JobApplicantsViewController: JobUserApplicationCellDelegate {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         switch option {
         case .review:
-            print("review")
+            if let index = applicants.firstIndex(where: { $0.uid == users[indexPath.row].uid! }) {
+                let controller = ReviewApplicantViewController(user: users[indexPath.row], job: job, applicant: applicants[index])
+                controller.delegate = self
+                let navVC = UINavigationController(rootViewController: controller)
+                navVC.modalPresentationStyle = .fullScreen
+                present(navVC, animated: true)
+            }
+
         case .reject:
             displayMEDestructiveAlert(withTitle: "Delete applicant", withMessage: "Are you sure you want to delete \(users[indexPath.row].firstName!)'s job request?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
                 self.progressIndicator.show(in: self.view)
@@ -142,7 +154,19 @@ extension JobApplicantsViewController: JobUserApplicationCellDelegate {
                         }
                         let reportPopup = METopPopupView(title: "Job request rejected", image: "checkmark.circle.fill", popUpType: .regular)
                         reportPopup.showTopPopup(inView: self.view)
+                    }
                 }
+            }
+        }
+    }
+}
+
+extension JobApplicantsViewController: ReviewApplicantViewControllerDelegate {
+    func didRejectApplicant(user: User) {
+        if let index = users.firstIndex(where: { $0.uid == user.uid! }) {
+            collectionView.performBatchUpdates {
+                self.users.remove(at: index)
+                self.collectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
             }
         }
     }

@@ -122,11 +122,13 @@ struct JobApplicant {
 struct JobUserApplicant {
     var uid: String
     var documentUrl: String
+    var phoneNumber: String
     var timestamp: TimeInterval
     
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
         self.documentUrl = dictionary["documentUrl"] as? String ?? ""
+        self.phoneNumber = dictionary["phoneNumber"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? TimeInterval ?? TimeInterval()
     }
 }

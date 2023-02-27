@@ -51,7 +51,7 @@ class JobHeaderCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "bag.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: "briefcase.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         return iv
     }()
     
@@ -106,8 +106,6 @@ class JobHeaderCell: UICollectionViewCell {
         view.backgroundColor = .quaternarySystemFill
         return view
     }()
-    
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)

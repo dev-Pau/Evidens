@@ -168,6 +168,9 @@
 		5F8F094029A49A2400927270 /* CompanyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F8F093F29A49A2400927270 /* CompanyService.swift */; };
 		5F9136CF29AB62A000675BCE /* JobApplicantsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136CE29AB62A000675BCE /* JobApplicantsViewController.swift */; };
 		5F9136D129AB6BF200675BCE /* JobUserApplicationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136D029AB6BF200675BCE /* JobUserApplicationCell.swift */; };
+		5F9136D329ABA55600675BCE /* ReviewApplicantViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136D229ABA55600675BCE /* ReviewApplicantViewController.swift */; };
+		5F9136D529ABA98C00675BCE /* ApplicantHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136D429ABA98C00675BCE /* ApplicantHeaderCell.swift */; };
+		5F9136D729ABBAED00675BCE /* ApplicantDocumentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9136D629ABBAED00675BCE /* ApplicantDocumentCell.swift */; };
 		5F91C15828AFB951006F1BAD /* UserCommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
@@ -564,6 +567,9 @@
 		5F8F093F29A49A2400927270 /* CompanyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyService.swift; sourceTree = "<group>"; };
 		5F9136CE29AB62A000675BCE /* JobApplicantsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobApplicantsViewController.swift; sourceTree = "<group>"; };
 		5F9136D029AB6BF200675BCE /* JobUserApplicationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobUserApplicationCell.swift; sourceTree = "<group>"; };
+		5F9136D229ABA55600675BCE /* ReviewApplicantViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewApplicantViewController.swift; sourceTree = "<group>"; };
+		5F9136D429ABA98C00675BCE /* ApplicantHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicantHeaderCell.swift; sourceTree = "<group>"; };
+		5F9136D629ABBAED00675BCE /* ApplicantDocumentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicantDocumentCell.swift; sourceTree = "<group>"; };
 		5F91C15728AFB951006F1BAD /* UserCommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCommentsViewController.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
@@ -1934,6 +1940,7 @@
 				5FA9D18B29A76F50004EF26A /* JobManagerViewController.swift */,
 				5FA9D18F29A796EA004EF26A /* JobParticipantsViewController.swift */,
 				5F9136CE29AB62A000675BCE /* JobApplicantsViewController.swift */,
+				5F9136D229ABA55600675BCE /* ReviewApplicantViewController.swift */,
 			);
 			path = Browse;
 			sourceTree = "<group>";
@@ -1961,6 +1968,8 @@
 			children = (
 				5FA9D18929A75116004EF26A /* ManageJobCell.swift */,
 				5FA9D18D29A77198004EF26A /* ManageJobHeaderCell.swift */,
+				5F9136D429ABA98C00675BCE /* ApplicantHeaderCell.swift */,
+				5F9136D629ABBAED00675BCE /* ApplicantDocumentCell.swift */,
 			);
 			path = Manage;
 			sourceTree = "<group>";
@@ -2520,6 +2529,7 @@
 				5F0A4F572725A1BA00700304 /* UserService.swift in Sources */,
 				5F85218F28A3CF620033AF67 /* ExperienceSectionViewController.swift in Sources */,
 				5F9E4287287EB8C300C2153B /* EmailRegistrationViewController.swift in Sources */,
+				5F9136D729ABBAED00675BCE /* ApplicantDocumentCell.swift in Sources */,
 				5FA32DCA28E1EF9C00D83759 /* OnboardingCell.swift in Sources */,
 				5FAC98CF29476BF500C72228 /* GroupInformationViewController.swift in Sources */,
 				5FA417AD295497D00026F267 /* GroupContentSelectionHeader.swift in Sources */,
@@ -2730,6 +2740,7 @@
 				5F9A282629784B150052E618 /* UserGroupSkeletonCell.swift in Sources */,
 				5F891D4D28D21351006DC449 /* CasesViewController.swift in Sources */,
 				5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */,
+				5F9136D329ABA55600675BCE /* ReviewApplicantViewController.swift in Sources */,
 				5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */,
 				5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */,
 				5FB290282886FD43002FBAE1 /* CaseImageCell.swift in Sources */,
@@ -2740,6 +2751,7 @@
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
 				5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */,
 				5FA2FB2F28DD7AAE00B37424 /* PrivacyPolicyViewController.swift in Sources */,
+				5F9136D529ABA98C00675BCE /* ApplicantHeaderCell.swift in Sources */,
 				5F8666F527529AF5009B26E6 /* CommentCell.swift in Sources */,
 				5F6076BF299A40140015AA16 /* HomeOnboardingViewController.swift in Sources */,
 				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,

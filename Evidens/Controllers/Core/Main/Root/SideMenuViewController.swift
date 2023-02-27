@@ -32,7 +32,7 @@ class SideMenuViewController: UIViewController {
             case .groups:
                 return "groups.selected"
             case .jobs:
-                return "bag.fill"
+                return "briefcase.fill"
             }
         }
     }
