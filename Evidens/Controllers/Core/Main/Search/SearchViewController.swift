@@ -7,47 +7,53 @@
 
 import UIKit
 
-private let reuseIdentifier = "RecentUserCell"
-private let recentTextReuseIdentifier = "RecentTextCell"
-private let recentHeaderReuseIdentifier = "RecentHeaderCell"
+private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
+private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
     
-    private var recentSearchedText = [String]() {
-        didSet {
-            tableView.reloadData()
-        }
-    }
+    /*
+     private var recentSearchedText = [String]() {
+     didSet {
+     tableView.reloadData()
+     }
+     }
+     
+     private var loaded: Bool = false
+     
+     private var users = [User]()
+     private var filteredUsers = [User]()
+     */
+    private var searchController: UISearchController!
     
-    private var loaded: Bool = false
-    
-    private var users = [User]()
-    private var filteredUsers = [User]()
-    
-    lazy var searchController = UISearchController(searchResultsController: nil)
-
-    private var inSearchMode: Bool {
-        return searchController.isActive && !searchController.searchBar.text!.isEmpty
-    }
-
-    private let tableView: UITableView = {
-        let tableView = UITableView(frame: CGRect(), style: .grouped)
-        tableView.separatorColor = .clear
-        return tableView
-    }()
+    /*
+     private var inSearchMode: Bool {
+     return searchController.isActive && !searchController.searchBar.text!.isEmpty
+     }
+     */
+    /*
+     private let tableView: UITableView = {
+     let tableView = UITableView(frame: CGRect(), style: .grouped)
+     tableView.separatorColor = .clear
+     return tableView
+     }()
+     */
+    private var collectionView: UICollectionView!
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        DispatchQueue.main.async {
-            self.fetchRecents()
-        }
+        
+        /*
+         DispatchQueue.main.async {
+         self.fetchRecents()
+         }
+         */
         //fetchRecents()
-
+        
         //let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
         //searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         //navigationItem.titleView = searchBarContainer
@@ -56,35 +62,141 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         //let navTitle = NSMutableAttributedString(string: "Search", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
         //navLabel.attributedText = navTitle
         //navigationItem.titleView = navLabel
-        title = "Search"
- 
-        configureTableView()
+        
+        configureNavigationBar()
+        //configureTableView()
         configureUI()
         //fetchUsers()
-
+        
     }
     
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-     
     /*
-    //MARK: - API
-    func fetchUsers() {
-        UserService.fetchUsers { users in
-            self.users = users
-            self.tableView.reloadData()
-        }
-    }
+     //MARK: - API
+     func fetchUsers() {
+     UserService.fetchUsers { users in
+     self.users = users
+     self.tableView.reloadData()
+     }
+     }
      */
     
     //MARK: - Helpers
-  
+    func configureNavigationBar() {
+        title = "Search"
+        let controller = SearchResultsUpdatingViewController()
+        //controller.delegate = self
+        searchController = UISearchController(searchResultsController: controller)
+        searchController.searchResultsUpdater = controller
+        searchController.searchBar.delegate = controller
+        searchController.searchBar.placeholder = "Search"
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        searchController.showsSearchResultsController = true
+        navigationItem.hidesSearchBarWhenScrolling = false
+
+        navigationItem.searchController = searchController
+    }
+    
+    private func configureUI() {
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+        view.backgroundColor = .systemBackground
+        view.addSubview(collectionView)
+        
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
+        collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: "kekl")
+        collectionView.register(TopSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+    }
+    
+    private func createLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env -> NSCollectionLayoutSection? in
+            if sectionNumber == 0 {
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.90), heightDimension: .absolute(250)), subitems: [item])
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .groupPagingCentered
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                section.boundarySupplementaryItems = [header]
+                return section
+            } else if sectionNumber == 1 {
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .estimated(100), heightDimension: .absolute(50)), subitems: [item])
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                section.boundarySupplementaryItems = [header]
+
+                return section
+            } else {
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(150)), subitems: [item])
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 0)
+                section.boundarySupplementaryItems = [header]
+
+                return section
+            }
+        }
+        
+        return layout
+    }
+}
+
+extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 5
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if indexPath.section == 0 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! TopSearchHeader
+            header.configureWith(title: "News for you", linkText: "See All")
+            return header
+        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "kekl", for: indexPath)
+        header.backgroundColor = .systemGreen
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if section == 0 {
+            return 5
+        } else if section == 1 {
+            return 10
+        } else {
+            return 3
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
+        cell.backgroundColor = .systemPink
+        return cell
+    }
+    
+    
+}
+
+  /*
     func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -97,24 +209,15 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         //tableView.rowHeight = 64
         tableView.keyboardDismissMode = .onDrag
     }
-    
+   */
+    /*
     func configureUI() {
         let refresher = UIRefreshControl()
         
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refresher
-        view.addSubview(tableView)
+        //view.addSubview(tableView)
         tableView.frame = view.bounds
-        
-        let searchController = UISearchController()
-        searchController.searchResultsUpdater = self
-        searchController.searchBar.delegate = self
-        searchController.searchBar.placeholder = "Search"
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.tintColor = primaryColor
-        navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.searchController = searchController
-        
     }
     
     func fetchRecents() {
@@ -134,7 +237,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
 
     }
+     */
     
+    /*
     //MARK: - Actions
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
@@ -142,8 +247,10 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         fetchRecents()
         
     }
-}
+     */
 
+
+/*
 //MARK: - UITableViewDataSource
 
 extension SearchViewController: UITableViewDataSource {
@@ -309,3 +416,4 @@ extension SearchViewController: RecentHeaderDelegate {
         }
     }
 }
+*/

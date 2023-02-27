@@ -169,6 +169,13 @@ extension SearchResultsViewController: UISearchBarDelegate {
     
 }
 
+extension SearchResultsViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        
+    }
+
+}
+
 //MARK: - SegmentedControlDelegate
 
 extension SearchResultsViewController: SegmentedControlDelegate {
