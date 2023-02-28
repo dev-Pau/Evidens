@@ -43,7 +43,7 @@ class MainSearchHeader: UICollectionReusableView {
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             seeAllButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
 
     }

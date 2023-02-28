@@ -17,7 +17,6 @@ class CaseTextCell: UICollectionViewCell {
     
     private var user: User?
     
-    
     weak var reviewDelegate: ReviewContentGroupDelegate?
     
     weak var delegate: CaseCellDelegate?

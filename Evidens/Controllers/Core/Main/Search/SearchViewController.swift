@@ -12,6 +12,18 @@ private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let newsForYouCellReuseIdentifier = "NewsForYouCellReuseIdentifier"
 private let categoriesCellReuseIdentifier  = "CategoriesCellReuseIdentifier"
 private let recentNewsCellReuseIdentifier = "RecentNewsCellReuseIdentifier"
+private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
+
+private let reuseIdentifier = "HomeTextCellReuseIdentifier"
+private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
+private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
+private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
+private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+
+
+private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
+private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
+
 
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
@@ -45,6 +57,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
      */
     private var collectionView: UICollectionView!
     private var professions = Profession.getAllProfessions()
+    private var users = [User]()
+    private var posts = [Post]()
+    private var postUsers = [User]()
+    private var cases = [Case]()
+    private var caseUsers = [User]()
     
     //MARK: - Lifecycle
     
@@ -70,7 +87,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         configureNavigationBar()
         //configureTableView()
         configureUI()
-        //fetchUsers()
+        fetchUsers()
+        fetchPosts()
+        fetchCases()
         
     }
     
@@ -83,6 +102,35 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
      }
      }
      */
+    
+    private func fetchUsers() {
+        UserService.fetchWhoToFollowUsers { users in
+            self.users = users
+            self.collectionView.reloadSections(IndexSet(integer: 2))
+        }
+    }
+    
+    private func fetchPosts() {
+        PostService.fetchPostsForYou { posts in
+            self.posts = posts
+            let uids = posts.map { $0.ownerUid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.postUsers = users
+                self.collectionView.reloadSections(IndexSet(integer: 3))
+            }
+        }
+    }
+    
+    private func fetchCases() {
+        CaseService.fetchCasesForYou { cases in
+            self.cases = cases
+            let uids = cases.map { $0.ownerUid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.caseUsers = users
+                self.collectionView.reloadSections(IndexSet(integer: 4))
+            }
+        }
+    }
     
     //MARK: - Helpers
     func configureNavigationBar() {
@@ -111,6 +159,17 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
         collectionView.register(YourNewsCell.self, forCellWithReuseIdentifier: newsForYouCellReuseIdentifier)
         collectionView.register(RecentNewsCell.self, forCellWithReuseIdentifier: recentNewsCellReuseIdentifier)
+        collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
+        
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
+        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
+        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -132,19 +191,48 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                 section.boundarySupplementaryItems = [header]
                 return section
-            } else {
+            } else if sectionNumber == 1 {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.90), heightDimension: .absolute(100)), subitems: [item])
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .groupPagingCentered
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                section.boundarySupplementaryItems = [header]
+
+                return section
+            } else if sectionNumber == 2 {
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(65)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 10, trailing: 20)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
                 section.boundarySupplementaryItems = [header]
 
+                return section
+            } else {
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
+                item.contentInsets.leading = -10
+                item.contentInsets.trailing = -10
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 0
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
+                section.boundarySupplementaryItems = [header]
                 return section
             }
         }
@@ -155,7 +243,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return 5
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -163,19 +251,34 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
             header.configureWith(title: "News for you", linkText: "See All")
             return header
+        } else if indexPath.section == 1 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
+            header.configureWith(title: "Latest news", linkText: "See All")
+            return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-                header.configureWith(title: "Latest news", linkText: "See All")
+            if indexPath.section == 2 {
+                header.configureWith(title: "Who to follow", linkText: "See All")
+            } else if indexPath.section == 3 {
+                header.configureWith(title: "Posts for you", linkText: "See All")
+            } else {
+                header.configureWith(title: "Cases for you", linkText: "See All")
+            }
+
             return header
         }
     }
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
+        if section == 0 || section == 1 {
             return 5
+        } else if section == 2 {
+            return min(3, users.count)
+        } else if section == 3 {
+            return min(3, posts.count)
         } else {
-            return 7
+            return min(3, cases.count)
         }
     }
     
@@ -183,10 +286,68 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newsForYouCellReuseIdentifier, for: indexPath) as! YourNewsCell
             return cell
-        } else  {
+        } else if indexPath.section == 1  {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentNewsCellReuseIdentifier, for: indexPath) as! RecentNewsCell
             return cell
+        } else if indexPath.section == 2 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
+            cell.configureWithUser(user: users[indexPath.row])
+            return cell
+        } else if indexPath.section == 3 {
+            if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].ownerUid }) {
+                switch posts[indexPath.row].type {
+                case .plainText:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.set(user: postUsers[index])
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.set(user: postUsers[index])
+                    return cell
+                case .textWithTwoImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.set(user: postUsers[index])
+                    return cell
+                case .textWithThreeImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.set(user: postUsers[index])
+                    return cell
+                case .textWithFourImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    cell.set(user: postUsers[index])
+                    return cell
+                case .document:
+                    return UICollectionViewCell()
+                case .poll:
+                    return UICollectionViewCell()
+                case .video:
+                    return UICollectionViewCell()
+                }
+            }
+        } else {
+            if let index = caseUsers.firstIndex(where: { $0.uid == cases[indexPath.row].ownerUid }){
+                switch cases[indexPath.row].type {
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    cell.set(user: caseUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    cell.set(user: caseUsers[index])
+                    //cell.delegate = self
+                    return cell
+                }
+            }
         }
+        return UICollectionViewCell()
     }
 }
 

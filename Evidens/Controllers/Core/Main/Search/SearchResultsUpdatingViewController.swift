@@ -82,7 +82,7 @@ class SearchResultsUpdatingViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubviews(categoriesToolbar, collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        toolbarHeightAnchor = categoriesToolbar.heightAnchor.constraint(equalToConstant: 50)
+        toolbarHeightAnchor = categoriesToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
         
         NSLayoutConstraint.activate([

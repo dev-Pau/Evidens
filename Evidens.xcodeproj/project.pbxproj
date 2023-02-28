@@ -178,6 +178,7 @@
 		5F91F0F129ACF2E4007BB567 /* YourNewsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F029ACF2E4007BB567 /* YourNewsCell.swift */; };
 		5F91F0F529AD0C2D007BB567 /* RecentNewsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F429AD0C2D007BB567 /* RecentNewsCell.swift */; };
 		5F91F0F729AD14FC007BB567 /* MESearchToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F629AD14FC007BB567 /* MESearchToolbar.swift */; };
+		5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
@@ -583,6 +584,7 @@
 		5F91F0F029ACF2E4007BB567 /* YourNewsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourNewsCell.swift; sourceTree = "<group>"; };
 		5F91F0F429AD0C2D007BB567 /* RecentNewsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentNewsCell.swift; sourceTree = "<group>"; };
 		5F91F0F629AD14FC007BB567 /* MESearchToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MESearchToolbar.swift; sourceTree = "<group>"; };
+		5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoToFollowCell.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
@@ -1411,6 +1413,7 @@
 				5F91F0EE29ACF0E0007BB567 /* SecondarySearchHeader.swift */,
 				5F91F0F029ACF2E4007BB567 /* YourNewsCell.swift */,
 				5F91F0F429AD0C2D007BB567 /* RecentNewsCell.swift */,
+				5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -2563,6 +2566,7 @@
 				5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */,
 				5F9A28142976C0850052E618 /* GroupMembershipViewController.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
+				5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */,
 				5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */,
 				5F527D9728845006009D5027 /* RegistrationListView.swift in Sources */,
 				5F91F0F129ACF2E4007BB567 /* YourNewsCell.swift in Sources */,

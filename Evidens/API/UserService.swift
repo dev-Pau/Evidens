@@ -404,6 +404,28 @@ struct UserService {
             }
         }
          */
+    
+    static func fetchWhoToFollowUsers(completion: @escaping([User]) -> Void) {
+        var users = [User]()
+        var count: Int = 0
+        COLLECTION_USERS.limit(to: 3).getDocuments { snapshot, error in
+            guard let snapshot = snapshot else {
+                completion(users)
+                return
+            }
+
+            users = snapshot.documents.map({ User(dictionary: $0.data()) })
+            users.enumerated().forEach { index, user in
+                self.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                    users[index].isFollowed = followed
+                    count += 1
+                    if count == users.count {
+                        completion(users)
+                    }
+                }
+            }
+        }
+    }
 
     static func fetchUsersWithText(text: String, completion: @escaping([User]) -> Void) {
         var users = [User]()

@@ -429,5 +429,32 @@ struct CaseService {
             }
         })
     }
+    
+    static func fetchCasesForYou(completion: @escaping([Case]) -> Void) {
+        //Fetch posts by filtering according to timestamp
+        let query = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 3)
+        var count: Int = 0
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else {
+                completion([Case]())
+                return
+            }
+            
+            //Mapping that creates an array for each post
+            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            cases.enumerated().forEach { index, clinicalCase in
+                self.checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
+                    self.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in
+                        cases[index].didLike = like
+                        cases[index].didBookmark = bookmark
+                        count += 1
+                        if count == cases.count {
+                            completion(cases)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

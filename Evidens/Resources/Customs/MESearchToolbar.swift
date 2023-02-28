@@ -8,10 +8,14 @@
 import UIKit
 
 class MESearchToolbar: UIToolbar {
-    
+    private var viewLeadingAnchor: NSLayoutConstraint!
+    private var viewWidthAnchor: NSLayoutConstraint!
+
     private var collectionView: UICollectionView!
     private let dataSource = Profession.getAllProfessions().map({ $0.profession })
-
+    private var bottomView: UIView!
+    private var scrollView: UIScrollView!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -22,19 +26,48 @@ class MESearchToolbar: UIToolbar {
     }
     
     private func configure() {
+        bottomView = UIView()
+        scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.delegate = self
+        scrollView.bounces = false
+        scrollView.alwaysBounceVertical = false
+        bottomView.translatesAutoresizingMaskIntoConstraints = false
+        bottomView.backgroundColor = primaryColor
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
+        collectionView.backgroundColor = .clear
+        collectionView.alwaysBounceVertical = false
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(ToolbarSearchCell.self, forCellWithReuseIdentifier: "kek")
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(collectionView)
+        addSubviews(scrollView)
+        scrollView.addSubviews(bottomView, collectionView)
+        viewLeadingAnchor = bottomView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 10)
+        viewLeadingAnchor.isActive = true
+        viewWidthAnchor = bottomView.widthAnchor.constraint(equalToConstant: 78)
+        viewWidthAnchor.isActive = true
         
         NSLayoutConstraint.activate([
+
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            //bottomView.heightAnchor.constraint(equalToConstant: 40),
+            //bottomView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor),
         ])
+        
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width * 5, height: 40)
+        //print(collectionView.contentOffset)
+        bottomView.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        bottomView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor).isActive = true
     }
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
@@ -51,6 +84,18 @@ class MESearchToolbar: UIToolbar {
     }
 }
 
+extension MESearchToolbar: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView == collectionView {
+            print("scrolling collection")
+            self.scrollView.setContentOffset(scrollView.contentOffset, animated: true)
+        } else {
+            print("scrollview did scroll")
+        }
+        //scrollView.setContentOffset(scrollView.contentOffset, animated: true)
+    }
+}
+
 extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return dataSource.count
@@ -59,24 +104,29 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath) as! ToolbarSearchCell
         cell.tagsLabel.text = dataSource[indexPath.row]
-        cell.backgroundColor = .systemOrange
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) {
             print(cell.frame.width)
+            print(collectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath))
+            print(collectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath)?.frame.origin.x)
+            UIView.animate(withDuration: 0.5) {
+                
+            }
         }
-
     }
 }
+
+
 
 
 class ToolbarSearchCell: UICollectionViewCell {
     
     var tagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false

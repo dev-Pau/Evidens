@@ -141,6 +141,33 @@ struct PostService {
         }
     }
     
+    static func fetchPostsForYou(completion: @escaping([Post]) -> Void) {
+        //Fetch posts by filtering according to timestamp
+        let query = COLLECTION_POSTS.order(by: "timestamp", descending: true).limit(to: 3)
+        var count: Int = 0
+        query.getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents else {
+                completion([Post]())
+                return
+            }
+            
+            //Mapping that creates an array for each post
+            var posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            posts.enumerated().forEach { index, post in
+                self.checkIfUserLikedPost(post: post) { like in
+                    self.checkIfUserBookmarkedPost(post: post) { bookmark in
+                        posts[index].didLike = like
+                        posts[index].didBookmark = bookmark
+                        count += 1
+                        if count == posts.count {
+                            completion(posts)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     static func deletePost(withPostUid uid: String, completion: @escaping(Bool) -> Void) {
         
     }

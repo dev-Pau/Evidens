@@ -76,5 +76,6 @@ class RecentNewsCell: UICollectionViewCell {
         specialityLabel.text = "Veterinary Medicine"
         titleLabel.text = "CDC arrives in Ohio town to investigate health risks from toxic train derailment"
         datePublishedLabel.text = "3h ago"
+        newsImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/news%2FGlobal%20healthcare_2.jpeg?alt=media&token=41d358b1-91db-4628-9d7b-2754986df2f0"))
     }
 }
