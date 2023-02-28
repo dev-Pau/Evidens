@@ -8,7 +8,7 @@
 import UIKit
 
 protocol HomeCellDelegate: AnyObject {
-    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User)
+    func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User)
     func cell(_ cell: UICollectionViewCell, didLike post: Post)
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
     //func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor post: Post, forAuthor user: User)

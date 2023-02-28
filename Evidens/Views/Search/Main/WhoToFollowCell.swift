@@ -8,6 +8,21 @@
 import UIKit
 
 class WhoToFollowCell: UICollectionViewCell {
+    weak var followerDelegate: UsersFollowCellDelegate?
+    
+    var isUpdatingFollowState: Bool? {
+        didSet {
+            followButton.setNeedsUpdateConfiguration()
+        }
+    }
+    
+    var userIsFollowing: Bool? {
+        didSet {
+            configureButtonText()
+        }
+    }
+    
+    private var user: User?
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -50,7 +65,7 @@ class WhoToFollowCell: UICollectionViewCell {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 1
         
-        //button.addTarget(self, action: #selector(handleFollow), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleFollow), for: .touchUpInside)
         
         button.isUserInteractionEnabled = true
         
@@ -77,6 +92,7 @@ class WhoToFollowCell: UICollectionViewCell {
     }
     
     private func configure() {
+        isUpdatingFollowState = false
         addSubviews(followButton, profileImageView, nameLabel, userCategoryLabel, aboutTextLabel)
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -104,26 +120,11 @@ class WhoToFollowCell: UICollectionViewCell {
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
-        
-        
-        
-        /*
-         private func addMenuItems() -> UIMenu? {
-         guard let user = user else { return nil }
-         let menuItems = UIMenu(options: .displayInline, children: [
-         UIAction(title: "Unfollow \(user.firstName!)", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
-         //self.isUpdatingFollowState = true
-         //self.followerDelegate?.didUnfollowOnFollower(self, user: user)
-         //self.followingDelegate?.didUnfollowOnFollowing(self, user: user)
-         })
-         ])
-         followButton.showsMenuAsPrimaryAction = true
-         
-         return menuItems
-         */
     }
     
     func configureWithUser(user: User) {
+        self.user = user
+        userIsFollowing = user.isFollowed
         profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         nameLabel.text = user.firstName! + " " + user.lastName!
         if user.category == .student {
@@ -131,14 +132,35 @@ class WhoToFollowCell: UICollectionViewCell {
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
         }
-        
-        let titleString = user.isFollowed ? "Following" : "Follow"
+    }
+    
+    func configureButtonText() {
+        guard let userIsFollowing = userIsFollowing else { return }
+        let titleString = userIsFollowing ? "Following" : "Follow"
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
         followButton.configuration?.attributedTitle = AttributedString(titleString, attributes: container)
-        followButton.configuration?.baseBackgroundColor = user.isFollowed ? .secondarySystemGroupedBackground : .label
-        followButton.configuration?.baseForegroundColor = user.isFollowed ? .label : .systemBackground
-        followButton.configuration?.background.strokeColor = user.isFollowed ? .quaternarySystemFill : .label
-        //followButton.menu = user.isFollowed ? addMenuItems() : nil
+        followButton.configuration?.baseBackgroundColor = userIsFollowing ? .secondarySystemGroupedBackground : .label
+        followButton.configuration?.baseForegroundColor = userIsFollowing ? .label : .systemBackground
+        followButton.configuration?.background.strokeColor = userIsFollowing ? .quaternarySystemFill : .label
+        followButton.menu = userIsFollowing ? addMenuItems() : nil
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let user = user else { return nil }
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Unfollow \(user.firstName!)", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), handler: { _ in
+                self.isUpdatingFollowState = true
+                self.followerDelegate?.didUnfollowOnFollower(self, user: user)
+            })
+        ])
+        
+        followButton.showsMenuAsPrimaryAction = true
+        return menuItems
+    }
+    
+    @objc func handleFollow() {
+        guard let user = user else { return }
+        followerDelegate?.didFollowOnFollower(self, user: user)
     }
 }

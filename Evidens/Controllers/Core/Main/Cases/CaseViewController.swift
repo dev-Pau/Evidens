@@ -269,6 +269,7 @@ extension CaseViewController: CaseCellDelegate {
     
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
+
         let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
         controller.controllerIsPushed = true
         displayState = .others
@@ -283,9 +284,7 @@ extension CaseViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, didPressThreeDotsFor clinicalCase: Case) { return }
     
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-        return
-    }
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) { return }
     
     
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {

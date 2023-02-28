@@ -611,7 +611,18 @@ extension CasesViewController: ExploreHeaderCellDelegate {
 
 extension CasesViewController: DetailsCaseViewControllerDelegate {
     func didComment(forCase clinicalCase: Case) {
-        return
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+                
+            }
+        }
     }
     
     func didTapLikeAction(forCase clinicalCase: Case) {

@@ -156,12 +156,18 @@ struct PostService {
             posts.enumerated().forEach { index, post in
                 self.checkIfUserLikedPost(post: post) { like in
                     self.checkIfUserBookmarkedPost(post: post) { bookmark in
-                        posts[index].didLike = like
-                        posts[index].didBookmark = bookmark
-                        count += 1
-                        if count == posts.count {
-                            completion(posts)
-                        }
+                        fetchLikesForPost(postId: post.postId) { likes in
+                            posts[index].likes = likes
+                            fetchCommentsForPost(postId: post.postId) { comments in
+                                posts[index].numberOfComments = comments
+                                posts[index].didLike = like
+                                posts[index].didBookmark = bookmark
+                                count += 1
+                                if count == posts.count {
+                                    completion(posts)
+                                }
+                            }
+                        }                   
                     }
                 }
             }
