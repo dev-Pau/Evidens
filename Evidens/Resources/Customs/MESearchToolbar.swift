@@ -75,7 +75,7 @@ class MESearchToolbar: UIToolbar {
             let section = NSCollectionLayoutSection(group: group)
          
             section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-            section.interGroupSpacing = 10
+            section.interGroupSpacing = 5
             
           //  if self.isInSearchMode {
             //    section.boundarySupplementaryItems = [header]
@@ -108,11 +108,17 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if isInSearchMode && indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: professionSelectedCellReuseIdentifier, for: indexPath) as! ProfessionSelectedCell
-            cell.tagsLabel.text = displayDataSource[indexPath.row]
+            cell.setText(text: displayDataSource[indexPath.row])
+            cell.selectedTag = displayDataSource[indexPath.row]
+            if searchingWithCategorySelected { cell.selectedCategory = displayDataSource[indexPath.row + 1] } else {
+                cell.selectedCategory = nil
+            }
+            cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
-            cell.tagsLabel.text = displayDataSource[indexPath.row]
+            //cell.tagsLabel.text = displayDataSource[indexPath.row]
+            cell.setText(text: displayDataSource[indexPath.row])
             //if isInSearchMode { collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: .left) }
             return cell
         }
@@ -120,26 +126,28 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isInSearchMode {
-            let valueSelected = displayDataSource[indexPath.row]
+            //let valueSelected = displayDataSource[indexPath.row]
             collectionView.performBatchUpdates {
                 collectionView.moveItem(at: indexPath, to: IndexPath(item: 1, section: 0))
             } completion: { _ in
-                self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[1]]
+                self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[indexPath.row]]
                 self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
                 self.searchingWithCategorySelected = true
+                self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
             }
-         
-            //collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+
         } else {
             UIView.animate(withDuration: 0.2) {
                 collectionView.frame.origin.y = -50
                 self.separatorView.backgroundColor = .systemBackground
             } completion: { _ in
-                self.displayDataSource = self.searchDataSource
-                self.displayDataSource.insert("   \(self.dataSource[indexPath.row])", at: 0)
+                self.displayDataSource = [String]()
+                self.displayDataSource.append(self.dataSource[indexPath.row])
+                self.displayDataSource.append(contentsOf: self.searchDataSource)
 
                 self.isInSearchMode = true
                 self.collectionView.reloadData()
+                self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
                 
                 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
                     collectionView.frame.origin.y = 0
@@ -154,5 +162,27 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected { return false }
         return true
+    }
+}
+
+extension MESearchToolbar: ProfessionSelectedCellDelegate {
+    func didRestoreMenu() {
+        UIView.animate(withDuration: 0.2) {
+            self.collectionView.alpha = 0
+            self.separatorView.backgroundColor = .systemBackground
+        } completion: { _ in
+            self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
+            self.displayDataSource = self.dataSource
+            self.isInSearchMode = false
+            self.searchingWithCategorySelected = false
+            self.collectionView.reloadData()
+            self.collectionView.frame.origin.y = -50
+            self.collectionView.alpha = 1
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
+                self.collectionView.frame.origin.y = 0
+                self.separatorView.backgroundColor = .quaternarySystemFill
+            }
+        }
     }
 }

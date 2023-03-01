@@ -50,10 +50,10 @@ class FilterCasesCell: UICollectionViewCell {
         addSubviews(tagsLabel)
         
         NSLayoutConstraint.activate([
-            tagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
-            tagsLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5)
+            tagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            tagsLabel.topAnchor.constraint(equalTo: topAnchor)
         ])
     }
     
@@ -67,6 +67,10 @@ class FilterCasesCell: UICollectionViewCell {
          }
     }
      */
+    
+    func setText(text: String) {
+        tagsLabel.text = "  \(text)  "
+    }
     
     @objc func handleImageTap() {
         delegate?.didTapFilterImage(self)

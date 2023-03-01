@@ -187,6 +187,8 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 }
 
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
+
+    
     func didSelectSearchCategory(_ category: String) {
         self.collectionView.isHidden = true
         self.activityIndicator.start()

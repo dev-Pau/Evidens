@@ -7,9 +7,26 @@
 
 import UIKit
 
+protocol ProfessionSelectedCellDelegate: AnyObject {
+    func didRestoreMenu()
+}
+
 class ProfessionSelectedCell: UICollectionViewCell {
-    
+    weak var delegate: ProfessionSelectedCellDelegate?
     //weak var delegate: FilterCasesCellDelegate?
+    private let searchDataSource = ["People", "Posts", "Cases", "Groups", "Jobs"]
+    
+    var selectedTag: String? {
+        didSet {
+            configureMenuWithTag()
+        }
+    }
+    
+    var selectedCategory: String? {
+        didSet {
+            configureMenuWithTag()
+        }
+    }
 
     var tagsLabel: UILabel = {
         let label = UILabel()
@@ -78,6 +95,47 @@ class ProfessionSelectedCell: UICollectionViewCell {
             arrowImageView.heightAnchor.constraint(equalToConstant: 11),
             arrowImageView.widthAnchor.constraint(equalToConstant: 11)
         ])
+        
+        //addMenuItems()
+
+    }
+    
+    private func configureMenuWithTag() {
+        guard let tag = selectedTag else { return }
+        let topics = UIMenu(title: "Topics", subtitle: tag, image: UIImage(systemName: "arrow.up.arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), options: .singleSelection, children: [
+            UIAction(title: Profession.getAllProfessions()[0].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off,  handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[1].profession, state: Profession.getAllProfessions()[1].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[2].profession, state: Profession.getAllProfessions()[2].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[3].profession, state: Profession.getAllProfessions()[3].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[4].profession, state: Profession.getAllProfessions()[4].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[5].profession, state: Profession.getAllProfessions()[5].profession == tag ? .on : .off,handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[6].profession, state: Profession.getAllProfessions()[6].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[7].profession, state: Profession.getAllProfessions()[7].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[8].profession, state: Profession.getAllProfessions()[8].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[9].profession, state: Profession.getAllProfessions()[9].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[10].profession, state: Profession.getAllProfessions()[10].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[11].profession, state: Profession.getAllProfessions()[11].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[12].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off, handler: { _ in }),
+        ])
+
+        let category = UIMenu(title: "Categories", subtitle: selectedCategory ?? nil, image: UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), options: .singleSelection, children: [
+            UIAction(title: searchDataSource[0], state: selectedCategory ?? "" == searchDataSource[0] ? .on : .off, handler: { _ in }),
+            UIAction(title: searchDataSource[1], state: selectedCategory ?? "" == searchDataSource[1] ? .on : .off, handler: { _ in }),
+            UIAction(title: searchDataSource[2], state: selectedCategory ?? "" == searchDataSource[2] ? .on : .off, handler: { _ in }),
+            UIAction(title: searchDataSource[3], state: selectedCategory ?? "" == searchDataSource[3] ? .on : .off, handler: { _ in }),
+            UIAction(title: searchDataSource[4], state: selectedCategory ?? "" == searchDataSource[4] ? .on : .off, handler: { _ in })
+        ])
+        
+        let reset = UIAction(title: "Reset Filters", image: UIImage(systemName: "arrow.triangle.2.circlepath", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))) { _ in
+            self.delegate?.didRestoreMenu()
+        }
+                
+        button.menu = UIMenu(title: "", children: [topics, category, reset])
+        button.showsMenuAsPrimaryAction = true
+    }
+    
+    func setText(text: String) {
+        tagsLabel.text = "  \(text)"
     }
     
     /*
