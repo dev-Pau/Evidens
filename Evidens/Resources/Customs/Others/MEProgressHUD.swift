@@ -56,4 +56,8 @@ class MEProgressHUD: UIView {
     func stop() {
         activityIndicator.stopAnimating()
     }
+    
+    func start() {
+        activityIndicator.startAnimating()
+    }
 }

@@ -11,6 +11,7 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let searchRecentsHeaderReuseIdentifier = "SearchRecentsHeaderReuseIdentifier"
 private let recentSearchesUserCellReuseIdentifier = "RecentSearchesUserCellReuseIdentifier"
+private let recentContentSearchReuseIdentifier = "RecentContentSearchReuseIdentifier"
 
 class SearchResultsUpdatingViewController: UIViewController {
     
@@ -22,6 +23,8 @@ class SearchResultsUpdatingViewController: UIViewController {
     private var recentSearches = [String]()
     private var recentUserSearches = [String]()
     private var users = [User]()
+    
+    private let activityIndicator = MEProgressHUD(frame: .zero)
     
     private var searchedText: String = ""
 
@@ -81,12 +84,12 @@ class SearchResultsUpdatingViewController: UIViewController {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(100)), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(80)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
+                section.interGroupSpacing = 0
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
                 //if self.dataLoaded == false {
                     section.boundarySupplementaryItems = [header]
                 //}
@@ -101,7 +104,7 @@ class SearchResultsUpdatingViewController: UIViewController {
                 
                 let section = NSCollectionLayoutSection(group: group)
                 //section.orthogonalScrollingBehavior = .groupPagingCentered
-                section.interGroupSpacing = 10
+                section.interGroupSpacing = 0
                 //section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                
                 return section
@@ -115,23 +118,30 @@ class SearchResultsUpdatingViewController: UIViewController {
     private func configureUI() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         view.backgroundColor = .systemBackground
-        view.addSubviews(categoriesToolbar, collectionView)
+        collectionView.backgroundColor = .systemBackground
+        view.addSubviews(activityIndicator, collectionView, categoriesToolbar )
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         toolbarHeightAnchor = categoriesToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
+        categoriesToolbar.searchDelegate = self
         
         NSLayoutConstraint.activate([
             categoriesToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             categoriesToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             categoriesToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
 
             collectionView.topAnchor.constraint(equalTo: categoriesToolbar.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-         
         ])
         
+        activityIndicator.stop()
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -139,6 +149,7 @@ class SearchResultsUpdatingViewController: UIViewController {
         collectionView.register(EmptyRecentsSearchCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.register(SearchRecentsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchRecentsHeaderReuseIdentifier)
         collectionView.register(RecentSearchesUserCell.self, forCellWithReuseIdentifier: recentSearchesUserCellReuseIdentifier)
+        collectionView.register(RecentContentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
         
     }
@@ -175,6 +186,23 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
     }
 }
 
+extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
+    func didSelectSearchCategory(_ category: String) {
+        self.collectionView.isHidden = true
+        self.activityIndicator.start()
+        /*
+        UIView.animate(withDuration: 0.2) {
+            self.toolbarHeightAnchor.constant = 0
+            self.view.layoutIfNeeded()
+
+        } completion: { _ in
+            self.collectionView.isHidden = true
+        }
+        
+        */
+    }
+}
+
 extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return isInSearchMode ? 1 : 2
@@ -187,7 +215,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 return users.count
             } else {
                 // tornar 0 si data no està loaded bro
-                return 4
+                return recentSearches.count
             }
         }
     }
@@ -210,8 +238,8 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             cell.configureWithUser(user: users[indexPath.row])
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
-            cell.backgroundColor = .systemPink
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
+            cell.viewModel = RecentTextCellViewModel(recentText: recentSearches[indexPath.row])
             return cell
         }
        

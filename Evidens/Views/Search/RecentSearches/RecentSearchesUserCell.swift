@@ -24,7 +24,7 @@ class RecentSearchesUserCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label

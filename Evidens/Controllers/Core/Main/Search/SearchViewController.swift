@@ -139,6 +139,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
     }
     
+    
+    
     //MARK: - Helpers
     func configureNavigationBar() {
         title = "Search"
@@ -908,8 +910,6 @@ extension SearchViewController: HomeCellDelegate {
         
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    
 }
 
   /*

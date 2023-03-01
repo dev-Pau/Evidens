@@ -180,6 +180,7 @@
 		5F91F0F729AD14FC007BB567 /* MESearchToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F629AD14FC007BB567 /* MESearchToolbar.swift */; };
 		5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */; };
 		5F91F0FC29AE5F36007BB567 /* RecentSearchesUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0FB29AE5F36007BB567 /* RecentSearchesUserCell.swift */; };
+		5F91F0FF29AF6196007BB567 /* ProfessionSelectedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0FE29AF6196007BB567 /* ProfessionSelectedCell.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
@@ -587,6 +588,7 @@
 		5F91F0F629AD14FC007BB567 /* MESearchToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MESearchToolbar.swift; sourceTree = "<group>"; };
 		5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoToFollowCell.swift; sourceTree = "<group>"; };
 		5F91F0FB29AE5F36007BB567 /* RecentSearchesUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentSearchesUserCell.swift; sourceTree = "<group>"; };
+		5F91F0FE29AF6196007BB567 /* ProfessionSelectedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionSelectedCell.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
@@ -1428,6 +1430,14 @@
 			path = RecentSearches;
 			sourceTree = "<group>";
 		};
+		5F91F0FD29AF614F007BB567 /* Profession */ = {
+			isa = PBXGroup;
+			children = (
+				5F91F0FE29AF6196007BB567 /* ProfessionSelectedCell.swift */,
+			);
+			path = Profession;
+			sourceTree = "<group>";
+		};
 		5F94477729151BC3003B3DA0 /* Bookmarks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1463,6 +1473,7 @@
 		5F9459192834EA17008EEAAC /* Topics */ = {
 			isa = PBXGroup;
 			children = (
+				5F91F0FD29AF614F007BB567 /* Profession */,
 				5F598BF52834EF0A00189722 /* Top */,
 				5F992B0828ACEDE70030F7F1 /* People */,
 				5F992B0528ACEA0A0030F7F1 /* Posts */,
@@ -2763,6 +2774,7 @@
 				5F8AF97F292CA3E5005C6778 /* GroupService.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5FAC98D2294873BC00C72228 /* GroupAboutHeader.swift in Sources */,
+				5F91F0FF29AF6196007BB567 /* ProfessionSelectedCell.swift in Sources */,
 				5F4493F02782193F008FD6ED /* RegisterTypeCell.swift in Sources */,
 				5F598C0728368E3B00189722 /* TopCaseHeader.swift in Sources */,
 				5FA6938E29A3594800DF3ADC /* CreateJobHeader.swift in Sources */,
