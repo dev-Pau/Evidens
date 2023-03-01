@@ -187,11 +187,14 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 }
 
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
-
+    func didRestoreMenu() {
+        activityIndicator.stop()
+        collectionView.isHidden = false
+    }
     
     func didSelectSearchCategory(_ category: String) {
-        self.collectionView.isHidden = true
-        self.activityIndicator.start()
+        collectionView.isHidden = true
+        activityIndicator.start()
         /*
         UIView.animate(withDuration: 0.2) {
             self.toolbarHeightAnchor.constant = 0

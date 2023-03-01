@@ -11,6 +11,7 @@ private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let professionSelectedCellReuseIdentifier = "ProfessionSelectedCellReuseIdentifier"
 
 protocol MESearchToolbarDelegate: AnyObject {
+    func didRestoreMenu()
     func didSelectSearchCategory(_ category: String)
 }
 
@@ -166,6 +167,58 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
 }
 
 extension MESearchToolbar: ProfessionSelectedCellDelegate {
+    func didSelectSearchTopic(_ topic: String) {
+        if displayDataSource[0] == topic { return }
+        if searchingWithCategorySelected {
+            UIView.animate(withDuration: 0.2) {
+                self.collectionView.alpha = 0
+            } completion: { _ in
+                self.displayDataSource.removeAll()
+                self.displayDataSource.append(topic)
+                self.displayDataSource.append(contentsOf: self.searchDataSource)
+                self.collectionView.reloadData()
+                self.searchingWithCategorySelected = false
+                UIView.animate(withDuration: 0.2) {
+                    self.collectionView.alpha = 1
+                }
+            }
+        } else {
+            displayDataSource[0] = topic
+            self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
+            self.collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
+        }
+    }
+    
+    func didSelectSearchCategory(_ category: String) {
+        if searchingWithCategorySelected {
+            if displayDataSource[1] == category { return }
+            displayDataSource[1] = category
+            
+            self.collectionView.reloadItems(at: [IndexPath(item: 1, section: 0)])
+            self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
+            
+            self.collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [])
+        } else {
+            if let index = displayDataSource.firstIndex(where: { $0 == category }) {
+
+                collectionView.performBatchUpdates {
+                    self.collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
+                    self.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: 1, section: 0))
+                } completion: { _ in
+                    self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[index]]
+                    self.collectionView.performBatchUpdates {
+                        self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
+                        self.searchingWithCategorySelected = true
+                        self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
+                    } completion: { _ in
+                        
+                    }
+               
+                }
+            }
+        }
+    }
+    
     func didRestoreMenu() {
         UIView.animate(withDuration: 0.2) {
             self.collectionView.alpha = 0
@@ -182,6 +235,7 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
                 self.collectionView.frame.origin.y = 0
                 self.separatorView.backgroundColor = .quaternarySystemFill
+                self.searchDelegate?.didRestoreMenu()
             }
         }
     }

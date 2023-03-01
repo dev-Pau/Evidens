@@ -9,6 +9,8 @@ import UIKit
 
 protocol ProfessionSelectedCellDelegate: AnyObject {
     func didRestoreMenu()
+    func didSelectSearchTopic(_ topic: String)
+    func didSelectSearchCategory(_ category: String)
 }
 
 class ProfessionSelectedCell: UICollectionViewCell {
@@ -103,27 +105,63 @@ class ProfessionSelectedCell: UICollectionViewCell {
     private func configureMenuWithTag() {
         guard let tag = selectedTag else { return }
         let topics = UIMenu(title: "Topics", subtitle: tag, image: UIImage(systemName: "arrow.up.arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), options: .singleSelection, children: [
-            UIAction(title: Profession.getAllProfessions()[0].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off,  handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[1].profession, state: Profession.getAllProfessions()[1].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[2].profession, state: Profession.getAllProfessions()[2].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[3].profession, state: Profession.getAllProfessions()[3].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[4].profession, state: Profession.getAllProfessions()[4].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[5].profession, state: Profession.getAllProfessions()[5].profession == tag ? .on : .off,handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[6].profession, state: Profession.getAllProfessions()[6].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[7].profession, state: Profession.getAllProfessions()[7].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[8].profession, state: Profession.getAllProfessions()[8].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[9].profession, state: Profession.getAllProfessions()[9].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[10].profession, state: Profession.getAllProfessions()[10].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[11].profession, state: Profession.getAllProfessions()[11].profession == tag ? .on : .off, handler: { _ in }),
-            UIAction(title: Profession.getAllProfessions()[12].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off, handler: { _ in }),
+            UIAction(title: Profession.getAllProfessions()[0].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off,  handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[0].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[1].profession, state: Profession.getAllProfessions()[1].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[1].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[2].profession, state: Profession.getAllProfessions()[2].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[2].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[3].profession, state: Profession.getAllProfessions()[3].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[3].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[4].profession, state: Profession.getAllProfessions()[4].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[4].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[5].profession, state: Profession.getAllProfessions()[5].profession == tag ? .on : .off,handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[5].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[6].profession, state: Profession.getAllProfessions()[6].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[6].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[7].profession, state: Profession.getAllProfessions()[7].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[7].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[8].profession, state: Profession.getAllProfessions()[8].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[8].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[9].profession, state: Profession.getAllProfessions()[9].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[9].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[10].profession, state: Profession.getAllProfessions()[10].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[10].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[11].profession, state: Profession.getAllProfessions()[11].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[11].profession)
+            }),
+            UIAction(title: Profession.getAllProfessions()[12].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[12].profession)
+            }),
         ])
 
         let category = UIMenu(title: "Categories", subtitle: selectedCategory ?? nil, image: UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), options: .singleSelection, children: [
-            UIAction(title: searchDataSource[0], state: selectedCategory ?? "" == searchDataSource[0] ? .on : .off, handler: { _ in }),
-            UIAction(title: searchDataSource[1], state: selectedCategory ?? "" == searchDataSource[1] ? .on : .off, handler: { _ in }),
-            UIAction(title: searchDataSource[2], state: selectedCategory ?? "" == searchDataSource[2] ? .on : .off, handler: { _ in }),
-            UIAction(title: searchDataSource[3], state: selectedCategory ?? "" == searchDataSource[3] ? .on : .off, handler: { _ in }),
-            UIAction(title: searchDataSource[4], state: selectedCategory ?? "" == searchDataSource[4] ? .on : .off, handler: { _ in })
+            UIAction(title: searchDataSource[0], state: selectedCategory ?? "" == searchDataSource[0] ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchCategory(self.searchDataSource[0])
+            }),
+            UIAction(title: searchDataSource[1], state: selectedCategory ?? "" == searchDataSource[1] ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchCategory(self.searchDataSource[1])
+            }),
+            UIAction(title: searchDataSource[2], state: selectedCategory ?? "" == searchDataSource[2] ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchCategory(self.searchDataSource[2])
+            }),
+            UIAction(title: searchDataSource[3], state: selectedCategory ?? "" == searchDataSource[3] ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchCategory(self.searchDataSource[3])
+            }),
+            UIAction(title: searchDataSource[4], state: selectedCategory ?? "" == searchDataSource[4] ? .on : .off, handler: { _ in
+                self.delegate?.didSelectSearchCategory(self.searchDataSource[4])
+            })
         ])
         
         let reset = UIAction(title: "Reset Filters", image: UIImage(systemName: "arrow.triangle.2.circlepath", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))) { _ in
