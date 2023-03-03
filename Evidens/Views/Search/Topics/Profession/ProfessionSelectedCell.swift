@@ -94,7 +94,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
             
             arrowImageView.centerYAnchor.constraint(equalTo: tagsLabel.centerYAnchor),
             arrowImageView.leadingAnchor.constraint(equalTo: tagsLabel.trailingAnchor, constant: 5),
-            arrowImageView.heightAnchor.constraint(equalToConstant: 11),
+            arrowImageView.heightAnchor.constraint(equalToConstant: 13),
             arrowImageView.widthAnchor.constraint(equalToConstant: 11)
         ])
         
@@ -173,7 +173,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
     }
     
     func setText(text: String) {
-        tagsLabel.text = "  \(text)"
+        tagsLabel.text = "     \(text)"
     }
     
     /*

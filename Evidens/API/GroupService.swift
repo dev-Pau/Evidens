@@ -51,6 +51,8 @@ struct GroupService {
         }
     }
     
+    
+    
     static func fetchUserGroups(withGroupIds groupIds: [String], completion: @escaping([Group]) -> Void) {
         // Check user RTD all the ID groups
         // Download group details from Firestore
@@ -72,6 +74,42 @@ struct GroupService {
             }
         }
     }
+    
+    /*
+    static func fetchTopGroupsForTopic(topic: String, completion: @escaping([Post]) -> Void) {
+        var count = 0
+        let query = COLLECTION_GROUPS.whereField("professions", arrayContains: topic).limit(to: 3)
+        query.getDocuments { (snapshot, error) in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
+            
+            var posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            
+            posts.enumerated().forEach { index, post in
+                self.checkIfUserLikedPost(post: post) { like in
+                    self.checkIfUserBookmarkedPost(post: post) { bookmark in
+                        fetchLikesForPost(postId: post.postId) { likes in
+                            posts[index].likes = likes
+                            fetchCommentsForPost(postId: post.postId) { comments in
+                                posts[index].numberOfComments = comments
+                                posts[index].didLike = like
+                                posts[index].didBookmark = bookmark
+                                count += 1
+                                if count == posts.count {
+                                    completion(posts)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+     */
+    
+    
 
     static func updateGroup(from group: Group, to newGroup: Group, completion: @escaping(Group) -> Void) {
         // Check what group values have changed

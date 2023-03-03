@@ -12,6 +12,7 @@ private let professionSelectedCellReuseIdentifier = "ProfessionSelectedCellReuse
 
 protocol MESearchToolbarDelegate: AnyObject {
     func didRestoreMenu()
+    func didSelectSearchTopic(_ topic: String)
     func didSelectSearchCategory(_ category: String)
 }
 
@@ -30,6 +31,8 @@ class MESearchToolbar: UIToolbar {
         view.backgroundColor = .quaternarySystemFill
         return view
     }()
+    
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -89,10 +92,6 @@ class MESearchToolbar: UIToolbar {
         
         return layout
     }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print(scrollView.contentOffset.x)
-    }
 }
 
 extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -135,6 +134,7 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
                 self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
                 self.searchingWithCategorySelected = true
                 self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
+                self.searchDelegate?.didSelectSearchCategory(self.displayDataSource[1])
             }
 
         } else {
@@ -155,7 +155,7 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
                     self.separatorView.backgroundColor = .quaternarySystemFill
                 }
             }
-            searchDelegate?.didSelectSearchCategory(dataSource[indexPath.row])
+            searchDelegate?.didSelectSearchTopic(dataSource[indexPath.row])
         }
         //collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
@@ -186,6 +186,8 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
             displayDataSource[0] = topic
             self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
             self.collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
+            
+            searchDelegate?.didSelectSearchTopic(topic)
         }
     }
     
@@ -217,6 +219,7 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
                 }
             }
         }
+        searchDelegate?.didSelectSearchCategory(category)
     }
     
     func didRestoreMenu() {

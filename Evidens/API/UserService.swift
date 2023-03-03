@@ -175,6 +175,27 @@ struct UserService {
         }
     }
     
+    static func fetchTopUsersWithTopic(topic: String, completion: @escaping([User]) -> Void) {
+        var count = 0
+        COLLECTION_USERS.whereField("profession", isEqualTo: topic).limit(to: 3).getDocuments { snapshot, _ in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
+
+            var users = snapshot.documents.map({ User(dictionary: $0.data() )})
+            users.enumerated().forEach { index, user in
+                self.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                    users[index].isFollowed = followed
+                    count += 1
+                    if count == users.count {
+                        completion(users)
+                    }
+                }
+            }
+        }
+    }
+    
     static func fetchUsers(completion: @escaping([User]) -> Void) {
         COLLECTION_USERS.limit(to: 50).getDocuments { (snapshot, error) in
             guard let snapshot = snapshot else { return }

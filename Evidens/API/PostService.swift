@@ -298,6 +298,38 @@ struct PostService {
         }
     }
     
+    static func fetchTopPostsForTopic(topic: String, completion: @escaping([Post]) -> Void) {
+        var count = 0
+        let query = COLLECTION_POSTS.whereField("professions", arrayContains: topic).limit(to: 3)
+        query.getDocuments { (snapshot, error) in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
+            
+            var posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            
+            posts.enumerated().forEach { index, post in
+                self.checkIfUserLikedPost(post: post) { like in
+                    self.checkIfUserBookmarkedPost(post: post) { bookmark in
+                        fetchLikesForPost(postId: post.postId) { likes in
+                            posts[index].likes = likes
+                            fetchCommentsForPost(postId: post.postId) { comments in
+                                posts[index].numberOfComments = comments
+                                posts[index].didLike = like
+                                posts[index].didBookmark = bookmark
+                                count += 1
+                                if count == posts.count {
+                                    completion(posts)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     static func likePost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         

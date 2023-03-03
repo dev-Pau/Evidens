@@ -64,7 +64,7 @@ class BrowseJobCell: UICollectionViewCell {
     private let companyNameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
@@ -128,7 +128,7 @@ class BrowseJobCell: UICollectionViewCell {
     private func configure() {
         isUpdatingJoiningState = false
         
-        addSubviews(companyImageView, bookmarkButton, jobPositionName, companyNameLabel, jobLocationLabel, jobDetailsLabel, timestampLabel, separatorView)
+        addSubviews(companyImageView, bookmarkButton, jobPositionName, companyNameLabel, jobLocationLabel, timestampLabel, separatorView)
         NSLayoutConstraint.activate([
             companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             companyImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -144,19 +144,19 @@ class BrowseJobCell: UICollectionViewCell {
             jobPositionName.leadingAnchor.constraint(equalTo: companyImageView.trailingAnchor, constant: 10),
             jobPositionName.trailingAnchor.constraint(equalTo: bookmarkButton.leadingAnchor, constant: -10),
             
-            companyNameLabel.topAnchor.constraint(equalTo: jobPositionName.bottomAnchor, constant: 5),
+            companyNameLabel.topAnchor.constraint(equalTo: jobPositionName.bottomAnchor, constant: 2),
             companyNameLabel.leadingAnchor.constraint(equalTo: jobPositionName.leadingAnchor),
             companyNameLabel.trailingAnchor.constraint(equalTo: jobPositionName.trailingAnchor),
             
-            jobLocationLabel.topAnchor.constraint(equalTo: companyNameLabel.bottomAnchor, constant: 5),
+            jobLocationLabel.topAnchor.constraint(equalTo: companyNameLabel.bottomAnchor, constant: 2),
             jobLocationLabel.leadingAnchor.constraint(equalTo: companyNameLabel.leadingAnchor),
             jobLocationLabel.trailingAnchor.constraint(equalTo: companyNameLabel.trailingAnchor),
-            
+            /*
             jobDetailsLabel.topAnchor.constraint(equalTo: jobLocationLabel.bottomAnchor, constant: 5),
             jobDetailsLabel.leadingAnchor.constraint(equalTo: jobLocationLabel.leadingAnchor),
             jobDetailsLabel.trailingAnchor.constraint(equalTo: jobLocationLabel.trailingAnchor),
-            
-            timestampLabel.topAnchor.constraint(equalTo: jobDetailsLabel.bottomAnchor, constant: 5),
+            */
+            timestampLabel.topAnchor.constraint(equalTo: jobLocationLabel.bottomAnchor, constant: 2),
             timestampLabel.leadingAnchor.constraint(equalTo: jobLocationLabel.leadingAnchor),
             timestampLabel.trailingAnchor.constraint(equalTo: jobLocationLabel.trailingAnchor),
             timestampLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
@@ -176,7 +176,7 @@ class BrowseJobCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         jobPositionName.text = viewModel.jobName
         jobLocationLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
-        jobDetailsLabel.text = viewModel.jobProfession + " · " + viewModel.jobType
+        //jobDetailsLabel.text = viewModel.jobProfession + " · " + viewModel.jobType
         timestampLabel.text = viewModel.jobTimestampString! + " ago"
         bookmarkButton.configuration?.image = viewModel.bookMarkImage
     }

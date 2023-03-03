@@ -145,6 +145,38 @@ struct CaseService {
         }
     }
     
+    static func fetchTopCasesForTopic(topic: String, completion: @escaping([Case]) -> Void) {
+        var count = 0
+        let query = COLLECTION_CASES.whereField("professions", arrayContains: topic).limit(to: 3)
+        query.getDocuments { (snapshot, error) in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
+            
+            var cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            
+            cases.enumerated().forEach { index, clinicalCase in
+                self.checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
+                    self.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in
+                        fetchLikesForCase(caseId: clinicalCase.caseId) { likes in
+                            cases[index].likes = likes
+                            fetchCommentsForCase(caseId: clinicalCase.caseId) { comments in
+                                cases[index].numberOfComments = comments
+                                cases[index].didLike = like
+                                cases[index].didBookmark = bookmark
+                                count += 1
+                                if count == cases.count {
+                                    completion(cases)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     /*
      static func fetchCasesWithDetailsFilter(fieldToQuery: String, valueToQuery: String) {
          COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in

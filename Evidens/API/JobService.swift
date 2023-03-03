@@ -102,6 +102,7 @@ struct JobService {
         }
     }
     
+    
     static func fetchJobs(withJobIds ids: [String], completion: @escaping([Job]) -> Void) {
         var jobs = [Job]()
         ids.forEach { id in
@@ -111,6 +112,20 @@ struct JobService {
                     completion(jobs)
                 }
             }
+        }
+    }
+    
+    static func fetchTopJobsForTopic(topic: String, completion: @escaping([Job]) -> Void) {
+        let query = COLLECTION_JOBS.whereField("profession", isEqualTo: topic).limit(to: 3)
+        query.getDocuments { (snapshot, error) in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
+            
+            var jobs = snapshot.documents.map( { Job(jobId: $0.documentID, dictionary: $0.data()) })
+            completion(jobs)
+            
         }
     }
     

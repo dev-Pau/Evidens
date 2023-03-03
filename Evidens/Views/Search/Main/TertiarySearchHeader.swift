@@ -1,13 +1,19 @@
 //
-//  TopSearchHeader.swift
+//  TertiarySearchHeader.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 27/2/23.
+//  Created by Pau Fernández Solà on 3/3/23.
 //
 
 import UIKit
 
-class MainSearchHeader: UICollectionReusableView {
+class TertiarySearchHeader: UICollectionReusableView {
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
+    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -25,6 +31,7 @@ class MainSearchHeader: UICollectionReusableView {
         return button
     }()
     
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -36,8 +43,13 @@ class MainSearchHeader: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(titleLabel, seeAllButton)
+        addSubviews(separatorView, titleLabel, seeAllButton)
         NSLayoutConstraint.activate([
+            separatorView.topAnchor.constraint(equalTo: topAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
@@ -48,17 +60,10 @@ class MainSearchHeader: UICollectionReusableView {
 
     }
     
-    func configureWith(title: String, linkText: String?) {
+    func configureWith(title: String, linkText: String) {
         titleLabel.text = title
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
-        if let linkText = linkText {
-            seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
-        } else {
-            seeAllButton.isHidden = true
-        }
-        
-        
+        seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
     }
-
 }

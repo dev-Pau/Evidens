@@ -7,22 +7,49 @@
 
 import UIKit
 
+private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
+private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let searchRecentsHeaderReuseIdentifier = "SearchRecentsHeaderReuseIdentifier"
 private let recentSearchesUserCellReuseIdentifier = "RecentSearchesUserCellReuseIdentifier"
 private let recentContentSearchReuseIdentifier = "RecentContentSearchReuseIdentifier"
+private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
+private let emptyTopicsCellReuseIdentifier = "EmptyTopicsCellReuseIdentifier"
+
+
+private let reuseIdentifier = "HomeTextCellReuseIdentifier"
+private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
+private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
+private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
+private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
+
+private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
+private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
+
+private let browseJobCellReuseIdentifier = "BrowseJobCellReuseIdentifier"
 
 class SearchResultsUpdatingViewController: UIViewController {
     
     var toolbarHeightAnchor: NSLayoutConstraint!
     
     private var dataLoaded: Bool = false
-    private var isInSearchMode: Bool = false
+    private var isInSearchTopicMode: Bool = false
+    private var isInSearchCategoryMode: Bool = false
     
     private var recentSearches = [String]()
     private var recentUserSearches = [String]()
     private var users = [User]()
+    
+    private lazy var topUsers = [User]()
+    private lazy var topPosts = [Post]()
+    private lazy var topPostUsers = [User]()
+    private lazy var topCases = [Case]()
+    private lazy var topCaseUsers = [User]()
+    private lazy var topGroups = [Group]()
+    
+    private lazy var topJobs = [Job]()
+    private lazy var topCompanies = [Company]()
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
     
@@ -74,44 +101,72 @@ class SearchResultsUpdatingViewController: UIViewController {
     private func createLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env -> NSCollectionLayoutSection? in
             
-            if self.isInSearchMode {
-                
-            } else {
-
-            }
-            if sectionNumber == 0 {
-                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+            if self.isInSearchTopicMode {
+               
+                let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(80)), subitems: [item])
-                
-                let section = NSCollectionLayoutSection(group: group)
-                section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-                section.interGroupSpacing = 0
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-                //if self.dataLoaded == false {
-                    section.boundarySupplementaryItems = [header]
-                //}
+                if sectionNumber == 0 {
+                    // People
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                    if !self.topUsers.isEmpty {
+                        item.contentInsets.leading = 10
+                        item.contentInsets.trailing = 10
+                    }
 
-                return section
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(65)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+
+                    section.boundarySupplementaryItems = [header]
+                    
+
+                    return section
+
+                } else {
+                    // Posts, Cases
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)))
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+                    section.boundarySupplementaryItems = [header]
+                    return section
+
+                }
             } else {
-               
-                
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
-                
-                let section = NSCollectionLayoutSection(group: group)
-                //section.orthogonalScrollingBehavior = .groupPagingCentered
-                section.interGroupSpacing = 0
-                //section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
-               
-                return section
+                // Recents
+                if sectionNumber == 0 {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(80)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+                    section.interGroupSpacing = 0
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    //if self.dataLoaded == false {
+                        section.boundarySupplementaryItems = [header]
+                    //}
+
+                    return section
+                } else {
+                   
+                    
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(50)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    //section.orthogonalScrollingBehavior = .groupPagingCentered
+                    section.interGroupSpacing = 0
+                    //section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                   
+                    return section
+                }
             }
-           
         }
-        
         return layout
     }
     
@@ -150,8 +205,96 @@ class SearchResultsUpdatingViewController: UIViewController {
         collectionView.register(SearchRecentsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchRecentsHeaderReuseIdentifier)
         collectionView.register(RecentSearchesUserCell.self, forCellWithReuseIdentifier: recentSearchesUserCellReuseIdentifier)
         collectionView.register(RecentContentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
+        
+        collectionView.register(TopEmptyContentCell.self, forCellWithReuseIdentifier: emptyTopicsCellReuseIdentifier)
+        collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
+        collectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
+        collectionView.register(TertiarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
+        
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
+        collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
+        collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
+        collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
+        
+        collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        
+        collectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: browseJobCellReuseIdentifier)
+        
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
         
+    }
+    
+    func fetchContentFor(topic: String, category: String) {
+        
+    }
+    
+    func fetchTopFor(topic: String) {
+        var count = 0
+        
+        UserService.fetchTopUsersWithTopic(topic: topic) { users in
+            self.topUsers = users
+            count += 1
+            self.checkIfFetchedAllInfo(count: count)
+        }
+        
+        PostService.fetchTopPostsForTopic(topic: topic) { posts in
+            self.topPosts = posts
+            guard !posts.isEmpty else {
+                count += 1
+                self.checkIfFetchedAllInfo(count: count)
+                return
+            }
+            
+            let uids = self.topPosts.map { $0.ownerUid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.topPostUsers = users
+                count += 1
+                self.checkIfFetchedAllInfo(count: count)
+            }
+            
+        }
+        
+        CaseService.fetchTopCasesForTopic(topic: topic) { cases in
+            self.topCases = cases
+            guard !cases.isEmpty else {
+                count += 1
+                self.checkIfFetchedAllInfo(count: count)
+                return
+            }
+            
+            let uids = self.topCases.map { $0.ownerUid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.topCaseUsers = users
+                count += 1
+                self.checkIfFetchedAllInfo(count: count)
+            }
+        }
+        
+        JobService.fetchTopJobsForTopic(topic: topic) { jobs in
+            self.topJobs = jobs
+            guard !jobs.isEmpty else {
+                count += 1
+                self.checkIfFetchedAllInfo(count: count)
+                return
+            }
+            
+            let ids = jobs.map({ $0.companyId })
+            CompanyService.fetchCompanies(withIds: ids) { companies in
+                self.topCompanies = companies
+                count += 1
+                self.checkIfFetchedAllInfo(count: count)
+            }
+        }
+    }
+    
+    func checkIfFetchedAllInfo(count: Int) {
+        if count == 4 {
+            self.activityIndicator.stop()
+            self.collectionView.reloadData()
+            self.collectionView.isHidden = false
+        }
     }
 }
 
@@ -189,33 +332,48 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
     func didRestoreMenu() {
         activityIndicator.stop()
+        self.isInSearchTopicMode = false
+        self.collectionView.reloadData()
         collectionView.isHidden = false
     }
     
-    func didSelectSearchCategory(_ category: String) {
+    func didSelectSearchTopic(_ category: String) {
         collectionView.isHidden = true
         activityIndicator.start()
-        /*
-        UIView.animate(withDuration: 0.2) {
-            self.toolbarHeightAnchor.constant = 0
-            self.view.layoutIfNeeded()
-
-        } completion: { _ in
-            self.collectionView.isHidden = true
-        }
-        
-        */
+        self.isInSearchTopicMode = true
+        fetchTopFor(topic: category)
+        // fetch top 3 of each
+        // when is fetch, clal the toolbar to revert the animation
     }
+    
+    func didSelectSearchCategory(_ category: String) {
+        print(category)
+        
+    }
+    
+
 }
 
 extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return isInSearchMode ? 1 : 2
+        return isInSearchTopicMode ? 5 : 2
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if isInSearchMode {
-            return 20
+        if isInSearchTopicMode {
+            // User press a topic on the main toolbar
+            if section == 0 {
+                return topUsers.isEmpty ? 1 : topUsers.count
+            } else if section == 1 {
+                return topPosts.isEmpty ? 1 : topPosts.count
+            } else if section == 2 {
+                return topCases.isEmpty ? 1 : topCases.count
+            } else if section == 3 {
+                return topGroups.isEmpty ? 1 : topGroups.count
+            } else {
+                return topJobs.isEmpty ? 1 : topJobs.count
+            }
         } else {
+            // Recents information
             if section == 0 {
                 return users.count
             } else {
@@ -226,28 +384,175 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if dataLoaded {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchRecentsHeaderReuseIdentifier, for: indexPath) as! SearchRecentsHeader
-            //header.delegate = self
-            return header
+        if !isInSearchTopicMode {
+            // Recents
+            if dataLoaded {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchRecentsHeaderReuseIdentifier, for: indexPath) as! SearchRecentsHeader
+                //header.delegate = self
+                return header
+            } else {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                return header
+            }
         } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
+            // Topic selected
+            if indexPath.section == 0 {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
+                header.configureWith(title: "People", linkText: "See All")
+                return header
+            } else {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
+                if indexPath.section == 1 {
+                    header.configureWith(title: "Posts", linkText: "See All")
+                } else if indexPath.section == 2 {
+                    header.configureWith(title: "Cases", linkText: "See All")
+                } else if indexPath.section == 3 {
+                    header.configureWith(title: "Groups", linkText: "See All")
+                } else {
+                    header.configureWith(title: "Jobs", linkText: "See All")
+                }
+                return header
+            }
         }
-
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentSearchesUserCell
-            cell.configureWithUser(user: users[indexPath.row])
-            return cell
+        if !isInSearchTopicMode {
+            if indexPath.section == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentSearchesUserCell
+                cell.configureWithUser(user: users[indexPath.row])
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
+                cell.viewModel = RecentTextCellViewModel(recentText: recentSearches[indexPath.row])
+                return cell
+            }
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
-            cell.viewModel = RecentTextCellViewModel(recentText: recentSearches[indexPath.row])
-            return cell
+            if indexPath.section == 0 {
+                // Top Users
+                if topUsers.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
+                    cell.set(title: "No users found", description: "Try removing some filters or rephrasing your search")
+                    return cell
+                } else {
+                 
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
+                    cell.configureWithUser(user: topUsers[indexPath.row])
+                    return cell
+                }
+            } else if indexPath.section == 1 {
+                // Top Posts
+                if topPosts.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
+                    cell.set(title: "No posts found", description: "Try removing some filters or rephrasing your search")
+                    return cell
+                } else {
+                    switch topPosts[indexPath.row].type {
+                    case .plainText:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        //cell.set(user: postUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    case .textWithImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        //cell.set(user: postUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    case .textWithTwoImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        //cell.set(user: postUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    case .textWithThreeImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        //cell.set(user: postUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    case .textWithFourImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                            cell.set(user: topPostUsers[userIndex])
+                        }
+                        //cell.set(user: postUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    case .document:
+                        return UICollectionViewCell()
+                    case .poll:
+                        return UICollectionViewCell()
+                    case .video:
+                        return UICollectionViewCell()
+                    }
+                }
+            } else if indexPath.section == 2 {
+                // Top Cases
+                if topCases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
+                    cell.set(title: "No posts found", description: "Try removing some filters or rephrasing your search")
+                    return cell
+                } else {
+                    switch topCases[indexPath.row].type {
+                    case .text:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                            cell.set(user: topCaseUsers[userIndex])
+                        }
+                        //cell.set(user: caseUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    case .textWithImage:
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                            cell.set(user: topCaseUsers[userIndex])
+                        }
+                        //cell.set(user: caseUsers[index])
+                        //cell.delegate = self
+                        return cell
+                    }
+                }
+            } else if indexPath.section == 3 {
+                if topGroups.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
+                    cell.set(title: "No groups found", description: "Try removing some filters or rephrasing your search")
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
+                    cell.backgroundColor = .systemPink
+                    return cell
+                }
+            } else {
+                if topJobs.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
+                    cell.set(title: "No jobs found", description: "Try removing some filters or rephrasing your search")
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: browseJobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
+                    cell.viewModel = JobViewModel(job: topJobs[indexPath.row])
+                    if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
+                        cell.configureWithCompany(company: topCompanies[companyIndex])
+                    }
+                    return cell
+                }
+            }
         }
-       
     }
-    
 }

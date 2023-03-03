@@ -181,6 +181,9 @@
 		5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */; };
 		5F91F0FC29AE5F36007BB567 /* RecentSearchesUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0FB29AE5F36007BB567 /* RecentSearchesUserCell.swift */; };
 		5F91F0FF29AF6196007BB567 /* ProfessionSelectedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F0FE29AF6196007BB567 /* ProfessionSelectedCell.swift */; };
+		5F91F10229B08848007BB567 /* NewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10129B08848007BB567 /* NewViewController.swift */; };
+		5F91F10529B0AD5F007BB567 /* TopEmptyContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10429B0AD5F007BB567 /* TopEmptyContentCell.swift */; };
+		5F91F10729B1DAB4007BB567 /* TertiarySearchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
@@ -589,6 +592,9 @@
 		5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoToFollowCell.swift; sourceTree = "<group>"; };
 		5F91F0FB29AE5F36007BB567 /* RecentSearchesUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentSearchesUserCell.swift; sourceTree = "<group>"; };
 		5F91F0FE29AF6196007BB567 /* ProfessionSelectedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionSelectedCell.swift; sourceTree = "<group>"; };
+		5F91F10129B08848007BB567 /* NewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewController.swift; sourceTree = "<group>"; };
+		5F91F10429B0AD5F007BB567 /* TopEmptyContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopEmptyContentCell.swift; sourceTree = "<group>"; };
+		5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TertiarySearchHeader.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
@@ -904,6 +910,7 @@
 		5F39B49F2830E8AE0079F8CF /* Search */ = {
 			isa = PBXGroup;
 			children = (
+				5F91F10029B08837007BB567 /* News */,
 				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
 				5F9136DA29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift */,
 				5F39B4A02830E8D60079F8CF /* SearchResultsViewController.swift */,
@@ -1045,15 +1052,8 @@
 		5F598BF52834EF0A00189722 /* Top */ = {
 			isa = PBXGroup;
 			children = (
-				5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */,
-				5F598BF62835002400189722 /* TopPeopleHeader.swift */,
-				5F598BFD28362E9200189722 /* TopPeopleCell.swift */,
-				5F598C042836569400189722 /* TopPostHeader.swift */,
-				5FA0874728B7627500D44829 /* TopPostImageCell.swift */,
-				5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */,
-				5F598C0628368E3B00189722 /* TopCaseHeader.swift */,
-				5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */,
-				5F992AFF28ACD6F30030F7F1 /* TopCaseTextCell.swift */,
+				5F91F10329B0ACC6007BB567 /* to delete */,
+				5F91F10429B0AD5F007BB567 /* TopEmptyContentCell.swift */,
 			);
 			path = Top;
 			sourceTree = "<group>";
@@ -1415,9 +1415,11 @@
 			children = (
 				5F91F0EB29ACD66C007BB567 /* MainSearchHeader.swift */,
 				5F91F0EE29ACF0E0007BB567 /* SecondarySearchHeader.swift */,
+				5F91F10629B1DAB4007BB567 /* TertiarySearchHeader.swift */,
 				5F91F0F029ACF2E4007BB567 /* YourNewsCell.swift */,
 				5F91F0F429AD0C2D007BB567 /* RecentNewsCell.swift */,
 				5F91F0F829ADFAAE007BB567 /* WhoToFollowCell.swift */,
+				5F9459172834E9F1008EEAAC /* Recents */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -1436,6 +1438,30 @@
 				5F91F0FE29AF6196007BB567 /* ProfessionSelectedCell.swift */,
 			);
 			path = Profession;
+			sourceTree = "<group>";
+		};
+		5F91F10029B08837007BB567 /* News */ = {
+			isa = PBXGroup;
+			children = (
+				5F91F10129B08848007BB567 /* NewViewController.swift */,
+			);
+			path = News;
+			sourceTree = "<group>";
+		};
+		5F91F10329B0ACC6007BB567 /* to delete */ = {
+			isa = PBXGroup;
+			children = (
+				5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */,
+				5F598BF62835002400189722 /* TopPeopleHeader.swift */,
+				5F598BFD28362E9200189722 /* TopPeopleCell.swift */,
+				5F598C042836569400189722 /* TopPostHeader.swift */,
+				5FA0874728B7627500D44829 /* TopPostImageCell.swift */,
+				5F992AFB28ACC7CD0030F7F1 /* TopPostTextCell.swift */,
+				5F598C0628368E3B00189722 /* TopCaseHeader.swift */,
+				5F992AFD28ACD6EA0030F7F1 /* TopCaseImageCell.swift */,
+				5F992AFF28ACD6F30030F7F1 /* TopCaseTextCell.swift */,
+			);
+			path = "to delete";
 			sourceTree = "<group>";
 		};
 		5F94477729151BC3003B3DA0 /* Bookmarks */ = {
@@ -2156,7 +2182,6 @@
 			children = (
 				5F91F0FA29AE5F21007BB567 /* RecentSearches */,
 				5F91F0ED29ACD6DF007BB567 /* Main */,
-				5F9459172834E9F1008EEAAC /* Recents */,
 				5F9459192834EA17008EEAAC /* Topics */,
 			);
 			path = Search;
@@ -2821,9 +2846,11 @@
 				5F9A9FA22899048200A25152 /* CasePrivacyMenuLauncher.swift in Sources */,
 				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
+				5F91F10229B08848007BB567 /* NewViewController.swift in Sources */,
 				5F9136D129AB6BF200675BCE /* JobUserApplicationCell.swift in Sources */,
 				5FB2904228910008002FBAE1 /* EditProfileViewController.swift in Sources */,
 				5FB29037288D4DC9002FBAE1 /* CaseTagCell.swift in Sources */,
+				5F91F10729B1DAB4007BB567 /* TertiarySearchHeader.swift in Sources */,
 				5F8B7C5028756EFE005094A5 /* CaseViewController.swift in Sources */,
 				5F5F894D299686D90014F378 /* ProfileCompletedViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
@@ -2844,6 +2871,7 @@
 				5FBCB9F128A6422C007EF79D /* METopPopupView.swift in Sources */,
 				5FA0874D28BFC22700D44829 /* SupportSectionViewController.swift in Sources */,
 				5FA9D18A29A75116004EF26A /* ManageJobCell.swift in Sources */,
+				5F91F10529B0AD5F007BB567 /* TopEmptyContentCell.swift in Sources */,
 				5FBCB9FA28A77DD1007EF79D /* NotificationMenuLauncher.swift in Sources */,
 				5F010AB728958B5D004CA9C9 /* UserProfileEducationCell.swift in Sources */,
 				5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */,
