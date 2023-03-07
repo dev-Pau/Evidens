@@ -45,24 +45,6 @@ class MEStretchyHeader: UICollectionReusableView {
         ])
     }
     
-    var animator: UIViewPropertyAnimator!
-    
-    let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
-    
-    func configureBlurView() {
-        addSubview(visualEffectView)
-        visualEffectView.fillSuperview()
-        
-        animator = UIViewPropertyAnimator(duration: 1.0, curve: .linear, animations: {
-            self.visualEffectView.effect = nil
-        })
-        
-        animator.isReversed = true
-        animator.fractionComplete = 0
-        
-        //animator.startAnimation()
-    }
-    
     func setImageWithStringUrl(imageUrl: String) {
         bannerImageView.sd_setImage(with: URL(string: imageUrl))
     }

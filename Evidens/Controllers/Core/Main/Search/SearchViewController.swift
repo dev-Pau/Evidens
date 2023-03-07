@@ -258,11 +258,15 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
+            header.tag = 0
+            header.delegate = self
             header.configureWith(title: "News for you", linkText: "See All")
             return header
         } else if indexPath.section == 1 {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
+            header.tag = 1
             header.configureWith(title: "Latest news", linkText: "See All")
+            header.delegate = self
             return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
@@ -366,9 +370,9 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
+        if indexPath.section == 0 || indexPath.section == 1 {
            let controller = NewViewController()
-         
+            controller.topBarHeight = topbarHeight - statusBarHeight
          
             //navigationController?.setNavigationBarHidden(true, animated: false)
             
@@ -383,6 +387,50 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             
             navigationController?.pushViewController(controller, animated: true)
         }
+    }
+}
+
+extension SearchViewController: MainSearchHeaderDelegate {
+    func didTapSeeAll(_ header: UICollectionReusableView) {
+        let text = header.tag == 0 ? "News for you" : "Latest news"
+        let controller = NewsListViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        controller.title = text
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        
+    }
+    
+    func didTapSeeAllTop() {
+        let controller = NewsListViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.title = "News for you"
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func didTapSeeAllRecents() {
+        let controller = NewsListViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.title = "Recent news"
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -423,6 +471,7 @@ extension SearchViewController: UsersFollowCellDelegate {
         }
     }
 }
+
 
 extension SearchViewController: CaseCellDelegate {
     func clinicalCase(wantsToSeeLikesFor clinicalCase: Case) {

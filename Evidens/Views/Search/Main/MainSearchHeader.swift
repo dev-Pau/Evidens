@@ -7,7 +7,13 @@
 
 import UIKit
 
+
+protocol MainSearchHeaderDelegate: AnyObject {
+    func didTapSeeAll(_ header: UICollectionReusableView)
+}
+
 class MainSearchHeader: UICollectionReusableView {
+    weak var delegate: MainSearchHeaderDelegate?
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -17,11 +23,12 @@ class MainSearchHeader: UICollectionReusableView {
         return label
     }()
     
-    private let seeAllButton: UIButton = {
+    private lazy var seeAllButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleSeeAllButtonTap), for: .touchUpInside)
         return button
     }()
     
@@ -57,8 +64,9 @@ class MainSearchHeader: UICollectionReusableView {
         } else {
             seeAllButton.isHidden = true
         }
-        
-        
     }
-
+    
+    @objc func handleSeeAllButtonTap() {
+        delegate?.didTapSeeAll(self)
+    }
 }

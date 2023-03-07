@@ -188,6 +188,8 @@
 		5F91F10B29B642DF007BB567 /* New.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10A29B642DE007BB567 /* New.swift */; };
 		5F91F10E29B75292007BB567 /* NewTitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10D29B75292007BB567 /* NewTitleCell.swift */; };
 		5F91F11029B75C49007BB567 /* NewContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10F29B75C49007BB567 /* NewContentCell.swift */; };
+		5F91F11229B77EC2007BB567 /* NewImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11129B77EC2007BB567 /* NewImageCell.swift */; };
+		5F91F11429B78337007BB567 /* NewsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11329B78337007BB567 /* NewsListViewController.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
@@ -603,6 +605,8 @@
 		5F91F10A29B642DE007BB567 /* New.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = New.swift; sourceTree = "<group>"; };
 		5F91F10D29B75292007BB567 /* NewTitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTitleCell.swift; sourceTree = "<group>"; };
 		5F91F10F29B75C49007BB567 /* NewContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewContentCell.swift; sourceTree = "<group>"; };
+		5F91F11129B77EC2007BB567 /* NewImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewImageCell.swift; sourceTree = "<group>"; };
+		5F91F11329B78337007BB567 /* NewsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListViewController.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
@@ -1451,6 +1455,7 @@
 		5F91F10029B08837007BB567 /* News */ = {
 			isa = PBXGroup;
 			children = (
+				5F91F11329B78337007BB567 /* NewsListViewController.swift */,
 				5F91F10129B08848007BB567 /* NewViewController.swift */,
 			);
 			path = News;
@@ -1477,6 +1482,7 @@
 			children = (
 				5F91F10D29B75292007BB567 /* NewTitleCell.swift */,
 				5F91F10F29B75C49007BB567 /* NewContentCell.swift */,
+				5F91F11129B77EC2007BB567 /* NewImageCell.swift */,
 			);
 			path = News;
 			sourceTree = "<group>";
@@ -2754,6 +2760,7 @@
 				5F9458D62832DE62008EEAAC /* CustomSegmentedButtonsView.swift in Sources */,
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
+				5F91F11429B78337007BB567 /* NewsListViewController.swift in Sources */,
 				5FA9D18229A6625B004EF26A /* JobDescriptionCell.swift in Sources */,
 				5FA3985E2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift in Sources */,
 				5F98F9BE298D1E0000F21074 /* RecentContentSearchCell.swift in Sources */,
@@ -2973,6 +2980,7 @@
 				5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */,
 				5FDB11D4289BCABD0079463F /* HelperBottomMenuLauncher.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
+				5F91F11229B77EC2007BB567 /* NewImageCell.swift in Sources */,
 				5F9A28082975731E0052E618 /* GroupPendingCell.swift in Sources */,
 				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,
 				5F9E429328802FBD00C2153B /* SpecialityRegistrationViewController.swift in Sources */,

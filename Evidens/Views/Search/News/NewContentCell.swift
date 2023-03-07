@@ -30,8 +30,8 @@ class NewContentCell: UICollectionViewCell {
     private func configure() {
         addSubview(contentNewsLabel)
         NSLayoutConstraint.activate([
-            contentNewsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentNewsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentNewsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            contentNewsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             contentNewsLabel.topAnchor.constraint(equalTo: topAnchor),
             contentNewsLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])

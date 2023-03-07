@@ -10,6 +10,7 @@ import UIKit
 private let stretchyHeaderReuseIdentifier = "StretchyHeaderReuseIdentifier"
 private let newTitleCellReuseIdentifier = "NewTitleCellReuseIdentifier"
 private let newContentCellReuseIdentifier = "NewContentCellReuseIdentifier"
+private let newImageCellReuseIdentifier = "NewImageCellReuseIdentifier"
 
 class NewViewController: UIViewController {
     
@@ -28,6 +29,7 @@ class NewViewController: UIViewController {
     let barStandardAppearance = UINavigationBarAppearance()
 
     private var collectionView: UICollectionView!
+    var topBarHeight: CGFloat = 0
     private var newsStretchyHeaderView: MEStretchyHeader?
     
     override func viewWillAppear(_ animated: Bool) {
@@ -50,6 +52,11 @@ class NewViewController: UIViewController {
         }
          */
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+       
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,7 +70,6 @@ class NewViewController: UIViewController {
         barStandardAppearance.configureWithTransparentBackground()
         self.navigationItem.scrollEdgeAppearance = appearance
         self.navigationItem.standardAppearance = barStandardAppearance
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
     }
     
@@ -74,20 +80,20 @@ class NewViewController: UIViewController {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(250)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
-                
+
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
                 section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
                 return section
             } else {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(0.90), heightDimension: .absolute(180)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .groupPagingCentered
-                section.interGroupSpacing = 20
+                section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
                 return section
             }
@@ -95,10 +101,10 @@ class NewViewController: UIViewController {
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        
+
         config.interSectionSpacing = 0
         layout.configuration = config
-        layout.topBarHeight = topbarHeight - statusBarHeight
+        layout.topBarHeight = self.topBarHeight
         
         return layout
     }
@@ -109,29 +115,31 @@ class NewViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.verticalScrollIndicatorInsets.top = 250 - topbarHeight
         collectionView.contentInsetAdjustmentBehavior = .never
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView)
         collectionView.backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
         
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
         collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
         collectionView.register(NewTitleCell.self, forCellWithReuseIdentifier: newTitleCellReuseIdentifier)
         collectionView.register(NewContentCell.self, forCellWithReuseIdentifier: newContentCellReuseIdentifier)
+        
         collectionView.delegate = self
         collectionView.dataSource = self
     }
+    
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let contentOffsetY = scrollView.contentOffset.y
 
         if contentOffsetY >= 250 - topbarHeight + 40 {
-            barStandardAppearance.backgroundEffect = UIBlurEffect(style: .dark)
+            barStandardAppearance.backgroundEffect = UIBlurEffect(style: .prominent)
             navigationItem.standardAppearance = self.barStandardAppearance
         } else {
             barStandardAppearance.configureWithTransparentBackground()
@@ -142,6 +150,7 @@ class NewViewController: UIViewController {
             collectionView.verticalScrollIndicatorInsets.top = (250 - topbarHeight) - contentOffsetY
         }
     }
+     
     
     @objc func handleBack() {
         navigationController?.popViewController(animated: true)
@@ -150,7 +159,7 @@ class NewViewController: UIViewController {
 
 extension NewViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -158,7 +167,7 @@ extension NewViewController: UICollectionViewDelegateFlowLayout, UICollectionVie
             return 3
         } else {
             // Images
-            return 3
+            return 4
         }
 
     }
@@ -179,16 +188,15 @@ extension NewViewController: UICollectionViewDelegateFlowLayout, UICollectionVie
                 return cell
             }
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
-            cell.backgroundColor = .systemYellow
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newImageCellReuseIdentifier, for: indexPath) as! NewImageCell
             return cell
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        print("will dispjlay kek")
+    }
 }
-
-
-
-
 
 class StretchyNewsHeaderLayout: UICollectionViewCompositionalLayout {
     
@@ -197,18 +205,19 @@ class StretchyNewsHeaderLayout: UICollectionViewCompositionalLayout {
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         var layoutAttributes = super.layoutAttributesForElements(in: rect)
         
+        // add the sticky header's layout attribute to the attributes array if they are not there
         let stickyIndexPath = IndexPath(item: 0, section: 0)
-        if let headerAttributes = layoutAttributesForSupplementaryView(ofKind: ElementKind.sectionHeader, at: stickyIndexPath) {
-            if !layoutAttributes!.contains(headerAttributes) {
-                layoutAttributes?.append(headerAttributes)
-            }
-        }
         
+           if let stickyAttribute = layoutAttributesForSupplementaryView(ofKind: ElementKind.sectionHeader, at: stickyIndexPath),
+              !layoutAttributes!.contains(stickyAttribute) {
+               layoutAttributes?.append(stickyAttribute)
+           }
+        
+
         layoutAttributes?.forEach { attribute in
             if attribute.representedElementKind == ElementKind.sectionHeader && attribute.indexPath.section == 0 {
                 guard let collectionView = collectionView else { return }
                
-
                 let contentOffsetY = collectionView.contentOffset.y
 
                 if contentOffsetY < 0 {
@@ -217,15 +226,19 @@ class StretchyNewsHeaderLayout: UICollectionViewCompositionalLayout {
                     let height = 250 - contentOffsetY
                     attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
                 } else {
+                    print(contentOffsetY)
+                    attribute.frame.origin.y = contentOffsetY
                     
-                    //attribute.frame.origin.y = collectionView.contentOffset.y //CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 100)
+                    attribute.frame.origin.y = collectionView.contentOffset.y //CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 100)
                     if 250 - contentOffsetY >= topBarHeight {
                         attribute.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 250)
                     } else {
+                        // - 250 + topBarHeight
                         attribute.frame = CGRect(x: 0, y: contentOffsetY - 250 + topBarHeight, width: UIScreen.main.bounds.width, height: 250)
                     }
-                    
+                     
                 }
+
             }
         }
         return layoutAttributes
