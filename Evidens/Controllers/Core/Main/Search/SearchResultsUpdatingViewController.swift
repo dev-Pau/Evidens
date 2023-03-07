@@ -16,7 +16,7 @@ private let recentSearchesUserCellReuseIdentifier = "RecentSearchesUserCellReuse
 private let recentContentSearchReuseIdentifier = "RecentContentSearchReuseIdentifier"
 private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 private let emptyTopicsCellReuseIdentifier = "EmptyTopicsCellReuseIdentifier"
-
+private let emptyCategoriesTopicsCellReuseIdentifier = "EmptyCategoriesTopicsCellReuseIdentifier"
 
 private let reuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
@@ -106,21 +106,24 @@ class SearchResultsUpdatingViewController: UIViewController {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 if sectionNumber == 0 {
+                    
                     // People
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                    if !self.topUsers.isEmpty {
-                        item.contentInsets.leading = 10
-                        item.contentInsets.trailing = 10
-                    }
+                    
+                    item.contentInsets.leading = 10
+                    item.contentInsets.trailing = 10
 
-                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(65)), subitems: [item])
+                    let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:
+                                                                                                        self.topUsers.isEmpty && self.topPosts.isEmpty && self.topCases.isEmpty && self.topGroups.isEmpty && self.topJobs.isEmpty ? .fractionalHeight(0.9) : .absolute(65)), subitems: [item])
+                    
                     
                     let section = NSCollectionLayoutSection(group: group)
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
 
-                    section.boundarySupplementaryItems = [header]
+                    if !self.topUsers.isEmpty {
+                        section.boundarySupplementaryItems = [header]
+                    }
                     
-
                     return section
 
                 } else {
@@ -129,9 +132,26 @@ class SearchResultsUpdatingViewController: UIViewController {
                     let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(65)), subitems: [item])
                     let section = NSCollectionLayoutSection(group: group)
                     section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
-                    section.boundarySupplementaryItems = [header]
+                    
+                    if sectionNumber == 1 {
+                        if !self.topPosts.isEmpty {
+                            section.boundarySupplementaryItems = [header]
+                        }
+                    } else if sectionNumber == 2 {
+                            if !self.topCases.isEmpty {
+                                section.boundarySupplementaryItems = [header]
+                            }
+                    } else if sectionNumber == 3 {
+                        if !self.topGroups.isEmpty {
+                            section.boundarySupplementaryItems = [header]
+                        }
+                    } else {
+                        if !self.topJobs.isEmpty {
+                            section.boundarySupplementaryItems = [header]
+                        }
+                    }
+                    
                     return section
-
                 }
             } else {
                 // Recents
@@ -172,6 +192,7 @@ class SearchResultsUpdatingViewController: UIViewController {
     
     private func configureUI() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.keyboardDismissMode = .onDrag
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
         view.addSubviews(activityIndicator, collectionView, categoriesToolbar )
@@ -222,12 +243,25 @@ class SearchResultsUpdatingViewController: UIViewController {
         
         collectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: browseJobCellReuseIdentifier)
         
+        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
+        
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
         
     }
     
-    func fetchContentFor(topic: String, category: String) {
-        
+    func fetchContentFor(topic: String, category: Search.Topics) {
+        /*
+        switch category {
+        case .people:
+            <#code#>
+        case .posts:
+            <#code#>
+        case .cases:
+            <#code#>
+        case .groups:
+            <#code#>
+        }
+         */
     }
     
     func fetchTopFor(topic: String) {
@@ -303,6 +337,10 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
         
     }
     
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.searchTextField.resignFirstResponder()
+    }
+    
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         //searchBar.showsScopeBar = true
     }
@@ -356,21 +394,29 @@ extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
 
 extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return isInSearchTopicMode ? 5 : 2
+        if isInSearchTopicMode {
+            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty && topJobs.isEmpty { return 1 }
+            return 5
+        } else {
+            return 2
+        }
     }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isInSearchTopicMode {
             // User press a topic on the main toolbar
+            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty { return 1 }
+            
             if section == 0 {
-                return topUsers.isEmpty ? 1 : topUsers.count
+                return topUsers.isEmpty ? 0 : topUsers.count
             } else if section == 1 {
-                return topPosts.isEmpty ? 1 : topPosts.count
+                return topPosts.isEmpty ? 0 : topPosts.count
             } else if section == 2 {
-                return topCases.isEmpty ? 1 : topCases.count
+                return topCases.isEmpty ? 0 : topCases.count
             } else if section == 3 {
-                return topGroups.isEmpty ? 1 : topGroups.count
+                return topGroups.isEmpty ? 0 : topGroups.count
             } else {
-                return topJobs.isEmpty ? 1 : topJobs.count
+                return topJobs.isEmpty ? 0 : topJobs.count
             }
         } else {
             // Recents information
@@ -404,12 +450,16 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
                 if indexPath.section == 1 {
                     header.configureWith(title: "Posts", linkText: "See All")
+                    if topUsers.isEmpty { header.separatorView.isHidden = true }
                 } else if indexPath.section == 2 {
                     header.configureWith(title: "Cases", linkText: "See All")
+                    if topUsers.isEmpty && topPosts.isEmpty { header.separatorView.isHidden = true }
                 } else if indexPath.section == 3 {
                     header.configureWith(title: "Groups", linkText: "See All")
+                    if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty { header.separatorView.isHidden = true }
                 } else {
                     header.configureWith(title: "Jobs", linkText: "See All")
+                    if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty { header.separatorView.isHidden = true }
                 }
                 return header
             }
@@ -428,25 +478,20 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 return cell
             }
         } else {
+            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty && topJobs.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: nil, title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                return cell
+            }
+            
             if indexPath.section == 0 {
                 // Top Users
-                if topUsers.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
-                    cell.set(title: "No users found", description: "Try removing some filters or rephrasing your search")
-                    return cell
-                } else {
-                 
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
-                    cell.configureWithUser(user: topUsers[indexPath.row])
-                    return cell
-                }
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
+                cell.configureWithUser(user: topUsers[indexPath.row])
+                return cell
+                
             } else if indexPath.section == 1 {
                 // Top Posts
-                if topPosts.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
-                    cell.set(title: "No posts found", description: "Try removing some filters or rephrasing your search")
-                    return cell
-                } else {
                     switch topPosts[indexPath.row].type {
                     case .plainText:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
@@ -500,14 +545,9 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     case .video:
                         return UICollectionViewCell()
                     }
-                }
             } else if indexPath.section == 2 {
                 // Top Cases
-                if topCases.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
-                    cell.set(title: "No posts found", description: "Try removing some filters or rephrasing your search")
-                    return cell
-                } else {
+
                     switch topCases[indexPath.row].type {
                     case .text:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
@@ -527,31 +567,23 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         //cell.set(user: caseUsers[index])
                         //cell.delegate = self
                         return cell
-                    }
+                    
                 }
             } else if indexPath.section == 3 {
-                if topGroups.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
-                    cell.set(title: "No groups found", description: "Try removing some filters or rephrasing your search")
-                    return cell
-                } else {
+
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
                     cell.backgroundColor = .systemPink
                     return cell
-                }
+                
             } else {
-                if topJobs.isEmpty {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyTopicsCellReuseIdentifier, for: indexPath) as! TopEmptyContentCell
-                    cell.set(title: "No jobs found", description: "Try removing some filters or rephrasing your search")
-                    return cell
-                } else {
+                
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: browseJobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
                     cell.viewModel = JobViewModel(job: topJobs[indexPath.row])
                     if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
                         cell.configureWithCompany(company: topCompanies[companyIndex])
                     }
                     return cell
-                }
+                
             }
         }
     }

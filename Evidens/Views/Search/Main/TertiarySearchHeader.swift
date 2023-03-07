@@ -8,7 +8,7 @@
 import UIKit
 
 class TertiarySearchHeader: UICollectionReusableView {
-    private let separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .quaternarySystemFill

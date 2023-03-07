@@ -566,6 +566,8 @@ extension GroupMembershipViewController: MESecondaryEmptyCellDelegate {
             print("present learn more")
         case .dismiss:
             navigationController?.popViewController(animated: true)
+        case .removeFilters:
+            break
         }
     }
 }

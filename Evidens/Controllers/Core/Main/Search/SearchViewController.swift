@@ -96,6 +96,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        //navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.delegate = self
     }
     
@@ -365,6 +366,14 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+           let controller = NewViewController()
+         
+         
+            //navigationController?.setNavigationBarHidden(true, animated: false)
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
         if indexPath.section == 2 {
             let controller = UserProfileViewController(user: users[indexPath.row])
             let backItem = UIBarButtonItem()

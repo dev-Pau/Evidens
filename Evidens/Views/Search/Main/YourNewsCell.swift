@@ -17,8 +17,7 @@ class YourNewsCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         return iv
     }()
-    
-    
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

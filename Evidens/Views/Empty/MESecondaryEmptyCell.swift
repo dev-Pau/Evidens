@@ -16,6 +16,7 @@ enum EmptyCellButtonOptions: String, CaseIterable {
     case invite = "   Invite   "
     case learnMore = "   Learn more   "
     case dismiss = "   Dismiss   "
+    case removeFilters = "   Remove filters   "
 }
 
 class MESecondaryEmptyCell: UICollectionViewCell {
