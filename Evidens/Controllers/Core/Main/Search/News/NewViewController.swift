@@ -75,29 +75,19 @@ class NewViewController: UIViewController {
     
     private func createLayout() -> StretchyNewsHeaderLayout {
         let layout = StretchyNewsHeaderLayout { sectionNumber, env in
-            if sectionNumber == 0 {
+
                 // New header
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(250)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
 
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)))
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
                 section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
                 return section
-            } else {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(0.90), heightDimension: .absolute(180)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
-                section.orthogonalScrollingBehavior = .groupPagingCentered
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
-                return section
-            }
-           
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
@@ -129,6 +119,7 @@ class NewViewController: UIViewController {
         collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
         collectionView.register(NewTitleCell.self, forCellWithReuseIdentifier: newTitleCellReuseIdentifier)
         collectionView.register(NewContentCell.self, forCellWithReuseIdentifier: newContentCellReuseIdentifier)
+        collectionView.register(NewImageCell.self, forCellWithReuseIdentifier: newImageCellReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -158,18 +149,9 @@ class NewViewController: UIViewController {
 }
 
 extension NewViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
-            return 3
-        } else {
-            // Images
-            return 4
-        }
 
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 5
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -179,18 +161,18 @@ extension NewViewController: UICollectionViewDelegateFlowLayout, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 0 {
             if indexPath.row == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newTitleCellReuseIdentifier, for: indexPath) as! NewTitleCell
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newContentCellReuseIdentifier, for: indexPath) as! NewContentCell
-                return cell
+                if indexPath.row % 2 == 0 {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newContentCellReuseIdentifier, for: indexPath) as! NewContentCell
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newImageCellReuseIdentifier, for: indexPath) as! NewImageCell
+                    return cell
+                }
             }
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newImageCellReuseIdentifier, for: indexPath) as! NewImageCell
-            return cell
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
