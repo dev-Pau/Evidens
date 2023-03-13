@@ -69,4 +69,5 @@ class MainSearchHeader: UICollectionReusableView {
     @objc func handleSeeAllButtonTap() {
         delegate?.didTapSeeAll(self)
     }
+
 }

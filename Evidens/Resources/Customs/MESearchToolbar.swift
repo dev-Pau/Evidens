@@ -13,7 +13,7 @@ private let professionSelectedCellReuseIdentifier = "ProfessionSelectedCellReuse
 protocol MESearchToolbarDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectSearchTopic(_ topic: String)
-    func didSelectSearchCategory(_ category: String)
+    func didSelectSearchCategory(_ category: Search.Topics)
 }
 
 class MESearchToolbar: UIToolbar {
@@ -21,7 +21,7 @@ class MESearchToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     private let dataSource = Profession.getAllProfessions().map({ $0.profession })
     private var displayDataSource = [String]()
-    private let searchDataSource = ["People", "Posts", "Cases", "Groups", "Jobs"]
+    private let searchDataSource = Search.Topics.allCases
     private var isInSearchMode: Bool = false
     private var searchingWithCategorySelected: Bool = false
     
@@ -134,7 +134,7 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
                 self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
                 self.searchingWithCategorySelected = true
                 self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-                self.searchDelegate?.didSelectSearchCategory(self.displayDataSource[1])
+                self.searchDelegate?.didSelectSearchCategory(self.searchDataSource[indexPath.row - 1])
             }
 
         } else {
@@ -144,7 +144,7 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
             } completion: { _ in
                 self.displayDataSource = [String]()
                 self.displayDataSource.append(self.dataSource[indexPath.row])
-                self.displayDataSource.append(contentsOf: self.searchDataSource)
+                self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.rawValue }))
 
                 self.isInSearchMode = true
                 self.collectionView.reloadData()
@@ -175,7 +175,7 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
             } completion: { _ in
                 self.displayDataSource.removeAll()
                 self.displayDataSource.append(topic)
-                self.displayDataSource.append(contentsOf: self.searchDataSource)
+                self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.rawValue }))
                 self.collectionView.reloadData()
                 self.searchingWithCategorySelected = false
                 UIView.animate(withDuration: 0.2) {
@@ -191,17 +191,16 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
         }
     }
     
-    func didSelectSearchCategory(_ category: String) {
+    func didSelectSearchCategory(_ category: Search.Topics) {
         if searchingWithCategorySelected {
-            if displayDataSource[1] == category { return }
-            displayDataSource[1] = category
-            
+            if displayDataSource[1] == category.rawValue { return }
+            displayDataSource[1] = category.rawValue
             self.collectionView.reloadItems(at: [IndexPath(item: 1, section: 0)])
             self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
             
             self.collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [])
         } else {
-            if let index = displayDataSource.firstIndex(where: { $0 == category }) {
+            if let index = displayDataSource.firstIndex(where: { $0 == category.rawValue }) {
 
                 collectionView.performBatchUpdates {
                     self.collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])

@@ -138,6 +138,10 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
+    func hideSeparatorView() {
+        actionButtonsView.separatorView.isHidden = true
+    }
+    
     // MARK: - Helpers
     
     func configure() {

@@ -176,3 +176,10 @@ struct Case {
         self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .visible
     }
 }
+
+extension Case {
+    enum ContentSource {
+        case user
+        case search
+    }
+}

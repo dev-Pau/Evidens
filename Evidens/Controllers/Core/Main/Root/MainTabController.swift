@@ -168,7 +168,7 @@ class MainTabController: UITabBarController {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
-        let homeController = HomeViewController()
+        let homeController = HomeViewController(contentSource: .home)
         homeController.delegate = self
         homeController.scrollDelegate = self
         homeController.panDelegate = self

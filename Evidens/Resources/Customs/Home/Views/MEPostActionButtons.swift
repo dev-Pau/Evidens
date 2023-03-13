@@ -68,7 +68,7 @@ class MEPostActionButtons: UIView {
         return button
     }()
     
-    private let separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false

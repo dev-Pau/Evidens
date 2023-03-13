@@ -107,6 +107,25 @@ struct CaseService {
         }
     }
     
+    static func fetchUserSearchCases(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        
+        if lastSnapshot == nil {
+            let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: user.profession!).limit(to: 10)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            let nextGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 10)
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
+    
     
     static func fetchLastUploadedClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
 

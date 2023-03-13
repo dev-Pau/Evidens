@@ -18,7 +18,6 @@ private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
 private let skeletonTextReuseIdentifier = "SkeletonReuseIdentifier"
 private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
 
-
 protocol HomeViewControllerDelegate: AnyObject {
     func updateAlpha(alpha: CGFloat)
 }
@@ -28,14 +27,13 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Properties
     
     weak var scrollDelegate: HomeViewControllerDelegate?
+    
+    private let contentSource: Post.ContentSource
 
     var user: User?
-
     
     private var loaded = false
-    private var homeHelper = true
-    private var numberOfSections: Int = 2
-    
+
     var displaysSinglePost: Bool = false
     private var displayState: DisplayState = .none
     
@@ -54,16 +52,32 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
    
     //MARK: - Lifecycle
-
+    
+    init(contentSource: Post.ContentSource) {
+        self.contentSource = contentSource
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .systemBackground
-        self.navigationController?.delegate = zoomTransitioning
+        if contentSource == .search {
+            self.navigationController?.delegate = self
+        } else {
+            self.navigationController?.delegate = zoomTransitioning
+        }
+
         fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
     }
+    
+    
     
 
     /*
@@ -78,9 +92,12 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        if contentSource == .search {
+            self.navigationController?.delegate = self
+        } else {
+            self.navigationController?.delegate = zoomTransitioning
+        }
 
-        self.navigationController?.delegate = zoomTransitioning
-        
         if displaysSinglePost {
             switch displayState {
             case .none:
@@ -88,6 +105,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             case .photo:
                 break
             case .others:
+                if contentSource == .search { return }
                 guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
                 let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
                 view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -148,6 +166,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     
     func configureNavigationItemButtons() {
         if displaysSinglePost {
+            if contentSource == .search { return }
             guard let firstName = user?.firstName, let lastName = user?.lastName else { return }
             let view = MENavigationBarTitleView(fullName: firstName + " " + lastName, category: "Posts")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
@@ -170,6 +189,68 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - API
 
     func fetchFirstPostsGroup() {
+        switch contentSource {
+        case .home:
+            PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
+                PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
+                    self.postsLastSnapshot = snapshot.documents.last
+                    self.posts = fetchedPosts
+                    self.checkIfUserLikedPosts()
+                    self.checkIfUserBookmarkedPost()
+                    self.collectionView.refreshControl?.endRefreshing()
+                    self.posts.forEach { post in
+                        UserService.fetchUser(withUid: post.ownerUid) { user in
+                            self.users.append(user)
+                            self.loaded = true
+                            self.activityIndicator.stop()
+                            self.collectionView.reloadData()
+                            self.collectionView.isHidden = false
+                        }
+                    }
+                }
+            }
+        case .user:
+            guard let uid = user?.uid else { return }
+            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
+                switch result {
+                case .success(let uids):
+                    uids.forEach { uid in
+                        PostService.fetchPost(withPostId: uid) { fetchedPosts in
+                            self.posts.append(fetchedPosts)
+                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            // Get the last timestamp to create next query for realtime database
+                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                            self.checkIfUserLikedPosts()
+                            self.checkIfUserBookmarkedPost()
+                            self.activityIndicator.stop()
+                            self.loaded = true
+                            self.collectionView.isHidden = false
+                        }
+                    }
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        case .search:
+            guard let user = user else { return }
+            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: nil) { snapshot in
+                self.postsLastSnapshot = snapshot.documents.last
+                self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedPosts()
+                self.checkIfUserBookmarkedPost()
+                self.posts.forEach { post in
+                    UserService.fetchUser(withUid: post.ownerUid) { user in
+                        self.users.append(user)
+                        self.loaded = true
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
+                    }
+                }
+            }
+        }
+        
+        /*
         if !displaysSinglePost {
             PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
@@ -212,6 +293,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 }
             }
         }
+         */
     }
     
     func checkIfUserLikedPosts() {
@@ -287,7 +369,6 @@ extension HomeViewController: UICollectionViewDataSource {
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //if section == 0 { return homeHelper ? OnboardingMessage.HomeHelper.allCases.count : 0 }
         return posts.isEmpty ? 1 : posts.count
     }
     
@@ -507,6 +588,9 @@ extension HomeViewController: HomeCellDelegate {
         selectedImage = image[index]
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
         //controller.customDelegate = self
+        if contentSource == .search {
+            self.navigationController?.delegate = zoomTransitioning
+        }
         displayState = .photo
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -789,6 +873,64 @@ extension HomeViewController: ZoomTransitioningDelegate {
 
 extension HomeViewController {
     func getMorePosts() {
+        switch contentSource {
+        case .home:
+            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
+                PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
+                    self.postsLastSnapshot = snapshot.documents.last
+                    self.posts.append(contentsOf: newPosts)
+                    self.checkIfUserLikedPosts()
+                    self.checkIfUserBookmarkedPost()
+                    
+                    newPosts.forEach { post in
+                        UserService.fetchUser(withUid: post.ownerUid) { user in
+                            self.users.append(user)
+                            self.collectionView.reloadData()
+                        }
+                    }
+                }
+            }
+        case .user:
+            guard let uid = user?.uid else { return }
+            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
+                switch result {
+                case .success(let uids):
+                    uids.forEach { uid in
+                        PostService.fetchPost(withPostId: uid) { newPost in
+                            self.posts.append(newPost)
+                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                            self.checkIfUserLikedPosts()
+                            self.checkIfUserBookmarkedPost()
+                            self.collectionView.reloadData()
+                        }
+                    }
+                case .failure(let error):
+                    print(error)
+                    
+                }
+            }
+        case .search:
+            guard let user = user else { return }
+            PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: postsLastSnapshot) { snapshot in
+                var newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                self.postsLastSnapshot = snapshot.documents.last
+                //self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserLikedPosts()
+                self.checkIfUserBookmarkedPost()
+                self.posts.append(contentsOf: newPosts)
+                newPosts.forEach { post in
+                    UserService.fetchUser(withUid: post.ownerUid) { user in
+                        self.users.append(user)
+                        self.loaded = true
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
+                    }
+                }
+            }
+        }
+        /*
         if !displaysSinglePost {
             PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
                 PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
@@ -826,6 +968,7 @@ extension HomeViewController {
                 }
             }
         }
+         */
     }
 }
 

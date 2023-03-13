@@ -28,9 +28,7 @@ struct Post {
     
     var didLike = false
     var didBookmark = false
-    
-    
-    
+
     enum PrivacyOptions: Int, CaseIterable {
         case all
         case group
@@ -166,6 +164,13 @@ extension Post: Hashable {
     static func == (lhs: Post, rhs: Post) -> Bool {
         return lhs.postId == rhs.postId && lhs.likes == rhs.likes && lhs.didLike == rhs.didLike && lhs.timestamp == rhs.timestamp
     }
-    
+}
+
+extension Post {
+    enum ContentSource {
+        case home
+        case user
+        case search
+    }
 }
 

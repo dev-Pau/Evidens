@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 private let topHeaderReuseIdentifier = "TopHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
@@ -37,18 +38,28 @@ class SearchResultsUpdatingViewController: UIViewController {
     private var isInSearchTopicMode: Bool = false
     private var isInSearchCategoryMode: Bool = false
     
+    private var topicSearched: String?
+
     private var recentSearches = [String]()
     private var recentUserSearches = [String]()
     private var users = [User]()
     
     private lazy var topUsers = [User]()
+    private var usersLastSnapshot: QueryDocumentSnapshot?
+    
     private lazy var topPosts = [Post]()
+    private var postsLastSnapshot: QueryDocumentSnapshot?
     private lazy var topPostUsers = [User]()
+    
     private lazy var topCases = [Case]()
     private lazy var topCaseUsers = [User]()
+    private var caseLastSnapshot: QueryDocumentSnapshot?
+    
     private lazy var topGroups = [Group]()
+    private var groupsLastSnapshot: QueryDocumentSnapshot?
     
     private lazy var topJobs = [Job]()
+    private var jobsLastSnapshot: QueryDocumentSnapshot?
     private lazy var topCompanies = [Company]()
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
@@ -250,18 +261,30 @@ class SearchResultsUpdatingViewController: UIViewController {
     }
     
     func fetchContentFor(topic: String, category: Search.Topics) {
-        /*
-        switch category {
-        case .people:
-            <#code#>
-        case .posts:
-            <#code#>
-        case .cases:
-            <#code#>
-        case .groups:
-            <#code#>
+        SearchService.fetchUsersWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
+            switch category {
+            case .people:
+                self.usersLastSnapshot = snapshot.documents.last
+                self.users = snapshot.documents.map({ User(dictionary: $0.data() )})
+                print(self.users)
+            case .posts:
+                self.postsLastSnapshot = snapshot.documents.last
+                self.topPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data() )})
+                print(self.topPosts)
+            case .cases:
+                self.caseLastSnapshot = snapshot.documents.last
+                self.topCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data() )})
+                print(self.topCases)
+            case .groups:
+                self.groupsLastSnapshot = snapshot.documents.last
+                self.topGroups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data() )})
+                print(self.topGroups)
+            case .jobs:
+                self.jobsLastSnapshot = snapshot.documents.last
+                self.topJobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
+                print(self.topJobs)
+            }
         }
-         */
     }
     
     func fetchTopFor(topic: String) {
@@ -287,7 +310,6 @@ class SearchResultsUpdatingViewController: UIViewController {
                 count += 1
                 self.checkIfFetchedAllInfo(count: count)
             }
-            
         }
         
         CaseService.fetchTopCasesForTopic(topic: topic) { cases in
@@ -368,28 +390,31 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 }
 
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
+
     func didRestoreMenu() {
         activityIndicator.stop()
-        self.isInSearchTopicMode = false
-        self.collectionView.reloadData()
+        isInSearchTopicMode = false
+        isInSearchCategoryMode = false
+        collectionView.reloadData()
         collectionView.isHidden = false
     }
     
     func didSelectSearchTopic(_ category: String) {
         collectionView.isHidden = true
+        topicSearched = category
         activityIndicator.start()
-        self.isInSearchTopicMode = true
+        isInSearchTopicMode = true
         fetchTopFor(topic: category)
         // fetch top 3 of each
         // when is fetch, clal the toolbar to revert the animation
     }
     
-    func didSelectSearchCategory(_ category: String) {
-        print(category)
-        
+    func didSelectSearchCategory(_ category: Search.Topics) {
+        collectionView.isHidden = true
+        activityIndicator.start()
+        isInSearchCategoryMode = true
+        fetchContentFor(topic: topicSearched!, category: category)
     }
-    
-
 }
 
 extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {

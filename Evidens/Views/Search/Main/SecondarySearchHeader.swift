@@ -8,6 +8,8 @@
 import UIKit
 
 class SecondarySearchHeader: UICollectionReusableView {
+    weak var delegate: MainSearchHeaderDelegate?
+    
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -28,6 +30,7 @@ class SecondarySearchHeader: UICollectionReusableView {
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleSeeAllTap), for: .touchUpInside)
         return button
     }()
     
@@ -57,7 +60,6 @@ class SecondarySearchHeader: UICollectionReusableView {
             seeAllButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10)
         ])
-
     }
     
     func configureWith(title: String, linkText: String) {
@@ -65,5 +67,14 @@ class SecondarySearchHeader: UICollectionReusableView {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
         seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
+    }
+    
+    @objc func handleSeeAllTap() {
+        delegate?.didTapSeeAll(self)
+    }
+    
+    func hideSeeAllButton() {
+        seeAllButton.isHidden = true
+        seeAllButton.isUserInteractionEnabled = false
     }
 }

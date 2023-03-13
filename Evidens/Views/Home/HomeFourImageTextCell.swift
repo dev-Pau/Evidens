@@ -222,6 +222,10 @@ class HomeFourImageTextCell: UICollectionViewCell {
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     
+    func hideSeparatorView() {
+        actionButtonsView.separatorView.isHidden = true
+    }
+    
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 

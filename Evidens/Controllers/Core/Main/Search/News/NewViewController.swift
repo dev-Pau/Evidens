@@ -85,7 +85,7 @@ class NewViewController: UIViewController {
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
-                section.interGroupSpacing = 10
+                section.interGroupSpacing = 20
                 section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
                 return section
         }
@@ -208,7 +208,6 @@ class StretchyNewsHeaderLayout: UICollectionViewCompositionalLayout {
                     let height = 250 - contentOffsetY
                     attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
                 } else {
-                    print(contentOffsetY)
                     attribute.frame.origin.y = contentOffsetY
                     
                     attribute.frame.origin.y = collectionView.contentOffset.y //CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 100)

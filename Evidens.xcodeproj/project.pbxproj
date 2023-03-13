@@ -190,6 +190,8 @@
 		5F91F11029B75C49007BB567 /* NewContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F10F29B75C49007BB567 /* NewContentCell.swift */; };
 		5F91F11229B77EC2007BB567 /* NewImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11129B77EC2007BB567 /* NewImageCell.swift */; };
 		5F91F11429B78337007BB567 /* NewsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11329B78337007BB567 /* NewsListViewController.swift */; };
+		5F91F11729BF03F0007BB567 /* WhoToFollowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11629BF03F0007BB567 /* WhoToFollowViewController.swift */; };
+		5F91F11929BF380B007BB567 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11829BF380B007BB567 /* SearchService.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
@@ -607,6 +609,8 @@
 		5F91F10F29B75C49007BB567 /* NewContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewContentCell.swift; sourceTree = "<group>"; };
 		5F91F11129B77EC2007BB567 /* NewImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewImageCell.swift; sourceTree = "<group>"; };
 		5F91F11329B78337007BB567 /* NewsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListViewController.swift; sourceTree = "<group>"; };
+		5F91F11629BF03F0007BB567 /* WhoToFollowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoToFollowViewController.swift; sourceTree = "<group>"; };
+		5F91F11829BF380B007BB567 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
@@ -922,6 +926,7 @@
 		5F39B49F2830E8AE0079F8CF /* Search */ = {
 			isa = PBXGroup;
 			children = (
+				5F91F11529BF03DF007BB567 /* Follow */,
 				5F91F10029B08837007BB567 /* News */,
 				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
 				5F9136DA29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift */,
@@ -1485,6 +1490,14 @@
 				5F91F11129B77EC2007BB567 /* NewImageCell.swift */,
 			);
 			path = News;
+			sourceTree = "<group>";
+		};
+		5F91F11529BF03DF007BB567 /* Follow */ = {
+			isa = PBXGroup;
+			children = (
+				5F91F11629BF03F0007BB567 /* WhoToFollowViewController.swift */,
+			);
+			path = Follow;
 			sourceTree = "<group>";
 		};
 		5F94477729151BC3003B3DA0 /* Bookmarks */ = {
@@ -2379,6 +2392,7 @@
 				5FA6939329A380D600DF3ADC /* LocationService.swift */,
 				5F8F093F29A49A2400927270 /* CompanyService.swift */,
 				5FA9D17529A4D138004EF26A /* JobService.swift */,
+				5F91F11829BF380B007BB567 /* SearchService.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -2860,6 +2874,7 @@
 				5FA9D18E29A77198004EF26A /* ManageJobHeaderCell.swift in Sources */,
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
+				5F91F11729BF03F0007BB567 /* WhoToFollowViewController.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
 				5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */,
 				5FA2FB2F28DD7AAE00B37424 /* PrivacyPolicyViewController.swift in Sources */,
@@ -3001,6 +3016,7 @@
 				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */,
+				5F91F11929BF380B007BB567 /* SearchService.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,
 				5FA0B2DB29798D83001F1274 /* AdminUserManagementCell.swift in Sources */,

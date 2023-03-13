@@ -221,6 +221,28 @@ struct PostService {
         }
     }
     
+    static func fetchSearchDocumentsForProfession(user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+         
+         if lastSnapshot == nil {
+             // Fetch first group of posts
+             let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.profession!).limit(to: 10)
+             firstGroupToFetch.getDocuments { snapshot, error in
+                 guard let snapshot = snapshot else { return }
+                 guard snapshot.documents.last != nil else { return }
+                 completion(snapshot)
+             }
+         } else {
+             // Append new posts
+             let nextGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 10)
+                 
+             nextGroupToFetch.getDocuments { snapshot, error in
+                 guard let snapshot = snapshot else { return }
+                 guard snapshot.documents.last != nil else { return }
+                 completion(snapshot)
+             }
+         }
+     }
+    
     
     static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()

@@ -135,6 +135,10 @@ class HomeImageTextCell: UICollectionViewCell {
         userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
     }
     
+    func hideSeparatorView() {
+        actionButtonsView.separatorView.isHidden = true
+    }
+    
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         if uid == viewModel.post.ownerUid {

@@ -447,6 +447,28 @@ struct UserService {
             }
         }
     }
+    
+    static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+
+        if lastSnapshot == nil {
+            // Fetch first group of posts
+            let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).limit(to: 25)
+            firstGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        } else {
+            // Append new posts
+            let nextGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 25)
+                
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard snapshot.documents.last != nil else { return }
+                completion(snapshot)
+            }
+        }
+    }
 
     static func fetchUsersWithText(text: String, completion: @escaping([User]) -> Void) {
         var users = [User]()

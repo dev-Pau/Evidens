@@ -10,13 +10,13 @@ import UIKit
 protocol ProfessionSelectedCellDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectSearchTopic(_ topic: String)
-    func didSelectSearchCategory(_ category: String)
+    func didSelectSearchCategory(_ category: Search.Topics)
 }
 
 class ProfessionSelectedCell: UICollectionViewCell {
     weak var delegate: ProfessionSelectedCellDelegate?
     //weak var delegate: FilterCasesCellDelegate?
-    private let searchDataSource = ["People", "Posts", "Cases", "Groups", "Jobs"]
+    private let searchDataSource = Search.Topics.allCases
     
     var selectedTag: String? {
         didSet {
@@ -147,19 +147,19 @@ class ProfessionSelectedCell: UICollectionViewCell {
         ])
 
         let category = UIMenu(title: "Categories", subtitle: selectedCategory ?? nil, image: UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), options: .singleSelection, children: [
-            UIAction(title: searchDataSource[0], state: selectedCategory ?? "" == searchDataSource[0] ? .on : .off, handler: { _ in
+            UIAction(title: searchDataSource[0].rawValue, state: selectedCategory ?? "" == searchDataSource[0].rawValue ? .on : .off, handler: { _ in
                 self.delegate?.didSelectSearchCategory(self.searchDataSource[0])
             }),
-            UIAction(title: searchDataSource[1], state: selectedCategory ?? "" == searchDataSource[1] ? .on : .off, handler: { _ in
+            UIAction(title: searchDataSource[1].rawValue, state: selectedCategory ?? "" == searchDataSource[1].rawValue ? .on : .off, handler: { _ in
                 self.delegate?.didSelectSearchCategory(self.searchDataSource[1])
             }),
-            UIAction(title: searchDataSource[2], state: selectedCategory ?? "" == searchDataSource[2] ? .on : .off, handler: { _ in
+            UIAction(title: searchDataSource[2].rawValue, state: selectedCategory ?? "" == searchDataSource[2].rawValue ? .on : .off, handler: { _ in
                 self.delegate?.didSelectSearchCategory(self.searchDataSource[2])
             }),
-            UIAction(title: searchDataSource[3], state: selectedCategory ?? "" == searchDataSource[3] ? .on : .off, handler: { _ in
+            UIAction(title: searchDataSource[3].rawValue, state: selectedCategory ?? "" == searchDataSource[3].rawValue ? .on : .off, handler: { _ in
                 self.delegate?.didSelectSearchCategory(self.searchDataSource[3])
             }),
-            UIAction(title: searchDataSource[4], state: selectedCategory ?? "" == searchDataSource[4] ? .on : .off, handler: { _ in
+            UIAction(title: searchDataSource[4].rawValue, state: selectedCategory ?? "" == searchDataSource[4].rawValue ? .on : .off, handler: { _ in
                 self.delegate?.didSelectSearchCategory(self.searchDataSource[4])
             })
         ])

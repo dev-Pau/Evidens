@@ -1473,16 +1473,16 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
         switch section {
         case "Show posts":
 
-            let layout = UICollectionViewFlowLayout()
-            layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
+            //let layout = UICollectionViewFlowLayout()
+            //layout.scrollDirection = .vertical
+            //layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
-            let controller = HomeViewController()
+            let controller = HomeViewController(contentSource: .user)
             controller.controllerIsBeeingPushed = true
             controller.displaysSinglePost = true
             controller.user = user
@@ -1501,7 +1501,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
-            let controller = CaseViewController(user: user)
+            let controller = CaseViewController(user: user, contentSource: .user)
             //controller.controllerIsBeeingPushed = true
             //controller.displaysSinglePost = true
             navigationController?.pushViewController(controller, animated: true)

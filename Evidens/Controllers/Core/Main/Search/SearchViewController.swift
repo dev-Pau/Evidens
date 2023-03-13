@@ -272,10 +272,16 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
             if indexPath.section == 2 {
                 header.configureWith(title: "Who to follow", linkText: "See All")
+                header.delegate = self
+                header.tag = 2
             } else if indexPath.section == 3 {
                 header.configureWith(title: "Posts for you", linkText: "See All")
+                header.delegate = self
+                header.tag = 3
             } else {
                 header.configureWith(title: "Cases for you", linkText: "See All")
+                header.delegate = self
+                header.tag = 4
             }
 
             return header
@@ -392,45 +398,48 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
 
 extension SearchViewController: MainSearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
-        let text = header.tag == 0 ? "News for you" : "Latest news"
-        let controller = NewsListViewController()
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let tag = header.tag
+        var text = ""
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        controller.title = text
-        
+
         navigationItem.backBarButtonItem = backItem
         
-        navigationController?.pushViewController(controller, animated: true)
-        
-    }
-    
-    func didTapSeeAllTop() {
-        let controller = NewsListViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.title = "News for you"
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func didTapSeeAllRecents() {
-        let controller = NewsListViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.title = "Recent news"
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+        if tag == 0 {
+            text = "News for you"
+            let controller = NewsListViewController()
+            controller.title = text
+            navigationController?.pushViewController(controller, animated: true)
+        } else if tag == 1 {
+            text = "Latest news"
+            let controller = NewsListViewController()
+            controller.title = text
+            navigationController?.pushViewController(controller, animated: true)
+        } else if tag == 2 {
+            text = "Who to follow"
+            let controller = WhoToFollowViewController()
+            controller.title = text
+            navigationController?.pushViewController(controller, animated: true)
+        } else if tag == 3 {
+            text = "Posts for you"
+            let controller = HomeViewController(contentSource: .search)
+            controller.controllerIsBeeingPushed = true
+            controller.displaysSinglePost = true
+            controller.user = user
+            controller.title = text
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            text = "Cases for you"
+            let controller = CaseViewController(user: user, contentSource: .search)
+            navigationController?.pushViewController(controller, animated: true)
+            controller.title = text
+            
+        }
     }
 }
 

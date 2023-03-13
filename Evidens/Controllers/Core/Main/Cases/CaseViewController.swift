@@ -14,6 +14,8 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     var user: User
+    private let contentSource: Case.ContentSource
+    private var users = [User]()
     
     var casesLastSnapshot: QueryDocumentSnapshot?
     
@@ -32,15 +34,16 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         layout.minimumInteritemSpacing  = 10
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = .quaternarySystemFill
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
     
-    init(user: User) {
+    init(user: User, contentSource: Case.ContentSource) {
         self.user = user
+        self.contentSource = contentSource
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -71,6 +74,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             break
             
         case .others:
+            if contentSource == .search { return }
             let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
@@ -79,15 +83,31 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func fetchFirstGroupOfCases() {
-        guard let uid = user.uid else { return }
-        CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: nil, completion: { snapshot in
-            self.casesLastSnapshot = snapshot.documents.last
-            self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            self.checkIfUserLikedCase()
-            self.checkIfUserBookmarkedCase()
-            self.collectionView.refreshControl?.endRefreshing()
-        })
+        switch contentSource {
+        case .user:
+            guard let uid = user.uid else { return }
+            CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: nil, completion: { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                self.collectionView.refreshControl?.endRefreshing()
+            })
+        case .search:
+            CaseService.fetchUserSearchCases(user: user, lastSnapshot: nil) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                //self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                let uids = self.cases.map { $0.ownerUid }
+                UserService.fetchUsers(withUids: uids) { users in
+                    self.users = users
+                    self.collectionView.refreshControl?.endRefreshing()
+                }
+            }
+        }
     }
     
     func checkIfUserLikedCase() {
@@ -114,6 +134,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func configureNavigationBar() {
+        if contentSource == .search { return }
         let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
@@ -164,13 +185,29 @@ extension CaseViewController: UICollectionViewDelegate, UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if cases[indexPath.row].type.rawValue == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-            cell.set(user: user)
+            
+            switch contentSource {
+            case .user:
+                cell.set(user: user)
+            case .search:
+                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].ownerUid }) {
+                    cell.set(user: users[userIndex])
+                }
+            }
+
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-            cell.set(user: user)
+            switch contentSource {
+            case .user:
+                cell.set(user: user)
+            case .search:
+                if let userIndex = users.firstIndex(where:  { $0.uid! == cases[indexPath.row].ownerUid }) {
+                    cell.set(user: users[userIndex])
+                }
+            }
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
             cell.delegate = self
             return cell
@@ -417,17 +454,35 @@ extension CaseViewController: ZoomTransitioningDelegate {
 
 extension CaseViewController {
     func getMoreCases() {
-        guard let uid = user.uid else { return }
-        CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: casesLastSnapshot, completion: { snapshot in
-            self.casesLastSnapshot = snapshot.documents.last
-            let documents = snapshot.documents
-            var newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-            newCases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            self.cases.append(contentsOf: newCases)
-            
-            self.checkIfUserLikedCase()
-            self.checkIfUserBookmarkedCase()
-        })
+        switch contentSource {
+        case .user:
+            guard let uid = user.uid else { return }
+            CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: casesLastSnapshot, completion: { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                let documents = snapshot.documents
+                var newCases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                newCases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                self.cases.append(contentsOf: newCases)
+                
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+            })
+        case .search:
+            CaseService.fetchUserSearchCases(user: user, lastSnapshot: casesLastSnapshot) { snapshot in
+                self.casesLastSnapshot = snapshot.documents.last
+                var newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                let newUids = newCases.map({ $0.ownerUid })
+                self.cases.append(contentsOf: newCases)
+                
+                self.checkIfUserLikedCase()
+                self.checkIfUserBookmarkedCase()
+                UserService.fetchUsers(withUids: newUids) { users in
+                    self.users.append(contentsOf: users)
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+        
     }
 }
 
