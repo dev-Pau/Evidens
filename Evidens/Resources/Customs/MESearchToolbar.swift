@@ -178,6 +178,11 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
                 self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.rawValue }))
                 self.collectionView.reloadData()
                 self.searchingWithCategorySelected = false
+                
+                
+                self.searchDelegate?.didSelectSearchTopic(topic)
+                
+                
                 UIView.animate(withDuration: 0.2) {
                     self.collectionView.alpha = 1
                 }
@@ -214,7 +219,6 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
                     } completion: { _ in
                         
                     }
-               
                 }
             }
         }
