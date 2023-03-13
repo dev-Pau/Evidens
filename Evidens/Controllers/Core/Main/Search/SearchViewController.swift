@@ -27,34 +27,10 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
-    
-    /*
-     private var recentSearchedText = [String]() {
-     didSet {
-     tableView.reloadData()
-     }
-     }
-     
-     private var loaded: Bool = false
-     
-     private var users = [User]()
-     private var filteredUsers = [User]()
-     */
     private var searchController: UISearchController!
     
-    /*
-     private var inSearchMode: Bool {
-     return searchController.isActive && !searchController.searchBar.text!.isEmpty
-     }
-     */
-    /*
-     private let tableView: UITableView = {
-     let tableView = UITableView(frame: CGRect(), style: .grouped)
-     tableView.separatorColor = .clear
-     return tableView
-     }()
-     */
     private var collectionView: UICollectionView!
+    private var contentLoaded: Bool = false
     private var professions = Profession.getAllProfessions()
     private var users = [User]()
     private var posts = [Post]()
@@ -64,34 +40,15 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
     
+    private let activityIndicator = MEProgressHUD(frame: .zero)
+    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        /*
-         DispatchQueue.main.async {
-         self.fetchRecents()
-         }
-         */
-        //fetchRecents()
-        
-        //let searchBarContainer = SearchBarContainerView(customSearchBar: searchBar)
-        //searchBarContainer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-        //navigationItem.titleView = searchBarContainer
-        //searchBar.becomeFirstResponder()
-        //let navLabel = UILabel()
-        //let navTitle = NSMutableAttributedString(string: "Search", attributes:[.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.bold)])
-        //navLabel.attributedText = navTitle
-        //navigationItem.titleView = navLabel
-        
         configureNavigationBar()
-        //configureTableView()
         configureUI()
-        fetchUsers()
-        fetchPosts()
-        fetchCases()
-        
+        fetchMainSearchContent()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -99,21 +56,44 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         //navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.delegate = self
     }
-    
+
+    private func fetchMainSearchContent() {
+        var count = 0
+        #warning("News is missing (both categories) + add +2 to checkifallthecontentisfetchfunc")
+        
+        UserService.fetchWhoToFollowUsers { users in
+            self.users = users
+            count += 1
+            self.checkIfAllTheContentIsFetched(count: count)
+        }
+        
+        PostService.fetchPostsForYou { posts in
+            self.posts = posts
+            let uids = posts.map { $0.ownerUid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.postUsers = users
+                count += 1
+                self.checkIfAllTheContentIsFetched(count: count)
+            }
+        }
+        
+        CaseService.fetchCasesForYou { cases in
+            self.cases = cases
+            let uids = cases.map { $0.ownerUid }
+            UserService.fetchUsers(withUids: uids) { users in
+                self.caseUsers = users
+                count += 1
+                self.checkIfAllTheContentIsFetched(count: count)
+            }
+        }
+    }
+
     /*
-     //MARK: - API
-     func fetchUsers() {
-     UserService.fetchUsers { users in
-     self.users = users
-     self.tableView.reloadData()
-     }
-     }
-     */
-    
     private func fetchUsers() {
         UserService.fetchWhoToFollowUsers { users in
             self.users = users
-            self.collectionView.reloadSections(IndexSet(integer: 2))
+            
+            //self.collectionView.reloadSections(IndexSet(integer: 2))
         }
     }
     
@@ -138,6 +118,17 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             }
         }
     }
+     */
+    
+    func checkIfAllTheContentIsFetched(count: Int) {
+        if count == 3 {
+            self.activityIndicator.stop()
+            self.collectionView.reloadData()
+            self.collectionView.isHidden = false
+        }
+    }
+    
+    
     
     
     
@@ -161,9 +152,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private func configureUI() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         view.backgroundColor = .systemBackground
-        view.addSubview(collectionView)
-        
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
+        view.addSubviews(activityIndicator, collectionView)
+        collectionView.isHidden = true
+
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         collectionView.register(MainSearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
         collectionView.register(YourNewsCell.self, forCellWithReuseIdentifier: newsForYouCellReuseIdentifier)
@@ -181,6 +172,15 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         
         collectionView.delegate = self
         collectionView.dataSource = self
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+        ])
+        
+        activityIndicator.start()
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
