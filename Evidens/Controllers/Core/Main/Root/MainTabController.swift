@@ -64,7 +64,6 @@ class MainTabController: UITabBarController {
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
          */
-        
         view.backgroundColor = .systemBackground
         self.tabBar.isHidden = true
         

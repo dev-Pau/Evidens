@@ -14,7 +14,7 @@ class IDCardViewController: UIViewController {
     
     private var user: User
     
-    private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+    //private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
    
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
@@ -69,7 +69,7 @@ class IDCardViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-        button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
+        //button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -80,7 +80,7 @@ class IDCardViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-        button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
+       // button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -217,7 +217,7 @@ class IDCardViewController: UIViewController {
     }
     
     private func configureUI() {
-        registerBottomMenuLauncher.delegate = self
+        //registerBottomMenuLauncher.delegate = self
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -279,6 +279,11 @@ class IDCardViewController: UIViewController {
             submitButton.leadingAnchor.constraint(equalTo: idCardVerificationTitle.leadingAnchor),
             submitButton.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor)
         ])
+        
+        bottomIdCardButton.menu = addImageButtonItems(bottomIdCardButton)
+        bottomIdCardButton.showsMenuAsPrimaryAction = true
+        topIdCardButton.menu = addImageButtonItems(topIdCardButton)
+        topIdCardButton.showsMenuAsPrimaryAction = true
     }
     
     private func uploadSubmitButtonState() {
@@ -301,6 +306,7 @@ class IDCardViewController: UIViewController {
         uploadSubmitButtonState()
     }
     
+    /*
     @objc func handlePhotoAction(_ sender: UIButton) {
         if sender == topIdCardButton {
             selectedIdentityDocument = 0
@@ -309,6 +315,7 @@ class IDCardViewController: UIViewController {
         }
         registerBottomMenuLauncher.showImageSettings(in: view)
     }
+     */
     
     @objc func handleMembershipConditions() {
         hasCode.toggle()
@@ -353,6 +360,29 @@ class IDCardViewController: UIViewController {
         }
     }
     
+    private func addImageButtonItems(_ sender: UIButton) -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Import from camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if sender == self.topIdCardButton {
+                    self.selectedIdentityDocument = 0
+                } else {
+                    self.selectedIdentityDocument = 1
+                }
+                self.didTapImportFromCamera()
+            }),
+            
+            UIAction(title: "Choose from gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if sender == self.topIdCardButton {
+                    self.selectedIdentityDocument = 0
+                } else {
+                    self.selectedIdentityDocument = 1
+                }
+                self.didTapImportFromGallery()
+            })
+        ])
+        return menuItems
+    }
+    
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
             UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
@@ -377,19 +407,7 @@ class IDCardViewController: UIViewController {
         ])
         return menuItems
     }
-}
-       
-extension IDCardViewController: MFMailComposeViewControllerDelegate {
     
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if let _ = error {
-            controller.dismiss(animated: true)
-        }
-        controller.dismiss(animated: true)
-    }
-}
-
-extension IDCardViewController: RegisterBottomMenuLauncherDelegate {
     func didTapImportFromGallery() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.selectionLimit = 1
@@ -407,6 +425,16 @@ extension IDCardViewController: RegisterBottomMenuLauncherDelegate {
         picker.sourceType = .camera
         picker.allowsEditing = true
         present(picker, animated: true, completion: nil)
+    }
+}
+       
+extension IDCardViewController: MFMailComposeViewControllerDelegate {
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        if let _ = error {
+            controller.dismiss(animated: true)
+        }
+        controller.dismiss(animated: true)
     }
 }
 

@@ -105,7 +105,7 @@ extension GroupSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionVie
         
         if groups.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withTitle: "We could not find any group you are a part of - yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
+            cell.set(withImage: UIImage(named: "groups.empty")!, withTitle: "We could not find any group you are a part of - yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")
             cell.delegate = self
             return cell
         } else {

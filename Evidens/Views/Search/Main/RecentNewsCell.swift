@@ -9,6 +9,12 @@ import UIKit
 
 class RecentNewsCell: UICollectionViewCell {
     
+    var viewModel: NewViewModel? {
+        didSet {
+            configureWithNew()
+        }
+    }
+    
     private let newsImageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -80,10 +86,6 @@ class RecentNewsCell: UICollectionViewCell {
         ])
         
         newsImageView.layer.cornerRadius = 10
-        specialityLabel.text = "Veterinary Medicine"
-        titleLabel.text = "CDC arrives in Ohio town to investigate health risks from toxic train derailment"
-        datePublishedLabel.text = "3h ago"
-        newsImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/news%2FGlobal%20healthcare_2.jpeg?alt=media&token=41d358b1-91db-4628-9d7b-2754986df2f0"))
     }
     
     func addSeparatorView() {
@@ -94,5 +96,13 @@ class RecentNewsCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: newsImageView.leadingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
+    }
+    
+    private func configureWithNew() {
+        guard let viewModel = viewModel else { return }
+        specialityLabel.text = viewModel.newsCategory
+        titleLabel.text = viewModel.newTitle
+        datePublishedLabel.text = viewModel.timestampString
+        newsImageView.sd_setImage(with: URL(string: viewModel.mainImageUrl))
     }
 }

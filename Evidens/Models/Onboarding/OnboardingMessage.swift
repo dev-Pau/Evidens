@@ -7,6 +7,26 @@
 
 import UIKit
 
+struct OnboardingImage {
+    static func getAllOnboardingImages() -> [UIImage] {
+        var onboardingImages = [UIImage]()
+        
+        let firstImage = UIImage(named: "onboarding.case")!
+        onboardingImages.append(firstImage)
+        
+        let secondImage = UIImage(named: "onboarding.network")!
+        onboardingImages.append(secondImage)
+        
+        let thirdImage = UIImage(named: "onboarding.date")!
+        onboardingImages.append(thirdImage)
+        
+        let fourthImage = UIImage(named: "onboarding.reward")!
+        onboardingImages.append(fourthImage)
+
+        return onboardingImages
+    }
+}
+
 struct OnboardingMessage {
     let title: String
     let description: String

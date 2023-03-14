@@ -133,6 +133,8 @@ class ProfessionRegistrationViewController: UIViewController {
         backItem.tintColor = .label
         backItem.title = ""
         
+        navigationItem.backBarButtonItem = backItem
+        
         navigationController?.pushViewController(controller, animated: true)
     }
 }

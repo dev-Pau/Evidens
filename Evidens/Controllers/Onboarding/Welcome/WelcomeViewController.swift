@@ -16,6 +16,7 @@ import CryptoKit
 
 private let onboardingMessageReuseIdentifier = "OnboardingMessageReuseIdentifier"
 private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
+private let onboardingImageReuseIdentifier = "OnboardingImageReuseIdentifier"
 
 class WelcomeViewController: UIViewController {
     
@@ -26,6 +27,7 @@ class WelcomeViewController: UIViewController {
     private var currentNonce: String?
     
     private var onboardingMessages = OnboardingMessage.getAllOnboardingMessages()
+    private var onboardingImages = OnboardingImage.getAllOnboardingImages()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -45,6 +47,18 @@ class WelcomeViewController: UIViewController {
         collectionView.bounces = true
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.showsHorizontalScrollIndicator = false
+        return collectionView
+    }()
+    
+    private lazy var imagesCollectionView: UICollectionView = {
+        let layout = createCellImageLayout()
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .systemBackground
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.isUserInteractionEnabled = false
         collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
@@ -134,6 +148,7 @@ class WelcomeViewController: UIViewController {
         label.text = " OR "
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.textColor = .secondaryLabel
+        label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -169,7 +184,7 @@ class WelcomeViewController: UIViewController {
             appearance.configureWithOpaqueBackground()
             self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
             self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
-            appearance.shadowColor = .clear    //removing navigationbar 1 px bottom border.
+            //appearance.shadowColor = .clear    //removing navigationbar 1 px bottom border.
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
@@ -186,12 +201,13 @@ class WelcomeViewController: UIViewController {
     func configureUI() {
         collectionView.register(OnboardingCell.self, forCellWithReuseIdentifier: onboardingMessageReuseIdentifier)
         collectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
+        imagesCollectionView.register(OnboardingImageCell.self, forCellWithReuseIdentifier: onboardingImageReuseIdentifier)
         
         view.addSubview(scrollView)
         view.backgroundColor = .systemBackground
         
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-      
+        scrollView.delegate = self
         //navigationController?.navigationBar.barStyle = .black
         
         let stackLogin = UIStackView(arrangedSubviews: [haveAccountlabel, loginButton])
@@ -199,7 +215,7 @@ class WelcomeViewController: UIViewController {
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
        
-        scrollView.addSubviews(collectionView, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin)
+        scrollView.addSubviews(collectionView, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin, imagesCollectionView)
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: UIScreen.main.bounds.height * 0.1),
@@ -231,9 +247,16 @@ class WelcomeViewController: UIViewController {
             signUpButton.heightAnchor.constraint(equalToConstant: 50),
             
             stackLogin.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 20),
-            stackLogin.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor)
+            stackLogin.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            
+            imagesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10),
+            imagesCollectionView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
+            imagesCollectionView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
+            imagesCollectionView.topAnchor.constraint(equalTo: stackLogin.bottomAnchor, constant: 30)
         ])
     }
+    
+    
     
     //MARK: - Handlers
     
@@ -457,20 +480,29 @@ extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizat
 }
 
 extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
-    
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return onboardingMessages.count
+        if collectionView == imagesCollectionView {
+            return onboardingImages.count
+        } else {
+            return onboardingMessages.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: onboardingMessageReuseIdentifier, for: indexPath) as! OnboardingCell
-        cell.set(message: onboardingMessages[indexPath.row])
-        return cell
+        if collectionView == imagesCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: onboardingImageReuseIdentifier, for: indexPath) as! OnboardingImageCell
+            cell.set(image: onboardingImages[indexPath.row])
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: onboardingMessageReuseIdentifier, for: indexPath) as! OnboardingCell
+            cell.set(message: onboardingMessages[indexPath.row])
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -478,8 +510,10 @@ extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectio
         let itemCount = onboardingMessages.count
         footer.configure(with: itemCount)
         footer.subscribeTo(subject: pagingInfoSubject)
+        footer.delegate = self
         return footer
     }
+    
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
@@ -504,6 +538,24 @@ extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectio
             
         }
         return layout
+    }
+    
+    private func createCellImageLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(self.imagesCollectionView.frame.height)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.orthogonalScrollingBehavior = .paging
+            return section
+        }
+        return layout
+    }
+}
+
+extension WelcomeViewController: PagingSectionFooterViewDelegate {
+    func messageDidChange(_ index: Int) {
+        print(index)
+        imagesCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .left, animated: true)
     }
 }
 

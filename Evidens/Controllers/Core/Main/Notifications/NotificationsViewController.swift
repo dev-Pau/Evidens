@@ -119,7 +119,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
 
         if notifications.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withTitle: "No notifications - yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
+            cell.set(withImage: UIImage(named: "notification.empty")!, withTitle: "No notifications - yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
             return cell
         } else {
             if notifications[indexPath.row].type.rawValue == 2 {

@@ -44,7 +44,7 @@ class ProfileImageViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(named: "xmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
         button.configuration?.baseBackgroundColor = .white.withAlphaComponent(0.5)
         button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button

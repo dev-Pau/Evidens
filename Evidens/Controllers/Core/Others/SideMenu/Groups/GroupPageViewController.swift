@@ -909,7 +909,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 case .all:
                     if content.isEmpty {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-                        cell.set(withTitle: "Be the first to share content in this group and get the conversation going.", withDescription: "Create your first post or clinical case")
+                        cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Be the first to share content in this group and get the conversation going.", withDescription: "Create your first post or clinical case")
                         return cell
                     }
                     // Content can be a post or a clinical case

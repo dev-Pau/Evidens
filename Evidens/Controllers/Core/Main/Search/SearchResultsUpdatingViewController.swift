@@ -632,8 +632,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
                             cell.set(user: topCaseUsers[userIndex])
                         }
-                        //cell.set(user: caseUsers[index])
-                        //cell.delegate = self
                         return cell
                     
                 }

@@ -8,8 +8,13 @@
 import UIKit
 import Combine
 
+protocol PagingSectionFooterViewDelegate: AnyObject {
+    func messageDidChange(_ index: Int)
+}
+
 class PagingSectionFooterView: UICollectionReusableView {
-    
+    weak var delegate: PagingSectionFooterViewDelegate?
+    private var currentPage: Int = 0
     private lazy var pageControl: UIPageControl = {
         let control = UIPageControl()
         control.translatesAutoresizingMaskIntoConstraints = false
@@ -39,6 +44,10 @@ class PagingSectionFooterView: UICollectionReusableView {
         pagingInfoToken = subject.receive(on: DispatchQueue.main).sink(receiveValue: { [weak self] pagingInfo in
             guard let self = self else { return }
             self.pageControl.currentPage = pagingInfo.currentPage
+            if self.currentPage != pagingInfo.currentPage {
+                self.currentPage = pagingInfo.currentPage
+                self.delegate?.messageDidChange(pagingInfo.currentPage)
+            }
         })
     }
     

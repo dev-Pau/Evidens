@@ -156,7 +156,7 @@ extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if jobs.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withTitle: "We could not find any job offer - yet.", withDescription: "Comeo back here to check for new job updates or share your own.", withButtonText: "Post a job")
+            cell.set(withImage: UIImage(named: "jobs.empty")!, withTitle: "We could not find any job offer - yet.", withDescription: "Comeo back here to check for new job updates or share your own.", withButtonText: "Post a job")
             cell.delegate = self
             return cell
         } else {

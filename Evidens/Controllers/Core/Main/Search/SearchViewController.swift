@@ -32,6 +32,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var collectionView: UICollectionView!
     private var contentLoaded: Bool = false
     private var professions = Profession.getAllProfessions()
+    private var newsForYou = [New]()
+    private var recentNews = [New]()
     private var users = [User]()
     private var posts = [Post]()
     private var postUsers = [User]()
@@ -53,13 +55,22 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.delegate = self
     }
 
     private func fetchMainSearchContent() {
         var count = 0
-        #warning("News is missing (both categories) + add +2 to checkifallthecontentisfetchfunc")
+        NewService.fetchTopNewsForYou { news in
+            self.newsForYou = news
+            count += 1
+            self.checkIfAllTheContentIsFetched(count: count)
+        }
+        
+        NewService.fetchTopRecentForYou { news in
+            self.recentNews = news
+            count += 1
+            self.checkIfAllTheContentIsFetched(count: count)
+        }
         
         UserService.fetchWhoToFollowUsers { users in
             self.users = users
@@ -88,50 +99,14 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
     }
 
-    /*
-    private func fetchUsers() {
-        UserService.fetchWhoToFollowUsers { users in
-            self.users = users
-            
-            //self.collectionView.reloadSections(IndexSet(integer: 2))
-        }
-    }
-    
-    private func fetchPosts() {
-        PostService.fetchPostsForYou { posts in
-            self.posts = posts
-            let uids = posts.map { $0.ownerUid }
-            UserService.fetchUsers(withUids: uids) { users in
-                self.postUsers = users
-                self.collectionView.reloadSections(IndexSet(integer: 3))
-            }
-        }
-    }
-    
-    private func fetchCases() {
-        CaseService.fetchCasesForYou { cases in
-            self.cases = cases
-            let uids = cases.map { $0.ownerUid }
-            UserService.fetchUsers(withUids: uids) { users in
-                self.caseUsers = users
-                self.collectionView.reloadSections(IndexSet(integer: 4))
-            }
-        }
-    }
-     */
-    
     func checkIfAllTheContentIsFetched(count: Int) {
-        if count == 3 {
+        if count == 5 {
             self.activityIndicator.stop()
             self.collectionView.reloadData()
             self.collectionView.isHidden = false
         }
     }
-    
-    
-    
-    
-    
+
     //MARK: - Helpers
     func configureNavigationBar() {
         title = "Search"
@@ -290,8 +265,10 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 || section == 1 {
-            return 5
+        if section == 0 {
+            return newsForYou.count
+        } else if section == 1 {
+            return recentNews.count
         } else if section == 2 {
             return min(3, users.count)
         } else if section == 3 {
@@ -304,9 +281,11 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newsForYouCellReuseIdentifier, for: indexPath) as! YourNewsCell
+            cell.viewModel = NewViewModel(new: newsForYou[indexPath.row])
             return cell
         } else if indexPath.section == 1  {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentNewsCellReuseIdentifier, for: indexPath) as! RecentNewsCell
+            cell.viewModel = NewViewModel(new: recentNews[indexPath.row])
             return cell
         } else if indexPath.section == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: whoToFollowCellReuseIdentifier, for: indexPath) as! WhoToFollowCell
@@ -376,15 +355,23 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 0 || indexPath.section == 1 {
-           let controller = NewViewController()
+        if indexPath.section == 0 {
+            guard !newsForYou.isEmpty else { return }
+            let controller = NewViewController(new: newsForYou[indexPath.row])
             controller.topBarHeight = topbarHeight - statusBarHeight
          
             //navigationController?.setNavigationBarHidden(true, animated: false)
             
             navigationController?.pushViewController(controller, animated: true)
-        }
-        if indexPath.section == 2 {
+        } else if indexPath.section == 1 {
+            guard !recentNews.isEmpty else { return }
+            let controller = NewViewController(new: recentNews[indexPath.row])
+            controller.topBarHeight = topbarHeight - statusBarHeight
+         
+            //navigationController?.setNavigationBarHidden(true, animated: false)
+            
+            navigationController?.pushViewController(controller, animated: true)
+        } else if indexPath.section == 2 {
             let controller = UserProfileViewController(user: users[indexPath.row])
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label

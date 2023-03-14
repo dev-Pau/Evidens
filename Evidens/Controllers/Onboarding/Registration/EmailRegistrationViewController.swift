@@ -52,7 +52,7 @@ class EmailRegistrationViewController: UIViewController {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(named: "arrow.right")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: "arrow.right", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.white)
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false

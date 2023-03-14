@@ -14,7 +14,7 @@ class PostMenuTitleHeader: UICollectionReusableView {
 
     private let separator: UIView = {
         let view = UIView()
-        view.backgroundColor = lightGrayColor
+        view.backgroundColor = .tertiarySystemFill
         view.layer.cornerRadius = 3
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -23,7 +23,7 @@ class PostMenuTitleHeader: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .black
+        label.textColor = .label
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         return label
     }()

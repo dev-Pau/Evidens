@@ -14,7 +14,7 @@ class PassportViewController: UIViewController {
     
     private var user: User
     
-    private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+   // private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
     private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
     
     private var hasCode: Bool = false
@@ -69,7 +69,7 @@ class PassportViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-        button.addTarget(self, action: #selector(handlePhotoAction), for: .touchUpInside)
+        //button.addTarget(self, action: #selector(handlePhotoAction), for: .touchUpInside)
         return button
     }()
     
@@ -185,7 +185,7 @@ class PassportViewController: UIViewController {
     }
     
     private func configureUI() {
-        registerBottomMenuLauncher.delegate = self
+        //registerBottomMenuLauncher.delegate = self
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -232,6 +232,9 @@ class PassportViewController: UIViewController {
             membershipCodeTextView.leadingAnchor.constraint(equalTo: squareButton.trailingAnchor, constant: 4),
             membershipCodeTextView.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor),
         ])
+        
+        topIdCardButton.menu = addImageButtonItems()
+        topIdCardButton.showsMenuAsPrimaryAction = true
     }
     
     private func uploadSubmitButtonState() {
@@ -254,7 +257,7 @@ class PassportViewController: UIViewController {
     }
     
     @objc func handlePhotoAction() {
-        registerBottomMenuLauncher.showImageSettings(in: view)
+        //registerBottomMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleSubmit() {
@@ -328,8 +331,21 @@ class PassportViewController: UIViewController {
         return menuItems
     }
     
+    private func addImageButtonItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Import from camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                
+                self.didTapImportFromCamera()
+            }),
+            
+            UIAction(title: "Choose from gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                
+                self.didTapImportFromGallery()
+            })
+        ])
+        return menuItems
+    }
 }
-
 
 extension PassportViewController: RegisterBottomMenuLauncherDelegate {
     func didTapImportFromGallery() {

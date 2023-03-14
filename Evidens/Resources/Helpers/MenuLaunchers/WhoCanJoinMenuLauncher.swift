@@ -19,22 +19,22 @@ class WhoCanJoinMenuLauncher: NSObject {
         return view
     }()
     
-    private let menuHeight: CGFloat = 245
+    private let menuHeight: CGFloat = 275
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
     
-    private var menuOptionsText: [String] = ["All involved health care individuals", "Health care students", "Retired health care professionals"]
-    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "person.3.fill")!,
-                                                UIImage(systemName: "graduationcap.fill")!,
-                                                UIImage(systemName: "person.3.sequence.fill")!]
+    private var menuOptionsText: [String] = ["All health care individuals", "Health care students", "Retired health care professionals"]
+    private var menuOptionsImages: [UIImage] = [UIImage(systemName: "cross.fill")!,
+                                                UIImage(systemName: "cross.case.fill")!,
+                                                UIImage(systemName: "cross.fill")!]
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = lightColor
+        collectionView.backgroundColor = UIColor.init(named: "bottomMenuBackgroundColor")
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -140,7 +140,7 @@ extension WhoCanJoinMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: menuOptionsText[indexPath.row], withImage: menuOptionsImages[indexPath.row])
-        cell.backgroundColor = .white
+        cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
         //cell.postTyeButton.configuration?.baseBackgroundColor = .white
         
         if indexPath.row == 0 {
@@ -158,9 +158,9 @@ extension WhoCanJoinMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.row == 0 {
-            return CGSize(width: screenWidth - 40, height: 50)
+            return CGSize(width: screenWidth - 40, height: 60)
         } else {
-            return CGSize(width: screenWidth - 40, height: 50)
+            return CGSize(width: screenWidth - 40, height: 60)
         }
 
     }

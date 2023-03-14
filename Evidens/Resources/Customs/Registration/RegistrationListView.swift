@@ -16,7 +16,7 @@ class RegistrationListView: UIView {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.baseBackgroundColor = lightColor
-        button.configuration?.image = UIImage(named: "checkmark")?.scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(primaryColor)
+        button.configuration?.image = UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(primaryColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

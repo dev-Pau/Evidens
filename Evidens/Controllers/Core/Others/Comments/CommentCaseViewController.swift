@@ -141,7 +141,7 @@ class CommentCaseViewController: UICollectionViewController {
     func configureCollectionView() {
         
         if clinicalCase.privacyOptions == .nonVisible {
-            commentInputView.profileImageView.image = UIImage(named: "case.privacy")
+            commentInputView.profileImageView.image = UIImage(systemName: "eyeglasses", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
             guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
             commentInputView.profileImageView.sd_setImage(with: URL(string: uid))

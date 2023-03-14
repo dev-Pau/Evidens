@@ -14,7 +14,7 @@ class DriverLicenseViewController: UIViewController {
     
     private var user: User
     
-    private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
+    //private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
    
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
@@ -69,7 +69,7 @@ class DriverLicenseViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-        button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
+        //button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -80,7 +80,7 @@ class DriverLicenseViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-        button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
+        //button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -218,7 +218,7 @@ class DriverLicenseViewController: UIViewController {
     }
     
     private func configureUI() {
-        registerBottomMenuLauncher.delegate = self
+        //registerBottomMenuLauncher.delegate = self
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -280,6 +280,11 @@ class DriverLicenseViewController: UIViewController {
             submitButton.leadingAnchor.constraint(equalTo: idCardVerificationTitle.leadingAnchor),
             submitButton.trailingAnchor.constraint(equalTo: idCardVerificationTitle.trailingAnchor)
         ])
+        
+        bottomIdCardButton.menu = addImageButtonItems(bottomIdCardButton)
+        bottomIdCardButton.showsMenuAsPrimaryAction = true
+        topIdCardButton.menu = addImageButtonItems(topIdCardButton)
+        topIdCardButton.showsMenuAsPrimaryAction = true
     }
     
     private func addMenuItems() -> UIMenu {
@@ -307,6 +312,30 @@ class DriverLicenseViewController: UIViewController {
         return menuItems
     }
     
+    private func addImageButtonItems(_ sender: UIButton) -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Import from camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if sender == self.topIdCardButton {
+                    self.selectedIdentityDocument = 0
+                } else {
+                    self.selectedIdentityDocument = 1
+                }
+                self.didTapImportFromCamera()
+            }),
+            
+            UIAction(title: "Choose from gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                if sender == self.topIdCardButton {
+                    self.selectedIdentityDocument = 0
+                } else {
+                    self.selectedIdentityDocument = 1
+                }
+                self.didTapImportFromGallery()
+            })
+        ])
+        return menuItems
+    }
+    
+    
     private func uploadSubmitButtonState() {
         if backSelected && frontSelected {
             
@@ -327,6 +356,7 @@ class DriverLicenseViewController: UIViewController {
         uploadSubmitButtonState()
     }
     
+    /*
     @objc func handlePhotoAction(_ sender: UIButton) {
         if sender == topIdCardButton {
             selectedIdentityDocument = 0
@@ -335,6 +365,7 @@ class DriverLicenseViewController: UIViewController {
         }
         registerBottomMenuLauncher.showImageSettings(in: view)
     }
+     */
     
     @objc func handleMembershipConditions() {
         hasCode.toggle()

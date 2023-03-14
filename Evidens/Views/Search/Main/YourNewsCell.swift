@@ -9,6 +9,12 @@ import UIKit
 
 class YourNewsCell: UICollectionViewCell {
     
+    var viewModel: NewViewModel? {
+        didSet {
+            configureWithNew()
+        }
+    }
+    
     private let newsImageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -90,12 +96,14 @@ class YourNewsCell: UICollectionViewCell {
         ])
         
         newsImageView.layer.cornerRadius = 15
-        titleLabel.text = "Residents near Ohio train derailment diagnosed with ailments associated with chemical exposure, including bronchitis"
-        specialityLabel.text = "Medicine"
-        newsImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/news%2F230213-ohio-train-derailment-2-se-1021a-bcf1b8.jpeg?alt=media&token=92c89015-74dc-4956-bc74-0ec86000d76f"))
-        readingTimeLabel.text = "6 minutes"
     }
     
-    
-
+    private func configureWithNew() {
+        guard let viewModel = viewModel else { return }
+        
+        titleLabel.text = viewModel.newTitle
+        specialityLabel.text = viewModel.newsCategory
+        newsImageView.sd_setImage(with: URL(string: viewModel.mainImageUrl))
+        readingTimeLabel.text = viewModel.readTimeString
+    }
 }

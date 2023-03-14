@@ -14,15 +14,10 @@ import CropViewController
 class ImageRegistrationViewController: UIViewController {
     
     private let user: User
-    
     var comesFromHomeOnboarding: Bool = false
-    
     private lazy var viewModel = OnboardingViewModel()
-    
     private var imageSelected: Bool = false
-    
-    private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
-                                                                                     
+                                                                          
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -71,8 +66,8 @@ class ImageRegistrationViewController: UIViewController {
         button.configuration?.image = UIImage(systemName: "plus")?.scalePreservingAspectRatio(targetSize: CGSize(width: 45, height: 45)).withTintColor(.white)
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isUserInteractionEnabled = false
-        button.addTarget(self, action: #selector(handleUploadPicture), for: .touchUpInside)
+        button.isUserInteractionEnabled = true
+        //button.addTarget(self, action: #selector(handleUploadPicture), for: .touchUpInside)
         return button
     }()
     
@@ -128,7 +123,6 @@ class ImageRegistrationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        registerBottomMenuLauncher.delegate = self
         configureNavigationBar()
         configureUI()
     }
@@ -192,6 +186,41 @@ class ImageRegistrationViewController: UIViewController {
             continueButton.leadingAnchor.constraint(equalTo: instructionsImageLabel.leadingAnchor),
             continueButton.trailingAnchor.constraint(equalTo: instructionsImageLabel.trailingAnchor)
         ])
+        
+        uploadPictureButton.showsMenuAsPrimaryAction = true
+        uploadPictureButton.menu = addImageButtonItems()
+    }
+    
+    func didTapImportFromGallery() {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.preferredAssetRepresentationMode = .current
+        config.filter = PHPickerFilter.any(of: [.images])
+        
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func didTapImportFromCamera() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
+    }
+    
+    private func addImageButtonItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Import from camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                self.didTapImportFromCamera()
+            }),
+            
+            UIAction(title: "Choose from gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                self.didTapImportFromGallery()
+            })
+        ])
+        return menuItems
     }
     
     private func addMenuItems() -> UIMenu {
@@ -220,10 +249,10 @@ class ImageRegistrationViewController: UIViewController {
     }
     
     @objc func handleUploadPicture() {
-        //imageSelected ? registerBottomMenuLauncher.showImageSettings(in: view) : registerBottomMenuLauncher.showImageSettings(in: view)
-        registerBottomMenuLauncher.showImageSettings(in: view)
+        print("kek")
+        
     }
-    
+
     @objc func handleContinue() {
         if comesFromHomeOnboarding {
             let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
@@ -281,17 +310,21 @@ class ImageRegistrationViewController: UIViewController {
     }
     
     @objc func handleSkip() {
-        viewModel.profileImage = nil
+        if comesFromHomeOnboarding {
+            viewModel.profileImage = nil
+            
+            let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
         
-        let controller = BannerRegistrationViewController(user: user, viewModel: viewModel)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-    
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        } else {
+            handleContinue()
+        }
     }
     
     @objc func didTapBack() {
@@ -312,28 +345,6 @@ class ImageRegistrationViewController: UIViewController {
         self.present(navVC, animated: true)
     }
 }
-
-extension ImageRegistrationViewController: RegisterBottomMenuLauncherDelegate {
-    func didTapImportFromGallery() {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 1
-        config.preferredAssetRepresentationMode = .current
-        config.filter = PHPickerFilter.any(of: [.images])
-        
-        let vc = PHPickerViewController(configuration: config)
-        vc.delegate = self
-        present(vc, animated: true)
-    }
-    
-    func didTapImportFromCamera() {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = .camera
-        picker.allowsEditing = true
-        present(picker, animated: true, completion: nil)
-    }
-}
-
 
 extension ImageRegistrationViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {

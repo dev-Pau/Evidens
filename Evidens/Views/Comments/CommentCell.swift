@@ -215,7 +215,8 @@ class CommentCell: UICollectionViewCell {
         professionLabel.text = user.profession! + ", " + user.speciality!
         
         if viewModel.anonymousComment {
-            profileImageView.image = UIImage(named: "case.privacy")
+            #warning("put a privacy image")
+            profileImageView.image = UIImage(systemName: "eyeglasses", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
             profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }

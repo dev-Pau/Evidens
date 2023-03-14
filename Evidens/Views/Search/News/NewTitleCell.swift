@@ -9,6 +9,12 @@ import UIKit
 
 class NewTitleCell: UICollectionViewCell {
     
+    var viewModel: NewViewModel? {
+        didSet {
+            configureWithNew()
+        }
+    }
+    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -75,10 +81,19 @@ class NewTitleCell: UICollectionViewCell {
             timestampLabel.trailingAnchor.constraint(equalTo: summaryLabel.trailingAnchor),
             timestampLabel.bottomAnchor.constraint(equalTo: bottomAnchor)  
         ])
-        
+        /*
         titleLabel.text = "Residents near Ohio train derailment diagnosed with ailments associated with chemical exposure, including bronchitis"
         summaryLabel.text = "Medical professionals suspect that some people's headaches, rashes and respiratory problems are related to the release of hazardous chemicals in East Palestine."
         authorName.text = "Aria Bendix"
         timestampLabel.text = "FEBRUARY 25, 2023, 1:00 PM CET"
+         */
+    }
+    
+    private func configureWithNew() {
+        guard let viewModel = viewModel else { return }
+        titleLabel.text = viewModel.newTitle
+        summaryLabel.text = viewModel.newSummary
+        authorName.text = viewModel.newAuthor
+        timestampLabel.text = viewModel.timestampString
     }
 }

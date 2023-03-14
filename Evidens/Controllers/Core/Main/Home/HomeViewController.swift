@@ -192,6 +192,14 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         switch contentSource {
         case .home:
             PostService.fetchHomeDocuments(lastSnapshot: nil) { snapshot in
+                // User does not have any type of content to display in home
+                if snapshot.isEmpty {
+                    self.loaded = true
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                }
+                
                 PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts = fetchedPosts
@@ -375,7 +383,7 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if posts.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPrimaryCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withTitle: "Welcome to your timeline", withDescription: "It's empty now, but it won't be for long. Start following people and you'll see all their content show up here.", withButtonText: "    Get started    ")
+            cell.set(withImage: UIImage(named: "home.empty")!, withTitle: "Welcome to your timeline.", withDescription: "It's empty now, but it won't be for long. Start following people and you'll see all their content show up here.", withButtonText: "    Get started    ")
             cell.delegate = self
             return cell
         } else {

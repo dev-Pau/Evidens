@@ -10,10 +10,12 @@ import UIKit
 private let stretchyHeaderReuseIdentifier = "StretchyHeaderReuseIdentifier"
 private let newTitleCellReuseIdentifier = "NewTitleCellReuseIdentifier"
 private let newContentCellReuseIdentifier = "NewContentCellReuseIdentifier"
-private let newImageCellReuseIdentifier = "NewImageCellReuseIdentifier"
+private let newImageFooterReuseIdentifier = "NewImageFooterReuseIdentifier"
 
 class NewViewController: UIViewController {
+    private let new: New
     
+    private var index = 0
     private lazy var backButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -27,37 +29,20 @@ class NewViewController: UIViewController {
     }()
     
     let barStandardAppearance = UINavigationBarAppearance()
-
     private var collectionView: UICollectionView!
     var topBarHeight: CGFloat = 0
     private var newsStretchyHeaderView: MEStretchyHeader?
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //navigationController?.setNavigationBarHidden(true, animated: true)
-        
-        //animator.startAnimation()
-        
+    init(new: New) {
+        self.new = new
+        print(new.content.count + new.imageTitles!.count)
+        super.init(nibName: nil, bundle: nil)
     }
     
-    
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        /*
-        guard let animator = newsStretchyHeaderView?.animator else { return }
-        animator.stopAnimation(true)
-        if animator.state != .inactive {
-            animator.finishAnimation(at: .current)
-        }
-         */
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-       
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -75,23 +60,32 @@ class NewViewController: UIViewController {
     
     private func createLayout() -> StretchyNewsHeaderLayout {
         let layout = StretchyNewsHeaderLayout { sectionNumber, env in
-
-                // New header
-                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(250)),
-                                                                         elementKind: ElementKind.sectionHeader,
-                                                                         alignment: .top)
-
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)))
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
+            
+            // New header
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(250)),
+                                                                     elementKind: ElementKind.sectionHeader,
+                                                                     alignment: .top)
+            
+            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(270)),
+                                                                     elementKind: ElementKind.sectionFooter,
+                                                                     alignment: .bottom)
+            
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            if let images = self.new.urlImages, !images.isEmpty {
+                section.boundarySupplementaryItems = [header, footer]
+            } else {
                 section.boundarySupplementaryItems = [header]
-                section.interGroupSpacing = 20
-                section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
-                return section
+            }
+            
+            section.interGroupSpacing = 20
+            section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
+            return section
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
-
+        
         config.interSectionSpacing = 0
         layout.configuration = config
         layout.topBarHeight = self.topBarHeight
@@ -119,7 +113,7 @@ class NewViewController: UIViewController {
         collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
         collectionView.register(NewTitleCell.self, forCellWithReuseIdentifier: newTitleCellReuseIdentifier)
         collectionView.register(NewContentCell.self, forCellWithReuseIdentifier: newContentCellReuseIdentifier)
-        collectionView.register(NewImageCell.self, forCellWithReuseIdentifier: newImageCellReuseIdentifier)
+        collectionView.register(NewImageFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: newImageFooterReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -151,32 +145,32 @@ class NewViewController: UIViewController {
 extension NewViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
+        return new.content.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyHeaderReuseIdentifier, for: indexPath) as! MEStretchyHeader
-        header.setImageWithStringUrl(imageUrl: "https://firebasestorage.googleapis.com/v0/b/evidens-ec6bd.appspot.com/o/news%2FGlobal%20healthcare_2.jpeg?alt=media&token=41d358b1-91db-4628-9d7b-2754986df2f0")
-        return header
+        if kind == ElementKind.sectionHeader {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyHeaderReuseIdentifier, for: indexPath) as! MEStretchyHeader
+            header.setImageWithStringUrl(imageUrl: new.mainImageUrl!)
+            return header
+        } else {
+            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: newImageFooterReuseIdentifier, for: indexPath) as! NewImageFooter
+            footer.setNewImage(urlImage: (new.urlImages)!, captionImage: (new.imageTitles)!)
+            return footer
+        }
+
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-            if indexPath.row == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newTitleCellReuseIdentifier, for: indexPath) as! NewTitleCell
-                return cell
-            } else {
-                if indexPath.row % 2 == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newContentCellReuseIdentifier, for: indexPath) as! NewContentCell
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newImageCellReuseIdentifier, for: indexPath) as! NewImageCell
-                    return cell
-                }
-            }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        print("will dispjlay kek")
+        if indexPath.row == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newTitleCellReuseIdentifier, for: indexPath) as! NewTitleCell
+            cell.viewModel = NewViewModel(new: new)
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: newContentCellReuseIdentifier, for: indexPath) as! NewContentCell
+            cell.setContentText(new.content[indexPath.row - 1])
+            return cell
+        }
     }
 }
 

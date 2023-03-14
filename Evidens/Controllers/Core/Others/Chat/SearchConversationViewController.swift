@@ -144,7 +144,7 @@ extension SearchConversationViewController: UICollectionViewDelegateFlowLayout, 
         } else {
             if filteredUsers.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptySearchResultsReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-                cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "   Start new message   ")
+                cell.set(withImage: UIImage(named: "message.empty")!, withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "   Start new message   ")
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: conversationCellReuseIdentifier, for: indexPath) as! NewConversationCell

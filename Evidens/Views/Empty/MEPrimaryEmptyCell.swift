@@ -20,9 +20,9 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
     private let imageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.backgroundColor = .clear
         iv.layer.cornerRadius = 5
         return iv
     }()
@@ -83,14 +83,14 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 30),
-            imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
-            imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),
-            imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 60),
+            imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2),
             
             
             titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30),
-            titleLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
+            titleLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),
            
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
@@ -102,12 +102,13 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         ])
     }
     
-    func set(withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
+    func set(withImage image: UIImage, withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
+        imageView.image = image
         descriptionLabel.text = description
         titleLabel.text = title
         if let buttonText = buttonText {
             var container = AttributeContainer()
-            container.font = .systemFont(ofSize: 15, weight: .bold)
+            container.font = .systemFont(ofSize: 16, weight: .bold)
             discoverButton.configuration?.attributedTitle = AttributedString(buttonText, attributes: container)
         } else {
             discoverButton.isHidden = true

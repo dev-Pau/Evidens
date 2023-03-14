@@ -11,7 +11,7 @@ class ClinicalTypeCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectedOptionButton.configuration?.image = isSelected ? UIImage(named: "checkmark")!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "")
+            selectedOptionButton.configuration?.image = isSelected ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(primaryColor) : UIImage(systemName: "")
         }
     }
 
