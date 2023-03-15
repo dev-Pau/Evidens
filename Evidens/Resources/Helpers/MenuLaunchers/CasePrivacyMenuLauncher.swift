@@ -16,7 +16,6 @@ protocol CasePrivacyMenuLauncherDelegate: AnyObject {
     func didTapPrivacyOption(_ option: Case.Privacy)
 }
 
-
 class CasePrivacyMenuLauncher: NSObject {
     
     private var privacyOption: Case.Privacy = .visible
@@ -43,7 +42,7 @@ class CasePrivacyMenuLauncher: NSObject {
     
     private let collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = UIColor.init(named: "bottomSecondaryMenuBackgroundColor")
+        collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -91,7 +90,7 @@ class CasePrivacyMenuLauncher: NSObject {
         }
         
         blackBackgroundView.frame = view.frame
-        blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.5)
+        blackBackgroundView.backgroundColor = .label.withAlphaComponent(0.3)
         blackBackgroundView.alpha = 0
         
         blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))
@@ -190,9 +189,9 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
         }
        
         if indexPath.row == selectedOption {
-            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill")
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
-            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "circle")
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         }
         return cell
     }

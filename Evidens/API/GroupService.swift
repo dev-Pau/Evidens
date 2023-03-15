@@ -34,13 +34,13 @@ struct GroupService {
     }
     
     static func fetchGroups(completion: @escaping([Group]) -> Void) {
-        COLLECTION_GROUPS.getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else {
+        COLLECTION_GROUPS.limit(to: 30).getDocuments { snapshot, error in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])
                 return
             }
 
-            var groups: [Group] = documents.compactMap({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+            var groups: [Group] = snapshot.documents.compactMap({ Group(groupId: $0.documentID, dictionary: $0.data()) })
             groups.enumerated().forEach { index, group in
                 DatabaseManager.shared.fetchNumberOfGroupUsers(groupId: group.groupId) { members in
                     groups[index].members = members

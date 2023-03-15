@@ -12,10 +12,27 @@ class PostMenuHeader: UICollectionReusableView {
     
     private let padding: CGFloat = 10
     
+    var menuTitle: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textColor = .label
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let separator: UIView = {
         let view = UIView()
         view.backgroundColor = .tertiarySystemFill
         view.layer.cornerRadius = 3
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let bottomSeparator: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -30,14 +47,22 @@ class PostMenuHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubview(separator)
+        addSubviews(separator, menuTitle, bottomSeparator)
 
         NSLayoutConstraint.activate([
-            
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),
             separator.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             separator.heightAnchor.constraint(equalToConstant: 5),
-            separator.widthAnchor.constraint(equalToConstant: 50),
+            separator.widthAnchor.constraint(equalToConstant: 40),
+            
+            menuTitle.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 10),
+            menuTitle.leadingAnchor.constraint(equalTo: leadingAnchor),
+            menuTitle.trailingAnchor.constraint(equalTo: trailingAnchor),
+            
+            bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bottomSeparator.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bottomSeparator.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomSeparator.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
 }

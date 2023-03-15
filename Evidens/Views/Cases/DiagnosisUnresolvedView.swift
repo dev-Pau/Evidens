@@ -15,6 +15,7 @@ class DiagnosisUnresolvedView: UIView {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -96,7 +97,9 @@ class DiagnosisUnresolvedView: UIView {
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2
-        profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
 }
 

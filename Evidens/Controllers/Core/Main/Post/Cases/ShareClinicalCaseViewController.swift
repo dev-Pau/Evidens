@@ -92,7 +92,7 @@ class ShareClinicalCaseViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(named: "image")?.withTintColor(.secondaryLabel)
+        iv.image = UIImage(named: "image")?.withTintColor(.label)
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handlePhotoTap)))
         return iv
@@ -217,7 +217,7 @@ class ShareClinicalCaseViewController: UIViewController {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
-        iv.image = Case.Privacy.visible.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = Case.Privacy.visible.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleOpenPrivacyMenu)))
@@ -1138,27 +1138,12 @@ extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: option.privacyTypeString))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: option.privacyTypeString))
         
-        privacyTypeImage.image = option.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        privacyTypeImage.image = option.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         casePrivacy = option
         privacyLabel.attributedText = aString
         self.group = Group(groupId: "", dictionary: [:])
         casePrivacyMenuLauncher.handleDismissMenu()
-        
     }
-    
-/*
-    func didTapPrivacyOption(_ option: Case.Privacy, _ image: UIImage, _ privacyText: String) {
-        casePrivacy = option
-        
-        let aString = NSMutableAttributedString(string: "\(option.privacyTypeString). \(privacyText).")
-        aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: option.privacyTypeString))
-        aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: option.privacyTypeString))
-        
-        privacyTypeImage.image = image.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        privacyLabel.attributedText = aString
-        casePrivacyMenuLauncher.handleDismissMenu()
-    }
- */
 }
 
 extension ShareClinicalCaseViewController: ShareContentViewModel {
@@ -1173,7 +1158,7 @@ extension ShareClinicalCaseViewController: PostGroupSelectionViewControllerDeleg
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 15, weight: .medium), range: (aString.string as NSString).range(of: "Group"))
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Group"))
         
-        privacyTypeImage.image = Case.Privacy.group.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(grayColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        privacyTypeImage.image = Case.Privacy.group.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         
         privacyLabel.attributedText = aString
         //casePrivacyMenuLauncher.handleDismissMenu()

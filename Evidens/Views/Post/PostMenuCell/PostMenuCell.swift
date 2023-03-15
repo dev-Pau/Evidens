@@ -14,13 +14,9 @@ class PostMenuCell: UICollectionViewCell {
 
     lazy var postTyeButton: UIButton = {
         let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.1)
-
+        button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        
         button.translatesAutoresizingMaskIntoConstraints = false
-        
         return button
     }()
     
@@ -28,14 +24,19 @@ class PostMenuCell: UICollectionViewCell {
     private let postTypeLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = primaryColor
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -50,9 +51,10 @@ class PostMenuCell: UICollectionViewCell {
     private func configure() {
         addSubview(postTyeButton)
         addSubview(postTypeLabel)
+        addSubview(separatorView)
         
         NSLayoutConstraint.activate([
-            postTyeButton.topAnchor.constraint(equalTo: topAnchor, constant: padding),
+            postTyeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             postTyeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
             postTyeButton.widthAnchor.constraint(equalToConstant: 35),
             postTyeButton.heightAnchor.constraint(equalToConstant: 35),
@@ -61,12 +63,20 @@ class PostMenuCell: UICollectionViewCell {
             postTypeLabel.leadingAnchor.constraint(equalTo: postTyeButton.trailingAnchor, constant: padding),
             postTypeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
             //postTypeLabel.heightAnchor.constraint(equalToConstant: 30)
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: postTypeLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
     
     func set(withText text: String, withImage image: UIImage) {
-        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         postTypeLabel.text = text
+        
+        /*
+        
         if text == "Delete" || text == "Report this Post" || text == "Delete notification" || text == "Report this Case" || text == "Delete conversation"  {
             postTypeLabel.textColor = .systemRed
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -75,5 +85,6 @@ class PostMenuCell: UICollectionViewCell {
             postTypeLabel.textColor = primaryColor
             postTypeLabel.font = .systemFont(ofSize: 16, weight: .medium)
         }
+         */
     }
 }

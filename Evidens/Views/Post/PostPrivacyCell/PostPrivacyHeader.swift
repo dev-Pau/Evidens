@@ -56,7 +56,7 @@ class PostPrivacyHeader: UICollectionReusableView {
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),
             separator.topAnchor.constraint(equalTo: topAnchor, constant: 7),
             separator.heightAnchor.constraint(equalToConstant: 5),
-            separator.widthAnchor.constraint(equalToConstant: 50),
+            separator.widthAnchor.constraint(equalToConstant: 40),
             
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: padding),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),

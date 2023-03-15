@@ -66,7 +66,7 @@ class UploadPostViewController: UIViewController {
         return toolbar
     }()
     
-    private lazy var professionsView = CaseDetailsView(title: "")
+    private lazy var professionsView = CaseDetailsView(title: "Professions")
     
     private var professionsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -85,8 +85,8 @@ class UploadPostViewController: UIViewController {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .lightGray
         return iv
     }()
     
@@ -301,7 +301,11 @@ class UploadPostViewController: UIViewController {
         professionsCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: professionCellReuseIdentifier)
 
         profileImageView.layer.cornerRadius = 50/2
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        
+        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+
     
         fullName.text = user.firstName! + " " + user.lastName!
         updateForm()

@@ -75,7 +75,7 @@ class BookmarksViewController: UIViewController {
         collectionView.backgroundColor = .systemBackground
         //collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.isScrollEnabled = false
+        collectionView.isScrollEnabled = true
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         return collectionView
@@ -118,9 +118,8 @@ class BookmarksViewController: UIViewController {
     
     private func fetchBookmarkedClinicalCases() {
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
-            if snapshot.count == 0 {
+            if snapshot.isEmpty {
                 self.caseLoaded = true
-                self.contentCollectionView.isScrollEnabled = true
                 self.contentCollectionView.reloadData()
                 return
             }
@@ -133,7 +132,6 @@ class BookmarksViewController: UIViewController {
                     UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
                         self.caseLoaded = true
                         self.caseUsers.append(user)
-                        self.contentCollectionView.isScrollEnabled = true
                         self.contentCollectionView.reloadData()
                     }
                 }
@@ -143,9 +141,8 @@ class BookmarksViewController: UIViewController {
     
     private func fetchBookmarkedPosts() {
         PostService.fetchBookmarkedPostDocuments(lastSnapshot: nil) { snapshot in
-            if snapshot.count == 0 {
+            if snapshot.isEmpty {
                 self.postLoaded = true
-                self.contentCollectionView.isScrollEnabled = true
                 self.contentCollectionView.reloadData()
                 return
             }
@@ -158,7 +155,6 @@ class BookmarksViewController: UIViewController {
                     UserService.fetchUser(withUid: postFetched.ownerUid) { user in
                         self.postLoaded = true
                         self.postUsers.append(user)
-                        self.contentCollectionView.isScrollEnabled = true
                         self.contentCollectionView.reloadData()
                     }
                 }
@@ -260,7 +256,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 // Cases
                 if cases.count == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                    cell.configure(image: UIImage(named: "content.empty"), title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
                     cell.delegate = self
                     return cell
                 }
@@ -304,7 +300,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             } else {
                 if posts.count == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                    cell.configure(image: UIImage(named: "content.empty"), title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
                     cell.delegate = self
                     return cell
                 }

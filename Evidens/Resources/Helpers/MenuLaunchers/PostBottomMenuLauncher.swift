@@ -31,9 +31,9 @@ enum ShareableContent: String, CaseIterable {
     var contentImage: UIImage {
         switch self {
         case .post:
-            return (UIImage(named: "post"))!
+            return (UIImage(systemName: "plus.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)))!
         case .clinicalCase:
-            return (UIImage(named: "cases"))!
+            return (UIImage(systemName: "book", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)))!
         }
     }
 }
@@ -49,23 +49,18 @@ class PostBottomMenuLauncher: NSObject {
     
     weak var delegate: PostBottomMenuLauncherDelegate?
     
-    private let menuHeight: CGFloat = 185 //110 + 60 + 60 + 30 - 260
+    private let menuHeight: CGFloat = 220 //110 + 60 + 60 + 30 - 260
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
-    
-    
-    //private var menuOptionsText: [String] = ["Create a Post", "Share a Clinical Case"]
-    //private var menuOptionsImages: [UIImage] = [UIImage(named: "post", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!,
-                                                //UIImage(named: "cases", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!]
-    
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = UIColor.init(named: "bottomMenuBackgroundColor")
+        //collectionView.backgroundColor = UIColor.init(named: "bottomMenuBackgroundColor")
+        collectionView.backgroundColor = .systemBackground
         collectionView.layer.cornerRadius = 20
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
@@ -115,7 +110,7 @@ class PostBottomMenuLauncher: NSObject {
         view.addSubview(collectionView)
         
         blackBackgroundView.frame = view.frame
-        blackBackgroundView.backgroundColor = .label.withAlphaComponent(0.5)
+        blackBackgroundView.backgroundColor = .label.withAlphaComponent(0.3)
         blackBackgroundView.alpha = 0
         
         blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))
@@ -167,11 +162,12 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
+        header.menuTitle.text = "Create"
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 30)
+        return CGSize(width: screenWidth, height: 65)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -181,8 +177,10 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! PostMenuCell
         cell.set(withText: ShareableContent.allCases[indexPath.row].contentString, withImage: ShareableContent.allCases[indexPath.row].contentImage)
-        cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
+        //cell.backgroundColor = UIColor.init(named: "bottomMenuCellColor")
+        //cell.backgroundColor = .tertiarySystemFill
 
+        /*
         if indexPath.row == 0 {
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
@@ -192,17 +190,18 @@ extension PostBottomMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
             cell.layer.cornerRadius = 10
             cell.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         }
+         */
         
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: screenWidth - 40, height: 60)
+        return CGSize(width: screenWidth, height: 55)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedOption = ShareableContent.allCases[indexPath.row]
-        //handleDismiss(selectedOption: selectedOption)
         delegate?.didTapUpload(content: selectedOption)
+        handleDismissMenu()
     }
 }
