@@ -95,11 +95,21 @@ class SearchResultsUpdatingViewController: UIViewController {
                     switch userRecents {
                     case .success(let recentUserSearches):
                         self.recentUserSearches = recentUserSearches
-                        UserService.fetchUsers(withUids: recentUserSearches) { users in
-                            self.users = users
+                    
+                        if recentSearches.isEmpty && recentUserSearches.isEmpty {
+                            // No recent searches
                             self.toolbarHeightAnchor.constant = 50
+                            self.categoriesToolbar.layoutIfNeeded()
                             self.dataLoaded = true
                             self.collectionView.reloadData()
+                        } else {
+                            UserService.fetchUsers(withUids: recentUserSearches) { users in
+                                self.users = users
+                                self.toolbarHeightAnchor.constant = 50
+                                self.categoriesToolbar.layoutIfNeeded()
+                                self.dataLoaded = true
+                                self.collectionView.reloadData()
+                            }
                         }
                     case .failure(let error):
                         print(error)
@@ -197,19 +207,18 @@ class SearchResultsUpdatingViewController: UIViewController {
             } else {
                 // Recents
                 if sectionNumber == 0 {
+                    let recentsIsEmpty = self.recentUserSearches.isEmpty && self.recentSearches.isEmpty
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                     
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(80)), subitems: [item])
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: recentsIsEmpty ? .fractionalWidth(1) : .absolute(100), heightDimension: recentsIsEmpty ? .absolute(55) : .absolute(80)), subitems: [item])
                     
                     let section = NSCollectionLayoutSection(group: group)
                     section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
                     section.interGroupSpacing = 0
                     section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-                    //if self.dataLoaded == false {
-                    section.boundarySupplementaryItems = [header]
-                    //}
+                    if !recentsIsEmpty { section.boundarySupplementaryItems = [header] }
                     
                     return section
                 } else {
@@ -236,7 +245,7 @@ class SearchResultsUpdatingViewController: UIViewController {
         collectionView.keyboardDismissMode = .onDrag
         view.backgroundColor = .systemBackground
         collectionView.backgroundColor = .systemBackground
-        view.addSubviews(activityIndicator, collectionView, categoriesToolbar )
+        view.addSubviews(activityIndicator, collectionView, categoriesToolbar)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         toolbarHeightAnchor = categoriesToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
@@ -291,7 +300,7 @@ class SearchResultsUpdatingViewController: UIViewController {
     }
     
     func fetchContentFor(topic: String, category: Search.Topics) {
-        SearchService.fetchUsersWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
+        SearchService.fetchContentWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
             switch category {
             case .people:
                 self.usersLastSnapshot = snapshot.documents.last
@@ -477,7 +486,8 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty && topJobs.isEmpty { return 1 }
             return 5
         } else {
-            return 2
+            return recentSearches.isEmpty && recentUserSearches.isEmpty ? 1 : 2
+            //return 2
         }
     }
     
@@ -501,18 +511,18 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             }
         } else {
             // Recents information
-            if section == 0 {
-                return users.count
-            } else {
-                // tornar 0 si data no està loaded bro
-                return recentSearches.count
+            if recentSearches.isEmpty && recentUserSearches.isEmpty { return 1 } else {
+                if section == 0 {
+                    return users.count
+                } else {
+                    return recentSearches.count
+                }
             }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        
+
         if !isInSearchTopicMode {
             // Recents
             if dataLoaded {
@@ -553,7 +563,8 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
         if isInSearchCategoryMode {
             if resultItemsCount == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                cell.configure(image: UIImage(named: "content.empty"), title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                cell.delegate = self
                 return cell
             } else {
                 switch categorySearched {
@@ -652,19 +663,26 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             }
             
         } else if !isInSearchTopicMode {
-            if indexPath.section == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentSearchesUserCell
-                cell.configureWithUser(user: users[indexPath.row])
+            if recentSearches.isEmpty && recentUserSearches.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
+                cell.set(title: "Try searching for people, content or any of the above filters")
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
-                cell.viewModel = RecentTextCellViewModel(recentText: recentSearches[indexPath.row])
-                return cell
+                if indexPath.section == 0 {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentSearchesUserCellReuseIdentifier, for: indexPath) as! RecentSearchesUserCell
+                    cell.configureWithUser(user: users[indexPath.row])
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
+                    cell.viewModel = RecentTextCellViewModel(recentText: recentSearches[indexPath.row])
+                    return cell
+                }
             }
         } else {
             if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty && topJobs.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                cell.configure(image: UIImage(named: "content.empty"), title: "No content found", description: "Try removing some filters or rephrasing your search", buttonText: .removeFilters)
+                cell.delegate = self
                 return cell
             }
             
@@ -676,99 +694,105 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 
             } else if indexPath.section == 1 {
                 // Top Posts
-                    switch topPosts[indexPath.row].type {
-                    case .plainText:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        //cell.delegate = self
-                        return cell
-                    case .textWithImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        //cell.delegate = self
-                        return cell
-                    case .textWithTwoImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        //cell.delegate = self
-                        return cell
-                    case .textWithThreeImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        //cell.delegate = self
-                        return cell
-                    case .textWithFourImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
-                        cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
-                        if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
-                            cell.set(user: topPostUsers[userIndex])
-                        }
-                        //cell.set(user: postUsers[index])
-                        //cell.delegate = self
-                        return cell
-                    case .document:
-                        return UICollectionViewCell()
-                    case .poll:
-                        return UICollectionViewCell()
-                    case .video:
-                        return UICollectionViewCell()
+                switch topPosts[indexPath.row].type {
+                case .plainText:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        cell.set(user: topPostUsers[userIndex])
                     }
+                    //cell.set(user: postUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        cell.set(user: topPostUsers[userIndex])
+                    }
+                    //cell.set(user: postUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .textWithTwoImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        cell.set(user: topPostUsers[userIndex])
+                    }
+                    //cell.set(user: postUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .textWithThreeImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        cell.set(user: topPostUsers[userIndex])
+                    }
+                    //cell.set(user: postUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .textWithFourImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
+                    if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
+                        cell.set(user: topPostUsers[userIndex])
+                    }
+                    //cell.set(user: postUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .document:
+                    return UICollectionViewCell()
+                case .poll:
+                    return UICollectionViewCell()
+                case .video:
+                    return UICollectionViewCell()
+                }
             } else if indexPath.section == 2 {
                 // Top Cases
-
-                    switch topCases[indexPath.row].type {
-                    case .text:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
-                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
-                            cell.set(user: topCaseUsers[userIndex])
-                        }
-                        //cell.set(user: caseUsers[index])
-                        //cell.delegate = self
-                        return cell
-                    case .textWithImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
-                        cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
-                        if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
-                            cell.set(user: topCaseUsers[userIndex])
-                        }
-                        //cell.set(user: caseUsers[index])
-                        //cell.delegate = self
-                        return cell
+                
+                switch topCases[indexPath.row].type {
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseTextCell
+                    cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                    if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                        cell.set(user: topCaseUsers[userIndex])
+                    }
+                    //cell.set(user: caseUsers[index])
+                    //cell.delegate = self
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
+                    if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
+                        cell.set(user: topCaseUsers[userIndex])
+                    }
+                    //cell.set(user: caseUsers[index])
+                    //cell.delegate = self
+                    return cell
                     
                 }
             } else if indexPath.section == 3 {
-
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
-                    cell.backgroundColor = .systemPink
-                    return cell
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
+                cell.backgroundColor = .systemPink
+                return cell
                 
             } else {
                 
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: browseJobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
-                    cell.viewModel = JobViewModel(job: topJobs[indexPath.row])
-                    if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
-                        cell.configureWithCompany(company: topCompanies[companyIndex])
-                    }
-                    return cell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: browseJobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
+                cell.viewModel = JobViewModel(job: topJobs[indexPath.row])
+                if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
+                    cell.configureWithCompany(company: topCompanies[companyIndex])
+                }
+                return cell
                 
             }
         }
+    }
+}
+
+extension SearchResultsUpdatingViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        categoriesToolbar.didRestoreMenu()
     }
 }

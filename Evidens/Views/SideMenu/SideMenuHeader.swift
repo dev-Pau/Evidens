@@ -20,7 +20,7 @@ class SideMenuHeader: UICollectionReusableView {
         iv.layer.masksToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.isUserInteractionEnabled = false
         return iv
     }()
@@ -89,7 +89,7 @@ class SideMenuHeader: UICollectionReusableView {
     }
     
     func configure() {
-        if let imageString = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String {
+        if let imageString = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageString != "" {
             userImageView.sd_setImage(with: URL(string: imageString))
         }
         

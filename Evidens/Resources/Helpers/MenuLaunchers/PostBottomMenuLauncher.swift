@@ -115,7 +115,7 @@ class PostBottomMenuLauncher: NSObject {
         view.addSubview(collectionView)
         
         blackBackgroundView.frame = view.frame
-        blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.6)
+        blackBackgroundView.backgroundColor = .label.withAlphaComponent(0.5)
         blackBackgroundView.alpha = 0
         
         blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))

@@ -79,6 +79,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
         
         PostService.fetchPostsForYou { posts in
+            guard !posts.isEmpty else {
+                count += 1
+                self.checkIfAllTheContentIsFetched(count: count)
+                return
+            }
             self.posts = posts
             let uids = posts.map { $0.ownerUid }
             UserService.fetchUsers(withUids: uids) { users in
@@ -89,6 +94,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         }
         
         CaseService.fetchCasesForYou { cases in
+            guard !cases.isEmpty else {
+                count += 1
+                self.checkIfAllTheContentIsFetched(count: count)
+                return
+            }
             self.cases = cases
             let uids = cases.map { $0.ownerUid }
             UserService.fetchUsers(withUids: uids) { users in
@@ -101,6 +111,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
     func checkIfAllTheContentIsFetched(count: Int) {
         if count == 5 {
+            print("fetched all content kek")
             self.activityIndicator.stop()
             self.collectionView.reloadData()
             self.collectionView.isHidden = false
@@ -201,7 +212,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let section = NSCollectionLayoutSection(group: group)
                 //section.interGroupSpacing = 10
                 section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
-                section.boundarySupplementaryItems = [header]
+                if !self.users.isEmpty { section.boundarySupplementaryItems = [header] }
+                
 
                 return section
             } else {
@@ -216,7 +228,13 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
                 section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
-                section.boundarySupplementaryItems = [header]
+                
+                if sectionNumber == 3 && !self.posts.isEmpty {
+                    section.boundarySupplementaryItems = [header]
+                } else if sectionNumber == 4 && !self.cases.isEmpty {
+                    section.boundarySupplementaryItems = [header]
+                }
+
                 return section
             }
         }
@@ -262,7 +280,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             return header
         }
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {

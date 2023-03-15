@@ -41,13 +41,26 @@ class NavigationBarViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+        
         if !controllerIsBeeingPushed {
             
             userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
             userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
             userImageView.layer.cornerRadius = 30 / 2
             let profileImageItem = UIBarButtonItem(customView: userImageView)
-            userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
+            
+            /*
+             UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+         }
+         if let _ = viewModel.bannerImage {
+             UserDefaults.standard.set(user.bannerImageUrl!, forKey: "userProfileBannerUrl")
+             */
+            
+            if let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, profileImageUrl != "" {
+                userImageView.sd_setImage(with: URL(string: profileImageUrl))
+            }
+            
             navigationItem.leftBarButtonItem = profileImageItem
             
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "paperplane")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)), style: .done, target: self, action: #selector(didTapChat))
@@ -78,7 +91,8 @@ class NavigationBarViewController: UIViewController {
     }
     
     @objc func didReceiveNotification(notification: NSNotification) {
-        print("navigation bar received notification :)")
-        userImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String ?? ""))
+        if let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, profileImageUrl != "" {
+            userImageView.sd_setImage(with: URL(string: profileImageUrl))
+        }
     }
 }

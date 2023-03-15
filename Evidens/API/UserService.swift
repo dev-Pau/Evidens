@@ -176,8 +176,9 @@ struct UserService {
     }
     
     static func fetchTopUsersWithTopic(topic: String, completion: @escaping([User]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var count = 0
-        COLLECTION_USERS.whereField("profession", isEqualTo: topic).limit(to: 3).getDocuments { snapshot, _ in
+        COLLECTION_USERS.whereField("profession", isEqualTo: topic).whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, _ in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])
                 return
@@ -196,12 +197,16 @@ struct UserService {
         }
     }
     
-    static func fetchUsers(completion: @escaping([User]) -> Void) {
+    static func fetchOnboardingUsers(completion: @escaping([User]) -> Void) {
         COLLECTION_USERS.limit(to: 50).getDocuments { (snapshot, error) in
-            guard let snapshot = snapshot else { return }
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
             
             let users = snapshot.documents.map({ User(dictionary: $0.data()) })
-            completion(users)
+            let filteredUsers = users.filter({ $0.isCurrentUser == false })
+            completion(filteredUsers)
         }
     }
     
@@ -427,10 +432,11 @@ struct UserService {
          */
     
     static func fetchWhoToFollowUsers(completion: @escaping([User]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var users = [User]()
         var count: Int = 0
-        COLLECTION_USERS.limit(to: 3).getDocuments { snapshot, error in
-            guard let snapshot = snapshot else {
+        COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion(users)
                 return
             }

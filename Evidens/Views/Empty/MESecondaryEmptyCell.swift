@@ -29,7 +29,6 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
         iv.contentMode = .scaleAspectFill
         return iv
     }()
@@ -87,6 +86,8 @@ class MESecondaryEmptyCell: UICollectionViewCell {
             emptyCellButton.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
         
+        emptyCellImageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        emptyCellImageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         emptyCellImageView.layer.cornerRadius = (UIScreen.main.bounds.width / 2.5) / 2
     }
     
@@ -95,6 +96,9 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     }
     
     func configure(image: UIImage?, title: String, description: String, buttonText: EmptyCellButtonOptions) {
+        if let image = image {
+            emptyCellImageView.image = image
+        }
         emptyTitleLabel.text = title
         emptyDescriptionLabel.text = description
         emptyCellOption = buttonText

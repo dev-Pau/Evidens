@@ -10,6 +10,7 @@ import UIKit
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let onboardingHeaderReuseIdentifier = "OnboardingHeaderReuseIdentifier"
 private let followFollowingCellReuseIdentifier = "FollowFollowingCellReuseIdentifier"
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 protocol HomeOnboardingViewControllerDelegate: AnyObject {
     func didUpdateUser(user: User)
@@ -62,14 +63,19 @@ class HomeOnboardingViewController: UIViewController {
     }
     
     private func fetchUsers() {
-        UserService.fetchUsers { users in
-            self.users = users
-            users.forEach { user in
-                UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                    self.userIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
-                    if self.userIsFollowed.count == users.count {
-                        self.followersLoaded = true
-                        self.collectionView.reloadData()
+        UserService.fetchOnboardingUsers { users in
+            if users.isEmpty {
+                self.followersLoaded = true
+                self.collectionView.reloadData()
+            } else {
+                self.users = users
+                users.forEach { user in
+                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                        self.userIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
+                        if self.userIsFollowed.count == users.count {
+                            self.followersLoaded = true
+                            self.collectionView.reloadData()
+                        }
                     }
                 }
             }
@@ -90,6 +96,7 @@ class HomeOnboardingViewController: UIViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(OnboardingHomeHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: onboardingHeaderReuseIdentifier)
         collectionView.register(UsersFollowFollowingCell.self, forCellWithReuseIdentifier: followFollowingCellReuseIdentifier)
+        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -97,7 +104,7 @@ class HomeOnboardingViewController: UIViewController {
 
 extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return followersLoaded ? users.count : 0
+        return followersLoaded ? users.isEmpty ? 1 : users.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -116,27 +123,34 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
-        cell.user = users[indexPath.row]
-        
-        cell.followerDelegate = self
+        if users.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: UIImage(named: "content.empty"), title: "No users found", description: "Check back later for new user suggestions", buttonText: .dismiss)
+            cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
+            cell.user = users[indexPath.row]
+            
+            cell.followerDelegate = self
 
-        let userIndex = userIsFollowed.firstIndex { user in
-            if user.uid == users[indexPath.row].uid! {
-                return true
+            let userIndex = userIsFollowed.firstIndex { user in
+                if user.uid == users[indexPath.row].uid! {
+                    return true
+                }
+                return false
             }
-            return false
+            
+            if let userIndex = userIndex {
+                cell.userIsFollowing = userIsFollowed[userIndex].isFollow
+            }
+            
+            return cell
         }
-        
-        if let userIndex = userIndex {
-            cell.userIsFollowing = userIsFollowed[userIndex].isFollow
-        }
-        
-        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 66)
+        return users.isEmpty ? CGSize(width: view.frame.width, height: view.frame.width) : CGSize(width: view.frame.width, height: 66)
     }
 }
 
@@ -204,5 +218,11 @@ extension HomeOnboardingViewController: UsersFollowCellDelegate {
             
             PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
+    }
+}
+
+extension HomeOnboardingViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        navigationController?.popViewController(animated: true)
     }
 }

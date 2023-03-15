@@ -39,7 +39,6 @@
 		5F39B49A282FF1020079F8CF /* RecentHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B499282FF1020079F8CF /* RecentHeader.swift */; };
 		5F39B49C283005890079F8CF /* RecentUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B49B283005890079F8CF /* RecentUserCell.swift */; };
 		5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B49D283007E70079F8CF /* UserCollectionViewCell.swift */; };
-		5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A02830E8D60079F8CF /* SearchResultsViewController.swift */; };
 		5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A2283108A70079F8CF /* RecentTextCell.swift */; };
 		5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */; };
 		5F4493BE2761FA0C008FD6ED /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */; };
@@ -462,7 +461,6 @@
 		5F39B499282FF1020079F8CF /* RecentHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentHeader.swift; sourceTree = "<group>"; };
 		5F39B49B283005890079F8CF /* RecentUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentUserCell.swift; sourceTree = "<group>"; };
 		5F39B49D283007E70079F8CF /* UserCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollectionViewCell.swift; sourceTree = "<group>"; };
-		5F39B4A02830E8D60079F8CF /* SearchResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		5F39B4A2283108A70079F8CF /* RecentTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCell.swift; sourceTree = "<group>"; };
 		5F39B4A728310F120079F8CF /* RecentTextCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTextCellViewModel.swift; sourceTree = "<group>"; };
 		5F4493BD2761FA0C008FD6ED /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
@@ -936,7 +934,6 @@
 				5F91F10029B08837007BB567 /* News */,
 				5FC4D87C2707059D006B7A34 /* SearchViewController.swift */,
 				5F9136DA29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift */,
-				5F39B4A02830E8D60079F8CF /* SearchResultsViewController.swift */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -2935,7 +2932,6 @@
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* PostMenuTitleHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
-				5F39B4A12830E8D60079F8CF /* SearchResultsViewController.swift in Sources */,
 				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,

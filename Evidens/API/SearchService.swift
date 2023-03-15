@@ -9,13 +9,12 @@ import UIKit
 import Firebase
 
 struct SearchService {
-    static func fetchUsersWithTopicSelected(topic: String, category: Search.Topics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-        
+    static func fetchContentWithTopicSelected(topic: String, category: Search.Topics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if lastSnapshot == nil {
-            
             switch category {
             case .people:
-                let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: topic).limit(to: 25)
+                let firstGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("profession", isEqualTo: topic).limit(to: 25)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
                     guard let snapshot = snapshot, !snapshot.isEmpty else {

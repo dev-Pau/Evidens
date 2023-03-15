@@ -487,13 +487,13 @@ struct CaseService {
         let query = COLLECTION_CASES.whereField("ownerUid", isNotEqualTo: uid).limit(to: 3)
         var count: Int = 0
         query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else {
-                completion([Case]())
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
                 return
             }
             
             //Mapping that creates an array for each post
-            var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+            var cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             cases.enumerated().forEach { index, clinicalCase in
                 self.checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
                     self.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in

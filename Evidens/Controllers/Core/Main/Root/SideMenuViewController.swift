@@ -32,7 +32,7 @@ class SideMenuViewController: UIViewController {
             case .groups:
                 return "groups.selected"
             case .jobs:
-                return "briefcase.fill"
+                return "case.fill"
             }
         }
     }
@@ -81,6 +81,14 @@ class SideMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        
+        //NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
+    }
+    
+    @objc func didReceiveNotification(notification: NSNotification) {
+        updateUserData()
     }
     
     private func configureCollectionView() {

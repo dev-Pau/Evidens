@@ -146,13 +146,13 @@ struct PostService {
         let query = COLLECTION_POSTS.order(by: "timestamp", descending: true).limit(to: 3)
         var count: Int = 0
         query.getDocuments { (snapshot, error) in
-            guard let documents = snapshot?.documents else {
-                completion([Post]())
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
                 return
             }
             
             //Mapping that creates an array for each post
-            var posts = documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+            var posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
             posts.enumerated().forEach { index, post in
                 self.checkIfUserLikedPost(post: post) { like in
                     self.checkIfUserBookmarkedPost(post: post) { bookmark in

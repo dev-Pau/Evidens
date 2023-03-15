@@ -37,9 +37,8 @@ class ImageRegistrationViewController: UIViewController {
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(named: "user")?.withTintColor(.secondaryLabel)
+        iv.image = UIImage(named: "user.profile")
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .tertiarySystemGroupedBackground
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -115,7 +114,6 @@ class ImageRegistrationViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
-        
         button.isUserInteractionEnabled = true
         button.showsMenuAsPrimaryAction = true
         return button
@@ -139,8 +137,8 @@ class ImageRegistrationViewController: UIViewController {
     private func configureNavigationBar() {
         if comesFromHomeOnboarding {
             //newUser = user
-            if let _ = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String {
-                profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+                profileImageView.sd_setImage(with: URL(string: imageUrl))
                 //continueButton.backgroundColor = primaryColor
                 //continueButton.isUserInteractionEnabled = true
             }
@@ -249,7 +247,7 @@ class ImageRegistrationViewController: UIViewController {
     }
     
     @objc func handleUploadPicture() {
-        print("kek")
+        
         
     }
 

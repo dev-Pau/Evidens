@@ -45,6 +45,8 @@ class MESearchToolbar: UIToolbar {
     }
     
     private func configure() {
+        //setBackgroundImage(UIImage(), forToolbarPosition: .topAttached, barMetrics: .default)
+        barTintColor = UIColor.systemBackground
         displayDataSource = dataSource
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         collectionView.backgroundColor = .systemBackground
@@ -69,11 +71,19 @@ class MESearchToolbar: UIToolbar {
         ])
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 barTintColor = UIColor.systemBackground
+             }
+         }
+    }
+    
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             let headerSize = NSCollectionLayoutSize(widthDimension: .absolute(50), heightDimension: .absolute(30))
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .leading)
-            //header.pinToVisibleBounds = true
+
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
@@ -81,10 +91,6 @@ class MESearchToolbar: UIToolbar {
             section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
             section.interGroupSpacing = 5
             
-          //  if self.isInSearchMode {
-            //    section.boundarySupplementaryItems = [header]
-                
-           // }
 
             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
             return section

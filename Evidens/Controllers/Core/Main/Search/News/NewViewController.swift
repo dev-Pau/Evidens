@@ -123,6 +123,7 @@ class NewViewController: UIViewController {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let contentOffsetY = scrollView.contentOffset.y
 
+        /*
         if contentOffsetY >= 250 - topbarHeight + 40 {
             barStandardAppearance.backgroundEffect = UIBlurEffect(style: .prominent)
             navigationItem.standardAppearance = self.barStandardAppearance
@@ -130,7 +131,7 @@ class NewViewController: UIViewController {
             barStandardAppearance.configureWithTransparentBackground()
             self.navigationItem.standardAppearance = barStandardAppearance
         }
-        
+        */
         if contentOffsetY < 0 {
             collectionView.verticalScrollIndicatorInsets.top = (250 - topbarHeight) - contentOffsetY
         }

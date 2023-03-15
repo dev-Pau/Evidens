@@ -73,9 +73,11 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func fetchNotifications() {
         NotificationService.fetchNotifications(lastSnapshot: nil) { snapshot in
-            guard let snapshot = snapshot else {
+            if snapshot.isEmpty {
                 self.loaded = true
+                self.activityIndicator.stop()
                 self.collectionView.reloadData()
+                self.collectionView.isHidden = false
                 return
             }
             
@@ -119,7 +121,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
 
         if notifications.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withImage: UIImage(named: "notification.empty")!, withTitle: "No notifications - yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
+            cell.set(withImage: UIImage(named: "notification.empty")!, withTitle: "Nothing to see here —— yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
             return cell
         } else {
             if notifications[indexPath.row].type.rawValue == 2 {
@@ -225,7 +227,6 @@ extension NotificationsViewController: NotificationCellDelegate {
         case is NotificationFollowCell:
             let currentCell = cell as! NotificationFollowCell
             currentCell.viewModel?.notification.userIsFollowed = false
-            print(currentCell.viewModel?.notification.userIsFollowed)
             UserService.unfollow(uid: uid) { error in
                 if let _ = error {
                     return
@@ -320,7 +321,7 @@ extension NotificationsViewController: NotificationCellDelegate {
 extension NotificationsViewController {
     func getMoreNotifications() {
         NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { snapshot in
-            guard let snapshot = snapshot else {
+            if snapshot.isEmpty {
             #warning("No mor enotifications? maybe show alert saying it idk")
                 return
             }

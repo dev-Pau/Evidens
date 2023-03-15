@@ -101,7 +101,7 @@ class GroupInviteViewController: UIViewController {
     
     private func fetchUsers() {
         #warning("modiifcar la funció perquè no apareguin els users que ja estàn al grup...")
-        UserService.fetchUsers { users in
+        UserService.fetchOnboardingUsers { users in
             self.users = users
             self.loaded = true
             self.collectionView.reloadData()

@@ -147,6 +147,8 @@ extension DatabaseManager {
             
             if let recentSearches = snapshot?.value as? [String] {
                 completion(.success(recentSearches.reversed()))
+            } else {
+                completion(.success([]))
             }
         }
     }
@@ -205,6 +207,8 @@ extension DatabaseManager {
             
             if let recentSearches = snapshot?.value as? [String] {
                 completion(.success(recentSearches.reversed()))
+            } else {
+                completion(.success([]))
             }
         }
     }
