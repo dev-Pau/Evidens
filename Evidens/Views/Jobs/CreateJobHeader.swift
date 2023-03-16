@@ -19,11 +19,11 @@ class CreateJobHeader: UICollectionReusableView {
     private lazy var companyImageButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "building.2", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30))
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = .quaternarySystemFill
-        button.configuration?.background.strokeWidth = 2
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .systemGray4
+        button.configuration?.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemGray).scalePreservingAspectRatio(targetSize: CGSize(width: 50, height: 50))
+        //button.configuration?.background.strokeColor = .quaternarySystemFill
+        //button.configuration?.background.strokeWidth = 2
         button.addTarget(self, action: #selector(handleAddExistingCompany), for: .touchUpInside)
         return button
     }()

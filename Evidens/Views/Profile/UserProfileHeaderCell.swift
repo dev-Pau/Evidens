@@ -39,41 +39,13 @@ class UserProfileHeaderCell: UICollectionViewCell {
             updateButton()
         }
     }
-    
-    /*
-    private lazy var bannerImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapBannerPicture)))
-        iv.isUserInteractionEnabled = true
-        return iv
-    }()
-     */
-    
-    private lazy var profileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        //iv.layer.borderWidth = 3
-        //iv.layer.borderColor = UIColor.systemBackground.cgColor
-        iv.backgroundColor = .quaternarySystemFill
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapProfilePicture))
-        iv.addGestureRecognizer(gesture)
-        iv.isUserInteractionEnabled = true
-        return iv
-    }()
-    
+
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 27, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .label
-        label.textAlignment = .center
         return label
     }()
     
@@ -83,7 +55,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.numberOfLines = 2
-        label.textAlignment = .center
         label.lineBreakMode = .byTruncatingTail
         label.textColor = .label
         return label
@@ -119,21 +90,12 @@ class UserProfileHeaderCell: UICollectionViewCell {
     private lazy var followersLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
-        label.textAlignment = .center
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowingFollowers)))
         label.isUserInteractionEnabled = true
         return label
     }()
-    
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
-        return view
-    }()
-    
     
     //MARK: - Lifecycle
     
@@ -147,18 +109,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         addSubviews(nameLabel, professionLabel, followButton, followersLabel)
         
         NSLayoutConstraint.activate([
-            /*
-            bannerImageView.topAnchor.constraint(equalTo: topAnchor),
-            bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
-            */
-            /*
-            profileImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.widthAnchor.constraint(equalToConstant: 80),
-            profileImageView.heightAnchor.constraint(equalToConstant: 80),
-            */
             nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 50),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -181,9 +131,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
             //sendMessageButton.trailingAnchor.constraint(equalTo: followButton.leadingAnchor, constant: -5),
             //sendMessageButton.heightAnchor.constraint(equalToConstant: 30),
         ])
-        
-        profileImageView.layer.cornerRadius = 80 / 2
-        
+
         followButton.configurationUpdateHandler = { [unowned self] button in
             button.isUserInteractionEnabled = self.isUpdatingFollowState! ? false : true
         }
@@ -200,7 +148,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         
         // Configure with user info
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         //bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
         nameLabel.text = "\(viewModel.firstName ) \(viewModel.lastName)"
         professionLabel.text = "\(viewModel.profession ) · \( viewModel.speciality)"

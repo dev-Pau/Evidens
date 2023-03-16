@@ -76,7 +76,7 @@ class CreateCompanyViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.title = "Create a company"
+        navigationItem.title = "Create a Company"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Create", style: .done, target: self, action: #selector(handleCreateCompany))
         navigationItem.rightBarButtonItem?.isEnabled = false
         if isControllerPresented {
@@ -158,7 +158,8 @@ extension CreateCompanyViewController: UICollectionViewDelegateFlowLayout, UICol
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createCompanyImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            cell.profileImageView.layer.cornerRadius = 0
+            cell.profileImageView.layer.cornerRadius = 7
+            cell.editProfileButton.configuration?.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
             //if let group = group {
               //  cell.set(bannerImageUrl: group.bannerUrl!)
                 //cell.set(profileImageUrl: group.profileUrl!)

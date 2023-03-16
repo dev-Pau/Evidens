@@ -54,8 +54,14 @@ struct CompanyService {
     static func fetchCompaniesDocuments(completion: @escaping(QuerySnapshot) -> Void) {
         let firstCompaniesToFetch = COLLECTION_COMPANIES.limit(to: 20)
         firstCompaniesToFetch.getDocuments { snapshot, error in
-            guard let snapshot = snapshot else { return }
-            guard snapshot.documents.last != nil else { return }
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion(snapshot!)
+                return
+            }
+            guard snapshot.documents.last != nil else {
+                completion(snapshot)
+                return
+            }
             completion(snapshot)
         }
     }

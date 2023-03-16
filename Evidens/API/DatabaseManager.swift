@@ -323,7 +323,7 @@ extension DatabaseManager {
     /// - `withUid`:   UID of the comment
     public func uploadRecentComments(withCommentUid commentUid: String, withRefUid refUid: String, title: String, comment: String, type: CommentType, withTimestamp timestamp: Date, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/comments").childByAutoId()
+        let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
         
         let timestamp = NSDate().timeIntervalSince1970
         
@@ -340,7 +340,7 @@ extension DatabaseManager {
     }
     
     public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         var recentComments = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -353,7 +353,7 @@ extension DatabaseManager {
     }
     
     public func fetchProfileComments(for uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp")
+        let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp")
         var recentComments = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -369,7 +369,7 @@ extension DatabaseManager {
         var recentComments = [[String: Any]]()
         if lastTimestampValue == nil {
             // First group to fetch
-            let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             ref.observeSingleEvent(of: .value) { snapshot in
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
@@ -379,7 +379,7 @@ extension DatabaseManager {
             }
         } else {
             // Fetch more posts
-            let ref = database.child("users").child(uid).child("comments").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+            let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
 
             ref.observeSingleEvent(of: .value) { snapshot in
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
@@ -393,7 +393,7 @@ extension DatabaseManager {
     
     public func deleteRecentComment(forCommentId commentID: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child(uid).child("comments")
+        let ref = database.child("users").child(uid).child("profile").child("comments")
         let query = ref.queryOrdered(byChild: "commentUid").queryEqual(toValue: commentID).queryLimited(toFirst: 1)
         
         query.observeSingleEvent(of: .value) { snapshot in
@@ -414,7 +414,7 @@ extension DatabaseManager {
     
     public func uploadRecentPost(withUid postUid: String, withDate date: Date, completion: @escaping (Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/posts/\(postUid)/timestamp")
+        let ref = database.child("users").child("\(uid)/profile/posts/\(postUid)/timestamp")
         
         let timestamp = NSDate().timeIntervalSince1970
         
@@ -430,16 +430,20 @@ extension DatabaseManager {
         
         var uids: [String] = []
         
-    
-        let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
+        let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if let values = snapshot.value as? [String: Any] {
+
                 print(values)
                 values.forEach { value in
                     uids.append(value.key)
                 }
                 completion(.success(uids))
+            } else {
+                #warning("START HERE REVIEWING ALL THE API CALLS AND DOING A COUNT SO WHEN WE GET ALL THE DATA WE CAN RELOAD DATA + UNIHDE COLLECTIONVIEW")
+                print("he got inside so it is actually returning something")
+                completion(.success([]))
             }
         }
     }
@@ -450,7 +454,7 @@ extension DatabaseManager {
         
         if lastTimestampValue == nil {
             // First group to fetch
-            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
+            let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             ref.observeSingleEvent(of: .value) { snapshot in
                 if let values = snapshot.value as? [String: Any] {
                     print(values)
@@ -463,7 +467,7 @@ extension DatabaseManager {
             
         } else {
             // Fetch more posts
-            let ref = database.child("users").child(uid).child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+            let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
             
             
             //queryStarting(afterValue: lastTimestampValue).queryLimited(toFirst: 1)
@@ -549,7 +553,7 @@ extension DatabaseManager {
         let languageData = ["languageName": language,
                              "languageProficiency": proficiency]
         
-        let ref = database.child("users").child(uid).child("languages").childByAutoId()
+        let ref = database.child("users").child(uid).child("profile").child("languages").childByAutoId()
         
         
         
@@ -565,7 +569,7 @@ extension DatabaseManager {
     public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
         var recentLanguages = [[String: String]]()
         
-        let ref = database.child("users").child(uid).child("languages")
+        let ref = database.child("users").child(uid).child("profile").child("languages")
         
         ref.observeSingleEvent(of: .value) { snapshot in
             for child in snapshot.children.allObjects as! [DataSnapshot] {
@@ -583,13 +587,13 @@ extension DatabaseManager {
                                "languageProficiency": languageProficiency]
         
         
-        let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
+        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
         
         ref.getData { _, snapshot in
             if let value = snapshot?.value as? [String: Any] {
                 guard let key = value.first?.key else { return }
                 
-                let newRef = self.database.child("users").child(uid).child("languages").child(key)
+                let newRef = self.database.child("users").child(uid).child("profile").child("languages").child(key)
                 newRef.setValue(updatedLanguage) { error, _ in
                     if let error = error {
                         print(error)
@@ -615,7 +619,7 @@ extension DatabaseManager {
                           "contributors": contributors] as [String : Any]
                          
         
-        let ref = database.child("users").child(uid).child("patents").childByAutoId()
+        let ref = database.child("users").child(uid).child("profile").child("patents").childByAutoId()
         
         ref.setValue(patentData) { error, _ in
             if let _ = error {
@@ -628,7 +632,7 @@ extension DatabaseManager {
     
     
     public func fetchPatents(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("patents")
+        let ref = database.child("users").child(uid).child("profile").child("patents")
         var recentPatents = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -648,13 +652,13 @@ extension DatabaseManager {
                           "contributors": contributors] as [String: Any]
             
         
-        let ref = database.child("users").child(uid).child("patents").queryOrdered(byChild: "title").queryEqual(toValue: previousPatent)
+        let ref = database.child("users").child(uid).child("profile").child("patents").queryOrdered(byChild: "title").queryEqual(toValue: previousPatent)
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if let value = snapshot.value as? [String: Any] {
                 guard let key = value.first?.key else { return }
                 
-                let newRef = self.database.child("users").child(uid).child("patents").child(key)
+                let newRef = self.database.child("users").child(uid).child("profile").child("patents").child(key)
                 newRef.setValue(patentData) { error, _ in
                     if let error = error {
                         print(error)
@@ -680,7 +684,7 @@ extension DatabaseManager {
                                "date": date,
                                "contributors": contributors] as [String: Any]
         
-        let ref = database.child("users").child(uid).child("publications").childByAutoId()
+        let ref = database.child("users").child(uid).child("profile").child("publications").childByAutoId()
         
         
         
@@ -696,7 +700,7 @@ extension DatabaseManager {
     
     
     public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("publications")
+        let ref = database.child("users").child(uid).child("profile").child("publications")
         var recentPublications = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -717,7 +721,7 @@ extension DatabaseManager {
                                "contributors": contributors] as [String: Any]
         
         //let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
-        let ref = database.child("users").child(uid).child("publications").queryOrdered(byChild: "title").queryEqual(toValue: previousPublication)
+        let ref = database.child("users").child(uid).child("profile").child("publications").queryOrdered(byChild: "title").queryEqual(toValue: previousPublication)
         
         ref.observeSingleEvent(of: .value) { snapshot in
             print(snapshot)
@@ -725,7 +729,7 @@ extension DatabaseManager {
                 
                 guard let key = value.first?.key else { return }
 
-                let newRef = self.database.child("users").child(uid).child("publications").child(key)
+                let newRef = self.database.child("users").child(uid).child("profile").child("publications").child(key)
                 newRef.setValue(publicationData) { error, _ in
                     if let error = error {
                         print(error)
@@ -752,7 +756,7 @@ extension DatabaseManager {
                                "startDate": startDate,
                                "endDate": endDate]
       
-        let ref = database.child("users").child(uid).child("education").childByAutoId()
+        let ref = database.child("users").child(uid).child("profile").child("education").childByAutoId()
         
         ref.setValue(educationData) { error, _ in
             if let _ = error {
@@ -765,7 +769,7 @@ extension DatabaseManager {
     }
     
     public func fetchEducation(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("education")
+        let ref = database.child("users").child(uid).child("profile").child("education")
         var recentPublications = [[String: String]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -793,7 +797,7 @@ extension DatabaseManager {
                              "endDate": endDate]
         
         // Query to fetch based on previousDegree
-        let ref = database.child("users").child(uid).child("education").queryOrdered(byChild: "degree").queryEqual(toValue: previousDegree)
+        let ref = database.child("users").child(uid).child("profile").child("education").queryOrdered(byChild: "degree").queryEqual(toValue: previousDegree)
         
         ref.observeSingleEvent(of: .value) { snapshot in
             // Check if the user has more than one child with the same degree type
@@ -804,7 +808,7 @@ extension DatabaseManager {
                     guard let previousUserField = value["field"] as? String, let previousUserSchool = value["school"] as? String else { return }
                     if previousUserField == previousField && previousUserSchool == previousSchool {
                         // Found the exact child to update with the child.key
-                        let newRef = self.database.child("users").child(uid).child("education").child(child.key)
+                        let newRef = self.database.child("users").child(uid).child("profile").child("education").child(child.key)
                         newRef.setValue(educationData) { error, _ in
                             if let error = error {
                                 print(error)
@@ -821,7 +825,7 @@ extension DatabaseManager {
                 if let value = snapshot.value as? [String: Any] {
                     guard let key = value.first?.key else { return }
                     // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("education").child(key)
+                    let newRef = self.database.child("users").child(uid).child("profile").child("education").child(key)
                     newRef.setValue(educationData) { error, _ in
                         if let error = error {
                             print(error)
@@ -849,7 +853,7 @@ extension DatabaseManager {
                               "startDate": startDate,
                               "endDate": endDate]
     
-        let ref = database.child("users").child(uid).child("experience").childByAutoId()
+        let ref = database.child("users").child(uid).child("profile").child("experience").childByAutoId()
         
         ref.setValue(experienceData) { error, _ in
             if let _ = error {
@@ -862,7 +866,7 @@ extension DatabaseManager {
     }
     
     public func fetchExperience(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("experience")
+        let ref = database.child("users").child(uid).child("profile").child("experience")
         var recentExperience = [[String: String]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -883,7 +887,7 @@ extension DatabaseManager {
                               "endDate": endDate]
         
         // Query to fetch based on previousDegree
-        let ref = database.child("users").child(uid).child("experience").queryOrdered(byChild: "role").queryEqual(toValue: previousRole)
+        let ref = database.child("users").child(uid).child("profile").child("experience").queryOrdered(byChild: "role").queryEqual(toValue: previousRole)
         
         ref.observeSingleEvent(of: .value) { snapshot in
             // Check if the user has more than one child with the same degree type
@@ -894,7 +898,7 @@ extension DatabaseManager {
                     guard let previousUserCompany = value["company"] as? String else { return }
                     if previousUserCompany == previousCompany {
                         // Found the exact child to update with the child.key
-                        let newRef = self.database.child("users").child(uid).child("experience").child(child.key)
+                        let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(child.key)
                         newRef.setValue(experienceData) { error, _ in
                             if let error = error {
                                 print(error)
@@ -911,7 +915,7 @@ extension DatabaseManager {
                 if let value = snapshot.value as? [String: Any] {
                     guard let key = value.first?.key else { return }
                     // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("experience").child(key)
+                    let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(key)
                     newRef.setValue(experienceData) { error, _ in
                         if let error = error {
                             print(error)

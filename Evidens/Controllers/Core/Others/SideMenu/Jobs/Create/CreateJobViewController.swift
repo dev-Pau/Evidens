@@ -67,7 +67,7 @@ class CreateJobViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
-        title = job != nil ? "Edit job" : "Post a job"
+        title = job != nil ? "Edit Job" : "Post a Job"
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
@@ -138,7 +138,7 @@ class CreateJobViewController: UIViewController {
         jobToUpload.profession = profession
         jobToUpload.companyId = companyId
         
-        if let job = job, let company = company {
+        if let job = job, let _ = company {
             progressIndicator.show(in: view)
             JobService.updateGroup(from: job, to: jobToUpload) { job in
                 self.delegate?.didUpdateJob(job: job)

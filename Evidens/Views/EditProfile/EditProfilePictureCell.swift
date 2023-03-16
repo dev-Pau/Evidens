@@ -22,7 +22,8 @@ class EditProfilePictureCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        //iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
+        iv.image = UIImage(named: "group.banner")
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditBannerImage)))
@@ -38,17 +39,18 @@ class EditProfilePictureCell: UICollectionViewCell {
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = .systemGray4
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditProfileImage)))
         return iv
     }()
     
-    private var editProfileButton: UIButton = {
+    var editProfileButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .large
-        button.configuration?.image = UIImage(systemName: "camera.metering.spot", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.baseBackgroundColor = .clear
+        //button.configuration?.image = UIImage(systemName: "puzzlepiece.extension.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -88,25 +90,27 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.heightAnchor.constraint(equalToConstant: 100),
             
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.centerYAnchor, constant: 50),
-            profileImageView.centerXAnchor.constraint(equalTo: bannerImageView.centerXAnchor),
+            profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
             profileImageView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
 
             editProfileButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             editProfileButton.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            editProfileButton.heightAnchor.constraint(equalToConstant: 40),
-            editProfileButton.widthAnchor.constraint(equalToConstant: 40)
+            editProfileButton.heightAnchor.constraint(equalToConstant: 70),
+            editProfileButton.widthAnchor.constraint(equalToConstant: 70)
         ])
 
         profileImageView.layer.cornerRadius = 70/2
 
+        /*
         DispatchQueue.main.async {
             self.coverLayer.frame = self.profileImageView.bounds;
             self.coverLayer.backgroundColor = UIColor.black.cgColor
             self.coverLayer.opacity = 0.5
             self.profileImageView.layer.addSublayer(self.coverLayer)
         }
+         */
 
     }
     

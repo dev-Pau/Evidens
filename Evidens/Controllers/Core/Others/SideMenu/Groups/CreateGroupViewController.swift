@@ -16,6 +16,7 @@ private let createGroupDescriptionCellReuseIdentifier = "CreateGroupDescriptionC
 private let createGroupVisibilityCellReuseIdentifier = "CreateGroupVisibilityCellReuseIdentifier"
 private let createGroupPermissionCellReuseIdentifier = "CreateGroupPermissionCellReuseIdentifier"
 private let createGroupCategoriesCellReuseIdentifier = "CreateGroupCategoriesCellReuseIdentifier"
+private let createGroupCategoryCellReuseIdentifier = "CreateGroupCategoryCellReuseIdentifier"
 
 protocol CreateGroupViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
@@ -33,6 +34,7 @@ class CreateGroupViewController: UIViewController {
         case groupPictures = "Group Pictures"
         case groupName = "Name"
         case groupDescription = "Description"
+        case groupProfession = "Profession"
         case groupVisibility = "Visibility"
         case groupPermission = "Permission"
         case groupCategories = "Categories"
@@ -45,12 +47,14 @@ class CreateGroupViewController: UIViewController {
                 return 1
             case .groupDescription:
                 return 2
-            case .groupCategories:
+            case .groupProfession:
                 return 3
-            case .groupVisibility:
+            case .groupCategories:
                 return 4
-            case .groupPermission:
+            case .groupVisibility:
                 return 5
+            case .groupPermission:
+                return 6
             }
         }
     }
@@ -115,6 +119,7 @@ class CreateGroupViewController: UIViewController {
             viewModel.name = group.name
             viewModel.description = group.description
             viewModel.categories = group.categories
+            viewModel.profession = group.profession
             viewModel.visibility = group.visibility
             viewModel.permissions = group.permissions
         } else {
@@ -149,6 +154,7 @@ class CreateGroupViewController: UIViewController {
     private func configureCollectionView() {
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: createGroupImageCellReuseIdentifier)
         collectionView.register(EditNameCell.self, forCellWithReuseIdentifier: createGroupNameCellReuseIdentifier)
+        collectionView.register(EditCategoryCell.self, forCellWithReuseIdentifier: createGroupCategoryCellReuseIdentifier)
         collectionView.register(GroupDescriptionCell.self, forCellWithReuseIdentifier: createGroupDescriptionCellReuseIdentifier)
         collectionView.register(GroupVisibilityCell.self, forCellWithReuseIdentifier: createGroupVisibilityCellReuseIdentifier)
         collectionView.register(GroupPermissionCell.self, forCellWithReuseIdentifier: createGroupPermissionCellReuseIdentifier)
@@ -192,12 +198,13 @@ class CreateGroupViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let visibility = viewModel.visibility, let permissions = viewModel.permissions else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let profession = viewModel.profession, let visibility = viewModel.visibility, let permissions = viewModel.permissions else { return }
         
         var groupToUpload = Group(groupId: "", dictionary: [:])
         
         groupToUpload.name = groupName
         groupToUpload.description = groupDescription
+        groupToUpload.profession = profession
         groupToUpload.ownerUid = uid
         groupToUpload.visibility = visibility
         groupToUpload.permissions = permissions
@@ -337,6 +344,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
             cell.profileImageView.layer.cornerRadius = 7
+            cell.editProfileButton.configuration?.image = UIImage(systemName: "puzzlepiece.extension.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
             if let group = group {
                 cell.set(bannerImageUrl: group.bannerUrl!)
                 cell.set(profileImageUrl: group.profileUrl!)
@@ -356,11 +364,17 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             cell.delegate = self
             return cell
         } else if indexPath.row == 3 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupNameCellReuseIdentifier, for: indexPath) as! EditNameCell
+            cell.set(title: Job.JobSections.professions.rawValue, placeholder: GroupSections.allCases[indexPath.row].rawValue, name: "")
+            cell.disableTextField()
+            if let group = group { cell.set(text: group.profession) }
+            return cell
+        } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
             if let group = group { cell.updateCategories(categories: group.categories) }
             cell.delegate = self
             return cell
-        } else if indexPath.row == 4 {
+        } else if indexPath.row == 5 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupVisibilityCellReuseIdentifier, for: indexPath) as! GroupVisibilityCell
             cell.delegate = self
             if let group = group { cell.setVisibility(visibility: group.visibility) }
@@ -370,6 +384,17 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             cell.delegate = self
             if let group = group { cell.setPermissions(permissions: group.permissions) }
             return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.row == 3 {
+            let controller = JobAssistantViewController(jobSection: .professions)
+            controller.delegate = self
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
@@ -503,6 +528,15 @@ extension CreateGroupViewController: EditNameCellDelegate {
 extension CreateGroupViewController: GroupDescriptionCellDelegate {
     func descriptionDidChange(text: String) {
         viewModel.description = text
+        groupIsValid()
+    }
+}
+
+extension CreateGroupViewController: JobAssistantViewControllerDelegate {
+    func didSelectItem(_ text: String) {
+        let cell = collectionView.cellForItem(at: IndexPath(item: 3, section: 0)) as! EditNameCell
+        cell.set(text: text)
+        viewModel.profession = text
         groupIsValid()
     }
 }

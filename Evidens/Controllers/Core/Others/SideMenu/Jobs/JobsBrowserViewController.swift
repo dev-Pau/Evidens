@@ -45,7 +45,7 @@ class JobsBrowserViewController: UIViewController {
         guard let tab = self.tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-        let jobAction = UIAction(title: "Post a job", image: UIImage(systemName: "bag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let jobAction = UIAction(title: "Post a Job", image: UIImage(systemName: "case", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             
             let controller = CreateJobViewController(user: user)
             
@@ -55,7 +55,7 @@ class JobsBrowserViewController: UIViewController {
             self.present(navVC, animated: true)
         }
         
-        let companyAction = UIAction(title: "Add your company", image: UIImage(systemName: "building", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let companyAction = UIAction(title: "Create a Company", image: UIImage(systemName: "building", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             let controller = CreateCompanyViewController(user: user)
             controller.isControllerPresented = true
             
@@ -65,7 +65,7 @@ class JobsBrowserViewController: UIViewController {
             self.present(navVC, animated: true)
         }
         
-        let manageJobs = UIAction(title: "Manage job posts", image: UIImage(systemName: "tray.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let manageJobs = UIAction(title: "Manage Job Posts", image: UIImage(systemName: "tray.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             let controller = JobsManagerViewController()
             //controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -77,7 +77,7 @@ class JobsBrowserViewController: UIViewController {
             self.navigationController?.pushViewController(controller, animated: true)
         }
         
-        let myJobs = UIAction(title: "My jobs", image: UIImage(systemName: "book", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let myJobs = UIAction(title: "My Jobs", image: UIImage(systemName: "list.bullet.rectangle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             let controller = MyJobsViewController()
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -110,14 +110,19 @@ class JobsBrowserViewController: UIViewController {
     
     private func fetchJobs() {
         JobService.fetchJobs(lastSnapshot: nil) { snapshot in
-            self.jobsLastSnapshot = snapshot.documents.last
-            self.jobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
-            self.checkIfUserBookmarkedJob()
-            let companyIds = self.jobs.map { $0.companyId }
-            CompanyService.fetchCompanies(withIds: companyIds) { companies in
-                self.companies = companies
+            if snapshot.isEmpty {
                 self.jobsLoaded = true
                 self.collectionView.reloadData()
+            } else {
+                self.jobsLastSnapshot = snapshot.documents.last
+                self.jobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
+                self.checkIfUserBookmarkedJob()
+                let companyIds = self.jobs.map { $0.companyId }
+                CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                    self.companies = companies
+                    self.jobsLoaded = true
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -156,7 +161,7 @@ extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if jobs.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withImage: UIImage(named: "jobs.empty")!, withTitle: "We could not find any job offer - yet.", withDescription: "Comeo back here to check for new job updates or share your own.", withButtonText: "Post a job")
+            cell.set(withImage: UIImage(named: "jobs.empty")!, withTitle: "We could not find any job offer —— yet.", withDescription: "Check back later for new job updates or share your own.", withButtonText: "   Post a job   ")
             cell.delegate = self
             return cell
         } else {

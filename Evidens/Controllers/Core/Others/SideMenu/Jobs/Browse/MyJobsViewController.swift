@@ -90,7 +90,7 @@ class MyJobsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "My jobs"
+        title = "My Jobs"
     }
     
     private func configureUI() {
@@ -215,7 +215,7 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
             case .saved:
                 if savedJobs.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "Save jobs you are interested in.", description: "Jobs you save will show up here.", buttonText: .dismiss)
+                    cell.configure(image: UIImage(named: "content.empty"), title: "Save jobs you are interested in.", description: "Jobs you save will show up here.", buttonText: .dismiss)
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell

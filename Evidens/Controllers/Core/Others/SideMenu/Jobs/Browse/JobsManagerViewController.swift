@@ -49,7 +49,7 @@ class JobsManagerViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Manage jobs"
+        title = "Manage Jobs"
     }
     
     private func configureUI() {
@@ -122,7 +122,7 @@ extension JobsManagerViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if jobs.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-            cell.configure(image: nil, title: "No jobs posted yet.", description: "Job you post will show up here.", buttonText: .dismiss)
+            cell.configure(image: UIImage(named: "content.empty"), title: "No jobs posted yet.", description: "Job you post will show up here.", buttonText: .dismiss)
             cell.delegate = self
             return cell
         } else {

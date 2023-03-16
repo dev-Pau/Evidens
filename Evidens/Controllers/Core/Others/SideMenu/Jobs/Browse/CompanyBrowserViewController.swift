@@ -88,14 +88,16 @@ extension CompanyBrowserViewController: UICollectionViewDelegateFlowLayout, UICo
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if section == 0 {
+            if companiesLoaded && companies.isEmpty { return CGSize.zero }
             return CGSize(width: UIScreen.main.bounds.width, height: 55)
         }
+        
         return CGSize.zero
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 { return 0 }
-        return companiesLoaded ? filteredCompanies.isEmpty ? 0 : filteredCompanies.count : 0
+        return companiesLoaded ? filteredCompanies.isEmpty ? 1 : filteredCompanies.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -112,13 +114,20 @@ extension CompanyBrowserViewController: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: companyCellReuseIdentifier, for: indexPath) as! BrowseCompanyCell
-        cell.company = filteredCompanies[indexPath.row]
-        return cell
+        if companies.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: companyEmptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: UIImage(named: "content.empty"), title: "No companies found.", description: "Check back later for new companies or create your own.", buttonText: .dismiss)
+            cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: companyCellReuseIdentifier, for: indexPath) as! BrowseCompanyCell
+            cell.company = filteredCompanies[indexPath.row]
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width, height: 60)
+        return companies.isEmpty ? CGSize(width: view.frame.width, height: view.frame.height * 0.7) : CGSize(width: UIScreen.main.bounds.width, height: 60)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -139,5 +148,11 @@ extension CompanyBrowserViewController: GroupSearchBarHeaderDelegate {
     func resetUsers() {
         filteredCompanies = companies
         collectionView.reloadSections(IndexSet(integer: 1))
+    }
+}
+
+extension CompanyBrowserViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        navigationController?.popViewController(animated: true)
     }
 }

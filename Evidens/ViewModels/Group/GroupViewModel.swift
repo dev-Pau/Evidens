@@ -14,6 +14,7 @@ struct CreateGroupViewModel {
     var description: String?
     var profileImage: Bool?
     var profileBanner: Bool?
+    var profession: String?
     var categories: [String]?
     var visibility: Group.Visibility?
     var permissions: Group.Permissions?
@@ -35,11 +36,15 @@ struct CreateGroupViewModel {
     }
     
     var groupIsValid: Bool {
-        return hasName && hasDescription && hasCategories
+        return hasName && hasDescription && hasCategories && hasProfession
     }
     
     var hasProfile: Bool {
         return profileImage ?? false
+    }
+    
+    var hasProfession: Bool {
+        return profession?.isEmpty == false
     }
     
     var hasBanner: Bool {
@@ -78,6 +83,10 @@ struct GroupViewModel {
     
     var groupBannerUrl: String? {
         return group.bannerUrl
+    }
+    
+    var groupProfession: String {
+        return group.profession
     }
     
     var groupCategories: String {

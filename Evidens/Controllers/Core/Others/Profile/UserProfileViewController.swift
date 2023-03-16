@@ -42,7 +42,8 @@ class UserProfileViewController: UIViewController {
 
     //MARK: - Properties
     private var standardAppearance = UINavigationBarAppearance()
-    
+    private lazy var profileImageTopPadding = view.frame.width / 3 - 20
+    private let activityIndicator = MEProgressHUD(frame: .zero)
     private var user: User
     
     var recentPosts = [Post]() {
@@ -148,9 +149,10 @@ class UserProfileViewController: UIViewController {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
+        iv.isHidden = true
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.systemBackground.cgColor
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
     }()
@@ -159,6 +161,9 @@ class UserProfileViewController: UIViewController {
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        fetchUserInformation()
+        /*
         fetchUserStats()
         fetchRecentPosts()
         fetchRecentCases()
@@ -171,13 +176,10 @@ class UserProfileViewController: UIViewController {
         fetchSections()
         fetchRelated()
         checkIfUserIsFollowed()
+         */
         configureNavigationItemButton()
         configureCollectionView()
 
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
     }
     
     override func viewDidLayoutSubviews() {
@@ -226,20 +228,7 @@ class UserProfileViewController: UIViewController {
             }
         }
         
-        //
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
-        
-        let imageView = UIImageView()
-        imageView.clipsToBounds = true
-        imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 30 / 2
-        imageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-        
-        let imageViewContainer = LogoContainerView(imageView: imageView)
-        imageViewContainer.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-
-        navigationItem.titleView = imageViewContainer
-        navigationItem.titleView?.isHidden = true
     }
     
     private func addEllipsisMenuItems() -> UIMenu? {
@@ -280,7 +269,7 @@ class UserProfileViewController: UIViewController {
         let maxVerticalOffset = (view.frame.width / 3) / 2
         let currentVeritcalOffset = scrollView.contentOffset.y
         
-        profileImageView.frame.origin.y = (view.frame.width / 3 - 40) - currentVeritcalOffset
+        profileImageView.frame.origin.y = profileImageTopPadding - currentVeritcalOffset
         
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
@@ -290,7 +279,7 @@ class UserProfileViewController: UIViewController {
             // User pass over the edit profile / follow button
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = true
-            navigationItem.titleView?.isHidden = false
+            //navigationItem.titleView?.isHidden = false
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
             if self.user.isFollowed {
@@ -304,7 +293,7 @@ class UserProfileViewController: UIViewController {
         } else if currentVeritcalOffset < (view.frame.width / 3 + 10 + 30 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = false
-            navigationItem.titleView?.isHidden = true
+            //navigationItem.titleView?.isHidden = true
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
             // Follow button or edit profile are still visible
             if !user.isCurrentUser {
@@ -316,36 +305,35 @@ class UserProfileViewController: UIViewController {
     }
     
     func configureCollectionView() {
-       
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        //collectionView.delaysContentTouches = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-      
-        view.addSubviews(collectionView, profileImageView)
+        collectionView.isHidden = true
+        
+        view.addSubviews(activityIndicator, collectionView, profileImageView)
        
         NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+            
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.width / 3 - 40),
-            profileImageView.heightAnchor.constraint(equalToConstant: 80),
-            profileImageView.widthAnchor.constraint(equalToConstant: 80),
-            profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
+            profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: profileImageTopPadding),
+            profileImageView.heightAnchor.constraint(equalToConstant: 70),
+            profileImageView.widthAnchor.constraint(equalToConstant: 70),
+            profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
         ])
-        
-        //profileImageView.frame.origin.y = view.frame.width / 3 - 40
-        
-        //profileImageView.frame.origin.x = view.frame.width / 2 - 40
-        //profileImageView.frame.origin.y = view.frame.width / 3 - 40
 
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-        //profileImageView.frame = CGRect(x: view.frame.width / 2 - 40, y: view.frame.width / 3 - 40, width: 80, height: 80)
-        profileImageView.layer.cornerRadius = 80 / 2
-        //profileImageView.image.dimen
-        
+        if let url = user.profileImageUrl, url != "" {
+            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        }
+     
+        profileImageView.layer.cornerRadius = 70 / 2
+
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.contentInsetAdjustmentBehavior = .never
@@ -923,6 +911,21 @@ class UserProfileViewController: UIViewController {
             //if !isFollowed { self.customRightButton.menu = self.addUnfollowMenu()}
             self.collectionView.reloadData()
         }
+    }
+    
+    private func fetchUserInformation() {
+        fetchUserStats()
+        fetchRecentPosts()
+        fetchRecentCases()
+        fetchLanguages()
+        fetchPatents()
+        fetchPublications()
+        fetchRecentComments()
+        fetchEducation()
+        fetchExperience()
+        fetchSections()
+        fetchRelated()
+        checkIfUserIsFollowed()
     }
 }
 
