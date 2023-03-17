@@ -27,6 +27,7 @@ private let patentCellReuseIdentifier = "PatentCellReuseIdentifier"
 private let publicationsCellReuseIdentifier = "PublicationCellReuseIdentifier"
 private let languageCellReuseIdentifier = "LanguageCellReuseIdentifier"
 private let seeOthersCellReuseIdentifier = "SeeOthersCellReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 struct ElementKind {
     //static let badge = "badge-element-kind"
@@ -43,35 +44,14 @@ class UserProfileViewController: UIViewController {
     //MARK: - Properties
     private var standardAppearance = UINavigationBarAppearance()
     private lazy var profileImageTopPadding = view.frame.width / 3 - 20
-    private let activityIndicator = MEProgressHUD(frame: .zero)
+    private var userSectionsFetched: Int = 0
     private var user: User
+    private var userDataLoaded: Bool = false
     
-    var recentPosts = [Post]() {
-        didSet {
-            collectionView.reloadData()
-            //collectionView.reloadSections(IndexSet(integer: 2))
-        }
-    }
-    
-    var recentCases = [Case]() {
-        didSet {
-            collectionView.reloadData()
-            //collectionView.reloadSections(IndexSet(integer: 3))
-        }
-    }
-    
-    var recentComments = [[String: Any]]() {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
-    
-    var relatedUsers = [User]() {
-        didSet {
-
-            collectionView.reloadData()
-        }
-    }
+    private var recentPosts = [Post]()
+    private var recentCases = [Case]()
+    private var recentComments = [[String: Any]]()
+    private var relatedUsers = [User]()
     
     private var scrollViewDidScrollHigherThanActionButton: Bool = false
         
@@ -149,10 +129,11 @@ class UserProfileViewController: UIViewController {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.isHidden = true
+        iv.isHidden = false
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.image = UIImage(named: "user.profile")
+        iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
     }()
@@ -162,24 +143,9 @@ class UserProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        fetchUserInformation()
-        /*
-        fetchUserStats()
-        fetchRecentPosts()
-        fetchRecentCases()
-        fetchLanguages()
-        fetchPatents()
-        fetchPublications()
-        fetchRecentComments()
-        fetchEducation()
-        fetchExperience()
-        fetchSections()
-        fetchRelated()
-        checkIfUserIsFollowed()
-         */
         configureNavigationItemButton()
         configureCollectionView()
-
+        fetchUserInformation()
     }
     
     override func viewDidLayoutSubviews() {
@@ -201,15 +167,24 @@ class UserProfileViewController: UIViewController {
     func configureNavigationItemButton() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
+        //appearance.backgroundColor = .systemBackground.withAlphaComponent(0)
         self.navigationItem.scrollEdgeAppearance = appearance
         //navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         ellipsisRightButton.menu = addEllipsisMenuItems()
 
-        standardAppearance.configureWithOpaqueBackground()
-        standardAppearance.backgroundColor = .systemBackground
-        navigationController?.navigationBar.standardAppearance = standardAppearance
         
+         standardAppearance.configureWithOpaqueBackground()
+         standardAppearance.backgroundColor = .systemBackground
+         navigationController?.navigationBar.standardAppearance = standardAppearance
+         
+        
+        //standardAppearance.configureWithOpaqueBackground()
+        //standardAppearance.backgroundColor = .systemBackground
+        //self.navigationItem.standardAppearance = standardAppearance
+        //navigationController?.navigationBar.standardAppearance = standardAppearance
+        //navigationController?.navigationBar.standardAppearance = standardAppearance
+        //navigationController?.navigationBar.compactAppearance = standardAppearance
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
         
@@ -265,6 +240,7 @@ class UserProfileViewController: UIViewController {
     }
     
     
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let maxVerticalOffset = (view.frame.width / 3) / 2
         let currentVeritcalOffset = scrollView.contentOffset.y
@@ -272,14 +248,18 @@ class UserProfileViewController: UIViewController {
         profileImageView.frame.origin.y = profileImageTopPadding - currentVeritcalOffset
         
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
+
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
         navigationController?.navigationBar.standardAppearance = standardAppearance
+        //standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
+        //navigationController?.navigationBar.standardAppearance = standardAppearance
+        
         
         if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) && !scrollViewDidScrollHigherThanActionButton {
             // User pass over the edit profile / follow button
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = true
-            //navigationItem.titleView?.isHidden = false
+          
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
 
             if self.user.isFollowed {
@@ -293,7 +273,7 @@ class UserProfileViewController: UIViewController {
         } else if currentVeritcalOffset < (view.frame.width / 3 + 10 + 30 - topbarHeight) && scrollViewDidScrollHigherThanActionButton {
             scrollViewDidScrollHigherThanActionButton.toggle()
             profileImageView.isHidden = false
-            //navigationItem.titleView?.isHidden = true
+           
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
             // Follow button or edit profile are still visible
             if !user.isCurrentUser {
@@ -303,20 +283,16 @@ class UserProfileViewController: UIViewController {
             }
         }
     }
+     
     
     func configureCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.isHidden = true
+        //collectionView.isHidden = true
         
-        view.addSubviews(activityIndicator, collectionView, profileImageView)
+        view.addSubviews(collectionView, profileImageView)
        
         NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
-            
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -341,6 +317,7 @@ class UserProfileViewController: UIViewController {
         collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyReuseIdentifier)
         collectionView.register(UserProfileHeaderCell.self, forCellWithReuseIdentifier: profileHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
         collectionView.register(UserProfileNoPostCell.self, forCellWithReuseIdentifier: noRecentPostsCellReuseIdentifier)
@@ -373,6 +350,19 @@ class UserProfileViewController: UIViewController {
                 section.boundarySupplementaryItems = [header]
                 return section
             } else if sectionNumber == 1 {
+                if !self.userDataLoaded {
+                    // Loading header while fetching data
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                             elementKind: ElementKind.sectionHeader,
+                                                                             alignment: .top)
+                    
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.boundarySupplementaryItems = [header]
+                    return section
+                }
                 // About section
                 if self.hasAbout == false {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
@@ -682,7 +672,11 @@ class UserProfileViewController: UIViewController {
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.30), heightDimension: .absolute(120)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
-                section.boundarySupplementaryItems = [header]
+                
+                if !self.relatedUsers.isEmpty {
+                    section.boundarySupplementaryItems = [header]
+                }
+                
                 section.orthogonalScrollingBehavior = .continuous
 
  
@@ -735,7 +729,9 @@ class UserProfileViewController: UIViewController {
         let controller = ProfileImageViewController(isBanner: false)
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async {
-            controller.profileImageView.sd_setImage(with: URL(string: self.user.profileImageUrl!))
+            if let imageUrl = self.user.profileImageUrl, imageUrl != "" {
+                controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
             controller.modalPresentationStyle = .overFullScreen
             self.present(controller, animated: true)
         }
@@ -748,8 +744,14 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchRecentPosts(forUid: uid) { result in
             switch result {
             case .success(let postIDs):
+                guard !postIDs.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
+                
                 PostService.fetchRecentPosts(withPostId: postIDs) { recentPosts in
                     self.recentPosts = recentPosts
+                    self.checkIfAllUserInformationIsFetched()
                 }
             case .failure(_):
                 print("Failure fetching posts")
@@ -762,8 +764,15 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchRecentCases(forUid: uid) { result in
             switch result {
             case .success(let caseIDs):
+                guard !caseIDs.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
+                
                 CaseService.fetchRecentCases(withCaseId: caseIDs) { recentCases in
                     self.recentCases = recentCases
+                    self.checkIfAllUserInformationIsFetched()
+                    return
                 }
             case .failure(_):
                 print("Failure fetching posts")
@@ -773,11 +782,15 @@ class UserProfileViewController: UIViewController {
     
     func fetchRecentComments() {
         guard let uid = user.uid else { return }
-        print("starting fetching comments")
         DatabaseManager.shared.fetchRecentComments(forUid: uid) { result in
             switch result {
             case .success(let recentComments):
+                guard !recentComments.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
                 self.recentComments = recentComments
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("Failure fetching recent comments")
             }
@@ -790,10 +803,13 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchEducation(forUid: uid) { result in
             switch result {
             case .success(let education):
+                guard !education.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
                 self.education = education
                 self.hasEducation = true
-                //self.collectionView.reloadSections(IndexSet(integer: 1))
-                self.collectionView.reloadData()
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("No section")
             }
@@ -806,11 +822,13 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
             switch result {
             case .success(let sectionText):
-                print("HAS ABOUT BRO")
+                guard !sectionText.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
                 self.aboutText = sectionText
                 self.hasAbout = true
-                //self.collectionView.reloadSections(IndexSet(integer: 1))
-                self.collectionView.reloadData()
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("No section")
             }
@@ -822,11 +840,13 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchLanguages(forUid: uid) { result in
             switch result {
             case .success(let languages):
-                
+                guard languages.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
                 self.hasLanguages = true
                 self.languages = languages
-                //self.collectionView.reloadData()
-                break
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("No languages ")
             }
@@ -838,10 +858,12 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchExperience(forUid: uid) { result in
             switch result {
             case .success(let experiences):
-                //self.aboutText = sectionText
-                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                guard !self.experience.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
                 self.experience = experiences
-                self.collectionView.reloadData()
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("No languages ")
             }
@@ -851,20 +873,13 @@ class UserProfileViewController: UIViewController {
     func fetchRelated() {
         guard let profession = user.profession else { return }
         UserService.fetchRelatedUsers(withProfession: profession) { relatedUsers in
-            self.relatedUsers = relatedUsers
-
-        }
-        /*
-        DatabaseManager.shared.getAllUsers { result in
-            switch result {
-                
-            case .success(let users):
-                self.relatedUsers = users
-            case .failure(_):
-                print("Failed to fetch users")
+            guard !relatedUsers.isEmpty else {
+                self.checkIfAllUserInformationIsFetched()
+                return
             }
+            self.relatedUsers = relatedUsers
+            self.checkIfAllUserInformationIsFetched()
         }
-         */
     }
     
     func fetchPatents() {
@@ -872,11 +887,14 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchPatents(forUid: uid) { result in
             switch result {
             case .success(let patents):
-                //self.aboutText = sectionText
-                //self.collectionView.reloadSections(IndexSet(integer: 1))
+                guard !patents.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
+                
                 self.hasPatents = true
                 self.patents = patents
-                self.collectionView.reloadData()
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("No Patents")
             }
@@ -888,10 +906,12 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchPublications(forUid: uid) { result in
             switch result {
             case .success(let publications):
+                guard !publications.isEmpty else {
+                    self.checkIfAllUserInformationIsFetched()
+                    return
+                }
                 self.publications = publications
-                print("publications are: ")
-                print(self.publications)
-                self.collectionView.reloadData()
+                self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("No publications")
             }
@@ -901,15 +921,14 @@ class UserProfileViewController: UIViewController {
     func fetchUserStats() {
         UserService.fetchUserStats(uid: user.uid!) { stats in
             self.user.stats = stats
-            self.collectionView.reloadData()
+            self.checkIfAllUserInformationIsFetched()
         }
     }
     
     func checkIfUserIsFollowed() {
         UserService.checkIfUserIsFollowed(uid: user.uid!) { isFollowed in
             self.user.isFollowed = isFollowed
-            //if !isFollowed { self.customRightButton.menu = self.addUnfollowMenu()}
-            self.collectionView.reloadData()
+            self.checkIfAllUserInformationIsFetched()
         }
     }
     
@@ -927,11 +946,20 @@ class UserProfileViewController: UIViewController {
         fetchRelated()
         checkIfUserIsFollowed()
     }
+    
+    private func checkIfAllUserInformationIsFetched() {
+        userSectionsFetched += 1
+        if userSectionsFetched == 12 {
+            self.userDataLoaded = true
+            collectionView.reloadData()
+            scrollViewDidScroll(collectionView)
+        }
+    }
 }
 
 extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 11
+        return userDataLoaded ? 11 : 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -941,9 +969,14 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         }
         //About
         else if section == 1 {
-            if hasAbout {
-                return 1
+            if userDataLoaded {
+                if hasAbout {
+                    return 1
+                } else {
+                    return 0
+                }
             } else {
+                // 0 for the loading header
                 return 0
             }
         } else if section == 2 {
@@ -1019,6 +1052,8 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! UserProfileHeaderCell
             cell.viewModel = ProfileHeaderViewModel(user: user)
+            cell.followersLabel.isHidden = userDataLoaded ? false : true
+            cell.followButton.isHidden = userDataLoaded ? false : true
             cell.delegate = self
             return cell
             
@@ -1130,7 +1165,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
             if indexPath.section == 0 {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyReuseIdentifier, for: indexPath) as! MEStretchyHeader
-                header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
+                header.delegate = self
+                if let bannerUrl = self.user.bannerImageUrl, bannerUrl != "" {
+                    header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
+                }
+                return header
+            }
+            
+            if indexPath.section == 1 && userDataLoaded == false {
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                //header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
                 return header
             }
             
@@ -1244,6 +1288,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 4 {
             // Comments
+            #warning("revisar que hi hagi missatges tant aquí com a la resta, si no dona error de recent comments empty , guard is not empty elser return")
             let comment = recentComments[indexPath.row]
             guard let type = comment["type"] as? Int else { return }
             
@@ -1298,6 +1343,22 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 
 
 //MARK: - UserProfileHeaderDelegate
+
+extension UserProfileViewController: MEStretchyHeaderDelegate {
+    func didTapBanner() {
+        print("kek banner push")
+        let controller = ProfileImageViewController(isBanner: true)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            if let bannerUrl = self.user.bannerImageUrl, bannerUrl != "" {
+                controller.profileImageView.sd_setImage(with: URL(string: bannerUrl))
+            }
+        }
+        
+        controller.modalPresentationStyle = .overFullScreen
+        self.present(controller, animated: true)
+    }
+}
 
 extension UserProfileViewController: UserProfileHeaderCellDelegate {
     
@@ -1355,26 +1416,6 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 }
             }
-        }
-    }
-    
-    func headerCell(didTapBannerPictureFor user: User) {
-        let controller = ProfileImageViewController(isBanner: true)
-        controller.hidesBottomBarWhenPushed = true
-        DispatchQueue.main.async {
-            controller.profileImageView.sd_setImage(with: URL(string: user.bannerImageUrl!))
-            controller.modalPresentationStyle = .overFullScreen
-            self.present(controller, animated: true)
-        }
-    }
-    
-    func headerCell(didTapProfilePictureFor user: User) {
-        let controller = ProfileImageViewController(isBanner: false)
-        controller.hidesBottomBarWhenPushed = true
-        DispatchQueue.main.async {
-            controller.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-            controller.modalPresentationStyle = .overFullScreen
-            self.present(controller, animated: true)
         }
     }
 }
@@ -1612,7 +1653,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
         UserDefaults.standard.set(user.profileImageUrl, forKey: "userProfileImageUrl")
         UserDefaults.standard.set(user.bannerImageUrl, forKey: "userProfileBannerUrl")
         UserDefaults.standard.set(user.firstName! + " " + user.lastName!, forKey: "name")
-        
+        #warning("mirar si es pot evitar tenir que fer fetch de user stats...")
         UserService.fetchUserStats(uid: user.uid!) { stats in
             self.user.stats = stats
             self.collectionView.reloadSections(IndexSet(integer: 0))
@@ -1621,9 +1662,6 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
             
             guard let tab = self.tabBarController as? MainTabController else { return }
             tab.updateUser(user: user)
-            
-            
-            
         }
     }
     

@@ -144,18 +144,23 @@ struct UserService {
     
     
     static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var usersFetched: [User] = []
-        COLLECTION_USERS.whereField("profession", isEqualTo: profession).limit(to: 10).getDocuments { snapshot, error in
+        COLLECTION_USERS.whereField("profession", isEqualTo: profession).whereField("uid", isNotEqualTo: uid).limit(to: 10).getDocuments { snapshot, error in
             if let error = error {
                 print("error getting documents: \(error)")
             } else {
-                snapshot?.documents.forEach({ document in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion([])
+                    return
+                }
+                
+                snapshot.documents.forEach({ document in
                     let dictionary = document.data()
                     
                     usersFetched.append(User(dictionary: dictionary))
-                    if usersFetched.count == snapshot?.documents.count {
+                    if usersFetched.count == snapshot.documents.count {
                         completion(usersFetched)
-                        
                     }
                 })
             }
@@ -356,15 +361,6 @@ struct UserService {
     
     
     static func fetchUserStats(uid: String, completion: @escaping(UserStats) -> Void) {
-        /*
-         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-         let likesRef = COLLECTION_POSTS.document(postId).collection("posts-likes").count
-         likesRef.getAggregation(source: .server) { snaphsot, _ in
-         if let likes = snaphsot?.count {
-         completion(likes.intValue)
-         }
-         }
-         */
         var userStats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
         
         

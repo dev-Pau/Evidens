@@ -344,11 +344,17 @@ extension DatabaseManager {
         var recentComments = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.success(recentComments))
+                return
+            }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
                 recentComments.append(value)
+                if recentComments.count == snapshot.children.allObjects.count {
+                    completion(.success(recentComments.reversed()))
+                }
             }
-            completion(.success(recentComments.reversed()))
         }
     }
     
@@ -441,8 +447,6 @@ extension DatabaseManager {
                 }
                 completion(.success(uids))
             } else {
-                #warning("START HERE REVIEWING ALL THE API CALLS AND DOING A COUNT SO WHEN WE GET ALL THE DATA WE CAN RELOAD DATA + UNIHDE COLLECTIONVIEW")
-                print("he got inside so it is actually returning something")
                 completion(.success([]))
             }
         }
@@ -572,11 +576,18 @@ extension DatabaseManager {
         let ref = database.child("users").child(uid).child("profile").child("languages")
         
         ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.success(recentLanguages))
+                return
+            }
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: String] else { return }
                 recentLanguages.append(value)
+                if recentLanguages.count == snapshot.children.allObjects.count {
+                    completion(.success(recentLanguages))
+                }
             }
-            completion(.success(recentLanguages))
         }
     }
     
@@ -636,11 +647,17 @@ extension DatabaseManager {
         var recentPatents = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.success(recentPatents))
+                return
+            }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
                 recentPatents.append(value)
+                if recentPatents.count == snapshot.children.allObjects.count {
+                    completion(.success(recentPatents))
+                }
             }
-            completion(.success(recentPatents))
         }
     }
     
@@ -704,11 +721,17 @@ extension DatabaseManager {
         var recentPublications = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.success(recentPublications))
+                return
+            }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
                 recentPublications.append(value)
+                if recentPublications.count == snapshot.children.allObjects.count {
+                    completion(.success(recentPublications))
+                }
             }
-            completion(.success(recentPublications))
         }
     }
     
@@ -773,11 +796,17 @@ extension DatabaseManager {
         var recentPublications = [[String: String]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.success(recentPublications))
+                return
+            }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: String] else { return }
                 recentPublications.append(value)
+                if recentPublications.count == snapshot.children.allObjects.count {
+                    completion(.success(recentPublications.reversed()))
+                }
             }
-            completion(.success(recentPublications.reversed()))
         }
     }
     
@@ -870,11 +899,17 @@ extension DatabaseManager {
         var recentExperience = [[String: String]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.success(recentExperience))
+                return
+            }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: String] else { return }
                 recentExperience.append(value)
+                if recentExperience.count == snapshot.children.allObjects.count {
+                    completion(.success(recentExperience.reversed()))
+                }
             }
-            completion(.success(recentExperience.reversed()))
         }
     }
     
@@ -2080,6 +2115,8 @@ extension DatabaseManager {
                     uids.append(value.key)
                 }
                 completion(.success(uids))
+            } else {
+                completion(.success([]))
             }
         }
     }
@@ -2103,7 +2140,7 @@ extension DatabaseManager {
 extension DatabaseManager {
     public func uploadAboutSection(with aboutText: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let ref = database.child("users").child("\(uid)/about")
+        let ref = database.child("users").child("\(uid)/profile/about")
         ref.setValue(aboutText) { error, _ in
             if let _ = error {
                 completion(false)
@@ -2114,14 +2151,20 @@ extension DatabaseManager {
     }
     
     public func fetchAboutSection(forUid uid: String, completion: @escaping(Result<String, Error>) -> Void) {
-        let ref = database.child("users").child("\(uid)/about")
+        let ref = database.child("users").child("\(uid)/profile/about")
+        
         ref.getData { error, snapshot in
             guard error == nil else {
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
             
-            if let section = snapshot?.value as? String {
+            guard let snapshot = snapshot, snapshot.exists() else {
+                completion(.success(String()))
+                return
+            }
+            
+            if let section = snapshot.value as? String {
                 completion(.success(section))
             } else {
                 completion(.failure(DatabaseError.failedToFetch))

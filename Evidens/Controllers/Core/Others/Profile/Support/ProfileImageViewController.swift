@@ -11,8 +11,6 @@ class ProfileImageViewController: UIViewController {
     
     //MARK: - Properties
     
-    public var profileImage: UIImage?
-    
     private var isBanner: Bool
     
     init (isBanner: Bool) {
@@ -31,6 +29,7 @@ class ProfileImageViewController: UIViewController {
     lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
+        iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
@@ -69,36 +68,42 @@ class ProfileImageViewController: UIViewController {
             dismissButon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             dismissButon.heightAnchor.constraint(equalToConstant: 35),
             dismissButon.widthAnchor.constraint(equalToConstant: 35)
-        
         ])
         
-        profileImageView.centerY(inView: view)
-        profileImageView.centerX(inView: view)
-        
-        if !isBanner {
-            let height = view.frame.width * 0.8
-
-            profileImageView.setDimensions(height: height, width: height)
-            profileImageView.layer.cornerRadius = height/2
-        } else {
-            let height = 100.0
-            profileImageView.setDimensions(height: height, width: UIScreen.main.bounds.width)
-            //profileImageView.layer.cornerRadius = height/2
-        }
+        NSLayoutConstraint.activate([
+            profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+        ])
        
+        if !isBanner {
+            profileImageView.image = UIImage(named: "user.profile")
+            let height = view.frame.width * 0.8
+            NSLayoutConstraint.activate([
+                profileImageView.heightAnchor.constraint(equalToConstant: height),
+                profileImageView.widthAnchor.constraint(equalToConstant: height)
+            ])
+         
+            profileImageView.layer.cornerRadius = height / 2
+        } else {
+            profileImageView.backgroundColor = primaryColor.withAlphaComponent(0.5)
+            let height = view.frame.width / 3
+            NSLayoutConstraint.activate([
+                profileImageView.heightAnchor.constraint(equalToConstant: height),
+                profileImageView.widthAnchor.constraint(equalToConstant: view.frame.width)
+            ])
+        }
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
         let translation = sender.translation(in: profileImageView)
 
-        
         let velocity = sender.velocity(in: profileImageView)
         
         let alpha = max(1 - (abs(translation.y) / 1000), 0.85)
         
         profileImageView.frame.origin = CGPoint(x: profileImageView.frame.origin.x , y: view.frame.height / 2 - profileImageView.frame.height / 2 + translation.y)
         view.backgroundColor = .black.withAlphaComponent(alpha)
-        
         
         if sender.state == .ended {
             if abs(velocity.y) > 2000 {

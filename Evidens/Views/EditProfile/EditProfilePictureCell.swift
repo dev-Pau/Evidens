@@ -23,7 +23,7 @@ class EditProfilePictureCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         //iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        iv.image = UIImage(named: "group.banner")
+        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditBannerImage)))
@@ -36,6 +36,7 @@ class EditProfilePictureCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.layer.masksToBounds = true
         iv.layer.borderWidth = 4
+        iv.image = UIImage(named: "user.profile")
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true

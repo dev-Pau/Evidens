@@ -7,11 +7,17 @@
 
 import UIKit
 
+protocol MEStretchyHeaderDelegate: AnyObject {
+    func didTapBanner()
+}
+
 class MEStretchyHeader: UICollectionReusableView {
     
     //MARK: - Properties
     
-    private let bannerImageView: UIImageView = {
+    weak var delegate: MEStretchyHeaderDelegate?
+    
+    private lazy var bannerImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
@@ -37,6 +43,7 @@ class MEStretchyHeader: UICollectionReusableView {
     
     func configure() {
         addSubview(bannerImageView)
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))
         NSLayoutConstraint.activate([
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -49,5 +56,7 @@ class MEStretchyHeader: UICollectionReusableView {
         bannerImageView.sd_setImage(with: URL(string: imageUrl))
     }
     
-    
+    @objc func handleBannerTap() {
+        delegate?.didTapBanner()
+    }
 }

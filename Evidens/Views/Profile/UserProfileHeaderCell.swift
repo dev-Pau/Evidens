@@ -8,8 +8,6 @@
 import UIKit
 
 protocol UserProfileHeaderCellDelegate: AnyObject {
-    func headerCell(didTapProfilePictureFor user: User)
-    func headerCell(didTapBannerPictureFor user: User)
     func headerCell(_ cell: UICollectionViewCell, didTapEditProfileFor user: User)
     func headerCell(didTapFollowingFollowersFor user: User)
 }
@@ -75,7 +73,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return button
     }()
     
-    private lazy var followButton: UIButton = {
+    lazy var followButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .filled()
@@ -87,7 +85,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         return button
     }()
     
-    private lazy var followersLabel: UILabel = {
+    lazy var followersLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 16, weight: .regular)
@@ -95,6 +93,13 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowFollowingFollowers)))
         label.isUserInteractionEnabled = true
         return label
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .quaternarySystemFill
+        return view
     }()
     
     //MARK: - Lifecycle
@@ -217,16 +222,6 @@ class UserProfileHeaderCell: UICollectionViewCell {
             isUpdatingFollowState = true
         }
         delegate?.headerCell(self, didTapEditProfileFor: viewModel.user)
-    }
-    
-    @objc func didTapProfilePicture() {
-        guard let viewModel = viewModel else { return }
-        delegate?.headerCell(didTapProfilePictureFor: viewModel.user)
-    }
-    
-    @objc func didTapBannerPicture() {
-        guard let viewModel = viewModel else { return }
-        delegate?.headerCell(didTapBannerPictureFor: viewModel.user)
     }
     
     @objc func handleShowFollowingFollowers() {

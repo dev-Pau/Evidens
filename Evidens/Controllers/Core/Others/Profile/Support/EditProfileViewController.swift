@@ -155,7 +155,7 @@ class EditProfileViewController: UIViewController {
         newProfile.firstName = firstName
         newProfile.lastName = lastName
         newProfile.speciality = speciality
-
+        
         progressIndicator.show(in: view)
         
         if userDidChangeBannerPicture && userDidChangeProfilePicture {
@@ -178,7 +178,7 @@ class EditProfileViewController: UIViewController {
             if userDidChangeBannerPicture {
                 // Banner group image has changed
                 StorageManager.uploadBannerImage(image: newUserProfileBanner, uid: user.uid!) { url in
-                    newProfile.profileImageUrl = url
+                    newProfile.bannerImageUrl = url
                     
                     UserService.updateUser(from: self.user, to: newProfile) { user in
                         self.progressIndicator.dismiss(animated: true)
@@ -223,10 +223,10 @@ extension EditProfileViewController: UICollectionViewDataSource, UICollectionVie
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profilePictureReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            if let imageUrl = user.profileImageUrl {
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
                 cell.set(profileImageUrl: imageUrl)
             }
-            if let bannerUrl = user.bannerImageUrl {
+            if let bannerUrl = user.bannerImageUrl, bannerUrl != "" {
                 cell.set(bannerImageUrl: bannerUrl)
             }
             return cell
@@ -300,6 +300,7 @@ extension EditProfileViewController: EditProfilePictureCellDelegate {
     }
     
     func didTapChangeBannerPicture() {
+        print("is banner")
         isProfile = false
         isBanner = true
         imageBottomMenuLanucher.showImageSettings(in: view)
@@ -395,6 +396,7 @@ extension EditProfileViewController: CropViewControllerDelegate {
     
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         cropViewController.dismiss(animated: true)
+        print("is banner")
         let cell = self.collectionView.cellForItem(at: IndexPath.init(row: 0, section: 0)) as! EditProfilePictureCell
         cell.bannerImageView.image = image
         self.newUserProfileBanner = image
