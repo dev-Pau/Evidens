@@ -245,8 +245,14 @@ struct UserService {
             // Fetch first group of posts
             let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 50)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
                 completion(snapshot)
             }
         } else {
@@ -281,8 +287,15 @@ struct UserService {
             // Fetch first group of posts
             let firstGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 50)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
+                
                 completion(snapshot)
             }
         } else {

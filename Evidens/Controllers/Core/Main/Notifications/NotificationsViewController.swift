@@ -69,6 +69,9 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        
+        let lockView = MEPrimaryLockView(frame: view.bounds)
+        view.addSubview(lockView)
     }
     
     private func fetchNotifications() {

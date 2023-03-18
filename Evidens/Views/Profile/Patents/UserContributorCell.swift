@@ -21,6 +21,7 @@ class UserContributorCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -96,7 +97,9 @@ class UserContributorCell: UICollectionViewCell {
     func set(user: User) {
         nameLabel.text = user.firstName!
         professionLabel.text = user.profession
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
         cellUser = user
     }
 }

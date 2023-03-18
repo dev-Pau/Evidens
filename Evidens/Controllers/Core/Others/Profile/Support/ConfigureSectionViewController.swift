@@ -22,7 +22,6 @@ class ConfigureSectionViewController: UIViewController {
     
     private let user: User
 
-    
     weak var delegate: ConfigureSectionViewControllerDelegate?
     
     private let dataSource: [String] = ["About", "Experience", "Education", "Patent", "Publication", "Language"]
@@ -59,7 +58,7 @@ class ConfigureSectionViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.title = "Add sections"
+        navigationItem.title = "Add Sections"
     }
     
     private func configureCollectionView() {

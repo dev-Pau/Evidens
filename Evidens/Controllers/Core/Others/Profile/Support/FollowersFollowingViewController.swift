@@ -160,6 +160,11 @@ class FollowersFollowingViewController: UIViewController {
     
     private func fetchFollowerUsers() {
         UserService.fetchFollowers(forUid: user.uid!, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.followersLoaded = true
+                self.followersCollectionView.reloadData()
+                return
+            }
             self.followersLastSnapshot = snapshot.documents.last
             let uids = snapshot.documents.map({ $0.documentID })
             UserService.fetchUsers(withUids: uids) { users in
@@ -180,6 +185,11 @@ class FollowersFollowingViewController: UIViewController {
     func fetchFollowingUsers() {
         isFetchingOrDidFetchFollowing = true
         UserService.fetchFollowing(forUid: user.uid!, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.followingLoaded = true
+                self.followingCollectionView.reloadData()
+                return
+            }
             self.followingLastSnapshot = snapshot.documents.last
             let uids = snapshot.documents.map({ $0.documentID })
             UserService.fetchUsers(withUids: uids) { users in
@@ -260,8 +270,45 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
-
+        if collectionView == followersCollectionView {
+            if followers.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: UIImage(named: "content.empty"), title: "Looking for followers?", description: "When someone follows this account, they'll show up here.", buttonText: .dismiss)
+                cell.delegate = self
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
+                cell.followerDelegate = self
+                cell.user = followers[indexPath.row]
+                
+                let userIndex = followerIsFollowed.firstIndex { user in
+                    if user.uid == followers[indexPath.row].uid! {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.userIsFollowing = followerIsFollowed[userIndex].isFollow
+                }
+                return cell
+            }
+        } else {
+            if following.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: UIImage(named: "content.empty"), title: "\(user.firstName!) isn't following anyone.", description: "Once they follow accounts, they'll show up here.", buttonText: .dismiss)
+                cell.delegate = self
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followFollowingCellReuseIdentifier, for: indexPath) as! UsersFollowFollowingCell
+                cell.followingDelegate = self
+                cell.user = following[indexPath.row]
+                cell.userIsFollowing = true
+                return cell
+            }
+        }
+        
+/*
         if collectionView == followersCollectionView {
             cell.followerDelegate = self
             cell.user = followers[indexPath.row]
@@ -284,11 +331,17 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
         }
         
         return cell
+ */
     }
 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 66)
+        if collectionView == followersCollectionView {
+            return followers.isEmpty ? CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: view.frame.width, height: 66)
+        } else {
+            return following.isEmpty ? CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: view.frame.width, height: 66)
+        }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -424,5 +477,11 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
             
             PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
+    }
+}
+
+extension FollowersFollowingViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        navigationController?.popViewController(animated: true)
     }
 }

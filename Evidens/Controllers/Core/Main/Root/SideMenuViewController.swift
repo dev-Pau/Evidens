@@ -37,6 +37,13 @@ class SideMenuViewController: UIViewController {
         }
     }
     
+    private let tabBarView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .systemPink
+        return view
+    }()
+    
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
     
     let collectionView: UICollectionView = {
@@ -100,6 +107,18 @@ class SideMenuViewController: UIViewController {
         collectionView.register(SideMenuCell.self, forCellWithReuseIdentifier: sideMenuCellReuseIdentifier)
         collectionView.register(SideMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: sideMenuHeaderReuseIdentifier)
         
+        /*
+        if #available(iOS 13.0, *) {
+            if let window = UIApplication.shared.windows.first {
+                
+            }
+            let bottomPadding = window?.safeAreaInsets.bottom
+        }
+        
+        let tabControllerHeight = UITabBarController().tabBar.frame.height
+        print("tab bar is \(tabControllerHeight)")
+        print(view.safeAreaInsets.bottom)
+        */
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor, constant: 20),
@@ -113,7 +132,13 @@ class SideMenuViewController: UIViewController {
             
             settingsLabel.centerYAnchor.constraint(equalTo: settingsImageView.centerYAnchor),
             settingsLabel.leadingAnchor.constraint(equalTo: settingsImageView.trailingAnchor, constant: 10),
-            settingsLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor)
+            settingsLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
+            /*
+            tabBarView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
+            tabBarView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
+            tabBarView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tabBarView.heightAnchor.constraint(equalToConstant: tabControllerHeight)
+            */
         ])
     }
     

@@ -209,8 +209,6 @@ extension AddContributorsViewController: UICollectionViewDelegateFlowLayout, UIC
     }
 }
 
-
-
 extension AddContributorsViewController: GroupSearchBarHeaderDelegate {
     func didSearchText(text: String) {
         UserService.fetchUsersWithText(text: text.trimmingCharacters(in: .whitespaces)) { users in

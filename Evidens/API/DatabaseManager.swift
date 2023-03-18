@@ -2285,8 +2285,7 @@ extension DatabaseManager {
         var fetchedConversations = [[String: Any]]()
         
         let ref = database.child("users/\(uid)/conversations")
-        print("We get all conversations")
-        
+
         ref.observe(.value) { snapshot in
             fetchedConversations.removeAll()
             

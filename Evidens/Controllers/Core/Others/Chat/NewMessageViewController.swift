@@ -11,17 +11,16 @@ import Firebase
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let conversationCellReuseIdentifier = "ConversationCellReuseIdentifier"
-
-
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 class NewMessageViewController: UIViewController {
     
     //MARK: - Properties
-    
     private var conversations: [Conversation]
     private var users = [User]()
     private var filteredUsers = [User]()
     private var usersLoaded: Bool = false
+    private var isInSearchMode: Bool = false
     
     private var usersLastSnapshot: QueryDocumentSnapshot?
     
@@ -62,6 +61,11 @@ class NewMessageViewController: UIViewController {
     private func fetchFirstGroupOfUsers() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.usersLoaded = true
+                self.collectionView.reloadData()
+                return
+            }
             self.usersLastSnapshot = snapshot.documents.last!
             let uids = snapshot.documents.map({ $0.documentID })
             UserService.fetchUsers(withUids: uids) { users in
@@ -74,7 +78,7 @@ class NewMessageViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "New message"
+        title = "New Message"
     }
     
     private func configureUI() {
@@ -87,6 +91,7 @@ class NewMessageViewController: UIViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         collectionView.register(NewConversationCell.self, forCellWithReuseIdentifier: conversationCellReuseIdentifier)
+        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -178,7 +183,7 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 { return 0 }
-        return usersLoaded ? filteredUsers.count : 0
+        return usersLoaded ? filteredUsers.isEmpty ? 1 : filteredUsers.count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -194,20 +199,24 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if section == 0 {
-            return CGSize(width: UIScreen.main.bounds.width, height: 55)
-        }
-        return CGSize.zero
+        return section == 0 ? CGSize(width: UIScreen.main.bounds.width, height: 55) : CGSize.zero
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width, height: 65)
+        return filteredUsers.isEmpty ? CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.7) : CGSize(width: UIScreen.main.bounds.width, height: 65)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: conversationCellReuseIdentifier, for: indexPath) as! NewConversationCell
-        cell.set(user: filteredUsers[indexPath.row])
-        return cell
+        if filteredUsers.isEmpty {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+            cell.configure(image: UIImage(named: "content.empty"), title: isInSearchMode ? "No users found" : "You are not following anyone.", description: isInSearchMode ? "We couldn't find any user that match your criteria. Try searching for something else." : "Start growing your network and start conversations.", buttonText: .dismiss)
+            cell.delegate = self
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: conversationCellReuseIdentifier, for: indexPath) as! NewConversationCell
+            cell.set(user: filteredUsers[indexPath.row])
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -217,18 +226,18 @@ extension NewMessageViewController: UICollectionViewDelegateFlowLayout, UICollec
     }
 }
 
-
-
 extension NewMessageViewController: GroupSearchBarHeaderDelegate {
     func didSearchText(text: String) {
         UserService.fetchUsersWithText(text: text.trimmingCharacters(in: .whitespaces)) { users in
             self.filteredUsers = users
+            self.isInSearchMode = true
             self.collectionView.reloadSections(IndexSet(integer: 1))
         }
     }
     
     func resetUsers() {
         filteredUsers = users
+        self.isInSearchMode = false
         collectionView.reloadSections(IndexSet(integer: 1))
     }
 }
@@ -238,5 +247,10 @@ extension NewMessageViewController: ChatViewControllerDelegate {
     func didDeleteConversation(withUser user: User, withConversationId id: String) {
 #warning("pass this with a delegate to conversationviewcontroller and call the delete ufnction inside the controller that already has implemented")
     }
-    
+}
+
+extension NewMessageViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        navigationController?.popViewController(animated: true)
+    }
 }

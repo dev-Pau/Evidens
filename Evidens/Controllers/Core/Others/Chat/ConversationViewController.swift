@@ -169,6 +169,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         if conversations.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
             cell.set(withImage: UIImage(named: "message.empty")!, withTitle: "Welcome to your inbox.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "   Write a message   ")
+            cell.delegate = self
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageCellReuseIdentifier, for: indexPath) as! ChatCell
@@ -207,7 +208,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
   
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return conversations.isEmpty ? CGSize(width: view.frame.width, height: view.frame.width) : CGSize(width: view.frame.width, height: 71)
+        return conversations.isEmpty ? CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.6) : CGSize(width: view.frame.width, height: 71)
     }
     
     func openConversation(with user: User, with model: Conversation) {
@@ -294,5 +295,18 @@ extension ConversationViewController: ChatViewControllerDelegate {
         } else {
             return
         }
+    }
+}
+
+extension ConversationViewController: EmptyGroupCellDelegate {
+    func didTapDiscoverGroup() {
+        let controller = NewMessageViewController(conversations: conversations)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

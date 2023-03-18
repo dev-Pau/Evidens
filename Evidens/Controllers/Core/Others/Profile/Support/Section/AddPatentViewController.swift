@@ -134,7 +134,7 @@ class AddPatentViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
-        button.configuration?.attributedTitle = AttributedString("Contributor", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Contributors ", attributes: container)
         
         button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         button.configuration?.baseBackgroundColor = primaryColor

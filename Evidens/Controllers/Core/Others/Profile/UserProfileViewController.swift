@@ -153,6 +153,11 @@ class UserProfileViewController: UIViewController {
         scrollViewDidScroll(collectionView)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+    }
+    
     init(user: User) {
         self.user = user
         super.init(nibName: nil, bundle: nil)
@@ -1288,7 +1293,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 4 {
             // Comments
-            #warning("revisar que hi hagi missatges tant aquí com a la resta, si no dona error de recent comments empty , guard is not empty elser return")
+            guard !recentComments.isEmpty else { return }
             let comment = recentComments[indexPath.row]
             guard let type = comment["type"] as? Int else { return }
             

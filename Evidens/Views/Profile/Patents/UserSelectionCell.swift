@@ -27,6 +27,7 @@ class UserSelectionCell: UICollectionViewCell {
         iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.image = UIImage(named: "user.profile")
         return iv
     }()
     
@@ -111,7 +112,10 @@ class UserSelectionCell: UICollectionViewCell {
 
     func set(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        }
+
         if user.category == .student {
             userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
         } else {

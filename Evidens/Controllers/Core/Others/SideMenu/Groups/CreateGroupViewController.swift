@@ -343,6 +343,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
+            cell.profileImageView.image = nil
             cell.profileImageView.layer.cornerRadius = 7
             cell.editProfileButton.configuration?.image = UIImage(systemName: "puzzlepiece.extension.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
             if let group = group {
