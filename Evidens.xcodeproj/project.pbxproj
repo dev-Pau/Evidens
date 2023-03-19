@@ -224,7 +224,7 @@
 		5F992B0428ACE47E0030F7F1 /* CasesCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */; };
 		5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */; };
 		5F992B0B28ACEE590030F7F1 /* PeopleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */; };
-		5F99C1D529C6242700C681E2 /* MEPrimaryLockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F99C1D429C6242700C681E2 /* MEPrimaryLockView.swift */; };
+		5F99C1D529C6242700C681E2 /* MEPrimaryBlurLockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F99C1D429C6242700C681E2 /* MEPrimaryBlurLockView.swift */; };
 		5F9A280429743B9C0052E618 /* GroupSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280329743B9C0052E618 /* GroupSelectorCell.swift */; };
 		5F9A280629743BA70052E618 /* RequestSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A280529743BA70052E618 /* RequestSelectorCell.swift */; };
 		5F9A28082975731E0052E618 /* GroupPendingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9A28072975731E0052E618 /* GroupPendingCell.swift */; };
@@ -646,7 +646,7 @@
 		5F992B0328ACE47E0030F7F1 /* CasesCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesCollectionViewCell.swift; sourceTree = "<group>"; };
 		5F992B0628ACEAD60030F7F1 /* PostsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsCollectionViewCell.swift; sourceTree = "<group>"; };
 		5F992B0A28ACEE590030F7F1 /* PeopleCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleCollectionViewCell.swift; sourceTree = "<group>"; };
-		5F99C1D429C6242700C681E2 /* MEPrimaryLockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPrimaryLockView.swift; sourceTree = "<group>"; };
+		5F99C1D429C6242700C681E2 /* MEPrimaryBlurLockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPrimaryBlurLockView.swift; sourceTree = "<group>"; };
 		5F9A280329743B9C0052E618 /* GroupSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSelectorCell.swift; sourceTree = "<group>"; };
 		5F9A280529743BA70052E618 /* RequestSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestSelectorCell.swift; sourceTree = "<group>"; };
 		5F9A28072975731E0052E618 /* GroupPendingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPendingCell.swift; sourceTree = "<group>"; };
@@ -1746,7 +1746,7 @@
 				5FA5726F2965CC1A0068284B /* MEPrimaryEmptyCell.swift */,
 				5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */,
 				5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */,
-				5F99C1D429C6242700C681E2 /* MEPrimaryLockView.swift */,
+				5F99C1D429C6242700C681E2 /* MEPrimaryBlurLockView.swift */,
 			);
 			path = Empty;
 			sourceTree = "<group>";
@@ -2816,7 +2816,7 @@
 				5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */,
 				5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,
-				5F99C1D529C6242700C681E2 /* MEPrimaryLockView.swift in Sources */,
+				5F99C1D529C6242700C681E2 /* MEPrimaryBlurLockView.swift in Sources */,
 				5F8666F8275389C6009B26E6 /* CommentInputAccessoryView.swift in Sources */,
 				5F9FB27B28EC3ACF00BABDFD /* FollowersFollowingViewController.swift in Sources */,
 				5F9A280D2976B3B10052E618 /* GroupContentManagementViewController.swift in Sources */,

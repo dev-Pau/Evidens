@@ -19,6 +19,7 @@ protocol SideMenuViewControllerDelegate: AnyObject {
 class SideMenuViewController: UIViewController {
     
     weak var delegate: SideMenuViewControllerDelegate?
+    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
     enum MenuOptions: String, CaseIterable {
         case bookmarks = "Bookmarks"
@@ -144,6 +145,15 @@ class SideMenuViewController: UIViewController {
     
     @objc func handleSettingsTap() {
         delegate?.didTapSettings()
+    }
+    
+    func updateUserData(user: User) {
+        let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
+        header.configure()
+        
+        if user.phase != .verified {
+            view.addSubview(lockView)
+        }
     }
     
     func updateUserData() {

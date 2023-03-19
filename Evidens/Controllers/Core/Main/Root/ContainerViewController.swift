@@ -206,8 +206,11 @@ class ContainerViewController: UIViewController {
 }
 
 extension ContainerViewController: MainViewControllerDelegate {
+    func configureMenuWithUser(user: User) {
+        menuController.updateUserData(user: user)
+    }
+    
     func updateUser(user: User) {
-        print("before update data")
         menuController.updateUserData()
     }
     

@@ -20,10 +20,17 @@ protocol ConversationViewControllerDelegate: AnyObject {
 class ConversationViewController: UIViewController {
     
     //MARK: - Properties
+    var user: User? {
+        didSet {
+            guard let _ = user else { return }
+            configureNavigationBar()
+        }
+    }
     
     private var conversations = [Conversation]()
     private var users = [User]()
     private var searchController: UISearchController!
+    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
     private var conversationsLoaded: Bool = false
     
@@ -62,22 +69,27 @@ class ConversationViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Messages"
-        let controller = SearchConversationViewController()
-        controller.delegate = self
-        searchController = UISearchController(searchResultsController: controller)
-        searchController.searchResultsUpdater = controller
-        searchController.searchBar.delegate = controller
-        searchController.searchBar.placeholder = "Search conversations"
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.tintColor = primaryColor
-        searchController.showsSearchResultsController = true
-        navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.searchController = searchController
+
+        guard let user = user else { return }
         
-     
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
-    
+        if user.phase == .verified {
+            let controller = SearchConversationViewController()
+            controller.delegate = self
+            searchController = UISearchController(searchResultsController: controller)
+            searchController.searchResultsUpdater = controller
+            searchController.searchBar.delegate = controller
+            searchController.searchBar.placeholder = "Search conversations"
+            searchController.obscuresBackgroundDuringPresentation = false
+            searchController.searchBar.tintColor = primaryColor
+            searchController.showsSearchResultsController = true
+            navigationItem.hidesSearchBarWhenScrolling = false
+            navigationItem.searchController = searchController
+            
+            navigationItem.rightBarButtonItem =  UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapComposeButton))
+        } else {
+            view.addSubview(lockView)
+        }
+  
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""
@@ -92,7 +104,7 @@ class ConversationViewController: UIViewController {
         
     private func startListeningForConversations() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-
+        
         DatabaseManager.shared.getAllConversations(forUid: uid, completion: { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -133,14 +145,22 @@ class ConversationViewController: UIViewController {
     
     //Creates a new conversation
     @objc private func didTapComposeButton() {
-        let controller = NewMessageViewController(conversations: conversations)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
         
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+        if user.phase != .verified {
+            let reportPopup = METopPopupView(title: "Only verified users can post content. Check back later to verify your status.", image: "xmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+        } else {
+            let controller = NewMessageViewController(conversations: conversations)
+            
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
     
     @objc func didTapHideConversations() {

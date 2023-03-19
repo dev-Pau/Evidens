@@ -46,6 +46,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         return toolbar
     }()
     
+    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
+    
     private var indexSelected: Int = 1
 
     override func viewDidLoad() {
@@ -67,6 +69,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     }
     
     private func fetchFirstGroupOfCases() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         if displaysFilteredWindow {
             CaseService.fetchCasesWithProfession(lastSnapshot: nil, profession: navigationItem.title!) { snapshot in
                 
@@ -109,6 +114,11 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 if snapshot.isEmpty {
                     self.casesLoaded = true
                     self.activityIndicator.stop()
+                    
+                    if user.phase != .verified {
+                        self.view.addSubview(self.lockView)
+                    }
+                    
                     self.casesCollectionView.reloadData()
                     self.casesCollectionView.isHidden = false
                     self.exploreCasesToolbar.isHidden = false

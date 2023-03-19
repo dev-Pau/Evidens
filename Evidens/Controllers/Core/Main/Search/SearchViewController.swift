@@ -43,6 +43,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     var selectedImage: UIImageView!
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
+    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
     //MARK: - Lifecycle
     
@@ -110,9 +111,18 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
 
     func checkIfAllTheContentIsFetched(count: Int) {
+
+        
         if count == 5 {
-            print("fetched all content kek")
+            guard let tab = tabBarController as? MainTabController else { return }
+            guard let user = tab.user else { return }
+            
             self.activityIndicator.stop()
+            
+            if user.phase != .verified {
+                self.view.addSubview(self.lockView)
+            }
+            
             self.collectionView.reloadData()
             self.collectionView.isHidden = false
         }
@@ -121,18 +131,21 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     //MARK: - Helpers
     func configureNavigationBar() {
         title = "Search"
-        let controller = SearchResultsUpdatingViewController()
-        //controller.delegate = self
-        searchController = UISearchController(searchResultsController: controller)
-        searchController.searchResultsUpdater = controller
-        searchController.searchBar.delegate = controller
-        searchController.searchBar.placeholder = "Search"
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.tintColor = primaryColor
-        searchController.showsSearchResultsController = true
-        navigationItem.hidesSearchBarWhenScrolling = false
-
-        navigationItem.searchController = searchController
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        if user.phase == .verified {
+            let controller = SearchResultsUpdatingViewController()
+            searchController = UISearchController(searchResultsController: controller)
+            searchController.searchResultsUpdater = controller
+            searchController.searchBar.delegate = controller
+            searchController.searchBar.placeholder = "Search"
+            searchController.obscuresBackgroundDuringPresentation = false
+            searchController.searchBar.tintColor = primaryColor
+            searchController.showsSearchResultsController = true
+            navigationItem.hidesSearchBarWhenScrolling = false
+            navigationItem.searchController = searchController
+        }
     }
     
     private func configureUI() {

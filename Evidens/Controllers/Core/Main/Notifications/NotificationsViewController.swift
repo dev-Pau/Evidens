@@ -20,6 +20,7 @@ class NotificationsViewController: NavigationBarViewController {
     private var users = [User]()
     private var posts = [Post]()
     private var cases = [Case]()
+    private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
     private var loaded: Bool = false
     
@@ -52,33 +53,34 @@ class NotificationsViewController: NavigationBarViewController {
     
     private func configureCollectionView() {
         title = "Notifications"
-        
-        view.addSubview(activityIndicator)
+        view.addSubviews(activityIndicator, collectionView)
+        collectionView.frame = view.bounds
+        collectionView.delegate = self
+        collectionView.dataSource = self
         NSLayoutConstraint.activate([
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200)
         ])
-                               
-        view.addSubviews(collectionView)
-        collectionView.frame = view.bounds
-        collectionView.delegate = self
-        collectionView.dataSource = self
+        
         collectionView.register(NotificationFollowCell.self, forCellWithReuseIdentifier: followCellReuseIdentifier)
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
-        
-        let lockView = MEPrimaryLockView(frame: view.bounds)
-        view.addSubview(lockView)
     }
     
     private func fetchNotifications() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         NotificationService.fetchNotifications(lastSnapshot: nil) { snapshot in
             if snapshot.isEmpty {
                 self.loaded = true
                 self.activityIndicator.stop()
+                if user.phase != .verified {
+                    self.view.addSubview(self.lockView)
+                }
                 self.collectionView.reloadData()
                 self.collectionView.isHidden = false
                 return

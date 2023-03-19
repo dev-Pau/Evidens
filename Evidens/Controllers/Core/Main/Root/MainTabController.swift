@@ -17,6 +17,7 @@ protocol MainTabControllerDelegate: AnyObject {
     func handleConversations()
     func handleDisableRightPan()
     func updateUser(user: User)
+    func configureControllersWithUser(user: User)
 }
 
 class MainTabController: UITabBarController {
@@ -38,6 +39,8 @@ class MainTabController: UITabBarController {
     
     var user: User? {
         didSet {
+            guard let user = user else { return }
+            menuDelegate?.configureControllersWithUser(user: user)
             //guard let controller = viewControllers?[0] as? ContainerViewController else { return }
             //guard let user = user else { return }
             //configureViewControllers(withUser: user)
@@ -105,10 +108,13 @@ class MainTabController: UITabBarController {
                 
             case .awaitingVerification:
                 print("awaiting verification")
-                let controller = WaitingVerificationViewController(user: user)
-                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                sceneDelegate?.updateRootViewController(controller)
-                
+                UserDefaults.standard.set(user.uid, forKey: "uid")
+                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+                //let controller = WaitingVerificationViewController(user: user)
+                //let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                //sceneDelegate?.updateRootViewController(controller)
+                self.tabBar.isHidden = false
             case .verified:
                 print("main tab bar controller")
                 
@@ -285,6 +291,11 @@ extension MainTabController: UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController == tabBarController.viewControllers?[2] {
+            guard let user = user, user.phase == .verified else {
+                let reportPopup = METopPopupView(title: "Only verified users can post content. Check back later to verify your status.", image: "xmark.circle.fill", popUpType: .regular)
+                reportPopup.showTopPopup(inView: self.view)
+                return false
+            }
             postMenuLauncher.showPostSettings(in: view)
             return false
         } else if viewController == tabBarController.viewControllers?[0] {
@@ -318,7 +329,7 @@ extension MainTabController: UITabBarControllerDelegate {
 
 extension MainTabController: PostBottomMenuLauncherDelegate {
     func didTapUpload(content: ShareableContent) {
-        guard let user = user else { return }
+        guard let user = user, user.phase == .verified else { return }
         switch content {
         case .post:
             let postController = UploadPostViewController(user: user)
