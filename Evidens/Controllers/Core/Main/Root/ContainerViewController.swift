@@ -77,7 +77,7 @@ class ContainerViewController: UIViewController {
             //translation.x / 500
             self.menuController.view.frame.origin.x = 0
             self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-            self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.65)
+            self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0.65)
             self.mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
         } completion: { done in
             if done {
@@ -95,7 +95,7 @@ class ContainerViewController: UIViewController {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.mainController.view.frame.origin.x = 0
             self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-            self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0)
+            self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0)
             self.menuController.view.frame.origin.x = 0 - self.view.frame.size.width
             self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0)
         } completion: { done in
@@ -186,7 +186,7 @@ class ContainerViewController: UIViewController {
             if translation.x >= 0 - (menuWidth) && translation.x < 0.0 {
                 self.mainController.view.frame.origin.x = screenWidth - 50 + translation.x
                 self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-                self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(0.65 + translation.x / 500)
+                self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(0.65 + translation.x / 500)
                 self.mainController.updateUserProfileImageViewAlpha(withAlfa: 0.65 + translation.x / 500)
                 self.menuController.view.frame.origin.x = translation.x
                 if viewIsOnGroupsViewController { }
@@ -196,7 +196,7 @@ class ContainerViewController: UIViewController {
             if translation.x > 0.0 && translation.x <= screenWidth - 50 {
                 self.mainController.view.frame.origin.x = translation.x
                 self.blackBackgroundView.frame.origin.x = self.mainController.view.frame.origin.x
-                self.blackBackgroundView.backgroundColor = .black.withAlphaComponent(translation.x / 500)
+                self.blackBackgroundView.backgroundColor = .systemBackground.withAlphaComponent(translation.x / 500)
                 self.menuController.view.frame.origin.x = 0 - menuWidth + translation.x
                 self.mainController.updateUserProfileImageViewAlpha(withAlfa: translation.x / 500)
             } else {

@@ -61,36 +61,6 @@ class SideMenuViewController: UIViewController {
         return collectionView
     }()
     
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private lazy var settingsImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "gearshape.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        iv.contentMode = .scaleAspectFill
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
-        return iv
-    }()
-    
-    private lazy var settingsLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Settings"
-        label.textAlignment = .left
-        label.textColor = .label
-        label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
-        return label
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
@@ -120,7 +90,7 @@ class SideMenuViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             sideMenuTabView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
-            sideMenuTabView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
+            sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             sideMenuTabView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             sideMenuTabView.heightAnchor.constraint(equalToConstant: tabControllerHeight),
             
@@ -128,27 +98,6 @@ class SideMenuViewController: UIViewController {
             controllerSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             controllerSeparatorView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             controllerSeparatorView.widthAnchor.constraint(equalToConstant: 0.5)
-            /*
-            separatorView.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor, constant: 20),
-            separatorView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor, constant: -70),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            settingsImageView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            settingsImageView.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
-            settingsImageView.heightAnchor.constraint(equalToConstant: 30),
-            settingsImageView.widthAnchor.constraint(equalToConstant: 30),
-            
-            settingsLabel.centerYAnchor.constraint(equalTo: settingsImageView.centerYAnchor),
-            settingsLabel.leadingAnchor.constraint(equalTo: settingsImageView.trailingAnchor, constant: 10),
-            settingsLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
-                                      */
-            /*
-            tabBarView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
-            tabBarView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
-            tabBarView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            tabBarView.heightAnchor.constraint(equalToConstant: tabControllerHeight)
-            */
         ])
         
         sideMenuTabView.delegate = self
@@ -237,6 +186,10 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
 }
 
 extension SideMenuViewController: SideMenuTabViewDelegate {
+    func didTapSettings() {
+        delegate?.didTapSettings()
+    }
+    
     func didTapConfigureAppearance() {
         //appearanceMenuLauncher.showPostSettings(in: view)
         delegate?.didTapAppearanceMenu()
@@ -260,6 +213,7 @@ extension SideMenuViewController: SideMenuHeaderDelegate {
 
 protocol SideMenuTabViewDelegate: AnyObject {
     func didTapConfigureAppearance()
+    func didTapSettings()
 }
 
 class SideMenuTabView: UIView {
@@ -272,6 +226,17 @@ class SideMenuTabView: UIView {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAppearanceTap)))
+        return iv
+    }()
+
+    lazy var settingsImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.image = UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
         return iv
     }()
     
@@ -294,7 +259,7 @@ class SideMenuTabView: UIView {
     private func configure() {
         backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
-        addSubviews(tabBarSeparatorView, appearanceSettingsImageView)
+        addSubviews(tabBarSeparatorView, appearanceSettingsImageView, settingsImageView)
         NSLayoutConstraint.activate([
             tabBarSeparatorView.topAnchor.constraint(equalTo: topAnchor),
             tabBarSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -304,7 +269,12 @@ class SideMenuTabView: UIView {
             appearanceSettingsImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             appearanceSettingsImageView.topAnchor.constraint(equalTo: tabBarSeparatorView.bottomAnchor, constant: 6),
             appearanceSettingsImageView.heightAnchor.constraint(equalToConstant: 27),
-            appearanceSettingsImageView.widthAnchor.constraint(equalToConstant: 27)
+            appearanceSettingsImageView.widthAnchor.constraint(equalToConstant: 27),
+            
+            settingsImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            settingsImageView.topAnchor.constraint(equalTo: tabBarSeparatorView.bottomAnchor, constant: 6),
+            settingsImageView.heightAnchor.constraint(equalToConstant: 27),
+            settingsImageView.widthAnchor.constraint(equalToConstant: 27)
         ])
         
         if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
@@ -326,6 +296,10 @@ class SideMenuTabView: UIView {
         case .light:
             appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         }
+    }
+    
+    @objc func handleSettingsTap() {
+        delegate?.didTapSettings()
     }
     
     @objc func handleAppearanceTap() {
