@@ -23,18 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             let navigationBarAppearance2 = UINavigationBarAppearance()
             navigationBarAppearance2.configureWithOpaqueBackground()
-            //navigationBarAppearance.backgroundColor = primaryColor
-            //navigationBarAppearance2.backgroundColor = primaryColor
-            //navigationBarAppearance.backgroundColor = primaryColor
-            //UINavigationBar.appearance().barTintColor = primaryColor
-            //navigationBarAppearance.backgroundEffect = UIBlurEffect(style: .regular)
-            //UINavigationBar.appearance().barTintColor = primaryColor
-            //navigationBarAppearance.shadowColor = .clear
+
             UINavigationBar.appearance().standardAppearance = navigationBarAppearance
             UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance2
-       
-            //UINavigationBar.appearance().app
-            
+
             let tabBarAppearance = UITabBarAppearance()
             tabBarAppearance.configureWithOpaqueBackground()
             UITabBar.appearance().standardAppearance = tabBarAppearance

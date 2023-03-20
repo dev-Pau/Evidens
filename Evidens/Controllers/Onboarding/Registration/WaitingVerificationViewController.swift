@@ -22,8 +22,8 @@ class WaitingVerificationViewController: UIViewController {
         return scrollView
     }()
     
-    private let welcomeText: UILabel = {
-        let label = CustomLabel(placeholder: "Welcome!")
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "You just completed the registration process")
         return label
     }()
     
@@ -46,28 +46,28 @@ class WaitingVerificationViewController: UIViewController {
         return button
     }()
     
-    private let titleLabel: UILabel = {
+    private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "You just finished the registration process to join the MyEvidens community."
-        label.font = .systemFont(ofSize: 19, weight: .semibold)
-        label.textColor = .label
-        label.textAlignment = .left
-        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.numberOfLines = 0
+        label.text = "Thanks for completing the registration process. We are reviewing your documentation. Upon verifying your identity, we will send you an email granting you access to all features."
+        label.textColor = .secondaryLabel
         return label
     }()
     
-    private let subtitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "We are reviewing your documentation. Upon verifying your identity, we will send you an email granting you access to MyEvidens."
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .label
-        label.textAlignment = .left
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private lazy var continueButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Continue", for: .normal)
+        button.setTitleColor(.systemBackground, for: .normal)
+        button.backgroundColor = .label
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.layer.cornerRadius = 26
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,21 +100,27 @@ class WaitingVerificationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(welcomeText, titleLabel, subtitleLabel)
+        scrollView.addSubviews(titleLabel, descriptionLabel, continueButton)
         
         NSLayoutConstraint.activate([
-            welcomeText.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            welcomeText.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            welcomeText.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width * 0.8),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 50),
+            titleLabel.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            titleLabel.widthAnchor.constraint(equalToConstant: view.frame.width * 0.8),
             
-            titleLabel.topAnchor.constraint(equalTo: welcomeText.bottomAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            subtitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            continueButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            continueButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            continueButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])
+    }
+    
+    @objc func handleContinue() {
+        let controller = ContainerViewController()
+        controller.modalPresentationStyle = .fullScreen
+        self.present(controller, animated: false)
     }
     
     private func addMenuItems() -> UIMenu {

@@ -14,9 +14,6 @@ class PassportViewController: UIViewController {
     
     private var user: User
     
-   // private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
-    private let helperBottomRegistrationMenuLauncher = HelperBottomMenuLauncher()
-    
     private var hasCode: Bool = false
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
@@ -252,10 +249,6 @@ class PassportViewController: UIViewController {
         }
     }
     
-    @objc func handleHelp() {
-        helperBottomRegistrationMenuLauncher.showImageSettings(in: view)
-    }
-    
     @objc func handlePhotoAction() {
         //registerBottomMenuLauncher.showImageSettings(in: view)
     }
@@ -268,18 +261,22 @@ class PassportViewController: UIViewController {
             StorageManager.uploadDocumentationImage(images: [frontImage], type: "passport", uid: uid) { uploaded in
                 
                 if uploaded {
-                    
                     AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
-                        self.progressIndicator.dismiss(animated: true)
                         if let error = error {
+                            self.progressIndicator.dismiss(animated: true)
                             print(error.localizedDescription)
+                            return
                         }
-                        DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString))
                         
-                        let controller = WaitingVerificationViewController(user: self.user)
-                        let navigationController = UINavigationController(rootViewController: controller)
-                        navigationController.modalPresentationStyle = .fullScreen
-                        self.present(navigationController, animated: true)
+                        DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString)) { uploaded in
+                            self.progressIndicator.dismiss(animated: true)
+                            if uploaded {
+                                let controller = WaitingVerificationViewController(user: self.user)
+                                let navigationController = UINavigationController(rootViewController: controller)
+                                navigationController.modalPresentationStyle = .fullScreen
+                                self.present(navigationController, animated: true)
+                            }
+                        }
                     }
                 }
             }

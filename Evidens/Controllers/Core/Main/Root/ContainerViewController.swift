@@ -31,6 +31,8 @@ class ContainerViewController: UIViewController {
     let menuController = SideMenuViewController()
     let mainController = MainViewController()
     
+    private let appearanceMenuLauncher = AppearanceMenuLauncher()
+    
     private lazy var blackBackgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = .black.withAlphaComponent(0)
@@ -42,6 +44,7 @@ class ContainerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        appearanceMenuLauncher.delegate = self
         addChildVCs()
         view.backgroundColor = .systemBackground
         blackBackgroundView.frame = view.bounds
@@ -249,6 +252,11 @@ extension ContainerViewController: MainViewControllerDelegate {
 
 
 extension ContainerViewController: SideMenuViewControllerDelegate {
+    func didTapAppearanceMenu() {
+        appearanceMenuLauncher.showPostSettings(in: view)
+        handleDisablePan()
+    }
+    
     func didSelectMenuOption(option: SideMenuViewController.MenuOptions) {
         closeMenu()
         mainController.pushMenuOptionController(option: option)
@@ -263,6 +271,52 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
     func didTapMenuHeader() {
         closeMenu()
         mainController.pushUserProfileViewController()
+    }
+}
+
+extension ContainerViewController: AppearanceMenuLauncherDelegate {
+    func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance.Theme) {
+        menuController.updateAppearanceSettings(sw, appearance: setting)
+        //handleDisablePan()
+        /*
+        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") else { return }
+        
+        switch setting {
+        case .dark:
+            UserDefaults.standard.set(setting.rawValue, forKey: "themeStateEnum")
+        case .system:
+            UserDefaults.standard.set(setting.rawValue, forKey: "themeStateEnum")
+        case .light:
+            UserDefaults.standard.set(setting.rawValue, forKey: "themeStateEnum")
+        }
+         */
+        /*
+         if let window = UIApplication.shared.keyWindow {
+             UIView.transition (with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                 window.overrideUserInterfaceStyle = .dark //.light or .unspecified
+             }, completion: nil)
+         }
+         */
+        
+        /*
+        if let window = UIApplication.shared.windows.first {
+            UIView.transition (with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                switch setting {
+                case .dark:
+                    window.overrideUserInterfaceStyle = .dark
+                case .system:
+                    window.overrideUserInterfaceStyle = .unspecified
+                case .light:
+                    window.overrideUserInterfaceStyle = .unspecified
+                }
+            }, completion: nil)
+        }
+         */
+        
+    }
+    
+    func didCloseMenu() {
+        handleDisablePan()
     }
 }
 

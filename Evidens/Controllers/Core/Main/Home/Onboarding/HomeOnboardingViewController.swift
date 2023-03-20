@@ -63,18 +63,23 @@ class HomeOnboardingViewController: UIViewController {
     }
     
     private func fetchUsers() {
-        UserService.fetchOnboardingUsers { users in
-            if users.isEmpty {
-                self.followersLoaded = true
-                self.collectionView.reloadData()
-            } else {
-                self.users = users
-                users.forEach { user in
-                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
-                        self.userIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
-                        if self.userIsFollowed.count == users.count {
-                            self.followersLoaded = true
-                            self.collectionView.reloadData()
+        if user.phase != .verified {
+            self.followersLoaded = true
+            self.collectionView.reloadData()
+        } else {
+            UserService.fetchOnboardingUsers { users in
+                if users.isEmpty {
+                    self.followersLoaded = true
+                    self.collectionView.reloadData()
+                } else {
+                    self.users = users
+                    users.forEach { user in
+                        UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                            self.userIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
+                            if self.userIsFollowed.count == users.count {
+                                self.followersLoaded = true
+                                self.collectionView.reloadData()
+                            }
                         }
                     }
                 }
@@ -104,6 +109,7 @@ class HomeOnboardingViewController: UIViewController {
 
 extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if user.phase != .verified { return 0 }
         return followersLoaded ? users.isEmpty ? 1 : users.count : 0
     }
     
@@ -119,7 +125,7 @@ extension HomeOnboardingViewController: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: followersLoaded ? 145 : 55)
+        return CGSize(width: view.frame.width, height: followersLoaded ? 165 : 55)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

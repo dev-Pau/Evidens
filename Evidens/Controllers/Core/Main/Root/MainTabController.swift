@@ -111,9 +111,7 @@ class MainTabController: UITabBarController {
                 UserDefaults.standard.set(user.uid, forKey: "uid")
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
                 UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
-                //let controller = WaitingVerificationViewController(user: user)
-                //let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
-                //sceneDelegate?.updateRootViewController(controller)
+                //UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
                 self.tabBar.isHidden = false
             case .verified:
                 print("main tab bar controller")
@@ -121,18 +119,13 @@ class MainTabController: UITabBarController {
                 UserDefaults.standard.set(user.uid, forKey: "uid")
                 UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
                 UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
-                
-                
+                self.tabBar.isHidden = false
                 /*
-                let appearance = UITabBarAppearance()
-                appearance.configureWithOpaqueBackground()
-                appearance.shadowColor = grayColor
-                appearance.backgroundColor = .white
-                
-                self.tabBar.isTranslucent = true
-                self.tabBar.scrollEdgeAppearance = appearance
-                self.tabBar.standardAppearance = appearance
-                 */
+                guard let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty else {
+                    UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
+                    return
+                }
+                */
                 
                 
                 /*
@@ -151,7 +144,7 @@ class MainTabController: UITabBarController {
                 //self.topBlurView.insertSubview(blurView, at: 0)
                 //blurView.frame = self.topBlurView.bounds
                 
-                self.tabBar.isHidden = false
+
                 
             }
         }

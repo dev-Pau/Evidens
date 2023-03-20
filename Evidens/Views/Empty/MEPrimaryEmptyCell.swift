@@ -87,7 +87,6 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
             imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2),
             
-            
             titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
             titleLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -30),

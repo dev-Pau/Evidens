@@ -14,12 +14,14 @@ protocol SideMenuViewControllerDelegate: AnyObject {
     func didTapMenuHeader()
     func didTapSettings()
     func didSelectMenuOption(option: SideMenuViewController.MenuOptions)
+    func didTapAppearanceMenu()
 }
 
 class SideMenuViewController: UIViewController {
     
     weak var delegate: SideMenuViewControllerDelegate?
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
+    private let appearanceMenuLauncher = AppearanceMenuLauncher()
     
     enum MenuOptions: String, CaseIterable {
         case bookmarks = "Bookmarks"
@@ -38,12 +40,15 @@ class SideMenuViewController: UIViewController {
         }
     }
     
-    private let tabBarView: UIView = {
+    private let controllerSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemPink
+        view.backgroundColor = .systemBackground
+        view.layer.borderWidth = 0.5
         return view
     }()
+    
+    private let sideMenuTabView = SideMenuTabView(frame: .zero)
     
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
     
@@ -89,7 +94,6 @@ class SideMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        
         //NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
@@ -101,26 +105,30 @@ class SideMenuViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
-        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height - 70)
-        view.addSubviews(collectionView, separatorView, settingsImageView, settingsLabel)
+        collectionView.frame = view.bounds
+        view.addSubviews(collectionView, sideMenuTabView, controllerSeparatorView)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(SideMenuCell.self, forCellWithReuseIdentifier: sideMenuCellReuseIdentifier)
         collectionView.register(SideMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: sideMenuHeaderReuseIdentifier)
-        
-        /*
-        if #available(iOS 13.0, *) {
-            if let window = UIApplication.shared.windows.first {
-                
-            }
-            let bottomPadding = window?.safeAreaInsets.bottom
+
+        let tabControllerHeight = UITabBarController().tabBar.frame.height
+        if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
+            controllerSeparatorView.layer.borderColor = tabControllerShadowColor.cgColor
         }
         
-        let tabControllerHeight = UITabBarController().tabBar.frame.height
-        print("tab bar is \(tabControllerHeight)")
-        print(view.safeAreaInsets.bottom)
-        */
+        
         NSLayoutConstraint.activate([
+            sideMenuTabView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
+            sideMenuTabView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
+            sideMenuTabView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            sideMenuTabView.heightAnchor.constraint(equalToConstant: tabControllerHeight),
+            
+            controllerSeparatorView.topAnchor.constraint(equalTo: view.topAnchor),
+            controllerSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            controllerSeparatorView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            controllerSeparatorView.widthAnchor.constraint(equalToConstant: 0.5)
+            /*
             separatorView.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor, constant: 20),
             separatorView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor, constant: -70),
@@ -134,6 +142,7 @@ class SideMenuViewController: UIViewController {
             settingsLabel.centerYAnchor.constraint(equalTo: settingsImageView.centerYAnchor),
             settingsLabel.leadingAnchor.constraint(equalTo: settingsImageView.trailingAnchor, constant: 10),
             settingsLabel.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),
+                                      */
             /*
             tabBarView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
             tabBarView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
@@ -141,6 +150,18 @@ class SideMenuViewController: UIViewController {
             tabBarView.heightAnchor.constraint(equalToConstant: tabControllerHeight)
             */
         ])
+        
+        sideMenuTabView.delegate = self
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
+                     controllerSeparatorView.layer.borderColor = tabControllerShadowColor.cgColor
+                 }
+             }
+         }
     }
     
     @objc func handleSettingsTap() {
@@ -159,6 +180,26 @@ class SideMenuViewController: UIViewController {
     func updateUserData() {
         let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
         header.configure()
+    }
+    
+    func updateAppearanceSettings(_ sw: UISwitch, appearance: Appearance.Theme) {
+        switch appearance {
+        case .dark:
+            if sw.isOn {
+                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: "moon.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            } else {
+                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            }
+        case .system:
+            let isSystemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? true : false
+            if isSystemDark {
+                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: "moon.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            } else {
+                sideMenuTabView.appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            }
+        case .light:
+            break
+        }
     }
 }
 
@@ -195,8 +236,99 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
     }
 }
 
+extension SideMenuViewController: SideMenuTabViewDelegate {
+    func didTapConfigureAppearance() {
+        //appearanceMenuLauncher.showPostSettings(in: view)
+        delegate?.didTapAppearanceMenu()
+    }
+}
+
 extension SideMenuViewController: SideMenuHeaderDelegate {
     func didTapHeader() {
         delegate?.didTapMenuHeader()
+    }
+}
+
+
+
+
+
+
+
+
+
+
+protocol SideMenuTabViewDelegate: AnyObject {
+    func didTapConfigureAppearance()
+}
+
+class SideMenuTabView: UIView {
+    weak var delegate: SideMenuTabViewDelegate?
+    
+    lazy var appearanceSettingsImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAppearanceTap)))
+        return iv
+    }()
+    
+    private let tabBarSeparatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.borderWidth = 0
+        return view
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configure() {
+        backgroundColor = .systemBackground
+        translatesAutoresizingMaskIntoConstraints = false
+        addSubviews(tabBarSeparatorView, appearanceSettingsImageView)
+        NSLayoutConstraint.activate([
+            tabBarSeparatorView.topAnchor.constraint(equalTo: topAnchor),
+            tabBarSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tabBarSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tabBarSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            
+            appearanceSettingsImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            appearanceSettingsImageView.topAnchor.constraint(equalTo: tabBarSeparatorView.bottomAnchor, constant: 6),
+            appearanceSettingsImageView.heightAnchor.constraint(equalToConstant: 27),
+            appearanceSettingsImageView.widthAnchor.constraint(equalToConstant: 27)
+        ])
+        
+        if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
+            tabBarSeparatorView.backgroundColor = tabControllerShadowColor
+        }
+        
+        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String else { return }
+        let defaultsTheme = Appearance.Theme(rawValue: defaultsAppearance) ?? .system
+        switch defaultsTheme {
+        case .dark:
+            appearanceSettingsImageView.image = UIImage(systemName: "moon.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        case .system:
+            let isSystemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? true : false
+            if isSystemDark {
+                appearanceSettingsImageView.image = UIImage(systemName: "moon.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            } else {
+                appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            }
+        case .light:
+            appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        }
+    }
+    
+    @objc func handleAppearanceTap() {
+        delegate?.didTapConfigureAppearance()
     }
 }

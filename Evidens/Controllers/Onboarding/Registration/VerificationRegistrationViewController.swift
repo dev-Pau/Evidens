@@ -7,10 +7,12 @@
 
 import UIKit
 import MessageUI
+import JGProgressHUD
 
 class VerificationRegistrationViewController: UIViewController {
     
     private var user: User
+    private let progressIndicator = JGProgressHUD()
    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -39,10 +41,29 @@ class VerificationRegistrationViewController: UIViewController {
         return button
     }()
     
-    private let imageTextLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "We need a photo of your ID"
-        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 35, weight: .heavy)
+        label.textColor = .label
+        label.numberOfLines = 0
+        label.text = "We verify your identity."
+        return label
+    }()
+    
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.numberOfLines = 0
+        label.text = "Please select one of the following identity document types or skip this process and complete the verification process via email."
+        label.textColor = .secondaryLabel
+        return label
+    }()
+    
+    private let informationVerificationLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -50,23 +71,51 @@ class VerificationRegistrationViewController: UIViewController {
         return label
     }()
     
-    private let cardImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(systemName: "menucard")!.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        return iv
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
-    private let informationVerificationLabel: UILabel = {
+    private let orLabel: UILabel = {
         let label = UILabel()
-        label.text = "We verify all members of the MyEvidens community. Please select one of the following identity document types:"
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .label
-        label.textAlignment = .center
-        label.numberOfLines = 0
+        label.text = "  OR  "
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.textColor = .secondaryLabel
+        label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let emailLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.numberOfLines = 0
+        label.text = "Skip the verification process and do it later. Most features will be locked until your account is verified as a healthcare community member."
+        label.textColor = .secondaryLabel
+        return label
+    }()
+    
+    private lazy var skipLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Skip for now"
+        label.sizeToFit()
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        let textRange = NSRange(location: 0, length: label.text!.count)
+        let attributedText = NSMutableAttributedString(string: label.text!)
+        attributedText.addAttribute(.underlineStyle,
+                                    value: NSUnderlineStyle.single.rawValue,
+                                    range: textRange)
+        label.attributedText = attributedText
+        label.numberOfLines = 0
+        label.textColor = .label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSkip)))
         return label
     }()
     
@@ -103,42 +152,54 @@ class VerificationRegistrationViewController: UIViewController {
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
     
-        scrollView.addSubviews(cardImageView, imageTextLabel, informationVerificationLabel, idCardView, driverView, passportView)
+        scrollView.addSubviews(titleLabel, descriptionLabel, idCardView, driverView, passportView, separatorView, orLabel, emailLabel, skipLabel)
         
         NSLayoutConstraint.activate([
-            cardImageView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
-            cardImageView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            cardImageView.widthAnchor.constraint(equalToConstant: 75),
-            cardImageView.heightAnchor.constraint(equalToConstant: 85),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            imageTextLabel.topAnchor.constraint(equalTo: cardImageView.bottomAnchor, constant: 10),
-            imageTextLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            imageTextLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            informationVerificationLabel.topAnchor.constraint(equalTo: imageTextLabel.bottomAnchor, constant: 10),
-            informationVerificationLabel.leadingAnchor.constraint(equalTo: imageTextLabel.leadingAnchor),
-            informationVerificationLabel.trailingAnchor.constraint(equalTo: imageTextLabel.trailingAnchor),
-            
-            idCardView.topAnchor.constraint(equalTo: informationVerificationLabel.bottomAnchor, constant: 20),
-            idCardView.leadingAnchor.constraint(equalTo: informationVerificationLabel.leadingAnchor),
-            idCardView.trailingAnchor.constraint(equalTo: informationVerificationLabel.trailingAnchor),
+            idCardView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            idCardView.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            idCardView.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor),
             idCardView.heightAnchor.constraint(equalToConstant: 50),
             
             driverView.topAnchor.constraint(equalTo: idCardView.bottomAnchor, constant: 10),
-            driverView.leadingAnchor.constraint(equalTo: informationVerificationLabel.leadingAnchor),
-            driverView.trailingAnchor.constraint(equalTo: informationVerificationLabel.trailingAnchor),
+            driverView.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            driverView.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor),
             driverView.heightAnchor.constraint(equalToConstant: 50),
             
             passportView.topAnchor.constraint(equalTo: driverView.bottomAnchor, constant: 10),
-            passportView.leadingAnchor.constraint(equalTo: informationVerificationLabel.leadingAnchor),
-            passportView.trailingAnchor.constraint(equalTo: informationVerificationLabel.trailingAnchor),
-            passportView.heightAnchor.constraint(equalToConstant: 50)
+            passportView.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
+            passportView.trailingAnchor.constraint(equalTo: descriptionLabel.trailingAnchor),
+            passportView.heightAnchor.constraint(equalToConstant: 50),
+            
+            skipLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            skipLabel.leadingAnchor.constraint(equalTo: passportView.leadingAnchor),
+            skipLabel.trailingAnchor.constraint(equalTo: passportView.trailingAnchor),
+            
+            emailLabel.bottomAnchor.constraint(equalTo: skipLabel.topAnchor, constant: -20),
+            emailLabel.leadingAnchor.constraint(equalTo: passportView.leadingAnchor),
+            emailLabel.trailingAnchor.constraint(equalTo: passportView.trailingAnchor),
+            
+            separatorView.bottomAnchor.constraint(equalTo: emailLabel.topAnchor, constant: -20),
+            separatorView.leadingAnchor.constraint(equalTo: passportView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: passportView.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            
+            orLabel.centerXAnchor.constraint(equalTo: separatorView.centerXAnchor),
+            orLabel.centerYAnchor.constraint(equalTo: separatorView.centerYAnchor),
+
         ])
     }
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Contact Support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if MFMailComposeViewController.canSendMail() {
                     let controller = MFMailComposeViewController()
                     controller.setToRecipients(["support@myevidens.com"])
@@ -159,6 +220,31 @@ class VerificationRegistrationViewController: UIViewController {
             })
         ])
         return menuItems
+    }
+    
+    @objc func handleSkip() {
+        guard let uid = user.uid else { return }
+        
+        UserDefaults.standard.set(user.uid, forKey: "uid")
+        UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+        UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+        
+        AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
+            if let error = error {
+                self.progressIndicator.dismiss(animated: true)
+                print(error.localizedDescription)
+                return
+            }
+        
+            DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString)) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    let controller = ContainerViewController()
+                    controller.modalPresentationStyle = .fullScreen
+                    self.present(controller, animated: false)
+                }
+            }
+        }
     }
 }
 

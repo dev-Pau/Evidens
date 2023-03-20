@@ -334,17 +334,22 @@ class IDCardViewController: UIViewController {
             StorageManager.uploadDocumentationImage(images: [frontImage, backImage], type: "id", uid: uid) { uploaded in
                 if uploaded {
                     AuthService.updateUserRegistrationDocumentationDetails(withUid: uid, withMembershipCode: membershipCode) { error in
-                        self.progressIndicator.dismiss(animated: true)
+
                         if let error = error {
+                            self.progressIndicator.dismiss(animated: true)
                             print(error.localizedDescription)
+                            return
                         }
                         
-                        DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString))
-                        
-                        let controller = WaitingVerificationViewController(user: self.user)
-                        let navigationController = UINavigationController(rootViewController: controller)
-                        navigationController.modalPresentationStyle = .fullScreen
-                        self.present(navigationController, animated: true)
+                        DatabaseManager.shared.insertUser(with: ChatUser(firstName: self.user.firstName!, lastName: self.user.lastName!, emailAddress: self.user.email!, uid: self.user.uid!, profilePictureUrl: self.user.profileImageUrl!, profession: self.user.profession!, speciality: self.user.speciality!, category: self.user.category.userCategoryString)) { uploaded in
+                            self.progressIndicator.dismiss(animated: true)
+                            if uploaded {
+                                let controller = WaitingVerificationViewController(user: self.user)
+                                let navigationController = UINavigationController(rootViewController: controller)
+                                navigationController.modalPresentationStyle = .fullScreen
+                                self.present(navigationController, animated: true)
+                            }
+                        }
                     }
                 }
             }

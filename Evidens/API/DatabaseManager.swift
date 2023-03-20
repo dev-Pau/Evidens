@@ -28,12 +28,26 @@ extension DatabaseManager {
     /// Inserts new user to database with a ChatUser struct
     /// Parameters:
     /// - `user`:   Target user to be inserted to database
-    public func insertUser(with user: ChatUser) {
+    public func insertUser(with user: ChatUser, completion: @escaping(Bool) -> Void) {
         //Create user entry based on UID
+        let userData = ["firstName": user.firstName.capitalized,
+                        "lastName": user.lastName.capitalized,
+                        "emailAddress": user.emailAddress,
+                        "helpers": ["home": true]] as [String : Any]
+        /*
         database.child("users").child(user.uid).setValue(["firstName": user.firstName.capitalized,
                                                           "lastName": user.lastName.capitalized,
                                                           "emailAddress": user.emailAddress,
                                                           "helpers": ["home": true]])
+        */
+        database.child("users").child(user.uid).setValue(userData) { error, _ in
+            guard error == nil else {
+                completion(false)
+                return
+            }
+            
+            completion(true)
+        }
     }
     
     public func fetchHomeHelper(completion: @escaping(Bool) -> Void) {

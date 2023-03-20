@@ -20,6 +20,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = ContainerViewController()
         //window?.rootViewController = UINavigationController(rootViewController: WelcomeViewController())
         window?.makeKeyAndVisible()
+        
+        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty {
+            let theme = Appearance.Theme(rawValue: appearance) ?? Appearance.Theme.system
+
+            switch theme {
+            case .dark:
+                window?.overrideUserInterfaceStyle = .dark
+            case .system:
+                window?.overrideUserInterfaceStyle = .unspecified
+            case .light:
+                window?.overrideUserInterfaceStyle = .light
+            }
+        } else {
+            UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
+        }
     }
     
     func updateRootViewController(_ viewController: UIViewController) {

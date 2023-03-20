@@ -26,8 +26,6 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var notificationsLastSnapshot: QueryDocumentSnapshot?
     
-    private lazy var notificationMenu = NotificationMenuLauncher()
-    
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
