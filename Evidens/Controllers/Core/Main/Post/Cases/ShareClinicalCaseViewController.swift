@@ -373,7 +373,7 @@ class ShareClinicalCaseViewController: UIViewController {
     //MARK: - Helpers
     
     func configureNavigationBar() {
-        title = "Share a case"
+        title = "Share Case"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
         navigationItem.leftBarButtonItem?.tintColor = .label

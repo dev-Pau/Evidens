@@ -876,7 +876,11 @@ class UserProfileViewController: UIViewController {
     }
     
     func fetchRelated() {
-        guard let profession = user.profession else { return }
+        guard let profession = user.profession, user.phase == .verified else {
+            self.checkIfAllUserInformationIsFetched()
+            return
+        }
+        
         UserService.fetchRelatedUsers(withProfession: profession) { relatedUsers in
             guard !relatedUsers.isEmpty else {
                 self.checkIfAllUserInformationIsFetched()

@@ -55,7 +55,7 @@ class PostGroupSelectionViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Select a group"
+        title = "Select a Group"
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancelGroupSelection))
         navigationItem.leftBarButtonItem?.tintColor = .label
         

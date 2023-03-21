@@ -63,7 +63,7 @@ class ProfessionRegistrationViewController: UIViewController {
         if user.category == .professional {
             title = "Add Profession"
         } else {
-            title = "Add field of study"
+            title = "Add Field of Study"
         }
 
         navigationItem.hidesSearchBarWhenScrolling = false
@@ -80,7 +80,7 @@ class ProfessionRegistrationViewController: UIViewController {
         if user.category == .professional {
             searchController.searchBar.placeholder = "Profession"
         } else {
-            searchController.searchBar.placeholder = "Field of study"
+            searchController.searchBar.placeholder = "Field of Study"
         }
 
         searchController.obscuresBackgroundDuringPresentation = false

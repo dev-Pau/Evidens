@@ -156,7 +156,7 @@ class GroupMembershipViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Manage membership"
+        title = "Manage Membership"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Admins", style: .done, target: self, action: #selector(handleAdminsTap))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }

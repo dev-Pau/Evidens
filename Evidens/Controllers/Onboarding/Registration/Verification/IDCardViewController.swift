@@ -13,9 +13,7 @@ import JGProgressHUD
 class IDCardViewController: UIViewController {
     
     private var user: User
-    
-    //private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
-   
+
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
     private var backSelected: Bool = false
@@ -53,22 +51,31 @@ class IDCardViewController: UIViewController {
     
     private let idCardVerificationTitle: UILabel = {
         let label = UILabel()
-        label.text = "Upload Identity Document Photo"
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .label
-        label.textAlignment = .left
-        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 30, weight: .heavy)
+        label.textColor = .label
+        label.numberOfLines = 0
+        label.text = "Identity Document Photo"
+        return label
+    }()
+    
+    private let idCardVerificationSubtitle: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.numberOfLines = 0
+        label.text = "Please make sure that the materials you provide are real, clear and correct. If not, the verification will fail and therefore slow down your verification process."
+        label.textColor = .secondaryLabel
         return label
     }()
     
     private lazy var topIdCardButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
+        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
+        //button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
         //button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
     }()
@@ -76,23 +83,12 @@ class IDCardViewController: UIViewController {
     private lazy var bottomIdCardButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-       // button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
+        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
+        //button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
+        //button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
-    }()
-    
-    private let idCardVerificationSubtitle: UILabel = {
-        let label = UILabel()
-        label.text = "Please make sure that the materials you provide are real, clear and correct. If not, the verification will fail and therefore slow down your verification process."
-        label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .label
-        label.textAlignment = .left
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
     }()
     
     private lazy var frontImageBackgroundView: UIImageView = {
@@ -108,9 +104,9 @@ class IDCardViewController: UIViewController {
     
     private let frontIDLabel: UILabel = {
         let label = UILabel()
-        label.text = "Identity Document (Front)"
+        label.text = "Identity Document. Front."
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .label
+        label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -119,9 +115,9 @@ class IDCardViewController: UIViewController {
     
     private let backIDLabel: UILabel = {
         let label = UILabel()
-        label.text = "Identity Document (Back)"
+        label.text = "Identity Document. Back."
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .label
+        label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -228,7 +224,7 @@ class IDCardViewController: UIViewController {
             idCardVerificationTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             idCardVerificationTitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            idCardVerificationSubtitle.topAnchor.constraint(equalTo: idCardVerificationTitle.bottomAnchor, constant: 10),
+            idCardVerificationSubtitle.topAnchor.constraint(equalTo: idCardVerificationTitle.bottomAnchor, constant: 5),
             idCardVerificationSubtitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             idCardVerificationSubtitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
@@ -242,7 +238,7 @@ class IDCardViewController: UIViewController {
             topIdCardButton.heightAnchor.constraint(equalToConstant: 35),
             topIdCardButton.widthAnchor.constraint(equalToConstant: 35),
             
-            frontIDLabel.topAnchor.constraint(equalTo: topIdCardButton.bottomAnchor, constant: 5),
+            frontIDLabel.topAnchor.constraint(equalTo: frontImageBackgroundView.bottomAnchor, constant: 5),
             frontIDLabel.centerXAnchor.constraint(equalTo: frontImageBackgroundView.centerXAnchor),
             frontIDLabel.leadingAnchor.constraint(equalTo: frontImageBackgroundView.leadingAnchor),
             frontIDLabel.trailingAnchor.constraint(equalTo: frontImageBackgroundView.trailingAnchor),
@@ -257,12 +253,12 @@ class IDCardViewController: UIViewController {
             bottomIdCardButton.heightAnchor.constraint(equalToConstant: 35),
             bottomIdCardButton.widthAnchor.constraint(equalToConstant: 35),
             
-            backIDLabel.topAnchor.constraint(equalTo: bottomIdCardButton.bottomAnchor, constant: 5),
+            backIDLabel.topAnchor.constraint(equalTo: backImageBackgroundView.bottomAnchor, constant: 5),
             backIDLabel.centerXAnchor.constraint(equalTo: backImageBackgroundView.centerXAnchor),
             backIDLabel.leadingAnchor.constraint(equalTo: backImageBackgroundView.leadingAnchor),
             backIDLabel.trailingAnchor.constraint(equalTo: backImageBackgroundView.trailingAnchor),
             
-            squareButton.topAnchor.constraint(equalTo: frontImageBackgroundView.bottomAnchor, constant: 20),
+            squareButton.topAnchor.constraint(equalTo: frontIDLabel.bottomAnchor, constant: 20),
             squareButton.leadingAnchor.constraint(equalTo: frontImageBackgroundView.leadingAnchor),
             squareButton.heightAnchor.constraint(equalToConstant: 24),
             squareButton.widthAnchor.constraint(equalToConstant: 24),
@@ -367,7 +363,7 @@ class IDCardViewController: UIViewController {
     
     private func addImageButtonItems(_ sender: UIButton) -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Import from camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Import from Camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if sender == self.topIdCardButton {
                     self.selectedIdentityDocument = 0
                 } else {
@@ -376,7 +372,7 @@ class IDCardViewController: UIViewController {
                 self.didTapImportFromCamera()
             }),
             
-            UIAction(title: "Choose from gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Choose from Gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if sender == self.topIdCardButton {
                     self.selectedIdentityDocument = 0
                 } else {
@@ -390,7 +386,7 @@ class IDCardViewController: UIViewController {
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Contact Support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if MFMailComposeViewController.canSendMail() {
                     let controller = MFMailComposeViewController()
                     controller.setToRecipients(["support@myevidens.com"])
@@ -401,7 +397,7 @@ class IDCardViewController: UIViewController {
                 }
             }),
             
-            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Log Out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 AuthService.logout()
                 AuthService.googleLogout()
                 let controller = WelcomeViewController()
@@ -470,25 +466,23 @@ extension IDCardViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         if results.count == 0 { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async {
-                    self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     if self.selectedIdentityDocument == 0 {
                         self.frontImageBackgroundView.image = image
                         self.frontIDLabel.isHidden = true
                         self.frontSelected = true
                         self.uploadSubmitButtonState()
-                        
                     } else {
                         self.backImageBackgroundView.image = image
                         self.backIDLabel.isHidden = true
                         self.backSelected = true
                         self.uploadSubmitButtonState()
                     }
-                    
                 }
             }
         }

@@ -35,16 +35,17 @@ class HealthDocumentationViewController: UIViewController {
     
     private lazy var helpButton: UIButton = {
         let button = UIButton()
-        button.configuration = .gray()
-
+        button.configuration = .filled()
+        
         button.configuration?.baseBackgroundColor = .tertiarySystemGroupedBackground
         button.configuration?.baseForegroundColor = .label
-
+        
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
-
+        button.configuration?.attributedTitle = AttributedString("Help", attributes: container)
+        
         button.isUserInteractionEnabled = true
         button.showsMenuAsPrimaryAction = true
         return button
@@ -52,15 +53,15 @@ class HealthDocumentationViewController: UIViewController {
     
     private let verificationTitle: UILabel = {
         let label = UILabel()
-        label.text = "Upload one of the following"
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .black
-        label.textAlignment = .left
-        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 30, weight: .heavy)
+        label.textColor = .label
+        label.numberOfLines = 0
+        label.text = "Custom documentation"
         return label
     }()
     
+    /*
     private let verificationString: NSMutableAttributedString = {
         let aString = NSMutableAttributedString(string: "To complete your profile and verify your eligibility, upload one of the following documents: Diploma mentioning speciality, Medical certificate or Employment contract.")
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 13, weight: .regular), range: (aString.string as NSString).range(of: "To complete your profile and verify your eligibility, upload one of the following documents: Diploma mentioning speciality, Medical certificate or Employment contract."))
@@ -74,10 +75,12 @@ class HealthDocumentationViewController: UIViewController {
         aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: "Employment contract"))
         return aString
     }()
-    
+    */
     lazy var verificationTextView: UITextView = {
         let tv = UITextView()
-        tv.attributedText = verificationString
+        tv.text = "To complete your profile and verify your eligibility, upload one of the following documents: Diploma mentioning speciality, Medical certificate or Employment contract."
+        tv.font = .systemFont(ofSize: 14, weight: .regular)
+        tv.textColor = .secondaryLabel
         //tv.delegate = self
         tv.isSelectable = false
         tv.isEditable = false
@@ -98,7 +101,9 @@ class HealthDocumentationViewController: UIViewController {
     
     lazy var tuitionTextView: UITextView = {
         let tv = UITextView()
-        tv.attributedText = tuitionString
+        tv.text = "If you are a student, upload your current college tuition."
+        tv.font = .systemFont(ofSize: 14, weight: .regular)
+        tv.textColor = .secondaryLabel
         //tv.delegate = self
         tv.isSelectable = false
         tv.isEditable = false
@@ -113,7 +118,7 @@ class HealthDocumentationViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         iv.layer.cornerRadius = 10
         return iv
     }()
@@ -205,7 +210,7 @@ class HealthDocumentationViewController: UIViewController {
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Contact Support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if MFMailComposeViewController.canSendMail() {
                     let controller = MFMailComposeViewController()
                     controller.setToRecipients(["support@myevidens.com"])
@@ -216,7 +221,7 @@ class HealthDocumentationViewController: UIViewController {
                 }
             }),
             
-            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Log Out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 AuthService.logout()
                 AuthService.googleLogout()
                 let controller = WelcomeViewController()

@@ -125,7 +125,7 @@ class WaitingVerificationViewController: UIViewController {
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Contact Support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if MFMailComposeViewController.canSendMail() {
                     let controller = MFMailComposeViewController()
                     controller.setToRecipients(["support@myevidens.com"])
@@ -136,7 +136,7 @@ class WaitingVerificationViewController: UIViewController {
                 }
             }),
             
-            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Log Out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 AuthService.logout()
                 AuthService.googleLogout()
                 let controller = WelcomeViewController()

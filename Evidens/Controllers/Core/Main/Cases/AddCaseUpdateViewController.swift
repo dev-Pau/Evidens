@@ -69,7 +69,7 @@ class AddCaseUpdateViewController: UIViewController {
         configureUI()
     }
      private func configureNavigationBar() {
-        title = "Add update"
+        title = "Add Update"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label

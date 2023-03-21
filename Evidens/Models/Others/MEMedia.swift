@@ -10,8 +10,8 @@ import UIKit
 struct MEMedia {
 
     enum MediaOptions: String, CaseIterable {
-        case camera = "Import from camera"
-        case gallery = "Choose from gallery"
+        case camera = "Import from Camera"
+        case gallery = "Choose from Gallery"
         
         var mediaOptionsImage: UIImage {
             switch self {

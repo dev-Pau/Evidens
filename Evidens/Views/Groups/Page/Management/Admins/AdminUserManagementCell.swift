@@ -137,7 +137,7 @@ class AdminUserManagementCell: UICollectionViewCell {
             switch memberType {
             case .owner:
                 let menuItems = UIMenu(options: .displayInline, children: [
-                    UIAction(title: "Remove admin permissions", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Remove Admin Permissions", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                             self.delegate?.handleRemoveAdminPermissions(self, user: user)
                         
                     })
@@ -145,13 +145,13 @@ class AdminUserManagementCell: UICollectionViewCell {
                 return menuItems
             case .admin:
                 let menuItems = UIMenu(options: .displayInline, children: [
-                    UIAction(title: "Promote \(user.firstName!) to owner", image: UIImage(systemName: "person.wave.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Promote \(user.firstName!) to Owner", image: UIImage(systemName: "person.wave.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         if let user = self.user {
                             self.delegate?.handlePromoteToOwner(user: user)
                         }
                     }),
                     
-                    UIAction(title: "Remove admin permissions", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Remove Admin Permissions", image: UIImage(systemName: "person.fill.xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         if let user = self.user {
                             self.delegate?.handleDowngradeAdminToMember(self, user: user)
                         }

@@ -162,8 +162,14 @@ struct CaseService {
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: profession).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
                 completion(snapshot)
             }
         } else {

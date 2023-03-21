@@ -52,7 +52,7 @@ class SpecialitiesListViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Add specialities"
+        title = "Add Specialities"
         navigationItem.hidesSearchBarWhenScrolling = false
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add \(specialitiesSelected.count)/5", style: .done, target: self, action: #selector(handleAddSpecialities))

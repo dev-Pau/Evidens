@@ -137,10 +137,10 @@ class GroupMemberUserCell: UICollectionViewCell {
                 return nil
             case .member:
                 let menuItems = UIMenu(options: .displayInline, children: [
-                    UIAction(title: "Promote \(name) to manager", image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Promote \(name) to Manager", image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         self.delegate?.promoteToManager(self, user: user)
                     }),
-                    UIAction(title: "Promote \(name) to owner", image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Promote \(name) to Owner", image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         self.delegate?.promoteToOwner(self, user: user)
                     }),
                     UIAction(title: "Remove \(name)", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
@@ -159,7 +159,7 @@ class GroupMemberUserCell: UICollectionViewCell {
                 return nil
             case .invited:
                 let menuItems = UIMenu(options: .displayInline, children: [
-                    UIAction(title: "Remove \(name)'s invitation", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Remove \(name)'s Invitation", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         self.invitedDelegate?.didUnsendInvitation(self, user: user)
                     })
                 ])
@@ -197,7 +197,7 @@ class GroupMemberUserCell: UICollectionViewCell {
                 return nil
             case .invited:
                 let menuItems = UIMenu(options: .displayInline, children: [
-                    UIAction(title: "Remove \(name)'s invitation", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
+                    UIAction(title: "Remove \(name)'s Invitation", image: UIImage(systemName: "minus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
                         self.invitedDelegate?.didUnsendInvitation(self, user: user)
                     })
                 ])

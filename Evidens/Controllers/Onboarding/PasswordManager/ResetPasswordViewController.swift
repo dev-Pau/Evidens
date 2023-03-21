@@ -92,7 +92,7 @@ class ResetPasswordViewController: UIViewController {
     
     func configureUI() {
         view.backgroundColor = .systemBackground
-        navigationItem.title = "Forgot password"
+        navigationItem.title = "Forgot Password"
         
         scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
         view.addSubview(scrollView)

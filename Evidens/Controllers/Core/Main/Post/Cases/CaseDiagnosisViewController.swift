@@ -86,7 +86,7 @@ class CaseDiagnosisViewController: UIViewController {
     
 
     private func configureNavigationBar() {
-        title = "Diagnosis details"
+        title = "Diagnosis Details"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label

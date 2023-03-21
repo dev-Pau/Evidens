@@ -129,7 +129,7 @@ class GroupContentManagementViewController: UIViewController, UINavigationContro
     }
     
     private func configureNavigationBar() {
-        title = "Pending content"
+        title = "Pending Content"
     }
     
     private func configureCollectionView() {

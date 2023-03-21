@@ -62,7 +62,7 @@ class PollConfigurationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Create a poll"
+        title = "Create Poll"
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .black
         

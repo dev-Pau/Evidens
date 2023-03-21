@@ -43,8 +43,6 @@ class FilterCasesCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 15
-        //layer.borderWidth = 1
-        //layer.borderColor = UIColor.quaternarySystemFill.cgColor
         backgroundColor = .clear
         
         addSubviews(tagsLabel)
@@ -56,18 +54,7 @@ class FilterCasesCell: UICollectionViewCell {
             tagsLabel.topAnchor.constraint(equalTo: topAnchor)
         ])
     }
-    
-    /*
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 13.0, *) {
-             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
-                 layer.borderColor = UIColor.quaternarySystemFill.cgColor
-             }
-         }
-    }
-     */
-    
+
     func setText(text: String) {
         tagsLabel.text = "  \(text)  "
     }

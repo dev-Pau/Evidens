@@ -227,7 +227,7 @@ class UploadPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Upload a post"
+        title = "Upload Post"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)

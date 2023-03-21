@@ -61,7 +61,7 @@ class CaseUpdatesViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Case updates"
+        title = "Case Updates"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(handleAddUpdate))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
     }

@@ -145,14 +145,14 @@ struct Group {
     }
     
     enum GroupManagement: String, CaseIterable {
-        case posts = "Pending content"
-        case membership = "Manage membership"
-        case edit = "Edit group"
-        case leave = "Leave this group"
-        case report = "Report this group"
-        case withdraw = "Withdraw request"
-        case accept = "Accept invitation"
-        case ignore = "Ignore invitation"
+        case posts = "Pending Content"
+        case membership = "Manage Membership"
+        case edit = "Edit Group"
+        case leave = "Leave Group"
+        case report = "Report Group"
+        case withdraw = "Withdraw Request"
+        case accept = "Accept Invitation"
+        case ignore = "Ignore Invitation"
         
         var groupManagementImage: UIImage {
             switch self {

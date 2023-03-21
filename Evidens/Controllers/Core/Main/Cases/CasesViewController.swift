@@ -9,7 +9,6 @@ import UIKit
 import Firebase
 import MessageUI
 
-private let exploreHeaderCellReuseIdentifier = "ExploreHeaderCellReuseIdentifier"
 private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
@@ -74,6 +73,14 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         
         if displaysFilteredWindow {
             CaseService.fetchCasesWithProfession(lastSnapshot: nil, profession: navigationItem.title!) { snapshot in
+                guard !snapshot.isEmpty else {
+                    self.casesLoaded = true
+                    self.activityIndicator.stop()
+                    self.casesCollectionView.refreshControl?.endRefreshing()
+                    self.casesCollectionView.isHidden = false
+                    self.casesCollectionView.reloadData()
+                    return
+                }
                 
                 self.casesLastSnapshot = snapshot.documents.last
                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
@@ -91,8 +98,16 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 }
             }
         } else if displaysExploringWindow {
-            #warning("Need to find a way to get the trending")
+            #warning("Need to find a way to get the trending, etc")
             CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
+                if snapshot.isEmpty {
+                    self.casesLoaded = true
+                    self.casesCollectionView.refreshControl?.endRefreshing()
+                    self.activityIndicator.stop()
+                    self.casesCollectionView.isHidden = false
+                    self.casesCollectionView.reloadData()
+                }
+                
                 self.casesLastSnapshot = snapshot.documents.last
                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
                 self.checkIfUserLikedCase()
@@ -114,7 +129,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 if snapshot.isEmpty {
                     self.casesLoaded = true
                     self.activityIndicator.stop()
-                    
+                    self.casesCollectionView.refreshControl?.endRefreshing()
                     if user.phase != .verified {
                         self.view.addSubview(self.lockView)
                     }
@@ -202,17 +217,80 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         //}
     }
     
-    private func createEmptyLayout() -> UICollectionViewFlowLayout {
+    private func createTwoColumnFlowCompositionalLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
 
-            let flowLayout = UICollectionViewFlowLayout()
-            //flowLayout.sectionInset = UIEdgeInsets(top: 10, left: padding, bottom: padding, right: padding)
-            flowLayout.itemSize = CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.6)
-            
-            return flowLayout
+            if self.displaysFilteredWindow {
+                
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                return section
+                
+            } else if self.displaysExploringWindow {
+                // Explore Clincal Cases view
+                if sectionNumber == 0 {
+                    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
+                    let tripleVerticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.35),
+                                                                       heightDimension: .absolute(280)), subitem: item, count: 3)
+                    
+                    tripleVerticalGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
+                    
+                    let section = NSCollectionLayoutSection(group: tripleVerticalGroup)
+                    section.interGroupSpacing = 10
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                    section.orthogonalScrollingBehavior = .continuous
+                    return section
+                } else {
+                    if self.cases.isEmpty {
+                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                        let section = NSCollectionLayoutSection(group: group)
+                        return section
+                    } else {
+#warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
+print("cases is not empty")
+let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                          heightDimension: .fractionalHeight(1.0))
+let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                           heightDimension: .fractionalWidth(1/3))
+let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 3)
+let section = NSCollectionLayoutSection(group: group)
+return section
+                    }
+                }
+                
+            } else {
+                if self.cases.isEmpty {
+                    // Main cases view
+                    print("cases is empty")
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    return section
+                } else {
+                    #warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
+                    print("cases is not empty")
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                              heightDimension: .fractionalHeight(1.0))
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    
+                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                               heightDimension: .fractionalWidth(1/3))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 3)
+                    let section = NSCollectionLayoutSection(group: group)
+                    return section
+                }
+                
+            }
+        }
+        return layout
     }
     
     private func configureCollectionView() {
-        casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowLayout())
+        casesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowCompositionalLayout())
         casesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         casesCollectionView.isHidden = true
         
@@ -252,10 +330,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
         }
         
-        //casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderCellReuseIdentifier)
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(ExploreHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier)
         casesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
+        casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
 
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
@@ -269,28 +346,54 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
 }
 
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return displaysExploringWindow ? 2 : 1
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
-    }
-    
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: exploreHeaderCellReuseIdentifier, for: indexPath) as! ExploreHeaderCell
-        header.delegate = self
-        return header
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if casesLoaded {
-            return displaysExploringWindow ? CGSize(width: view.frame.width, height: 350) : CGSize.zero
+        if displaysExploringWindow {
+            if section == 0 {
+                return Profession.Professions.allCases.count
+            } else {
+                return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+            }
         } else {
-            return CGSize.zero
+            return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if displaysExploringWindow {
+            if indexPath.section == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCellReuseIdentifier, for: indexPath) as! CategoriesExploreCasesCell
+                cell.set(category: Profession.Professions.allCases[indexPath.row].rawValue)
+                return cell
+            } else {
+                if cases.isEmpty {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                    cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Nothing to see here —— yet.", withDescription: "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.", withButtonText: "    Share a case    ")
+                    cell.delegate = self
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
+                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    let userIndex = users.firstIndex { user in
+                        if user.uid == cases[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: users[userIndex])
+                    }
+                    
+                    cell.delegate = self
+                    return cell
+                }
+            }
+        }
+        
         if cases.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
             cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Nothing to see here —— yet.", withDescription: "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.", withButtonText: "    Share a case    ")
@@ -313,7 +416,25 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             cell.delegate = self
             return cell
         }
-        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if displaysExploringWindow && indexPath.section == 0 {
+            let profession = Profession.Professions.allCases[indexPath.row].rawValue
+            
+            self.navigationController?.delegate = self
+            let controller = CasesViewController()
+            controller.controllerIsBeeingPushed = true
+            controller.displaysFilteredWindow = true
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            controller.title = profession
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -457,7 +578,6 @@ extension CasesViewController: CaseCellDelegate {
             break
         }
     }
-    
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         
@@ -658,24 +778,6 @@ extension CasesViewController {
         }
     }
         
-}
-
-extension CasesViewController: ExploreHeaderCellDelegate {
-    func didTapExploreCell(forProfession profession: String) {
-        self.navigationController?.delegate = self
-        let controller = CasesViewController()
-        controller.controllerIsBeeingPushed = true
-        controller.displaysFilteredWindow = true
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        controller.title = profession
-        //backItem.setTitleTextAttributes([.font: UIFont.boldSystemFont(ofSize: 18)], for: .normal)
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
 }
 
 extension CasesViewController: DetailsCaseViewControllerDelegate {

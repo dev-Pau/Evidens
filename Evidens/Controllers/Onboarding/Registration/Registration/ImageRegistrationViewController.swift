@@ -210,11 +210,11 @@ class ImageRegistrationViewController: UIViewController {
     
     private func addImageButtonItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Import from camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Import from Camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 self.didTapImportFromCamera()
             }),
             
-            UIAction(title: "Choose from gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Choose from Gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 self.didTapImportFromGallery()
             })
         ])
@@ -223,7 +223,7 @@ class ImageRegistrationViewController: UIViewController {
     
     private func addMenuItems() -> UIMenu {
         let menuItems = UIMenu(options: .displayInline, children: [
-            UIAction(title: "Contact support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Contact Support", image: UIImage(systemName: "tray.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 if MFMailComposeViewController.canSendMail() {
                     let controller = MFMailComposeViewController()
                     controller.setToRecipients(["support@myevidens.com"])
@@ -234,7 +234,7 @@ class ImageRegistrationViewController: UIViewController {
                 }
             }),
             
-            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Log Out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 AuthService.logout()
                 AuthService.googleLogout()
                 let controller = WelcomeViewController()

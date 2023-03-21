@@ -47,7 +47,7 @@ class VerificationRegistrationViewController: UIViewController {
         label.font = .systemFont(ofSize: 35, weight: .heavy)
         label.textColor = .label
         label.numberOfLines = 0
-        label.text = "We verify your identity."
+        label.text = "We need to verify your identity."
         return label
     }()
     
@@ -210,7 +210,7 @@ class VerificationRegistrationViewController: UIViewController {
                 }
             }),
             
-            UIAction(title: "Log out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+            UIAction(title: "Log Out", image: UIImage(systemName: "arrow.right.to.line", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
                 AuthService.logout()
                 AuthService.googleLogout()
                 let controller = WelcomeViewController()

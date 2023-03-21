@@ -43,8 +43,8 @@ class SettingsOptionCell: UITableViewCell {
         NSLayoutConstraint.activate([
             settingsImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             settingsImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            //settingsImageView.heightAnchor.constraint(equalToConstant: 25),
-            //settingsImageView.widthAnchor.constraint(equalToConstant: 25),
+            settingsImageView.heightAnchor.constraint(equalToConstant: 25),
+            settingsImageView.widthAnchor.constraint(equalToConstant: 25),
             
             chevronImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             chevronImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
@@ -62,6 +62,6 @@ class SettingsOptionCell: UITableViewCell {
     
     func set(settingsTitle: String, settingsImage: String) {
         settingsLabel.text = settingsTitle
-        settingsImageView.image = UIImage(systemName: settingsImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        settingsImageView.image = UIImage(systemName: settingsImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
     }
 }

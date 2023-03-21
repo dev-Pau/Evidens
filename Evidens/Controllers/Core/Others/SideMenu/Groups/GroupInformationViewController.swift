@@ -53,7 +53,7 @@ class GroupInformationViewController: UIViewController {
             navigationItem.rightBarButtonItem?.tintColor = primaryColor
         }
         
-        title = "Group details"
+        title = "Group Details"
     }
     
     private func configureUI() {

@@ -172,7 +172,7 @@ class NotificationFollowCell: UICollectionViewCell {
     func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
         let menuItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
-            UIAction(title: "Delete notification", image: UIImage(systemName: "trash"), handler: { (_) in
+            UIAction(title: "Delete Notification", image: UIImage(systemName: "trash"), handler: { (_) in
                 self.delegate?.cell(self, didPressThreeDotsFor: viewModel.notification, option: .delete)
             })
         ])

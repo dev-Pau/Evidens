@@ -49,7 +49,7 @@ class JobManagerViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Manage job"
+        title = "Manage Job"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleEditJob))
     }
     

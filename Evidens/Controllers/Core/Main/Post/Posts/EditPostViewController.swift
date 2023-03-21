@@ -142,7 +142,7 @@ class EditPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Edit post"
+        title = "Edit Post"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)

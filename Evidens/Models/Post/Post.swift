@@ -109,9 +109,9 @@ struct Post {
     }
     
     enum PostMenuOptions: String, CaseIterable {
-        case delete = "Delete post"
-        case edit = "Edit post"
-        case report = "Report post"
+        case delete = "Delete Post"
+        case edit = "Edit Post"
+        case report = "Report Post"
         
         var menuOptionsImage: UIImage {
             switch self {

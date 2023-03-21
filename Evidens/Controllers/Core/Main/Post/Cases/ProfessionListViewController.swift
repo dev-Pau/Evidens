@@ -49,7 +49,7 @@ class ProfessionListViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Add professions"
+        title = "Add Professions"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(handleAddProfessions))
         navigationItem.rightBarButtonItem?.isEnabled = false
     }

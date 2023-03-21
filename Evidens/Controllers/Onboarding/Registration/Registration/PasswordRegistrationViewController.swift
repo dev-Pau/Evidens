@@ -206,7 +206,7 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Create account"
+        title = "Create Account"
     }
     
     private func setUpDelegates() {

@@ -11,7 +11,7 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     
     private let categoryLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.numberOfLines = 0
@@ -29,7 +29,7 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .quaternarySystemFill
-        layer.cornerRadius = 3
+        layer.cornerRadius = 7
         
         addSubviews(categoryLabel)
         NSLayoutConstraint.activate([

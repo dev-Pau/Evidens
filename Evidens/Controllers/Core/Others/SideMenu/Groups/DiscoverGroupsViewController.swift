@@ -38,7 +38,7 @@ class DiscoverGroupsViewController: UIViewController {
 
     private func configureNavigationBar() {
         view.backgroundColor = .systemBackground
-        title = "Discover groups"
+        title = "Discover Groups"
     }
     
     private func configureCollectionView() {

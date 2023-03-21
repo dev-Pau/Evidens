@@ -26,7 +26,7 @@ class AboutSettingsViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Account"
+        title = "About"
     }
     
     private func configureTableView() {

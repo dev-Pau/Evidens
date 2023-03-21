@@ -42,7 +42,7 @@ class GroupInviteViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Invite network"
+        title = "Invite Network"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Send", style: .done, target: self, action: #selector(handleInviteMembers))
         navigationItem.rightBarButtonItem?.isEnabled = false
     }

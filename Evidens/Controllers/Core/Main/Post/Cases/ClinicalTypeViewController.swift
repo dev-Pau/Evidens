@@ -54,7 +54,7 @@ class ClinicalTypeViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Type details"
+        title = "Type Details"
         
         if controllerIsPresented {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark")?.withConfiguration(UIImage.SymbolConfiguration(weight: .medium)).withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(handleDismiss))
