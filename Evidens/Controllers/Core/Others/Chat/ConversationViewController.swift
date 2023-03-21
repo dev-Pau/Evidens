@@ -145,8 +145,7 @@ class ConversationViewController: UIViewController {
     
     //Creates a new conversation
     @objc private func didTapComposeButton() {
-        guard let tab = tabBarController as? MainTabController else { return }
-        guard let user = tab.user else { return }
+        guard let user = user else { return }
         
         if user.phase != .verified {
             let reportPopup = METopPopupView(title: "Only verified users can post content. Check back later to verify your status.", image: "xmark.circle.fill", popUpType: .regular)
@@ -205,7 +204,6 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
             if let userIndex = userIndex {
                 cell.set(user: users[userIndex])
             }
-            
             return cell
         }
     }

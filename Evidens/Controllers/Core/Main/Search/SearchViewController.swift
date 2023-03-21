@@ -428,12 +428,12 @@ extension SearchViewController: MainSearchHeaderDelegate {
         navigationItem.backBarButtonItem = backItem
         
         if tag == 0 {
-            text = "News for you"
+            text = "News for You"
             let controller = NewsListViewController()
             controller.title = text
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 1 {
-            text = "Latest news"
+            text = "Latest News"
             let controller = NewsListViewController()
             controller.title = text
             navigationController?.pushViewController(controller, animated: true)

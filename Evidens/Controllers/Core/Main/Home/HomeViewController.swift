@@ -196,6 +196,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 if snapshot.isEmpty {
                     self.loaded = true
                     self.activityIndicator.stop()
+                    self.collectionView.refreshControl?.endRefreshing()
                     self.collectionView.reloadData()
                     self.collectionView.isHidden = false
                 }

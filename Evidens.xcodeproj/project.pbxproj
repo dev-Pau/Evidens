@@ -279,6 +279,7 @@
 		5F9E42962880583D00C2153B /* ProfessionRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E42952880583C00C2153B /* ProfessionRegistrationViewController.swift */; };
 		5F9E4299288058A800C2153B /* Profession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4298288058A800C2153B /* Profession.swift */; };
 		5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E429A28812F6C00C2153B /* RegisterCell.swift */; };
+		5F9E876229CA00CE00BEA131 /* ExploreCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E876129CA00CE00BEA131 /* ExploreCaseCell.swift */; };
 		5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */; };
 		5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0896285F83780069FD2C /* HomeLikesCell.swift */; };
 		5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */; };
@@ -696,6 +697,7 @@
 		5F9E42952880583C00C2153B /* ProfessionRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionRegistrationViewController.swift; sourceTree = "<group>"; };
 		5F9E4298288058A800C2153B /* Profession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profession.swift; sourceTree = "<group>"; };
 		5F9E429A28812F6C00C2153B /* RegisterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterCell.swift; sourceTree = "<group>"; };
+		5F9E876129CA00CE00BEA131 /* ExploreCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreCaseCell.swift; sourceTree = "<group>"; };
 		5F9F0893285F7A950069FD2C /* PostLikesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLikesViewController.swift; sourceTree = "<group>"; };
 		5F9F0896285F83780069FD2C /* HomeLikesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLikesCell.swift; sourceTree = "<group>"; };
 		5F9F0899286082440069FD2C /* HomeHeartAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeartAnimation.swift; sourceTree = "<group>"; };
@@ -1595,6 +1597,7 @@
 				5F9E4284287BE5C700C2153B /* DiagnosisResolvedView.swift */,
 				5F527D9A288567C4009D5027 /* DiagnosisUnresolvedView.swift */,
 				5F527D9C28859D3A009D5027 /* DiagnosisGenericView.swift */,
+				5F9E876129CA00CE00BEA131 /* ExploreCaseCell.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -3026,6 +3029,7 @@
 				5F8AF97A292BD4D3005C6778 /* Group.swift in Sources */,
 				5F6607F82854F34400FCF895 /* PostMenuHeader.swift in Sources */,
 				5F992AFC28ACC7CD0030F7F1 /* TopPostTextCell.swift in Sources */,
+				5F9E876229CA00CE00BEA131 /* ExploreCaseCell.swift in Sources */,
 				5FA9D19029A796EA004EF26A /* JobParticipantsViewController.swift in Sources */,
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5FA0875028BFC64600D44829 /* Sections.swift in Sources */,

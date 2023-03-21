@@ -56,7 +56,7 @@ class NewsListViewController: UIViewController {
     }
     
     private func fetchNews() {
-        if title == "Latest news" {
+        if title == "Latest News" {
             NewService.fetchNewsForYou(lastSnapshot: nil) { snapshot in
                 self.lastNewSnapshot = snapshot.documents.last
                 self.news = snapshot.documents.map({ New(dictionary: $0.data()) })

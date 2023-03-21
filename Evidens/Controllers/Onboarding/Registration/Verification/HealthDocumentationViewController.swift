@@ -16,8 +16,6 @@ class HealthDocumentationViewController: UIViewController {
     private let image: [UIImage]
     private let type: String
     
-    private let registerBottomMenuLauncher = RegisterBottomMenuLauncher()
-  
     private var selectedIdentityDocument: Int = 0
     private var frontSelected: Bool = false
     
@@ -126,11 +124,11 @@ class HealthDocumentationViewController: UIViewController {
     private lazy var topIdCardButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
+        button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
-        button.addTarget(self, action: #selector(handlePhotoAction), for: .touchUpInside)
+        button.configuration?.image = UIImage(systemName: "camera.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 30, height: 30)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
+        //button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.2)
+        //button.addTarget(self, action: #selector(handlePhotoAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -173,7 +171,6 @@ class HealthDocumentationViewController: UIViewController {
     }
     
     private func configureUI() {
-        registerBottomMenuLauncher.delegate = self
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: view.frame.height)
         view.addSubview(scrollView)
         
@@ -206,6 +203,8 @@ class HealthDocumentationViewController: UIViewController {
             submitButton.leadingAnchor.constraint(equalTo: verificationTitle.leadingAnchor),
             submitButton.trailingAnchor.constraint(equalTo: verificationTitle.trailingAnchor)
         ])
+        topIdCardButton.menu = addImageButtonItems()
+        topIdCardButton.showsMenuAsPrimaryAction = true
     }
     
     private func addMenuItems() -> UIMenu {
@@ -233,6 +232,21 @@ class HealthDocumentationViewController: UIViewController {
         return menuItems
     }
     
+    private func addImageButtonItems() -> UIMenu {
+        let menuItems = UIMenu(options: .displayInline, children: [
+            UIAction(title: "Import from Camera", image: UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                
+                self.didTapImportFromCamera()
+            }),
+            
+            UIAction(title: "Choose from Gallery", image: UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, handler: { _ in
+                
+                self.didTapImportFromGallery()
+            })
+        ])
+        return menuItems
+    }
+    
     private func uploadSubmitButtonState() {
         if frontSelected {
             submitButton.isUserInteractionEnabled = true
@@ -242,11 +256,6 @@ class HealthDocumentationViewController: UIViewController {
             submitButton.isUserInteractionEnabled = false
             submitButton.backgroundColor = primaryColor.withAlphaComponent(0.5)
         }
-    }
-    
-    
-    @objc func handlePhotoAction() {
-        registerBottomMenuLauncher.showImageSettings(in: view)
     }
     
     @objc func handleSubmit() {
@@ -331,12 +340,12 @@ extension HealthDocumentationViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         if results.count == 0 { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
                 guard let image = reading as? UIImage, error == nil else { return }
                 DispatchQueue.main.async {
-                    self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     self.frontImageBackgroundView.image = image
                     self.frontSelected = true
                     self.uploadSubmitButtonState()

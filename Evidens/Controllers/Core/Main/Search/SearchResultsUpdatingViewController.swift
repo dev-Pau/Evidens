@@ -128,7 +128,10 @@ class SearchResultsUpdatingViewController: UIViewController {
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.categorySearched == .people ? .fractionalHeight(1) : .estimated(65)))
+                //let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.categorySearched == .people ? .fractionalHeight(1) : .estimated(65)))
+                
+                #warning("previous it was with the instructoin above but only worked for empty people")
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.resultItemsCount == 0 ? .fractionalHeight(1) : .estimated(65)))
                 
                 item.contentInsets.leading = 10
                 item.contentInsets.trailing = 10
@@ -300,6 +303,7 @@ class SearchResultsUpdatingViewController: UIViewController {
     }
     
     func fetchContentFor(topic: String, category: Search.Topics) {
+        //resultItemsCount = 0
         SearchService.fetchContentWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
             switch category {
             case .people:
@@ -496,7 +500,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             return resultItemsCount == 0 ? 1 : resultItemsCount
         } else if isInSearchTopicMode {
             // User press a topic on the main toolbar
-            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty { return 1 }
+            if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty && topJobs.isEmpty { return 1 }
             
             if section == 0 {
                 return topUsers.isEmpty ? 0 : topUsers.count

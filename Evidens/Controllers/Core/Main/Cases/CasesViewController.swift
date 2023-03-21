@@ -9,12 +9,11 @@ import UIKit
 import Firebase
 import MessageUI
 
-private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
+private let exploreHeaderReuseIdentifier = "ExploreHeaderReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
-private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
-private let caseSkeletonCellReuseIdentifier = "CaseSkeletonCellReuseIdentifier"
 private let primaryEmtpyCellReuseIdentifier = "PrimaryEmptyCellReuseIdentifier"
+private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     var users = [User]()
@@ -219,7 +218,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private func createTwoColumnFlowCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-
+            
             if self.displaysFilteredWindow {
                 
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
@@ -232,13 +231,13 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 if sectionNumber == 0 {
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
                     let tripleVerticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.35),
-                                                                       heightDimension: .absolute(280)), subitem: item, count: 3)
+                                                                                                                  heightDimension: .absolute(280)), subitem: item, count: 3)
                     
                     tripleVerticalGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
                     
                     let section = NSCollectionLayoutSection(group: tripleVerticalGroup)
                     section.interGroupSpacing = 10
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
                     section.orthogonalScrollingBehavior = .continuous
                     return section
                 } else {
@@ -249,16 +248,33 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         return section
                     } else {
 #warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
-print("cases is not empty")
-let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                          heightDimension: .fractionalHeight(1.0))
-let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                        print("cases is not empty")
+                        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                        
+                        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                              heightDimension: .fractionalHeight(1.0))
+                        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                        
+                        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.4),
+                                                               heightDimension: .fractionalWidth(0.55))
+                        
+                        
+                        
+                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                        let section = NSCollectionLayoutSection(group: group)
+                        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+                        section.interGroupSpacing = 10
+                        
+                        //if !self.cases.isEmpty {
+                          //  section.boundarySupplementaryItems = [header]
+                        //} else {
+                            section.boundarySupplementaryItems = [header]
+                        //}
+                        
+                        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10)
 
-let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                           heightDimension: .fractionalWidth(1/3))
-let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 3)
-let section = NSCollectionLayoutSection(group: group)
-return section
+                        return section
                     }
                 }
                 
@@ -271,14 +287,14 @@ return section
                     let section = NSCollectionLayoutSection(group: group)
                     return section
                 } else {
-                    #warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
+#warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
                     print("cases is not empty")
                     let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                              heightDimension: .fractionalHeight(1.0))
+                                                          heightDimension: .fractionalHeight(1.0))
                     let item = NSCollectionLayoutItem(layoutSize: itemSize)
                     
                     let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                               heightDimension: .fractionalWidth(1/3))
+                                                           heightDimension: .fractionalWidth(1/3))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 3)
                     let section = NSCollectionLayoutSection(group: group)
                     return section
@@ -333,6 +349,9 @@ return section
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
         casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
+        
+        casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
+        casesCollectionView.register(ExploreCaseCell.self, forCellWithReuseIdentifier: exploreCaseCellReuseIdentifier)
 
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
@@ -347,6 +366,7 @@ return section
 
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
+#warning("when developing showing more sections, need to segment this in if we are in displays exploring, normal displaying or the other with category")
         return displaysExploringWindow ? 2 : 1
     }
     
@@ -355,6 +375,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             if section == 0 {
                 return Profession.Professions.allCases.count
             } else {
+                #warning("when developing showing more sections, need to segment this in sections 1, 2, 3, etc and not just 1 sentence")
                 return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
             }
         } else {
@@ -375,21 +396,28 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                     cell.delegate = self
                     return cell
                 } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    let userIndex = users.firstIndex { user in
-                        if user.uid == cases[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: users[userIndex])
-                    }
-                    
-                    cell.delegate = self
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: exploreCaseCellReuseIdentifier, for: indexPath) as! ExploreCaseCell
+                    //cell.backgroundColor = .systemPink
                     return cell
+                    
+                    /*
+                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
+                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                     let userIndex = users.firstIndex { user in
+                     if user.uid == cases[indexPath.row].ownerUid {
+                     return true
+                     }
+                     return false
+                     }
+                     
+                     if let userIndex = userIndex {
+                     cell.set(user: users[userIndex])
+                     }
+                     
+                     cell.delegate = self
+                     return cell
+                     }
+                     */
                 }
             }
         }
@@ -416,6 +444,18 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             cell.delegate = self
             return cell
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        print("dequeueing header")
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+        if indexPath.section == 1 {
+            header.configureWith(title: "For you", linkText: "See All")
+        } else {
+            header.configureWith(title: "Most Recent", linkText: "See All")
+        }
+
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

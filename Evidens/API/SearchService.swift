@@ -18,6 +18,7 @@ struct SearchService {
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        print("we didn't¡ find any user with \(topic) and \(category.rawValue)")
                         completion(snapshot!)
                         return
                     }
@@ -29,9 +30,11 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .posts:
+                print("posts tapped")
                 let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: topic).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        print("we didn't¡ find any post with \(topic) and \(category.rawValue)")
                         completion(snapshot!)
                         return
                     }

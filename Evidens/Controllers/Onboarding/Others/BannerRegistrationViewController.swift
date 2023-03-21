@@ -65,9 +65,8 @@ class BannerRegistrationViewController: UIViewController {
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(named: "user")?.withTintColor(.secondaryLabel)
+        iv.image = UIImage(named: "user.profile")
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .tertiarySystemGroupedBackground
         iv.clipsToBounds = true
         iv.layer.borderWidth = 4
         iv.layer.borderColor = UIColor.systemBackground.cgColor
@@ -94,7 +93,6 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 0
-        label.textAlignment = .center
         label.font = .systemFont(ofSize: 14, weight: .bold)
         return label
     }()
@@ -104,7 +102,6 @@ class BannerRegistrationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.numberOfLines = 0
-        label.textAlignment = .center
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         return label
     }()
@@ -113,12 +110,12 @@ class BannerRegistrationViewController: UIViewController {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
-        button.configuration?.attributedTitle = AttributedString("Upload", attributes: container)
+        //var container = AttributeContainer()
+        //container.font = .systemFont(ofSize: 15, weight: .medium)
+        //button.configuration?.attributedTitle = AttributedString("Upload", attributes: container)
         
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
         button.configuration?.imagePadding = 5
         button.configuration?.imagePlacement = .top
         button.configuration?.baseForegroundColor = .white
@@ -179,17 +176,10 @@ class BannerRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        if let _ = UserDefaults.standard.value(forKey: "userProfileBannerUrl") as? String {
+        if let bannerUrl = UserDefaults.standard.value(forKey: "userProfileBannerUrl") as? String, bannerUrl != "" {
             bannerImageView.sd_setImage(with: URL(string: user.bannerImageUrl!))
-            //continueButton.backgroundColor = primaryColor
-            //continueButton.isUserInteractionEnabled = true
         }
-        /*
-        if isFirstHomeOnboardingStep {
-            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
-            navigationItem.leftBarButtonItem?.tintColor = .label
-        }
-         */
+
     }
     
     private func configureUI() {
@@ -217,16 +207,16 @@ class BannerRegistrationViewController: UIViewController {
             //uploadPictureButton.heightAnchor.constraint(equalToConstant: 60),
             
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor, constant: 10),
-            profileImageView.centerXAnchor.constraint(equalTo: bannerImageView.centerXAnchor),
+            profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 60),
             profileImageView.heightAnchor.constraint(equalToConstant: 60),
             
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            fullNameLabel.leadingAnchor.constraint(equalTo: imageTextLabel.leadingAnchor),
+            fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             fullNameLabel.trailingAnchor.constraint(equalTo: imageTextLabel.trailingAnchor),
             
             professionLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),
-            professionLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            professionLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: fullNameLabel.trailingAnchor),
             
             skipLabel.bottomAnchor.constraint(equalTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
@@ -242,7 +232,6 @@ class BannerRegistrationViewController: UIViewController {
         ])
         
         profileImageView.layer.cornerRadius = 60 / 2
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         fullNameLabel.text = user.firstName! + " " + user.lastName!
         professionLabel.text = user.profession! + " · " + user.speciality!
     }
