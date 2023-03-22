@@ -253,9 +253,16 @@ extension SpecialityRegistrationViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? RegisterCell else { return }
         if let text = cell.professionLabel.text {
-            selectedSpeciality = text
-            user.speciality = selectedSpeciality
-            navigationItem.rightBarButtonItem?.isEnabled = true
+            if isEditingProfileSpeciality {
+                guard text != user.speciality! else { return }
+                selectedSpeciality = text
+                user.speciality = selectedSpeciality
+                navigationItem.rightBarButtonItem?.isEnabled = true
+            } else {
+                selectedSpeciality = text
+                user.speciality = selectedSpeciality
+                navigationItem.rightBarButtonItem?.isEnabled = true
+            }
         }
     }
 }

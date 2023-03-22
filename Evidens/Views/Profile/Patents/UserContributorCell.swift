@@ -20,7 +20,6 @@ class UserContributorCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
         iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv

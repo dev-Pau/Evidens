@@ -92,7 +92,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 3
         iv.layer.borderColor = UIColor.systemBackground.cgColor
-        iv.backgroundColor = .quaternarySystemFill
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -488,7 +487,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             groupProfileImageView.heightAnchor.constraint(equalToConstant: 70),
         ])
         
-        groupProfileImageView.sd_setImage(with: URL(string: group.profileUrl!))
+        if let imageUrl = group.profileUrl, imageUrl != "" {
+            groupProfileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+        
         groupProfileImageView.layer.cornerRadius = 7
         
         collectionView.contentInsetAdjustmentBehavior = .never

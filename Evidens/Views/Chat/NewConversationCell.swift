@@ -15,7 +15,7 @@ class NewConversationCell: UICollectionViewCell {
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -88,7 +88,11 @@ class NewConversationCell: UICollectionViewCell {
 
     func set(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+           profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+        
         if user.category == .student {
             userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
         } else {

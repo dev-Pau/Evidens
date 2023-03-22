@@ -19,7 +19,11 @@ struct UserRecentCellViewModel {
     }
     
     var profileImageUrl: URL? {
-        return URL(string: user.profileImageUrl!)
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            return URL(string: imageUrl)
+        } else {
+            return nil
+        }
     }
     
     init(user: User) {

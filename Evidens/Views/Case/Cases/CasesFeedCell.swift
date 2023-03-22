@@ -43,7 +43,7 @@ class CasesFeedCell: UICollectionViewCell {
     }()
     
     private var caseTags: [String] = []
-    private var stringUrlImages: [String] = []
+    private var caseUrlImages = [String]()
     
     var titleCaseLabel = METitleCaseLabel()
 
@@ -66,6 +66,7 @@ class CasesFeedCell: UICollectionViewCell {
             if let caseImages = self.viewModel?.caseImagesCount {
                 if caseImages > 1 {
                     let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(15)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
+                    
                     
                     section.boundarySupplementaryItems = [footer]
                     
@@ -166,7 +167,7 @@ class CasesFeedCell: UICollectionViewCell {
         titleCaseLabel.numberOfLines = 4
         titleCaseLabel.font = .systemFont(ofSize: 14, weight: .medium)
         
-        stringUrlImages = viewModel.caseImages!
+        caseUrlImages = viewModel.caseImages
         compositionalCollectionView.reloadData()
     }
     
@@ -186,9 +187,11 @@ class CasesFeedCell: UICollectionViewCell {
         
         if viewModel.caseIsAnonymous {
             #warning("We need image for anonymous")
-            profileImageView.image = UIImage(systemName: "")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
-            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+                profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
         }
     }
     
@@ -214,19 +217,19 @@ extension CasesFeedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowL
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-            return stringUrlImages.count
+        return caseUrlImages.isEmpty ? 1 : caseUrlImages.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
         cell.delegate = self
-        cell.caseImageView.sd_setImage(with: URL(string: stringUrlImages[indexPath.row]))
+        if !caseUrlImages.isEmpty { cell.caseImageView.sd_setImage(with: URL(string: caseUrlImages[indexPath.row])) }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier, for: indexPath) as! PagingSectionFooterView
-        let itemCount = stringUrlImages.count
+        let itemCount = caseUrlImages.count
         footer.configure(with: itemCount)
         footer.subscribeTo(subject: pagingInfoSubject)
         return footer

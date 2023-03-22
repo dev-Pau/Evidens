@@ -24,7 +24,7 @@ class CommentInputAccessoryView: UIView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -70,9 +70,7 @@ class CommentInputAccessoryView: UIView {
     
     
     //MARK: - Lifecycle
-    
-    
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         

@@ -143,8 +143,8 @@ class CommentCaseViewController: UICollectionViewController {
         if clinicalCase.privacyOptions == .nonVisible {
             commentInputView.profileImageView.image = UIImage(systemName: "eyeglasses", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
-            guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
-            commentInputView.profileImageView.sd_setImage(with: URL(string: uid))
+            guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" else { return }
+            commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
         navigationItem.title = "Comments"

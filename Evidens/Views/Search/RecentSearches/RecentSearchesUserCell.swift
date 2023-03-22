@@ -17,7 +17,7 @@ class RecentSearchesUserCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         return iv
     }()
     
@@ -73,7 +73,9 @@ class RecentSearchesUserCell: UICollectionViewCell {
     
     func configureWithUser(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
         specialityLabel.text = user.profession!
     }
 }

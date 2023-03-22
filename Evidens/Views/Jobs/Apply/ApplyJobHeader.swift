@@ -34,6 +34,7 @@ class ApplyJobHeader: UICollectionReusableView {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.clipsToBounds = true
         return iv
     }()
@@ -174,10 +175,12 @@ class ApplyJobHeader: UICollectionReusableView {
     
     private func configureWithUser() {
         guard let user = user else { return }
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         usernameLabel.text = user.firstName! + " " + user.lastName!
         professionLabel.text = user.profession! + " · " + user.speciality!
         emailAddressTextField.text = user.email!
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
     
     @objc func textDidChange() {

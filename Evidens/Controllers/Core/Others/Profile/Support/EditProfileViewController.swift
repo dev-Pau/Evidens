@@ -170,38 +170,39 @@ class EditProfileViewController: UIViewController {
                 
                 UserService.updateUser(from: self.user, to: newProfile) { user in
                     self.progressIndicator.dismiss(animated: true)
-                    self.dismiss(animated: true)
                     self.delegate?.didUpdateProfile(user: user)
+                    self.dismiss(animated: true)
                 }
             }
         } else {
             if userDidChangeBannerPicture {
-                // Banner group image has changed
+                // Banner image has changed
                 StorageManager.uploadBannerImage(image: newUserProfileBanner, uid: user.uid!) { url in
                     newProfile.bannerImageUrl = url
                     
                     UserService.updateUser(from: self.user, to: newProfile) { user in
                         self.progressIndicator.dismiss(animated: true)
-                        self.dismiss(animated: true)
                         self.delegate?.didUpdateProfile(user: user)
+                        self.dismiss(animated: true)
                     }
                 }
             } else if userDidChangeProfilePicture {
-                // Profile group image has changed
+                // Profile image has changed
                 StorageManager.uploadProfileImage(image: newUserProfilePicture, uid: user.uid!) { url in
                     newProfile.profileImageUrl = url
                     UserService.updateUser(from: self.user, to: newProfile) { user in
                         self.progressIndicator.dismiss(animated: true)
-                        self.dismiss(animated: true)
                         self.delegate?.didUpdateProfile(user: user)
+                        self.dismiss(animated: true)
                     }
                 }
             } else {
-                // Other group fields have changed
+                // Other profile fields have changed
                 UserService.updateUser(from: self.user, to: newProfile) { user in
+                    print(user.speciality!)
                     self.progressIndicator.dismiss(animated: true)
-                    self.dismiss(animated: true)
                     self.delegate?.didUpdateProfile(user: user)
+                    self.dismiss(animated: true)
                 }
             }
         }
@@ -441,7 +442,6 @@ extension EditProfileViewController: SpecialityRegistrationViewControllerDelegat
     func didEditSpeciality(speciality: String) {
         let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditCategoryCell
         cell.updateSpeciality(speciality: speciality)
-        user.speciality = speciality
         viewModel.speciality = speciality
         groupIsValid()
     }

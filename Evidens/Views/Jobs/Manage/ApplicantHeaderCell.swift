@@ -14,6 +14,7 @@ class ApplicantHeaderCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -149,7 +150,6 @@ class ApplicantHeaderCell: UICollectionViewCell {
     }
     
     func configureWithUser(user: User, applicant: JobUserApplicant) {
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         nameLabel.text = user.firstName! + " " + user.lastName!
         userCategoryLabel.text = user.profession! + " · " + user.speciality!
         emailLabel.text = user.email!
@@ -160,6 +160,10 @@ class ApplicantHeaderCell: UICollectionViewCell {
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         timestampLabel.text = "Sent \(formatter.string(from: Date(milliseconds: Int(applicant.timestamp.milliseconds)), to: Date())!) ago"
+        
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

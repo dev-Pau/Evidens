@@ -255,13 +255,15 @@ class CaseTextCell: UICollectionViewCell {
         self.user = user
 
         if viewModel.caseIsAnonymous {
-            #warning("Add anonymous images")
-            updateView.profileImageView.image = UIImage(named: "")
-            userPostView.profileImageView.image = UIImage(named: "")
+            updateView.profileImageView.image = UIImage(named: "user.profile.privacy")
+            userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
             userPostView.usernameLabel.text = "Shared anonymously"
         } else {
-            updateView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+                updateView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+                userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
+            
             userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
        

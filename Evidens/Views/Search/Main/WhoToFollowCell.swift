@@ -125,7 +125,9 @@ class WhoToFollowCell: UICollectionViewCell {
     func configureWithUser(user: User) {
         self.user = user
         userIsFollowing = user.isFollowed
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
         nameLabel.text = user.firstName! + " " + user.lastName!
         if user.category == .student {
             userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"

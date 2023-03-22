@@ -22,7 +22,7 @@ class AddCaseUpdateViewController: UIViewController {
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -88,10 +88,13 @@ class AddCaseUpdateViewController: UIViewController {
         diagnosisTextView.delegate = self
         
         profileImageView.layer.cornerRadius = 45 / 2
-        profileImageView.sd_setImage(with: URL(string: UserDefaults.standard.value(forKey: "userProfileImageUrl") as! String))
+        
+        if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+        
         
         NSLayoutConstraint.activate([
-           
             textLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             textLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor, constant: 10),
             textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -13),

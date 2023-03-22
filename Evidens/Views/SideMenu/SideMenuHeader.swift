@@ -55,7 +55,7 @@ class SideMenuHeader: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        backgroundColor = .systemBackground
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
         
         addSubviews(userImageView, nameLabel, viewProfileLabel, separatorView)
@@ -73,7 +73,7 @@ class SideMenuHeader: UICollectionReusableView {
             viewProfileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             viewProfileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
-            separatorView.topAnchor.constraint(equalTo: viewProfileLabel.bottomAnchor, constant: 20),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: viewProfileLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: viewProfileLabel.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)

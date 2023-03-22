@@ -51,6 +51,8 @@ class GroupUserCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
 }

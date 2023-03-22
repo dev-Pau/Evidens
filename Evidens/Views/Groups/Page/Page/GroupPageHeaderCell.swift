@@ -45,33 +45,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
     }
     
     weak var delegate: GroupPageHeaderCellDelegate?
-    /*
-    private lazy var groupBannerImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = primaryColor.withAlphaComponent(0.5)
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))
-        iv.isUserInteractionEnabled = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    */
-    /*
-    private lazy var groupProfileImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.layer.borderWidth = 3
-        iv.layer.borderColor = UIColor.systemBackground.cgColor
-        iv.backgroundColor = .quaternarySystemFill
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
-        iv.isUserInteractionEnabled = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-      
-        return iv
-    }()
-    */
+
     private let groupNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 20, weight: .semibold)
@@ -174,16 +148,6 @@ class GroupPageHeaderCell: UICollectionViewCell {
         
         addSubviews(groupNameLabel, groupDescriptionLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
         NSLayoutConstraint.activate([
-            //groupBannerImageView.topAnchor.constraint(equalTo: topAnchor),
-            //groupBannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            //groupBannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            //groupBannerImageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3),
-            
-            //groupProfileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            //groupProfileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            //groupProfileImageView.widthAnchor.constraint(equalToConstant: 90),
-            //groupProfileImageView.heightAnchor.constraint(equalToConstant: 90),
-            
             groupNameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
             groupNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 60),
             groupNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

@@ -24,7 +24,6 @@ class UserSelectionCell: UICollectionViewCell {
     private lazy var profileImageView: UIImageView = {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.image = UIImage(named: "user.profile")

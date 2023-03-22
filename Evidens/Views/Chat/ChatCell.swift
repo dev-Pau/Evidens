@@ -24,7 +24,7 @@ class ChatCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 50/2
         imageView.layer.masksToBounds = true
-        imageView.backgroundColor = .clear
+        imageView.image = UIImage(named: "user.profile")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -125,6 +125,8 @@ class ChatCell: UICollectionViewCell {
     
     func set(user: User) {
         usernameLabel.text = user.firstName! + " " + user.lastName!
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+           profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
 }

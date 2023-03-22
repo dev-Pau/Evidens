@@ -227,7 +227,7 @@ class CaseTextImageCell: UICollectionViewCell {
         titleCaseLabel.text = viewModel.caseTitle
         caseTags = viewModel.caseTags
         
-        stringUrlImages = viewModel.caseImages!
+        stringUrlImages = viewModel.caseImages
         compositionalCollectionView.reloadData()
     }
     
@@ -235,13 +235,15 @@ class CaseTextImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         if viewModel.caseIsAnonymous {
-            #warning("Add anonymous images")
-            updateView.profileImageView.image = UIImage(named: "")
-            userPostView.profileImageView.image = UIImage(named: "")
+            updateView.profileImageView.image = UIImage(named: "user.profile.privacy")
+            userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
             userPostView.usernameLabel.text = "Shared anonymously"
         } else {
-            updateView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+                updateView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+                userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
+            
             userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
         

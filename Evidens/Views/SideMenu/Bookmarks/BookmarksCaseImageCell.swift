@@ -141,7 +141,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.timestampString
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription
-        caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages?.first!)!))
+        caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         
@@ -151,7 +151,7 @@ class BookmarksCaseImageCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileImageUrl {
+        if let profileImageUrl = user.profileImageUrl, profileImageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         }
         

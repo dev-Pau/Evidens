@@ -146,7 +146,10 @@ class BookmarksCaseCell: UICollectionViewCell {
             userPostView.usernameLabel.text = "Shared anonymously"
             
         } else {
-            userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+                userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
+            //userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
             userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
         }
         

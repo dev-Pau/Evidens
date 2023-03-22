@@ -37,7 +37,9 @@ class MESearchToolbar: UIToolbar {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-        backgroundColor = .systemBackground
+        barTintColor = UIColor.systemBackground
+        setBackgroundImage(UIImage(), forToolbarPosition: .bottom, barMetrics: .default)
+        setShadowImage(UIImage(), forToolbarPosition: .bottom)
     }
     
     required init?(coder: NSCoder) {
@@ -46,7 +48,7 @@ class MESearchToolbar: UIToolbar {
     
     private func configure() {
         //setBackgroundImage(UIImage(), forToolbarPosition: .topAttached, barMetrics: .default)
-        barTintColor = UIColor.systemBackground
+        //barTintColor = UIColor.systemBackground
         displayDataSource = dataSource
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         collectionView.backgroundColor = .systemBackground
@@ -69,15 +71,6 @@ class MESearchToolbar: UIToolbar {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 13.0, *) {
-             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
-                 barTintColor = UIColor.systemBackground
-             }
-         }
     }
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {

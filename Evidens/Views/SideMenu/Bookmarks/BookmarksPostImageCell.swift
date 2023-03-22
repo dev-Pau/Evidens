@@ -131,7 +131,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        if let profileImageUrl = user.profileImageUrl {
+        if let profileImageUrl = user.profileImageUrl, profileImageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         }
         

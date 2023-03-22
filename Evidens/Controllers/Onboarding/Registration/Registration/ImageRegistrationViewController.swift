@@ -42,7 +42,6 @@ class ImageRegistrationViewController: UIViewController {
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleUploadPicture)))
         return iv
     }()
     
@@ -118,6 +117,12 @@ class ImageRegistrationViewController: UIViewController {
         button.showsMenuAsPrimaryAction = true
         return button
     }()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if imageSelected == true && comesFromHomeOnboarding {
+            viewModel.profileImage = profileImageView.image
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -244,11 +249,6 @@ class ImageRegistrationViewController: UIViewController {
             })
         ])
         return menuItems
-    }
-    
-    @objc func handleUploadPicture() {
-        
-        
     }
 
     @objc func handleContinue() {

@@ -43,7 +43,7 @@ class EditPostViewController: UIViewController {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         return iv
     }()
     
@@ -185,8 +185,8 @@ class EditPostViewController: UIViewController {
         
         profileImageView.layer.cornerRadius = 50/2
         
+        if profileImageUrl != "" { profileImageView.sd_setImage(with: URL(string: profileImageUrl)) }
         
-        profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         fullName.text = name
         
         if post.postImageUrl.count != 0 {

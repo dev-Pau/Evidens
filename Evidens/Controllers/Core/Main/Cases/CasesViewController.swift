@@ -287,16 +287,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     let section = NSCollectionLayoutSection(group: group)
                     return section
                 } else {
-#warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
-                    print("cases is not empty")
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .fractionalHeight(1.0))
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                     let item = NSCollectionLayoutItem(layoutSize: itemSize)
                     
-                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                           heightDimension: .fractionalWidth(1/3))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 3)
+                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(350))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
+                    
+                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
+                    
                     let section = NSCollectionLayoutSection(group: group)
+                    
+                    section.interGroupSpacing = 10
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    
                     return section
                 }
                 

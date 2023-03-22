@@ -20,7 +20,7 @@ class HomeLikesCell: UITableViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         return iv
     }()
     
@@ -81,7 +81,9 @@ class HomeLikesCell: UITableViewCell {
     
     func configureWithUser() {
         guard let user = user else { return }
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
         nameLabel.attributedText = user.userLabelText()
         professionLabel.text = user.profession! + " · " + user.speciality!
     }

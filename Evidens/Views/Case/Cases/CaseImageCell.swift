@@ -19,9 +19,8 @@ class CaseImageCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .systemBackground
         iv.isUserInteractionEnabled = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "case.image.empty")
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         iv.clipsToBounds = true
         return iv
@@ -37,8 +36,6 @@ class CaseImageCell: UICollectionViewCell {
             caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-        
-        
     }
     
     required init?(coder: NSCoder) {

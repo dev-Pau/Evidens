@@ -179,7 +179,12 @@ class BannerRegistrationViewController: UIViewController {
         if let bannerUrl = UserDefaults.standard.value(forKey: "userProfileBannerUrl") as? String, bannerUrl != "" {
             bannerImageView.sd_setImage(with: URL(string: user.bannerImageUrl!))
         }
-
+        
+        if let image = viewModel.profileImage {
+            profileImageView.image = image
+        } else if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
     
     private func configureUI() {

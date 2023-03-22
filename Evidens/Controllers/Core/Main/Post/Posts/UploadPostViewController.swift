@@ -10,6 +10,7 @@ import Photos
 import PhotosUI
 import Firebase
 import SDWebImage
+import JGProgressHUD
 
 private let professionPostCellReuseIdentifier = "ProfessionCellReuseIdentifier"
 
@@ -31,6 +32,8 @@ class UploadPostViewController: UIViewController {
     private var privacyType: Post.PrivacyOptions = .all
     
     var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
+    
+    private let progressIndicator = JGProgressHUD()
     
     var newHeight: CGFloat = 0.0
     
@@ -144,6 +147,7 @@ class UploadPostViewController: UIViewController {
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
         iv.layer.cornerRadius = 10
         iv.contentMode = .scaleAspectFill
         return iv
@@ -198,7 +202,7 @@ class UploadPostViewController: UIViewController {
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
         postPrivacyMenuLauncher.delegate = self
-
+        professionsView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToProfessionsViewController)))
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -228,13 +232,10 @@ class UploadPostViewController: UIViewController {
     
     private func configureNavigationBar() {
         title = "Upload Post"
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
-        
         navigationItem.leftBarButtonItem?.tintColor = .label
-    
     }
     
     
@@ -290,7 +291,6 @@ class UploadPostViewController: UIViewController {
             postTextView.topAnchor.constraint(equalTo: professionsView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
-
         ])
         
         professionsView.configure(collectionView: professionsCollectionView)
@@ -306,7 +306,6 @@ class UploadPostViewController: UIViewController {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
 
-    
         fullName.text = user.firstName! + " " + user.lastName!
         updateForm()
     }
@@ -321,6 +320,9 @@ class UploadPostViewController: UIViewController {
         let attachementButton = UIBarButtonItem(customView: attachementsButton)
       
         toolbar.setItems([flexibleSpace, attachementButton], animated: true)
+        toolbar.barTintColor = UIColor.systemBackground
+        toolbar.setBackgroundImage(UIImage(), forToolbarPosition: .bottom, barMetrics: .default)
+        toolbar.setShadowImage(UIImage(), forToolbarPosition: .bottom)
         
         postTextView.inputAccessoryView = toolbar //postTextView.textView
     }
@@ -331,7 +333,6 @@ class UploadPostViewController: UIViewController {
         
         scrollView.addSubview(postImageView)
         postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
-        
         
         let ratio = image.size.width / image.size.height
         newHeight = view.bounds.width / ratio
@@ -430,6 +431,18 @@ class UploadPostViewController: UIViewController {
         postPrivacyMenuLauncher.showPostSettings(in: view)
     }
     
+    @objc func goToProfessionsViewController() {
+        let controller = ProfessionListViewController(professionsSelected: selectedProfessions)
+        controller.delegate = self
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .label
+        navigationItem.backBarButtonItem = backButton
+                
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     @objc func handleAttachementsTap() {
         postTextView.resignFirstResponder()
         
@@ -448,13 +461,9 @@ class UploadPostViewController: UIViewController {
     //MARK: - Actions
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            
             scrollView.resizeScrollViewContentSize()
-
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
-            
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
@@ -463,26 +472,21 @@ class UploadPostViewController: UIViewController {
                                                        bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
                                                        right: 0)
             }
-            
             scrollView.scrollIndicatorInsets = scrollView.contentInset
-            
             scrollView.resizeScrollViewContentSize()
         }
     }
-    
     
     @objc func didTapCancel() {
         dismiss(animated: true)
     }
     
-    
     @objc func didTapShare() {
         guard let postTextView = postTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        showLoadingView()
+        progressIndicator.show(in: view)
       
-
         if let group = group {
             // Group post
             if postImages.count > 0 {
@@ -494,53 +498,45 @@ class UploadPostViewController: UIViewController {
                 } else {
                     StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
                         GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: self.selectedProfessions, type: postType, privacy: .group, groupPermission: group.permissions, postImageUrl: imageUrl) { error in
-                            self.dismiss(animated: true)
+                            self.progressIndicator.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
-                                
                                 return
                             } else {
-
+                                self.dismiss(animated: true)
                                 return
-                                
                             }
                         }
                     }
                 }
             } else {
-                
                 GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: selectedProfessions, type: .plainText, privacy: .group, groupPermission: group.permissions, postImageUrl: nil) { error in
-                    self.dismiss(animated: true)
+                    self.progressIndicator.dismiss(animated: true)
                     if let error = error {
                         print("DEBUG: \(error.localizedDescription)")
                         
                         return
                     } else {
-
+                        self.dismiss(animated: true)
                         return
-                        
                     }
                 }
             }
             }
         else {
-
             // No group post
-            
             if postImages.count > 0 {
-                print("Has images")
                 let imagesToUpload = postImages.compactMap { $0 }
-              
+                
                 switch imagesToUpload.count {
                 case 1:
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
                         // post: postTextView, type: .plainText, privacy: privacyType, user: user
                         PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, professions: self.selectedProfessions, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
-                            self.dismissLoadingView()
+                            self.progressIndicator.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
-                                
                                 return
                             } else {
                                 self.dismiss(animated: true)
@@ -553,7 +549,7 @@ class UploadPostViewController: UIViewController {
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
                         PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.dismissLoadingView()
+                            self.progressIndicator.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
                                 return
@@ -566,7 +562,7 @@ class UploadPostViewController: UIViewController {
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
                         PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.dismissLoadingView()
+                            self.progressIndicator.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
                                 return
@@ -579,7 +575,7 @@ class UploadPostViewController: UIViewController {
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
                         PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.dismissLoadingView()
+                            self.progressIndicator.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
                                 return
@@ -595,7 +591,7 @@ class UploadPostViewController: UIViewController {
                 // Post has text only
                 PostService.uploadTextPost(post: postTextView, type: .plainText, professions: selectedProfessions, privacy: privacyType, user: user) { error in
                     if let error = error {
-                        self.dismissLoadingView()
+                        self.progressIndicator.dismiss(animated: true)
                         print("DEBUG: \(error.localizedDescription)")
                         return
                     } else {
@@ -605,10 +601,6 @@ class UploadPostViewController: UIViewController {
             }
         }
     }
-    
-    //MARK: - Helpers
-    
-    
 }
 
 //MARK: - UITextViewDelegate
@@ -644,7 +636,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         var asyncDict = [String:UIImage]()
         var images = [UIImage]()
         
-        showLoadingView()
+        progressIndicator.show(in: view)
         
         results.forEach { result in
             if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
@@ -675,7 +667,6 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
             self.dismissLoadingView()
         }
     }
-
 }
 
 
@@ -707,7 +698,6 @@ extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
 
 extension UploadPostViewController: UploadContentViewModel {
     func updateForm() {
-        //shareButton.configuration?.baseBackgroundColor = viewModel.buttonBackgroundColor
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.postIsValid
     }
 }
@@ -749,5 +739,12 @@ extension UploadPostViewController: UICollectionViewDelegateFlowLayout, UICollec
         label.lineBreakMode = .byWordWrapping
         label.heightAnchor.constraint(equalToConstant: height).isActive = true
         return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+    }
+}
+
+extension UploadPostViewController: ProfessionListViewControllerDelegate {
+    func didTapAddProfessions(profession: [Profession]) {
+        selectedProfessions = profession
+        professionsCollectionView.reloadData()
     }
 }

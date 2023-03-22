@@ -29,6 +29,7 @@ class JobHiringTeamCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
+        iv.image = UIImage(named: "user.profile")
         iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
@@ -90,9 +91,11 @@ class JobHiringTeamCell: UICollectionViewCell {
     private func fetchUser() {
         guard let memberUid = memberUid else { return }
         UserService.fetchUser(withUid: memberUid) { user in
-            self.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
             self.nameLabel.text = user.firstName! + " " + user.lastName!
             self.userInfoCategoryLabel.text = user.profession! + " · " + user.speciality!
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+                self.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
         }
     }
 }

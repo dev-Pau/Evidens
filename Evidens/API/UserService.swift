@@ -126,7 +126,7 @@ struct UserService {
             completion(user)
             return
         }
-        
+
         COLLECTION_USERS.document(user.uid!).updateData(updatedProfileData) { error in
             if error != nil { return }
             COLLECTION_USERS.document(user.uid!).getDocument { snapshot, error in

@@ -59,21 +59,14 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private lazy var shareButton: UIButton = {
         let button = UIButton()
-
         button.configuration = .filled()
-
         button.configuration?.baseBackgroundColor = primaryColor
-
-        //button.isUserInteractionEnabled = false
-        
         button.configuration?.baseForegroundColor = .white
-
         button.configuration?.cornerStyle = .capsule
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Share", attributes: container)
-        
         button.addTarget(self, action: #selector(handleShareCase), for: .touchUpInside)
         return button
     }()
@@ -159,8 +152,6 @@ class ShareClinicalCaseViewController: UIViewController {
         return collectionView
     }()
     
-    
-    
     private lazy var attributedImageInfo: NSMutableAttributedString = {
         let aString = NSMutableAttributedString(string: "Images can help others interpretation on what has happened to the patinent. Protecting patient privacy is our top priority. Visit our Patient Privacy Policy.")
         aString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 12, weight: .bold), range: (aString.string as NSString).range(of: "Patient Privacy Policy"))
@@ -231,7 +222,6 @@ class ShareClinicalCaseViewController: UIViewController {
         return aString
     }()
     
-    
     private lazy var privacyLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
@@ -272,10 +262,8 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "Description"
-        //label.textColor = .secondaryLabel
         label.textColor = .secondaryLabel
         label.isHidden = true
-        //label.backg
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -285,7 +273,6 @@ class ShareClinicalCaseViewController: UIViewController {
         let tv = InputTextView()
         tv.placeholderText = "Description"
         tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        //tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
         tv.textColor = .label
         tv.tintColor = primaryColor
@@ -303,9 +290,7 @@ class ShareClinicalCaseViewController: UIViewController {
     private lazy var specialitiesView = CaseDetailsView(title: "Specialities")
     private lazy var clinicalTypeView = CaseDetailsView(title: "Type details")
     private lazy var caseStageView = CaseDetailsView(title: "Stage details")
-    
-    //private lazy var caseStageView = CaseStageView()
-    
+
     private lazy var diagnosisView = DiagnosisResolvedView()
     private lazy var diagnosisUnresolvedView = DiagnosisUnresolvedView()
     private lazy var diagnosisGenericView = DiagnosisGenericView()
@@ -340,7 +325,6 @@ class ShareClinicalCaseViewController: UIViewController {
         specialitiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToSpecialitiesController)))
         clinicalTypeView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToClinicalTypeController)))
         caseStageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToCaseStageController)))
-
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -348,6 +332,7 @@ class ShareClinicalCaseViewController: UIViewController {
             casePrivacyMenuLauncher.showPostSettings(in: view)
             viewModel.isFirstTime = false
         }
+        
         titleTextField.becomeFirstResponder()
         titleTextField.resignFirstResponder()
     }
@@ -365,7 +350,6 @@ class ShareClinicalCaseViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -377,12 +361,9 @@ class ShareClinicalCaseViewController: UIViewController {
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
         navigationItem.leftBarButtonItem?.tintColor = .label
-
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
-    
     
     func configureUI() {
         view.backgroundColor = .systemBackground
@@ -401,9 +382,7 @@ class ShareClinicalCaseViewController: UIViewController {
         diagnosisView.isHidden = true
         diagnosisUnresolvedView.isHidden = true
         diagnosisGenericView.isHidden = true
-        
-        //caseStageView.delegate = self
-        //professionsView.delegate = self
+
         diagnosisView.delegate = self
         diagnosisGenericView.delegate = self
         casePrivacyMenuLauncher.delegate = self
@@ -641,7 +620,6 @@ class ShareClinicalCaseViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    
     @objc func handlePhotoTap() {
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.selectionLimit = 6
@@ -690,7 +668,6 @@ class ShareClinicalCaseViewController: UIViewController {
             }
             
             scrollView.scrollIndicatorInsets = scrollView.contentInset
-
             scrollView.resizeScrollViewContentSize()
         }
     }
@@ -759,7 +736,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         
         if results.count == 0 { return }
-        showLoadingView()
+        progressIndicator.show(in: view)
         let group = DispatchGroup()
         var asyncDict = [String:UIImage]()
         var asyncDictWidth = [String:CGFloat]()
@@ -791,7 +768,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             self.collectionImages = images
             self.newCellWidth = widths
             self.addCaseCollectionView()
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
         }
     }
     
@@ -806,6 +783,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
         if let group = group {
             if collectionImages.isEmpty {
                 GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, professions: professionsSelected) { error in
+                    
                     self.progressIndicator.dismiss(animated: true)
                    
                     if let error = error {
@@ -813,7 +791,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                         
                         return
                     } else {
-                        
+                        self.dismiss(animated: true)
                         return
                         
                     }
@@ -825,24 +803,24 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                        
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
-                            
                             return
                         } else {
-                            
+                            self.dismiss(animated: true)
                             return
-                            
                         }
                     }
                 }
             }
         } else {
             if collectionImages.isEmpty {
+                #warning("")
                 CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user, professions: professionsSelected) { error in
-                    //self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     if let error = error {
                         print(error.localizedDescription)
                     } else {
                         self.dismiss(animated: true)
+                        return
                     }
                 }
             }
@@ -856,6 +834,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                             return
                         } else {
                             self.dismiss(animated: true)
+                            return
                         }
                     }
                 }
@@ -1060,25 +1039,6 @@ extension ShareClinicalCaseViewController: CaseStageViewControllerDelegate {
     }
 }
 
-/*
-extension ShareClinicalCaseViewController: CaseStageViewDelegate {
-    func didTapUnresolved() {
-        diagnosisView.isHidden = true
-    }
-    
-    func didTapResolved() {
-        let controller = CaseDiagnosisViewController(diagnosisText: diagnosisText)
-        controller.delegate = self
-        let navController = UINavigationController(rootViewController: controller)
-        
-        if let presentationController = navController.presentationController as? UISheetPresentationController {
-            presentationController.detents = [.medium()]
-        }
-        present(navController, animated: true)
-    }
-}
- */
-
 extension ShareClinicalCaseViewController: CaseDiagnosisViewControllerDelegate {
     func handleAddDiagnosis(_ text: String, caseId: String) {
         diagnosisText = text
@@ -1141,7 +1101,7 @@ extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
         privacyTypeImage.image = option.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         casePrivacy = option
         privacyLabel.attributedText = aString
-        self.group = Group(groupId: "", dictionary: [:])
+        //self.group = Group(groupId: "", dictionary: [:])
         casePrivacyMenuLauncher.handleDismissMenu()
     }
 }

@@ -32,7 +32,7 @@ class CommentCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapProfile)))
         return iv
@@ -218,7 +218,9 @@ class CommentCell: UICollectionViewCell {
             #warning("put a privacy image")
             profileImageView.image = UIImage(systemName: "eyeglasses", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
-            profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+            if let imageUrl = user.profileImageUrl, imageUrl != "" {
+                profileImageView.sd_setImage(with: URL(string: imageUrl))
+            }
         }
         
         if viewModel.isAuthor {

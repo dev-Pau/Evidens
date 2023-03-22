@@ -106,7 +106,7 @@ class MENavigationBarChatView: UIView {
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -114,7 +114,9 @@ class MENavigationBarChatView: UIView {
     
     init(user: User) {
         fullNameLabel.text = user.firstName!
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!)!)
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
         
         super.init(frame: CGRect.zero)
         addSubviews(fullNameLabel, profileImageView)

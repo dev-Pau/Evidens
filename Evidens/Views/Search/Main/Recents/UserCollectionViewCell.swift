@@ -21,7 +21,7 @@ class UserCollectionViewCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         return iv
     }()
     
@@ -58,6 +58,8 @@ class UserCollectionViewCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         nameLabel.text = viewModel.firstName + " " + viewModel.lastName
-        profileImageView.sd_setImage(with: viewModel.profileImageUrl)
+        if let imageUrl = viewModel.profileImageUrl {
+            profileImageView.sd_setImage(with: imageUrl)
+        }
     }
 }

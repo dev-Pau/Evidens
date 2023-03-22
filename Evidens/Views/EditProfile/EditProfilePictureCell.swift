@@ -136,11 +136,16 @@ class EditProfilePictureCell: UICollectionViewCell {
     }
     
     func set(profileImageUrl: String) {
-        profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        if profileImageUrl != "" {
+           profileImageView.sd_setImage(with: URL(string: profileImageUrl))
+        }
+        //profileImageView.sd_setImage(with: URL(string: profileImageUrl))
     }
     
     func set(bannerImageUrl: String) {
-        bannerImageView.sd_setImage(with: URL(string: bannerImageUrl))
+        if bannerImageUrl != "" {
+            bannerImageView.sd_setImage(with: URL(string: bannerImageUrl))
+        }  
     }
     
     func hideProfileHint() {

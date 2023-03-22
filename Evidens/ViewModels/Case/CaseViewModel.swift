@@ -117,13 +117,16 @@ struct CaseViewModel {
         return clinicalCase.caseImageUrl.count
     }
     
-    var caseImages: [String]? {
+    var caseImages: [String] {
         if caseImagesCount > 0 {
+            guard let first = clinicalCase.caseImageUrl.first, first != "" else {
+                return [String]()
+            }
             return clinicalCase.caseImageUrl
         }
-        return nil
-      
-        }
+        return [String]()
+        
+    }
     
     
     var isLikesHidden: Bool {

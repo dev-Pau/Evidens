@@ -20,7 +20,7 @@ class GroupInviteCell: UICollectionViewCell {
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -51,13 +51,7 @@ class GroupInviteCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         return iv
     }()
-    
-    /*
-     smallcircle.fill.circle.fill
-     */
-    
-    
-    
+
     //MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -103,11 +97,14 @@ class GroupInviteCell: UICollectionViewCell {
     
     func set(user: User) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         if user.category == .student {
             userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
+        }
+        
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
     }
 }

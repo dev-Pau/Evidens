@@ -22,6 +22,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -123,7 +124,9 @@ class UserProfileCommentCell: UICollectionViewCell {
         
         commentUserLabel.text = commentInfo["comment"] as? String
         caseTitleLabel.text = commentInfo["title"] as? String
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
         
     }
 }

@@ -18,6 +18,7 @@ class JobUserApplicationCell: UICollectionViewCell {
        let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile")
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -131,7 +132,6 @@ class JobUserApplicationCell: UICollectionViewCell {
     }
 
     func configureWith(user: User, applicant: JobUserApplicant) {
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         nameLabel.text = user.firstName! + " " + user.lastName!
         userCategoryLabel.text = user.profession! + " · " + user.speciality!
 
@@ -140,5 +140,8 @@ class JobUserApplicationCell: UICollectionViewCell {
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         timestampLabel.text = "Sent \(formatter.string(from: Date(milliseconds: Int(applicant.timestamp.milliseconds)), to: Date())!) ago"
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
     }
 }

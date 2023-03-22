@@ -37,8 +37,8 @@ class GroupMemberUserCell: UICollectionViewCell {
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
+        iv.image = UIImage(named: "user.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -117,12 +117,15 @@ class GroupMemberUserCell: UICollectionViewCell {
     
     private func configureWithUser() {
         guard let user = user else { return }
-        profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         nameLabel.text = user.firstName! + " " + user.lastName!
         if user.category == .student {
             userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
+        }
+        
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
     }
     

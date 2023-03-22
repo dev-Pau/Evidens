@@ -207,7 +207,7 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     
     func set(user: User) {
         self.user = user
-        if let profileImageUrl = user.profileImageUrl {
+        if let profileImageUrl = user.profileImageUrl, profileImageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: profileImageUrl))
         }
         
