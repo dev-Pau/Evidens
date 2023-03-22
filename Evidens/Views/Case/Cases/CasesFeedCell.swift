@@ -36,7 +36,6 @@ class CasesFeedCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 10, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Solved", attributes: container)
-        
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -66,8 +65,7 @@ class CasesFeedCell: UICollectionViewCell {
             if let caseImages = self.viewModel?.caseImagesCount {
                 if caseImages > 1 {
                     let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(15)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
-                    
-                    
+
                     section.boundarySupplementaryItems = [footer]
                     
                     section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
@@ -75,7 +73,6 @@ class CasesFeedCell: UICollectionViewCell {
                         let page = round(offset.x / self.bounds.width)
                         // Send the page of the visible image to the PagingInfoSubject
                         self.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
-
                     }
                     return section
                 }
@@ -94,9 +91,7 @@ class CasesFeedCell: UICollectionViewCell {
         layer.cornerRadius = 10
         
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
-        
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
-        
         backgroundColor = .systemBackground
         
         actionButtonsView.delegate = self
@@ -169,13 +164,20 @@ class CasesFeedCell: UICollectionViewCell {
         
         caseUrlImages = viewModel.caseImages
         compositionalCollectionView.reloadData()
+        
+        if viewModel.caseIsAnonymous {
+            print(viewModel.clinicalCase.caseTitle + "is  " + String(viewModel.caseIsAnonymous))
+            profileImageView.image = UIImage(named: "user.profile.privacy")
+        } else {
+            print(viewModel.clinicalCase.caseTitle + "is  " + String(viewModel.caseIsAnonymous))
+            profileImageView.image = UIImage(named: "user.profile")
+        }
     }
     
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
                  layer.borderColor = UIColor.quaternarySystemFill.cgColor
              }
          }
@@ -185,14 +187,17 @@ class CasesFeedCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        if viewModel.caseIsAnonymous {
-            #warning("We need image for anonymous")
-            profileImageView.image = UIImage(named: "user.profile.privacy")
-        } else {
-            if let imageUrl = user.profileImageUrl, imageUrl != "" {
-                profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
+        if let imageUrl = user.profileImageUrl, imageUrl != "", !viewModel.caseIsAnonymous {
+            profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
+        
+        /*
+         if viewModel.caseIsAnonymous {
+         print(viewModel.clinicalCase.caseTitle + "is" + String(viewModel.caseIsAnonymous))
+         profileImageView.image = UIImage(named: "user.profile.privacy")
+         } else {
+         */
+        //}
     }
     
     required init?(coder: NSCoder) {

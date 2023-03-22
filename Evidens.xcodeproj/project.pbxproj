@@ -312,6 +312,8 @@
 		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
 		5FA23F40293F24ED00A913CB /* GroupMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */; };
 		5FA23F42293F65D000A913CB /* GroupSizeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F41293F65D000A913CB /* GroupSizeCell.swift */; };
+		5FA2639129CB49A700E61357 /* InterestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639029CB49A700E61357 /* InterestsViewController.swift */; };
+		5FA2639329CB4C0700E61357 /* InterestsRegistrationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */; };
 		5FA2EAED28FD58E00054BA5B /* SkeletonNotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAEC28FD58E00054BA5B /* SkeletonNotificationCell.swift */; };
 		5FA2EAEF28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */; };
 		5FA2FB2928DC2D7100B37424 /* EmptyBookmarkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */; };
@@ -730,6 +732,8 @@
 		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
 		5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersViewController.swift; sourceTree = "<group>"; };
 		5FA23F41293F65D000A913CB /* GroupSizeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSizeCell.swift; sourceTree = "<group>"; };
+		5FA2639029CB49A700E61357 /* InterestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsViewController.swift; sourceTree = "<group>"; };
+		5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsRegistrationHeader.swift; sourceTree = "<group>"; };
 		5FA2EAEC28FD58E00054BA5B /* SkeletonNotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonNotificationCell.swift; sourceTree = "<group>"; };
 		5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonFollowersFollowingCell.swift; sourceTree = "<group>"; };
 		5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBookmarkCell.swift; sourceTree = "<group>"; };
@@ -998,6 +1002,7 @@
 				5F4493EF2782193E008FD6ED /* RegisterTypeCell.swift */,
 				5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */,
 				5F9E429A28812F6C00C2153B /* RegisterCell.swift */,
+				5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */,
 			);
 			path = Register;
 			sourceTree = "<group>";
@@ -1985,6 +1990,7 @@
 				5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */,
 				5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */,
 				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
+				5FA2639029CB49A700E61357 /* InterestsViewController.swift */,
 				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
 			);
 			path = Registration;
@@ -2872,6 +2878,7 @@
 				5F0D2B0328C34BD800BE5DD5 /* AboutSettingsViewController.swift in Sources */,
 				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
+				5FA2639129CB49A700E61357 /* InterestsViewController.swift in Sources */,
 				5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */,
 				5FA9D19529A7B5A5004EF26A /* ApplyJobHeader.swift in Sources */,
 				5F0A4F46271C854600700304 /* Protocols.swift in Sources */,
@@ -3081,6 +3088,7 @@
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
 				5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */,
 				5F9E4285287BE5C700C2153B /* DiagnosisResolvedView.swift in Sources */,
+				5FA2639329CB4C0700E61357 /* InterestsRegistrationHeader.swift in Sources */,
 				5FA9D17629A4D138004EF26A /* JobService.swift in Sources */,
 				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
 				5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */,

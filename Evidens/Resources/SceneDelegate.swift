@@ -17,8 +17,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = ContainerViewController()
-        //window?.rootViewController = UINavigationController(rootViewController: WelcomeViewController())
+        //window?.rootViewController = ContainerViewController()
+        window?.rootViewController = UINavigationController(rootViewController: InterestsViewController())
         window?.makeKeyAndVisible()
         
         if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty {

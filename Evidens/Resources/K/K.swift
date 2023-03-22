@@ -9,6 +9,9 @@ import UIKit
 import Firebase
 import FirebaseFirestore
 
+// App
+let APP_NAME = "MyEvidens"
+
 // Colors
 let primaryColor =  UIColor.systemBlue //UIColor(rgb: 0x00C6B7)
 let lightColor = UIColor(rgb: 0xF1F4F7)

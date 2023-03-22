@@ -142,15 +142,17 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     self.checkIfUserLikedCase()
                     self.checkIfUserBookmarkedCase()
                     self.casesCollectionView.refreshControl?.endRefreshing()
-                    self.cases.forEach { clinicalCase in
-                        UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                            self.users.append(user)
-                            self.casesLoaded = true
-                            self.activityIndicator.stop()
-                            self.casesCollectionView.reloadData()
-                            self.casesCollectionView.isHidden = false
-                            self.exploreCasesToolbar.isHidden = false
-                        }
+                    
+                    #warning("Check if this works")
+                    let visibleUserUids = self.cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    
+                    UserService.fetchUsers(withUids: visibleUserUids) { users in
+                        self.users = users
+                        self.casesLoaded = true
+                        self.activityIndicator.stop()
+                        self.casesCollectionView.reloadData()
+                        self.casesCollectionView.isHidden = false
+                        self.exploreCasesToolbar.isHidden = false
                     }
                 }
             }
@@ -171,8 +173,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         CaseService.fetchCommentsForCase(caseId: clinicalCase.caseId) { comments in
                             self.cases[index].numberOfComments = comments
                             self.casesCollectionView.reloadData()
-                            print(self.cases[index].likes)
-                            print(self.cases[index].numberOfComments)
+                            //print(self.cases[index].likes)
+                            //print(self.cases[index].numberOfComments)
                         }
                     }
                 }
@@ -191,7 +193,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             }
         }
     }
-    
+    /*
     private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
         /*
         if cases.isEmpty {
@@ -215,7 +217,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             return flowLayout
         //}
     }
-    
+    */
     private func createTwoColumnFlowCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
@@ -247,8 +249,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         let section = NSCollectionLayoutSection(group: group)
                         return section
                     } else {
-#warning("remake when cases collectionview is not empty with n rows and 2 columns :)")
-                        print("cases is not empty")
                         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                         
@@ -280,13 +280,12 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 
             } else {
                 if self.cases.isEmpty {
-                    // Main cases view
-                    print("cases is empty")
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
                     let section = NSCollectionLayoutSection(group: group)
                     return section
                 } else {
+                    print("main cases view")
                     let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                     let item = NSCollectionLayoutItem(layoutSize: itemSize)
                     
@@ -302,7 +301,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     
                     return section
                 }
-                
             }
         }
         return layout
@@ -433,7 +431,10 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
             cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+            guard cases[indexPath.row].privacyOptions == .visible else { return cell }
+            
             let userIndex = users.firstIndex { user in
+                
                 if user.uid == cases[indexPath.row].ownerUid {
                     return true
                 }
@@ -450,7 +451,6 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        print("dequeueing header")
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
         if indexPath.section == 1 {
             header.configureWith(title: "For you", linkText: "See All")
@@ -462,6 +462,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("tap")
         if displaysExploringWindow && indexPath.section == 0 {
             let profession = Profession.Professions.allCases[indexPath.row].rawValue
             
@@ -510,10 +511,11 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         case .all:
-            print("all")
             indexSelected = 1
             self.casesLoaded = false
             self.casesCollectionView.isHidden = true
+            self.cases.removeAll()
+            self.users.removeAll()
             self.activityIndicator.start()
             
             CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
@@ -541,9 +543,10 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
             }
 
         case .recents:
-            print("recents")
             indexSelected = 2
             self.casesLoaded = false
+            self.cases.removeAll()
+            self.users.removeAll()
             self.casesCollectionView.isHidden = true
             self.activityIndicator.start()
             

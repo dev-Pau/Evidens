@@ -104,8 +104,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(CommentsSectionHeader.self, forCellWithReuseIdentifier: headerReuseIdentifier)
         
-        switch clinicalCase.type {
-            
+        switch clinicalCase.type { 
         case .text:
             collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         case .textWithImage:
@@ -116,7 +115,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private func fetchComments() {
         CommentService.fetchCaseComments(forCase: clinicalCase, forType: type) { fetchedComments in
             self.comments = fetchedComments
-            
             fetchedComments.forEach { comment in
                 UserService.fetchUser(withUid: comment.uid) { user in
                     self.ownerComments.append(user)
