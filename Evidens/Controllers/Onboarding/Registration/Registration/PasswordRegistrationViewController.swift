@@ -324,7 +324,7 @@ class PasswordRegistrationViewController: UIViewController {
     @objc func handleCreateAccount() {
         guard let password = passwordTextField.text else { return }
 
-        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: password, profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: password, profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "", interests: [])
         
         progressIndicator.show(in: view)
     

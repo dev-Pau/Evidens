@@ -195,7 +195,8 @@ class FullNameRegistrationViewController: UIViewController {
         user.firstName = firstName
         user.lastName = lastName
         
-        let controller = ImageRegistrationViewController(user: user)
+        //let controller = ImageRegistrationViewController(user: user)
+        let controller = InterestsViewController(user: user)
         
         let backItem = UIBarButtonItem()
         backItem.tintColor = .label

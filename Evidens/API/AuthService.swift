@@ -21,6 +21,7 @@ struct AuthCredentials {
     var category: User.UserCategory
     var profession: String
     var speciality: String
+    var interests: [String]
 }
 
 struct AuthService {
@@ -101,11 +102,18 @@ struct AuthService {
     }
     
     static func updateUserRegistrationNameDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
-        
-        let data: [String: Any] = ["phase": credentials.phase.rawValue,
-                                   "firstName": credentials.firstName.capitalized,
-                                   "lastName": credentials.lastName.capitalized]
-        
+        var data = [String: Any]()
+        if credentials.interests.isEmpty {
+            data = ["phase": credentials.phase.rawValue,
+                                       "firstName": credentials.firstName.capitalized,
+                                       "lastName": credentials.lastName.capitalized]
+        } else {
+            data = ["phase": credentials.phase.rawValue,
+                                       "firstName": credentials.firstName.capitalized,
+                                       "lastName": credentials.lastName.capitalized,
+                                       "interests": credentials.interests]
+        }
+       
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
 
     }

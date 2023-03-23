@@ -314,6 +314,7 @@
 		5FA23F42293F65D000A913CB /* GroupSizeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F41293F65D000A913CB /* GroupSizeCell.swift */; };
 		5FA2639129CB49A700E61357 /* InterestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639029CB49A700E61357 /* InterestsViewController.swift */; };
 		5FA2639329CB4C0700E61357 /* InterestsRegistrationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */; };
+		5FA2639529CC35F500E61357 /* RegistrationInterestsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639429CC35F500E61357 /* RegistrationInterestsCell.swift */; };
 		5FA2EAED28FD58E00054BA5B /* SkeletonNotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAEC28FD58E00054BA5B /* SkeletonNotificationCell.swift */; };
 		5FA2EAEF28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */; };
 		5FA2FB2928DC2D7100B37424 /* EmptyBookmarkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */; };
@@ -734,6 +735,7 @@
 		5FA23F41293F65D000A913CB /* GroupSizeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSizeCell.swift; sourceTree = "<group>"; };
 		5FA2639029CB49A700E61357 /* InterestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsViewController.swift; sourceTree = "<group>"; };
 		5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsRegistrationHeader.swift; sourceTree = "<group>"; };
+		5FA2639429CC35F500E61357 /* RegistrationInterestsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationInterestsCell.swift; sourceTree = "<group>"; };
 		5FA2EAEC28FD58E00054BA5B /* SkeletonNotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonNotificationCell.swift; sourceTree = "<group>"; };
 		5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonFollowersFollowingCell.swift; sourceTree = "<group>"; };
 		5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBookmarkCell.swift; sourceTree = "<group>"; };
@@ -1003,6 +1005,7 @@
 				5F4493F127832020008FD6ED /* RegisterUserTypeCell.swift */,
 				5F9E429A28812F6C00C2153B /* RegisterCell.swift */,
 				5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */,
+				5FA2639429CC35F500E61357 /* RegistrationInterestsCell.swift */,
 			);
 			path = Register;
 			sourceTree = "<group>";
@@ -1989,9 +1992,9 @@
 				5F9E42952880583C00C2153B /* ProfessionRegistrationViewController.swift */,
 				5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */,
 				5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */,
+				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
 				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
 				5FA2639029CB49A700E61357 /* InterestsViewController.swift */,
-				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
 			);
 			path = Registration;
 			sourceTree = "<group>";
@@ -2853,6 +2856,7 @@
 				5FA6939229A3809400DF3ADC /* Location.swift in Sources */,
 				5FA32DC828E1E85700D83759 /* OnboardingMessage.swift in Sources */,
 				5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */,
+				5FA2639529CC35F500E61357 /* RegistrationInterestsCell.swift in Sources */,
 				5FA9D18C29A76F50004EF26A /* JobManagerViewController.swift in Sources */,
 				5F9483B32923A76600D68B46 /* GroupDescriptionCell.swift in Sources */,
 				5F9A280429743B9C0052E618 /* GroupSelectorCell.swift in Sources */,

@@ -151,6 +151,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         self.casesLoaded = true
                         self.activityIndicator.stop()
                         self.casesCollectionView.reloadData()
+                        if user.phase != .verified {
+                            self.view.addSubview(self.lockView)
+                        }
                         self.casesCollectionView.isHidden = false
                         self.exploreCasesToolbar.isHidden = false
                     }
@@ -318,7 +321,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200)
         ])
-
+        
         if displaysExploringWindow || displaysFilteredWindow {
             view.addSubviews(casesCollectionView)
             casesCollectionView.frame = view.bounds
@@ -330,7 +333,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 exploreCasesToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 exploreCasesToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 exploreCasesToolbar.heightAnchor.constraint(equalToConstant: 50),
-              
+                
                 casesCollectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
                 casesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 casesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -353,7 +356,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
         casesCollectionView.register(ExploreCaseCell.self, forCellWithReuseIdentifier: exploreCaseCellReuseIdentifier)
-
+        
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         

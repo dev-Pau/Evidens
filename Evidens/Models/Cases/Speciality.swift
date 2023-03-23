@@ -448,7 +448,6 @@ extension Speciality {
         case .speech:
 #warning("pending to configure speech ones")
             return physiotherapySpecialities()
-        }
-        
+        } 
     }
 }

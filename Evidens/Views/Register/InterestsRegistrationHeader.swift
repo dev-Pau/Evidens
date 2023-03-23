@@ -9,25 +9,21 @@ import UIKit
 
 class InterestsRegistrationHeader: UICollectionReusableView {
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "What do you want to see on \(APP_NAME)"
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .black)
-        return label
-    }()
-    
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Interests are used to personalize your experience and will not be visible or shared on your profile."
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+    private var titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "")
         return label
     }()
 
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        label.sizeToFit()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -47,8 +43,13 @@ class InterestsRegistrationHeader: UICollectionReusableView {
             
             descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             descriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+    }
+    
+    func setTitle(text: String, description: String) {
+        titleLabel.text = text
+        descriptionLabel.text = description
     }
 }

@@ -339,7 +339,7 @@ class WelcomeViewController: UIViewController {
                                 let firstName = user.profile?.givenName/*user?.profile?.givenName*/else { return }
 
                         
-                        var credentials = AuthCredentials(firstName: firstName, lastName: "", email: email, password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+                        var credentials = AuthCredentials(firstName: firstName, lastName: "", email: email, password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "", interests: [])
                           
                         if let lastName = user.profile?.familyName {
                             credentials.lastName = lastName
@@ -451,7 +451,7 @@ extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizat
                     if newUser {
                         guard let appleUser = authResult?.user else { return }
                         
-                        let credentials = AuthCredentials(firstName: firstName ?? "", lastName: lastName ?? "", email: email ?? "", password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "")
+                        let credentials = AuthCredentials(firstName: firstName ?? "", lastName: lastName ?? "", email: email ?? "", password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "", interests: [])
                         
                         
                         AuthService.registerAppleUser(withCredential: credentials, withUid: appleUser.uid) { error in

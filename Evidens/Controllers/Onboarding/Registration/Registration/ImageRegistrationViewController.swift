@@ -267,7 +267,7 @@ class ImageRegistrationViewController: UIViewController {
                   let firstName = user.firstName,
                   let lastName = user.lastName else { return }
             
-            let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "")
+            let credentials = AuthCredentials(firstName: firstName, lastName: lastName, email: "", password: "", profileImageUrl: "", phase: .verificationPhase, category: .none, profession: "", speciality: "", interests: user.interests ?? [])
             
             progressIndicator.show(in: view)
             

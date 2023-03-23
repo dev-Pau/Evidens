@@ -25,7 +25,7 @@ class SecondarySearchHeader: UICollectionReusableView {
         return label
     }()
     
-    private let seeAllButton: UIButton = {
+    private lazy var seeAllButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = primaryColor

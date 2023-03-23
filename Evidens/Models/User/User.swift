@@ -54,6 +54,7 @@ struct User {
     var speciality: String?
     var isFollowed = false
     var stats: UserStats!
+    var interests: [String]?
     var isCurrentUser: Bool { return Auth.auth().currentUser?.uid == uid }
     
 
@@ -68,6 +69,7 @@ struct User {
         self.phase = UserRegistrationPhase(rawValue: dictionary["phase"] as? Int ?? 00) ?? .categoryPhase
         self.profession = dictionary["profession"] as? String ?? ""
         self.speciality = dictionary["speciality"] as? String ?? ""
+        self.interests = dictionary["interests"] as? [String] ?? []
     
         self.stats = UserStats(followers: 0, following: 0, posts: 0, cases: 0)
     }

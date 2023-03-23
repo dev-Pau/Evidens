@@ -227,7 +227,9 @@ class VerificationRegistrationViewController: UIViewController {
         
         UserDefaults.standard.set(user.uid, forKey: "uid")
         UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-        UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+        UserDefaults.standard.set(user.profileImageUrl ?? "", forKey: "userProfileImageUrl")
+        
+        progressIndicator.show(in: view)
         
         AuthService.updateUserRegistrationDocumentationDetails(withUid: uid) { error in
             if let error = error {

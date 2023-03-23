@@ -209,7 +209,7 @@ class SpecialityRegistrationViewController: UIViewController {
               let speciality = user.speciality,
               let uid = user.uid else { return }
         
-        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: "", profileImageUrl: "", phase: .userDetailsPhase, category: user.category, profession: profession, speciality: speciality)
+        let credentials = AuthCredentials(firstName: "", lastName: "", email: email, password: "", profileImageUrl: "", phase: .userDetailsPhase, category: user.category, profession: profession, speciality: speciality, interests: [])
         
         progressIndicator.show(in: view)
         
