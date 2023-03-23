@@ -186,7 +186,7 @@ struct Group {
     var visibility: Visibility
     var permissions: Permissions
     var categories: [String]
-    var profession: String
+    var professions: [String]
     var bannerUrl: String?
     var members: Int
     var profileUrl: String?
@@ -203,7 +203,7 @@ struct Group {
         self.permissions = Permissions(rawValue: dictionary["permissions"] as? Int ?? 0) ?? .invite
         self.categories = dictionary["categories"] as? [String] ?? [""]
         self.members = dictionary["members"] as? Int ?? 0
-        self.profession = dictionary["profession"] as? String ?? ""
+        self.professions = dictionary["professions"] as? [String] ?? []
         self.bannerUrl = dictionary["bannerUrl"] as? String ?? ""
         self.profileUrl = dictionary["profileUrl"] as? String ?? ""
     }

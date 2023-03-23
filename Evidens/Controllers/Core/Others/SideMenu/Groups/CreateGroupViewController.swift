@@ -119,7 +119,7 @@ class CreateGroupViewController: UIViewController {
             viewModel.name = group.name
             viewModel.description = group.description
             viewModel.categories = group.categories
-            viewModel.profession = group.profession
+            viewModel.professions = group.professions
             viewModel.visibility = group.visibility
             viewModel.permissions = group.permissions
         } else {
@@ -134,7 +134,7 @@ class CreateGroupViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = group != nil ? "Edit group" : "Create group"
+        title = group != nil ? "Edit Group" : "Create Group"
         let buttonTitle = group != nil ? "Edit" : "Create"
         
         var container = AttributeContainer()
@@ -198,13 +198,13 @@ class CreateGroupViewController: UIViewController {
     }
     
     @objc func handleCreateGroup() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let profession = viewModel.profession, let visibility = viewModel.visibility, let permissions = viewModel.permissions else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupName = viewModel.name, let groupDescription = viewModel.description, let groupCategories = viewModel.categories, let professions = viewModel.professions, let visibility = viewModel.visibility, let permissions = viewModel.permissions else { return }
         
         var groupToUpload = Group(groupId: "", dictionary: [:])
         
         groupToUpload.name = groupName
         groupToUpload.description = groupDescription
-        groupToUpload.profession = profession
+        groupToUpload.professions = professions
         groupToUpload.ownerUid = uid
         groupToUpload.visibility = visibility
         groupToUpload.permissions = permissions
@@ -368,7 +368,7 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupNameCellReuseIdentifier, for: indexPath) as! EditNameCell
             cell.set(title: Job.JobSections.professions.rawValue, placeholder: GroupSections.allCases[indexPath.row].rawValue, name: "")
             cell.disableTextField()
-            if let group = group { cell.set(text: group.profession) }
+            if let group = group { cell.set(text: group.professions.joined(separator: ", ")) }
             return cell
         } else if indexPath.row == 4 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupCategoriesCellReuseIdentifier, for: indexPath) as! GroupCategoriesCell
@@ -391,10 +391,18 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row == 3 {
             let controller = JobAssistantViewController(jobSection: .professions)
-            controller.delegate = self
+            
+            if let professions = viewModel.professions {
+                controller.selectedProfessions = professions
+            }
+            
+            controller.allowsMultipleSelection = true
+            controller.multipleDelegate = self
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label
             backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -533,11 +541,12 @@ extension CreateGroupViewController: GroupDescriptionCellDelegate {
     }
 }
 
-extension CreateGroupViewController: JobAssistantViewControllerDelegate {
-    func didSelectItem(_ text: String) {
+extension CreateGroupViewController: JobAssistantMultipleViewControllerDelegate {
+    func didSelectItems(_ text: [String]) {
         let cell = collectionView.cellForItem(at: IndexPath(item: 3, section: 0)) as! EditNameCell
-        cell.set(text: text)
-        viewModel.profession = text
+        let professions = text.joined(separator: ", ")
+        cell.set(text: professions)
+        viewModel.professions = text
         groupIsValid()
     }
 }

@@ -246,6 +246,10 @@ extension CreateJobViewController: UICollectionViewDelegateFlowLayout, UICollect
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 5 {
             let controller = JobAssistantViewController(jobSection: .professions)
+            if let profession = viewModel.profession {
+                controller.selectedProfessions = [profession]
+            }
+
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         }

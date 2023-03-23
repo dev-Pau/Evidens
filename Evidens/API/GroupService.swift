@@ -20,7 +20,7 @@ struct GroupService {
                     "ownerUid": uid,
                     "id": group.groupId,
                     "description": group.description,
-                    "profession": group.profession,
+                    "professions": group.professions,
                     "visibility": group.visibility.rawValue,
                     "categories": group.categories,
                     "permissions": group.permissions.rawValue,

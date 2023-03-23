@@ -13,12 +13,22 @@ protocol JobAssistantViewControllerDelegate: AnyObject {
     func didSelectItem(_ text: String)
 }
 
+protocol JobAssistantMultipleViewControllerDelegate: AnyObject {
+    func didSelectItems(_ text: [String])
+}
+
+
+
 class JobAssistantViewController: UIViewController {
     weak var delegate: JobAssistantViewControllerDelegate?
+    weak var multipleDelegate: JobAssistantMultipleViewControllerDelegate?
    
     private var jobSection: Job.JobSections
     
     private var dataSource = [String]()
+    
+    var allowsMultipleSelection: Bool = false
+    var selectedProfessions = [String]()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -101,6 +111,13 @@ class JobAssistantViewController: UIViewController {
                           "Clinical Reviewer",
                           "Clinical Specialist"]
         }
+        
+        if jobSection == .professions && allowsMultipleSelection {
+            collectionView.allowsSelection = true
+            collectionView.allowsMultipleSelection = true
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(handleAddProfessions))
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        }
        
         if jobSection == .location {
             searchBar.delegate = self
@@ -121,6 +138,12 @@ class JobAssistantViewController: UIViewController {
             collectionView.frame = view.bounds
         }
     }
+    
+    @objc func handleAddProfessions() {
+        guard !selectedProfessions.isEmpty else { return }
+        multipleDelegate?.didSelectItems(selectedProfessions)
+        navigationController?.popViewController(animated: true)
+    }
 }
 
 
@@ -133,6 +156,9 @@ extension JobAssistantViewController: UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobTypeCellReuseIdentifier, for: indexPath) as! ClinicalTypeCell
         cell.set(title: dataSource[indexPath.row])
+        if selectedProfessions.contains(dataSource[indexPath.row]) {
+            collectionView.selectItem(at: IndexPath(item: indexPath.row, section: 0), animated: false, scrollPosition: .left)
+        }
         return cell
     }
     
@@ -142,8 +168,23 @@ extension JobAssistantViewController: UICollectionViewDelegate, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard dataSource.count > 0 else { return }
-        delegate?.didSelectItem(dataSource[indexPath.row])
-        navigationController?.popViewController(animated: true)
+        
+        if jobSection == .professions && allowsMultipleSelection {
+            selectedProfessions.append(dataSource[indexPath.row])
+            navigationItem.rightBarButtonItem?.isEnabled = selectedProfessions.isEmpty ? false : true
+        } else {
+            delegate?.didSelectItem(dataSource[indexPath.row])
+            navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if jobSection == .professions && allowsMultipleSelection {
+            if let professionIndex = selectedProfessions.firstIndex(where: { $0 == dataSource[indexPath.row] }) {
+                selectedProfessions.remove(at: professionIndex)
+                navigationItem.rightBarButtonItem?.isEnabled = selectedProfessions.isEmpty ? false : true
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -152,6 +193,14 @@ extension JobAssistantViewController: UICollectionViewDelegate, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if jobSection == .professions && allowsMultipleSelection {
+            return selectedProfessions.count < 3 ? true : false
+        } else {
+            return true
+        }
     }
 }
 

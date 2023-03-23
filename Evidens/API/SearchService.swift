@@ -72,7 +72,7 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .jobs:
-                let firstGroupToFetch = COLLECTION_GROUPS.whereField("profession", isEqualTo: topic).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_GROUPS.whereField("profession", arrayContains: topic).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
@@ -142,7 +142,7 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .jobs:
-                let firstGroupToFetch = COLLECTION_GROUPS.whereField("profession", isEqualTo: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_GROUPS.whereField("profession", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)

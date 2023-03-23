@@ -62,7 +62,7 @@ class AddAboutViewController: UIViewController {
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleContinue)))
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSkip)))
         return label
     }()
     
@@ -264,15 +264,7 @@ class AddAboutViewController: UIViewController {
     
     @objc func handleSkip() {
         viewModel?.aboutText = nil
-        let controller = ProfileCompletedViewController(user: user!, viewModel: viewModel!)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+        uploadUserOnboardingChanges()
     }
 }
 
