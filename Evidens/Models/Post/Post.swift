@@ -23,7 +23,6 @@ struct Post {
     let edited: Bool
     let groupId: String?
     let privacyOptions: PrivacyOptions
-    let imageHeight: CGFloat
     let postImageUrl: [String]
     
     var didLike = false
@@ -142,7 +141,7 @@ struct Post {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = PostType(rawValue: dictionary["type"] as? Int ?? 0) ?? .plainText
       
-        self.imageHeight = dictionary["imageHeight"] as? CGFloat ?? 0.0
+        //self.imageHeight = dictionary["imageHeight"] as? CGFloat ?? 0.0
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [""]
         
         self.postDocumentUrl = dictionary["postDocumentUrl"] as? String ?? ""

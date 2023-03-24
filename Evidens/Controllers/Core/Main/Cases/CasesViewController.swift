@@ -14,6 +14,7 @@ private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 private let primaryEmtpyCellReuseIdentifier = "PrimaryEmptyCellReuseIdentifier"
 private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
+private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
     var users = [User]()
@@ -22,6 +23,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     private var casesLoaded = false
     
     var displaysExploringWindow = false
+    private var exploringInterestHeaders = [String]()
+    private var dataCategoryHeaders = [String]()
+    
     var displaysFilteredWindow = false
     
     private var displayState: DisplayState = .none
@@ -234,6 +238,9 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             } else if self.displaysExploringWindow {
                 // Explore Clincal Cases view
                 if sectionNumber == 0 {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                    
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
                     let tripleVerticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.35),
                                                                                                                   heightDimension: .absolute(280)), subitem: item, count: 3)
@@ -244,9 +251,25 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     section.interGroupSpacing = 10
                     section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
                     section.orthogonalScrollingBehavior = .continuous
+                    section.boundarySupplementaryItems = [header]
                     return section
                 } else {
-                    if self.cases.isEmpty {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(320), heightDimension: .absolute(40))
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    let group = NSCollectionLayoutGroup.horizontal(
+                        layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)), subitems: [item])
+                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
+                    section.interGroupSpacing = 10
+                    
+                    section.boundarySupplementaryItems = [header]
+
+                    return section
+                    /*
+                    if !self.cases.isEmpty {
                         let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
                         let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
                         let section = NSCollectionLayoutSection(group: group)
@@ -279,6 +302,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
 
                         return section
                     }
+                     */
                 }
                 
             } else {
@@ -325,7 +349,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         if displaysExploringWindow || displaysFilteredWindow {
             view.addSubviews(casesCollectionView)
             casesCollectionView.frame = view.bounds
-            
         } else {
             view.addSubviews(casesCollectionView, exploreCasesToolbar)
             NSLayoutConstraint.activate([
@@ -353,13 +376,22 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
         casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
-        
+        casesCollectionView.register(RegistrationInterestsCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         casesCollectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: exploreHeaderReuseIdentifier)
         casesCollectionView.register(ExploreCaseCell.self, forCellWithReuseIdentifier: exploreCaseCellReuseIdentifier)
         
         casesCollectionView.delegate = self
         casesCollectionView.dataSource = self
         
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        // Get all the specialities for the user
+        //let userInterests = Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: user.profession!)!).map({ $0.name })
+        // Remove the user main speciality
+        //exploringInterestHeaders = userInterests.filter({ $0 != user.speciality! })
+        //exploringInterestHeaders.insert(user.speciality!, at: 0)
+        dataCategoryHeaders = Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: user.profession!)!).map({ $0.name })
     }
     
     @objc func handleRefresh() {
@@ -371,7 +403,13 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
 extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
 #warning("when developing showing more sections, need to segment this in if we are in displays exploring, normal displaying or the other with category")
-        return displaysExploringWindow ? 2 : 1
+        if displaysExploringWindow {
+            return 2
+            //return cases.isEmpty ? 2 : exploringInterestHeaders.count + 1
+        } else {
+            return 1
+        }
+        //return displaysExploringWindow ? 2 : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -380,7 +418,11 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 return Profession.Professions.allCases.count
             } else {
                 #warning("when developing showing more sections, need to segment this in sections 1, 2, 3, etc and not just 1 sentence")
-                return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
+                return dataCategoryHeaders.count
+                // si cases loaded, mirar si for you, recents, i based on interests is empty i : 1 (cel·la de no content).
+                // dins l'else, mimrar cas a cas i retornar el num de elements de cada categoría
+                
+                //return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
             }
         } else {
             return casesLoaded ? cases.isEmpty ? 1 : cases.count : 0
@@ -394,7 +436,11 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 cell.set(category: Profession.Professions.allCases[indexPath.row].rawValue)
                 return cell
             } else {
-                if cases.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
+                cell.setText(text: dataCategoryHeaders[indexPath.row])
+                return cell
+                /*
+                if !cases.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                     cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Nothing to see here —— yet.", withDescription: "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.", withButtonText: "    Share a case    ")
                     cell.delegate = self
@@ -423,6 +469,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                      }
                      */
                 }
+                 */
             }
         }
         
@@ -455,18 +502,25 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: exploreHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-        if indexPath.section == 1 {
-            header.configureWith(title: "For you", linkText: "See All")
+        //header.configureWith(title: dataCategoryHeaders[indexPath.section - 1], linkText: "See All")
+        if indexPath.section == 0 {
+            header.configureWith(title: "Browse disciplines", linkText: "")
+            header.separatorView.isHidden = true
+        } else if indexPath.section == 1 {
+            header.configureWith(title: "For you", linkText: "") // Orthodontics
+            header.hideSeeAllButton()
+            header.separatorView.isHidden = false
+        } else if indexPath.section == 2 {
+            header.configureWith(title: "Most Recent", linkText: "See All") // Odontology
         } else {
-            header.configureWith(title: "Most Recent", linkText: "See All")
+            //header.configureWith(title: "My network", linkText: "See All")
         }
-
+         
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("tap")
-        if displaysExploringWindow && indexPath.section == 0 {
+        if displaysExploringWindow {
             let profession = Profession.Professions.allCases[indexPath.row].rawValue
             
             self.navigationController?.delegate = self
@@ -476,7 +530,12 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
-            controller.title = profession
+            if indexPath.section == 0 {
+                controller.title = profession
+            } else {
+                controller.title = dataCategoryHeaders[indexPath.row]
+            }
+
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
             
@@ -785,7 +844,9 @@ extension CasesViewController {
                     }
                 }
             }
-            #warning("Need to put an else if with DisplaysExploreWidnow to show trending")
+            
+        } else if displaysExploringWindow {
+#warning("Need to put an else if with DisplaysExploreWidnow to show trending")
         } else {
             
             if indexSelected == 1 {

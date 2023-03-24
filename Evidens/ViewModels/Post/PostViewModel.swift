@@ -133,10 +133,6 @@ struct PostViewModel {
         }
     }
     
-    var sizeOfImage: CGFloat {
-        return post.imageHeight
-    }
-    
     init(post: Post) {
         self.post = post
     }

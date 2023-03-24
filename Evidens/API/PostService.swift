@@ -35,20 +35,15 @@ struct PostService {
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
-    static func uploadSingleImagePost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, postImageUrl: [String]?, imageHeight: CGFloat, user: User, completion: @escaping(FirestoreCompletion)) {
+    static func uploadSingleImagePost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
-                    "likes": 0,
                     "ownerUid": uid,
-                    "comments": 0,
-                    "shares": 0,
                     "professions": professions.map({ $0.profession }),
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
-                    "bookmarks": 0,
-                    "imageHeight": imageHeight,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
 
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
@@ -199,11 +194,11 @@ struct PostService {
     }
     
     static func fetchHomeDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         if lastSnapshot == nil {
             // Fetch first group of posts
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 1)
             firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
@@ -254,13 +249,39 @@ struct PostService {
         var posts = [Post]()
         snapshot.documents.forEach({ document in
             fetchPost(withPostId: document.documentID) { post in
-                posts.append(post)
-                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                if snapshot.documents.count == posts.count {
-                    completion(posts)
+                getPostValuesFor(post: post) { newPost in
+                    posts.append(newPost)
+                    if snapshot.documents.count == posts.count {
+                        posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        completion(posts)
+                    }
                 }
             }
         })
+    }
+    
+    static func checkIfUserHasNewerPostsToDisplay(snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
+        //COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
+        let newQuery = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 1)
+
+        newQuery.getDocuments { snapshot, _ in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                print("here")
+                completion(snapshot!)
+                return
+            }
+            
+            guard snapshot.documents.last != nil else {
+                print("2nd here")
+                    completion(snapshot)
+                return
+            }
+            
+            print("we got something")
+            completion(snapshot)
+            
+        }
     }
     
     static func fetchRecentPosts(withPostId postId: [String], completion: @escaping([Post]) -> Void) {
@@ -358,6 +379,24 @@ struct PostService {
         }
     }
     
+    static func getPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
+        var auxPost = post
+        self.checkIfUserLikedPost(post: post) { like in
+            self.checkIfUserBookmarkedPost(post: post) { bookmark in
+                fetchLikesForPost(postId: post.postId) { likes in
+                    auxPost.likes = likes
+                    fetchCommentsForPost(postId: post.postId) { comments in
+                        auxPost.numberOfComments = comments
+                        auxPost.didLike = like
+                        auxPost.didBookmark = bookmark
+                        completion(auxPost)
+                    }
+                }
+            }
+        }
+    }
+
+
     static func likePost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         

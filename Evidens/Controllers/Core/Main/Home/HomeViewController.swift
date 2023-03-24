@@ -38,6 +38,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private var displayState: DisplayState = .none
     
     private var postsLastSnapshot: QueryDocumentSnapshot?
+    private var postsFirstSnapshot: QueryDocumentSnapshot?
+    
     private var postLastTimestamp: Int64?
     
     private var zoomTransitioning = ZoomTransitioning()
@@ -182,8 +184,22 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     @objc func handleRefresh() {
         if displaysSinglePost { return }
         HapticsManager.shared.vibrate(for: .success)
-        fetchFirstPostsGroup()
-        
+        checkIfUserHasNewPostsToDisplay()
+        //fetchFirstPostsGroup()
+    }
+    
+    private func checkIfUserHasNewPostsToDisplay() {
+        PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { snapshot in
+            if snapshot.isEmpty {
+                self.collectionView.refreshControl?.endRefreshing()
+                print("snaphsot is empty")
+            } else {
+                print("we got a new post")
+                PostService.fetchHomePosts(snapshot: snapshot, completion: { posts in
+                    print(posts.first?.postText)
+                })
+            }
+        }
     }
     
     //MARK: - API
@@ -196,28 +212,32 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 if snapshot.isEmpty {
                     self.loaded = true
                     self.activityIndicator.stop()
-                    self.collectionView.refreshControl?.endRefreshing()
                     self.collectionView.reloadData()
                     self.collectionView.isHidden = false
                 }
                 
                 PostService.fetchHomePosts(snapshot: snapshot) { fetchedPosts in
+                    self.postsFirstSnapshot = snapshot.documents.first
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts = fetchedPosts
-                    self.checkIfUserLikedPosts()
-                    self.checkIfUserBookmarkedPost()
-                    self.collectionView.refreshControl?.endRefreshing()
-                    self.posts.forEach { post in
-                        UserService.fetchUser(withUid: post.ownerUid) { user in
-                            self.users.append(user)
-                            self.loaded = true
-                            self.activityIndicator.stop()
-                            self.collectionView.reloadData()
-                            self.collectionView.isHidden = false
-                        }
+                    //self.checkIfUserLikedPosts()
+                    //self.checkIfUserBookmarkedPost()
+
+                    UserService.fetchUsers(withUids: self.posts.map({ $0.ownerUid })) { users in
+                        print("got more data completed")
+                        self.users = users
+                        self.loaded = true
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
                     }
                 }
             }
+            
+            
+            
+            
+            
         case .user:
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
@@ -304,7 +324,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         }
          */
     }
-    
+
     func checkIfUserLikedPosts() {
             //For every post in array fetched
             self.posts.forEach { post in
@@ -614,6 +634,7 @@ extension HomeViewController: HomeCellDelegate {
         let controller = PostLikesViewController(contentType: post)
         let backItem = UIBarButtonItem()
         backItem.title = ""
+        backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
         displayState = displaysSinglePost ? .others : .none

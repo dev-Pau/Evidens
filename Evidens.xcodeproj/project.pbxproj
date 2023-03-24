@@ -1993,8 +1993,8 @@
 				5F9E429228802FBD00C2153B /* SpecialityRegistrationViewController.swift */,
 				5F527D8A28818514009D5027 /* FullNameRegistrationViewController.swift */,
 				5F527D8828817CFB009D5027 /* VerificationRegistrationViewController.swift */,
-				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
 				5FA2639029CB49A700E61357 /* InterestsViewController.swift */,
+				5F527D8C2881DCF4009D5027 /* ImageRegistrationViewController.swift */,
 			);
 			path = Registration;
 			sourceTree = "<group>";

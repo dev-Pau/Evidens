@@ -533,7 +533,7 @@ class UploadPostViewController: UIViewController {
                     StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
                         // Post images saved to firebase. Upload post with images
                         // post: postTextView, type: .plainText, privacy: privacyType, user: user
-                        PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, professions: self.selectedProfessions, privacy: self.privacyType, postImageUrl: imageUrl, imageHeight: self.newHeight, user: self.user) { error in
+                        PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, professions: self.selectedProfessions, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
                             self.progressIndicator.dismiss(animated: true)
                             if let error = error {
                                 print("DEBUG: \(error.localizedDescription)")
@@ -664,7 +664,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                 self.postImages = images
                 self.addPostImagesToView(images: self.postImages)
             }
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
         }
     }
 }

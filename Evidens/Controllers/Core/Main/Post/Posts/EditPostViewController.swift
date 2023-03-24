@@ -162,7 +162,6 @@ class EditPostViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubviews(profileImageView, fullName, postTextView)
         
-        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -175,7 +174,7 @@ class EditPostViewController: UIViewController {
             profileImageView.widthAnchor.constraint(equalToConstant: 50),
             
             fullName.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 5),
+            fullName.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 15),
             fullName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             postTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
@@ -215,16 +214,16 @@ class EditPostViewController: UIViewController {
     func addSinglePostImageToView(image: UIImage) {
         postImageView.image = image
         postImages.append(image)
-        
-        let imageHeight = post.imageHeight.isZero ? 270 : post.imageHeight
-        
+
+        let ratio = image.size.width / image.size.height
+
         scrollView.addSubview(postImageView)
         
         NSLayoutConstraint.activate([
             postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             postImageView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            postImageView.heightAnchor.constraint(equalToConstant: imageHeight)
+            postImageView.heightAnchor.constraint(equalToConstant: (view.frame.width - 20) / ratio)
         ])
     }
     

@@ -159,8 +159,10 @@ struct CaseService {
     }
     
     static func fetchCasesWithProfession(lastSnapshot: QueryDocumentSnapshot?, profession: String, completion: @escaping(QuerySnapshot) -> Void) {
+        let queryField = Profession.getAllProfessions().map( { $0.profession }).contains(profession) ? "professions" : "specialities"
+        
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("professions", arrayContains: profession).limit(to: 10)
+            let firstGroupToFetch = COLLECTION_CASES.whereField(queryField, arrayContains: profession).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
@@ -173,7 +175,7 @@ struct CaseService {
                 completion(snapshot)
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("professions", isEqualTo: profession).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = COLLECTION_CASES.whereField(queryField, isEqualTo: profession).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard snapshot.documents.last != nil else { return }

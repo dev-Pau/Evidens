@@ -10,10 +10,11 @@ import UIKit
 class SecondarySearchHeader: UICollectionReusableView {
     weak var delegate: MainSearchHeaderDelegate?
     
-    private let separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .quaternarySystemFill
+        view.isHidden = false
         return view
     }()
     
