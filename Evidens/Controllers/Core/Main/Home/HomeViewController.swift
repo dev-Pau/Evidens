@@ -144,8 +144,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
         ])
         
-        //activityIndicator.startAnimating()
-
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
@@ -192,11 +190,34 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { snapshot in
             if snapshot.isEmpty {
                 self.collectionView.refreshControl?.endRefreshing()
+                self.collectionView.reloadData()
                 print("snaphsot is empty")
             } else {
                 print("we got a new post")
+                self.postsFirstSnapshot = snapshot.documents.last
                 PostService.fetchHomePosts(snapshot: snapshot, completion: { posts in
-                    print(posts.first?.postText)
+                    self.posts.insert(contentsOf: posts, at: 0)
+                    UserService.fetchUsers(withUids: posts.map({ $0.ownerUid })) { users in
+                        self.users.append(contentsOf: users)
+
+                        var newIndexPaths = [IndexPath]()
+                        posts.enumerated().forEach { index, post in
+                            newIndexPaths.append(IndexPath(item: index, section: 0))
+                            if newIndexPaths.count == posts.count {
+                                self.collectionView.refreshControl?.endRefreshing()
+                                self.collectionView.isScrollEnabled = false
+                                self.collectionView.performBatchUpdates {
+                                    self.collectionView.isScrollEnabled = false
+                                    self.collectionView.insertItems(at: newIndexPaths)
+                                    
+                                }
+                                
+                                DispatchQueue.main.async {
+                                    self.collectionView.isScrollEnabled = true
+                                }
+                            }
+                        }
+                    }
                 })
             }
         }

@@ -756,6 +756,7 @@ class UserProfileViewController: UIViewController {
                 
                 PostService.fetchRecentPosts(withPostId: postIDs) { recentPosts in
                     self.recentPosts = recentPosts
+                    print(recentPosts)
                     self.checkIfAllUserInformationIsFetched()
                 }
             case .failure(_):
@@ -959,6 +960,7 @@ class UserProfileViewController: UIViewController {
     private func checkIfAllUserInformationIsFetched() {
         userSectionsFetched += 1
         if userSectionsFetched == 12 {
+            print(self.user.stats)
             self.userDataLoaded = true
             collectionView.reloadData()
             scrollViewDidScroll(collectionView)

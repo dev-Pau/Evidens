@@ -198,7 +198,7 @@ struct PostService {
         
         if lastSnapshot == nil {
             // Fetch first group of posts
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 1)
+            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
@@ -263,7 +263,7 @@ struct PostService {
     static func checkIfUserHasNewerPostsToDisplay(snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
         //COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).limit(to: 10)
-        let newQuery = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 1)
+        let newQuery = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 10)
 
         newQuery.getDocuments { snapshot, _ in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -278,6 +278,8 @@ struct PostService {
                 return
             }
             
+        
+            
             print("we got something")
             completion(snapshot)
             
@@ -290,11 +292,10 @@ struct PostService {
         postId.forEach { id in
             fetchPost(withPostId: id) { post in
                 posts.append(post)
-                
-                posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                
-                completion(posts)
-                
+                if posts.count == postId.count {
+                    posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    completion(posts)
+                }
             }
         }
     }
