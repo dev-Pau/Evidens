@@ -25,22 +25,27 @@ struct Comment {
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""
-        //self.firstName = dictionary["firstName"] as? String ?? ""
-        //self.lastName = dictionary["lastName"] as? String ?? ""
         self.commentText = dictionary["comment"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        //self.profileImageUrl = dictionary["profileImageUrl"] as? String ?? ""
-        //self.category = dictionary["category"] as? String ?? ""
         self.anonymous = dictionary["anonymous"] as? Bool ?? false
-        //self.profession = dictionary["profession"] as? String ?? ""
-        //self.speciality = dictionary["speciality"] as? String ?? ""
         self.isAuthor = dictionary["isAuthor"] as? Bool ?? false
         self.isTextFromAuthor = dictionary["isTextFromAuthor"] as? Bool ?? false
     }
 }
 
-/*
- "category": user.category.userCategoryString as Any,
- "speciality": user.speciality as Any,
- "profession": user.profession as Any,
- */
+extension Comment {
+    
+    enum CommentOptions: String, CaseIterable {
+        case report = "Report Comment"
+        case delete = "Delete Comment"
+        
+        var commentOptionsImage: UIImage {
+            switch self {
+            case .report:
+                return UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            case .delete:
+                return UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            }
+        }
+    }
+}

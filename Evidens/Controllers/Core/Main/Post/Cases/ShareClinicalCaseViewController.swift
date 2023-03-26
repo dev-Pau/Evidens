@@ -776,8 +776,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
 
         guard let title = titleTextField.text, let description = descriptionTextView.text else { return }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        //showLoadingView()
+
         progressIndicator.show(in: view)
         
         if let group = group {
@@ -813,7 +812,6 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             }
         } else {
             if collectionImages.isEmpty {
-                #warning("")
                 CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user, professions: professionsSelected) { error in
                     self.progressIndicator.dismiss(animated: true)
                     if let error = error {
@@ -828,7 +826,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             else {
                 StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
                     CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user, professions: self.professionsSelected) { error in
-                        //self.dismissLoadingView()
+                        self.progressIndicator.dismiss(animated: true)
                         if let error = error {
                             print("DEBUG: \(error.localizedDescription)")
                             return
@@ -866,7 +864,7 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
             cell.specialityLabel.text = professionsSelected[indexPath.row].profession
             return cell
           
-        }else if collectionView == caseImagesCollectionView {
+        } else if collectionView == caseImagesCollectionView {
             let cell = caseImagesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
             cell.delegate = self
             cell.set(image: collectionImages[indexPath.row])
@@ -896,8 +894,6 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
         } else if collectionView == professionsCollectionView {
             return CGSize(width: size(forHeight: 30, forText: professionsSelected[indexPath.item].profession).width + 30, height: 30)
         } else if collectionView == specialitiesCollectionView {
-            //let cell = specialitiesCollectionView.cellForItem(at: indexPath) as! SpecialitiesCell
-            //let width = cell.size(forHeight: 50).width
             return CGSize(width: size(forHeight: 30, forText: specialitiesSelected[indexPath.item]).width + 30, height: 30)
         } else if collectionView == caseTypeCollectionView {
             return CGSize(width: size(forHeight: 30, forText: caseTypesSelected[indexPath.item]).width + 30, height: 30)
@@ -964,12 +960,10 @@ extension ShareClinicalCaseViewController: UITextViewDelegate {
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        //descriptionIndicator.isHidden = false
         descriptionTextTracker.isHidden = false
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        //descriptionIndicator.isHidden = true
         descriptionTextTracker.isHidden = true
     }
 }
@@ -1101,7 +1095,6 @@ extension ShareClinicalCaseViewController: CasePrivacyMenuLauncherDelegate {
         privacyTypeImage.image = option.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         casePrivacy = option
         privacyLabel.attributedText = aString
-        //self.group = Group(groupId: "", dictionary: [:])
         casePrivacyMenuLauncher.handleDismissMenu()
     }
 }

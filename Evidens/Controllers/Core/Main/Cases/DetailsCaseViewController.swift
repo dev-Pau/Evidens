@@ -34,8 +34,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private var type: Comment.CommentType
     
-    private var commentMenu = CommentsMenuLauncher()
-  
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
     
@@ -210,12 +208,12 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 }
 
 extension DetailsCaseViewController: CommentCellDelegate {
-
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        commentMenu.comment = comment
-        commentMenu.showCommentsSettings(in: view)
-        
-        commentMenu.completion = { delete in
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+        switch action {
+        case .report:
+            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+        case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
                     CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: comment.id) { deleted in

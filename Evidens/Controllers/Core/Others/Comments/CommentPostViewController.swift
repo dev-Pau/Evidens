@@ -29,8 +29,6 @@ class CommentPostViewController: UICollectionViewController {
     private var comments = [Comment]()
     private var users = [User]()
     
-    private var commentMenu = CommentsMenuLauncher()
-    
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.delegate = self
@@ -58,7 +56,6 @@ class CommentPostViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        commentMenu.delegate = self
         configureUI()
         configureCollectionView()
         fetchComments()
@@ -113,73 +110,6 @@ class CommentPostViewController: UICollectionViewController {
             }
         }
     }
-    
-    
-    /*
-    #warning("change function for the snapshot paginated one already created")
-    CommentService.fetchComments(forPost: post, forType: type) { comments in
-        self.comments.removeAll()
-        // If user post has text, append it as first element of the comment list with the owner user information
-        if !self.post.postText.isEmpty {
-            self.comments.append(Comment(dictionary: [
-                "comment": self.post.postText,
-                "uid": self.user.uid as Any,
-                "timestamp": self.post.timestamp,
-                "firstName": self.user.firstName as Any,
-                "category": self.user.category.userCategoryString as Any,
-                "speciality": self.user.speciality as Any,
-                "profession": self.user.profession as Any,
-                "lastName": self.user.lastName as Any,
-                "isAuthor": true as Bool,
-                "isTextFromAuthor": true as Bool,
-                "profileImageUrl": self.user.profileImageUrl as Any]))
-            
-            self.users.append(User(dictionary: [
-                "uid": self.user.uid as Any,
-                "firstName": self.user.firstName as Any,
-                "lastName": self.user.lastName as Any,
-                "profileImageUrl": self.user.profileImageUrl as Any,
-                "profession": self.user.profession as Any,
-                "category": self.user.category as Any,
-                "speciality": self.user.speciality as Any]))
-        }
-        
-        // Append the fetched comments
-        self.comments.append(contentsOf: comments)
-        
-        // Post has no text from the owner & no comments
-        if comments.isEmpty && self.post.postText.isEmpty {
-            self.collectionView.isHidden = true
-            return
-        }
-        
-        // Post has text from the owner & no comments
-        if comments.isEmpty && !self.post.postText.isEmpty {
-         
-
-            self.collectionView.isHidden = false
-            DispatchQueue.main.async {
-                self.collectionView.reloadData()
-            }
-            return
-        }
-        
-        
-        // Fetch users from comments
-        self.comments.forEach { comment in
-            UserService.fetchUser(withUid: comment.uid) { user in
-                self.users.append(user)
-                if self.users.count == self.comments.count {
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-                }
-            }
-        }
-
-        self.collectionView.isHidden = false
-    }
-     */
     
     //MARK: - Helpers
     
@@ -240,40 +170,31 @@ extension CommentPostViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension CommentPostViewController: CommentCellDelegate {
-    
-    func didTapProfile(forUser user: User) {
-        
-        let controller = UserProfileViewController(user: user)
-        
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .label
-        self.navigationItem.backBarButtonItem = backButton
-        
-        self.navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        commentMenu.comment = comment
-        commentMenu.showCommentsSettings(in: view)
-        commentInputView.commentTextView.resignFirstResponder()
-        commentInputView.isHidden = true
-        
-        commentMenu.completion = { delete in
-         
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+        switch action {
+        case .report:
+            reportCommentAlert {
+                DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
+                    if reported {
+                        let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
+                        popupView.showTopPopup(inView: self.view)
+                    }
+                }
+            }
+        case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
                     CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { deleted in
                         if deleted {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                             
-                            
                             self.collectionView.performBatchUpdates {
                                 self.comments.remove(at: indexPath.item)
                                 self.users.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
-                            let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
+                            
+                            let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
                             popupView.showTopPopup(inView: self.view)
                         }
                         else {
@@ -284,26 +205,19 @@ extension CommentPostViewController: CommentCellDelegate {
             }
         }
     }
-}
-
-extension CommentPostViewController: CommentsMenuLauncherDelegate {
     
-    func didTapReport(comment: Comment) {
-        reportCommentAlert {
-            DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
-                if reported {
-                    let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
-                    popupView.showTopPopup(inView: self.view)
-                }
-            }
-        }
-    }
-    
-    func menuDidDismiss() {
-        inputAccessoryView?.isHidden = false
+    func didTapProfile(forUser user: User) {
+        
+        let controller = UserProfileViewController(user: user)
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .label
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
-
 
 //MARK: - CommentInputAccesoryViewDelegate
 

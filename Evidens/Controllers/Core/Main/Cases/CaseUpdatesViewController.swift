@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 private let emptyUpdatesCellReuseIdentifier = "EmptyUpdatesCellReuseIdentifier"
 private let updateCaseCellReuseIdentifier = "UpdateCaseCellReuseIdentifier"
@@ -28,6 +29,8 @@ class CaseUpdatesViewController: UIViewController {
     private var clinicalCase: Case
     private var user: User
     private var updatesLoaded: Bool = false
+    
+    private let progressIndicator = JGProgressHUD()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -167,9 +170,9 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
 
 extension CaseUpdatesViewController: AddCaseUpdateViewControllerDelegate {
     func didTapUploadCaseUpdate(withText text: String) {
-        //showLoadingView()
+        progressIndicator.show(in: view)
         CaseService.uploadCaseUpdate(withCaseId: clinicalCase.caseId, withUpdate: text, withGroupId: groupId) { uploaded in
-            //self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
             if uploaded {
                 let positionToAdd = self.clinicalCase.diagnosis != "" ? 1 : 0
                 self.clinicalCase.caseUpdates.insert(text, at: positionToAdd)

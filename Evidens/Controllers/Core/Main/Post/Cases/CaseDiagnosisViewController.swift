@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 protocol CaseDiagnosisViewControllerDelegate: AnyObject {
     func handleAddDiagnosis(_ text: String, caseId: String)
@@ -23,6 +24,7 @@ class CaseDiagnosisViewController: UIViewController {
     var groupId: String?
     
     private var diagnosisText: String
+    private let progressIndicator = JGProgressHUD()
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -146,7 +148,9 @@ class CaseDiagnosisViewController: UIViewController {
             if diagnosisTextView.text.count == 0 {
                 dismissDiagnosisAlert {
                     // User changes state to solved without diagnosis
+                    self.progressIndicator.show(in: self.view)
                     CaseService.uploadCaseStage(withCaseId: self.caseId, withGroupId: self.groupId) { uploaded in
+                        self.progressIndicator.dismiss(animated: true)
                         if uploaded {
                             self.delegate?.handleAddDiagnosis("", caseId: self.caseId)
                             let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
@@ -158,9 +162,9 @@ class CaseDiagnosisViewController: UIViewController {
                 }
             } else {
                 // Clinical Case has diagnosis, update the case with it
-                showLoadingView()
+                self.progressIndicator.show(in: view)
                 CaseService.uploadCaseDiagnosis(withCaseId: caseId, withDiagnosis: diagnosisTextView.text, withGroupId: groupId) { uploaded in
-                    self.dismissLoadingView()
+                    self.progressIndicator.dismiss(animated: true)
                     if uploaded {
                         // Diagnosis updated, update previous view controllers
                         self.delegate?.handleAddDiagnosis(self.diagnosisTextView.text, caseId: self.caseId)

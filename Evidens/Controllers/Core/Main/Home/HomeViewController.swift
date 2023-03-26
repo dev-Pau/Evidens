@@ -355,34 +355,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         }
          */
     }
-
-    func checkIfUserLikedPosts() {
-            //For every post in array fetched
-            self.posts.forEach { post in
-                //Check if user did like
-                PostService.checkIfUserLikedPost(post: post) { didLike in
-                    //Check the postId of the current post looping
-                    if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
-                        //Change the didLike according if user did like post
-                        self.posts[index].didLike = didLike
-                        //self.updateData(on: self.posts)
-                        self.collectionView.reloadData()
-                    }
-            }
-        }
-    }
-    
-    func checkIfUserBookmarkedPost() {
-        //For every post in array fetched
-        self.posts.forEach { post in
-            PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
-                if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
-                    self.posts[index].didBookmark = didBookmark
-                    self.collectionView.reloadData()
-                }
-            }
-        }
-    }
 }
 
 extension HomeViewController: UICollectionViewDelegate {

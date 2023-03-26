@@ -17,6 +17,7 @@ private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 
 class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
+    private var contentSource: Case.FeedContentSource
     var users = [User]()
     private var cases = [Case]()
     
@@ -54,115 +55,101 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchFirstGroupOfCases()
         configureCollectionView()
-        let refresher = UIRefreshControl()
-        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-        casesCollectionView.refreshControl = refresher
+        fetchFirstGroupOfCases()
+    }
+    
+    init(contentSource: Case.FeedContentSource) {
+        self.contentSource = contentSource
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.delegate = self
-
-        if !casesLoaded {
-            casesCollectionView.reloadData()
-        }
     }
     
     private func fetchFirstGroupOfCases() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-        if displaysFilteredWindow {
-            CaseService.fetchCasesWithProfession(lastSnapshot: nil, profession: navigationItem.title!) { snapshot in
-                guard !snapshot.isEmpty else {
-                    self.casesLoaded = true
-                    self.activityIndicator.stop()
-                    self.casesCollectionView.refreshControl?.endRefreshing()
-                    self.casesCollectionView.isHidden = false
-                    self.casesCollectionView.reloadData()
-                    return
-                }
-                
-                self.casesLastSnapshot = snapshot.documents.last
-                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                self.casesCollectionView.refreshControl?.endRefreshing()
-                self.cases.forEach { clinicalCase in
-                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                        self.users.append(user)
-                        self.casesLoaded = true
-                        self.activityIndicator.stop()
-                        self.casesCollectionView.isHidden = false
-                        self.casesCollectionView.reloadData()
-                    }
-                }
-            }
-        } else if displaysExploringWindow {
-            #warning("Need to find a way to get the trending, etc")
-            CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
-                if snapshot.isEmpty {
-                    self.casesLoaded = true
-                    self.casesCollectionView.refreshControl?.endRefreshing()
-                    self.activityIndicator.stop()
-                    self.casesCollectionView.isHidden = false
-                    self.casesCollectionView.reloadData()
-                }
-                
-                self.casesLastSnapshot = snapshot.documents.last
-                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                self.casesCollectionView.refreshControl?.endRefreshing()
-                self.cases.forEach { clinicalCase in
-                    UserService.fetchUser(withUid: clinicalCase.ownerUid) { user in
-                        self.users.append(user)
-                        self.casesLoaded = true
-                        self.activityIndicator.stop()
-                        self.casesCollectionView.isHidden = false
-                        self.casesCollectionView.reloadData()
-                    }
-                }
-            }
-        } else {
-            // Main cases view
+        switch contentSource {
+            
+        case .home:
+            // Main Cases navigation view. Displayed cases are random & do not follow any specific query
             CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
                 if snapshot.isEmpty {
                     self.casesLoaded = true
                     self.activityIndicator.stop()
-                    self.casesCollectionView.refreshControl?.endRefreshing()
                     if user.phase != .verified {
                         self.view.addSubview(self.lockView)
                     }
-                    
                     self.casesCollectionView.reloadData()
                     self.casesCollectionView.isHidden = false
                     self.exploreCasesToolbar.isHidden = false
+                    
                 } else {
                     self.casesLastSnapshot = snapshot.documents.last
                     self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                    self.checkIfUserLikedCase()
-                    self.checkIfUserBookmarkedCase()
-                    self.casesCollectionView.refreshControl?.endRefreshing()
-                    
-                    #warning("Check if this works")
-                    let visibleUserUids = self.cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
-                    
-                    UserService.fetchUsers(withUids: visibleUserUids) { users in
-                        self.users = users
-                        self.casesLoaded = true
-                        self.activityIndicator.stop()
-                        self.casesCollectionView.reloadData()
-                        if user.phase != .verified {
-                            self.view.addSubview(self.lockView)
+                    let caseIds = self.cases.map { $0.caseId }
+                    CaseService.fetchCases(withCaseIds: caseIds) { cases in
+                        self.cases = cases
+                        let visibleUserUids = self.cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        UserService.fetchUsers(withUids: visibleUserUids) { users in
+                            self.users = users
+                            self.casesLoaded = true
+                            self.activityIndicator.stop()
+                            self.casesCollectionView.reloadData()
+                            
+                            if user.phase != .verified {
+                                self.view.addSubview(self.lockView)
+                            }
+                            self.casesCollectionView.isHidden = false
+                            self.exploreCasesToolbar.isHidden = false
                         }
-                        self.casesCollectionView.isHidden = false
-                        self.exploreCasesToolbar.isHidden = false
                     }
                 }
             }
+        
+        case .explore:
+            // No cases are displayed. A collectionView with filtering options is displayed to browse disciplines & user preferences
+            self.casesLoaded = true
+            self.activityIndicator.stop()
+            //self.casesCollectionView.refreshControl?.endRefreshing()
+            self.casesCollectionView.isHidden = false
+            self.casesCollectionView.reloadData()
+            return
+        case .filter:
+            // Cases are shown based on user filtering options
+             CaseService.fetchCasesWithProfession(lastSnapshot: nil, profession: navigationItem.title!) { snapshot in
+                 guard !snapshot.isEmpty else {
+                     self.casesLoaded = true
+                     self.activityIndicator.stop()
+                     self.casesCollectionView.refreshControl?.endRefreshing()
+                     self.casesCollectionView.isHidden = false
+                     self.casesCollectionView.reloadData()
+                     return
+                 }
+                 
+                 self.casesLastSnapshot = snapshot.documents.last
+                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                 let caseIds = self.cases.map { $0.caseId }
+                 CaseService.fetchCases(withCaseIds: caseIds) { cases in
+                     self.cases = cases
+                     let visibleUserUids = self.cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                     UserService.fetchUsers(withUids: visibleUserUids) { users in
+                         self.users = users
+                         self.casesLoaded = true
+                         self.activityIndicator.stop()
+                         self.casesCollectionView.isHidden = false
+                         self.casesCollectionView.reloadData()
+                     }
+                 }
+             }
         }
     }
     
@@ -200,43 +187,33 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             }
         }
     }
-    /*
-    private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
-        /*
-        if cases.isEmpty {
-            let flowLayout = UICollectionViewFlowLayout()
-            //flowLayout.sectionInset = UIEdgeInsets(top: 10, left: padding, bottom: padding, right: padding)
-            flowLayout.itemSize = CGSize(width: view.frame.width, height: UIScreen.main.bounds.height * 0.6)
-            
-            return flowLayout
-        } else {
-         */
-            let width = view.bounds.width
-            let padding: CGFloat = 10
-            let minimumItemSpacing: CGFloat = 10
-            let availableWidth = width - (padding * 2) - minimumItemSpacing
-            let itemWidth = availableWidth / 2
-            
-            let flowLayout = UICollectionViewFlowLayout()
-            flowLayout.sectionInset = UIEdgeInsets(top: 10, left: padding, bottom: padding, right: padding)
-            flowLayout.itemSize = CGSize(width: itemWidth, height: 350)
-            
-            return flowLayout
-        //}
-    }
-    */
+    
     private func createTwoColumnFlowCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            
-            if self.displaysFilteredWindow {
-                
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
-                return section
-                
-            } else if self.displaysExploringWindow {
-                // Explore Clincal Cases view
+            switch self.contentSource {
+            case .home:
+                if self.cases.isEmpty {
+                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    return section
+                } else {
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    
+                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(350))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
+                    
+                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    
+                    section.interGroupSpacing = 10
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    
+                    return section
+                }
+            case .explore:
                 if sectionNumber == 0 {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
@@ -266,68 +243,14 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     section.interGroupSpacing = 10
                     
                     section.boundarySupplementaryItems = [header]
-
-                    return section
-                    /*
-                    if !self.cases.isEmpty {
-                        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
-                        let section = NSCollectionLayoutSection(group: group)
-                        return section
-                    } else {
-                        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-                        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
-                        
-                        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                              heightDimension: .fractionalHeight(1.0))
-                        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                        
-                        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.4),
-                                                               heightDimension: .fractionalWidth(0.55))
-                        
-                        
-                        
-                        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-                        section.interGroupSpacing = 10
-                        
-                        //if !self.cases.isEmpty {
-                          //  section.boundarySupplementaryItems = [header]
-                        //} else {
-                            section.boundarySupplementaryItems = [header]
-                        //}
-                        
-                        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10)
-
-                        return section
-                    }
-                     */
-                }
-                
-            } else {
-                if self.cases.isEmpty {
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    return section
-                } else {
-                    print("main cases view")
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                    
-                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(350))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
-                    
-                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    section.interGroupSpacing = 10
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
                     
                     return section
                 }
+            case .filter:
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                return section
             }
         }
         return layout
@@ -346,10 +269,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             activityIndicator.widthAnchor.constraint(equalToConstant: 200)
         ])
         
-        if displaysExploringWindow || displaysFilteredWindow {
-            view.addSubviews(casesCollectionView)
-            casesCollectionView.frame = view.bounds
-        } else {
+        switch contentSource {
+        case .home:
             view.addSubviews(casesCollectionView, exploreCasesToolbar)
             NSLayoutConstraint.activate([
                 exploreCasesToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -371,6 +292,12 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             exploreCasesToolbar.standardAppearance = appearance
             casesCollectionView.contentInset.top = 50
             casesCollectionView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
+        case .explore:
+            view.addSubviews(casesCollectionView)
+            casesCollectionView.frame = view.bounds
+        case .filter:
+            view.addSubviews(casesCollectionView)
+            casesCollectionView.frame = view.bounds
         }
         
         casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
@@ -385,18 +312,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        
-        // Get all the specialities for the user
-        //let userInterests = Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: user.profession!)!).map({ $0.name })
-        // Remove the user main speciality
-        //exploringInterestHeaders = userInterests.filter({ $0 != user.speciality! })
-        //exploringInterestHeaders.insert(user.speciality!, at: 0)
+
         dataCategoryHeaders = Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: user.profession!)!).map({ $0.name })
+
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        casesCollectionView.refreshControl = contentSource != .filter ? refresher : nil
     }
     
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
-        fetchFirstGroupOfCases()
+        
+        self.casesCollectionView.refreshControl?.endRefreshing()
+        //fetchFirstGroupOfCases()
     }
 }
 
@@ -524,7 +452,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
             let profession = Profession.Professions.allCases[indexPath.row].rawValue
             
             self.navigationController?.delegate = self
-            let controller = CasesViewController()
+            let controller = CasesViewController(contentSource: .filter)
             controller.controllerIsBeeingPushed = true
             controller.displaysFilteredWindow = true
             
@@ -559,7 +487,7 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
         switch category {
         case .explore:
             self.navigationController?.delegate = self
-            let controller = CasesViewController()
+            let controller = CasesViewController(contentSource: .explore)
             controller.controllerIsBeeingPushed = true
             controller.displaysExploringWindow = true
             

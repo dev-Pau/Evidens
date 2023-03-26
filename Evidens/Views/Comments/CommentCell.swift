@@ -9,7 +9,7 @@ import UIKit
 import SDWebImage
 
 protocol CommentCellDelegate: AnyObject {
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment)
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions)
     func didTapProfile(forUser user: User)
 }
 
@@ -21,9 +21,9 @@ class CommentCell: UICollectionViewCell {
         didSet { configure() }
     }
     
-    private var timeLabelLeadingConstraint: NSLayoutConstraint!
+    private var user: User?
     
-    var commentOwnerUser: User?
+    private var timeLabelLeadingConstraint: NSLayoutConstraint!
     
     weak var delegate: CommentCellDelegate?
     
@@ -44,11 +44,10 @@ class CommentCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = .secondaryLabel
+        button.configuration?.baseForegroundColor = .label
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
-        button.addTarget(self, action: #selector(handleThreeDots), for: .touchUpInside)
         return button
     }()
     
@@ -189,42 +188,20 @@ class CommentCell: UICollectionViewCell {
         commentLabel.text = viewModel.commentText
         timestampLabel.text = viewModel.timestampString
         dotsImageButton.isHidden = viewModel.isTextFromAuthor ? true : false
-        
-
-        /*
-        if viewModel.anonymousComment {
-            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        } else {
-            profileImageView.sd_setImage(with: viewModel.profileImageUrl)
-        }
-         */
-        /*
-        if viewModel.isAuthor {
-            // Comment from the owner of the case
-            authorButton.isHidden = false
-        }
-         */
-        //authorButton.isHidden = viewModel.comment.uid == user.isCurrentUser
-        
-
-        //nameLabel.attributedText = viewModel.userLabelText()
-        //professionLabel.text = viewModel.profession + " · " + viewModel.speciality
+        dotsImageButton.menu = addMenuItems()
     }
     
+    
     func set(user: User) {
-        print(user.phase)
-        print(user.category)
         guard let viewModel = viewModel else { return }
-        commentOwnerUser = user
-        
+        self.user = user
         let attributedString = NSMutableAttributedString(string: "Anonymous", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         
         nameLabel.attributedText = viewModel.anonymousComment ? attributedString : user.userLabelText()
         professionLabel.text = user.profession! + ", " + user.speciality!
         
         if viewModel.anonymousComment {
-            #warning("put a privacy image")
-            profileImageView.image = UIImage(systemName: "eyeglasses", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+            profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
@@ -238,7 +215,6 @@ class CommentCell: UICollectionViewCell {
             authorButton.isHidden = true
         }
 
-        
         if viewModel.isTextFromAuthor {
             timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
             timeLabelLeadingConstraint.isActive = true
@@ -250,15 +226,30 @@ class CommentCell: UICollectionViewCell {
         }
     }
     
-    @objc func handleThreeDots() {
-        guard let viewModel = viewModel else { return }
-        delegate?.didTapComment(self, forComment: viewModel.comment)
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel else { return nil }
+        
+        dotsImageButton.showsMenuAsPrimaryAction = true
+        
+        if viewModel.isAuthor {
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
+                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
+                })])
+            return menuItems
+        } else {
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Comment.CommentOptions.report.rawValue, image: Comment.CommentOptions.report.commentOptionsImage, handler: { _ in
+                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .report)
+                })])
+            return menuItems
+        }
     }
     
     @objc func didTapProfile() {
-        guard let viewModel = viewModel, let commentOwnerUser = commentOwnerUser else { return }
+        guard let viewModel = viewModel, let user = user else { return }
         if viewModel.anonymousComment { return } else {
-            delegate?.didTapProfile(forUser: commentOwnerUser)
+            delegate?.didTapProfile(forUser: user)
         }
     }
     

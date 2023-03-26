@@ -50,7 +50,59 @@ struct CaseService {
         }
     }
     
+    static func fetchCases(withCaseIds caseIds: [String], completion: @escaping([Case]) -> Void) {
+        var cases = [Case]()
+        caseIds.forEach { caseId in
+            fetchCase(withCaseId: caseId) { clinicalCase in
+                getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
+                    cases.append(caseWithValues)
+                    if cases.count == caseIds.count {
+                        completion(cases)
+                    }
+                }
+            }
+        }
+    }
     
+    static func getCaseValuesFor(clinicalCase: Case, completion: @escaping(Case) -> Void) {
+        var auxCase = clinicalCase
+        checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
+            checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in
+                fetchLikesForCase(caseId: clinicalCase.caseId) { likes in
+                    fetchCommentsForCase(caseId: clinicalCase.caseId) { comments in
+                        auxCase.likes = likes
+                        auxCase.numberOfComments = comments
+                        auxCase.didBookmark = bookmark
+                        auxCase.didLike = like
+                        completion(auxCase)
+                    }
+                }
+            }
+        }
+    }
+    
+    static func getCaseValuesFor(cases: [Case], completion: @escaping([Case]) -> Void) {
+        var auxCases = cases
+        cases.enumerated().forEach { index, clinicalCase in
+            checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
+                checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in
+                    fetchLikesForCase(caseId: clinicalCase.caseId) { likes in
+                        fetchCommentsForCase(caseId: clinicalCase.caseId) { comments in
+                            auxCases[index].likes = likes
+                            auxCases[index].numberOfComments = comments
+                            auxCases[index].didBookmark = bookmark
+                            auxCases[index].didLike = like
+                            if auxCases.count == cases.count {
+                                completion(auxCases)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+        
+        
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
 
         if lastSnapshot == nil {

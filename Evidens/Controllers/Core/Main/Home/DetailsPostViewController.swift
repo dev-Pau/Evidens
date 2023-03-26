@@ -32,7 +32,6 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate {
     
-    private var commentMenu = CommentsMenuLauncher()
     private var zoomTransitioning = ZoomTransitioning()
 
     var selectedImage: UIImageView!
@@ -734,23 +733,18 @@ extension DetailsPostViewController: HomeCellDelegate {
 }
 
 extension DetailsPostViewController: CommentCellDelegate {
-
-    func didTapProfile(forUser user: User) {
-        let controller = UserProfileViewController(user: user)
-        displayState = .others
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .label
-        navigationItem.backBarButtonItem = backButton
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        commentMenu.comment = comment
-        commentMenu.showCommentsSettings(in: view)
-        
-        commentMenu.completion = { delete in
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+        switch action {
+        case .report:
+            reportCommentAlert {
+                DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
+                    if reported {
+                        let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
+                        popupView.showTopPopup(inView: self.view)
+                    }
+                }
+            }
+        case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
                     CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { deleted in
@@ -771,6 +765,17 @@ extension DetailsPostViewController: CommentCellDelegate {
                 }
             }
         }
+    }
+    
+    func didTapProfile(forUser user: User) {
+        let controller = UserProfileViewController(user: user)
+        displayState = .others
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .label
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

@@ -19,8 +19,6 @@ class CommentCaseViewController: UICollectionViewController {
     
     weak var delegate: CommentCaseViewControllerDelegate?
     
-    private var commentMenu = CommentsMenuLauncher()
-    
     private var type: Comment.CommentType
     
     private var clinicalCase: Case
@@ -56,7 +54,6 @@ class CommentCaseViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        commentMenu.delegate = self
         configureCollectionView()
         fetchComments()
     }
@@ -69,17 +66,6 @@ class CommentCaseViewController: UICollectionViewController {
         return true
     }
     
-    //Hide tab bar when comment input acccesory view appear
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-    }
-    
-    //Show tab bar when comment input acccesory view dissappears
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-    }
     
     //MARK: - API
     
@@ -305,25 +291,18 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentCaseViewController: CommentCellDelegate {
-    func didTapProfile(forUser user: User) {
-        let controller = UserProfileViewController(user: user)
-        
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .label
-        navigationItem.backBarButtonItem = backButton
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        commentMenu.comment = comment
-        commentMenu.showCommentsSettings(in: view)
-        commentInputView.commentTextView.resignFirstResponder()
-        commentInputView.isHidden = true
-        
-        commentMenu.completion = { delete in
-            
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+        switch action {
+        case .report:
+            reportCommentAlert {
+                DatabaseManager.shared.reportCaseComment(forCommentId: comment.id) { reported in
+                    if reported {
+                        let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
+                        popupView.showTopPopup(inView: self.view)
+                    }
+                }
+            }
+        case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
                     CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: comment.id) { deleted in
@@ -346,22 +325,15 @@ extension CommentCaseViewController: CommentCellDelegate {
             }
         }
     }
-}
-
-extension CommentCaseViewController: CommentsMenuLauncherDelegate {
     
-    func didTapReport(comment: Comment) {
-        reportCommentAlert {
-            DatabaseManager.shared.reportCaseComment(forCommentId: comment.id) { reported in
-                if reported {
-                    let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
-                    popupView.showTopPopup(inView: self.view)
-                }
-            }
-        }
-    }
+    func didTapProfile(forUser user: User) {
+        let controller = UserProfileViewController(user: user)
         
-    func menuDidDismiss() {
-        inputAccessoryView?.isHidden = false
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .label
+        navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

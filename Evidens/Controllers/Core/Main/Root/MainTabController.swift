@@ -171,7 +171,7 @@ class MainTabController: UITabBarController {
         homeController.scrollDelegate = self
         homeController.panDelegate = self
         
-        let casesController = CasesViewController()
+        let casesController = CasesViewController(contentSource: .home)
         casesController.delegate = self
         casesController.panDelegate = self
         
