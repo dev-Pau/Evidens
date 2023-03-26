@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeLikesCell: UITableViewCell {
+class HomeLikesCell: UICollectionViewCell {
     
     var user: User? {
         didSet {
@@ -44,9 +44,16 @@ class HomeLikesCell: UITableViewCell {
         return label
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternaryLabel
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         configure()
     }
     
@@ -59,11 +66,11 @@ class HomeLikesCell: UITableViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        addSubviews(profileImageView, nameLabel, professionLabel)
+        addSubviews(profileImageView, nameLabel, professionLabel, separatorView)
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 40),
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
           
@@ -74,6 +81,11 @@ class HomeLikesCell: UITableViewCell {
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             professionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
         profileImageView.layer.cornerRadius = 40 / 2

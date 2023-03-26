@@ -310,7 +310,6 @@
 		5FA1DD4229C08E7400C395BD /* OnboardingImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1DD4129C08E7400C395BD /* OnboardingImageCell.swift */; };
 		5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */; };
 		5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */; };
-		5FA23F40293F24ED00A913CB /* GroupMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */; };
 		5FA23F42293F65D000A913CB /* GroupSizeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA23F41293F65D000A913CB /* GroupSizeCell.swift */; };
 		5FA2639129CB49A700E61357 /* InterestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639029CB49A700E61357 /* InterestsViewController.swift */; };
 		5FA2639329CB4C0700E61357 /* InterestsRegistrationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */; };
@@ -731,7 +730,6 @@
 		5FA1DD4129C08E7400C395BD /* OnboardingImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingImageCell.swift; sourceTree = "<group>"; };
 		5FA1FC2728CF8AA60099BF2C /* BookmarksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksViewController.swift; sourceTree = "<group>"; };
 		5FA1FC2B28CF8CD30099BF2C /* BookmarkCategoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkCategoriesCell.swift; sourceTree = "<group>"; };
-		5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersViewController.swift; sourceTree = "<group>"; };
 		5FA23F41293F65D000A913CB /* GroupSizeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSizeCell.swift; sourceTree = "<group>"; };
 		5FA2639029CB49A700E61357 /* InterestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsViewController.swift; sourceTree = "<group>"; };
 		5FA2639229CB4C0700E61357 /* InterestsRegistrationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsRegistrationHeader.swift; sourceTree = "<group>"; };
@@ -1686,7 +1684,6 @@
 				5F9483AD2922442F00D68B46 /* CreateGroupViewController.swift */,
 				5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */,
 				5F8AF980292CEA61005C6778 /* GroupPageViewController.swift */,
-				5FA23F3F293F24ED00A913CB /* GroupMembersViewController.swift */,
 				5FAC98CE29476BF500C72228 /* GroupInformationViewController.swift */,
 				5F9A280B2976B39A0052E618 /* Management */,
 			);
@@ -3126,7 +3123,6 @@
 				5F8F094029A49A2400927270 /* CompanyService.swift in Sources */,
 				5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
-				5FA23F40293F24ED00A913CB /* GroupMembersViewController.swift in Sources */,
 				5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
 				5F91F11229B77EC2007BB567 /* NewImageFooter.swift in Sources */,

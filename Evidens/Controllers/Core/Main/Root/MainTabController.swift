@@ -82,7 +82,6 @@ class MainTabController: UITabBarController {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         //Fetch user with user uid
         UserService.fetchUser(withUid: uid) { user in
-            
             //Set user property
             self.user = user
             self.configureViewControllers()

@@ -21,6 +21,8 @@ class CommentCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    private var timeLabelLeadingConstraint: NSLayoutConstraint!
+    
     var commentOwnerUser: User?
     
     weak var delegate: CommentCellDelegate?
@@ -50,10 +52,10 @@ class CommentCell: UICollectionViewCell {
         return button
     }()
     
-    var timeStampLabel: UILabel = {
+    var timestampLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .secondaryLabel
         label.textAlignment = .right
         label.sizeToFit()
@@ -76,7 +78,7 @@ class CommentCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textColor = .label
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -86,7 +88,7 @@ class CommentCell: UICollectionViewCell {
     private let professionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -96,7 +98,7 @@ class CommentCell: UICollectionViewCell {
     private let commentLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .label
         label.lineBreakMode = .byWordWrapping
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -127,7 +129,10 @@ class CommentCell: UICollectionViewCell {
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, authorButton, timeStampLabel, nameLabel, professionLabel, separatorView)
+        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, authorButton, timestampLabel, nameLabel, professionLabel, separatorView)
+        
+        timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
+        timeLabelLeadingConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -140,30 +145,31 @@ class CommentCell: UICollectionViewCell {
             dotsImageButton.heightAnchor.constraint(equalToConstant: 15),
             dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
             
-            timeStampLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            timeStampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            timestampLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            //timeStampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            //timeStampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
            
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: timeStampLabel.leadingAnchor, constant: -5),
+            nameLabel.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor, constant: -5),
             
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             professionLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            professionLabel.trailingAnchor.constraint(equalTo: timeStampLabel.leadingAnchor, constant: -5),
+            professionLabel.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor, constant: -5),
             
-            authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor),
+            authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 2),
             authorButton.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
             authorButton.heightAnchor.constraint(equalToConstant: 18),
             authorButton.widthAnchor.constraint(equalToConstant: 50),
             
-            commentLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            commentLabel.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 10),
             commentLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             commentLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            //commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             
-            separatorView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 3),
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            //separatorView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 3),
+            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
@@ -181,7 +187,7 @@ class CommentCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         commentLabel.text = viewModel.commentText
-        timeStampLabel.text = viewModel.timestampString
+        timestampLabel.text = viewModel.timestampString
         dotsImageButton.isHidden = viewModel.isTextFromAuthor ? true : false
         
 
@@ -206,6 +212,8 @@ class CommentCell: UICollectionViewCell {
     }
     
     func set(user: User) {
+        print(user.phase)
+        print(user.category)
         guard let viewModel = viewModel else { return }
         commentOwnerUser = user
         
@@ -225,6 +233,20 @@ class CommentCell: UICollectionViewCell {
         
         if viewModel.isAuthor {
             authorButton.isHidden = false
+            
+        } else {
+            authorButton.isHidden = true
+        }
+
+        
+        if viewModel.isTextFromAuthor {
+            timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            timeLabelLeadingConstraint.isActive = true
+            layoutIfNeeded()
+        } else {
+            timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
+            timeLabelLeadingConstraint.isActive = true
+            layoutIfNeeded()
         }
     }
     
@@ -245,7 +267,7 @@ class CommentCell: UICollectionViewCell {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height + 15))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

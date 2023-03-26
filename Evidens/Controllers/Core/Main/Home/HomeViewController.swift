@@ -182,8 +182,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     @objc func handleRefresh() {
         if displaysSinglePost { return }
         HapticsManager.shared.vibrate(for: .success)
-        checkIfUserHasNewPostsToDisplay()
-        //fetchFirstPostsGroup()
+        if postsFirstSnapshot == nil {
+            fetchFirstPostsGroup()
+        } else {
+            checkIfUserHasNewPostsToDisplay()
+        }
     }
     
     private func checkIfUserHasNewPostsToDisplay() {
@@ -254,28 +257,27 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     }
                 }
             }
-            
-            
-            
-            
-            
+ 
         case .user:
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
                 switch result {
-                case .success(let uids):
-                    uids.forEach { uid in
-                        PostService.fetchPost(withPostId: uid) { fetchedPosts in
-                            self.posts.append(fetchedPosts)
-                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                            // Get the last timestamp to create next query for realtime database
-                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
-                            self.activityIndicator.stop()
-                            self.loaded = true
-                            self.collectionView.isHidden = false
-                        }
+                case .success(let postIds):
+                    guard postIds.isEmpty else {
+                        self.loaded = true
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
+                        return
+                    }
+                    
+                    PostService.fetchPosts(withPostIds: postIds) { posts in
+                        self.posts = posts
+                        self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                        self.loaded = true
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
                     }
                 case .failure(let error):
                     print(error)
@@ -284,17 +286,25 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         case .search:
             guard let user = user else { return }
             PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: nil) { snapshot in
-                self.postsLastSnapshot = snapshot.documents.last
-                self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                self.checkIfUserLikedPosts()
-                self.checkIfUserBookmarkedPost()
-                self.posts.forEach { post in
-                    UserService.fetchUser(withUid: post.ownerUid) { user in
-                        self.users.append(user)
-                        self.loaded = true
-                        self.activityIndicator.stop()
-                        self.collectionView.reloadData()
-                        self.collectionView.isHidden = false
+                if snapshot.isEmpty {
+                    self.loaded = true
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                } else {
+                    
+                    self.postsLastSnapshot = snapshot.documents.last
+                    self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                    
+                    PostService.getPostValuesFor(posts: self.posts) { posts in
+                        self.posts = self.posts
+                        UserService.fetchUsers(withUids: self.posts.map({ $0.ownerUid })) { users in
+                            self.users = users
+                            self.loaded = true
+                            self.activityIndicator.stop()
+                            self.collectionView.reloadData()
+                            self.collectionView.isHidden = false
+                        }
                     }
                 }
             }
@@ -927,17 +937,13 @@ extension HomeViewController {
         switch contentSource {
         case .home:
             PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
+                if snapshot.isEmpty { return }
                 PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts.append(contentsOf: newPosts)
-                    self.checkIfUserLikedPosts()
-                    self.checkIfUserBookmarkedPost()
-                    
-                    newPosts.forEach { post in
-                        UserService.fetchUser(withUid: post.ownerUid) { user in
-                            self.users.append(user)
-                            self.collectionView.reloadData()
-                        }
+                    UserService.fetchUsers(withUids: newPosts.map({ $0.ownerUid })) { users in
+                        self.users.append(contentsOf: users)
+                        self.collectionView.reloadData()
                     }
                 }
             }
@@ -945,81 +951,33 @@ extension HomeViewController {
             guard let uid = user?.uid else { return }
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
                 switch result {
-                case .success(let uids):
-                    uids.forEach { uid in
-                        PostService.fetchPost(withPostId: uid) { newPost in
-                            self.posts.append(newPost)
-                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
-                            self.collectionView.reloadData()
-                        }
+                case .success(let postIds):
+                    guard !postIds.isEmpty else { return }
+                    PostService.fetchPosts(withPostIds: postIds) { newPosts in
+                        self.posts.append(contentsOf: newPosts)
+                        self.postLastTimestamp = self.posts.last?.timestamp.seconds
+                        self.collectionView.reloadData()
                     }
                 case .failure(let error):
                     print(error)
-                    
                 }
             }
         case .search:
             guard let user = user else { return }
             PostService.fetchSearchDocumentsForProfession(user: user, lastSnapshot: postsLastSnapshot) { snapshot in
-                var newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
+                if snapshot.isEmpty { return }
+                let newPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
                 self.postsLastSnapshot = snapshot.documents.last
-                //self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
-                self.checkIfUserLikedPosts()
-                self.checkIfUserBookmarkedPost()
-                self.posts.append(contentsOf: newPosts)
-                newPosts.forEach { post in
-                    UserService.fetchUser(withUid: post.ownerUid) { user in
-                        self.users.append(user)
-                        self.loaded = true
-                        self.activityIndicator.stop()
+                
+                PostService.getPostValuesFor(posts: newPosts, completion: { posts in
+                    self.posts.append(contentsOf: posts)
+                    UserService.fetchUsers(withUids: newPosts.map({ $0.ownerUid })) { users in
+                        self.users.append(contentsOf: users)
                         self.collectionView.reloadData()
-                        self.collectionView.isHidden = false
                     }
-                }
+                })
             }
         }
-        /*
-        if !displaysSinglePost {
-            PostService.fetchHomeDocuments(lastSnapshot: postsLastSnapshot) { snapshot in
-                PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
-                    self.postsLastSnapshot = snapshot.documents.last
-                    self.posts.append(contentsOf: newPosts)
-                    self.checkIfUserLikedPosts()
-                    self.checkIfUserBookmarkedPost()
-                    
-                    newPosts.forEach { post in
-                        UserService.fetchUser(withUid: post.ownerUid) { user in
-                            self.users.append(user)
-                            self.collectionView.reloadData()
-                        }
-                    }
-                }
-            }
-        } else {
-            guard let uid = user?.uid else { return }
-            DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: postLastTimestamp, forUid: uid) { result in
-                switch result {
-                case .success(let uids):
-                    uids.forEach { uid in
-                        PostService.fetchPost(withPostId: uid) { newPost in
-                            self.posts.append(newPost)
-                            self.posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                            self.postLastTimestamp = self.posts.last?.timestamp.seconds
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
-                            self.collectionView.reloadData()
-                        }
-                    }
-                case .failure(let error):
-                    print(error)
-                    
-                }
-            }
-        }
-         */
     }
 }
 

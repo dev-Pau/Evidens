@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import Firebase
 
-private let reuseIdentifier = "CommentCell"
+private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 protocol CommentPostViewControllerDelegate: AnyObject {
     func didCommentPost(post: Post, user: User, comment: Comment)
@@ -16,15 +18,16 @@ protocol CommentPostViewControllerDelegate: AnyObject {
 class CommentPostViewController: UICollectionViewController {
     
     //MARK: - Properties
-    
     weak var delegate: CommentPostViewControllerDelegate?
     
     private var post: Post
     private var user: User
     private var type: Comment.CommentType
+    private var commentsLoaded: Bool = false
+    private var lastCommentSnapshot: QueryDocumentSnapshot?
     
     private var comments = [Comment]()
-    private var ownerComments = [User]()
+    private var users = [User]()
     
     private var commentMenu = CommentsMenuLauncher()
     
@@ -37,6 +40,7 @@ class CommentPostViewController: UICollectionViewController {
     //MARK: - Lifecycle
     
     init(post: Post, user: User, type: Comment.CommentType) {
+        print(user)
         self.post = post
         self.user = user
         self.type = type
@@ -44,7 +48,7 @@ class CommentPostViewController: UICollectionViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         super.init(collectionViewLayout: layout)
     }
     
@@ -68,85 +72,114 @@ class CommentPostViewController: UICollectionViewController {
         return true
     }
     
-    //Hide tab bar when comment input acccesory view appear
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        //self.tabBarController?.tabBar.isHidden = true
-        //hidesBottomBarWhenPushed = false
-    }
-    
-    //Show tab bar when comment input acccesory view dissappears
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-    }
-    
     //MARK: - API
     
     func fetchComments() {
-        CommentService.fetchComments(forPost: post, forType: type) { comments in
-            self.comments.removeAll()
-            // If user post has text, append it as first element of the comment list with the owner user information
-            if !self.post.postText.isEmpty {
-                self.comments.append(Comment(dictionary: [
-                    "comment": self.post.postText,
-                    "uid": self.user.uid as Any,
-                    "timestamp": self.post.timestamp,
-                    "firstName": self.user.firstName as Any,
-                    "category": self.user.category.userCategoryString as Any,
-                    "speciality": self.user.speciality as Any,
-                    "profession": self.user.profession as Any,
-                    "lastName": self.user.lastName as Any,
-                    "isAuthor": true as Bool,
-                    "isTextFromAuthor": true as Bool,
-                    "profileImageUrl": self.user.profileImageUrl as Any]))
-                
-                self.ownerComments.append(User(dictionary: [
-                    "uid": self.user.uid as Any,
-                    "firstName": self.user.firstName as Any,
-                    "lastName": self.user.lastName as Any,
-                    "profileImageUrl": self.user.profileImageUrl as Any,
-                    "profession": self.user.profession as Any,
-                    "category": self.user.category as Any,
-                    "speciality": self.user.speciality as Any]))
-            }
+        // If user post has text, append it as first element of the comment list with the owner user information
+        if !post.postText.isEmpty {
+            comments.append(Comment(dictionary: [
+                "comment": post.postText,
+                "uid": user.uid as Any,
+                "timestamp": post.timestamp,
+                "isAuthor": true as Bool,
+                "isTextFromAuthor": true as Bool as Any]))
             
-            // Append the fetched comments
-            self.comments.append(contentsOf: comments)
-            
-            // Post has no text from the owner & no comments
-            if comments.isEmpty && self.post.postText.isEmpty {
-                self.collectionView.isHidden = true
-                return
-            }
-            
-            // Post has text from the owner & no comments
-            if comments.isEmpty && !self.post.postText.isEmpty {
-             
+            users.append(User(dictionary: [
+                "uid": user.uid as Any,
+                "firstName": user.firstName as Any,
+                "lastName": user.lastName as Any,
+                "profileImageUrl": user.profileImageUrl as Any,
+                "profession": user.profession as Any,
+                "category": user.category.rawValue as Any,
+                "speciality": user.speciality as Any]))
+        }
 
-                self.collectionView.isHidden = false
-                DispatchQueue.main.async {
+        CommentService.fetchComments(forPost: post, forType: type, lastSnapshot: nil) { snapshot in
+            if snapshot.isEmpty {
+                // No comments uploaded
+                self.commentsLoaded = true
+                self.collectionView.reloadData()
+                
+            } else {
+                // Found comments
+                let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
+                self.comments.append(contentsOf: comments)
+                let uids = comments.map { $0.uid }
+                UserService.fetchUsers(withUids: uids) { users in
+                    self.users.append(contentsOf: users)
+                    self.commentsLoaded = true
                     self.collectionView.reloadData()
                 }
-                return
             }
+        }
+    }
+    
+    
+    /*
+    #warning("change function for the snapshot paginated one already created")
+    CommentService.fetchComments(forPost: post, forType: type) { comments in
+        self.comments.removeAll()
+        // If user post has text, append it as first element of the comment list with the owner user information
+        if !self.post.postText.isEmpty {
+            self.comments.append(Comment(dictionary: [
+                "comment": self.post.postText,
+                "uid": self.user.uid as Any,
+                "timestamp": self.post.timestamp,
+                "firstName": self.user.firstName as Any,
+                "category": self.user.category.userCategoryString as Any,
+                "speciality": self.user.speciality as Any,
+                "profession": self.user.profession as Any,
+                "lastName": self.user.lastName as Any,
+                "isAuthor": true as Bool,
+                "isTextFromAuthor": true as Bool,
+                "profileImageUrl": self.user.profileImageUrl as Any]))
             
-            
-            // Fetch users from comments
-            self.comments.forEach { comment in
-                UserService.fetchUser(withUid: comment.uid) { user in
-                    self.ownerComments.append(user)
-                    if self.ownerComments.count == self.comments.count {
-                        DispatchQueue.main.async {
-                            self.collectionView.reloadData()
-                        }
+            self.users.append(User(dictionary: [
+                "uid": self.user.uid as Any,
+                "firstName": self.user.firstName as Any,
+                "lastName": self.user.lastName as Any,
+                "profileImageUrl": self.user.profileImageUrl as Any,
+                "profession": self.user.profession as Any,
+                "category": self.user.category as Any,
+                "speciality": self.user.speciality as Any]))
+        }
+        
+        // Append the fetched comments
+        self.comments.append(contentsOf: comments)
+        
+        // Post has no text from the owner & no comments
+        if comments.isEmpty && self.post.postText.isEmpty {
+            self.collectionView.isHidden = true
+            return
+        }
+        
+        // Post has text from the owner & no comments
+        if comments.isEmpty && !self.post.postText.isEmpty {
+         
+
+            self.collectionView.isHidden = false
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+            return
+        }
+        
+        
+        // Fetch users from comments
+        self.comments.forEach { comment in
+            UserService.fetchUser(withUid: comment.uid) { user in
+                self.users.append(user)
+                if self.users.count == self.comments.count {
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
                     }
                 }
             }
-    
-            self.collectionView.isHidden = false
         }
+
+        self.collectionView.isHidden = false
     }
+     */
     
     //MARK: - Helpers
     
@@ -155,12 +188,13 @@ class CommentPostViewController: UICollectionViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
-        collectionView.register(CommentCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
-        collectionView.keyboardDismissMode = .interactive
+        collectionView.keyboardDismissMode = .onDrag
         
     }
     
@@ -173,31 +207,35 @@ class CommentPostViewController: UICollectionViewController {
 
 //MARK: - UICollectionViewDataSource
 
-extension CommentPostViewController {
+extension CommentPostViewController: UICollectionViewDelegateFlowLayout {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return comments.count
+        return commentsLoaded ? comments.count : 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return commentsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
         
         cell.authorButton.isHidden = true
         
         cell.delegate = self
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         
-        let userIndex = ownerComments.firstIndex { user in
+        let userIndex = users.firstIndex { user in
             return user.uid == comments[indexPath.row].uid
         }!
         
-        cell.set(user: ownerComments[userIndex])
+        cell.set(user: users[userIndex])
 
         return cell
     }
-   
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
 }
 
@@ -232,7 +270,7 @@ extension CommentPostViewController: CommentCellDelegate {
                             
                             self.collectionView.performBatchUpdates {
                                 self.comments.remove(at: indexPath.item)
-                                self.ownerComments.remove(at: indexPath.item)
+                                self.users.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                             let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
@@ -299,17 +337,12 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "uid": currentUser.uid as Any,
                 "id": commentUid as Any,
                 "timestamp": "Now" as Any,
-                "firstName": currentUser.firstName as Any,
-                "category": currentUser.category.userCategoryString as Any,
-                "speciality": currentUser.speciality as Any,
-                "profession": currentUser.profession as Any,
-                "lastName": currentUser.lastName as Any,
-                "isAuthor": isAuthor as Any,
-                "profileImageUrl": currentUser.profileImageUrl as Any])
+                "isTextFromAuthor": false as Bool,
+                "isAuthor": isAuthor as Any])
             
             self.comments.append(addedComment)
             
-            self.ownerComments.append(User(dictionary: [
+            self.users.append(User(dictionary: [
                 "uid": currentUser.uid as Any,
                 "firstName": currentUser.firstName as Any,
                 "lastName": currentUser.lastName as Any,

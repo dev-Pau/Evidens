@@ -11,8 +11,7 @@ struct CommentService {
     
     static func uploadPostComment(comment: String, post: Post, user: User, type: Comment.CommentType, completion: @escaping([String]) -> Void) {
         let isAuthor = (post.ownerUid == user.uid) ? true : false
-        
-        
+
         switch type {
         case .regular:
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
@@ -120,7 +119,76 @@ struct CommentService {
          */
     }
     
+    static func fetchComments(forPost post: Post, forType type: Comment.CommentType, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            switch type {
+            case .regular:
+                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .group:
+                COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        } else {
+            switch type {
+            case .regular:
+                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .group:
+                COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        }
+    }
+    
     static func fetchComments(forPost post: Post, forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+        //guard let documents = snapshot?.documents else { return }
+        //let comments = documents.map({ Comment(dictionary: $0.data())})
+        //completion(comments)
         
         switch type {
         case .regular:
@@ -128,10 +196,10 @@ struct CommentService {
                 .order(by: "timestamp", descending: false)
             
             query.getDocuments { snapshot, error in
-                guard let documents = snapshot?.documents else { return }
-                let comments = documents.map({ Comment(dictionary: $0.data())})
-                completion(comments)
-                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    return
+                }
+
             }
         case .group:
             //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes")

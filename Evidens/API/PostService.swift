@@ -215,8 +215,16 @@ struct PostService {
             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-home-feed").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                
                 completion(snapshot)
             }
         }
@@ -228,8 +236,14 @@ struct PostService {
              // Fetch first group of posts
              let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.profession!).limit(to: 10)
              firstGroupToFetch.getDocuments { snapshot, error in
-                 guard let snapshot = snapshot else { return }
-                 guard snapshot.documents.last != nil else { return }
+                 guard let snapshot = snapshot, !snapshot.isEmpty else {
+                     completion(snapshot!)
+                     return
+                 }
+                 guard snapshot.documents.last != nil else {
+                     completion(snapshot)
+                     return
+                 }
                  completion(snapshot)
              }
          } else {
@@ -237,8 +251,14 @@ struct PostService {
              let nextGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 10)
                  
              nextGroupToFetch.getDocuments { snapshot, error in
-                 guard let snapshot = snapshot else { return }
-                 guard snapshot.documents.last != nil else { return }
+                 guard let snapshot = snapshot, !snapshot.isEmpty else {
+                     completion(snapshot!)
+                     return
+                 }
+                 guard snapshot.documents.last != nil else {
+                     completion(snapshot)
+                     return
+                 }
                  completion(snapshot)
              }
          }
@@ -300,19 +320,27 @@ struct PostService {
         }
     }
     
+    static func fetchPosts(withPostIds postIds: [String], completion: @escaping([Post]) -> Void) {
+        var posts = [Post]()
+        postIds.forEach { postId in
+            fetchPost(withPostId: postId) { post in
+                getPostValuesFor(post: post) { postWithValues in
+                    posts.append(postWithValues)
+                    if posts.count == postIds.count {
+                        posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        completion(posts)
+                    }
+                }
+            }
+        }
+    }
+    
     static func fetchPost(withPostId postId: String, completion: @escaping(Post) -> Void) {
         COLLECTION_POSTS.document(postId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-
-            var post = Post(postId: snapshot.documentID, dictionary: data)
-            fetchLikesForPost(postId: postId) { likes in
-                post.likes = likes
-                fetchCommentsForPost(postId: postId) { comments in
-                    post.numberOfComments = comments
-                    completion(post)
-                }
-            }
+            let post = Post(postId: snapshot.documentID, dictionary: data)
+            completion(post)
         }
     }
     
@@ -382,8 +410,8 @@ struct PostService {
     
     static func getPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
         var auxPost = post
-        self.checkIfUserLikedPost(post: post) { like in
-            self.checkIfUserBookmarkedPost(post: post) { bookmark in
+        checkIfUserLikedPost(post: post) { like in
+            checkIfUserBookmarkedPost(post: post) { bookmark in
                 fetchLikesForPost(postId: post.postId) { likes in
                     auxPost.likes = likes
                     fetchCommentsForPost(postId: post.postId) { comments in
@@ -391,6 +419,28 @@ struct PostService {
                         auxPost.didLike = like
                         auxPost.didBookmark = bookmark
                         completion(auxPost)
+                    }
+                }
+            }
+        }
+    }
+    
+    static func getPostValuesFor(posts: [Post], completion: @escaping([Post]) -> Void) {
+        var auxPosts = posts
+        posts.enumerated().forEach { index, post in
+            self.checkIfUserLikedPost(post: post) { like in
+                self.checkIfUserBookmarkedPost(post: post) { bookmark in
+                    fetchLikesForPost(postId: post.postId) { likes in
+                        fetchCommentsForPost(postId: post.postId) { comments in
+                            auxPosts[index].didLike = like
+                            auxPosts[index].didBookmark = bookmark
+                            auxPosts[index].likes = likes
+                            auxPosts[index].numberOfComments = comments
+                            
+                            if auxPosts.count == posts.count {
+                                completion(auxPosts)
+                            }
+                        }
                     }
                 }
             }
@@ -475,23 +525,71 @@ struct PostService {
         }
     }
     
-    static func getAllLikesFor(post: Post, completion: @escaping([String]) -> Void) {
-        if let groupId = post.groupId {
-            COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
-                guard let uid = snapshot?.documents else { return }
-                let docIDs = uid.map({ $0.documentID })
-                completion(docIDs)
+    static func getAllLikesFor(post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            if let groupId = post.groupId {
+                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            } else {
+                COLLECTION_POSTS.document(post.postId).collection("posts-likes").limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+                
             }
         } else {
-            COLLECTION_POSTS.document(post.postId).collection("posts-likes").getDocuments { snapshot, _ in
-                guard let uid = snapshot?.documents else { return }
-                let docIDs = uid.map({ $0.documentID })
-                completion(docIDs)
+            if let groupId = post.groupId {
+                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            } else {
+                COLLECTION_POSTS.document(post.postId).collection("posts-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
             }
         }
     }
     
-
     static func updateUserFeedAfterFollowing(userUid: String, didFollow: Bool) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: userUid as Any)

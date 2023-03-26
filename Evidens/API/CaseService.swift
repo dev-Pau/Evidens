@@ -454,18 +454,66 @@ struct CaseService {
         }
     }
     
-    static func getAllLikesFor(clinicalCase: Case, completion: @escaping([String]) -> Void) {
-        if let groupId = clinicalCase.groupId {
-            COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
-                guard let uid = snapshot?.documents else { return }
-                let docIDs = uid.map({ $0.documentID })
-                completion(docIDs)
+    static func getAllLikesFor(clinicalCase: Case, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            if let groupId = clinicalCase.groupId {
+                COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").limit(to: 30).getDocuments { snapshot, _ in
+                     guard let snapshot = snapshot, !snapshot.isEmpty else {
+                         completion(snapshot!)
+                         return
+                     }
+                     
+                     guard snapshot.documents.last != nil else {
+                         completion(snapshot)
+                         return
+                     }
+                     
+                     completion(snapshot)
+                 }
+            } else {
+                COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
             }
         } else {
-            COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").getDocuments { snapshot, _ in
-                guard let uid = snapshot?.documents else { return }
-                let docIDs = uid.map({ $0.documentID })
-                completion(docIDs)
+            if let groupId = clinicalCase.groupId {
+                COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            } else {
+                COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
             }
         }
     }

@@ -19,7 +19,7 @@ class CommentInputTextView: UITextView {
     
     let placeholderLabel: UILabel = {
         let label = UILabel()
-        label.textColor = lightGrayColor
+        label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

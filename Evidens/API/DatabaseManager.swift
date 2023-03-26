@@ -477,11 +477,15 @@ extension DatabaseManager {
             let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             ref.observeSingleEvent(of: .value) { snapshot in
                 if let values = snapshot.value as? [String: Any] {
-                    print(values)
                     values.forEach { value in
                         uids.append(value.key)
+                        if uids.count == snapshot.children.allObjects.count {
+                            completion(.success(uids))
+                            return
+                        }
                     }
-                    completion(.success(uids))
+                } else {
+                    completion(.success([]))
                 }
             }
             
@@ -489,15 +493,18 @@ extension DatabaseManager {
             // Fetch more posts
             let ref = database.child("users").child(uid).child("profile").child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
             
-            
             //queryStarting(afterValue: lastTimestampValue).queryLimited(toFirst: 1)
             ref.observeSingleEvent(of: .value) { snapshot in
                 if let values = snapshot.value as? [String: Any] {
-                    print(values)
                     values.forEach { value in
                         uids.append(value.key)
+                        if uids.count == snapshot.children.allObjects.count {
+                            completion(.success(uids))
+                            return
+                        }
                     }
-                    completion(.success(uids))
+                } else {
+                    completion(.success([]))
                 }
             }
         }
