@@ -62,9 +62,9 @@ struct Case {
     
     enum CaseMenuOptions: String, CaseIterable {
         case delete = "Delete Case"
-        case update = "Add an Update"
+        case update = "Add Case Update"
         case solved = "Change to Solved"
-        case edit = "Edit Diagnosis"
+        case edit = "Edit Case Diagnosis"
         case report = "Report Case"
         
         var menuOptionsImage: UIImage {

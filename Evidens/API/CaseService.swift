@@ -101,8 +101,35 @@ struct CaseService {
             }
         }
     }
-        
-        
+    
+    static func checkIfUserHasNewCasesToDisplay(category: Case.FilterCategories, snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
+
+        switch category {
+        case .explore:
+            return
+        case .all:
+            return
+        case .recents:
+            let query = COLLECTION_CASES.order(by: "timestamp", descending: false).start(afterDocument: snapshot).limit(to: 10)
+            query.getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    print("empty")
+                    completion(snapshot!)
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    print("no")
+                    completion(snapshot)
+                    return
+                }
+                
+                completion(snapshot)
+            }
+        }
+    }
+    
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
 
         if lastSnapshot == nil {

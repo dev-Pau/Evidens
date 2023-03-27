@@ -185,10 +185,81 @@ struct CommentService {
         }
     }
     
+    static func fetchCaseComments(forCase clinicalCase: Case, forType type: Comment.CommentType, lastSnapshot: QueryDocumentSnapshot?,  completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            switch type {
+            case .regular:
+                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .group:
+                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        } else {
+            switch type {
+            case .regular:
+                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .group:
+                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        }
+    }
+
     static func fetchComments(forPost post: Post, forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
         //guard let documents = snapshot?.documents else { return }
         //let comments = documents.map({ Comment(dictionary: $0.data())})
         //completion(comments)
+        
         
         switch type {
         case .regular:
@@ -234,7 +305,6 @@ struct CommentService {
                 completion(comments)
             }
         }
-        
     }
     
   

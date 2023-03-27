@@ -89,7 +89,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         
-        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.systemBackground).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
+        let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
@@ -224,7 +224,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
                                 self.comments!.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
-                            let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
+                            let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
                             popupView.showTopPopup(inView: self.view)
                         }
                         else {

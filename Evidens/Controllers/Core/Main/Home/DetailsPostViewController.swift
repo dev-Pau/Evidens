@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import Firebase
 import JGProgressHUD
 
-private let reuseIdentifier = "CellTextReuseIdentifier"
-private let headerReuseIdentifier = "HeaderReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+private let commentHeaderReuseIdentifier = "CommentHeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
+private let homeTextCellReuseIdentifier = "CellTextReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
@@ -30,7 +33,7 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
     func didEditPost(forPost post: Post)
 }
 
-class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate {
+class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     
     private var zoomTransitioning = ZoomTransitioning()
 
@@ -39,9 +42,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     weak var delegate: DetailsPostViewControllerDelegate?
     weak var reviewDelegate: DetailsContentReviewDelegate?
     
-    var indexPathSelected: Int?
-    
-    private var loaded: Bool = false
+    private var commentsLastSnapshot: QueryDocumentSnapshot?
+    private var commentsLoaded: Bool = false
     
     var isReviewingPost: Bool = false
     var groupId: String?
@@ -52,37 +54,16 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     private var user: User
     private var type: Comment.CommentType
 
-    private var comments: [Comment]?
-
-    private var ownerComments: [User] = []
-    
+    private var comments = [Comment]()
+    private var users = [User]()
     
     private let progressIndicator = JGProgressHUD()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        /*
-        switch displayState {
-            
-        case .none:
-            break
-        case .photo:
-            return
-        case .others:
-            let view = MENavigationBarTitleView(fullName: post.ownerFirstName + " " + post.ownerLastName, category: "Post")
-            view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
-            navigationItem.titleView = view
-        }
-         */
-         
-        
-        loaded = true
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
-        checkIfUserLikedPosts()
-        checkIfUserBookmarkedPost()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -107,7 +88,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         self.post = post
         self.user = user
         self.type = type
-
         super.init(collectionViewLayout: collectionViewLayout)
     }
     
@@ -116,18 +96,20 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     }
     
     func fetchComments() {
-        CommentService.fetchComments(forPost: post, forType: type) { fetchedComments in
-            self.comments = fetchedComments
+        CommentService.fetchComments(forPost: post, forType: type, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.commentsLoaded = true
+                self.collectionView.reloadSections(IndexSet(integer: 1))
+                return
+            }
             
-            fetchedComments.forEach { comment in
-                UserService.fetchUser(withUid: comment.uid) { user in
-                    self.ownerComments.append(user)
-                    if self.ownerComments.count == fetchedComments.count {
-                        DispatchQueue.main.async {
-                            self.collectionView.reloadData()
-                        }
-                    }
-                }
+            self.commentsLastSnapshot = snapshot.documents.last
+            self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+            let userUids = self.comments.map { $0.uid }
+            UserService.fetchUsers(withUids: userUids) { users in
+                self.users = users
+                self.commentsLoaded = true
+                self.collectionView.reloadSections(IndexSet(integer: 1))
             }
         }
     }
@@ -147,11 +129,13 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
-        collectionView.register(CommentsSectionHeader.self, forCellWithReuseIdentifier: headerReuseIdentifier)
-
+        collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: commentHeaderReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
+        
         switch post.type {
         case .plainText:
-            collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+            collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
         case .textWithImage:
             collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         case .textWithTwoImage:
@@ -170,45 +154,33 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 
     }
     
-    func checkIfUserLikedPosts() {
-        PostService.checkIfUserLikedPost(post: post) { didLike in
-            self.post.didLike = didLike
-            self.collectionView.reloadData()
-        }
-    }
-    
-    func checkIfUserBookmarkedPost() {
-        PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
-            self.post.didBookmark = didBookmark
-            self.collectionView.reloadData()
-        }
-    }
-    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return 2
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if commentsLoaded {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+            header.configureWith(title: "Comments", linkText: "")
+            return header
+        } else {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return section == 0 ? CGSize.zero : commentsLoaded ? comments.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
-        } else {
-            if let comments = comments {
-                if comments.isEmpty { return 0 } else {
-                    if section == 1 {
-                        return 1
-                    } else {
-                        return comments.count
-                    }
-                }
-            }
-            return 0
-        }
+        return section == 0 ? 1 : commentsLoaded ? comments.isEmpty ? 1 : comments.count : 0
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             if post.type.postType == 0 {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                 cell.layer.borderWidth = 0
                 cell.delegate = self
                 cell.postTextLabel.numberOfLines = 0
@@ -245,7 +217,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 }
                 return cell
             } else if post.type.postType == 3 {
-
+                
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
@@ -273,35 +245,30 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             }
             else {
                 return UICollectionViewCell()
-            }  
+            }
         } else {
-            if let comments = comments {
-                if indexPath.section == 1 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! CommentsSectionHeader
-                    cell.backgroundColor = .systemBackground
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                    cell.authorButton.isHidden = true
-                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                    cell.delegate = self
-                    
-                    let userIndex = ownerComments.firstIndex { user in
-                        if user.uid == comments[indexPath.row].uid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: ownerComments[userIndex])
-                    }
-
-                    cell.backgroundColor = .systemBackground
-                    return cell
-                }
+            if comments.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: UIImage(named: ""), title: "No comments", description: "Be the first to comment", buttonText: .dismiss)
+                return cell
             } else {
-                return UICollectionViewCell()
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
+                cell.authorButton.isHidden = true
+                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                cell.delegate = self
+                
+                let userIndex = users.firstIndex { user in
+                    if user.uid == comments[indexPath.row].uid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+                
+                return cell
             }
         }
     }
@@ -752,7 +719,7 @@ extension DetailsPostViewController: CommentCellDelegate {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                             
                             self.collectionView.performBatchUpdates {
-                                self.comments!.remove(at: indexPath.item)
+                                self.comments.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                             let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
@@ -787,10 +754,9 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
 
 extension DetailsPostViewController: CommentPostViewControllerDelegate {
     func didCommentPost(post: Post, user: User, comment: Comment) {
-        comments?.append(comment)
+        comments.append(comment)
         self.post.numberOfComments += 1
         collectionView.reloadData()
-        
         delegate?.didComment(forPost: post)
     }
 }

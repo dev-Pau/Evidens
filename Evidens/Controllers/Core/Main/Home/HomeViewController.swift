@@ -193,10 +193,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { snapshot in
             if snapshot.isEmpty {
                 self.collectionView.refreshControl?.endRefreshing()
-                self.collectionView.reloadData()
-                print("snaphsot is empty")
+                //self.collectionView.reloadData()
             } else {
-                print("we got a new post")
                 self.postsFirstSnapshot = snapshot.documents.last
                 PostService.fetchHomePosts(snapshot: snapshot, completion: { posts in
                     self.posts.insert(contentsOf: posts, at: 0)
@@ -592,7 +590,7 @@ extension HomeViewController: HomeCellDelegate {
     
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         

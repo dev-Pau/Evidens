@@ -99,6 +99,7 @@ class CommentPostViewController: UICollectionViewController {
                 
             } else {
                 // Found comments
+                self.lastCommentSnapshot = snapshot.documents.last
                 let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
                 self.comments.append(contentsOf: comments)
                 let uids = comments.map { $0.uid }
@@ -131,6 +132,30 @@ class CommentPostViewController: UICollectionViewController {
     private func configureUI() {
         guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" else { return }
         commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            getMoreComments()
+        }
+    }
+    
+    private func getMoreComments() {
+        CommentService.fetchComments(forPost: post, forType: type, lastSnapshot: lastCommentSnapshot) { snapshot in
+            guard !snapshot.isEmpty else { return }
+            self.lastCommentSnapshot = snapshot.documents.last
+            let newComments = snapshot.documents.map( { Comment(dictionary: $0.data()) })
+            let newOwnerUids = newComments.map({ $0.uid })
+            UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                self.comments.append(contentsOf: newComments)
+                self.users.append(contentsOf: newUsers)
+                self.collectionView.reloadData()
+            }
+        }
     }
 }
 
@@ -176,7 +201,7 @@ extension CommentPostViewController: CommentCellDelegate {
             reportCommentAlert {
                 DatabaseManager.shared.reportPostComment(forCommentId: comment.id) { reported in
                     if reported {
-                        let popupView = METopPopupView(title: "Comment reported", image: "exclamationmark.bubble", popUpType: .destructive)
+                        let popupView = METopPopupView(title: "Comment reported", image: "checkmark.circle.fill", popUpType: .regular)
                         popupView.showTopPopup(inView: self.view)
                     }
                 }
@@ -232,7 +257,6 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
 
         //Upload commento to Firebase
         CommentService.uploadPostComment(comment: comment, post: post, user: currentUser, type: type) { ids in
-            //Unshow loader
             let commentUid = ids[0]
             let postUid = ids[1]
             
@@ -262,7 +286,7 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "lastName": currentUser.lastName as Any,
                 "profileImageUrl": currentUser.profileImageUrl as Any,
                 "profession": currentUser.profession as Any,
-                "category": currentUser.category as Any,
+                "category": currentUser.category.rawValue as Any,
                 "speciality": currentUser.speciality as Any]))
             
             let indexPath = IndexPath(item: self.comments.count - 1, section: 0)

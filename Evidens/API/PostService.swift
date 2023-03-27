@@ -287,22 +287,16 @@ struct PostService {
 
         newQuery.getDocuments { snapshot, _ in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
-                print("here")
                 completion(snapshot!)
                 return
             }
             
             guard snapshot.documents.last != nil else {
-                print("2nd here")
-                    completion(snapshot)
+                completion(snapshot)
                 return
             }
             
-        
-            
-            print("we got something")
             completion(snapshot)
-            
         }
     }
     
@@ -446,14 +440,13 @@ struct PostService {
             }
         }
     }
+    
+    
 
 
     static func likePost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //Add a new like to the post
-        //COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes + 1])
-        
         //Update posts likes collection to track likes for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
             //Update user likes collection to track likes for a particular user
@@ -462,10 +455,7 @@ struct PostService {
     }
     
     static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        //COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks + 1])
-        
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //Update post bookmark collection to track bookmarks for a particular post
         COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
