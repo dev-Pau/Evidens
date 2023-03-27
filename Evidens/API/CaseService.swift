@@ -19,11 +19,7 @@ struct CaseService {
                     "specialities": specialities,
                     "details": details,
                     "updates": "",
-                    "likes": 0,
                     "stage": stage.caseStage,
-                    "comments": 0,
-                    "bookmarks": 0,
-                    "views": 0,
                     "professions": professions.map({ $0.profession }),
                     "diagnosis": diagnosis as Any,
                     "ownerUid": user.uid as Any,
@@ -502,9 +498,9 @@ struct CaseService {
     }
 
     static func bookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        COLLECTION_CASES.document(clinicalCase.caseId).updateData(["bookmarks" : clinicalCase.numberOfBookmarks + 1])
+        //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["bookmarks" : clinicalCase.numberOfBookmarks + 1])
         
         //Update post bookmark collection to track bookmarks for a particular post
         COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).setData([:]) { _ in
@@ -517,7 +513,7 @@ struct CaseService {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         //guard clinicalCase.numberOfBookmarks > 0 else { return }
         
-        COLLECTION_CASES.document(clinicalCase.caseId).updateData(["bookmarks" : clinicalCase.numberOfBookmarks - 1])
+        //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["bookmarks" : clinicalCase.numberOfBookmarks - 1])
         
         COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).delete(completion: completion)
@@ -616,20 +612,31 @@ struct CaseService {
         } else {
             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.addSnapshotListener { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
                 completion(snapshot)
             }
         }
     }
     
-    static func fetchBookmarkedCases(snapshot: QuerySnapshot, completion: @escaping([Case]) -> Void) {
+    static func fetchCases(snapshot: QuerySnapshot, completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
         snapshot.documents.forEach({ document in
             fetchCase(withCaseId: document.documentID) { clinicalCase in
-                cases.append(clinicalCase)
-                cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                completion(cases)
+                getCaseValuesFor(clinicalCase: clinicalCase) { newClinicalCase in
+                    cases.append(newClinicalCase)
+                    if snapshot.count == cases.count {
+                        cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        completion(cases)
+                    }
+                }
             }
         })
     }

@@ -37,7 +37,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.text = "Help the community and get more engagement by adding a diagnose about your conclusions"
+        label.text = "Help the community and get more engagement by adding a diagnose about your conclusions and the treatment details."
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.textColor = .label
@@ -47,7 +47,7 @@ class CaseDiagnosisViewController: UIViewController {
     
     private lazy var diagnosisTextView: InputTextView = {
         let tv = InputTextView()
-        tv.placeholderText = "Add your diagnosis here..."
+        tv.placeholderText = "Add your diagnosis and treatment details here..."
         //tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
         //tv.placeholderLabel.textColor = UIColor(white: 0.2, alpha: 0.7)
         tv.font = .systemFont(ofSize: 17, weight: .regular)
@@ -88,7 +88,7 @@ class CaseDiagnosisViewController: UIViewController {
     
 
     private func configureNavigationBar() {
-        title = "Diagnosis Details"
+        title = "Diagnosis & Treatment"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
@@ -116,23 +116,23 @@ class CaseDiagnosisViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            textLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor, constant: 10),
-            textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -13),
+            textLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             separatorView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
-            separatorView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
             
             profileImageView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 13),
+            profileImageView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             profileImageView.widthAnchor.constraint(equalToConstant: 45),
 
             diagnosisTextView.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 2),
             diagnosisTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             diagnosisTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            diagnosisTextView.heightAnchor.constraint(equalToConstant: 127),
+            diagnosisTextView.heightAnchor.constraint(equalToConstant: view.frame.height * 0.5),
 
             textTracker.topAnchor.constraint(equalTo: diagnosisTextView.bottomAnchor, constant: 3),
             textTracker.trailingAnchor.constraint(equalTo: diagnosisTextView.trailingAnchor),
@@ -168,7 +168,7 @@ class CaseDiagnosisViewController: UIViewController {
                     if uploaded {
                         // Diagnosis updated, update previous view controllers
                         self.delegate?.handleAddDiagnosis(self.diagnosisTextView.text, caseId: self.caseId)
-                        let popUpView = METopPopupView(title: "Case changed to solved", image: "checkmark", popUpType: .regular)
+                        let popUpView = METopPopupView(title: "Case changed to solved successfully", image: "checkmark.circle.fill", popUpType: .regular)
                         popUpView.showTopPopup(inView: self.view)
 
                         self.dismiss(animated: true)
@@ -194,7 +194,7 @@ extension CaseDiagnosisViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         let count = textView.text.count
         if stageIsUpdating || diagnosisIsUpdating {
-            navigationItem.rightBarButtonItem?.title = count > 0 ? "Update" : "Skip"
+            navigationItem.rightBarButtonItem?.title = count > 0 ? "Upload" : "Skip"
         } else {
             navigationItem.rightBarButtonItem?.isEnabled = count > 0 ? true : false
         }

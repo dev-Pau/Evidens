@@ -36,19 +36,17 @@ class BookmarksViewController: UIViewController {
             }
         }
     }
-
-    private var selectedCategory: Int = 0
+    
+    private var selectedCategory: CategoriesType = .cases
     
     private var caseLoaded = false
     private var postLoaded = false
     
     private var cases = [Case]()
-    
     private var caseUsers = [User]()
-
-    private var postUsers = [User]()
-
+    
     private var posts = [Post]()
+    private var postUsers = [User]()
     
     private let categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -70,6 +68,7 @@ class BookmarksViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 0
+        //layout.minimumInteritemSpacing = 0
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
@@ -96,26 +95,6 @@ class BookmarksViewController: UIViewController {
         fetchBookmarkedClinicalCases()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if selectedCategory == 0 {
-
-            if cases.count == 1 {
-                caseLoaded = false
-                cases.removeAll()
-                fetchBookmarkedClinicalCases()
-            }
-
-        } else {
-            if posts.count == 1 {
-                postLoaded = false
-                posts.removeAll()
-                fetchBookmarkedPosts()
-            }
-        }
-        contentCollectionView.reloadData()
-    }
-    
     private func fetchBookmarkedClinicalCases() {
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
             if snapshot.isEmpty {
@@ -123,17 +102,15 @@ class BookmarksViewController: UIViewController {
                 self.contentCollectionView.reloadData()
                 return
             }
-
-            CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
+            
+            CaseService.fetchCases(snapshot: snapshot) { clinicalCases in
                 self.lastCaseSnapshot = snapshot.documents.last
                 self.cases = clinicalCases
-                
-                clinicalCases.forEach { clinicalCaseFetched in
-                    UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
-                        self.caseLoaded = true
-                        self.caseUsers.append(user)
-                        self.contentCollectionView.reloadData()
-                    }
+                let ownerUids = clinicalCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                UserService.fetchUsers(withUids: ownerUids) { users in
+                    self.caseUsers = users
+                    self.caseLoaded = true
+                    self.contentCollectionView.reloadData()
                 }
             }
         }
@@ -147,16 +124,14 @@ class BookmarksViewController: UIViewController {
                 return
             }
             
-            PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
+            PostService.fetchHomePosts(snapshot: snapshot) { posts in
                 self.lastPostSnapshot = snapshot.documents.last
                 self.posts = posts
-                
-                posts.forEach { postFetched in
-                    UserService.fetchUser(withUid: postFetched.ownerUid) { user in
-                        self.postLoaded = true
-                        self.postUsers.append(user)
-                        self.contentCollectionView.reloadData()
-                    }
+                let ownerUids = posts.map({ $0.ownerUid })
+                UserService.fetchUsers(withUids: ownerUids) { users in
+                    self.postLoaded = true
+                    self.postUsers = users
+                    self.contentCollectionView.reloadData()
                 }
             }
         }
@@ -180,7 +155,7 @@ class BookmarksViewController: UIViewController {
         contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         contentCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         contentCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
-      
+        
         view.addSubviews(categoriesCollectionView, separatorView, contentCollectionView)
         
         NSLayoutConstraint.activate([
@@ -193,7 +168,7 @@ class BookmarksViewController: UIViewController {
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
-        
+            
             contentCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             contentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -207,7 +182,38 @@ class BookmarksViewController: UIViewController {
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            getMoreCases()
+            getMoreBookmarksContent()
+        }
+    }
+    
+    private func getMoreBookmarksContent() {
+        switch selectedCategory {
+        case .cases:
+            CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { snapshot in
+                guard !snapshot.isEmpty else { return }
+                CaseService.fetchCases(snapshot: snapshot) { newClinicalCases in
+                    self.lastCaseSnapshot = snapshot.documents.last
+                    self.cases.append(contentsOf: newClinicalCases)
+                    let newOwnerUids = newClinicalCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                        self.caseUsers.append(contentsOf: newUsers)
+                        self.contentCollectionView.reloadData()
+                    }
+                }
+            }
+        case .posts:
+            PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
+                guard !snapshot.isEmpty else { return }
+                PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
+                    self.lastPostSnapshot = snapshot.documents.last
+                    self.posts.append(contentsOf: newPosts)
+                    let newOwnerUids = newPosts.map({ $0.ownerUid })
+                    UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                        self.postUsers.append(contentsOf: newUsers)
+                        self.contentCollectionView.reloadData()
+                    }
+                }
+            }
         }
     }
 }
@@ -217,10 +223,10 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         if collectionView == categoriesCollectionView {
             return CategoriesType.allCases.count
         } else {
-            if selectedCategory == 0 {
+            switch selectedCategory {
+            case .cases:
                 return caseLoaded ? (cases.count > 0 ? cases.count : 1) : 0
-
-            } else {
+            case .posts:
                 return postLoaded ? (posts.count > 0 ? posts.count : 1) : 0
             }
         }
@@ -235,9 +241,10 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         if collectionView == categoriesCollectionView {
             return CGSize.zero
         } else {
-            if selectedCategory == 0 {
+            switch selectedCategory {
+            case .cases:
                 return caseLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
-            } else {
+            case .posts:
                 return postLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
             }
         }
@@ -252,8 +259,8 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             }
             return cell
         } else {
-            if selectedCategory == 0 {
-                // Cases
+            switch selectedCategory {
+            case .cases:
                 if cases.count == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                     cell.configure(image: UIImage(named: "content.empty"), title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
@@ -297,7 +304,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     
                     return cell
                 }
-            } else {
+            case .posts:
                 if posts.count == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
                     cell.configure(image: UIImage(named: "content.empty"), title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
@@ -347,16 +354,21 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == categoriesCollectionView {
-            collectionView.cellForItem(at: indexPath)?.isSelected = true
-            selectedCategory = CategoriesType.allCases[indexPath.row].index
-            if selectedCategory == 1 && posts.isEmpty {
-                fetchBookmarkedPosts()
+
+            let currentIndexSelected = selectedCategory.index
+            selectedCategory = CategoriesType.allCases[indexPath.row]
+            
+            guard selectedCategory.index != currentIndexSelected else { return }
+            
+            switch selectedCategory {
+            case .cases:
                 contentCollectionView.reloadData()
                 return
+            case .posts:
+                contentCollectionView.reloadData()
+                fetchBookmarkedPosts()
             }
-            contentCollectionView.reloadData()
         } else {
-            
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
@@ -367,9 +379,9 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-         
-            if selectedCategory == 0 {
-                
+            
+            switch selectedCategory {
+            case .cases:
                 let userIndex = caseUsers.firstIndex { user in
                     if user.uid == cases[indexPath.row].ownerUid {
                         return true
@@ -380,15 +392,16 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 if let userIndex = userIndex {
                     if let _ = cases[indexPath.row].groupId {
                         let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .group, collectionViewFlowLayout: layout)
+                        #warning("put a delegate in order to remove the bookmark and update likes etc")
                         navigationController?.pushViewController(controller, animated: true)
                     } else {
                         let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .regular, collectionViewFlowLayout: layout)
+#warning("put a delegate in order to remove the bookmark and update likes etc")
                         navigationController?.pushViewController(controller, animated: true)
                     }
                    
                 }
-            } else {
-                
+            case .posts:
                 let userIndex = postUsers.firstIndex { user in
                     if user.uid == posts[indexPath.row].ownerUid {
                         return true
@@ -399,41 +412,12 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 if let userIndex = userIndex {
                     if let _ = posts[indexPath.row].groupId {
                         let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .group, collectionViewLayout: layout)
+#warning("put a delegate in order to remove the bookmark and update likes etc")
                         navigationController?.pushViewController(controller, animated: true)
                     } else {
                         let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .regular, collectionViewLayout: layout)
+#warning("put a delegate in order to remove the bookmark and update likes etc")
                         navigationController?.pushViewController(controller, animated: true)
-                    }
-
-                }
-            }
-        }
-    }
-}
-
-extension BookmarksViewController {
-    func getMoreCases() {
-        if selectedCategory == 0 {
-            CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { snapshot in
-                CaseService.fetchBookmarkedCases(snapshot: snapshot) { clinicalCases in
-                    self.lastCaseSnapshot = snapshot.documents.last
-                    self.cases.append(contentsOf: clinicalCases)
-                    clinicalCases.forEach { clinicalCaseFetched in
-                        UserService.fetchUser(withUid: clinicalCaseFetched.ownerUid) { user in
-                            self.caseUsers.append(user)
-                        }
-                    }
-                }
-            }
-        } else {
-            PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
-                PostService.fetchBookmarkedPosts(snapshot: snapshot) { posts in
-                    self.lastPostSnapshot = snapshot.documents.last
-                    self.posts.append(contentsOf: posts)
-                    posts.forEach { postFetched in
-                        UserService.fetchUser(withUid: postFetched.ownerUid) { user in
-                            self.postUsers.append(user)
-                        }
                     }
                 }
             }

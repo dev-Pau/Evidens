@@ -23,7 +23,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
+        iv.image = UIImage(named: "user.profile.privacy")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -89,7 +89,11 @@ class DiagnosisCaseCell: UICollectionViewCell {
     }
     
     func set(user: User) {
-        imageView.sd_setImage(with: URL(string: user.profileImageUrl!))
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            imageView.sd_setImage(with: URL(string: imageUrl))
+        } else {
+            imageView.image = UIImage(named: "user.profile")
+        }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

@@ -234,6 +234,8 @@ extension CommentCaseViewController: CommentCellDelegate {
                     }
                 }
             }
+        case .back:
+            navigationController?.popViewController(animated: true)
         }
     }
     
@@ -316,10 +318,9 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "category": currentUser.category.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
-                
-                let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
-                self.collectionView.reloadData()
-                self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+                let indexPath = IndexPath(item: 1, section: 0)
+                self.collectionView.insertItems(at: [indexPath])
+                self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
                 
                 self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.user, comment: newComment)
                 

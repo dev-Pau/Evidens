@@ -7,13 +7,15 @@
 
 import UIKit
 import JGProgressHUD
+import Firebase
 
-private let headerReuseIdentifier = "HeaderReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
+private let commentHeaderReuseIdentifier = "CommentHeaderReuseIdentifier"
 private let commentReuseIdentifier = "CommentCellReuseIdentifier"
+private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 
 private let caseImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let caseTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
-
 
 protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didTapLikeAction(forCase clinicalCase: Case)
@@ -23,17 +25,18 @@ protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didAddDiagnosis(forCase clinicalCase: Case)
 }
 
-class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate {
+class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     
     private var clinicalCase: Case
     private var user: User
-    
-    private var displayState: DisplayState = .none
-    
-    private var ownerComments: [User] = []
-    
     private var type: Comment.CommentType
     
+    private var displayState: DisplayState = .none
+    private var commentsLastSnapshot: QueryDocumentSnapshot?
+    private var commentsLoaded: Bool = false
+    
+    private var users: [User] = []
+
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
     
@@ -45,11 +48,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     
     private let progressIndicator = JGProgressHUD()
     
-    private var comments: [Comment]? {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
+    private var comments = [Comment]()
 
     init(clinicalCase: Case, user: User, type: Comment.CommentType, collectionViewFlowLayout: UICollectionViewFlowLayout) {
         self.clinicalCase = clinicalCase
@@ -77,30 +76,26 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
-        checkIfUserLikedCase()
-        checkIfUserBookmarkedCase()
     }
     
     private func configureNavigationBar() {
-        
         let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared anonymously" : user.firstName! + " " + user.lastName!
-        
         let view = MENavigationBarTitleView(fullName: fullName, category: "Case")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
-        
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
-        
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
     
-
     private func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
+        
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
-        collectionView.register(CommentsSectionHeader.self, forCellWithReuseIdentifier: headerReuseIdentifier)
+        collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: commentHeaderReuseIdentifier)
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         
         switch clinicalCase.type { 
         case .text:
@@ -111,40 +106,47 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func fetchComments() {
-        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type) { fetchedComments in
-            self.comments = fetchedComments
-            fetchedComments.forEach { comment in
-                UserService.fetchUser(withUid: comment.uid) { user in
-                    self.ownerComments.append(user)
-                    if self.ownerComments.count == fetchedComments.count {
-                        DispatchQueue.main.async {
-                            self.collectionView.reloadData()
-                        }
-                    }
-                }
+        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.commentsLoaded = true
+                self.collectionView.reloadSections(IndexSet(integer: 1))
+                return
+            }
+            
+            self.commentsLastSnapshot = snapshot.documents.last
+            self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+            let userUids = self.comments.map { $0.uid }
+            UserService.fetchUsers(withUids: userUids) { users in
+                self.users = users
+                self.commentsLoaded = true
+                self.collectionView.reloadSections(IndexSet(integer: 1))
             }
         }
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return 2
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if commentsLoaded {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+            header.configureWith(title: "Comments", linkText: comments.count >= 15 ? "See All" : "")
+            if comments.count < 15 { header.hideSeeAllButton() }
+            header.delegate = self
+            return header
+        } else {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return section == 0 ? CGSize.zero : commentsLoaded ? comments.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
-        } else {
-            if let comments = comments {
-                if comments.isEmpty { return 0 } else {
-                    if section == 1 {
-                        return 1
-                    } else {
-                        return comments.count
-                    }
-                }
-            }
-            return 0
-        }
+        return section == 0 ? 1 : commentsLoaded ? comments.isEmpty ? 1 : comments.count : 0
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -175,33 +177,29 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 return cell
             }
         } else {
-            if let comments = comments {
-                if indexPath.section == 1 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! CommentsSectionHeader
-                    cell.backgroundColor = .systemBackground
-                    return cell
-                } else {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                    cell.authorButton.isHidden = true
-                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                    cell.delegate = self
-                    
-                    let userIndex = ownerComments.firstIndex { user in
-                        if user.uid == comments[indexPath.row].uid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: ownerComments[userIndex])
-                    }
-
-                    cell.backgroundColor = .systemBackground
-                    return cell
-                }
+            if comments.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: UIImage(named: "content.empty"), title: "No comments found", description: "This case has no comments, but it won't be that way for long. Be the first to comment.", buttonText: .comment)
+                cell.delegate = self
+                return cell
             } else {
-                return UICollectionViewCell()
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
+                cell.authorButton.isHidden = true
+                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                cell.delegate = self
+                
+                let userIndex = users.firstIndex { user in
+                    if user.uid == comments[indexPath.row].uid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+                
+                return cell
             }
         }
     }
@@ -221,7 +219,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
                             
                             self.collectionView.performBatchUpdates {
-                                self.comments!.remove(at: indexPath.item)
+                                self.comments.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                             let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
@@ -233,6 +231,8 @@ extension DetailsCaseViewController: CommentCellDelegate {
                     }
                 }
             }
+        case .back:
+            navigationController?.popViewController(animated: true)
         }
     }
     
@@ -246,22 +246,6 @@ extension DetailsCaseViewController: CommentCellDelegate {
         displayState = .others
         self.navigationController?.pushViewController(controller, animated: true)
         
-    }
-    
-    func checkIfUserLikedCase() {
-        CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
-            self.clinicalCase.didLike = didLike
-            self.collectionView.reloadData()
-
-        }
-    }
-    
-    func checkIfUserBookmarkedCase() {
-        CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
-            self.clinicalCase.didBookmark = didBookmark
-            self.collectionView.reloadData()
-
-        }
     }
 }
 
@@ -521,9 +505,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
-        return
-    }
+    func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) { return }
 }
 
 extension DetailsCaseViewController: ZoomTransitioningDelegate {
@@ -534,7 +516,14 @@ extension DetailsCaseViewController: ZoomTransitioningDelegate {
 
 extension DetailsCaseViewController: CommentCaseViewControllerDelegate {
     func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
-        comments?.append(comment)
+        if comments.isEmpty {
+            comments = [comment]
+            users = [user]
+        } else {
+            comments.append(comment)
+            users.append(user)
+        }
+
         self.clinicalCase.numberOfComments += 1
         collectionView.reloadData()
         delegate?.didComment(forCase: clinicalCase)
@@ -585,3 +574,34 @@ extension DetailsCaseViewController: ReviewContentGroupDelegate {
         }
     }
 }
+
+extension DetailsCaseViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type)
+        controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
+        displayState = .others
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension DetailsCaseViewController: MainSearchHeaderDelegate {
+    func didTapSeeAll(_ header: UICollectionReusableView) {
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type)
+        controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
+        displayState = .others
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+

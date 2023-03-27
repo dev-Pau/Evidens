@@ -754,10 +754,10 @@ class UserProfileViewController: UIViewController {
                     return
                 }
                 
-                PostService.fetchRecentPosts(withPostId: postIDs) { recentPosts in
+                PostService.fetchPosts(withPostIds: postIDs) { recentPosts in
                     self.recentPosts = recentPosts
-                    print(recentPosts)
                     self.checkIfAllUserInformationIsFetched()
+                    return
                 }
             case .failure(_):
                 print("Failure fetching posts")
@@ -774,8 +774,7 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
-                
-                CaseService.fetchRecentCases(withCaseId: caseIDs) { recentCases in
+                CaseService.fetchCases(withCaseIds: caseIDs) { recentCases in
                     self.recentCases = recentCases
                     self.checkIfAllUserInformationIsFetched()
                     return
@@ -795,6 +794,7 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
+                
                 self.recentComments = recentComments
                 self.checkIfAllUserInformationIsFetched()
             case .failure(_):
@@ -960,8 +960,7 @@ class UserProfileViewController: UIViewController {
     private func checkIfAllUserInformationIsFetched() {
         userSectionsFetched += 1
         if userSectionsFetched == 12 {
-            print(self.user.stats)
-            self.userDataLoaded = true
+            userDataLoaded = true
             collectionView.reloadData()
             scrollViewDidScroll(collectionView)
         }

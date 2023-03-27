@@ -161,7 +161,9 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if commentsLoaded {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: "Comments", linkText: "")
+            header.configureWith(title: "Comments", linkText: comments.count >= 15 ? "See All" : "")
+            if comments.count < 15 { header.hideSeeAllButton() }
+            header.delegate = self
             return header
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
@@ -241,7 +243,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.configureWithReviewOptions()
                 }
                 return cell
-                
             }
             else {
                 return UICollectionViewCell()
@@ -249,7 +250,8 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         } else {
             if comments.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: UIImage(named: ""), title: "No comments", description: "Be the first to comment", buttonText: .dismiss)
+                cell.configure(image: UIImage(named: "content.empty"), title: "No comments found", description: "This post has no comments, but it won't be that way for long. Be the first to comment.", buttonText: .comment)
+                cell.delegate = self
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
@@ -731,6 +733,8 @@ extension DetailsPostViewController: CommentCellDelegate {
                     }
                 }
             }
+        case .back:
+            navigationController?.popViewController(animated: true)
         }
     }
     
@@ -754,7 +758,14 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
 
 extension DetailsPostViewController: CommentPostViewControllerDelegate {
     func didCommentPost(post: Post, user: User, comment: Comment) {
-        comments.append(comment)
+        if comments.isEmpty {
+            comments = [comment]
+            users = [user]
+        } else {
+            comments.append(comment)
+            users.append(user)
+        }
+
         self.post.numberOfComments += 1
         collectionView.reloadData()
         delegate?.didComment(forPost: post)
@@ -794,5 +805,37 @@ extension DetailsPostViewController: EditPostViewControllerDelegate {
         self.post = post
         collectionView.reloadSections(IndexSet(integer: 0))
         delegate?.didEditPost(forPost: post)
+    }
+}
+
+extension DetailsPostViewController: MESecondaryEmptyCellDelegate {
+    func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
+        let controller = CommentPostViewController(post: post, user: user, type: type)
+        controller.hidesBottomBarWhenPushed = true
+        controller.delegate = self
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        displayState = .others
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension DetailsPostViewController: MainSearchHeaderDelegate {
+    func didTapSeeAll(_ header: UICollectionReusableView) {
+        let controller = CommentPostViewController(post: post, user: user, type: type)
+        controller.hidesBottomBarWhenPushed = true
+        controller.delegate = self
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        displayState = .others
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

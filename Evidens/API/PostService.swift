@@ -16,14 +16,10 @@ struct PostService {
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
-                    //"likes": 0,
                     "ownerUid": uid,
                     "professions": professions.map({ $0.profession }),
-                    //"comments": 0,
-                    //"shares": 0,
                     "type": type.rawValue,
-                    "privacy": privacy.rawValue,
-                    "bookmarks": 0] as [String : Any]
+                    "privacy": privacy.rawValue] as [String : Any]
                    
         
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
@@ -63,11 +59,9 @@ struct PostService {
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
                     "ownerUid": uid,
-                    //"shares": 0,
                     "professions": professions.map({ $0.profession }),
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
-                    //"bookmarks": 0,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
                    
         
@@ -464,7 +458,7 @@ struct PostService {
     }
     
     static func unlikePost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         guard post.likes > 0 else { return }
         
         //COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes - 1])
@@ -475,7 +469,7 @@ struct PostService {
     }
     
     static func unbookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //guard post.numberOfBookmarks > 0 else { return }
         
         //COLLECTION_POSTS.document(post.postId).updateData(["bookmarks" : post.numberOfBookmarks - 1])
@@ -616,7 +610,7 @@ struct PostService {
         
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
-            firstGroupToFetch.addSnapshotListener { snapshot, error in
+            firstGroupToFetch.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
                     return
@@ -629,9 +623,15 @@ struct PostService {
             }
         } else {
             let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
-            nextGroupToFetch.addSnapshotListener { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+            nextGroupToFetch.getDocuments { snapshot, error in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
                 completion(snapshot)
             }
         }

@@ -454,8 +454,6 @@ extension DatabaseManager {
         
         ref.observeSingleEvent(of: .value) { snapshot in
             if let values = snapshot.value as? [String: Any] {
-
-                print(values)
                 values.forEach { value in
                     uids.append(value.key)
                     if uids.count == values.count {
@@ -2136,8 +2134,10 @@ extension DatabaseManager {
             if let values = snapshot.value as? [String: Any] {
                 values.forEach { value in
                     uids.append(value.key)
+                    if uids.count == values.count {
+                        completion(.success(uids))
+                    }
                 }
-                completion(.success(uids))
             } else {
                 completion(.success([]))
             }

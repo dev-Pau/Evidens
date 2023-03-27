@@ -130,8 +130,8 @@ class CommentCell: UICollectionViewCell {
         ])
         cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, authorButton, timestampLabel, nameLabel, professionLabel, separatorView)
         
-        timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
-        timeLabelLeadingConstraint.isActive = true
+        //timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
+        //timeLabelLeadingConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -145,7 +145,7 @@ class CommentCell: UICollectionViewCell {
             dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
             
             timestampLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            //timeStampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
             //timeStampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
            
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
@@ -187,8 +187,22 @@ class CommentCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         commentLabel.text = viewModel.commentText
         timestampLabel.text = viewModel.timestampString
-        dotsImageButton.isHidden = viewModel.isTextFromAuthor ? true : false
+        //dotsImageButton.isHidden = viewModel.isTextFromAuthor ? true : false
         dotsImageButton.menu = addMenuItems()
+        
+        /*
+        if viewModel.isTextFromAuthor {
+            dotsImageButton.isHidden = true
+            //timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            //timeLabelLeadingConstraint.isActive = true
+            //layoutIfNeeded()
+        } else {
+            dotsImageButton.isHidden = false
+            //timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
+            //timeLabelLeadingConstraint.isActive = true
+            //layoutIfNeeded()
+        }
+         */
     }
     
     
@@ -214,24 +228,18 @@ class CommentCell: UICollectionViewCell {
         } else {
             authorButton.isHidden = true
         }
-
-        if viewModel.isTextFromAuthor {
-            timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
-            timeLabelLeadingConstraint.isActive = true
-            layoutIfNeeded()
-        } else {
-            timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
-            timeLabelLeadingConstraint.isActive = true
-            layoutIfNeeded()
-        }
     }
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
-        
         dotsImageButton.showsMenuAsPrimaryAction = true
-        
-        if viewModel.isAuthor {
+        if viewModel.isTextFromAuthor {
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Comment.CommentOptions.back.rawValue, image: Comment.CommentOptions.back.commentOptionsImage, handler: { _ in
+                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .back)
+                })])
+            return menuItems
+        } else if viewModel.isAuthor {
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
                     self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)

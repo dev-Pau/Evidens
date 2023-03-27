@@ -23,7 +23,9 @@ class JobsBrowserViewController: UIViewController {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 200)
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -113,30 +115,22 @@ class JobsBrowserViewController: UIViewController {
             if snapshot.isEmpty {
                 self.jobsLoaded = true
                 self.collectionView.reloadData()
+                return
             } else {
                 self.jobsLastSnapshot = snapshot.documents.last
                 self.jobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
-                self.checkIfUserBookmarkedJob()
-                let companyIds = self.jobs.map { $0.companyId }
-                CompanyService.fetchCompanies(withIds: companyIds) { companies in
-                    self.companies = companies
-                    self.jobsLoaded = true
-                    self.collectionView.reloadData()
+                JobService.fetchJobValuesFor(jobs: self.jobs) { jobsWithValues in
+                    self.jobs = jobsWithValues
+                    let companyIds = self.jobs.map { $0.companyId }
+                    CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                        self.companies = companies
+                        self.jobsLoaded = true
+                        self.collectionView.reloadData()
+                    }
                 }
             }
         }
     }
-    
-    private func checkIfUserBookmarkedJob() {
-        self.jobs.forEach { job in
-            JobService.checkIfUserBookmarkedJob(job: job) { didBookmark in
-                if let index = self.jobs.firstIndex(where: {$0.jobId == job.jobId}) {
-                    self.jobs[index].didBookmark = didBookmark
-                    self.collectionView.reloadData()
-                }
-            }
-        }
-    }                                         
 }
 
 extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {

@@ -173,9 +173,6 @@ extension CommentPostViewController: UICollectionViewDelegateFlowLayout {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
-        
-        cell.authorButton.isHidden = true
-        
         cell.delegate = self
         cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
         
@@ -228,6 +225,8 @@ extension CommentPostViewController: CommentCellDelegate {
                     }
                 }
             }
+        case .back:
+            navigationController?.popViewController(animated: true)
         }
     }
     
@@ -252,8 +251,6 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
         //Get user from MainTabController
         guard let tab = self.tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
-        
-        //Show loader to block user interactions
 
         //Upload commento to Firebase
         CommentService.uploadPostComment(comment: comment, post: post, user: currentUser, type: type) { ids in
@@ -278,7 +275,7 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "isTextFromAuthor": false as Bool,
                 "isAuthor": isAuthor as Any])
             
-            self.comments.append(addedComment)
+            self.comments.insert(addedComment, at: 1)
             
             self.users.append(User(dictionary: [
                 "uid": currentUser.uid as Any,
@@ -289,9 +286,9 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 "category": currentUser.category.rawValue as Any,
                 "speciality": currentUser.speciality as Any]))
             
-            let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
-            self.collectionView.reloadData()
-            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+            let indexPath = IndexPath(item: 1, section: 0)
+            self.collectionView.insertItems(at: [indexPath])
+            self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
             
             self.delegate?.didCommentPost(post: self.post, user: self.user, comment: addedComment)
             

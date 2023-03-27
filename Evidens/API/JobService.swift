@@ -87,6 +87,7 @@ struct JobService {
                     completion(snapshot)
                     return
                 }
+                
                 completion(snapshot)
             }
         } else {
@@ -150,6 +151,28 @@ struct JobService {
         COLLECTION_JOBS.document(job.jobId).collection("job-bookmarks").document(uid).delete() { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
             COLLECTION_USERS.document(uid).collection("user-job-bookmarks").document(job.jobId).delete(completion: completion)
+        }
+    }
+    
+    static func fetchJobValuesFor(jobs: [Job], completion: @escaping([Job]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        var auxJobs = [Job]()
+        var count = 0
+        jobs.enumerated().forEach { index, job in
+            COLLECTION_USERS.document(uid).collection("user-job-bookmarks").document(job.jobId).getDocument { (snapshot, _) in
+                //If the snapshot (document) exists, means current user did like the post
+                if let snapshot = snapshot, snapshot.exists {
+                    auxJobs[index].didBookmark = true
+                } else {
+                    auxJobs[index].didBookmark = false
+                }
+                
+                count += 1
+                
+                if auxJobs.count == count {
+                    completion(auxJobs)
+                }
+            }
         }
     }
     

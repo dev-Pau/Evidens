@@ -97,7 +97,7 @@ class BookmarksCaseCell: UICollectionViewCell {
            
             caseStateButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             caseStateButton.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
-            caseStateButton.heightAnchor.constraint(equalToConstant: 30),
+            caseStateButton.heightAnchor.constraint(equalToConstant: 25),
             
             titleCaseLabel.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 10),
             titleCaseLabel.leadingAnchor.constraint(equalTo: caseStateButton.leadingAnchor),

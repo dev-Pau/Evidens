@@ -36,11 +36,14 @@ struct Comment {
 extension Comment {
     
     enum CommentOptions: String, CaseIterable {
+        case back = "Go Back"
         case report = "Report Comment"
         case delete = "Delete Comment"
         
         var commentOptionsImage: UIImage {
             switch self {
+            case .back:
+                return UIImage(systemName: "arrow.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
             case .report:
                 return UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
             case .delete:

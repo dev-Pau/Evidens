@@ -24,7 +24,7 @@ struct CommentService {
                 
                 completion([commentRef.documentID, post.postId])
                 //Update number of comments for the post
-                COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments + 1])
+                //COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments + 1])
             }
         case .group:
             let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document()
@@ -59,7 +59,7 @@ struct CommentService {
                 completion([commentRef.documentID, clinicalCase.caseId])
                 
                 //Update number of comments for the case
-                COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
+                //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
             }
         case .group:
             let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document()
@@ -93,7 +93,7 @@ struct CommentService {
                 completion([commentRef.documentID, clinicalCase.caseId])
                 
                 //Update number of comments for the case
-                COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
+                //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments + 1])
             }
         case .group:
             let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document()
@@ -123,7 +123,7 @@ struct CommentService {
         if lastSnapshot == nil {
             switch type {
             case .regular:
-                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, _ in
+                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -137,7 +137,7 @@ struct CommentService {
                     completion(snapshot)
                 }
             case .group:
-                COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15).getDocuments { snapshot, _ in
+                COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -154,7 +154,7 @@ struct CommentService {
         } else {
             switch type {
             case .regular:
-                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
+                COLLECTION_POSTS.document(post.postId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -168,7 +168,7 @@ struct CommentService {
                     completion(snapshot)
                 }
             case .group:
-                COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
+                COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -189,7 +189,7 @@ struct CommentService {
         if lastSnapshot == nil {
             switch type {
             case .regular:
-                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15)
                 query.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
@@ -204,7 +204,7 @@ struct CommentService {
                     completion(snapshot)
                 }
             case .group:
-                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: true).limit(to: 15)
                 query.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
@@ -222,7 +222,7 @@ struct CommentService {
         } else {
             switch type {
             case .regular:
-                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
                 query.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
@@ -237,7 +237,7 @@ struct CommentService {
                     completion(snapshot)
                 }
             case .group:
-                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
                 query.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)

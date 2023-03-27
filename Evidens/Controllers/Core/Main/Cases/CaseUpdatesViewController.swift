@@ -21,21 +21,17 @@ class CaseUpdatesViewController: UIViewController {
     weak var delegate: CaseUpdatesViewControllerDelegate?
     
     var controllerIsPushed: Bool = false
-    
-    var clinicalCaseData: [String] = []
-    
     var groupId: String?
     
     private var clinicalCase: Case
     private var user: User
-    private var updatesLoaded: Bool = false
-    
+
     private let progressIndicator = JGProgressHUD()
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 100)
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -52,7 +48,6 @@ class CaseUpdatesViewController: UIViewController {
         configureUI()
     }
     
-
     init(clinicalCase: Case, user: User) {
         self.clinicalCase = clinicalCase
         self.user = user
@@ -132,7 +127,7 @@ extension CaseUpdatesViewController: UICollectionViewDelegate, UICollectionViewD
         if clinicalCase.caseUpdates.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyUpdatesCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
             cell.delegate = self
-            cell.configure(image: nil, title: "This case does not have any updates - yet.", description: "Check back for all the new updates that might get posted.", buttonText: .dismiss)
+            cell.configure(image: UIImage(named: "content.empty"), title: "This case does not have any updates —— yet.", description: "Check back for all the new updates that might get posted.", buttonText: .dismiss)
             return cell
         }
         
