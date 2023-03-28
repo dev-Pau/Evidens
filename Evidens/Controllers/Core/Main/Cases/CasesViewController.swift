@@ -796,6 +796,21 @@ extension CasesViewController {
 }
         
 extension CasesViewController: DetailsCaseViewControllerDelegate {
+    func didDeleteComment(forCase clinicalCase: Case) {
+        let index = cases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let _ = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+                
+            }
+        }
+    }
+    
     func didComment(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -805,7 +820,7 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
         }
         
         if let index = index {
-            if let cell = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+            if let _ = casesCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
                 
             }
         }

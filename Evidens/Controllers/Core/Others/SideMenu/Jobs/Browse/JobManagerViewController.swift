@@ -60,7 +60,6 @@ class JobManagerViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        
         collectionView.register(ManageJobHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: manageJobHeaderReuseIdentifier)
         collectionView.register(JobDescriptionCell.self, forCellWithReuseIdentifier: jobDescriptionCellReuseIdentifier)
         
@@ -106,6 +105,8 @@ extension JobManagerViewController: UICollectionViewDelegateFlowLayout, UICollec
 }
 
 extension JobManagerViewController: CreateJobViewControllerDelegate {
+    func didUploadJob(job: Job, company: Company) { return }
+    
     func didUpdateJob(job: Job) {
         self.job = job
         collectionView.reloadData()

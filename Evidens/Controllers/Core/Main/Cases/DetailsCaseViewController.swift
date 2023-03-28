@@ -23,6 +23,7 @@ protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didComment(forCase clinicalCase: Case)
     func didAddUpdate(forCase clinicalCase: Case)
     func didAddDiagnosis(forCase clinicalCase: Case)
+    func didDeleteComment(forCase clinicalCase: Case)
 }
 
 class DetailsCaseViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
@@ -131,7 +132,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if commentsLoaded {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: "Comments", linkText: comments.count >= 15 ? "See All" : "")
+            header.configureWith(title: "   Comments", linkText: comments.count >= 15 ? "See All   " : "")
             if comments.count < 15 { header.hideSeeAllButton() }
             header.delegate = self
             return header
@@ -515,6 +516,18 @@ extension DetailsCaseViewController: ZoomTransitioningDelegate {
 }
 
 extension DetailsCaseViewController: CommentCaseViewControllerDelegate {
+    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            self.clinicalCase.numberOfComments -= 1
+            comments.remove(at: commentIndex)
+            collectionView.reloadData()
+            collectionView.performBatchUpdates {
+                collectionView.deleteItems(at: [IndexPath(item: commentIndex, section: 1)])
+                delegate?.didDeleteComment(forCase: clinicalCase)
+            }
+        }
+    }
+    
     func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
         if comments.isEmpty {
             comments = [comment]

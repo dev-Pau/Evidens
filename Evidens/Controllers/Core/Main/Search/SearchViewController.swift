@@ -1218,6 +1218,10 @@ extension SearchViewController: RecentHeaderDelegate {
 */
 
 extension SearchViewController: CommentCaseViewControllerDelegate {
+    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
+        didDeleteComment(forCase: clinicalCase)
+    }
+    
     func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
         let caseIndex = cases.firstIndex { searchCase in
             if searchCase.caseId == clinicalCase.caseId {
@@ -1234,6 +1238,22 @@ extension SearchViewController: CommentCaseViewControllerDelegate {
 }
 
 extension SearchViewController: DetailsCaseViewControllerDelegate {
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[caseIndex].numberOfComments -= 1
+            
+            switch clinicalCase.type {
+            case .text:
+                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextCell
+                cell.viewModel?.clinicalCase.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextImageCell
+                cell.viewModel?.clinicalCase.numberOfComments -= 1
+            }
+        }
+    }
+    
     func didTapLikeAction(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -1284,6 +1304,41 @@ extension SearchViewController: DetailsCaseViewControllerDelegate {
 }
 
 extension SearchViewController: DetailsPostViewControllerDelegate {
+    func didDeleteComment(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
     func didTapLikeAction(forPost post: Post) {
         let index = posts.firstIndex { homePost in
             if homePost.postId == post.postId {
@@ -1293,7 +1348,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
         }
         
         if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) {
                 self.cell(cell, didLike: post)
             }
         }
@@ -1308,7 +1363,7 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
         }
         
         if let index = index {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) {
                 self.cell(cell, didBookmark: post)
             }
         }
@@ -1328,23 +1383,23 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
             
             switch post.type {
             case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTwoImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTwoImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeThreeImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeThreeImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .document:
@@ -1362,6 +1417,41 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
 }
 
 extension SearchViewController: CommentPostViewControllerDelegate {
+    func didDeletePostComment(post: Post, comment: Comment) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 3)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
     func didCommentPost(post: Post, user: User, comment: Comment) {
         let postIndex = posts.firstIndex { homePost in
             if homePost.postId == post.postId { return true }
@@ -1373,23 +1463,23 @@ extension SearchViewController: CommentPostViewControllerDelegate {
             
             switch post.type {
             case .plainText:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithTwoImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeTwoImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeTwoImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithThreeImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeThreeImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeThreeImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .textWithFourImage:
-                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! HomeFourImageTextCell
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 3)) as! HomeFourImageTextCell
                 cell.viewModel?.post.numberOfComments += 1
                 
             case .document:

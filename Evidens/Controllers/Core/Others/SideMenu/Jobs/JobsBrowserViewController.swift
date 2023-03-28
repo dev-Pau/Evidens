@@ -11,6 +11,7 @@ import Firebase
 private let emptyCellReuseIdentifier = "EmptyCellReuseIdentifier"
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let jobCellReuseIdentifier = "JobCellReuseIdentifier"
+private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 
 class JobsBrowserViewController: UIViewController {
     
@@ -127,6 +128,32 @@ class JobsBrowserViewController: UIViewController {
                         self.jobsLoaded = true
                         self.collectionView.reloadData()
                     }
+                }
+            }
+        }
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            getMoreJobs()
+        }
+    }
+    
+    private func getMoreJobs() {
+        JobService.fetchJobs(lastSnapshot: jobsLastSnapshot) { snapshot in
+            guard !snapshot.isEmpty else { return }
+            self.jobsLastSnapshot = snapshot.documents.last
+            let newJobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
+            JobService.fetchJobValuesFor(jobs: newJobs) { newJobsWithValues in
+                self.jobs.append(contentsOf: newJobsWithValues)
+                let companyIds = self.jobs.map { $0.companyId }
+                CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                    self.companies.append(contentsOf: companies)
+                    self.collectionView.reloadData()
                 }
             }
         }

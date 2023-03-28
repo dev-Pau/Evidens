@@ -26,7 +26,7 @@ class BrowseCompanyCell: UICollectionViewCell {
     
     private let companyTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
@@ -36,7 +36,7 @@ class BrowseCompanyCell: UICollectionViewCell {
     
     private let companyDetailsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
@@ -65,8 +65,8 @@ class BrowseCompanyCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             companyImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            companyImageView.heightAnchor.constraint(equalToConstant: 40),
-            companyImageView.widthAnchor.constraint(equalToConstant: 40),
+            companyImageView.heightAnchor.constraint(equalToConstant: 45),
+            companyImageView.widthAnchor.constraint(equalToConstant: 45),
             
             companyTitleLabel.topAnchor.constraint(equalTo: companyImageView.topAnchor, constant: 2),
             companyTitleLabel.leadingAnchor.constraint(equalTo: companyImageView.trailingAnchor, constant: 10),
@@ -81,6 +81,8 @@ class BrowseCompanyCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: companyTitleLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+        
+        companyImageView.layer.cornerRadius = 7
     }
     
     private func configureWithCompany() {

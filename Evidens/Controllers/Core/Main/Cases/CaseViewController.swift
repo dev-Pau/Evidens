@@ -487,6 +487,13 @@ extension CaseViewController {
 }
 
 extension CaseViewController: DetailsCaseViewControllerDelegate {
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.ownerUid == clinicalCase.caseId }) {
+            cases[caseIndex].numberOfComments += 1
+            collectionView.reloadData()
+        }
+    }
+    
     func didAddDiagnosis(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -563,6 +570,13 @@ extension CaseViewController: DetailsCaseViewControllerDelegate {
 }
 
 extension CaseViewController: CommentCaseViewControllerDelegate {
+    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[caseIndex].numberOfComments += 1
+            collectionView.reloadData()
+        }
+    }
+    
     func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
         let caseIndex = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {

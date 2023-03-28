@@ -89,7 +89,7 @@ extension CompanyBrowserViewController: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if section == 0 {
             if companiesLoaded && companies.isEmpty { return CGSize.zero }
-            return CGSize(width: UIScreen.main.bounds.width, height: 55)
+            return CGSize(width: UIScreen.main.bounds.width, height: 70)
         }
         
         return CGSize.zero

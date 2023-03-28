@@ -30,6 +30,7 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
     func didTapLikeAction(forPost post: Post)
     func didTapBookmarkAction(forPost post: Post)
     func didComment(forPost post: Post)
+    func didDeleteComment(forPost post: Post)
     func didEditPost(forPost post: Post)
 }
 
@@ -151,7 +152,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         case .video:
             break
         }
-
     }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -161,7 +161,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if commentsLoaded {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: "Comments", linkText: comments.count >= 15 ? "See All" : "")
+            header.configureWith(title: "   Comments", linkText: comments.count >= 15 ? "See All   " : "")
             if comments.count < 15 { header.hideSeeAllButton() }
             header.delegate = self
             return header
@@ -719,11 +719,13 @@ extension DetailsPostViewController: CommentCellDelegate {
                     CommentService.deletePostComment(forPost: self.post, forCommentUid: comment.id) { deleted in
                         if deleted {
                             DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
-                            
+                            self.post.numberOfComments -= 1
                             self.collectionView.performBatchUpdates {
                                 self.comments.remove(at: indexPath.item)
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
+                            self.collectionView.reloadSections(IndexSet(integer: 0))
+                            self.delegate?.didDeleteComment(forPost: self.post)
                             let popupView = METopPopupView(title: "Comment deleted", image: "trash", popUpType: .destructive)
                             popupView.showTopPopup(inView: self.view)
                         }
@@ -757,6 +759,18 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
 }
 
 extension DetailsPostViewController: CommentPostViewControllerDelegate {
+    func didDeletePostComment(post: Post, comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            self.post.numberOfComments -= 1
+            comments.remove(at: commentIndex)
+            collectionView.reloadData()
+            collectionView.performBatchUpdates {
+                collectionView.deleteItems(at: [IndexPath(item: commentIndex, section: 1)])
+                delegate?.didDeleteComment(forPost: post)
+            }
+        }
+    }
+    
     func didCommentPost(post: Post, user: User, comment: Comment) {
         if comments.isEmpty {
             comments = [comment]

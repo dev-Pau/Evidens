@@ -20,7 +20,7 @@ struct Post {
     let postId: String
     let type: PostType
     let professions: [Profession]
-    let edited: Bool
+    var edited: Bool
     let groupId: String?
     let privacyOptions: PrivacyOptions
     let postImageUrl: [String]

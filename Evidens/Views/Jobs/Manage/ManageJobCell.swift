@@ -120,6 +120,7 @@ class ManageJobCell: UICollectionViewCell {
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
+        companyImageView.layer.cornerRadius = 7
         dotsImageButton.menu = addMenuItems()
     }
     
@@ -150,7 +151,10 @@ class ManageJobCell: UICollectionViewCell {
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
-        companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        if let imageUrl = company.companyImageUrl, imageUrl != "" {
+            companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        }
+
         jobTitle.text = viewModel.jobName
         locationWorksplaceLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
         timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago"

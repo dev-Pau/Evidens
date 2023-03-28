@@ -36,6 +36,7 @@ class BrowseJobCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
+        iv.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
@@ -170,6 +171,8 @@ class BrowseJobCell: UICollectionViewCell {
         bookmarkButton.configurationUpdateHandler = { [unowned self] button in
             button.isUserInteractionEnabled = self.isUpdatingJoiningState! ? false : true
         }
+        
+        companyImageView.layer.cornerRadius = 7
     }
     
     private func configureWithJob() {
@@ -182,7 +185,10 @@ class BrowseJobCell: UICollectionViewCell {
     }
     
     func configureWithCompany(company: Company) {
-        companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        if let companyUrl = company.companyImageUrl, companyUrl != "" {
+            companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        }
+
         companyNameLabel.text = company.name
     }
     

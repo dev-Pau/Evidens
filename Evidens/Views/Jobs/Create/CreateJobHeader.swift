@@ -100,7 +100,11 @@ class CreateJobHeader: UICollectionReusableView {
         ])
         
         companyLabel.text = company.name
-        companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        if let companyUrl = company.companyImageUrl, companyUrl != "" {
+            companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        }
+
+        companyImageView.layer.cornerRadius = 7
     }
     
     @objc func handleAddExistingCompany() {

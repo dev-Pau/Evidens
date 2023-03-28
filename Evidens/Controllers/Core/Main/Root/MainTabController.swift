@@ -141,10 +141,7 @@ class MainTabController: UITabBarController {
                 //let blurView = UIVisualEffectView(effect: blurEffect)
                 //blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 //self.topBlurView.insertSubview(blurView, at: 0)
-                //blurView.frame = self.topBlurView.bounds
-                
-
-                
+                //blurView.frame = self.topBlurView.boundCOLLECTION_POSTS.whereFie
             }
         }
     }

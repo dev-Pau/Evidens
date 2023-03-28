@@ -15,6 +15,7 @@ private let createJobProfessionCellReuseIdentifier = "CreateJobProfessionCellReu
 
 protocol CreateJobViewControllerDelegate: AnyObject {
     func didUpdateJob(job: Job)
+    func didUploadJob(job: Job, company: Company)
 }
 
 class CreateJobViewController: UIViewController {
@@ -148,12 +149,14 @@ class CreateJobViewController: UIViewController {
                 self.dismiss(animated: true)
             }
         } else {
+            guard let company = company else { return }
             progressIndicator.show(in: view)
             JobService.uploadJob(job: jobToUpload) { error in
                 self.progressIndicator.dismiss(animated: true)
                 guard error == nil else { return }
                 let reportPopup = METopPopupView(title: "Job succesfully uploaded", image: "checkmark.circle.fill", popUpType: .regular)
                 reportPopup.showTopPopup(inView: self.view)
+                self.delegate?.didUploadJob(job: jobToUpload, company: company)
                 self.dismiss(animated: true)
                 //self.pushGroupViewController(withGroup: groupToUpload)
             }
@@ -283,18 +286,22 @@ extension CreateJobViewController: JobAssistantViewControllerDelegate {
             let cell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.workplaceType = text
+            jobIsValid()
         case .location:
             let cell = collectionView.cellForItem(at: IndexPath(item: 3, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.location = text
+            jobIsValid()
         case .type:
             let cell = collectionView.cellForItem(at: IndexPath(item: 4, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.jobType = text
+            jobIsValid()
         case .professions:
             let cell = collectionView.cellForItem(at: IndexPath(item: 5, section: 0)) as! EditNameCell
             cell.set(text: text)
             viewModel.profession = text
+            jobIsValid()
         }
     }
 }
@@ -331,6 +338,7 @@ extension CreateJobViewController: CreateCompanyViewControllerDelegate {
         if let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as? CreateJobHeader {
             header.setWithCompany(company: company)
             viewModel.companyId = company.id
+            self.company = company
             jobIsValid()
             //collectionView.reloadData()
         }
@@ -342,6 +350,7 @@ extension CreateJobViewController: CompanyBrowserViewControllerDelegate {
         if let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as? CreateJobHeader {
             header.setWithCompany(company: company)
             viewModel.companyId = company.id
+            self.company = company
             jobIsValid()
         }
     }

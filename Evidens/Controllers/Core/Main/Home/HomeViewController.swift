@@ -952,6 +952,41 @@ extension HomeViewController {
 }
 
 extension HomeViewController: DetailsPostViewControllerDelegate {
+    func didDeleteComment(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
     func didEditPost(forPost post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex] = post
@@ -1035,6 +1070,41 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
 }
 
 extension HomeViewController: CommentPostViewControllerDelegate {
+    func didDeletePostComment(post: Post, comment: Comment) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
     func didCommentPost(post: Post, user: User, comment: Comment) {
         let postIndex = posts.firstIndex { homePost in
             if homePost.postId == post.postId { return true }

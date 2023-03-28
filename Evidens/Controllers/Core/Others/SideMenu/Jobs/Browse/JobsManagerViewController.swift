@@ -97,7 +97,7 @@ class JobsManagerViewController: UIViewController {
         guard let user = tab.user else { return }
         
         let controller = CreateJobViewController(user: user)
-        
+        controller.delegate = self
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
 
@@ -158,6 +158,14 @@ extension JobsManagerViewController: MESecondaryEmptyCellDelegate {
 }
 
 extension JobsManagerViewController: JobManagerViewControllerDelegate, CreateJobViewControllerDelegate {
+    func didUploadJob(job: Job, company: Company) {
+        companies.append(company)
+        collectionView.performBatchUpdates {
+            jobs.insert(job, at: 0)
+            collectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
+        }
+    }
+    
     func didUpdateJob(job: Job) {
         if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
             jobs[jobIndex] = job

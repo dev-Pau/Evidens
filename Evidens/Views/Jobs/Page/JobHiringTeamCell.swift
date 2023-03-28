@@ -7,13 +7,20 @@
 
 import UIKit
 
+protocol JobHiringTeamCellDelegate: AnyObject {
+    func didTapHiringMember(user: User)
+}
+
 class JobHiringTeamCell: UICollectionViewCell {
+    weak var delegate: JobHiringTeamCellDelegate?
     
     var memberUid: String? {
         didSet {
             fetchUser()
         }
     }
+    
+    private var user: User?
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -63,6 +70,9 @@ class JobHiringTeamCell: UICollectionViewCell {
     }
     
     private func configure() {
+        isUserInteractionEnabled = true
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapHiringMember)))
+        
         addSubviews(titleLabel, profileImageView, nameLabel, userInfoCategoryLabel)
 
         NSLayoutConstraint.activate([
@@ -91,11 +101,17 @@ class JobHiringTeamCell: UICollectionViewCell {
     private func fetchUser() {
         guard let memberUid = memberUid else { return }
         UserService.fetchUser(withUid: memberUid) { user in
+            self.user = user
             self.nameLabel.text = user.firstName! + " " + user.lastName!
             self.userInfoCategoryLabel.text = user.profession! + " · " + user.speciality!
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
                 self.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
         }
+    }
+    
+    @objc func didTapHiringMember() {
+        guard let user = user else { return }
+        delegate?.didTapHiringMember(user: user)
     }
 }

@@ -20,6 +20,7 @@ private let createGroupCategoryCellReuseIdentifier = "CreateGroupCategoryCellReu
 
 protocol CreateGroupViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
+    func didCreateGroup(_ group: Group)
 }
 
 class CreateGroupViewController: UIViewController {
@@ -124,6 +125,7 @@ class CreateGroupViewController: UIViewController {
             viewModel.permissions = group.permissions
         } else {
             viewModel.visibility = .visible
+            viewModel.permissions = .invite
         }
         
         super.init(nibName: nil, bundle: nil)
@@ -264,8 +266,9 @@ class CreateGroupViewController: UIViewController {
         } else {
             // New group
             // Create a new group with a document reference in Firestore
+            //groupToUpload.groupId = COLLECTION_GROUPS.document().documentID
             groupToUpload.groupId = COLLECTION_GROUPS.document().documentID
-            
+            groupToUpload.members = 1
             progressIndicator.show(in: view)
             
             if viewModel.hasBothImages {
@@ -321,15 +324,8 @@ class CreateGroupViewController: UIViewController {
     }
     
     private func pushGroupViewController(withGroup group: Group) {
-        let controller = GroupPageViewController(group: group, memberType: .owner)
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
-        navigationController?.pushViewController(controller, animated: true)
+        delegate?.didCreateGroup(group)
+        self.dismiss(animated: true)
     }
 }
 
@@ -343,9 +339,9 @@ extension CreateGroupViewController: UICollectionViewDelegateFlowLayout, UIColle
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createGroupImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            cell.profileImageView.image = nil
+            cell.profileImageView.image = UIImage(named: "group.profile")
             cell.profileImageView.layer.cornerRadius = 7
-            cell.editProfileButton.configuration?.image = UIImage(systemName: "puzzlepiece.extension.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
+            //cell.editProfileButton.configuration?.image = UIImage(named: "group.profile")?.scalePreservingAspectRatio(targetSize: CGSize(width: 70, height: 70))
             if let group = group {
                 cell.set(bannerImageUrl: group.bannerUrl!)
                 cell.set(profileImageUrl: group.profileUrl!)

@@ -181,8 +181,8 @@ class UserProfileViewController: UIViewController {
         
          standardAppearance.configureWithOpaqueBackground()
          standardAppearance.backgroundColor = .systemBackground
-         navigationController?.navigationBar.standardAppearance = standardAppearance
-         
+         //navigationController?.navigationBar.standardAppearance = standardAppearance
+        self.navigationItem.standardAppearance = standardAppearance
         
         //standardAppearance.configureWithOpaqueBackground()
         //standardAppearance.backgroundColor = .systemBackground
@@ -255,7 +255,8 @@ class UserProfileViewController: UIViewController {
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
 
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
-        navigationController?.navigationBar.standardAppearance = standardAppearance
+        //navigationController?.navigationBar.standardAppearance = standardAppearance
+        self.navigationItem.standardAppearance = standardAppearance
         //standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
         //navigationController?.navigationBar.standardAppearance = standardAppearance
         
@@ -287,6 +288,15 @@ class UserProfileViewController: UIViewController {
                 navigationItem.setRightBarButton(nil, animated: true)
             }
         }
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
     }
      
     
@@ -322,6 +332,7 @@ class UserProfileViewController: UIViewController {
         collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyReuseIdentifier)
         collectionView.register(UserProfileHeaderCell.self, forCellWithReuseIdentifier: profileHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
+        collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
@@ -393,7 +404,7 @@ class UserProfileViewController: UIViewController {
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionHeader,
                                                                              alignment: .top)
-                    
+                    header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
@@ -409,7 +420,7 @@ class UserProfileViewController: UIViewController {
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionHeader,
                                                                              alignment: .top)
-                    
+                    header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
                     let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                     
@@ -1188,36 +1199,46 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 return header
             }
             
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! UserProfileTitleHeader
-            header.delegate = self
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+            //header.delegate = self
             
-            header.buttonImage.isHidden = user.isCurrentUser ? false : true
-            header.buttonImage.isEnabled = user.isCurrentUser ? true : false
+            //header.buttonImage.isHidden = user.isCurrentUser ? false : true
+            //header.buttonImage.isEnabled = user.isCurrentUser ? true : false
             
             if indexPath.section == 1 {
-                header.set(title: "About")
+                //header.set(title: "About")
+                header.configureWith(title: "About", linkText: "")
             }else if indexPath.section == 2 {
-                header.buttonImage.isHidden = true
-                header.set(title: "Posts")
+                //header.buttonImage.isHidden = true
+                //header.set(title: "Posts")
+                header.configureWith(title: "Posts", linkText: "")
             } else if indexPath.section == 3 {
-                header.buttonImage.isHidden = true
-                header.set(title: "Cases")
+                //header.buttonImage.isHidden = true
+                //header.set(title: "Cases")
+                header.configureWith(title: "Cases", linkText: "")
             } else if indexPath.section == 4 {
-                header.buttonImage.isHidden = true
-                header.set(title: "Comments")
+                //header.buttonImage.isHidden = true
+                //header.set(title: "Comments")
+                header.configureWith(title: "Comments", linkText: "")
             } else if indexPath.section == 5 {
-                header.set(title: "Experience")
+                //header.set(title: "Experience")
+                header.configureWith(title: "Experience", linkText: "")
             } else if indexPath.section == 6 {
-                header.set(title: "Education")
+                //header.set(title: "Education")
+                header.configureWith(title: "Education", linkText: "")
             } else if indexPath.section == 7 {
-                header.set(title: "Patents")
+                //header.set(title: "Patents")
+                header.configureWith(title: "Patents", linkText: "")
             } else if indexPath.section == 8 {
-                header.set(title: "Publications")
+                //header.set(title: "Publications")
+                header.configureWith(title: "Publications", linkText: "")
             } else if indexPath.section == 9 {
-                header.set(title: "Languages")
+                //header.set(title: "Languages")
+                header.configureWith(title: "Languages", linkText: "")
             } else {
-                header.buttonImage.isHidden = true
-                header.set(title: "Related")
+                //header.buttonImage.isHidden = true
+                //header.set(title: "Related")
+                header.configureWith(title: "Related", linkText: "")
             }
             return header
             

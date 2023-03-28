@@ -13,6 +13,7 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
 protocol CommentPostViewControllerDelegate: AnyObject {
     func didCommentPost(post: Post, user: User, comment: Comment)
+    func didDeletePostComment(post: Post, comment: Comment)
 }
 
 class CommentPostViewController: UICollectionViewController {
@@ -216,6 +217,7 @@ extension CommentPostViewController: CommentCellDelegate {
                                 self.collectionView.deleteItems(at: [indexPath])
                             }
                             
+                            self.delegate?.didDeletePostComment(post: self.post, comment: comment)
                             let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
                             popupView.showTopPopup(inView: self.view)
                         }

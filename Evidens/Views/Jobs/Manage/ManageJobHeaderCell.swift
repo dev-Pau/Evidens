@@ -132,19 +132,20 @@ class ManageJobHeaderCell: UICollectionReusableView {
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
 
-        
-        
+        companyImageView.layer.cornerRadius = 7
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
-        
         DatabaseManager.shared.fetchJobApplicationsForJob(withJobId: viewModel.jobId) { applicants in
             self.applicantNumber = applicants.count
             let text = applicants.count == 1 ? " applicant" : " applicants"
             self.applicantsLabel.text = self.applicantNumber == 0 ? "No applicants" : "\(self.applicantNumber)\(text)"
         }
         
-        companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        if let companyUrl = company.companyImageUrl, companyUrl != "" {
+            companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        }
+
         jobTitle.text = viewModel.jobName
         locationWorksplaceLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
         timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago"

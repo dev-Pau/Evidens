@@ -91,6 +91,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 3
+        iv.image = UIImage(named: "group.profile")
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         iv.isUserInteractionEnabled = true
@@ -113,7 +114,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureNavigationBar()
         configureSearchBar()
         configureUI()
@@ -224,7 +224,8 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         groupProfileImageView.frame.origin.y = (view.frame.width / 3 - 25) - currentVeritcalOffset
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
-        navigationController?.navigationBar.standardAppearance = standardAppearance
+        self.navigationItem.standardAppearance = standardAppearance
+        //navigationController?.navigationBar.standardAppearance = standardAppearance
         
         if currentVeritcalOffset > (view.frame.width / 3 + 40 - topbarHeight) && !scrollViewDidScrollHigherThanActionButton  {
             scrollViewDidScrollHigherThanActionButton.toggle()
@@ -260,7 +261,8 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
-        navigationController?.navigationBar.standardAppearance = standardAppearance
+        self.navigationItem.standardAppearance = standardAppearance
+        //navigationController?.navigationBar.standardAppearance = standardAppearance
         
         let imageView = UIImageView()
         imageView.clipsToBounds = true
@@ -290,6 +292,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: group.groupId) { uids in
             UserService.fetchUsers(withUids: uids) { users in
                 self.members = users
+                print(users)
                 self.collectionView.reloadData()
             }
         }
@@ -514,10 +517,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: groupContentDescriptionReuseIdentifier)
         
-        // Content skeleton cells
-        collectionView.register(SkeletonTextHomeCell.self, forCellWithReuseIdentifier: skeletonTextReuseIdentifier)
-        collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonImageReuseIdentifier)
-        
         // Content cells
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupContentCellReuseIdentifier)
         collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
@@ -532,7 +531,15 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: groupContentCollectionViewReuseIdentifier)
         //collectionView.register(UserProfileTitleHeader.self, forCellWithReuseIdentifier: profileHeaderTitleReuseIdentifier)
-        
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if #available(iOS 13.0, *) {
+             if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
+                 groupProfileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+             }
+         }
     }
     
     private func createLayout() -> StretchyHeaderLayout {
@@ -1366,6 +1373,8 @@ extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
 }
 
 extension GroupPageViewController: CreateGroupViewControllerDelegate {
+    func didCreateGroup(_ group: Group) { return }
+    
     func didUpdateGroup(_ group: Group) {
         self.group = group
         delegate?.didUpdateGroup(group)
@@ -1745,6 +1754,41 @@ extension GroupPageViewController: EditPostViewControllerDelegate {
 }
 
 extension GroupPageViewController: CommentPostViewControllerDelegate {
+    func didDeletePostComment(post: Post, comment: Comment) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
     func didCommentPost(post: Post, user: User, comment: Comment) {
         if let postIndex = posts.firstIndex (where: { $0.postId == post.postId } ) {
             posts[postIndex].numberOfComments += 1
@@ -1798,6 +1842,41 @@ extension GroupPageViewController: ZoomTransitioningDelegate {
 }
 
 extension GroupPageViewController: DetailsPostViewControllerDelegate {
+    func didDeleteComment(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: 0)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
     func didTapLikeAction(forPost post: Post) {
         var indexPath = IndexPath()
         if contentIndexSelected == .all {
@@ -2150,6 +2229,10 @@ extension GroupPageViewController: CaseCellDelegate {
 }
 
 extension GroupPageViewController: CommentCaseViewControllerDelegate {
+    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
+        didDeleteComment(forCase: clinicalCase)
+    }
+    
     func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
         if let caseIndex = cases.firstIndex (where: { $0.caseId == clinicalCase.caseId } ) {
             cases[caseIndex].numberOfComments += 1
@@ -2178,6 +2261,32 @@ extension GroupPageViewController: CommentCaseViewControllerDelegate {
 }
 
 extension GroupPageViewController: DetailsCaseViewControllerDelegate {
+    func didDeleteComment(forCase clinicalCase: Case) {
+        var indexPath = IndexPath()
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    cases[caseIndex].numberOfComments -= 1
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                cases[index].numberOfComments -= 1
+                indexPath = IndexPath(item: index, section: 1)
+            } else { return }
+        }
+        
+        switch clinicalCase.type {
+        case .text:
+            let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
+            cell.viewModel?.clinicalCase.numberOfComments += 1
+        case .textWithImage:
+            let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
+            cell.viewModel?.clinicalCase.numberOfComments += 1
+        }
+    }
+    
     func didTapLikeAction(forCase clinicalCase: Case) {
         var indexPath = IndexPath()
         if contentIndexSelected == .all {

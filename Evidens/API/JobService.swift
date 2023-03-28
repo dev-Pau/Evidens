@@ -93,8 +93,15 @@ struct JobService {
         } else {
             let nextJobsToFetch = COLLECTION_JOBS.start(afterDocument: lastSnapshot!).limit(to: 10)
             nextJobsToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                }
+                
                 completion(snapshot)
             }
         }
@@ -155,10 +162,18 @@ struct JobService {
     }
     
     static func fetchJobValuesFor(jobs: [Job], completion: @escaping([Job]) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        var auxJobs = [Job]()
+        var auxJobs = jobs
         var count = 0
         jobs.enumerated().forEach { index, job in
+            checkIfUserBookmarkedJob(job: job) { didBookmark in
+                auxJobs[index].didBookmark = didBookmark
+                count += 1
+                if auxJobs.count == count {
+                    completion(auxJobs)
+                }
+            }
+            
+            /*
             COLLECTION_USERS.document(uid).collection("user-job-bookmarks").document(job.jobId).getDocument { (snapshot, _) in
                 //If the snapshot (document) exists, means current user did like the post
                 if let snapshot = snapshot, snapshot.exists {
@@ -173,6 +188,7 @@ struct JobService {
                     completion(auxJobs)
                 }
             }
+             */
         }
     }
     

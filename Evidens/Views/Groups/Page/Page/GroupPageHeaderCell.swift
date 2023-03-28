@@ -81,7 +81,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
+        button.configuration?.baseBackgroundColor = .systemBackground
         button.configuration?.buttonSize = .mini
         button.configuration?.background.strokeWidth = 1
         button.configuration?.background.strokeColor = .quaternarySystemFill

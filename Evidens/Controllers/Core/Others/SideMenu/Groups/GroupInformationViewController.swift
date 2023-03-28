@@ -224,6 +224,10 @@ extension GroupInformationViewController: UICollectionViewDelegateFlowLayout, UI
 }
 
 extension GroupInformationViewController: CreateGroupViewControllerDelegate {
+    func didCreateGroup(_ group: Group) {
+        return
+    }
+    
     func didUpdateGroup(_ group: Group) {
         self.group = group
         delegate?.updateGroupInformation(group)

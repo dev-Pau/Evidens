@@ -222,7 +222,7 @@ class GroupBrowserViewController: UIViewController {
     
     @objc func didTapCreateGroup() {
         let controller = CreateGroupViewController()
-        
+        controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         
@@ -414,6 +414,26 @@ extension GroupBrowserViewController: EmptyGroupCellDelegate {
 extension GroupBrowserViewController: GroupBrowseFooterDelegate {
     func didTapDiscoverGroups() {
         let controller = DiscoverGroupsViewController()
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension GroupBrowserViewController: CreateGroupViewControllerDelegate {
+    func didCreateGroup(_ group: Group) {
+        groupCollectionView.performBatchUpdates {
+            memberType.append(MemberTypeGroup(dictionary: ["groupId": group.groupId, "memberType": Group.MemberType.owner.rawValue]))
+            groups.insert(group, at: 0)
+            groupCollectionView.insertItems(at: [IndexPath(item: 0, section: 0)])
+        }
+        
+        let controller = GroupPageViewController(group: group, memberType: .owner)
         
         let backItem = UIBarButtonItem()
         backItem.title = ""

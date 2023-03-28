@@ -22,6 +22,7 @@ class JobHeaderCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
+        iv.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = .quaternarySystemFill
         return iv
@@ -51,7 +52,7 @@ class JobHeaderCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "briefcase.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: "case.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         return iv
     }()
     
@@ -145,7 +146,7 @@ class JobHeaderCell: UICollectionViewCell {
             */
             locationImageView.topAnchor.constraint(equalTo: companyImageView.bottomAnchor, constant: 10),
             locationImageView.leadingAnchor.constraint(equalTo: companyImageView.leadingAnchor),
-            locationImageView.heightAnchor.constraint(equalToConstant: 20),
+            locationImageView.heightAnchor.constraint(equalToConstant: 23),
             locationImageView.widthAnchor.constraint(equalToConstant: 20),
             
             locationLabel.centerYAnchor.constraint(equalTo: locationImageView.centerYAnchor),
@@ -175,14 +176,18 @@ class JobHeaderCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+        
+        companyImageView.layer.cornerRadius = 7
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
+        if let companyUrl = company.companyImageUrl, companyUrl != "" {
+            companyImageView.sd_setImage(with: URL(string: companyUrl))
+        }
+        
         jobNameLabel.text = viewModel.jobName
-        companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
         industryLabel.text = company.industry
         companyNameLabel.text = company.name
-        //locationCompanyLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
         specialitiesLabel.text = company.specialities.joined(separator: " · ")
         jobTypeLabel.text = viewModel.jobType
         locationLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType

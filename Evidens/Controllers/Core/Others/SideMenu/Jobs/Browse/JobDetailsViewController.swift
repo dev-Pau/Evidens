@@ -65,6 +65,7 @@ class JobDetailsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureCollectionView()
         configureNavigationBar()
     }
@@ -205,8 +206,23 @@ extension JobDetailsViewController: UICollectionViewDelegateFlowLayout, UICollec
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobHiringTeamCellReuseIdentifier, for: indexPath) as! JobHiringTeamCell
             cell.memberUid = job.ownerUid
+            cell.delegate = self
             return cell
         }
+    }
+}
+
+extension JobDetailsViewController: JobHiringTeamCellDelegate {
+    func didTapHiringMember(user: User) {
+        guard !user.isCurrentUser else { return }
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

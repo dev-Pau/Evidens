@@ -46,6 +46,7 @@ class CreateCompanyViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
+        collectionView.keyboardDismissMode = .onDrag
         collectionView.alwaysBounceVertical = true
         return collectionView
     }()
@@ -110,6 +111,7 @@ class CreateCompanyViewController: UIViewController {
         companyToUpload.industry = industry
         companyToUpload.specialities = specialities
         
+        collectionView.resignFirstResponder()
         progressIndicator.show(in: view)
         
         if viewModel.hasProfile {
@@ -120,6 +122,9 @@ class CreateCompanyViewController: UIViewController {
                     self.progressIndicator.dismiss(animated: true)
                     guard error == nil else { return }
                     // Company uploaded
+                    let reportPopup = METopPopupView(title: "Company successfully created.", image: "checkmark.circle.fill", popUpType: .regular)
+                    reportPopup.showTopPopup(inView: self.view)
+                    
                     self.delegate?.didCreateCompany(company: companyToUpload)
                     if self.isControllerPresented {
                         self.dismiss(animated: true)
@@ -133,6 +138,9 @@ class CreateCompanyViewController: UIViewController {
                 self.progressIndicator.dismiss(animated: true)
                 guard error == nil else { return }
                 // Company uploaded
+                let reportPopup = METopPopupView(title: "Company successfully created.", image: "checkmark.circle.fill", popUpType: .regular)
+                reportPopup.showTopPopup(inView: self.view)
+                
                 self.delegate?.didCreateCompany(company: companyToUpload)
                 if self.isControllerPresented {
                     self.dismiss(animated: true)
@@ -207,7 +215,7 @@ extension CreateCompanyViewController: UICollectionViewDelegateFlowLayout, UICol
         backItem.tintColor = .label
         backItem.title = ""
         navigationItem.backBarButtonItem = backItem
-        
+        collectionView.resignFirstResponder()
         if indexPath.row == 3 {
             let controller = JobAssistantViewController(jobSection: .location)
             controller.delegate = self
@@ -235,6 +243,7 @@ extension CreateCompanyViewController: JobAssistantViewControllerDelegate {
 
 extension CreateCompanyViewController: GroupCategoriesCellDelegate {
     func didSelectAddCategory(withSelectedCategories categories: [Category]) {
+        collectionView.resignFirstResponder()
         let controller = CategoryListViewController(selectedCategories: categories.reversed(), categories: Category.allCategories())
         controller.delegate = self
         
@@ -349,7 +358,6 @@ extension CreateCompanyViewController: PHPickerViewControllerDelegate, UIImagePi
         self.present(vc, animated: true)
     }
 }
-
 
 extension CreateCompanyViewController: CropViewControllerDelegate {
     func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {

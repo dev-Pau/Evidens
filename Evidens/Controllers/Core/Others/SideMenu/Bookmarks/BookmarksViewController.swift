@@ -392,11 +392,11 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 if let userIndex = userIndex {
                     if let _ = cases[indexPath.row].groupId {
                         let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .group, collectionViewFlowLayout: layout)
-                        #warning("put a delegate in order to remove the bookmark and update likes etc")
+                        controller.delegate = self
                         navigationController?.pushViewController(controller, animated: true)
                     } else {
                         let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .regular, collectionViewFlowLayout: layout)
-#warning("put a delegate in order to remove the bookmark and update likes etc")
+                        controller.delegate = self
                         navigationController?.pushViewController(controller, animated: true)
                     }
                    
@@ -412,11 +412,11 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                 if let userIndex = userIndex {
                     if let _ = posts[indexPath.row].groupId {
                         let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .group, collectionViewLayout: layout)
-#warning("put a delegate in order to remove the bookmark and update likes etc")
+                        controller.delegate = self
                         navigationController?.pushViewController(controller, animated: true)
                     } else {
                         let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .regular, collectionViewLayout: layout)
-#warning("put a delegate in order to remove the bookmark and update likes etc")
+                        controller.delegate = self
                         navigationController?.pushViewController(controller, animated: true)
                     }
                 }
@@ -428,5 +428,188 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
 extension BookmarksViewController: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension BookmarksViewController: DetailsPostViewControllerDelegate {
+    func didDeleteComment(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            let cell = contentCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
+            switch cell {
+            case is BookmarkPostCell:
+                let currentCell = cell as! BookmarkPostCell
+                currentCell.viewModel?.post.numberOfComments -= 1
+                posts[postIndex].numberOfComments = post.numberOfComments
+            case is BookmarksPostImageCell:
+                let currentCell = cell as! BookmarksPostImageCell
+                currentCell.viewModel?.post.numberOfComments -= 1
+                posts[postIndex].numberOfComments = post.numberOfComments
+            default:
+                return
+            }
+        }
+    }
+    
+    func didEditPost(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            posts[postIndex].postText = post.postText
+            posts[postIndex].edited = true
+            contentCollectionView.reloadData()
+        }
+    }
+    
+    func didTapLikeAction(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            let cell = contentCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
+            switch cell {
+            case is BookmarkPostCell:
+                let currentCell = cell as! BookmarkPostCell
+                currentCell.viewModel?.post.didLike.toggle()
+                if post.didLike {
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    posts[postIndex].didLike = false
+                    posts[postIndex].likes -= 1
+                } else {
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    posts[postIndex].didLike = true
+                    posts[postIndex].likes += 1
+                }
+            case is BookmarksPostImageCell:
+                let currentCell = cell as! BookmarksPostImageCell
+                currentCell.viewModel?.post.didLike.toggle()
+                if post.didLike {
+                    currentCell.viewModel?.post.likes = post.likes - 1
+                    posts[postIndex].didLike = false
+                    posts[postIndex].likes -= 1
+                } else {
+                    currentCell.viewModel?.post.likes = post.likes + 1
+                    posts[postIndex].didLike = true
+                    posts[postIndex].likes += 1
+                }
+                
+            default:
+                return
+            }
+        }
+    }
+    
+    func didTapBookmarkAction(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            contentCollectionView.performBatchUpdates {
+                posts.remove(at: postIndex)
+                contentCollectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
+            }
+        }
+    }
+    
+    func didComment(forPost post: Post) {
+        if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
+            let cell = contentCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
+            switch cell {
+            case is BookmarkPostCell:
+                let currentCell = cell as! BookmarkPostCell
+                currentCell.viewModel?.post.numberOfComments += 1
+                posts[postIndex].numberOfComments = post.numberOfComments
+            case is BookmarksPostImageCell:
+                let currentCell = cell as! BookmarksPostImageCell
+                currentCell.viewModel?.post.numberOfComments += 1
+                posts[postIndex].numberOfComments = post.numberOfComments
+            default:
+                return
+            }
+        }
+    }
+}
+
+extension BookmarksViewController: DetailsCaseViewControllerDelegate {
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            let cell = contentCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
+            switch cell {
+            case is BookmarkPostCell:
+                let currentCell = cell as! BookmarksCaseCell
+                currentCell.viewModel?.clinicalCase.numberOfComments -= 1
+                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
+            case is BookmarksPostImageCell:
+                let currentCell = cell as! BookmarksCaseImageCell
+                currentCell.viewModel?.clinicalCase.numberOfComments -= 1
+                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
+            default:
+                return
+            }
+        }
+    }
+    
+    func didTapLikeAction(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            let cell = contentCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
+            switch cell {
+            case is BookmarksCaseCell:
+                let currentCell = cell as! BookmarksCaseCell
+                if clinicalCase.didLike {
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    cases[caseIndex].didLike = false
+                    cases[caseIndex].likes -= 1
+                } else {
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    cases[caseIndex].didLike = true
+                    cases[caseIndex].likes += 1
+                }
+            case is BookmarksCaseImageCell:
+                let currentCell = cell as! BookmarksCaseImageCell
+                if clinicalCase.didLike {
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes - 1
+                    cases[caseIndex].didLike = false
+                    cases[caseIndex].likes -= 1
+                } else {
+                    currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
+                    cases[caseIndex].didLike = true
+                    cases[caseIndex].likes += 1
+                }
+            default:
+                return
+            }
+        }
+    }
+    
+    func didTapBookmarkAction(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            contentCollectionView.performBatchUpdates {
+                cases.remove(at: caseIndex)
+                contentCollectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
+            }
+        }
+    }
+    
+    func didComment(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            let cell = contentCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
+            switch cell {
+            case is BookmarkPostCell:
+                let currentCell = cell as! BookmarksCaseCell
+                currentCell.viewModel?.clinicalCase.numberOfComments += 1
+                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
+            case is BookmarksPostImageCell:
+                let currentCell = cell as! BookmarksCaseImageCell
+                currentCell.viewModel?.clinicalCase.numberOfComments += 1
+                cases[caseIndex].numberOfComments = clinicalCase.numberOfComments
+            default:
+                return
+            }
+        }
+    }
+    
+    func didAddUpdate(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[caseIndex].caseUpdates = clinicalCase.caseUpdates
+            contentCollectionView.reloadData()
+        }
+    }
+    
+    func didAddDiagnosis(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[caseIndex].diagnosis = clinicalCase.diagnosis
+            contentCollectionView.reloadData()
+        }
     }
 }

@@ -14,7 +14,7 @@ class GroupUserCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.image = UIImage(named: "profile.user")
+        iv.image = UIImage(named: "user.profile")
         return iv
     }()
     

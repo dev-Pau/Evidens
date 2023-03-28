@@ -21,6 +21,7 @@ class GroupBrowseCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "group.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = .quaternarySystemFill
         return iv
@@ -132,7 +133,10 @@ class GroupBrowseCell: UICollectionViewCell {
     
     private func configureGroup() {
         guard let viewModel = viewModel else { return }
-        groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        if let groupUrl = viewModel.groupProfileUrl, groupUrl != "" {
+            groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        }
+
         groupNameLabel.text = viewModel.groupName
         groupSizeLabel.text = viewModel.groupSizeString
         categoriesGroupLabel.text = viewModel.groupCategories
