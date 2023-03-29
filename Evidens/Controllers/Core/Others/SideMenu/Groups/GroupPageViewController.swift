@@ -11,26 +11,17 @@ import Firebase
 private let stretchyHeaderReuseIdentifier = "StretchyHeaderReuseIdentifier"
 private let groupHeaderReuseIdentifier = "GroupHeaderReuseIdentifier"
 private let groupContentCreationReuseIdentifier = "GroupContentCreationReuseIdentifier"
-
 private let groupContentSelectionReuseIdentifier = "GroupContentSelectionReuseIdentifier"
 private let groupContentCollectionViewReuseIdentifier = "GroupContentCollectionViewReuseIdentifier"
-
 private let groupContentAdminReuseIdentifier = "GroupContentAdminReuseIdentifier"
 private let groupContentHeaderReuseIdentifier = "GroupContentHeaderReuseIdentifier"
-
 private let groupContentDescriptionReuseIdentifier = "GroupContentDescriptionReuseIdentifier"
-
 private let emptyGroupContentCellReuseIdentifier = "EmptyGroupContentCellReuseIdentifier"
-
-private let skeletonTextReuseIdentifier = "SkeletonTextReuseIdentifier"
-private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
-
 private let homeTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeFourImageTextCell = "HomeFourImageTextCell"
 private let homeThreeImageTextCell = "HomeThreeImageTextCell"
 private let homeTwoImageTextCell = "HomeTwoImageTextCell"
 private let homeImageTextCell = "HomeImageTextCell"
-
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 
@@ -160,12 +151,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     init(group: Group, memberType: Group.MemberType? = nil) {
         self.group = group
         if let memberType = memberType { self.memberType = memberType }
-        /*else {
-            #warning("Delete the else statement, aquí si no té member type s'haurà de fer fetch, només és per fer provesUI")
-            self.memberType = .external
-        }
-         */
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -203,7 +188,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     private func fetchGroupAdminTeam() {
         DatabaseManager.shared.fetchGroupAdminTeamRoles(groupId: self.group.groupId) { adminUserRoles in
             self.adminUserRoles = adminUserRoles
-            
             // Get all admin uid's
             let adminUids = adminUserRoles.map { admin in
                 return admin.uid
@@ -292,8 +276,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: group.groupId) { uids in
             UserService.fetchUsers(withUids: uids) { users in
                 self.members = users
-                print(users)
-                self.collectionView.reloadData()
+                //self.collectionView.reloadData()
             }
         }
     }
@@ -359,15 +342,16 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         // For each id obtained, fetch the case or post associated
         // Update collection view
         DatabaseManager.shared.fetchAllGroupContent(withGroupId: group.groupId, lastTimestampValue: contentLastTimestamp) { contentGroup in
-            self.content = contentGroup
-            // There's no content published in the group
-            if contentGroup.isEmpty {
+            guard !contentGroup.isEmpty else {
+                // There's no content published in the group
                 self.loaded = true
                 self.collectionView.reloadData()
                 return
             }
-
+            
             // If there's content, check content type and fetch accordingly
+            self.content = contentGroup
+
             contentGroup.forEach { content in
                 if content.type == .post {
                     PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: content.id) { post in
@@ -384,17 +368,13 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
-                                self.checkIfUserLikedPosts()
-                                self.checkIfUserLikedCase()
-                                self.checkIfUserBookmarkedCase()
-                                self.checkIfUserBookmarkedPost()
+                                //self.checkIfUserLikedPosts()
+                                //self.checkIfUserLikedCase()
+                                //self.checkIfUserBookmarkedCase()
+                                //self.checkIfUserBookmarkedPost()
                                 self.loaded = true
                                 self.collectionView.reloadData()
                             }
-                            // get all uids from posts & cases into a new array
-                            // make it unique so all duplicates get deleted
-                            // fetch users with uids.
-
                         }
                     }
                 } else {
@@ -412,10 +392,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             }
                             
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
-                                self.checkIfUserLikedPosts()
-                                self.checkIfUserLikedCase()
-                                self.checkIfUserBookmarkedCase()
-                                self.checkIfUserBookmarkedPost()
+                                //self.checkIfUserLikedPosts()
+                                //self.checkIfUserLikedCase()
+                                //self.checkIfUserBookmarkedCase()
+                                //self.checkIfUserBookmarkedPost()
                                 self.users = users
                                 self.loaded = true
                                 self.collectionView.reloadData()
@@ -426,6 +406,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             }
         }
     }
+    
     
     private func fetchGroupCases() {
         DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId, lastTimestampValue: nil) { caseIds in
@@ -863,7 +844,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 return 1
             } else {
                 // Cases & Posts
-                if !loaded { return 3 }
+                //if !loaded { return 3 }
                 switch contentIndexSelected {
                 case .all:
                     return content.isEmpty ? 1 : content.count//loaded ? (content.isEmpty ? 1 : content.count) : 3
@@ -902,17 +883,6 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 return cell
             } else {
                 // Group posts & clinical cases content
-                if !loaded {
-                    if indexPath.row == 1 {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
-                        return cell
-                    } else {
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
-                        return cell
-                    }
-                    
-                }
-                
                 switch contentIndexSelected {
                     
                 case .all:
@@ -955,31 +925,11 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                     }
                     
                 case .cases:
-                    if !loaded {
-                        if indexPath.row == 1 {
-                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
-                            return cell
-                        } else {
-                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
-                            return cell
-                        }
-                        
-                    }
-                    
+
                     return displayClinicalCaseCell(clinicalCase: cases[indexPath.row], indexPath: indexPath, collectionView: collectionView)
                     
                     
                 case .posts:
-                    if !loaded {
-                        if indexPath.row == 1 {
-                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonImageReuseIdentifier, for: indexPath) as! SkeletonImageTextHomeCell
-                            return cell
-                        } else {
-                            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: skeletonTextReuseIdentifier, for: indexPath) as! SkeletonTextHomeCell
-                            return cell
-                        }
-                        
-                    }
                     
                     return displayPostCell(post: posts[indexPath.row], indexPath: indexPath, collectionView: collectionView)
                 }

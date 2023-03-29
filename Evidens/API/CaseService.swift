@@ -446,11 +446,33 @@ struct CaseService {
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
             var clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+            getGroupCaseValuesFor(clinicalCase: clinicalCase) { fetchedCase in
+                completion(fetchedCase)
+            }
+            /*
             GroupService.fetchLikesForGroupCase(groupId: groupId, postId: caseId) { likes in
                 clinicalCase.likes = likes
                 CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .group) { comments in
                     clinicalCase.numberOfComments = comments
                     completion(clinicalCase)
+                }
+            }
+             */
+        }
+    }
+    
+    
+    static func getGroupCaseValuesFor(clinicalCase: Case, completion: @escaping(Case) -> Void) {
+        var auxCase = clinicalCase
+        checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
+            checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { bookmark in
+                GroupService.fetchLikesForGroupCase(groupId: clinicalCase.groupId!, caseId: clinicalCase.caseId) { likes in
+                    CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .group) { comments in
+                        auxCase.didLike = like
+                        auxCase.didBookmark = bookmark
+                        auxCase.likes = likes
+                        auxCase.numberOfComments = comments
+                    }
                 }
             }
         }

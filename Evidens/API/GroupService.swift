@@ -149,21 +149,17 @@ struct GroupService {
     
     static func uploadGroupPost(groupId: String, post: String, professions: [Profession], type: Post.PostType, privacy: Post.PrivacyOptions, groupPermission: Group.Permissions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
         
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let postId = COLLECTION_GROUPS.document(groupId).collection("posts").document().documentID
         
         let data = ["post": post,
                     "timestamp": Timestamp(date: Date()),
-                    "likes": 0,
                     "ownerUid": uid,
-                    "comments": 0,
-                    "shares": 0,
                     "professions": professions.map({ $0.profession }),
                     "groupId": groupId,
                     "type": type.rawValue,
                     "privacy": privacy.rawValue,
-                    "bookmarks": 0,
                     "postImageUrl": postImageUrl as Any] as [String : Any]
         
         
@@ -190,12 +186,8 @@ struct GroupService {
                     "specialities": specialities,
                     "details": details,
                     "updates": "",
-                    "likes": 0,
                     "stage": stage.caseStage,
                     "professions": professions.map({ $0.profession }),
-                    "comments": 0,
-                    "bookmarks": 0,
-                    "views": 0,
                     "groupId": groupId,
                     "diagnosis": diagnosis as Any,
                     "ownerUid": uid,
@@ -314,10 +306,10 @@ struct GroupService {
         }
     }
     
-    static func fetchLikesForGroupCase(groupId: String, postId: String, completion: @escaping(Int) -> Void) {
+    static func fetchLikesForGroupCase(groupId: String, caseId: String, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        let likesRef = COLLECTION_GROUPS.document(groupId).collection("cases").document(postId).collection("case-likes").count
+        let likesRef = COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).collection("case-likes").count
         likesRef.getAggregation(source: .server) { snaphsot, _ in
             //guard let snaphsot = snaphsot else { return }
             if let likes = snaphsot?.count {

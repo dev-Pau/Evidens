@@ -230,7 +230,7 @@ extension MyJobsViewController: UICollectionViewDelegateFlowLayout, UICollection
             case .applications:
                 if applicationJobs.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "Apply jobs you are interested in.", description: "Your applications will show up here.", buttonText: .dismiss)
+                    cell.configure(image: UIImage(named: "content.empty"), title: "Apply jobs you are interested in.", description: "Your applications will show up here.", buttonText: .dismiss)
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: applicantsCellReuseIdentifier, for: indexPath) as! ApplicantsJobCell

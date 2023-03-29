@@ -336,12 +336,37 @@ struct PostService {
         COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            var post = Post(postId: snapshot.documentID, dictionary: data)
+            let post = Post(postId: snapshot.documentID, dictionary: data)
+            getGroupPostValuesFor(post: post) { fetchedPost in
+                print(fetchedPost)
+                completion(fetchedPost)
+            }
+            
+            /*
             GroupService.fetchLikesForGroupPost(groupId: groupId, postId: postId) { likes in
                 post.likes = likes
                 CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
                     post.numberOfComments = comments
+                    #warning("kek")
                     completion(post)
+                }
+            }
+             */
+        }
+    }
+    
+    static func getGroupPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
+        var auxPost = post
+        checkIfUserLikedPost(post: post) { like in
+            checkIfUserBookmarkedPost(post: post) { bookmark in
+                GroupService.fetchLikesForGroupPost(groupId: post.groupId!, postId: post.postId) { likes in
+                    CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
+                        auxPost.didLike = like
+                        auxPost.didBookmark = bookmark
+                        auxPost.numberOfComments = comments
+                        auxPost.likes = likes
+                        completion(auxPost)
+                    }
                 }
             }
         }

@@ -289,6 +289,68 @@ extension DatabaseManager {
         }
     }
     
+    public func fetchRecentJobSearches(completion: @escaping(Result<[String], Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users").child("\(uid)/recents").child("jobs")
+        ref.getData { error, snapshot in
+            guard error == nil else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            guard let snapshot = snapshot, snapshot.exists() else {
+                completion(.success([String]()))
+                return
+            }
+            
+            if let recentSearches = snapshot.value as? [String] {
+                completion(.success(recentSearches.reversed()))
+            }
+        }
+    }
+    
+    public func uploadRecentJobsSearches(with searchedTopic: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child("\(uid)/recents").child("jobs")
+        
+        // Check if user has recent searches
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var recentSearches = snapshot.value as? [String] {
+                // Recent searches document exists, append new search
+                
+                // Check if the searched topic is already saved from the past
+                if recentSearches.contains(searchedTopic) {
+                    completion(false)
+                    return
+                }
+
+                if recentSearches.count == 10 {
+                    recentSearches.removeFirst()
+                    recentSearches.append(searchedTopic)
+                } else {
+                    recentSearches.append(searchedTopic)
+                }
+               
+                ref.setValue(recentSearches) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            } else {
+                // First time user searches, create a new document
+                ref.setValue([searchedTopic]) { error, _ in
+                    if let _ = error {
+                        completion(false)
+                        return
+                    }
+                }
+            }
+            completion(true)
+        }
+    }
+    
     public func deleteRecentMessageSearches(completion: @escaping(Result<Bool, Error>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child("\(uid)/recents/messages")
@@ -1647,8 +1709,10 @@ extension DatabaseManager {
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
                     recentContent.append(ContentGroup(dictionary: value))
+                    if recentContent.count == snapshot.children.allObjects.count {
+                        completion(recentContent.reversed())
+                    }
                 }
-                completion(recentContent.reversed())
             }
         } else {
             let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
@@ -1657,8 +1721,10 @@ extension DatabaseManager {
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
                     recentContent.append(ContentGroup(dictionary: value))
+                    if recentContent.count == snapshot.children.allObjects.count {
+                        completion(recentContent.reversed())
+                    }
                 }
-                completion(recentContent.reversed())
             }
         }
     }

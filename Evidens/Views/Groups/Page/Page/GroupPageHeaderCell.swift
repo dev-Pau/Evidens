@@ -105,11 +105,6 @@ class GroupPageHeaderCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleActionButtonPressed), for: .touchUpInside)
         return button
-        
-        // ESTIC AQUÍ CREAR EL BOTÓ HORITZONTAL
-        // SI ETS MANAGER POSAR MANAGE GROUP AL MENU POSAR LU DELS POSTS, MANAGE MEMBERS, EDIT GROUP ETC.
-        // SI ETS USER NORMAL POSAR SETTINGS - A SETTIGNS POSAR BASICAMENT REPORT I LEAVE
-        // SI ESTÀS FORA POSAR JOIN I A LL'APRETAR POSAR PENDING
     }()
     
     private let separatorView: UIView = {

@@ -241,4 +241,34 @@ struct JobService {
              }
          })
      }
+    
+    static func fetchJobsWithText(_ text: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            COLLECTION_JOBS.whereField("searchFor", arrayContains: text).limit(to: 10).getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                completion(snapshot)
+            }
+        } else {
+            COLLECTION_JOBS.whereField("searchFor", arrayContains: text).start(afterDocument: lastSnapshot!).limit(to: 10).getDocuments { snapshot, _ in
+                guard let snapshot = snapshot else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                completion(snapshot)
+            }
+        }
+    }
 }

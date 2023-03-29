@@ -62,7 +62,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 5),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
             
             sectionTitle.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             sectionTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

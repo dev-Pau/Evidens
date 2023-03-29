@@ -18,6 +18,7 @@ class JobsBrowserViewController: UIViewController {
     private var jobsLoaded: Bool = false
     private var jobs = [Job]()
     private var companies = [Company]()
+    private var searchController: UISearchController!
     
     var jobsLastSnapshot: QueryDocumentSnapshot?
     
@@ -95,6 +96,20 @@ class JobsBrowserViewController: UIViewController {
         let menuBarButton = UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), primaryAction: nil, menu: UIMenu(title: "", children: [jobAction, companyAction]))
         let ellipsisButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), primaryAction: nil, menu: UIMenu(title: "", children: [manageJobs, myJobs]))
         navigationItem.rightBarButtonItems = [ellipsisButton, menuBarButton]
+        
+        
+        let controller = SearchJobsViewController()
+        //controller.delegate = self
+        searchController = UISearchController(searchResultsController: controller)
+        searchController.searchResultsUpdater = controller
+        searchController.searchBar.delegate = controller
+        searchController.searchBar.placeholder = "Search Jobs"
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        searchController.showsSearchResultsController = true
+        //navigationItem.hides
+        navigationItem.hidesSearchBarWhenScrolling = true
+        navigationItem.searchController = searchController
     }
     
     private func configureUI() {
