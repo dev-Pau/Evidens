@@ -109,13 +109,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         addSubviews(caseStateButton, titleCaseLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            timeLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             //timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
             
@@ -142,6 +136,12 @@ class UserProfileCaseImageCell: UICollectionViewCell {
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         ])
     }
     

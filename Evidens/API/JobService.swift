@@ -15,11 +15,15 @@ struct JobService {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
         let jobRef = COLLECTION_JOBS.document(job.jobId)
+        
+        let trimmedText = job.title.trimmingCharacters(in: .whitespaces)
+        let arrayTextToSearch = trimmedText.split(separator: " ").map({ $0.lowercased() }).map({ $0.capitalized })
 
         let data = ["jobId": job.jobId,
                     "ownerUid": uid,
                     "title": job.title,
                     "location": job.location,
+                    "searchFor": arrayTextToSearch,
                     "description": job.description,
                     "workplaceType": job.workplaceType,
                     "stage": Job.JobStage.review.rawValue,
@@ -242,9 +246,9 @@ struct JobService {
          })
      }
     
-    static func fetchJobsWithText(_ text: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchJobsWithText(_ text: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
-            COLLECTION_JOBS.whereField("searchFor", arrayContains: text).limit(to: 10).getDocuments { snapshot, _ in
+            COLLECTION_JOBS.whereField("searchFor", arrayContainsAny: text).limit(to: 10).getDocuments { snapshot, _ in
                 guard let snapshot = snapshot, !snapshot.isEmpty else {
                     completion(snapshot!)
                     return
@@ -257,7 +261,7 @@ struct JobService {
                 completion(snapshot)
             }
         } else {
-            COLLECTION_JOBS.whereField("searchFor", arrayContains: text).start(afterDocument: lastSnapshot!).limit(to: 10).getDocuments { snapshot, _ in
+            COLLECTION_JOBS.whereField("searchFor", arrayContainsAny: text).start(afterDocument: lastSnapshot!).limit(to: 10).getDocuments { snapshot, _ in
                 guard let snapshot = snapshot else {
                     completion(snapshot!)
                     return

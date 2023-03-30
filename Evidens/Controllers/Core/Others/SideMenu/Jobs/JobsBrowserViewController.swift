@@ -97,9 +97,11 @@ class JobsBrowserViewController: UIViewController {
         let ellipsisButton = UIBarButtonItem(image: UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), primaryAction: nil, menu: UIMenu(title: "", children: [manageJobs, myJobs]))
         navigationItem.rightBarButtonItems = [ellipsisButton, menuBarButton]
         
+        guard let tab = self.tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
         
-        let controller = SearchJobsViewController()
-        //controller.delegate = self
+        let controller = SearchJobsViewController(user: user)
+        controller.delegate = self
         searchController = UISearchController(searchResultsController: controller)
         searchController.searchResultsUpdater = controller
         searchController.searchBar.delegate = controller
@@ -107,7 +109,6 @@ class JobsBrowserViewController: UIViewController {
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = primaryColor
         searchController.showsSearchResultsController = true
-        //navigationItem.hides
         navigationItem.hidesSearchBarWhenScrolling = true
         navigationItem.searchController = searchController
     }
@@ -280,6 +281,19 @@ extension JobsBrowserViewController: MyJobsViewControllerDelegate {
 
 extension JobsBrowserViewController: JobDetailsViewControllerDelegate {
     func didBookmark(job: Job, company: Company) {
+        if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
+            jobs[jobIndex].didBookmark.toggle()
+            collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
+        }
+    }
+}
+
+extension JobsBrowserViewController: SearchJobsViewControllerDelegate {
+    func didTapTextToSearch(text: String) {
+        searchController.searchBar.searchTextField.text = text
+    }
+    
+    func didBookmarkJob(job: Job) {
         if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
             jobs[jobIndex].didBookmark.toggle()
             collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])

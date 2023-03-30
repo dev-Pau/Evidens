@@ -90,16 +90,10 @@ class CreateGroupViewController: UIViewController {
     
     private lazy var createGroupButton: UIButton = {
         let button = UIButton()
-
         button.configuration = .filled()
-
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
-
         button.configuration?.cornerStyle = .capsule
-        
-        
-        
         button.addTarget(self, action: #selector(handleCreateGroup), for: .touchUpInside)
         return button
     }()
@@ -127,7 +121,6 @@ class CreateGroupViewController: UIViewController {
             viewModel.visibility = .visible
             viewModel.permissions = .invite
         }
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -150,8 +143,6 @@ class CreateGroupViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: createGroupButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
-    
-    
     
     private func configureCollectionView() {
         collectionView.register(EditProfilePictureCell.self, forCellWithReuseIdentifier: createGroupImageCellReuseIdentifier)
@@ -191,7 +182,6 @@ class CreateGroupViewController: UIViewController {
             vc.aspectRatioPreset = .presetCustom
             vc.customAspectRatio = CGSize(width: 4, height: 1)
         }
-        
         self.present(vc, animated: true)
     }
     
@@ -214,7 +204,6 @@ class CreateGroupViewController: UIViewController {
         
         if let group = group {
             progressIndicator.show(in: view)
-            
             // Editing group. Check what fields have changed between the original group
             if bannerImageChanged && profileImageChanged {
                 // Other group fields have changed

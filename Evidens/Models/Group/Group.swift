@@ -187,6 +187,7 @@ struct Group {
     var permissions: Permissions
     var categories: [String]
     var professions: [String]
+    let searchFor: [String]
     var bannerUrl: String?
     var members: Int
     var profileUrl: String?
@@ -197,6 +198,7 @@ struct Group {
         self.name = dictionary["name"] as? String ?? ""
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""
+        self.searchFor = dictionary["searchFor"] as? [String] ?? []
         self.description = dictionary["description"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.visibility = Visibility(rawValue: dictionary["visibility"] as? Int ?? 0) ?? .visible

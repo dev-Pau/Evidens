@@ -14,6 +14,7 @@ struct Job {
     var jobId: String
     var title: String
     var description: String
+    let searchFor: [String]
     var workplaceType: String
     var jobType: String
     let timestamp: Timestamp
@@ -29,6 +30,7 @@ struct Job {
         self.jobId = jobId
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
         self.title = dictionary["title"] as? String ?? ""
+        self.searchFor = dictionary["searchFor"] as? [String] ?? []
         self.description = dictionary["description"] as? String ?? ""
         self.workplaceType = dictionary["workplaceType"] as? String ?? ""
         self.jobType = dictionary["jobType"] as? String ?? ""
@@ -37,7 +39,6 @@ struct Job {
         self.companyId = dictionary["companyId"] as? String ?? ""
         self.location = dictionary["location"] as? String ?? ""
         self.stage = JobStage(rawValue: dictionary["stage"] as? Int ?? 0) ?? .review
-        //self.category = UserCategory(rawValue: dictionary["category"] as? Int ?? 00) ?? .professional
     }
 }
 

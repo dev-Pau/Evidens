@@ -99,13 +99,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         addSubviews(caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            timeLabel.topAnchor.constraint(equalTo: separatorView.topAnchor, constant: 15),
+            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
             caseStateButton.centerYAnchor.constraint(equalTo: timeLabel.centerYAnchor),
@@ -127,7 +121,11 @@ class UserProfileCaseTextCell: UICollectionViewCell {
             likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
-        
+
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         ])
     }
     

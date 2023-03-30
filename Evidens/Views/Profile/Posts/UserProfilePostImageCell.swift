@@ -86,16 +86,9 @@ class UserProfilePostImageCell: UICollectionViewCell {
         addSubviews(postTextLabel, postImage, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            timeLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            //timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
-            
+
             likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
@@ -109,10 +102,14 @@ class UserProfilePostImageCell: UICollectionViewCell {
             postImage.widthAnchor.constraint(equalToConstant: 75),
             postImage.heightAnchor.constraint(equalToConstant: 75),
             
-            
             postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 5),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
     }
     

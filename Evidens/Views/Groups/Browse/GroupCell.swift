@@ -21,8 +21,9 @@ class GroupCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "group.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = lightColor
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -115,7 +116,10 @@ class GroupCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        if let imageUrl = viewModel.groupProfileUrl, imageUrl != "" {
+            groupImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+
         groupNameLabel.text = viewModel.groupName
         descriptionGroupLabel.text = viewModel.groupDescription
         sizeGroupLabel.text = viewModel.groupSizeString
@@ -126,7 +130,6 @@ class GroupCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
         
-
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
 
         // 80 = image height + 2 * padding (upper & down)

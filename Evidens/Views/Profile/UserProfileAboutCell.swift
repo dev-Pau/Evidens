@@ -11,7 +11,7 @@ class UserProfileAboutCell: UICollectionViewCell {
     
     private var aboutInformationLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 6

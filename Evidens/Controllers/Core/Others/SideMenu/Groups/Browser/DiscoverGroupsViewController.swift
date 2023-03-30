@@ -26,6 +26,7 @@ class DiscoverGroupsViewController: UIViewController {
     }()
     
     private var groups = [Group]()
+    private var searchController: UISearchController!
 
     private var groupsLoaded: Bool = false
     
@@ -39,11 +40,25 @@ class DiscoverGroupsViewController: UIViewController {
     private func configureNavigationBar() {
         view.backgroundColor = .systemBackground
         title = "Discover Groups"
+        
+        guard let tab = self.tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        let controller = SearchGroupsViewController(user: user)
+        controller.delegate = self
+        searchController = UISearchController(searchResultsController: controller)
+        searchController.searchResultsUpdater = controller
+        searchController.searchBar.delegate = controller
+        searchController.searchBar.placeholder = "Search Groups"
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.tintColor = primaryColor
+        searchController.showsSearchResultsController = true
+        navigationItem.hidesSearchBarWhenScrolling = true
+        navigationItem.searchController = searchController
     }
     
     private func configureCollectionView() {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchBarHeaderReuseIdentifier)
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
         collectionView.register(GroupCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         
@@ -57,14 +72,15 @@ class DiscoverGroupsViewController: UIViewController {
     
     private func fetchGroups() {
         GroupService.fetchGroups { groups in
-            if groups.isEmpty {
+            guard !groups.isEmpty else {
                 self.groupsLoaded = true
                 self.collectionView.reloadData()
-            } else {
-                self.groups = groups
-                self.groupsLoaded = true
-                self.collectionView.reloadData()
+                return
             }
+            
+            self.groups = groups
+            self.groupsLoaded = true
+            self.collectionView.reloadData()
         }
     }
 }
@@ -75,22 +91,12 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if groupsLoaded {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchBarHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
-            header.setSearchBarPlaceholder(text: "Discover groups")
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if groupsLoaded {
-            return groups.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
-        } else {
-            return CGSize(width: view.frame.width, height: 55)
-        }
+        return groupsLoaded ?  CGSize.zero: CGSize(width: view.frame.width, height: 55)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -102,7 +108,6 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
             cell.viewModel = GroupViewModel(group: groups[indexPath.row])
-            if indexPath.row == groups.count - 1 { cell.separatorView.isHidden = true }
             return cell
         }
     }
@@ -130,8 +135,9 @@ extension DiscoverGroupsViewController: MESecondaryEmptyCellDelegate {
     }
 }
 
-extension DiscoverGroupsViewController: UISearchBarDelegate {
-    
+extension DiscoverGroupsViewController: SearchGroupsViewControllerDelegate {
+    func didTapTextToSearch(text: String) {
+        searchController.searchBar.searchTextField.text = text
+    }
 }
-
 

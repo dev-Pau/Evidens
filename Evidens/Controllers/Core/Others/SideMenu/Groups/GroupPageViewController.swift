@@ -173,7 +173,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                 self.customRightButton.configuration?.background.strokeWidth = 1
             }
             
-            self.collectionView.isHidden = false
+            //self.collectionView.isHidden = false
             self.collectionView.reloadData()
             if memberType == .external || memberType == .pending {
                 self.fetchGroupAdminTeam()
@@ -348,7 +348,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                 self.collectionView.reloadData()
                 return
             }
-            
             // If there's content, check content type and fetch accordingly
             self.content = contentGroup
 
@@ -368,12 +367,9 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
-                                //self.checkIfUserLikedPosts()
-                                //self.checkIfUserLikedCase()
-                                //self.checkIfUserBookmarkedCase()
-                                //self.checkIfUserBookmarkedPost()
                                 self.loaded = true
                                 self.collectionView.reloadData()
+                                self.collectionView.isHidden = false
                             }
                         }
                     }
@@ -392,13 +388,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             }
                             
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
-                                //self.checkIfUserLikedPosts()
-                                //self.checkIfUserLikedCase()
-                                //self.checkIfUserBookmarkedCase()
-                                //self.checkIfUserBookmarkedPost()
                                 self.users = users
                                 self.loaded = true
                                 self.collectionView.reloadData()
+                                self.collectionView.isHidden = false
                             }
                         }
                     }

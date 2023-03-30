@@ -75,13 +75,7 @@ class UserProfilePostCell: UICollectionViewCell {
         addSubviews(postTextLabel, likesButton, likesCommentsLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            timeLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
+            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
             postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
@@ -97,9 +91,11 @@ class UserProfilePostCell: UICollectionViewCell {
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
-        
     }
     
     private func configure() {

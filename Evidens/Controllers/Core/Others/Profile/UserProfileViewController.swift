@@ -47,34 +47,23 @@ class UserProfileViewController: UIViewController {
     private var userSectionsFetched: Int = 0
     private var user: User
     private var userDataLoaded: Bool = false
-    
+    private var collectionView: UICollectionView!
     private var recentPosts = [Post]()
     private var recentCases = [Case]()
     private var recentComments = [[String: Any]]()
     private var relatedUsers = [User]()
     
     private var scrollViewDidScrollHigherThanActionButton: Bool = false
-        
-    //About
+
     private var hasAbout: Bool = false
     private var aboutText: String = ""
-    
-    //Languages
     private var hasLanguages: Bool = false
     private var languages = [[String: String]]()
-    
-    //Patents
     private var hasPatents: Bool = false
     private var patents = [[String: Any]]()
-    
-    //Publications
     private var publications = [[String: Any]]()
-    
-    //Education
     private var hasEducation: Bool = false
     private var education = [[String: String]]()
-    
-    //Profession
     private var experience = [[String: String]]()
     
     
@@ -83,18 +72,12 @@ class UserProfileViewController: UIViewController {
         return searchBar
     }()
     
-    private var collectionView: UICollectionView!
-  
     private lazy var customRightButton: UIButton = {
         let button = UIButton()
-
         button.configuration = .filled()
-
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
-
         button.configuration?.cornerStyle = .capsule
-        //button.becomeFirstResponder()
         button.addTarget(self, action: #selector(handleUserButton), for: .touchUpInside)
         return button
     }()
@@ -106,9 +89,7 @@ class UserProfileViewController: UIViewController {
         button.configuration?.buttonSize = .mini
         button.configuration?.baseBackgroundColor = .label.withAlphaComponent(0.7)
         button.configuration?.image = UIImage(systemName: "ellipsis", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
-        //button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
-
         return button
     }()
     
@@ -155,7 +136,6 @@ class UserProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
     }
     
     init(user: User) {
@@ -334,7 +314,6 @@ class UserProfileViewController: UIViewController {
         collectionView.register(UserProfileTitleHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: profileHeaderTitleReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        collectionView.register(UserProfileTitleFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: profileFooterTitleReuseIdentifier)
         collectionView.register(UserProfileAboutCell.self, forCellWithReuseIdentifier: profileAboutCellReuseIdentifier)
         collectionView.register(UserProfileNoPostCell.self, forCellWithReuseIdentifier: noRecentPostsCellReuseIdentifier)
         collectionView.register(UserProfilePostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
@@ -364,358 +343,74 @@ class UserProfileViewController: UIViewController {
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(350)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.boundarySupplementaryItems = [header]
+                //section.contentInsets.bottom = 10
                 return section
             } else if sectionNumber == 1 {
-                if !self.userDataLoaded {
-                    // Loading header while fetching data
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header]
-                    return section
-                }
-                // About section
-                if self.hasAbout == false {
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
-                    //item.contentInsets.bottom = 16
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
-                    let section = NSCollectionLayoutSection(group: group)
-                    //section.orthogonalScrollingBehavior = .continuous
-                    return section
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header]
-                    return section
-                }
-            } else if sectionNumber == 2 {
-                if self.user.stats.posts > 3 {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
-                    return section
-                    
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header]
-                    return section
-                }
-            } else if sectionNumber == 3 {
-                if self.user.stats.cases > 3 {
-                    // Cases
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                     
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
-                    
-                    return section
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header]
-                    
-                    return section
-                }
-                
-            } else if sectionNumber == 4 {
-                if self.recentComments.count == 3 {
-                    // Comments
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionFooter,
-                                                                             alignment: .bottom)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header, footer]
-                    
-                    return section
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                   
-                    let section = NSCollectionLayoutSection(group: group)
-                    section.boundarySupplementaryItems = [header]
-                    
-                    return section
-                }
-                
-            } else if sectionNumber == 5 {
-                // Experience
-                
-                if self.experience.count == 0 {
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                   
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    return section
-                        
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-        
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    if self.experience.count < 4 {
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header]
-                        return section
-                        
-                    } else {
-                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionFooter,
-                                                                                 alignment: .bottom)
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header, footer]
-                        return section
-                    }
-                }
- 
-                
-            } else if sectionNumber == 6 {
-                // Education
-                if self.education.count == 0 {
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                   
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    return section
-                        
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-        
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    if self.education.count < 4 {
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header]
-                        return section
-                        
-                    } else {
-                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionFooter,
-                                                                                 alignment: .bottom)
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header, footer]
-                        return section
-                    }
-                }
- 
-            } else if sectionNumber == 7 {
-                // Patents
-                if self.patents.count == 0 {
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                   
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    return section
-                        
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-        
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    if self.patents.count < 4 {
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header]
-                        return section
-                        
-                    } else {
-                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionFooter,
-                                                                                 alignment: .bottom)
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header, footer]
-                        return section
-                    }
-                }
-                
-            } else if sectionNumber == 8 {
-                if self.publications.count == 0 {
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                   
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    return section
-                        
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-        
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    if self.publications.count < 4 {
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header]
-                        return section
-                        
-                    } else {
-                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionFooter,
-                                                                                 alignment: .bottom)
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header, footer]
-                        return section
-                    }
-                }
-               
-            } else if sectionNumber == 9 {
-                if self.languages.count == 0 {
-                    
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                   
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    return section
-                        
-                } else {
-                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                             elementKind: ElementKind.sectionHeader,
-                                                                             alignment: .top)
-        
-                    let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
-                    
-                    if self.languages.count < 4 {
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header]
-                        return section
-                        
-                    } else {
-                        let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
-                                                                                 elementKind: ElementKind.sectionFooter,
-                                                                                 alignment: .bottom)
-                        
-                        let section = NSCollectionLayoutSection(group: group)
-                        section.boundarySupplementaryItems = [header, footer]
-                        return section
-                    }
-                }
-            } else {
+                // Loading header while fetching data & About section
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
-    
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-                item.contentInsets.leading = 10
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.30), heightDimension: .absolute(120)), subitems: [item])
+                header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
                 let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets.bottom = 10
+                if !self.userDataLoaded || self.hasAbout { section.boundarySupplementaryItems = [header] }
+                return section
+            } else if sectionNumber == 2 || sectionNumber == 3 || sectionNumber == 4 {
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
+                                                                         elementKind: ElementKind.sectionHeader,
+                                                                         alignment: .top)
+                header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 
-                if !self.relatedUsers.isEmpty {
+                let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets.bottom = 20
+                section.boundarySupplementaryItems = [header]
+                return section
+                
+            } else if sectionNumber == 10 {
+                // Related Users
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
+                item.contentInsets.leading = 10
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.30), heightDimension: .absolute(!self.relatedUsers.isEmpty ? 120 : .leastNonzeroMagnitude)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+                if !self.relatedUsers.isEmpty { section.boundarySupplementaryItems = [header] }
+                section.orthogonalScrollingBehavior = .continuous
+                
+                return section
+            } else {
+                // Optional Sections
+                let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+                let section = NSCollectionLayoutSection(group: group)
+
+                if sectionNumber == 5 && !self.experience.isEmpty || sectionNumber == 6 && !self.education.isEmpty || sectionNumber == 7 && !self.patents.isEmpty || sectionNumber == 8 && !self.publications.isEmpty || sectionNumber == 9 && !self.languages.isEmpty   {
                     section.boundarySupplementaryItems = [header]
+                    section.contentInsets.bottom = 10
                 }
                 
-                section.orthogonalScrollingBehavior = .continuous
-
- 
                 return section
             }
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
-
         config.interSectionSpacing = 0
         layout.configuration = config
-        
         return layout
     }
     
     @objc func handleBack() {
-        print("dismiss")
         navigationController?.popViewController(animated: true)
     }
     
     
     @objc func handleUserButton() {
-
         if user.isCurrentUser {
             let controller = EditProfileViewController(user: user)
             let navVC = UINavigationController(rootViewController: controller)
@@ -764,7 +459,6 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
-                
                 PostService.fetchPosts(withPostIds: postIDs) { recentPosts in
                     self.recentPosts = recentPosts
                     self.checkIfAllUserInformationIsFetched()
@@ -857,10 +551,11 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchLanguages(forUid: uid) { result in
             switch result {
             case .success(let languages):
-                guard languages.isEmpty else {
+                guard !languages.isEmpty else {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
+                
                 self.hasLanguages = true
                 self.languages = languages
                 self.checkIfAllUserInformationIsFetched()
@@ -875,7 +570,7 @@ class UserProfileViewController: UIViewController {
         DatabaseManager.shared.fetchExperience(forUid: uid) { result in
             switch result {
             case .success(let experiences):
-                guard !self.experience.isEmpty else {
+                guard !experiences.isEmpty else {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
@@ -985,9 +680,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // Header
-        if section == 0 {
-            return 1
-        }
+        if section == 0 { return 1 }
         //About
         else if section == 1 {
             if userDataLoaded {
@@ -1059,16 +752,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             return relatedUsers.count
         }
     }
-    /*
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        if section == 0 {
-            return -30
-        } else {
-            return 0
-        }
-    }
-     */
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileHeaderReuseIdentifier, for: indexPath) as! UserProfileHeaderCell
@@ -1082,7 +766,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: profileAboutCellReuseIdentifier, for: indexPath) as! UserProfileAboutCell
             cell.set(body: aboutText)
             return cell
-            
         } else if indexPath.section == 2 {
             // Post
             if user.stats.posts == 0 {
@@ -1097,10 +780,12 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     // Text Post
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
+                    if indexPath.row == recentPosts.count - 1 { cell.separatorView.isHidden = true }
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
+                    if indexPath.row == recentPosts.count - 1 { cell.separatorView.isHidden = true }
                     return cell
                 }
             }
@@ -1116,10 +801,12 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 if recentCases[indexPath.row].type.caseType == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
+                    if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true }
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
+                    if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true }
                     return cell
                 }
             }
@@ -1129,6 +816,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             if recentComments.count != 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
                 cell.configure(commentInfo: recentComments[indexPath.row], user: user)
+                if indexPath.row == recentComments.count - 1 { cell.separatorView.isHidden = true }
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileNoCommentsCell
@@ -1141,38 +829,38 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Experience
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
             cell.set(experienceInfo: experience[indexPath.row])
-            if indexPath.row == experience.count - 1 {
-                cell.separatorView.isHidden = true
-            }
+            if indexPath.row == experience.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else if indexPath.section == 6 {
             // Education
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
             cell.set(educationInfo: education[indexPath.row])
+            if indexPath.row == education.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
             cell.set(patentInfo: patents[indexPath.row])
             cell.delegate = self
-            //cell.users = [user]
+            if indexPath.row == patents.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else if indexPath.section == 8 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
             cell.set(publicationInfo: publications[indexPath.row])
+            if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true }
             cell.delegate = self
             return cell
             
         } else if indexPath.section == 9 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
             cell.set(languageInfo: languages[indexPath.row])
+            if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: seeOthersCellReuseIdentifier, for: indexPath) as! UserProfileSeeOthersCell
-            
             cell.set(user: relatedUsers[indexPath.row])
             cell.delegate = self
             return cell
@@ -1180,96 +868,69 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        switch kind {
-        case ElementKind.sectionHeader:
-            
-            if indexPath.section == 0 {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyReuseIdentifier, for: indexPath) as! MEStretchyHeader
-                header.delegate = self
-                if let bannerUrl = self.user.bannerImageUrl, bannerUrl != "" {
-                    header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
-                }
-                return header
-            }
-            
-            if indexPath.section == 1 && userDataLoaded == false {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-                //header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
-                return header
-            }
-            
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            //header.delegate = self
-            
-            //header.buttonImage.isHidden = user.isCurrentUser ? false : true
-            //header.buttonImage.isEnabled = user.isCurrentUser ? true : false
-            
-            if indexPath.section == 1 {
-                //header.set(title: "About")
-                header.configureWith(title: "About", linkText: "")
-            }else if indexPath.section == 2 {
-                //header.buttonImage.isHidden = true
-                //header.set(title: "Posts")
-                header.configureWith(title: "Posts", linkText: "")
-            } else if indexPath.section == 3 {
-                //header.buttonImage.isHidden = true
-                //header.set(title: "Cases")
-                header.configureWith(title: "Cases", linkText: "")
-            } else if indexPath.section == 4 {
-                //header.buttonImage.isHidden = true
-                //header.set(title: "Comments")
-                header.configureWith(title: "Comments", linkText: "")
-            } else if indexPath.section == 5 {
-                //header.set(title: "Experience")
-                header.configureWith(title: "Experience", linkText: "")
-            } else if indexPath.section == 6 {
-                //header.set(title: "Education")
-                header.configureWith(title: "Education", linkText: "")
-            } else if indexPath.section == 7 {
-                //header.set(title: "Patents")
-                header.configureWith(title: "Patents", linkText: "")
-            } else if indexPath.section == 8 {
-                //header.set(title: "Publications")
-                header.configureWith(title: "Publications", linkText: "")
-            } else if indexPath.section == 9 {
-                //header.set(title: "Languages")
-                header.configureWith(title: "Languages", linkText: "")
-            } else {
-                //header.buttonImage.isHidden = true
-                //header.set(title: "Related")
-                header.configureWith(title: "Related", linkText: "")
+        if indexPath.section == 0 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyReuseIdentifier, for: indexPath) as! MEStretchyHeader
+            header.delegate = self
+            if let bannerUrl = self.user.bannerImageUrl, bannerUrl != "" {
+                header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
             }
             return header
-            
-        case ElementKind.sectionFooter:
-            let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileFooterTitleReuseIdentifier, for: indexPath) as! UserProfileTitleFooter
-            footer.delegate = self
-            
-            if indexPath.section == 2 {
-                footer.set(title: "Show posts")
-            } else if indexPath.section == 3 {
-                footer.set(title: "Show cases")
-            } else if indexPath.section == 4 {
-                footer.set(title: "Show comments")
-            } else if indexPath.section == 5 {
-                footer.set(title: "Show experiences")
-            } else if indexPath.section == 6 {
-                footer.set(title: "Show education")
-            } else if indexPath.section == 7 {
-                footer.set(title: "Show patents")
-            } else if indexPath.section == 8 {
-                footer.set(title: "Show publications")
-            } else if indexPath.section == 9 {
-                footer.set(title: "Show languages")
-            }
-            return footer
-        default:
-            print("No Kind registered")
-            //assert(true)
-            return UICollectionReusableView()
         }
+        
+        if indexPath.section == 1 && userDataLoaded == false {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            //header.setImageWithStringUrl(imageUrl: user.bannerImageUrl!)
+            return header
+        }
+        
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+        if indexPath.section == 1 {
+            //header.set(title: "About")
+            header.configureWith(title: "About", linkText: "")
+        }else if indexPath.section == 2 {
+            //header.buttonImage.isHidden = true
+            //header.set(title: "Posts")
+            header.configureWith(title: "Posts", linkText: "")
+            if recentPosts.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 3 {
+            //header.buttonImage.isHidden = true
+            //header.set(title: "Cases")
+            header.configureWith(title: "Cases", linkText: "See All")
+            if recentCases.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 4 {
+            //header.buttonImage.isHidden = true
+            //header.set(title: "Comments")
+            header.configureWith(title: "Comments", linkText:"See All")
+            if recentComments.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 5 {
+            //header.set(title: "Experience")
+            header.configureWith(title: "Experience", linkText: "See All")
+            if experience.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 6 {
+            //header.set(title: "Education")
+            header.configureWith(title: "Education", linkText: "See All")
+            if education.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 7 {
+            //header.set(title: "Patents")
+            header.configureWith(title: "Patents", linkText: "See All")
+            if patents.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 8 {
+            //header.set(title: "Publications")
+            header.configureWith(title: "Publications", linkText: "See All")
+            if publications.count < 3 { header.hideSeeAllButton() }
+        } else if indexPath.section == 9 {
+            //header.set(title: "Languages")
+            header.configureWith(title: "Languages", linkText: "See All")
+            if languages.count < 3 { header.hideSeeAllButton() }
+        } else {
+            //header.buttonImage.isHidden = true
+            //header.set(title: "Related")
+            header.configureWith(title: "Related", linkText: "See All")
+            if relatedUsers.count < 10 { header.hideSeeAllButton() }
+        }
+        return header
     }
+
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 1 {

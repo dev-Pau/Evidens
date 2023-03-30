@@ -46,7 +46,7 @@ class UserProfileCommentCell: UICollectionViewCell {
         return label
     }()
     
-    private var separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .quaternarySystemFill
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -68,12 +68,6 @@ class UserProfileCommentCell: UICollectionViewCell {
         addSubviews(caseTitleLabel, profileImageView, commentTextLabel, commentUserLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-
             commentTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             commentTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -91,6 +85,12 @@ class UserProfileCommentCell: UICollectionViewCell {
             commentUserLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             commentUserLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
+
             
         ])
         

@@ -16,9 +16,13 @@ struct GroupService {
         
         let groupRef = COLLECTION_GROUPS.document(group.groupId)
         
+        let trimmedText = group.name.trimmingCharacters(in: .whitespaces)
+        let arrayTextToSearch = trimmedText.split(separator: " ").map({ $0.lowercased() }).map({ $0.capitalized })
+        
         let data = ["name": group.name,
                     "ownerUid": uid,
                     "id": group.groupId,
+                    "searchFor": arrayTextToSearch,
                     "description": group.description,
                     "professions": group.professions,
                     "visibility": group.visibility.rawValue,
@@ -48,6 +52,36 @@ struct GroupService {
                     completion(groups)
                 }
                 
+            }
+        }
+    }
+    
+    static func fetchGroupsWithText(_ text: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            COLLECTION_GROUPS.whereField("searchFor", arrayContainsAny: text).limit(to: 10).getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                completion(snapshot)
+            }
+        } else {
+            COLLECTION_GROUPS.whereField("searchFor", arrayContainsAny: text).start(afterDocument: lastSnapshot!).limit(to: 10).getDocuments { snapshot, _ in
+                guard let snapshot = snapshot else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                completion(snapshot)
             }
         }
     }

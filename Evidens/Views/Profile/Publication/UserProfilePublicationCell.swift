@@ -117,12 +117,6 @@ class UserProfilePublicationCell: UICollectionViewCell {
         addSubviews(publicationTitleLabel, collectionView, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, buttonImage, separatorView)
         
         NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
-            
-            
             publicationTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             publicationTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             publicationTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -152,7 +146,13 @@ class UserProfilePublicationCell: UICollectionViewCell {
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
+            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         ])
     }
     

@@ -87,11 +87,6 @@ class UserProfileExperienceCell: UICollectionViewCell {
         addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, separatorView, buttonImage)
         
         NSLayoutConstraint.activate([
-            separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
             professionCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             professionCenterTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             professionCenterTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -111,7 +106,13 @@ class UserProfileExperienceCell: UICollectionViewCell {
             jobIntervalLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
+            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         ])
     }
     

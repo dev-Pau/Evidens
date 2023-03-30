@@ -1,8 +1,8 @@
 //
-//  SearchJobsViewController.swift
+//  SearchGroupsViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 29/3/23.
+//  Created by Pau Fernández Solà on 30/3/23.
 //
 
 import UIKit
@@ -13,32 +13,19 @@ private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let searchRecentsHeaderReuseIdentifier = "SearchRecentsHeaderReuseIdentifier"
 private let emptySearchResultsReuseIdentifier = "EmptySearchResultsReuseIdentifier"
 private let recentContentSearchReuseIdentifier = "RecentContentSearchReuseIdentifier"
-private let jobCellReuseIdentifier = "JobCellReuseIdentifier"
+private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
 
-/*
-protocol SearchConversationViewControllerDelegate: AnyObject {
-    func didTapUser(user: User)
-    func updatePan()
+protocol SearchGroupsViewControllerDelegate: AnyObject {
     func didTapTextToSearch(text: String)
-    func filterConversationsWithText(text: String, completion: @escaping([User]) -> Void)
-}
-*/
-
-protocol SearchJobsViewControllerDelegate: AnyObject {
-    func didTapTextToSearch(text: String)
-    func didBookmarkJob(job: Job)
 }
 
-class SearchJobsViewController: UIViewController {
-    
-    weak var delegate: SearchJobsViewControllerDelegate?
+class SearchGroupsViewController: UIViewController {
+    weak var delegate: SearchGroupsViewControllerDelegate?
     
     private var user: User
     private var recentSearches = [String]()
-    private var companies = [Company]()
-    private var jobs = [Job]()
-    private var lastJobSnapshot: QueryDocumentSnapshot?
-    //private var filteredUsers = []()
+    private var groups = [Group]()
+    private var lastGroupSnapshot: QueryDocumentSnapshot?
     private var searchedText: String = ""
     private var arraySearchedText = [String]()
     
@@ -67,7 +54,7 @@ class SearchJobsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if !dataLoaded { fetchRecentJobSearches() }
+        if !dataLoaded { fetchRecentGroupSearches() }
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -77,19 +64,18 @@ class SearchJobsViewController: UIViewController {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(55))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.jobs.count == 0 ? .fractionalHeight(1) : .estimated(65)))
+                let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.groups.count == 0 ? .fractionalHeight(1) : .estimated(65)))
                 
                 item.contentInsets.leading = 10
                 item.contentInsets.trailing = 10
                 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.jobs.count == 0 ? .fractionalHeight(0.9) : .estimated(65)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.groups.count == 0 ? .fractionalHeight(0.9) : .estimated(65)), subitems: [item])
               
                 let section = NSCollectionLayoutSection(group: group)
                 if !self.dataLoaded { section.boundarySupplementaryItems = [header] }
                 section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                 
                 return section
-                
             } else {
                 // Recents
                     let recentsIsEmpty = self.recentSearches.isEmpty
@@ -109,8 +95,8 @@ class SearchJobsViewController: UIViewController {
         return layout
     }
     
-    private func fetchRecentJobSearches() {
-        DatabaseManager.shared.fetchRecentJobSearches { result in
+    private func fetchRecentGroupSearches() {
+        DatabaseManager.shared.fetchRecentGroupSearches { result in
             switch result {
             case .success(let searches):
                 guard !searches.isEmpty else {
@@ -118,7 +104,6 @@ class SearchJobsViewController: UIViewController {
                     self.collectionView.reloadData()
                     return
                 }
-                
                 self.recentSearches = searches
                 self.dataLoaded = true
                 self.collectionView.reloadData()
@@ -144,34 +129,27 @@ class SearchJobsViewController: UIViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingSearchHeaderReuseIdentifier)
         collectionView.register(RecentContentSearchCell.self, forCellWithReuseIdentifier: recentContentSearchReuseIdentifier)
 
-        collectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: jobCellReuseIdentifier)
+        collectionView.register(GroupCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
     }
     
     func configureUI() {
         view.backgroundColor = .systemBackground
     }
     
-    @objc func fetchJobsWithSearchedText(_ searchedText: [String]) {
-        jobs.removeAll()
-        companies.removeAll()
-        JobService.fetchJobsWithText(searchedText, lastSnapshot: nil) { snapshot in
+    @objc func fetchGroupsWithSearchedText(_ searchedText: [String]) {
+        groups.removeAll()
+        GroupService.fetchGroupsWithText(searchedText, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.dataLoaded = true
                 self.collectionView.reloadData()
                 return
             }
             
-            self.lastJobSnapshot = snapshot.documents.last
-            let jobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
-            JobService.fetchJobValuesFor(jobs: jobs) { jobsWithValues in
-                self.jobs = jobsWithValues
-                let companyIds = self.jobs.map { $0.companyId }
-                CompanyService.fetchCompanies(withIds: companyIds) { companies in
-                    self.companies = companies
-                    self.dataLoaded = true
-                    self.collectionView.reloadData()
-                }
-            }
+            self.lastGroupSnapshot = snapshot.documents.last
+            let groups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+            self.groups = groups
+            self.dataLoaded = true
+            self.collectionView.reloadData()
         }
     }
     
@@ -181,34 +159,27 @@ class SearchJobsViewController: UIViewController {
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            getMoreJobs()
+            getMoreGroups()
         }
     }
     
-    private func getMoreJobs() {
-        JobService.fetchJobsWithText(arraySearchedText, lastSnapshot: lastJobSnapshot) { snapshot in
+    private func getMoreGroups() {
+        GroupService.fetchGroupsWithText(arraySearchedText, lastSnapshot: lastGroupSnapshot) { snapshot in
             guard !snapshot.isEmpty else { return }
-            self.lastJobSnapshot = snapshot.documents.last
-            let newJobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
-            JobService.fetchJobValuesFor(jobs: newJobs) { newJobsWithValues in
-                self.jobs.append(contentsOf: newJobsWithValues)
-                let companyIds = self.jobs.map { $0.companyId }
-                CompanyService.fetchCompanies(withIds: companyIds) { companies in
-                    self.companies.append(contentsOf: companies)
-                    self.collectionView.reloadData()
-                }
-            }
+            self.lastGroupSnapshot = snapshot.documents.last
+            let groups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+            self.groups.append(contentsOf: groups)
+            self.collectionView.reloadData()
         }
     }
 }
 
-extension SearchJobsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    
+extension SearchGroupsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if !isInSearchMode {
             return dataLoaded ? recentSearches.isEmpty ? 1 : recentSearches.count : 0
         } else {
-            return dataLoaded ? jobs.isEmpty ? 1 : jobs.count : 0
+            return dataLoaded ? groups.isEmpty ? 1 : groups.count : 0
         }
     }
     
@@ -235,7 +206,7 @@ extension SearchJobsViewController: UICollectionViewDelegateFlowLayout, UICollec
         if !isInSearchMode {
             if recentSearches.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! EmptyRecentsSearchCell
-                cell.set(title: "Try searching for job titles")
+                cell.set(title: "Try searching for group names")
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: recentContentSearchReuseIdentifier, for: indexPath) as! RecentContentSearchCell
@@ -243,18 +214,15 @@ extension SearchJobsViewController: UICollectionViewDelegateFlowLayout, UICollec
                 return cell
             }
         } else {
-            if jobs.isEmpty {
+            if groups.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptySearchResultsReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                 cell.set(withImage: UIImage(named: "message.empty")!, withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "   Remove filters   ")
                 cell.delegate = self
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobCellReuseIdentifier, for: indexPath) as! BrowseJobCell
-                cell.viewModel = JobViewModel(job: jobs[indexPath.row])
-                cell.delegate = self
-                if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
-                    cell.configureWithCompany(company: companies[companyIndex])
-                }
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
+                cell.viewModel = GroupViewModel(group: groups[indexPath.row])
+                //if indexPath.row == groups.count
                 return cell
             }
         }
@@ -270,44 +238,38 @@ extension SearchJobsViewController: UICollectionViewDelegateFlowLayout, UICollec
             formatTextToSearch(searchText: searchedText)
             delegate?.didTapTextToSearch(text: searchedText)
         } else {
-            guard !jobs.isEmpty else { return }
-            if let companyIndex = companies.firstIndex(where: { $0.id == jobs[indexPath.row].companyId }) {
-                let controller = JobDetailsViewController(job: jobs[indexPath.row], company: companies[companyIndex], user: user)
-                controller.delegate = self
-                let navController = UINavigationController(rootViewController: controller)
-                navController.modalPresentationStyle = .fullScreen
-                present(navController, animated: true)
-            }
+            guard !groups.isEmpty else { return }
+            let groupSelected = groups[indexPath.row]
+            let controller = GroupPageViewController(group: groupSelected)
+            
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
 
-extension SearchJobsViewController: UISearchBarDelegate {
+extension SearchGroupsViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let searchText = searchBar.text, !searchText.replacingOccurrences(of: " ", with: "").isEmpty else { return }
-        DatabaseManager.shared.uploadRecentJobsSearches(with: searchText) { _ in }
+        DatabaseManager.shared.uploadRecentGroupSearches(with: searchText) { _ in }
         recentSearches.insert(searchText, at: 0)
         isInSearchMode = true
         searchedText = searchText
         dataLoaded = false
         collectionView.reloadData()
         formatTextToSearch(searchText: searchText)
-        
-        /*
-        delegate?.filterConversationsWithText(text: searchText.lowercased(), completion: { users in
-            #warning("We also need to search for messages")
-            self.filteredUsers = users
-            self.dataLoaded = true
-            self.collectionView.reloadData()
-        })
-         */
     }
     
     func formatTextToSearch(searchText: String) {
         let trimmedText = searchText.trimmingCharacters(in: .whitespaces)
         let arrayTextToSearch = trimmedText.split(separator: " ").map({ $0.lowercased() }).map({ $0.capitalized })
         arraySearchedText = arrayTextToSearch
-        fetchJobsWithSearchedText(arraySearchedText)
+        fetchGroupsWithSearchedText(arraySearchedText)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -335,7 +297,7 @@ extension SearchJobsViewController: UISearchBarDelegate {
     }
 }
 
-extension SearchJobsViewController: UISearchResultsUpdating {
+extension SearchGroupsViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         /*
         guard let text = searchController.searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else {
@@ -349,9 +311,9 @@ extension SearchJobsViewController: UISearchResultsUpdating {
     }
 }
 
-extension SearchJobsViewController: SearchRecentsHeaderDelegate {
+extension SearchGroupsViewController: SearchRecentsHeaderDelegate {
     func didTapClearSearches() {
-        displayMEDestructiveAlert(withTitle: "Delete recent searches", withMessage: "Are you sure you want to clear your most job recent searches?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+        displayMEDestructiveAlert(withTitle: "Delete recent searches", withMessage: "Are you sure you want to clear your most group recent searches?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
             DatabaseManager.shared.deleteRecentMessageSearches { result in
                 switch result {
                 case .success(_):
@@ -365,47 +327,7 @@ extension SearchJobsViewController: SearchRecentsHeaderDelegate {
     }
 }
 
-extension SearchJobsViewController: BrowseJobCellDelegate {
-    func didBookmarkJob(_ cell: UICollectionViewCell, job: Job) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        HapticsManager.shared.vibrate(for: .success)
-        switch cell {
-        case is BrowseJobCell:
-            let currentCell = cell as! BrowseJobCell
-            currentCell.viewModel?.job.didBookmark.toggle()
-            
-            if job.didBookmark {
-                JobService.unbookmarkJob(job: job) { _ in
-                    self.jobs[indexPath.row].didBookmark = false
-                    currentCell.isUpdatingJoiningState = false
-                    self.delegate?.didBookmarkJob(job: job)
-                }
-            } else {
-                JobService.bookmarkJob(job: job) { _ in
-                    self.jobs[indexPath.row].didBookmark = true
-                    currentCell.isUpdatingJoiningState = false
-                    self.delegate?.didBookmarkJob(job: job)
-                }
-            }
-            
-        default:
-            print("No cell registered for this type")
-        }
-    }
-}
-
-extension SearchJobsViewController: JobDetailsViewControllerDelegate {
-    func didBookmark(job: Job, company: Company) {
-        if let jobIndex = jobs.firstIndex(where: { $0.jobId == job.jobId }) {
-            jobs[jobIndex].didBookmark.toggle()
-            collectionView.reloadItems(at: [IndexPath(item: jobIndex, section: 0)])
-            delegate?.didBookmarkJob(job: job)
-        }
-    }
-}
-
-extension SearchJobsViewController: EmptyGroupCellDelegate {
-    
+extension SearchGroupsViewController: EmptyGroupCellDelegate {
     func didTapDiscoverGroup() {
         isInSearchMode = false
         dataLoaded = true
@@ -414,4 +336,3 @@ extension SearchJobsViewController: EmptyGroupCellDelegate {
         return
     }
 }
-
