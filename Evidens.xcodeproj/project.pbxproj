@@ -342,6 +342,8 @@
 		5FA6939729A391DD00DF3ADC /* JobViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6939629A391DD00DF3ADC /* JobViewModel.swift */; };
 		5FA6939929A3A17F00DF3ADC /* CreateCompanyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6939829A3A17F00DF3ADC /* CreateCompanyViewController.swift */; };
 		5FA758D029D5B62900F1DEA4 /* SearchGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */; };
+		5FA758D229D6C53900F1DEA4 /* METertiaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */; };
+		5FA758D529D89D8A00F1DEA4 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D429D89D8A00F1DEA4 /* Profile.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
 		5FA85B67299BDAB5002FCEF3 /* JobsBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA85B66299BDAB5002FCEF3 /* JobsBrowserViewController.swift */; };
@@ -763,6 +765,8 @@
 		5FA6939629A391DD00DF3ADC /* JobViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobViewModel.swift; sourceTree = "<group>"; };
 		5FA6939829A3A17F00DF3ADC /* CreateCompanyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCompanyViewController.swift; sourceTree = "<group>"; };
 		5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchGroupsViewController.swift; sourceTree = "<group>"; };
+		5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METertiaryEmptyCell.swift; sourceTree = "<group>"; };
+		5FA758D429D89D8A00F1DEA4 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		5FA85B66299BDAB5002FCEF3 /* JobsBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsBrowserViewController.swift; sourceTree = "<group>"; };
@@ -1739,6 +1743,7 @@
 			children = (
 				5FA5726F2965CC1A0068284B /* MEPrimaryEmptyCell.swift */,
 				5F9A281C2977D90C0052E618 /* MESecondaryEmptyCell.swift */,
+				5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */,
 				5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */,
 				5F99C1D429C6242700C681E2 /* MEPrimaryBlurLockView.swift */,
 			);
@@ -2184,6 +2189,14 @@
 			path = Browser;
 			sourceTree = "<group>";
 		};
+		5FA758D329D89D7B00F1DEA4 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				5FA758D429D89D8A00F1DEA4 /* Profile.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		5FA85B68299BDE47002FCEF3 /* Create */ = {
 			isa = PBXGroup;
 			children = (
@@ -2438,6 +2451,7 @@
 		5FC4D87327070334006B7A34 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5FA758D329D89D7B00F1DEA4 /* Profile */,
 				5F9E875B29C9BA7A00BEA131 /* Appearance */,
 				5F9E875A29C9BA7400BEA131 /* New */,
 				5F9E875929C9BA6600BEA131 /* Search */,
@@ -2854,6 +2868,7 @@
 				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
 				5F4493FC27942818008FD6ED /* ChatViewController.swift in Sources */,
+				5FA758D529D89D8A00F1DEA4 /* Profile.swift in Sources */,
 				5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */,
 				5F951B472949D33F00E99F34 /* GroupAdminCell.swift in Sources */,
 				5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */,
@@ -3072,6 +3087,7 @@
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
 				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
 				5F39B49E283007E70079F8CF /* UserCollectionViewCell.swift in Sources */,
+				5FA758D229D6C53900F1DEA4 /* METertiaryEmptyCell.swift in Sources */,
 				5FB29019288695D4002FBAE1 /* CaseViewModel.swift in Sources */,
 				5F9A281D2977D90C0052E618 /* MESecondaryEmptyCell.swift in Sources */,
 				5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */,

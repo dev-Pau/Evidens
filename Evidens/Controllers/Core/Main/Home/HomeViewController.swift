@@ -73,10 +73,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         } else {
             self.navigationController?.delegate = zoomTransitioning
         }
-
-        fetchFirstPostsGroup()
         configureUI()
         configureNavigationItemButtons()
+        fetchFirstPostsGroup()
     }
     
     
@@ -261,7 +260,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             DatabaseManager.shared.fetchHomeFeedPosts(lastTimestampValue: nil, forUid: uid) { result in
                 switch result {
                 case .success(let postIds):
-                    guard postIds.isEmpty else {
+                    guard !postIds.isEmpty else {
                         self.loaded = true
                         self.activityIndicator.stop()
                         self.collectionView.reloadData()
@@ -582,12 +581,10 @@ extension HomeViewController: HomeCellDelegate {
         case .report:
             let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
             reportPopup.showTopPopup(inView: self.view)
-            
         }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-    
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
@@ -597,9 +594,7 @@ extension HomeViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
-
         displayState = displaysSinglePost ? .others : .none
-        
         
         controller.delegate = self
        

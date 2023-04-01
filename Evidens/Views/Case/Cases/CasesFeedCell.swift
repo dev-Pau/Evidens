@@ -228,7 +228,9 @@ extension CasesFeedCell: UICollectionViewDelegate, UICollectionViewDelegateFlowL
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellReuseIdentifier, for: indexPath) as! CaseImageCell
         cell.delegate = self
-        if !caseUrlImages.isEmpty { cell.caseImageView.sd_setImage(with: URL(string: caseUrlImages[indexPath.row])) }
+        if !caseUrlImages.isEmpty { cell.caseImageView.sd_setImage(with: URL(string: caseUrlImages[indexPath.row])) } else {
+            cell.caseImageView.image = UIImage(named: "case.image.empty")
+        }
         return cell
     }
     

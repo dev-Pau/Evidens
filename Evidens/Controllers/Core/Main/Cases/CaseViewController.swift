@@ -15,7 +15,10 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     var user: User
     private let contentSource: Case.ContentSource
+    
     private var users = [User]()
+    private var cases = [Case]()
+    
     
     var casesLastSnapshot: QueryDocumentSnapshot?
     
@@ -24,18 +27,19 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
 
     private var displayState: DisplayState = .none
     
-    private var cases = [Case]() {
-        didSet { collectionView.reloadData() }
-    }
+
+    private let activityIndicator = MEProgressHUD(frame: .zero)
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing  = 10
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
+        layout.minimumInteritemSpacing  = 0
+        layout.minimumLineSpacing = 0
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .quaternarySystemFill
+        collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
+        collectionView.isHidden = true
         collectionView.alwaysBounceVertical = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
@@ -53,12 +57,10 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fetchFirstGroupOfCases()
         configureNavigationBar()
+        configureUI()
         configureCollectionView()
-        let refresher = UIRefreshControl()
-        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-        collectionView.refreshControl = refresher
+        fetchFirstGroupOfCases()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,7 +76,7 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
             break
             
         case .others:
-            if contentSource == .search { return }
+            if contentSource == .search { return }
             let view = MENavigationBarTitleView(fullName: user.firstName! + " " + user.lastName!, category: "Cases")
             view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
             navigationItem.titleView = view
@@ -82,17 +84,33 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         }
     }
     
+    private func configureUI() {
+        view.backgroundColor = .systemBackground
+    }
+    
     private func fetchFirstGroupOfCases() {
         switch contentSource {
         case .user:
             guard let uid = user.uid else { return }
             CaseService.fetchUserVisibleCases(forUid: uid, lastSnapshot: nil, completion: { snapshot in
+                guard !snapshot.isEmpty else {
+                    //self.loaded = true
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    return
+                }
+                
                 self.casesLastSnapshot = snapshot.documents.last
                 self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-                self.checkIfUserLikedCase()
-                self.checkIfUserBookmarkedCase()
-                self.collectionView.refreshControl?.endRefreshing()
+                CaseService.getCaseValuesFor(cases: self.cases) { cases in
+                    self.cases = cases
+                    self.cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                    //self.loaded = true
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                }
             })
         case .search:
             CaseService.fetchUserSearchCases(user: user, lastSnapshot: nil) { snapshot in
@@ -144,35 +162,19 @@ class CaseViewController: UIViewController, UINavigationControllerDelegate {
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
     
-    private func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
-            let width = view.bounds.width
-            let padding: CGFloat = 10
-            let minimumItemSpacing: CGFloat = 10
-            let availableWidth = width - (padding * 2) - minimumItemSpacing
-            let itemWidth = availableWidth / 2
-            
-            let flowLayout = UICollectionViewFlowLayout()
-            flowLayout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-            flowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth + 40)
-            
-            return flowLayout
-        }
-    
     private func configureCollectionView() {
-        
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
-        view.addSubview(collectionView)
-    }
-    
-    @objc func handleRefresh() {
-        HapticsManager.shared.vibrate(for: .success)
-        cases.removeAll()
-        casesLastSnapshot = nil
-        fetchFirstGroupOfCases()
+        collectionView.frame = view.bounds
+        view.addSubviews(activityIndicator, collectionView)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 200),
+        ])
     }
 }
 

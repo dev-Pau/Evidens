@@ -7,6 +7,7 @@
 
 import UIKit
 import GoogleSignIn
+import JGProgressHUD
 
 private let stretchyReuseIdentifier = "StretchyReuseIdentifier"
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
@@ -58,7 +59,7 @@ class UserProfileViewController: UIViewController {
     private var hasAbout: Bool = false
     private var aboutText: String = ""
     private var hasLanguages: Bool = false
-    private var languages = [[String: String]]()
+    private var languages = [Language]()
     private var hasPatents: Bool = false
     private var patents = [[String: Any]]()
     private var publications = [[String: Any]]()
@@ -442,6 +443,8 @@ class UserProfileViewController: UIViewController {
         DispatchQueue.main.async {
             if let imageUrl = self.user.profileImageUrl, imageUrl != "" {
                 controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            } else {
+                controller.profileImageView.image = UIImage(named: "user.profile")
             }
             controller.modalPresentationStyle = .overFullScreen
             self.present(controller, animated: true)
@@ -546,7 +549,7 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchLanguages() {
+    func fetchLanguages(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchLanguages(forUid: uid) { result in
             switch result {
@@ -558,7 +561,12 @@ class UserProfileViewController: UIViewController {
                 
                 self.hasLanguages = true
                 self.languages = languages
-                self.checkIfAllUserInformationIsFetched()
+                if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
+                
             case .failure(_):
                 print("No languages ")
             }
@@ -855,8 +863,9 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 9 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
-            cell.set(languageInfo: languages[indexPath.row])
-            if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true }
+            cell.set(language: languages[indexPath.row])
+            //cell.separatorView.isHidden = languages.count - 1 == indexPath.row ? true : false
+            //if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else {
@@ -884,26 +893,26 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         }
         
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: profileHeaderTitleReuseIdentifier, for: indexPath) as! SecondarySearchHeader
+        header.delegate = self
+        header.tag = indexPath.section
+        
         if indexPath.section == 1 {
             //header.set(title: "About")
             header.configureWith(title: "About", linkText: "")
-        }else if indexPath.section == 2 {
+        } else if indexPath.section == 2 {
             //header.buttonImage.isHidden = true
             //header.set(title: "Posts")
-            header.configureWith(title: "Posts", linkText: "")
-            if recentPosts.count < 3 { header.hideSeeAllButton() }
+            header.configureWith(title: "Posts", linkText: "See All")
+            if recentPosts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 3 {
             //header.buttonImage.isHidden = true
             //header.set(title: "Cases")
             header.configureWith(title: "Cases", linkText: "See All")
             if recentCases.count < 3 { header.hideSeeAllButton() }
         } else if indexPath.section == 4 {
-            //header.buttonImage.isHidden = true
-            //header.set(title: "Comments")
             header.configureWith(title: "Comments", linkText:"See All")
             if recentComments.count < 3 { header.hideSeeAllButton() }
         } else if indexPath.section == 5 {
-            //header.set(title: "Experience")
             header.configureWith(title: "Experience", linkText: "See All")
             if experience.count < 3 { header.hideSeeAllButton() }
         } else if indexPath.section == 6 {
@@ -933,6 +942,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print(indexPath.section)
         if indexPath.section == 1 {
             // About
             let controller = AboutSectionViewController(section: aboutText)
@@ -949,7 +959,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             guard !recentCases.isEmpty else { return }
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
             
@@ -1029,6 +1039,18 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     }
                 }
             }
+        } else if indexPath.section == 9 {
+            guard user.isCurrentUser else { return }
+            let controller = AddLanguageViewController()
+            controller.userIsEditing = true
+            controller.delegate = self
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            controller.configureWithLanguage(language: languages[indexPath.row])
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
@@ -1038,7 +1060,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 
 extension UserProfileViewController: MEStretchyHeaderDelegate {
     func didTapBanner() {
-        print("kek banner push")
         let controller = ProfileImageViewController(isBanner: true)
         controller.hidesBottomBarWhenPushed = true
         DispatchQueue.main.async {
@@ -1204,15 +1225,9 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
     }
 }
 
-extension UserProfileViewController: UserProfileTitleFooterDelegate {
-    func didTapFooter(section: String) {
-        switch section {
-        case "Show posts":
-
-            //let layout = UICollectionViewFlowLayout()
-            //layout.scrollDirection = .vertical
-            //layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
-            
+extension UserProfileViewController: MainSearchHeaderDelegate {
+    func didTapSeeAll(_ header: UICollectionReusableView) {
+        if header.tag == 2 {
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
@@ -1226,8 +1241,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             controller.hidesBottomBarWhenPushed = true
             
             navigationController?.pushViewController(controller, animated: true)
-            
-        case "Show cases":
+        } else if header.tag == 3 {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: 300)
@@ -1241,8 +1255,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             //controller.controllerIsBeeingPushed = true
             //controller.displaysSinglePost = true
             navigationController?.pushViewController(controller, animated: true)
-            
-        case "Show comments":
+        } else if header.tag == 4 {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
@@ -1255,20 +1268,17 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             let controller = UserCommentsViewController(user: user, collectionViewFlowLayout: layout)
        
             navigationController?.pushViewController(controller, animated: true)
-        
-   
-    case "Show experiences":
-        let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
-        controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
+        } else if header.tag == 5 {
+            let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+            controller.delegate = self
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
             backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+            navigationItem.backBarButtonItem = backItem
+            
             navigationController?.pushViewController(controller, animated: true)
-
-         
-        case "Show education":
+            
+        } else if header.tag == 6 {
             let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1277,9 +1287,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
-            
-            
-        case "Show patents":
+        } else if header.tag == 7 {
             let controller = PatentSectionViewController(user: user, patents: patents, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1288,9 +1296,7 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
-
-            
-        case "Show publications":
+        } else if header.tag == 8 {
             let controller = PublicationSectionViewController(user: user, publications: publications, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1299,20 +1305,14 @@ extension UserProfileViewController: UserProfileTitleFooterDelegate {
             navigationItem.backBarButtonItem = backItem
             
             navigationController?.pushViewController(controller, animated: true)
-            
-        case "Show languages":
+        } else if header.tag == 9 {
             let controller = LanguageSectionViewController(languages: languages, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-
-
             navigationController?.pushViewController(controller, animated: true)
-            //co
-        default:
-            print("no footer registered")
         }
     }
 }
@@ -1339,6 +1339,12 @@ extension UserProfileViewController: UserProfilePublicationCellDelegate {
     
 }
 
+extension UserProfileViewController: AddLanguageViewControllerDelegate {
+    func handleLanguageUpdate() {
+        updateLanguageValues()
+    }
+}
+
 extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate {
     func didUpdateProfile(user: User) {
         self.user = user
@@ -1358,43 +1364,35 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
     
     func updateLanguageValues() {
-        fetchUserStats()
-        fetchLanguages()
+        fetchLanguages(isUpdatingValues: true)
     }
     
     
     func fetchNewLanguageValues() {
-        fetchUserStats()
-        fetchLanguages()
+        fetchLanguages(isUpdatingValues: true)
     }
     
     func fetchNewPublicationValues() {
-        fetchUserStats()
         fetchPublications()
     }
     
     func fetchNewPatentValues() {
-        fetchUserStats()
         fetchPatents()
     }
     
     func fetchNewEducationValues() {
-        fetchUserStats()
         fetchEducation()
     }
     
     func fetchNewExperienceValues(withUid uid: String) {
-        fetchUserStats()
         fetchExperience()
     }
     
     func handleUpdateAbout() {
-        fetchUserStats()
         fetchSections()
     }
     
     func fetchNewAboutValues(withUid uid: String) {
-        fetchUserStats()
         fetchSections()
     }
     

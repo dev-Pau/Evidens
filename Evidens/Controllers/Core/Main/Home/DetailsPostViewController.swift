@@ -250,6 +250,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         } else {
             if comments.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyContentCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.multiplier = 0.5
                 cell.configure(image: UIImage(named: "content.empty"), title: "No comments found", description: "This post has no comments, but it won't be that way for long. Be the first to comment.", buttonText: .comment)
                 cell.delegate = self
                 return cell

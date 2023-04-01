@@ -7,20 +7,14 @@
 
 import UIKit
 
-protocol UserProfileLanguageCellDelegate: AnyObject {
-    func didTapEditLanguage(_ cell: UICollectionViewCell, languageName: String, languageProficiency: String)
-}
-
 class UserProfileLanguageCell: UICollectionViewCell {
-    
-    weak var delegate: UserProfileLanguageCellDelegate?
     
     private let languageTitleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .left
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -43,15 +37,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
         button.isHidden = true
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleEditLanguage), for: .touchUpInside)
         return button
-    }()
-    
-    let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
-        return view
     }()
     
     override init(frame: CGRect) {
@@ -65,10 +51,9 @@ class UserProfileLanguageCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(languageTitleLabel, languageLevelLabel, buttonImage, separatorView)
+        addSubviews(languageTitleLabel, languageLevelLabel)
         
         NSLayoutConstraint.activate([
-
             languageTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             languageTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             languageTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -77,27 +62,11 @@ class UserProfileLanguageCell: UICollectionViewCell {
             languageLevelLabel.leadingAnchor.constraint(equalTo: languageTitleLabel.leadingAnchor),
             languageLevelLabel.trailingAnchor.constraint(equalTo: languageTitleLabel.trailingAnchor),
             languageLevelLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-        
-            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            
- 
         ])
     }
     
-    @objc func handleEditLanguage() {
-        guard let languageName = languageTitleLabel.text, let languageProficiency = languageLevelLabel.text else { return }
-        delegate?.didTapEditLanguage(self, languageName: languageName, languageProficiency: languageProficiency)
-    }
-    
-    func set(languageInfo: [String: String]) {
-        languageTitleLabel.text = languageInfo["languageName"]
-        languageLevelLabel.text = languageInfo["languageProficiency"]
+    func set(language: Language) {
+        languageTitleLabel.text = language.name
+        languageLevelLabel.text = language.proficiency
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 protocol AddLanguageViewControllerDelegate: AnyObject {
     func handleLanguageUpdate()
@@ -17,11 +18,15 @@ class AddLanguageViewController: UIViewController {
     
     public var completion: (([String]) -> (Void))?
     
-    private var userIsEditing = false
+    var userIsEditing = false
     private var previousLanguage: String = ""
+    
+    private var language = Language(name: "", proficiency: "")
     
     private var languageSelected: String = ""
     private var proficiencySelected: String = ""
+    
+    private let progressIndicator = JGProgressHUD()
     
     private var textFieldChanged: UITextField!
 
@@ -111,7 +116,8 @@ class AddLanguageViewController: UIViewController {
 
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
+        titleLabel.text = userIsEditing ? "Edit Language" : "Add Language"
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -139,7 +145,7 @@ class AddLanguageViewController: UIViewController {
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            languageTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
+            languageTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 60),
             languageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             languageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             languageTextField.heightAnchor.constraint(equalToConstant: 35),
@@ -160,22 +166,35 @@ class AddLanguageViewController: UIViewController {
     }
     
     @objc func handleDone() {
-        guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
-        showLoadingView()
+        guard language.proficiency != "", language.name != "" else { return }
+        progressIndicator.show(in: view)
         if userIsEditing == false {
-            DatabaseManager.shared.uploadLanguage(language: language, proficiency: proficiency) { uploaded in
-                self.dismissLoadingView()
+            DatabaseManager.shared.uploadLanguage(language: language) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                guard uploaded else {
+                    // Language already registered by the user
+                    let reportPopup = METopPopupView(title: "\(self.language.name.capitalized) is already registered on your profile. Try adding a new language.", image: "xmark.octagon.fill", popUpType: .destructive)
+                    reportPopup.showTopPopup(inView: self.view)
+                    return
+                }
+                // Language has been uploaded successfully. Dismiss the current view & upload the profile
                 self.delegate?.handleLanguageUpdate()
                 self.navigationController?.popViewController(animated: true)
                 
             }
         } else {
-            DatabaseManager.shared.updateLanguage(previousLanguage: previousLanguage, languageName: language, languageProficiency: proficiency) { uploaded in
-                self.dismissLoadingView()
-                self.delegate?.handleLanguageUpdate()
+            DatabaseManager.shared.updateLanguage(language: language) { uploaded in
+                if uploaded {
+                    self.progressIndicator.dismiss(animated: true)
+                    self.delegate?.handleLanguageUpdate()
+                    self.navigationController?.popViewController(animated: true)
+                }
+
+                /*
                 if let count = self.navigationController?.viewControllers.count {
                     self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
                 }
+                 */
             }
         }
     }
@@ -211,23 +230,19 @@ class AddLanguageViewController: UIViewController {
         return attrString
     }
     
-    func configureWithLanguage(languageName: String, languageProficiency: String) {
-        
-        userIsEditing = true
-        previousLanguage = languageName
-        
-        languageTextField.text = languageName
-        languageProficiencyTextField.text = languageProficiency
+    func configureWithLanguage(language: Language) {
+        self.language = language
+        languageTextField.text = language.name
+        languageProficiencyTextField.text = language.proficiency
         textDidChange(languageTextField)
         textDidChange(languageProficiencyTextField)
-        
+        languageTextField.isUserInteractionEnabled = false
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
 }
 
 extension AddLanguageViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        
         languageTextField.resignFirstResponder()
         languageProficiencyTextField.resignFirstResponder()
         
@@ -249,10 +264,10 @@ extension AddLanguageViewController: UITextFieldDelegate {
         
         if textField == languageProficiencyTextField {
             controller.collectionData = Sections.getAllLanguageLevels()
-            controller.previousValue = proficiencySelected
+            controller.previousValue = language.proficiency
         } else {
             controller.collectionData = Sections.getAllLanguages()
-            controller.previousValue = languageSelected
+            controller.previousValue = language.name
         }
         
         navigationController?.pushViewController(controller, animated: true)
@@ -264,11 +279,11 @@ extension AddLanguageViewController: SupportSectionViewControllerDelegate {
     func didTapSectionOption(optionText: String) {
         if textFieldChanged == languageProficiencyTextField {
             languageProficiencyTextField.text = optionText
-            proficiencySelected = optionText
+            language.proficiency = optionText
             textDidChange(languageProficiencyTextField)
         } else {
             languageTextField.text = optionText
-            languageSelected = optionText
+            language.name = optionText
             textDidChange(languageTextField)
         }
     }

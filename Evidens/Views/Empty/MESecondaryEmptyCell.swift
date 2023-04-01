@@ -23,6 +23,7 @@ enum EmptyCellButtonOptions: String, CaseIterable {
 class MESecondaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: MESecondaryEmptyCellDelegate?
+    var multiplier = 0.7
     
     private var emptyCellOption: EmptyCellButtonOptions = .goToGroup
     
@@ -121,7 +122,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
-        let height = max(UIScreen.main.bounds.height * 0.7, autoLayoutSize.height)
+        let height = max(UIScreen.main.bounds.height * multiplier, autoLayoutSize.height)
 
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame

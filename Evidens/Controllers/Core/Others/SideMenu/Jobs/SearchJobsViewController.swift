@@ -186,6 +186,7 @@ class SearchJobsViewController: UIViewController {
     }
     
     private func getMoreJobs() {
+        guard !arraySearchedText.isEmpty else { return }
         JobService.fetchJobsWithText(arraySearchedText, lastSnapshot: lastJobSnapshot) { snapshot in
             guard !snapshot.isEmpty else { return }
             self.lastJobSnapshot = snapshot.documents.last

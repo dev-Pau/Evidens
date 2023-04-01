@@ -78,4 +78,9 @@ class SecondarySearchHeader: UICollectionReusableView {
         seeAllButton.isHidden = true
         seeAllButton.isUserInteractionEnabled = false
     }
+    
+    func unhideSeeAllButton() {
+        seeAllButton.isHidden = false
+        seeAllButton.isUserInteractionEnabled = true
+    }
 }

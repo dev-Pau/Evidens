@@ -694,29 +694,33 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadLanguage(language: String, proficiency: String, completion: @escaping(Bool) -> Void) {
+    public func uploadLanguage(language: Language, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        //let ref = database.child("users").child("\(uid)/languages")
-        
-        let languageData = ["languageName": language,
-                             "languageProficiency": proficiency]
-        
-        let ref = database.child("users").child(uid).child("profile").child("languages").childByAutoId()
-        
-        
-        
-        ref.setValue(languageData) { error, _ in
-            if let _ = error {
+        // Check if language already exists
+        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard !snapshot.exists() else {
+                // Language is already uploaded by the user
                 completion(false)
                 return
             }
-            completion(true)
+            
+            // New Language. Add Language to user's profile
+            let languageData = ["languageName": language.name, "languageProficiency": language.proficiency]
+            let newLanguageRef = self.database.child("users").child(uid).child("profile").child("languages").childByAutoId()
+            newLanguageRef.setValue(languageData) { error, _ in
+                guard error == nil else {
+                    completion(false)
+                    return
+                }
+                completion(true)
+            }
         }
     }
     
-    public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[[String: String]], Error>) -> Void) {
-        var recentLanguages = [[String: String]]()
+    public func fetchLanguages(forUid uid: String, completion: @escaping(Result<[Language], Error>) -> Void) {
+        var languageData = [[String: Any]]()
+        var recentLanguages = [Language]()
         
         let ref = database.child("users").child(uid).child("profile").child("languages")
         
@@ -726,35 +730,59 @@ extension DatabaseManager {
                 return
             }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: String] else { return }
-                recentLanguages.append(value)
-                if recentLanguages.count == snapshot.children.allObjects.count {
-                    completion(.success(recentLanguages))
+                guard let value = child.value as? [String: Any] else { return }
+                languageData.append(value)
+                if languageData.count == snapshot.children.allObjects.count {
+                    let languages: [Language] = languageData.compactMap { dictionary in
+                        guard let name = dictionary["languageName"] as? String,
+                              let proficiency = dictionary["languageProficiency"] as? String else { return nil }
+                        return Language(name: name, proficiency: proficiency)
+                    }
+                    completion(.success(languages))
+                }
+            }
+        }
+    }
+
+
+
+    public func updateLanguage(language: Language, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
+        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                
+                let languageData = ["languageName": language.name, "languageProficiency": language.proficiency]
+                
+                let newRef = self.database.child("users").child(uid).child("profile").child("languages").child(key)
+                newRef.setValue(languageData) { error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                    completion(true)
                 }
             }
         }
     }
     
-
-    public func updateLanguage(previousLanguage: String, languageName: String, languageProficiency: String, completion: @escaping(Bool) -> Void) {
+    public func deleteLanguage(language: Language, completion: @escaping(Bool) -> Void) {
+        print(language)
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let updatedLanguage = ["languageName": languageName,
-                               "languageProficiency": languageProficiency]
-        
-        
-        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
-        
-        ref.getData { _, snapshot in
-            if let value = snapshot?.value as? [String: Any] {
+        let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
                 guard let key = value.first?.key else { return }
                 
                 let newRef = self.database.child("users").child(uid).child("profile").child("languages").child(key)
-                newRef.setValue(updatedLanguage) { error, _ in
-                    if let error = error {
-                        print(error)
+                newRef.removeValue { error, _ in
+                    guard error == nil else {
                         completion(false)
                         return
                     }
+                    
                     completion(true)
                 }
             }

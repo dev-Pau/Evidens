@@ -20,7 +20,6 @@ class CaseImageCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(named: "case.image.empty")
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleImageTap)))
         iv.clipsToBounds = true
         return iv

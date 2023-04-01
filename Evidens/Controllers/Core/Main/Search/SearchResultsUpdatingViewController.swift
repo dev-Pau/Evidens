@@ -588,7 +588,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         //cell.delegate = self
                         return cell
                     case .textWithImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                         if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                             cell.set(user: topPostUsers[userIndex])
@@ -597,7 +597,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         //cell.delegate = self
                         return cell
                     case .textWithTwoImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                         if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                             cell.set(user: topPostUsers[userIndex])
@@ -606,7 +606,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         //cell.delegate = self
                         return cell
                     case .textWithThreeImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                         if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                             cell.set(user: topPostUsers[userIndex])
@@ -615,7 +615,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         //cell.delegate = self
                         return cell
                     case .textWithFourImage:
-                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                         cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                         if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                             cell.set(user: topPostUsers[userIndex])
@@ -709,7 +709,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     //cell.delegate = self
                     return cell
                 case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                     if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                         cell.set(user: topPostUsers[userIndex])
@@ -718,7 +718,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     //cell.delegate = self
                     return cell
                 case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                     if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                         cell.set(user: topPostUsers[userIndex])
@@ -727,7 +727,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     //cell.delegate = self
                     return cell
                 case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                     if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                         cell.set(user: topPostUsers[userIndex])
@@ -736,7 +736,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     //cell.delegate = self
                     return cell
                 case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                     cell.viewModel = PostViewModel(post: topPosts[indexPath.row])
                     if let userIndex = topPostUsers.firstIndex(where: { $0.uid == topPosts[indexPath.row].ownerUid }) {
                         cell.set(user: topPostUsers[userIndex])

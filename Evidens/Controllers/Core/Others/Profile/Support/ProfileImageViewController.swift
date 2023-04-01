@@ -77,7 +77,6 @@ class ProfileImageViewController: UIViewController {
         ])
        
         if !isBanner {
-            profileImageView.image = UIImage(named: "user.profile")
             let height = view.frame.width * 0.8
             NSLayoutConstraint.activate([
                 profileImageView.heightAnchor.constraint(equalToConstant: height),

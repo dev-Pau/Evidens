@@ -14,7 +14,7 @@ private let categoriesCellReuseIdentifier  = "CategoriesCellReuseIdentifier"
 private let recentNewsCellReuseIdentifier = "RecentNewsCellReuseIdentifier"
 private let whoToFollowCellReuseIdentifier = "WhoToFollowCellReuseIdentifier"
 
-private let reuseIdentifier = "HomeTextCellReuseIdentifier"
+private let homeTextCellReuseIdentifier = "HomeTextCellReuseIdentifier"
 private let homeImageTextCellReuseIdentifier = "HomeImageTextCellReuseIdentifier"
 private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIdentifier"
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
@@ -160,7 +160,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         collectionView.register(RecentNewsCell.self, forCellWithReuseIdentifier: recentNewsCellReuseIdentifier)
         collectionView.register(WhoToFollowCell.self, forCellWithReuseIdentifier: whoToFollowCellReuseIdentifier)
         
-        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(HomeTextCell.self, forCellWithReuseIdentifier: homeTextCellReuseIdentifier)
         collectionView.register(HomeImageTextCell.self, forCellWithReuseIdentifier: homeImageTextCellReuseIdentifier)
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
@@ -326,31 +326,31 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             if let index = postUsers.firstIndex(where:  { $0.uid == posts[indexPath.row].ownerUid }) {
                 switch posts[indexPath.row].type {
                 case .plainText:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
                     return cell
                 case .textWithImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
                     return cell
                 case .textWithTwoImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
                     return cell
                 case .textWithThreeImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
                     return cell
                 case .textWithFourImage:
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeFourImageTextCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
