@@ -62,7 +62,7 @@ class UserProfileViewController: UIViewController {
     private var languages = [Language]()
     private var hasPatents: Bool = false
     private var patents = [[String: Any]]()
-    private var publications = [[String: Any]]()
+    private var publications = [Publication]()
     private var hasEducation: Bool = false
     private var education = [[String: String]]()
     private var experience = [[String: String]]()
@@ -119,6 +119,8 @@ class UserProfileViewController: UIViewController {
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTap)))
         return iv
     }()
+    
+    
         
     
     //MARK: - Lifecycle
@@ -625,7 +627,7 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchPublications() {
+    func fetchPublications(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchPublications(forUid: uid) { result in
             switch result {
@@ -634,8 +636,13 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
+                
                 self.publications = publications
-                self.checkIfAllUserInformationIsFetched()
+                if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
             case .failure(_):
                 print("No publications")
             }
@@ -856,7 +863,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             
         } else if indexPath.section == 8 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
-            cell.set(publicationInfo: publications[indexPath.row])
+            cell.set(publication: publications[indexPath.row])
             if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true }
             cell.delegate = self
             return cell
@@ -926,7 +933,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         } else if indexPath.section == 8 {
             //header.set(title: "Publications")
             header.configureWith(title: "Publications", linkText: "See All")
-            if publications.count < 3 { header.hideSeeAllButton() }
+            if publications.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 9 {
             //header.set(title: "Languages")
             header.configureWith(title: "Languages", linkText: "See All")
@@ -942,7 +949,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(indexPath.section)
         if indexPath.section == 1 {
             // About
             let controller = AboutSectionViewController(section: aboutText)
@@ -1039,11 +1045,30 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     }
                 }
             }
-        } else if indexPath.section == 9 {
+        } else if indexPath.section == 8 {
+            guard user.isCurrentUser else { return }
+            let controller = AddPublicationViewController(user: user, previousPublication: publications[indexPath.row])
+            //controller.userIsEditing = true
+            controller.delegate = self
+            controller.title = "Publication"
+            controller.hidesBottomBarWhenPushed = true
+            //controller.configureWithPublication(publication: publications[indexPath.row])
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+
+            navigationController?.pushViewController(controller, animated: true)
+        }
+        
+        else if indexPath.section == 9 {
             guard user.isCurrentUser else { return }
             let controller = AddLanguageViewController()
             controller.userIsEditing = true
+            controller.title = "Language"
             controller.delegate = self
+            controller.hidesBottomBarWhenPushed = true
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
@@ -1339,8 +1364,19 @@ extension UserProfileViewController: UserProfilePublicationCellDelegate {
     
 }
 
-extension UserProfileViewController: AddLanguageViewControllerDelegate {
-    func handleLanguageUpdate() {
+extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPublicationViewControllerDelegate {
+    func deleteLanguage(language: Language) {
+        if let languageIndex = languages.firstIndex(where: { $0.name == language.name }) {
+            languages.remove(at: languageIndex)
+            collectionView.deleteItems(at: [IndexPath(item: languageIndex, section: 8)])
+        }
+    }
+    
+    func handleUpdatePublication(publication: Publication) {
+        fetchNewPublicationValues()
+    }
+    
+    func handleLanguageUpdate(language: Language) {
         updateLanguageValues()
     }
 }
@@ -1373,7 +1409,14 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
     
     func fetchNewPublicationValues() {
-        fetchPublications()
+        fetchPublications(isUpdatingValues: true)
+    }
+    
+    func handleDeletePublication(publication: Publication) {
+        if let publicationIndex = publications.firstIndex(where: { $0.title == publication.title }) {
+            publications.remove(at: publicationIndex)
+            collectionView.deleteItems(at: [IndexPath(item: publicationIndex, section: 8)])
+        }
     }
     
     func fetchNewPatentValues() {

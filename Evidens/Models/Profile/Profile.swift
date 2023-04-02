@@ -12,3 +12,10 @@ struct Language {
     var proficiency: String
     
 }
+
+struct Publication {
+    var title: String
+    var url: String
+    var date: String
+    var contributorUids: [String]
+}

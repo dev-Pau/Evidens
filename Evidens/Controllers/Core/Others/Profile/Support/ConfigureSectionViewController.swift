@@ -115,10 +115,12 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
         } else if indexPath.row == 4 {
             let controller = AddPublicationViewController(user: user)
             controller.delegate = self
+            controller.hidesBottomBarWhenPushed = true
             controller.title = "Publication"
             navigationController?.pushViewController(controller, animated: true)
         } else {
             let controller = AddLanguageViewController()
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = "Language"
             navigationController?.pushViewController(controller, animated: true)
@@ -127,12 +129,20 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
 }
 
 extension ConfigureSectionViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+
+    func handleDeletePublication(publication: Publication) {
+        handleUpdatePublication(publication: publication)
+    }
     
-    func handleLanguageUpdate() {
+    func handleLanguageUpdate(language: Language) {
         delegate?.languageSectionDidChange()
     }
     
-    func handleUpdatePublication() {
+    func deleteLanguage(language: Language) {
+        handleLanguageUpdate(language: language)
+    }
+    
+    func handleUpdatePublication(publication: Publication) {
         delegate?.publicationSectionDidChange()
     }
     

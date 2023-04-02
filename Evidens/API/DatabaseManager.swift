@@ -769,7 +769,6 @@ extension DatabaseManager {
     }
     
     public func deleteLanguage(language: Language, completion: @escaping(Bool) -> Void) {
-        print(language)
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: language.name)
         ref.observeSingleEvent(of: .value) { snapshot in
@@ -865,69 +864,73 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func uploadPublication(title: String, url: String, date: String, contributors: [String], completion: @escaping(Bool) -> Void) {
+    public func uploadPublication(publication: Publication, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let publicationData = ["title": title,
-                               "url": url,
-                               "date": date,
-                               "contributors": contributors] as [String: Any]
-        
+        let publicationData = ["title": publication.title,
+                               "url": publication.url,
+                               "date": publication.date,
+                               "contributors": publication.contributorUids] as [String: Any]
+      
         let ref = database.child("users").child(uid).child("profile").child("publications").childByAutoId()
-        
-        
-        
+
         ref.setValue(publicationData) { error, _ in
             if let _ = error {
                 completion(false)
                 return
                 
             }
+            completion(true)
         }
-        completion(true)
     }
     
-    
-    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+    public func fetchPublications(forUid uid: String, completion: @escaping(Result<[Publication], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("publications")
-        var recentPublications = [[String: Any]]()
-        
+        var publicationData = [[String: Any]]()
+        //var recentPublications = [Publication]()
+
         ref.observeSingleEvent(of: .value) { snapshot in
             guard snapshot.exists() else {
-                completion(.success(recentPublications))
+                completion(.success([Publication]()))
                 return
             }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
-                recentPublications.append(value)
-                if recentPublications.count == snapshot.children.allObjects.count {
-                    completion(.success(recentPublications))
+                publicationData.append(value)
+                if publicationData.count == snapshot.children.allObjects.count {
+                    let publications: [Publication] = publicationData.compactMap { dictionary in
+                        guard let title = dictionary["title"] as? String,
+                              let url = dictionary["url"] as? String,
+                              let date = dictionary["date"] as? String,
+                              let contributors = dictionary["contributors"] as? [String] else { return nil }
+                        return Publication(title: title, url: url, date: date, contributorUids: contributors)
+                    }
+                    completion(.success(publications))
                 }
             }
         }
     }
     
-    public func updatePublication(previousPublication: String, publicationTitle: String, publicationUrl: String, publicationDate: String, contributors: [String], completion: @escaping(Bool) -> Void) {
+    public func updatePublication(from oldPublication: Publication, to newPublication: Publication, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let publicationData = ["title": publicationTitle,
-                               "url": publicationUrl,
-                               "date": publicationDate,
-                               "contributors": contributors] as [String: Any]
-        
-        //let ref = database.child("users").child(uid).child("languages").queryOrdered(byChild: "languageName").queryEqual(toValue: previousLanguage)
-        let ref = database.child("users").child(uid).child("profile").child("publications").queryOrdered(byChild: "title").queryEqual(toValue: previousPublication)
+        let publicationData = ["title": newPublication.title,
+                               "url": newPublication.url,
+                               "date": newPublication.date,
+                               "contributors": newPublication.contributorUids] as [String: Any]
+
+        let ref = database.child("users").child(uid).child("profile").child("publications").queryOrdered(byChild: "title").queryEqual(toValue: oldPublication.title)
         
         ref.observeSingleEvent(of: .value) { snapshot in
-            print(snapshot)
+            guard snapshot.exists() else {
+                completion(false)
+                return
+            }
+            
             if let value = snapshot.value as? [String: Any] {
-                
                 guard let key = value.first?.key else { return }
-
                 let newRef = self.database.child("users").child(uid).child("profile").child("publications").child(key)
                 newRef.setValue(publicationData) { error, _ in
-                    if let error = error {
-                        print(error)
+                    guard error == nil else {
                         completion(false)
                         return
                     }
@@ -936,6 +939,28 @@ extension DatabaseManager {
             }
         }
     }
+    
+    public func deletePublication(publication: Publication, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users").child(uid).child("profile").child("publications").queryOrdered(byChild: "title").queryEqual(toValue: publication.title)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if let value = snapshot.value as? [String: Any] {
+                guard let key = value.first?.key else { return }
+                
+                let newRef = self.database.child("users").child(uid).child("profile").child("publications").child(key)
+                newRef.removeValue { error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                    
+                    completion(true)
+                }
+            }
+        }
+    }
+    
+    
 }
 
 //MARK: - User Education

@@ -10,18 +10,12 @@ import UIKit
 private let userCellReuseIdentifier = "UserCellReuseIdentifier"
 
 protocol UserProfilePublicationCellDelegate: AnyObject {
-    func didTapEditPublication(_ cell: UICollectionViewCell, publicationTitle: String, publicationDate: String, publicationUrl: String)
     func didTapShowContributors(users: [User])
 }
 
 class UserProfilePublicationCell: UICollectionViewCell {
     
-    var users: [User]? {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
-    
+    private var users = [User]()
     weak var delegate: UserProfilePublicationCellDelegate?
     
     private let publicationTitleLabel: UILabel = {
@@ -29,7 +23,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
         label.numberOfLines = 2
         label.textColor = .label
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -41,18 +35,6 @@ class UserProfilePublicationCell: UICollectionViewCell {
         iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
-    }()
-    
-    lazy var buttonImage: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        button.configuration?.buttonSize = .mini
-        button.isHidden = true
-        button.isUserInteractionEnabled = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleEditPublication), for: .touchUpInside)
-        return button
     }()
     
     private let publicationDateLabel: UILabel = {
@@ -114,14 +96,14 @@ class UserProfilePublicationCell: UICollectionViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
         backgroundColor = .systemBackground
-        addSubviews(publicationTitleLabel, collectionView, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, buttonImage, separatorView)
+        addSubviews(publicationTitleLabel, collectionView, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, separatorView)
         
         NSLayoutConstraint.activate([
             publicationTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             publicationTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             publicationTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            urlImage.topAnchor.constraint(equalTo: publicationTitleLabel.bottomAnchor, constant: 10),
+            urlImage.topAnchor.constraint(equalTo: publicationTitleLabel.bottomAnchor, constant: 5),
             urlImage.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
             urlImage.widthAnchor.constraint(equalToConstant: 15),
             urlImage.heightAnchor.constraint(equalToConstant: 15),
@@ -130,7 +112,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
             publicationUrlLabel.leadingAnchor.constraint(equalTo: urlImage.trailingAnchor, constant: 10),
             publicationUrlLabel.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
             
-            calendarImage.topAnchor.constraint(equalTo: publicationUrlLabel.bottomAnchor, constant: 10),
+            calendarImage.topAnchor.constraint(equalTo: publicationUrlLabel.bottomAnchor, constant: 5),
             calendarImage.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
             calendarImage.widthAnchor.constraint(equalToConstant: 15),
             calendarImage.heightAnchor.constraint(equalToConstant: 15),
@@ -140,14 +122,10 @@ class UserProfilePublicationCell: UICollectionViewCell {
             publicationDateLabel.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
             publicationDateLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -52),
             
-            collectionView.topAnchor.constraint(equalTo: publicationDateLabel.bottomAnchor, constant: 10),
+            collectionView.topAnchor.constraint(equalTo: publicationDateLabel.bottomAnchor, constant: 5),
             collectionView.leadingAnchor.constraint(equalTo: calendarImage.leadingAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 32),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -156,21 +134,13 @@ class UserProfilePublicationCell: UICollectionViewCell {
         ])
     }
     
-    @objc func handleEditPublication() {
-        guard let title = publicationTitleLabel.text, let date = publicationDateLabel.text, let url = publicationUrlLabel.text else { return }
-        delegate?.didTapEditPublication(self, publicationTitle: title, publicationDate: date, publicationUrl: url)
-    }
-    
-    func set(publicationInfo: [String: Any]) {
-        publicationTitleLabel.text = publicationInfo["title"] as? String
-        publicationUrlLabel.text = publicationInfo["url"] as? String
-        publicationDateLabel.text = publicationInfo["date"] as? String
-        
-        if let contributorsUid = publicationInfo["contributors"] as? [String] {
-            UserService.fetchUsers(withUids: contributorsUid) { users in
-                self.users = users
-                self.collectionView.reloadData()
-            }
+    func set(publication: Publication) {
+        publicationTitleLabel.text = publication.title
+        publicationUrlLabel.text = publication.url
+        publicationDateLabel.text = publication.date
+        UserService.fetchUsers(withUids: publication.contributorUids) { users in
+            self.users = users
+            self.collectionView.reloadData()
         }
     }
 }
@@ -179,12 +149,12 @@ class UserProfilePublicationCell: UICollectionViewCell {
 extension UserProfilePublicationCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return users?.count ?? 0
+        return users.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: userCellReuseIdentifier, for: indexPath) as! GroupUserCell
-        cell.set(user: users?[indexPath.row] ?? User(dictionary: [:]))
+        cell.set(user: users[indexPath.row])
         return cell
     }
     
@@ -197,7 +167,7 @@ extension UserProfilePublicationCell: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let users = users, users.count > 1 else { return }
+        guard !users.isEmpty else { return }
         delegate?.didTapShowContributors(users: users)
     }
 }

@@ -114,11 +114,10 @@ class LanguageSectionViewController: UIViewController {
         backItem.title = ""
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
-        
+        controller.hidesBottomBarWhenPushed = true
         controller.configureWithLanguage(language: languages[indexPath.row])
         navigationController?.pushViewController(controller, animated: true)
     }
-    
 }
 
 extension LanguageSectionViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -133,28 +132,36 @@ extension LanguageSectionViewController: UICollectionViewDataSource, UICollectio
         cell.buttonImage.isUserInteractionEnabled = isCurrentUser ? true : false
         return cell
     }
-}
-
-/*
-extension LanguageSectionViewController: UserProfileLanguageCellDelegate {
-    func didTapEditLanguage(_ cell: UICollectionViewCell, languageName: String, languageProficiency: String) {
-        if let index = collectionView.indexPath(for: cell) {
-            let controller = AddLanguageViewController()
-            controller.userIsEditing = true
-            controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
-            controller.configureWithLanguage(language: languages[index.row])
-            navigationController?.pushViewController(controller, animated: true)
-        }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let controller = AddLanguageViewController()
+        controller.userIsEditing = true
+        controller.delegate = self
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        controller.hidesBottomBarWhenPushed = true
+        navigationItem.backBarButtonItem = backItem
+        
+        controller.configureWithLanguage(language: languages[indexPath.row])
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
-*/
+
 extension LanguageSectionViewController: AddLanguageViewControllerDelegate {
-    func handleLanguageUpdate() {
+    func handleLanguageUpdate(language: Language) {
         delegate?.updateLanguageValues()
+        if let languageIndex = languages.firstIndex(where: { $0.name == language.name }) {
+            languages[languageIndex] = language
+            collectionView.reloadData()
+        }
+
+    }
+    
+    func deleteLanguage(language: Language) {
+        if let languageIndex = languages.firstIndex(where: { $0.name == language.name }) {
+            languages.remove(at: languageIndex)
+            collectionView.deleteItems(at: [IndexPath(item: languageIndex, section: 0)])
+        }
     }
 }

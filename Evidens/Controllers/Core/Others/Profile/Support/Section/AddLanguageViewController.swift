@@ -9,7 +9,8 @@ import UIKit
 import JGProgressHUD
 
 protocol AddLanguageViewControllerDelegate: AnyObject {
-    func handleLanguageUpdate()
+    func handleLanguageUpdate(language: Language)
+    func deleteLanguage(language: Language)
 }
 
 class AddLanguageViewController: UIViewController {
@@ -19,15 +20,9 @@ class AddLanguageViewController: UIViewController {
     public var completion: (([String]) -> (Void))?
     
     var userIsEditing = false
-    private var previousLanguage: String = ""
-    
+
     private var language = Language(name: "", proficiency: "")
-    
-    private var languageSelected: String = ""
-    private var proficiencySelected: String = ""
-    
     private let progressIndicator = JGProgressHUD()
-    
     private var textFieldChanged: UITextField!
 
     private let scrollView: UIScrollView = {
@@ -108,6 +103,24 @@ class AddLanguageViewController: UIViewController {
         return tf
     }()
     
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 19, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
+    
+        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseForegroundColor = .white
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleDeleteLanguage), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -116,8 +129,10 @@ class AddLanguageViewController: UIViewController {
 
     
     private func configureNavigationBar() {
+        title = "Language"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
         titleLabel.text = userIsEditing ? "Edit Language" : "Add Language"
+        deleteButton.isHidden = userIsEditing ? false : true
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -129,7 +144,7 @@ class AddLanguageViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(languageLabel, titleLabel, infoLabel, languageTextField, languageProficiencyLabel, languageProficiencyTextField)
+        scrollView.addSubviews(languageLabel, titleLabel, infoLabel, languageTextField, languageProficiencyLabel, languageProficiencyTextField, deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -145,7 +160,7 @@ class AddLanguageViewController: UIViewController {
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            languageTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 60),
+            languageTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
             languageTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             languageTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             languageTextField.heightAnchor.constraint(equalToConstant: 35),
@@ -161,7 +176,12 @@ class AddLanguageViewController: UIViewController {
             
             languageProficiencyLabel.bottomAnchor.constraint(equalTo: languageProficiencyTextField.topAnchor, constant: -2),
             languageProficiencyLabel.leadingAnchor.constraint(equalTo: languageProficiencyTextField.leadingAnchor),
-            languageProficiencyLabel.trailingAnchor.constraint(equalTo: languageProficiencyTextField.trailingAnchor)
+            languageProficiencyLabel.trailingAnchor.constraint(equalTo: languageProficiencyTextField.trailingAnchor),
+            
+            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            deleteButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -178,7 +198,7 @@ class AddLanguageViewController: UIViewController {
                     return
                 }
                 // Language has been uploaded successfully. Dismiss the current view & upload the profile
-                self.delegate?.handleLanguageUpdate()
+                self.delegate?.handleLanguageUpdate(language: self.language)
                 self.navigationController?.popViewController(animated: true)
                 
             }
@@ -186,15 +206,9 @@ class AddLanguageViewController: UIViewController {
             DatabaseManager.shared.updateLanguage(language: language) { uploaded in
                 if uploaded {
                     self.progressIndicator.dismiss(animated: true)
-                    self.delegate?.handleLanguageUpdate()
+                    self.delegate?.handleLanguageUpdate(language: self.language)
                     self.navigationController?.popViewController(animated: true)
                 }
-
-                /*
-                if let count = self.navigationController?.viewControllers.count {
-                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
-                }
-                 */
             }
         }
     }
@@ -221,6 +235,19 @@ class AddLanguageViewController: UIViewController {
         guard let language = languageTextField.text, let proficiency = languageProficiencyTextField.text else { return }
         navigationItem.rightBarButtonItem?.isEnabled = !language.isEmpty && !proficiency.isEmpty ? true : false
 
+    }
+    
+    @objc func handleDeleteLanguage() {
+        displayMEDestructiveAlert(withTitle: "Delete Language", withMessage: "Are you sure you want to delete \(language.name) from your profile?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            self.progressIndicator.show(in: self.view)
+            DatabaseManager.shared.deleteLanguage(language: self.language) { deleted in
+                self.progressIndicator.dismiss(animated: true)
+                if deleted {
+                    self.delegate?.deleteLanguage(language: self.language)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
     }
     
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
