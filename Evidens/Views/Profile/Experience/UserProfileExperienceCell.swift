@@ -6,14 +6,8 @@
 //
 
 import UIKit
-
-protocol UserProfileExperienceCellDelegate: AnyObject {
-    func didTapEditExperience(_ cell: UICollectionViewCell, company: String, role: String, startDate: String, endDate: String)
-}
-
+ 
 class UserProfileExperienceCell: UICollectionViewCell {
-    
-    weak var delegate: UserProfileExperienceCellDelegate?
     
     private let professionCenterTitleLabel: UILabel = {
         let label = UILabel()
@@ -61,18 +55,6 @@ class UserProfileExperienceCell: UICollectionViewCell {
         return view
     }()
     
-    lazy var buttonImage: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        button.configuration?.buttonSize = .mini
-        button.isHidden = true
-        button.isUserInteractionEnabled = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleEditProfession), for: .touchUpInside)
-        return button
-    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -84,7 +66,7 @@ class UserProfileExperienceCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, separatorView, buttonImage)
+        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, separatorView)
         
         NSLayoutConstraint.activate([
             professionCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -105,10 +87,6 @@ class UserProfileExperienceCell: UICollectionViewCell {
             jobIntervalLabel.trailingAnchor.constraint(equalTo: professionJobTitleLabel.trailingAnchor),
             jobIntervalLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            
-            
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -116,18 +94,9 @@ class UserProfileExperienceCell: UICollectionViewCell {
         ])
     }
     
-    func set(experienceInfo: [String: String]) {
-        professionCenterTitleLabel.text = experienceInfo["company"]
-        professionJobTitleLabel.text = experienceInfo["role"]
-        jobIntervalLabel.text = experienceInfo["startDate"]! + " - " + experienceInfo["endDate"]!
+    func set(experience: Experience) {
+        professionCenterTitleLabel.text = experience.company
+        professionJobTitleLabel.text = experience.role
+        jobIntervalLabel.text = experience.startDate + " - " + experience.endDate
     }
-    
-    @objc func handleEditProfession() {
-        guard let company = professionCenterTitleLabel.text, let role = professionJobTitleLabel.text, let date = jobIntervalLabel.text else { return }
-       
-        let dateArray = date.split(separator: "-")
-
-        delegate?.didTapEditExperience(self, company: company, role: role, startDate: String(dateArray[0]), endDate: String(dateArray[1]))
-    }
-    
 }

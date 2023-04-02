@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 protocol AddExperienceViewControllerDelegate: AnyObject {
-    func handleUpdateExperience()
+    func handleUpdateExperience(experience: Experience)
+    func handleDeleteExperience(experience: Experience)
 }
 
 class AddExperienceViewController: UIViewController {
@@ -17,10 +19,12 @@ class AddExperienceViewController: UIViewController {
     
     private var conditionIsSelected: Bool = false
     
+    private let progressIndicator = JGProgressHUD()
+    
     private var userIsEditing = false
-    private var previousExperience: String = ""
-    private var previousCompany: String = ""
-    private var previousRole: String = ""
+
+    private let previousExperience: Experience?
+    private var experience = Experience(role: "", company: "", startDate: "", endDate: "")
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -195,15 +199,44 @@ class AddExperienceViewController: UIViewController {
         return picker
     }()
     
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 19, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
+    
+        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseForegroundColor = .white
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleDeleteExperience), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureDatePicker()
         configureUI()
+        configureWithExperience(experience: previousExperience)
+    }
+    
+    init(previousExperience: Experience? = nil) {
+        self.previousExperience = previousExperience
+        if let _ = previousExperience { self.userIsEditing = true }
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -230,6 +263,10 @@ class AddExperienceViewController: UIViewController {
     }
     
     private func configureUI() {
+        title = "Experience"
+        titleLabel.text = userIsEditing ? "Edit Experience" : "Add Experience"
+        deleteButton.isHidden = userIsEditing ? false : true
+        
         roleLabel.attributedText = generateSuperscriptFor(text: "Role")
         companyLabel.attributedText = generateSuperscriptFor(text: "Company")
         startDateLabel.attributedText = generateSuperscriptFor(text: "Start date")
@@ -238,7 +275,7 @@ class AddExperienceViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(roleLabel, titleLabel, infoLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
+        scrollView.addSubviews(roleLabel, titleLabel, infoLabel, roleTextField, companyLabel, companyTextField, squareButton, professionConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView, deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -254,7 +291,7 @@ class AddExperienceViewController: UIViewController {
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            roleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
+            roleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
             roleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             roleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             roleTextField.heightAnchor.constraint(equalToConstant: 35),
@@ -303,7 +340,12 @@ class AddExperienceViewController: UIViewController {
             startDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
             
             endDateLabel.bottomAnchor.constraint(equalTo: endDateTextField.topAnchor, constant: -2),
-            endDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor)
+            endDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
+            
+            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            deleteButton.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
     
@@ -314,26 +356,33 @@ class AddExperienceViewController: UIViewController {
     }
     
     @objc func handleDone() {
-        guard let role = roleTextField.text, let company = companyTextField.text, let startDateText = startDateTextField.text, let endDateText = endDateTextField.text else { return }
+        guard let role = roleTextField.text, let company = companyTextField.text, let startDateText = startDateTextField.text else { return }
         
-        let dateText = conditionIsSelected ? "Present" : endDateText
+        let dateText = conditionIsSelected ? "Present" : endDateTextField.text
         
-        showLoadingView()
+        experience.role = role
+        experience.company = company
+        experience.startDate = startDateText
+        experience.endDate = dateText ?? "Present"
+
+        progressIndicator.show(in: view)
         
         if userIsEditing {
-            DatabaseManager.shared.updateExperience(previousCompany: previousCompany, previousRole: previousRole, company: company, role: role, startDate: startDateText, endDate: endDateText) { uploaded in
-                self.dismissLoadingView()
-                self.delegate?.handleUpdateExperience()
-                if let count = self.navigationController?.viewControllers.count {
-                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+            guard let previousExperience = previousExperience else { return }
+            DatabaseManager.shared.updateExperience(from: previousExperience, to: experience) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    self.delegate?.handleUpdateExperience(experience: self.experience)
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
-            
         } else {
-            DatabaseManager.shared.uploadExperience(role: role, company: company, startDate: startDateText, endDate: dateText) { uploaded in
-                self.dismissLoadingView()
-                self.delegate?.handleUpdateExperience()
-                self.navigationController?.popViewController(animated: true)
+            DatabaseManager.shared.uploadExperience(experience: experience) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    self.delegate?.handleUpdateExperience(experience: self.experience)
+                    self.navigationController?.popViewController(animated: true)
+                }
             }
         }
     }
@@ -411,6 +460,20 @@ class AddExperienceViewController: UIViewController {
         updateExperienceForm()
     }
     
+    @objc func handleDeleteExperience() {
+        guard let previousExperience = previousExperience else { return }
+        displayMEDestructiveAlert(withTitle: "Delete Experience", withMessage: "Are you sure you want to delete this experience?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            self.progressIndicator.show(in: self.view)
+            DatabaseManager.shared.deleteExperience(experience: previousExperience) { deleted in
+                self.progressIndicator.dismiss(animated: true)
+                if deleted {
+                    self.delegate?.handleDeleteExperience(experience: self.experience)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
+    }
+    
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
         let text = "\(text) *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
@@ -418,16 +481,13 @@ class AddExperienceViewController: UIViewController {
         return attrString
     }
     
-    func configureWithProfession(company: String, role: String, startDate: String, endDate: String) {
-        userIsEditing = true
-        previousCompany = company
-        previousRole = role
+    func configureWithExperience(experience: Experience?) {
+        guard let experience = experience else { return }
+        companyTextField.text = experience.company
+        roleTextField.text = experience.role
 
-        companyTextField.text = company
-        roleTextField.text = role
-
-        startDateTextField.text = startDate
-        endDateTextField.text = endDate
+        startDateTextField.text = experience.startDate
+        endDateTextField.text = experience.endDate
     
         textDidChange(companyTextField)
         textDidChange(roleTextField)

@@ -6,22 +6,25 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 protocol AddEducationViewControllerDelegate: AnyObject {
-    func handleUpdateEducation()
+    func handleUpdateEducation(education: Education)
+    func handleDeleteEducation(education: Education)
 }
 
 class AddEducationViewController: UIViewController {
     
     weak var delegate: AddEducationViewControllerDelegate?
     
+    private let progressIndicator = JGProgressHUD()
+    
     private var conditionIsSelected: Bool = false
     
     private var userIsEditing = false
-    private var previousDegree: String = ""
-    private var previousSchool: String = ""
-    private var previousField: String = ""
     
+    private let previousEducation: Education?
+    private var education = Education(school: "", degree: "", fieldOfStudy: "", startDate: "", endDate: "")
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -218,15 +221,44 @@ class AddEducationViewController: UIViewController {
         return picker
     }()
     
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 19, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
+    
+        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseForegroundColor = .white
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleDeleteEducation), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureDatePicker()
         configureUI()
+        configureWithEducation(education: previousEducation)
+    }
+    
+    init(previousEducation: Education? = nil) {
+        self.previousEducation = previousEducation
+        if let _ = previousEducation { self.userIsEditing = true }
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -253,16 +285,20 @@ class AddEducationViewController: UIViewController {
     }
     
     private func configureUI() {
+        title = "Education"
+        titleLabel.text = userIsEditing ? "Edit Education" : "Add Education"
+        deleteButton.isHidden = userIsEditing ? false : true
+        
         schoolLabel.attributedText = generateSuperscriptFor(text: "School")
         degreeTypeLabel.attributedText = generateSuperscriptFor(text: "Degree")
-        fieldOfStudyLabel.attributedText = generateSuperscriptFor(text: "Field of study")
-        startDateLabel.attributedText = generateSuperscriptFor(text: "Start date")
-        endDateLabel.attributedText = generateSuperscriptFor(text: "End date")
+        fieldOfStudyLabel.attributedText = generateSuperscriptFor(text: "Field of Study")
+        startDateLabel.attributedText = generateSuperscriptFor(text: "Start Date")
+        endDateLabel.attributedText = generateSuperscriptFor(text: "End Date")
         
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(schoolLabel, titleLabel, infoLabel, schoolTextField, degreeTypeLabel, degreeTypeTextField, fieldOfStudyLabel, fieldOfStudyTextField, squareButton, educationConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView)
+        scrollView.addSubviews(schoolLabel, titleLabel, infoLabel, schoolTextField, degreeTypeLabel, degreeTypeTextField, fieldOfStudyLabel, fieldOfStudyTextField, squareButton, educationConditionsLabel, startDateLabel, endDateLabel, startDateTextField, endDateTextField, separatorView, bottomSeparatorView, deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -278,7 +314,7 @@ class AddEducationViewController: UIViewController {
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
-            schoolTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
+            schoolTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
             schoolTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             schoolTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             schoolTextField.heightAnchor.constraint(equalToConstant: 35),
@@ -336,7 +372,12 @@ class AddEducationViewController: UIViewController {
             startDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
             
             endDateLabel.bottomAnchor.constraint(equalTo: endDateTextField.topAnchor, constant: -2),
-            endDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor)
+            endDateLabel.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),
+            
+            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            deleteButton.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
     
@@ -347,28 +388,35 @@ class AddEducationViewController: UIViewController {
     }
     
     @objc func handleDone() {
-        guard let school = schoolTextField.text, let degree = degreeTypeTextField.text, let field = fieldOfStudyTextField.text, let startDate = startDateTextField.text, let endDate = endDateTextField.text else { return }
+        guard let school = schoolTextField.text, let degree = degreeTypeTextField.text, let field = fieldOfStudyTextField.text, let startDate = startDateTextField.text else { return }
+        // , let endDate = endDateTextField.text
         
-        let endDateText = conditionIsSelected ? "Present" : endDate
+        let endDateText = conditionIsSelected ? "Present" : endDateTextField.text
         
-        showLoadingView()
+        education.school = school
+        education.degree = degree
+        education.fieldOfStudy = field
+        education.startDate = startDate
+        education.endDate = endDateText ?? "Present"
+        
+        progressIndicator.show(in: view)
         
         if userIsEditing {
-            DatabaseManager.shared.updateEducation(previousDegree: previousDegree, previousSchool: previousSchool, previousField: previousField, school: school, degree: degree, field: field, startDate: startDate, endDate: endDate) { uploaded in
-                print("upldated education")
-                self.dismissLoadingView()
-                self.delegate?.handleUpdateEducation()
-                if let count = self.navigationController?.viewControllers.count {
-                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+            guard let previousEducation = previousEducation else { return }
+            DatabaseManager.shared.updateEducation(from: previousEducation, to: education) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    self.delegate?.handleUpdateEducation(education: self.education)
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
         } else {
-            
-            DatabaseManager.shared.uploadEducation(school: school, degree: degree, field: field, startDate: startDate, endDate: endDateText) { uploaded in
-                print("Uploaded education")
-                self.dismissLoadingView()
-                self.delegate?.handleUpdateEducation()
-                self.navigationController?.popViewController(animated: true)
+            DatabaseManager.shared.uploadEducation(education: education) { uploaded in
+                self.progressIndicator.dismiss(animated: true)
+                if uploaded {
+                    self.delegate?.handleUpdateEducation(education: self.education)
+                    self.navigationController?.popViewController(animated: true)
+                }
             }
         }
     }
@@ -455,6 +503,20 @@ class AddEducationViewController: UIViewController {
         updateEducationModel()
     }
     
+    @objc func handleDeleteEducation() {
+        guard let previousEducation = previousEducation else { return }
+        displayMEDestructiveAlert(withTitle: "Delete Education", withMessage: "Are you sure you want to delete this education?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            self.progressIndicator.show(in: self.view)
+            DatabaseManager.shared.deleteEducation(education: previousEducation) { deleted in
+                self.progressIndicator.dismiss(animated: true)
+                if deleted {
+                    self.delegate?.handleDeleteEducation(education: previousEducation)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
+    }
+    
     func generateSuperscriptFor(text: String) -> NSMutableAttributedString {
         let text = "\(text) *"
         let attrString = NSMutableAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
@@ -462,18 +524,14 @@ class AddEducationViewController: UIViewController {
         return attrString
     }
     
-    func configureWithPublication(school: String, degree: String, field: String, startDate: String, endDate: String) {
-        userIsEditing = true
-        previousDegree = degree
-        previousSchool = school
-        previousField = field
-
-        schoolTextField.text = school
-        degreeTypeTextField.text = degree
-        fieldOfStudyTextField.text = field
+    func configureWithEducation(education: Education?) {
+        guard let education = education else { return }
+        schoolTextField.text = education.school
+        degreeTypeTextField.text = education.degree
+        fieldOfStudyTextField.text = education.fieldOfStudy
         
-        startDateTextField.text = startDate
-        endDateTextField.text = endDate
+        startDateTextField.text = education.startDate
+        endDateTextField.text = education.endDate
     
         textDidChange(schoolTextField)
         textDidChange(degreeTypeTextField)

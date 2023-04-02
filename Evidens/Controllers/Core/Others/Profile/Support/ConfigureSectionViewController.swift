@@ -95,27 +95,30 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
             let controller = AddAboutViewController()
             controller.delegate = self
             controller.title = "About"
+            controller.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(controller, animated: true)
-            
         } else if indexPath.row == 1 {
             let controller = AddExperienceViewController()
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = "Experience"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 2 {
             let controller = AddEducationViewController()
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = "Education"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 3 {
             let controller = AddPatentViewController(user: user)
+            controller.hidesBottomBarWhenPushed = true
             controller.delegate = self
             controller.title = "Patent"
             navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.row == 4 {
             let controller = AddPublicationViewController(user: user)
-            controller.delegate = self
             controller.hidesBottomBarWhenPushed = true
+            controller.delegate = self
             controller.title = "Publication"
             navigationController?.pushViewController(controller, animated: true)
         } else {
@@ -129,6 +132,19 @@ extension ConfigureSectionViewController: UICollectionViewDelegateFlowLayout, UI
 }
 
 extension ConfigureSectionViewController: AddAboutViewControllerDelegate, AddExperienceViewControllerDelegate, AddEducationViewControllerDelegate, AddPatentViewControllerDelegate, AddPublicationViewControllerDelegate, AddLanguageViewControllerDelegate {
+    func handleUpdateExperience(experience: Experience) {
+        handleUpdateExperience()
+    }
+    
+    func handleDeleteExperience(experience: Experience) {
+        handleUpdateExperience(experience: experience)
+    }
+    
+
+    func handleDeleteEducation(education: Education) {
+        handleUpdateEducation(education: education)
+    }
+    
 
     func handleDeletePublication(publication: Publication) {
         handleUpdatePublication(publication: publication)
@@ -146,11 +162,15 @@ extension ConfigureSectionViewController: AddAboutViewControllerDelegate, AddExp
         delegate?.publicationSectionDidChange()
     }
     
-    func handleUpdatePatent() {
+    func handleDeletePatent(patent: Patent) {
+        handleUpdatePatent(patent: patent)
+    }
+    
+    func handleUpdatePatent(patent: Patent) {
         delegate?.patentSectionDidChange()
     }
     
-    func handleUpdateEducation() {
+    func handleUpdateEducation(education: Education) {
         delegate?.educationSectionDidChange()
     }
     

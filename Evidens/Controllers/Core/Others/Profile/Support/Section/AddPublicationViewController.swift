@@ -29,7 +29,7 @@ class AddPublicationViewController: UIViewController {
     private let previousPublication: Publication?
     private var publication = Publication(title: "", url: "", date: "", contributorUids: [])
     
-    var userIsEditing = false
+    private var userIsEditing = false
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -328,7 +328,7 @@ class AddPublicationViewController: UIViewController {
             
             contributorsDescriptionLabel.topAnchor.constraint(equalTo: contributorsLabel.bottomAnchor, constant: 5),
             contributorsDescriptionLabel.leadingAnchor.constraint(equalTo: contributorsLabel.leadingAnchor),
-            contributorsDescriptionLabel.trailingAnchor.constraint(equalTo: addContributorsButton.trailingAnchor, constant: -10),
+            contributorsDescriptionLabel.trailingAnchor.constraint(equalTo: addContributorsButton.leadingAnchor, constant: -10),
             
             deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),

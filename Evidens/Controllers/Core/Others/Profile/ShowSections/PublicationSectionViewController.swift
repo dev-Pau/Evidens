@@ -130,7 +130,7 @@ extension PublicationSectionViewController: UICollectionViewDataSource, UICollec
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = AddPublicationViewController(user: user, previousPublication: publications[indexPath.row])
-        
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
@@ -158,13 +158,13 @@ extension PublicationSectionViewController: UserProfilePublicationCellDelegate {
 extension PublicationSectionViewController: AddPublicationViewControllerDelegate {
     func handleDeletePublication(publication: Publication) {
         if let publicationIndex = publications.firstIndex(where: { $0.title == publication.title }) {
+            delegate?.fetchNewPublicationValues()
             publications.remove(at: publicationIndex)
             collectionView.deleteItems(at: [IndexPath(item: publicationIndex, section: 0)])
         }
     }
     
     func handleUpdatePublication(publication: Publication) {
-        
         publications[indexPathSelected.row] = publication
         collectionView.reloadData()
         delegate?.fetchNewPublicationValues()

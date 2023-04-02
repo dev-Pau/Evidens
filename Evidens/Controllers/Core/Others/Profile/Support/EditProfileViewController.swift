@@ -21,7 +21,7 @@ protocol EditProfileViewControllerDelegate: AnyObject {
     func didUpdateProfile(user: User)
     func fetchNewUserValues(withUid uid: String)
     func fetchNewAboutValues(withUid uid: String)
-    func fetchNewExperienceValues(withUid uid: String)
+    func fetchNewExperienceValues()
     func fetchNewEducationValues()
     func fetchNewPatentValues()
     func fetchNewPublicationValues()
@@ -429,7 +429,7 @@ extension EditProfileViewController: ConfigureSectionViewControllerDelegate {
     
     func experienceSectionDidChange() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        delegate?.fetchNewExperienceValues(withUid: uid)
+        delegate?.fetchNewExperienceValues()
     }
     
     func aboutSectionDidChange() {

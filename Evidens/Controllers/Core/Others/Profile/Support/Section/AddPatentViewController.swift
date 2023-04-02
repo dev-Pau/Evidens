@@ -11,18 +11,22 @@ import JGProgressHUD
 private let contributorsCellReuseIdentifier = "ContributorsCellReuseIdentifier"
 
 protocol AddPatentViewControllerDelegate: AnyObject {
-    func handleUpdatePatent()
+    func handleUpdatePatent(patent: Patent)
+    func handleDeletePatent(patent: Patent)
 }
 
 class AddPatentViewController: UIViewController {
     
     private let user: User
-    private var contributors: [User]?
+    
+    private var contributorUids = [String]()
+    private var contributors = [User]()
     
     weak var delegate: AddPatentViewControllerDelegate?
     
     private var userIsEditing = false
-    private var previousPatent: String = ""
+    private let previousPatent: Patent?
+    private var patent = Patent(title: "", number: "", contributorUids: [])
     
     private let progressIndicator = JGProgressHUD()
     
@@ -111,7 +115,7 @@ class AddPatentViewController: UIViewController {
         let label = UILabel()
         label.text = "Contributors"
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         return label
@@ -119,8 +123,8 @@ class AddPatentViewController: UIViewController {
     
     private let contributorsDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Worked in group? Add others that contributed to the patent"
-        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.text = "Worked in group? Add others from your network that contributed to the patent"
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
@@ -130,18 +134,30 @@ class AddPatentViewController: UIViewController {
     private lazy var addContributorsButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .medium)
-        button.configuration?.attributedTitle = AttributedString("Contributors ", attributes: container)
-        
-        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        button.configuration?.buttonSize = .small
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))
         button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.imagePlacement = .leading
-        button.configuration?.imagePadding = 5
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddContributors), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.buttonSize = .mini
+        button.configuration?.cornerStyle = .capsule
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 19, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Delete", attributes: container)
+    
+        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseForegroundColor = .white
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleDeletePatent), for: .touchUpInside)
         return button
     }()
     
@@ -151,10 +167,18 @@ class AddPatentViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+        configureWithPatent(patent: previousPatent)
     }
     
-    init(user: User) {
+    init(user: User, previousPatent: Patent? = nil) {
         self.user = user
+        self.previousPatent = previousPatent
+        if let previousPatent = previousPatent {
+            self.contributorUids = previousPatent.contributorUids
+            self.userIsEditing = true
+        } else {
+            contributors = [user]
+        }
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -163,7 +187,7 @@ class AddPatentViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: userIsEditing ? "Edit" : "Add", style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem?.tintColor = primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
@@ -184,6 +208,10 @@ class AddPatentViewController: UIViewController {
     }
     
     private func configureUI() {
+        title = "Patent"
+        titleLabel.text = userIsEditing ? "Edit Patent" : "Add Patent"
+        deleteButton.isHidden = userIsEditing ? false : true
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(UserContributorCell.self, forCellWithReuseIdentifier: contributorsCellReuseIdentifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -196,7 +224,7 @@ class AddPatentViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(patentTitleLabel, titleLabel, infoLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, collectionView)
+        scrollView.addSubviews(patentTitleLabel, titleLabel, infoLabel, patentTitleTextField, patentNumberLabel, patentNumberTextField, separatorView, addContributorsButton, contributorsLabel, contributorsDescriptionLabel, collectionView, deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -213,7 +241,7 @@ class AddPatentViewController: UIViewController {
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             
             
-            patentTitleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 20),
+            patentTitleTextField.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 40),
             patentTitleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             patentTitleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             patentTitleTextField.heightAnchor.constraint(equalToConstant: 35),
@@ -247,10 +275,16 @@ class AddPatentViewController: UIViewController {
             contributorsDescriptionLabel.leadingAnchor.constraint(equalTo: contributorsLabel.leadingAnchor),
             contributorsDescriptionLabel.trailingAnchor.constraint(equalTo: contributorsLabel.trailingAnchor),
             
+            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            deleteButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            
             collectionView.topAnchor.constraint(equalTo: contributorsDescriptionLabel.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 120)
+            collectionView.bottomAnchor.constraint(equalTo: deleteButton.topAnchor)
         ])
     }
     
@@ -265,31 +299,30 @@ class AddPatentViewController: UIViewController {
     
     @objc func handleDone() {
         guard let title = patentTitleTextField.text, let number = patentNumberTextField.text else { return }
-        var patentContributors = [String]()
-        
-        if let contributors = contributors {
-            patentContributors = contributors.map({ $0.uid! })
-        } else {
-            patentContributors = [user.uid!]
-        }
+
+        // Create the new patent to upload or update
+        patent.title = title
+        patent.number = number
+        patent.contributorUids = contributors.map({ $0.uid! })
         
         progressIndicator.show(in: view)
         
         if userIsEditing {
-            DatabaseManager.shared.updatePatent(previousPatent: previousPatent, patentTitle: title, patentNumber: number, contributors: patentContributors) { uploaded in
-
-                self.progressIndicator.dismiss(animated: true)
-                self.delegate?.handleUpdatePatent()
-                if let count = self.navigationController?.viewControllers.count {
-                    self.navigationController?.popToViewController((self.navigationController?.viewControllers[count - 2 - 1])!, animated: true)
+            guard let previousPatent = previousPatent else { return }
+            DatabaseManager.shared.updatePatent(from: previousPatent, to: patent) { uploaded in
+                if uploaded {
+                    self.progressIndicator.dismiss(animated: true)
+                    self.delegate?.handleUpdatePatent(patent: self.patent)
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
         } else {
-            DatabaseManager.shared.uploadPatent(title: title, number: number, contributors: patentContributors) { uploaded in
-                print("result is \(uploaded)")
-                self.progressIndicator.dismiss(animated: true)
-                self.delegate?.handleUpdatePatent()
-                self.navigationController?.popViewController(animated: true)
+            DatabaseManager.shared.uploadPatent(patent: patent) { uploaded in
+                if uploaded {
+                    self.progressIndicator.dismiss(animated: true)
+                    self.delegate?.handleUpdatePatent(patent: self.patent)
+                    self.navigationController?.popViewController(animated: true)
+                }
             }
         }
     }
@@ -316,6 +349,20 @@ class AddPatentViewController: UIViewController {
         updatePatentForm()
     }
     
+    @objc func handleDeletePatent() {
+        guard let previousPatent = previousPatent else { return }
+        displayMEDestructiveAlert(withTitle: "Delete Patent", withMessage: "Are you sure you want to delete this patent?", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
+            self.progressIndicator.show(in: self.view)
+            DatabaseManager.shared.deletePatent(patent: previousPatent) { deleted in
+                self.progressIndicator.dismiss(animated: true)
+                if deleted {
+                    self.delegate?.handleDeletePatent(patent: previousPatent)
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
+    }
+    
     @objc func handleAddContributors() {
         let controller = AddContributorsViewController(user: user, selectedUsers: contributors)
         controller.delegate = self
@@ -336,15 +383,18 @@ class AddPatentViewController: UIViewController {
         return attrString
     }
     
-    func configureWithPublication(patentTitle: String, patentNumber: String, patentDescription: String) {
-        userIsEditing = true
-        previousPatent = patentTitle
-        
-        patentTitleTextField.text = patentTitle
-        patentNumberTextField.text = patentNumber
-     
+    func configureWithPatent(patent: Patent?) {
+        guard let patent = patent else { return }
+        patentTitleTextField.text = patent.title
+        patentNumberTextField.text = patent.number
         textDidChange(patentTitleTextField)
         textDidChange(patentNumberTextField)
+        navigationItem.rightBarButtonItem?.isEnabled = false
+        
+        UserService.fetchUsers(withUids: patent.contributorUids) { users in
+            self.contributors = users
+            self.collectionView.reloadData()
+        }
     }
 }
 
@@ -358,13 +408,13 @@ extension AddPatentViewController: AddContributorsViewControllerDelegate {
 
 extension AddPatentViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return contributors?.count ?? 0
+        return contributors.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: contributorsCellReuseIdentifier, for: indexPath) as! UserContributorCell
         cell.xmarkButton.isHidden = true
-        cell.set(user: contributors![indexPath.row])
+        cell.set(user: contributors[indexPath.row])
         return cell
     }
     

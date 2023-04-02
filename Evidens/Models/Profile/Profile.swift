@@ -19,3 +19,24 @@ struct Publication {
     var date: String
     var contributorUids: [String]
 }
+
+struct Patent {
+    var title: String
+    var number: String
+    var contributorUids: [String]
+}
+
+struct Education {
+    var school: String
+    var degree: String
+    var fieldOfStudy: String
+    var startDate: String
+    var endDate: String
+}
+
+struct Experience {
+    var role: String
+    var company: String
+    var startDate: String
+    var endDate: String
+}

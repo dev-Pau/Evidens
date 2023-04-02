@@ -61,11 +61,11 @@ class UserProfileViewController: UIViewController {
     private var hasLanguages: Bool = false
     private var languages = [Language]()
     private var hasPatents: Bool = false
-    private var patents = [[String: Any]]()
+    private var patents = [Patent]()
     private var publications = [Publication]()
     private var hasEducation: Bool = false
-    private var education = [[String: String]]()
-    private var experience = [[String: String]]()
+    private var educations = [Education]()
+    private var experiences = [Experience]()
     
     
     private let searchBar: UISearchBar = {
@@ -393,7 +393,7 @@ class UserProfileViewController: UIViewController {
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
 
-                if sectionNumber == 5 && !self.experience.isEmpty || sectionNumber == 6 && !self.education.isEmpty || sectionNumber == 7 && !self.patents.isEmpty || sectionNumber == 8 && !self.publications.isEmpty || sectionNumber == 9 && !self.languages.isEmpty   {
+                if sectionNumber == 5 && !self.experiences.isEmpty || sectionNumber == 6 && !self.educations.isEmpty || sectionNumber == 7 && !self.patents.isEmpty || sectionNumber == 8 && !self.publications.isEmpty || sectionNumber == 9 && !self.languages.isEmpty   {
                     section.boundarySupplementaryItems = [header]
                     section.contentInsets.bottom = 10
                 }
@@ -514,18 +514,22 @@ class UserProfileViewController: UIViewController {
         
     }
     
-    func fetchEducation() {
+    func fetchEducation(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchEducation(forUid: uid) { result in
             switch result {
-            case .success(let education):
-                guard !education.isEmpty else {
+            case .success(let educations):
+                guard !educations.isEmpty else {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
-                self.education = education
+                self.educations = educations
                 self.hasEducation = true
-                self.checkIfAllUserInformationIsFetched()
+                if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
             case .failure(_):
                 print("No section")
             }
@@ -575,7 +579,7 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchExperience() {
+    func fetchExperience(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchExperience(forUid: uid) { result in
             switch result {
@@ -584,8 +588,12 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
-                self.experience = experiences
-                self.checkIfAllUserInformationIsFetched()
+                self.experiences = experiences
+                if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
             case .failure(_):
                 print("No languages ")
             }
@@ -608,7 +616,7 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchPatents() {
+    func fetchPatents(isUpdatingValues: Bool? = false) {
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchPatents(forUid: uid) { result in
             switch result {
@@ -620,7 +628,13 @@ class UserProfileViewController: UIViewController {
                 
                 self.hasPatents = true
                 self.patents = patents
-                self.checkIfAllUserInformationIsFetched()
+                
+                if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
+
             case .failure(_):
                 print("No Patents")
             }
@@ -729,15 +743,15 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 return 1
             }
         } else if section == 5 {
-            if experience.count != 0 {
-                return min(experience.count, 3)
+            if experiences.count != 0 {
+                return min(experiences.count, 3)
             } else {
                 return 0
             }
             
         } else if section == 6 {
-            if education.count != 0 {
-                return min(education.count, 3)
+            if educations.count != 0 {
+                return min(educations.count, 3)
             } else {
                 return 0
             }
@@ -843,20 +857,20 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         } else if indexPath.section == 5 {
             // Experience
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
-            cell.set(experienceInfo: experience[indexPath.row])
-            if indexPath.row == experience.count - 1 { cell.separatorView.isHidden = true }
+            cell.set(experience: experiences[indexPath.row])
+            if indexPath.row == experiences.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else if indexPath.section == 6 {
             // Education
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
-            cell.set(educationInfo: education[indexPath.row])
-            if indexPath.row == education.count - 1 { cell.separatorView.isHidden = true }
+            cell.set(education: educations[indexPath.row])
+            if indexPath.row == educations.count - 1 { cell.separatorView.isHidden = true }
             return cell
             
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
-            cell.set(patentInfo: patents[indexPath.row])
+            cell.set(patent: patents[indexPath.row])
             cell.delegate = self
             if indexPath.row == patents.count - 1 { cell.separatorView.isHidden = true }
             return cell
@@ -865,7 +879,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
             cell.set(publication: publications[indexPath.row])
             if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true }
-            cell.delegate = self
+            //cell.delegate = self
             return cell
             
         } else if indexPath.section == 9 {
@@ -915,21 +929,21 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             //header.buttonImage.isHidden = true
             //header.set(title: "Cases")
             header.configureWith(title: "Cases", linkText: "See All")
-            if recentCases.count < 3 { header.hideSeeAllButton() }
+            if recentCases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 4 {
             header.configureWith(title: "Comments", linkText:"See All")
-            if recentComments.count < 3 { header.hideSeeAllButton() }
+            if recentComments.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 5 {
             header.configureWith(title: "Experience", linkText: "See All")
-            if experience.count < 3 { header.hideSeeAllButton() }
+            if experiences.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 6 {
             //header.set(title: "Education")
             header.configureWith(title: "Education", linkText: "See All")
-            if education.count < 3 { header.hideSeeAllButton() }
+            if educations.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 7 {
             //header.set(title: "Patents")
             header.configureWith(title: "Patents", linkText: "See All")
-            if patents.count < 3 { header.hideSeeAllButton() }
+            if patents.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else if indexPath.section == 8 {
             //header.set(title: "Publications")
             header.configureWith(title: "Publications", linkText: "See All")
@@ -937,12 +951,12 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
         } else if indexPath.section == 9 {
             //header.set(title: "Languages")
             header.configureWith(title: "Languages", linkText: "See All")
-            if languages.count < 3 { header.hideSeeAllButton() }
+            if languages.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         } else {
             //header.buttonImage.isHidden = true
             //header.set(title: "Related")
             header.configureWith(title: "Related", linkText: "See All")
-            if relatedUsers.count < 10 { header.hideSeeAllButton() }
+            if relatedUsers.count < 10 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
         }
         return header
     }
@@ -1045,6 +1059,48 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     }
                 }
             }
+        }
+        else if indexPath.section == 5 {
+            guard user.isCurrentUser else { return }
+            let controller = AddExperienceViewController(previousExperience: experiences[indexPath.row])
+            controller.delegate = self
+            controller.hidesBottomBarWhenPushed = true
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
+        
+        
+        else if indexPath.section == 6 {
+            guard user.isCurrentUser else { return }
+            let controller = AddEducationViewController(previousEducation: educations[indexPath.row])
+            controller.delegate = self
+            controller.hidesBottomBarWhenPushed = true
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
+        
+        else if indexPath.section == 7 {
+            guard user.isCurrentUser else { return }
+            let controller = AddPatentViewController(user: user, previousPatent: patents[indexPath.row])
+            controller.delegate = self
+            controller.hidesBottomBarWhenPushed = true
+            
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            backItem.tintColor = .label
+            navigationItem.backBarButtonItem = backItem
+
+            navigationController?.pushViewController(controller, animated: true)
         } else if indexPath.section == 8 {
             guard user.isCurrentUser else { return }
             let controller = AddPublicationViewController(user: user, previousPublication: publications[indexPath.row])
@@ -1060,9 +1116,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             navigationItem.backBarButtonItem = backItem
 
             navigationController?.pushViewController(controller, animated: true)
-        }
-        
-        else if indexPath.section == 9 {
+        } else if indexPath.section == 9 {
             guard user.isCurrentUser else { return }
             let controller = AddLanguageViewController()
             controller.userIsEditing = true
@@ -1201,7 +1255,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         case "Education":
-            let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
+            let controller = EducationSectionViewController(educations: educations, isCurrentUser: user.isCurrentUser)
             controller.title = "Education"
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1234,7 +1288,7 @@ extension UserProfileViewController: UserProfileTitleHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         case "Experience":
-            let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+            let controller = ExperienceSectionViewController(experiences: experiences, isCurrentUser: user.isCurrentUser)
             controller.title = "Experience"
             controller.delegate = self
             let backItem = UIBarButtonItem()
@@ -1294,7 +1348,7 @@ extension UserProfileViewController: MainSearchHeaderDelegate {
        
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 5 {
-            let controller = ExperienceSectionViewController(experience: experience, isCurrentUser: user.isCurrentUser)
+            let controller = ExperienceSectionViewController(experiences: experiences, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1304,7 +1358,7 @@ extension UserProfileViewController: MainSearchHeaderDelegate {
             navigationController?.pushViewController(controller, animated: true)
             
         } else if header.tag == 6 {
-            let controller = EducationSectionViewController(education: education, isCurrentUser: user.isCurrentUser)
+            let controller = EducationSectionViewController(educations: educations, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1358,13 +1412,40 @@ extension UserProfileViewController: UserProfilePatentCellDelegate {
     }
 }
 
-extension UserProfileViewController: UserProfilePublicationCellDelegate {
-    func didTapEditPublication(_ cell: UICollectionViewCell, publicationTitle: String, publicationDate: String, publicationUrl: String) { return }
+extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPublicationViewControllerDelegate, AddPatentViewControllerDelegate, AddEducationViewControllerDelegate, AddExperienceViewControllerDelegate {
+    func handleUpdateExperience(experience: Experience) {
+        fetchNewExperienceValues()
+    }
     
+    func handleDeleteExperience(experience: Experience) {
+        if let experienceIndex = experiences.firstIndex(where: { $0.company == experience.company && $0.role == experience.role }) {
+            experiences.remove(at: experienceIndex)
+            collectionView.deleteItems(at: [IndexPath(item: experienceIndex, section: 5)])
+        }
+    }
     
-}
-
-extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPublicationViewControllerDelegate {
+    func handleUpdateEducation(education: Education) {
+        fetchNewEducationValues()
+    }
+    
+    func handleDeleteEducation(education: Education) {
+        if let educationIndex = educations.firstIndex(where: { $0.degree == education.degree && $0.school == education.school && $0.fieldOfStudy == education.fieldOfStudy }) {
+            educations.remove(at: educationIndex)
+            collectionView.deleteItems(at: [IndexPath(item: educationIndex, section: 6)])
+        }
+    }
+    
+    func handleUpdatePatent(patent: Patent) {
+        fetchNewPatentValues()
+    }
+    
+    func handleDeletePatent(patent: Patent) {
+        if let patentIndex = patents.firstIndex(where: { $0.title == patent.title }) {
+            patents.remove(at: patentIndex)
+            collectionView.deleteItems(at: [IndexPath(item: patentIndex, section: 7)])
+        }
+    }
+    
     func deleteLanguage(language: Language) {
         if let languageIndex = languages.firstIndex(where: { $0.name == language.name }) {
             languages.remove(at: languageIndex)
@@ -1382,6 +1463,7 @@ extension UserProfileViewController: AddLanguageViewControllerDelegate, AddPubli
 }
 
 extension UserProfileViewController: EditProfileViewControllerDelegate, AddAboutViewControllerDelegate, LanguageSectionViewControllerDelegate {
+
     func didUpdateProfile(user: User) {
         self.user = user
         UserDefaults.standard.set(user.profileImageUrl, forKey: "userProfileImageUrl")
@@ -1403,6 +1485,11 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
         fetchLanguages(isUpdatingValues: true)
     }
     
+    func fetchNewExperienceValues() {
+        fetchExperience(isUpdatingValues: true)
+    }
+    
+    
     
     func fetchNewLanguageValues() {
         fetchLanguages(isUpdatingValues: true)
@@ -1420,11 +1507,11 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
     
     func fetchNewPatentValues() {
-        fetchPatents()
+        fetchPatents(isUpdatingValues: true)
     }
     
     func fetchNewEducationValues() {
-        fetchEducation()
+        fetchEducation(isUpdatingValues: true)
     }
     
     func fetchNewExperienceValues(withUid uid: String) {

@@ -10,7 +10,6 @@ import UIKit
 private let userCellReuseIdentifier = "UserCellReuseIdentifier"
 
 protocol UserProfilePatentCellDelegate: AnyObject {
-    func didTapEditPatent(_ cell: UICollectionViewCell, patentTitle: String, patentNumber: String, patentDescription: String)
     func didTapShowContributors(users: [User])
 }
 
@@ -18,11 +17,7 @@ class UserProfilePatentCell: UICollectionViewCell {
     
     weak var delegate: UserProfilePatentCellDelegate?
     
-    var users: [User]? {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
+    var users: [User]?
     
     private let patentTitleLabel: UILabel = {
         let label = UILabel()
@@ -42,18 +37,6 @@ class UserProfilePatentCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    lazy var buttonImage: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        button.configuration?.buttonSize = .mini
-        button.isHidden = true
-        button.isUserInteractionEnabled = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleEditPatent), for: .touchUpInside)
-        return button
     }()
     
     private let collectionView: UICollectionView = {
@@ -87,7 +70,7 @@ class UserProfilePatentCell: UICollectionViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
         backgroundColor = .systemBackground
-        addSubviews(patentTitleLabel, patentNumberLabel, separatorView, buttonImage, collectionView)
+        addSubviews(patentTitleLabel, patentNumberLabel, separatorView, collectionView)
         
         NSLayoutConstraint.activate([
             patentTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -104,9 +87,6 @@ class UserProfilePatentCell: UICollectionViewCell {
             collectionView.heightAnchor.constraint(equalToConstant: 32),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            buttonImage.centerYAnchor.constraint(equalTo: centerYAnchor),
-            buttonImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -114,21 +94,14 @@ class UserProfilePatentCell: UICollectionViewCell {
         ])
     }
     
-    func set(patentInfo: [String: Any]) {
-        patentTitleLabel.text = patentInfo["title"] as? String
-        patentNumberLabel.text = patentInfo["number"] as? String
+    func set(patent: Patent) {
+        patentTitleLabel.text = patent.title
+        patentNumberLabel.text = patent.number
         
-        if let contributorsUid = patentInfo["contributors"] as? [String] {
-            UserService.fetchUsers(withUids: contributorsUid) { users in
-                self.users = users
-                self.collectionView.reloadData()
-            }
+        UserService.fetchUsers(withUids: patent.contributorUids) { users in
+            self.users = users
+            self.collectionView.reloadData()
         }
-    }
-    
-    @objc func handleEditPatent() {
-        guard let title = patentTitleLabel.text, let number = patentNumberLabel.text else { return }
-        delegate?.didTapEditPatent(self, patentTitle: title, patentNumber: number, patentDescription: description)
     }
 }
 
