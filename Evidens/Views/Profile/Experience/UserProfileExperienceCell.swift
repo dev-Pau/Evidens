@@ -9,39 +9,39 @@ import UIKit
  
 class UserProfileExperienceCell: UICollectionViewCell {
     
+    private let companyImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "company.profile")
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+    
     private let professionCenterTitleLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 0
-        label.textColor = .label
+        label.numberOfLines = 1
+        label.textColor = .secondaryLabel
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let professionJobTitleLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.numberOfLines = 2
         label.textAlignment = .left
         label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 16, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-    
-    private let calendarImage: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
-        iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
     }()
     
     private let jobIntervalLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -66,25 +66,25 @@ class UserProfileExperienceCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        addSubviews(professionCenterTitleLabel, professionJobTitleLabel, calendarImage, jobIntervalLabel, separatorView)
+        addSubviews(companyImageView, professionCenterTitleLabel, professionJobTitleLabel, jobIntervalLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            professionCenterTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            professionCenterTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            professionCenterTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            companyImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            companyImageView.heightAnchor.constraint(equalToConstant: 55),
+            companyImageView.widthAnchor.constraint(equalToConstant: 55),
+
+            professionJobTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            professionJobTitleLabel.leadingAnchor.constraint(equalTo: companyImageView.trailingAnchor, constant: 10),
+            professionJobTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            professionJobTitleLabel.topAnchor.constraint(equalTo: professionCenterTitleLabel.bottomAnchor, constant: 5),
-            professionJobTitleLabel.leadingAnchor.constraint(equalTo: professionCenterTitleLabel.leadingAnchor),
-            professionJobTitleLabel.trailingAnchor.constraint(equalTo: professionCenterTitleLabel.trailingAnchor),
+            professionCenterTitleLabel.topAnchor.constraint(equalTo: professionJobTitleLabel.bottomAnchor, constant: 2),
+            professionCenterTitleLabel.leadingAnchor.constraint(equalTo: professionJobTitleLabel.leadingAnchor),
+            professionCenterTitleLabel.trailingAnchor.constraint(equalTo: professionJobTitleLabel.trailingAnchor),
             
-            calendarImage.topAnchor.constraint(equalTo: professionJobTitleLabel.bottomAnchor, constant: 10),
-            calendarImage.leadingAnchor.constraint(equalTo: professionJobTitleLabel.leadingAnchor),
-            calendarImage.widthAnchor.constraint(equalToConstant: 15),
-            calendarImage.heightAnchor.constraint(equalToConstant: 15),
-            
-            jobIntervalLabel.centerYAnchor.constraint(equalTo: calendarImage.centerYAnchor),
-            jobIntervalLabel.leadingAnchor.constraint(equalTo: calendarImage.trailingAnchor, constant: 10),
-            jobIntervalLabel.trailingAnchor.constraint(equalTo: professionJobTitleLabel.trailingAnchor),
+            jobIntervalLabel.topAnchor.constraint(equalTo: professionCenterTitleLabel.bottomAnchor, constant: 2),
+            jobIntervalLabel.leadingAnchor.constraint(equalTo: professionCenterTitleLabel.leadingAnchor),
+            jobIntervalLabel.trailingAnchor.constraint(equalTo: professionCenterTitleLabel.trailingAnchor),
             jobIntervalLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),

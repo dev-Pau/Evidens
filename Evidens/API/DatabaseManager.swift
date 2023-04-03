@@ -477,39 +477,35 @@ extension DatabaseManager {
         }
     }
     
-    public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+    public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
         var recentComments = [[String: Any]]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
             guard snapshot.exists() else {
-                completion(.success(recentComments))
+                completion(.success([RecentComment]()))
                 return
             }
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
                 recentComments.append(value)
                 if recentComments.count == snapshot.children.allObjects.count {
-                    completion(.success(recentComments.reversed()))
+                    let comments: [RecentComment] = recentComments.compactMap { dictionary in
+                        guard let comment = dictionary["comment"] as? String,
+                              let commentUid = dictionary["commentUid"] as? String,
+                              let refUid = dictionary["refUid"] as? String,
+                              let type = dictionary["type"] as? Int,
+                              let timestamp = dictionary["timestamp"] as? TimeInterval else { return nil }
+                        
+                        return RecentComment(comment: comment, commentUid: commentUid, refUid: refUid, type: type, timestamp: timestamp)
+                    }
+                    completion(.success(comments))
                 }
             }
         }
     }
     
-    public func fetchProfileComments(for uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
-        let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp")
-        var recentComments = [[String: Any]]()
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                recentComments.append(value)
-            }
-            completion(.success(recentComments.reversed()))
-        }
-    }
-    
-    public func fetchProfileComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[[String: Any]], Error>) -> Void) {
+    public func fetchProfileComments(lastTimestampValue: Int64?, forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
         var recentComments = [[String: Any]]()
         if lastTimestampValue == nil {
             // First group to fetch
@@ -518,8 +514,21 @@ extension DatabaseManager {
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
                     recentComments.append(value)
+                    if recentComments.count == snapshot.children.allObjects.count {
+                        let comments: [RecentComment] = recentComments.compactMap { dictionary in
+                            guard let comment = dictionary["comment"] as? String,
+                                  let commentUid = dictionary["commentUid"] as? String,
+                                  let refUid = dictionary["refUid"] as? String,
+                                  let type = dictionary["type"] as? Int,
+                                  let timestamp = dictionary["timestamp"] as? TimeInterval else { return nil }
+                            
+                            
+                            return RecentComment(comment: comment, commentUid: commentUid, refUid: refUid, type: type, timestamp: timestamp)
+                        }
+                        completion(.success(comments))
+                    }
                 }
-                completion(.success(recentComments.reversed()))
+
             }
         } else {
             // Fetch more posts
@@ -529,8 +538,20 @@ extension DatabaseManager {
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
                     recentComments.append(value)
+                    if recentComments.count == snapshot.children.allObjects.count {
+                        let comments: [RecentComment] = recentComments.compactMap { dictionary in
+                            guard let comment = dictionary["comment"] as? String,
+                                  let commentUid = dictionary["commentUid"] as? String,
+                                  let refUid = dictionary["refUid"] as? String,
+                                  let type = dictionary["type"] as? Int,
+                                  let timestamp = dictionary["timestamp"] as? TimeInterval else { return nil }
+                            
+                            
+                            return RecentComment(comment: comment, commentUid: commentUid, refUid: refUid, type: type, timestamp: timestamp)
+                        }
+                        completion(.success(comments))
+                    }
                 }
-                completion(.success(recentComments.reversed()))
             }
         }
     }
@@ -1271,7 +1292,7 @@ extension DatabaseManager {
                 if let value = snapshot.value as? [String: Any] {
                     guard let key = value.first?.key else { return }
                     // Update education child with the key obtained
-                    let newRef = self.database.child("users").child(uid).child("profile").child("education").child(key)
+                    let newRef = self.database.child("users").child(uid).child("profile").child("experience").child(key)
                     newRef.removeValue { error, _ in
                         guard error == nil else {
                             completion(false)

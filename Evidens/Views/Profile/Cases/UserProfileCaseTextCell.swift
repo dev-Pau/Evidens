@@ -13,26 +13,22 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         didSet { configure() }
     }
     
-    private lazy var caseStateButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 10, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Solved", attributes: container)
-        button.configuration?.baseForegroundColor = .white
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    var user: User?
+
+    private let caseStateLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.numberOfLines = 0
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.numberOfLines = 1
-        //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
+        label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -42,7 +38,6 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.numberOfLines = 3
-        //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -51,15 +46,13 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
-        //button.configuration?.baseForegroundColor = pinkColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        //label.text = "24 · 36 comments"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
         label.textColor = .secondaryLabel
@@ -67,10 +60,9 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         return label
     }()
     
-    private let timeLabel: UILabel = {
+    private let caseLabel: UILabel = {
         let label = UILabel()
-        //label.text = "3h ago"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -83,7 +75,6 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -96,17 +87,17 @@ class UserProfileCaseTextCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        addSubviews(caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, timeLabel, separatorView)
+        addSubviews(titleCaseLabel, caseStateLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, caseLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
-            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseLabel.topAnchor.constraint(equalTo: topAnchor, constant: 15),
+            caseLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+
+            caseStateLabel.topAnchor.constraint(equalTo: caseLabel.bottomAnchor, constant: 2),
+            caseStateLabel.leadingAnchor.constraint(equalTo: caseLabel.leadingAnchor),
             
-            caseStateButton.centerYAnchor.constraint(equalTo: timeLabel.centerYAnchor),
-            caseStateButton.leadingAnchor.constraint(equalTo: timeLabel.trailingAnchor, constant: 10),
-            
-            titleCaseLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: timeLabel.leadingAnchor),
+            titleCaseLabel.topAnchor.constraint(equalTo: caseStateLabel.bottomAnchor, constant: 8),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: caseLabel.leadingAnchor),
             titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
@@ -114,7 +105,7 @@ class UserProfileCaseTextCell: UICollectionViewCell {
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             descriptionCaseLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
-            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: caseLabel.topAnchor),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
@@ -133,15 +124,22 @@ class UserProfileCaseTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription
-        timeLabel.text = viewModel.timestampString
+        caseLabel.attributedText = caseLabelAttributedString()
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
-        
-        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
-        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
-        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
-        
-        
+        caseStateLabel.attributedText = caseStageAttributedString()
+    }
+    
+    func caseStageAttributedString() -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: viewModel!.caseStageString + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: viewModel!.caseTypeDetails.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        return attributedText
+    }
+    
+    func caseLabelAttributedString() -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: user!.firstName! + " " + user!.lastName!, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " shared this • \(viewModel!.timestampString!)", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        return attributedText
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

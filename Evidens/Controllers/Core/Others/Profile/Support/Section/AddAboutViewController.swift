@@ -15,7 +15,7 @@ protocol AddAboutViewControllerDelegate: AnyObject {
 class AddAboutViewController: UIViewController {
     
     var comesFromOnboarding: Bool = false
-    
+    private var isEditingAbout: Bool = false
     private let progressIndicator = JGProgressHUD()
     
     var viewModel: OnboardingViewModel?
@@ -110,6 +110,15 @@ class AddAboutViewController: UIViewController {
         configureUI()
     }
     
+    init(isEditingAbout: Bool? = nil) {
+        if let isEditingAbout = isEditingAbout { self.isEditingAbout = isEditingAbout }
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private func fetchSection() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
@@ -117,7 +126,6 @@ class AddAboutViewController: UIViewController {
             case .success(let aboutText):
                 self.aboutTextView.text = aboutText
                 self.aboutTextView.handleTextDidChange()
-                
             case .failure(_):
                 print("Error fetching")
             }
@@ -128,7 +136,7 @@ class AddAboutViewController: UIViewController {
         if comesFromOnboarding {
             #warning("Put app icon on bar")
         } else {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleDone))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: isEditingAbout ? "Edit" : "Save", style: .done, target: self, action: #selector(handleDone))
             navigationItem.rightBarButtonItem?.tintColor = primaryColor
             navigationItem.rightBarButtonItem?.isEnabled = false
         }

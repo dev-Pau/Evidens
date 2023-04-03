@@ -9,14 +9,7 @@ import UIKit
 
 class UserProfileCommentCell: UICollectionViewCell {
     
-    var caseTitleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    var user: User?
     
     private var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -65,21 +58,17 @@ class UserProfileCommentCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .systemBackground
         
-        addSubviews(caseTitleLabel, profileImageView, commentTextLabel, commentUserLabel, separatorView)
+        addSubviews(profileImageView, commentTextLabel, commentUserLabel, separatorView)
         
         NSLayoutConstraint.activate([
             commentTextLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             commentTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             commentTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 
-            caseTitleLabel.topAnchor.constraint(equalTo: commentTextLabel.bottomAnchor, constant: 10),
-            caseTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            caseTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-
             profileImageView.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
             profileImageView.heightAnchor.constraint(equalToConstant: 20),
             profileImageView.widthAnchor.constraint(equalToConstant: 20),
-            profileImageView.topAnchor.constraint(equalTo: caseTitleLabel.bottomAnchor, constant: 5),
+            profileImageView.topAnchor.constraint(equalTo: commentTextLabel.bottomAnchor, constant: 5),
             
             commentUserLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             commentUserLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -90,12 +79,17 @@ class UserProfileCommentCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
-
-            
         ])
         
         profileImageView.layer.cornerRadius = 20 / 2
         
+    }
+    
+    func commentLabelAttributedString(text: String, timestamp: String) -> NSAttributedString {
+ 
+        let attributedText = NSMutableAttributedString(string: user!.firstName! + " " + user!.lastName!, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " \(text)  • \(timestamp)", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        return attributedText
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -109,24 +103,31 @@ class UserProfileCommentCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func configure(commentInfo: [String: Any], user: User) {
+    func configure(recentComment: RecentComment) {
+        guard let user = user else { return }
+
+        let date = NSDate(timeIntervalSince1970: recentComment.timestamp)
+        //let date = NSDate
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .year]
+        formatter.maximumUnitCount = 1
+        formatter.unitsStyle = .abbreviated
+        //let commentTimestamp = formatter.string(for: date)
+        let commentTimestamp = formatter.string(from: date as Date, to: Date())
         
-        let commentType = commentInfo["type"] as? Int
-        let firstName = user.isCurrentUser ? "You" : user.firstName
-        
-        if commentType == 0 {
+        if recentComment.type == 0 {
             // Post
-            commentTextLabel.text = firstName! + " commented on a post"
+            commentTextLabel.attributedText = commentLabelAttributedString(text: "commented on this post", timestamp: commentTimestamp ?? "")
         } else {
             // Clinical case
-            commentTextLabel.text = firstName! + " commented on this case"
+            commentTextLabel.attributedText = commentLabelAttributedString(text: "commented on this case", timestamp: commentTimestamp ?? "")
         }
         
-        commentUserLabel.text = commentInfo["comment"] as? String
-        caseTitleLabel.text = commentInfo["title"] as? String
+        commentUserLabel.text = recentComment.comment
+ 
         if let imageUrl = user.profileImageUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-        
     }
+
 }

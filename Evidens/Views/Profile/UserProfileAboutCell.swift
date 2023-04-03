@@ -34,7 +34,7 @@ class UserProfileAboutCell: UICollectionViewCell {
         addSubviews(aboutInformationLabel)
         
         NSLayoutConstraint.activate([
-            aboutInformationLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            aboutInformationLabel.topAnchor.constraint(equalTo: topAnchor),
             aboutInformationLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             aboutInformationLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             aboutInformationLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)

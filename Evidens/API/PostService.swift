@@ -328,7 +328,9 @@ struct PostService {
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
             let post = Post(postId: snapshot.documentID, dictionary: data)
-            completion(post)
+            getPostValuesFor(post: post) { postWithValues in
+                completion(postWithValues)
+            }
         }
     }
     
@@ -338,7 +340,6 @@ struct PostService {
             guard let data = snapshot.data() else { return }
             let post = Post(postId: snapshot.documentID, dictionary: data)
             getGroupPostValuesFor(post: post) { fetchedPost in
-                print(fetchedPost)
                 completion(fetchedPost)
             }
             

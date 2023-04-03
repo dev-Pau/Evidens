@@ -9,6 +9,7 @@ import UIKit
 
 class AboutSectionViewController: UIViewController {
     
+    private let user: User
     private let section: String
     
     private let scrollView: UIScrollView = {
@@ -22,6 +23,11 @@ class AboutSectionViewController: UIViewController {
         return scrollView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = CustomLabel(placeholder: "Add education")
+        return label
+    }()
+    
     private let infoLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -31,7 +37,8 @@ class AboutSectionViewController: UIViewController {
         return label
     }()
     
-    init(section: String) {
+    init(user: User, section: String) {
+        self.user = user
         self.section = section
         super.init(nibName: nil, bundle: nil)
     }
@@ -46,6 +53,7 @@ class AboutSectionViewController: UIViewController {
     }
 
     private func configureUI() {
+        titleLabel.text = "About \(user.firstName!)"
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
@@ -57,7 +65,11 @@ class AboutSectionViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            infoLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            infoLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             infoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             infoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
         ])

@@ -15,11 +15,13 @@ class UserProfilePostImageCell: UICollectionViewCell {
         }
     }
     
+    var user: User?
+    
     private var postTextLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -45,8 +47,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        label.text = "24 · 36 comments"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
         label.textColor = .secondaryLabel
@@ -54,10 +55,9 @@ class UserProfilePostImageCell: UICollectionViewCell {
         return label
     }()
     
-    private let timeLabel: UILabel = {
+    private let postLabel: UILabel = {
         let label = UILabel()
-        //label.text = "3h ago"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -83,13 +83,13 @@ class UserProfilePostImageCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .systemBackground
 
-        addSubviews(postTextLabel, postImage, likesButton, likesCommentsLabel, timeLabel, separatorView)
+        addSubviews(postTextLabel, postImage, likesButton, likesCommentsLabel, postLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            postLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            postLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
 
-            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            likesCommentsLabel.topAnchor.constraint(equalTo: postLabel.topAnchor),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
@@ -97,14 +97,15 @@ class UserProfilePostImageCell: UICollectionViewCell {
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            postImage.topAnchor.constraint(equalTo: likesCommentsLabel.bottomAnchor, constant: 5),
+            postImage.topAnchor.constraint(equalTo: postLabel.bottomAnchor, constant: 5),
             postImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postImage.widthAnchor.constraint(equalToConstant: 75),
             postImage.heightAnchor.constraint(equalToConstant: 75),
             
-            postTextLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 5),
+            postTextLabel.topAnchor.constraint(equalTo: postLabel.bottomAnchor, constant: 5),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
+            postTextLabel.bottomAnchor.constraint(lessThanOrEqualTo: postImage.bottomAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
@@ -117,9 +118,16 @@ class UserProfilePostImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         postTextLabel.text = viewModel.postText
         postImage.sd_setImage(with: viewModel.postImageUrl.first)
-        timeLabel.text = viewModel.timestampString! + " ago"
+        postLabel.attributedText = postLabelAttributedString()
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
+        
+    }
+    
+    func postLabelAttributedString() -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: user!.firstName! + " " + user!.lastName!, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " posted this • \(viewModel!.timestampString!)", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        return attributedText
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -128,7 +136,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 115))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 120))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

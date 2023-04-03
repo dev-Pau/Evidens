@@ -79,7 +79,7 @@ class AddExperienceViewController: UIViewController {
     
     private let companyLabel: UILabel = {
         let label = UILabel()
-        //label.text = "Title"
+        
         label.textColor = .secondaryLabel
         label.isHidden = true
         label.font = .systemFont(ofSize: 12, weight: .regular)

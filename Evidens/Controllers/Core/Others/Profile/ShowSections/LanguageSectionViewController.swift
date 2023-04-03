@@ -128,8 +128,7 @@ extension LanguageSectionViewController: UICollectionViewDataSource, UICollectio
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
         cell.set(language: languages[indexPath.row])
-        cell.buttonImage.isHidden = isCurrentUser ? false : true
-        cell.buttonImage.isUserInteractionEnabled = isCurrentUser ? true : false
+        cell.separatorView.isHidden = true
         return cell
     }
     

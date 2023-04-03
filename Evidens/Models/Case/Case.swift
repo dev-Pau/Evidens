@@ -24,7 +24,7 @@ struct Case {
     let timestamp: Timestamp
     let caseId: String
     let type: CaseType
-    let professions: [Profession]
+    let professions: [String]
     var stage: CaseStage
     let privacyOptions: Privacy
     var diagnosis: String
@@ -42,6 +42,15 @@ struct Case {
                 return 0
             case .unresolved:
                 return 1
+            }
+        }
+        
+        var caseStageString: String {
+            switch self {
+            case .resolved:
+                return "Solved"
+            case .unresolved:
+                return "Unsolved"
             }
         }
     }
@@ -157,7 +166,7 @@ struct Case {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = CaseType(rawValue: dictionary["type"] as? Int ?? 0) ?? .text
         self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
-        self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
+        self.professions = dictionary["professions"] as? [String] ?? [""]
         self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .visible
     }
 }

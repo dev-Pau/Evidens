@@ -40,3 +40,11 @@ struct Experience {
     var startDate: String
     var endDate: String
 }
+
+struct RecentComment {
+    var comment: String
+    var commentUid: String
+    var refUid: String
+    var type: Int
+    var timestamp: TimeInterval
+}

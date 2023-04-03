@@ -16,7 +16,7 @@ protocol AddEducationViewControllerDelegate: AnyObject {
 class AddEducationViewController: UIViewController {
     
     weak var delegate: AddEducationViewControllerDelegate?
-    
+
     private let progressIndicator = JGProgressHUD()
     
     private var conditionIsSelected: Bool = false

@@ -448,7 +448,9 @@ struct CaseService {
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
             let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
-            completion(clinicalCase)
+            getCaseValuesFor(clinicalCase: clinicalCase) { caseWithValues in
+                completion(caseWithValues)
+            }
         }
     }
     
@@ -457,7 +459,7 @@ struct CaseService {
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).getDocument { snapshot, _ in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            var clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
+            let clinicalCase = Case(caseId: snapshot.documentID, dictionary: data)
             getGroupCaseValuesFor(clinicalCase: clinicalCase) { fetchedCase in
                 completion(fetchedCase)
             }

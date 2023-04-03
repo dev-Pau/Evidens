@@ -51,7 +51,7 @@ class UserProfileViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var recentPosts = [Post]()
     private var recentCases = [Case]()
-    private var recentComments = [[String: Any]]()
+    private var recentComments = [RecentComment]()
     private var relatedUsers = [User]()
     
     private var scrollViewDidScrollHigherThanActionButton: Bool = false
@@ -155,24 +155,13 @@ class UserProfileViewController: UIViewController {
     func configureNavigationItemButton() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
-        //appearance.backgroundColor = .systemBackground.withAlphaComponent(0)
         self.navigationItem.scrollEdgeAppearance = appearance
-        //navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         ellipsisRightButton.menu = addEllipsisMenuItems()
-
-        
-         standardAppearance.configureWithOpaqueBackground()
-         standardAppearance.backgroundColor = .systemBackground
-         //navigationController?.navigationBar.standardAppearance = standardAppearance
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = .systemBackground
         self.navigationItem.standardAppearance = standardAppearance
         
-        //standardAppearance.configureWithOpaqueBackground()
-        //standardAppearance.backgroundColor = .systemBackground
-        //self.navigationItem.standardAppearance = standardAppearance
-        //navigationController?.navigationBar.standardAppearance = standardAppearance
-        //navigationController?.navigationBar.standardAppearance = standardAppearance
-        //navigationController?.navigationBar.compactAppearance = standardAppearance
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 14, weight: .bold)
         
@@ -226,9 +215,7 @@ class UserProfileViewController: UIViewController {
         customRightButton.showsMenuAsPrimaryAction = true
         return menuItems
     }
-    
-    
-    
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let maxVerticalOffset = (view.frame.width / 3) / 2
         let currentVeritcalOffset = scrollView.contentOffset.y
@@ -238,12 +225,8 @@ class UserProfileViewController: UIViewController {
         let percentageOffset = currentVeritcalOffset / maxVerticalOffset
 
         standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
-        //navigationController?.navigationBar.standardAppearance = standardAppearance
         self.navigationItem.standardAppearance = standardAppearance
-        //standardAppearance.backgroundColor = .systemBackground.withAlphaComponent(percentageOffset)
-        //navigationController?.navigationBar.standardAppearance = standardAppearance
-        
-        
+
         if currentVeritcalOffset > (view.frame.width / 3 + 10 + 30 - topbarHeight) && !scrollViewDidScrollHigherThanActionButton {
             // User pass over the edit profile / follow button
             scrollViewDidScrollHigherThanActionButton.toggle()
@@ -297,8 +280,8 @@ class UserProfileViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: profileImageTopPadding),
-            profileImageView.heightAnchor.constraint(equalToConstant: 70),
-            profileImageView.widthAnchor.constraint(equalToConstant: 70),
+            profileImageView.heightAnchor.constraint(equalToConstant: 80),
+            profileImageView.widthAnchor.constraint(equalToConstant: 80),
             profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
         ])
 
@@ -306,7 +289,7 @@ class UserProfileViewController: UIViewController {
             profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }
      
-        profileImageView.layer.cornerRadius = 70 / 2
+        profileImageView.layer.cornerRadius = 80 / 2
 
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -485,6 +468,7 @@ class UserProfileViewController: UIViewController {
                     return
                 }
                 CaseService.fetchCases(withCaseIds: caseIDs) { recentCases in
+                    
                     self.recentCases = recentCases
                     self.checkIfAllUserInformationIsFetched()
                     return
@@ -505,7 +489,8 @@ class UserProfileViewController: UIViewController {
                     return
                 }
                 
-                self.recentComments = recentComments
+                //recentComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                self.recentComments = recentComments.reversed()
                 self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("Failure fetching recent comments")
@@ -536,7 +521,7 @@ class UserProfileViewController: UIViewController {
         }
     }
     
-    func fetchSections() {
+    func fetchSections(isUpdatingValues: Bool? = false) {
         // About Section
         guard let uid = user.uid else { return }
         DatabaseManager.shared.fetchAboutSection(forUid: uid) { result in
@@ -548,7 +533,12 @@ class UserProfileViewController: UIViewController {
                 }
                 self.aboutText = sectionText
                 self.hasAbout = true
-                self.checkIfAllUserInformationIsFetched()
+                
+                if let isUpdatingValues = isUpdatingValues, isUpdatingValues == true {
+                    self.collectionView.reloadData()
+                } else {
+                    self.checkIfAllUserInformationIsFetched()
+                }
             case .failure(_):
                 print("No section")
             }
@@ -808,13 +798,15 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 if recentPosts[indexPath.row].type.postType == 0 {
                     // Text Post
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! UserProfilePostCell
+                    cell.user = user
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
-                    if indexPath.row == recentPosts.count - 1 { cell.separatorView.isHidden = true }
+                    if indexPath.row == recentPosts.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! UserProfilePostImageCell
+                    cell.user = user
                     cell.viewModel = PostViewModel(post: recentPosts[indexPath.row])
-                    if indexPath.row == recentPosts.count - 1 { cell.separatorView.isHidden = true }
+                    if indexPath.row == recentPosts.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                     return cell
                 }
             }
@@ -829,13 +821,15 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 
                 if recentCases[indexPath.row].type.caseType == 0 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
+                    cell.user = user
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
-                    if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true }
+                    if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                     return cell
                 } else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
+                    cell.user = user
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
-                    if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true }
+                    if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                     return cell
                 }
             }
@@ -844,8 +838,9 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Comments
             if recentComments.count != 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentsCellReuseIdentifier, for: indexPath) as! UserProfileCommentCell
-                cell.configure(commentInfo: recentComments[indexPath.row], user: user)
-                if indexPath.row == recentComments.count - 1 { cell.separatorView.isHidden = true }
+                cell.user = user
+                cell.configure(recentComment: recentComments[indexPath.row])
+                if indexPath.row == recentComments.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: noCommentsCellReuseIdentifier, for: indexPath) as! UserProfileNoCommentsCell
@@ -858,35 +853,35 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Experience
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: experienceCellReuseIdentifier, for: indexPath) as! UserProfileExperienceCell
             cell.set(experience: experiences[indexPath.row])
-            if indexPath.row == experiences.count - 1 { cell.separatorView.isHidden = true }
+            if indexPath.row == experiences.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
             return cell
             
         } else if indexPath.section == 6 {
             // Education
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: educationCellReuseIdentifier, for: indexPath) as! UserProfileEducationCell
             cell.set(education: educations[indexPath.row])
-            if indexPath.row == educations.count - 1 { cell.separatorView.isHidden = true }
+            if indexPath.row == educations.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
             return cell
             
         } else if indexPath.section == 7 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: patentCellReuseIdentifier, for: indexPath) as! UserProfilePatentCell
             cell.set(patent: patents[indexPath.row])
             cell.delegate = self
-            if indexPath.row == patents.count - 1 { cell.separatorView.isHidden = true }
+            if indexPath.row == patents.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
             return cell
             
         } else if indexPath.section == 8 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: publicationsCellReuseIdentifier, for: indexPath) as! UserProfilePublicationCell
             cell.set(publication: publications[indexPath.row])
-            if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true }
+            if indexPath.row == publications.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
             //cell.delegate = self
             return cell
             
         } else if indexPath.section == 9 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: languageCellReuseIdentifier, for: indexPath) as! UserProfileLanguageCell
             cell.set(language: languages[indexPath.row])
-            //cell.separatorView.isHidden = languages.count - 1 == indexPath.row ? true : false
-            //if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true }
+            
+            if indexPath.row == languages.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
             return cell
             
         } else {
@@ -963,17 +958,24 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
 
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
         if indexPath.section == 1 {
             // About
-            let controller = AboutSectionViewController(section: aboutText)
-            controller.title = "About"
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
-            navigationController?.pushViewController(controller, animated: true)
+            if user.isCurrentUser {
+                let controller = AddAboutViewController(isEditingAbout: true)
+                controller.title = "About"
+                controller.delegate = self
+                controller.hidesBottomBarWhenPushed = true
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                let controller = AboutSectionViewController(user: user, section: aboutText)
+                controller.title = "About"
+                navigationController?.pushViewController(controller, animated: true)
+            }
         } else if indexPath.section == 2 {
             // Posts
             guard !recentCases.isEmpty else { return }
@@ -1012,13 +1014,10 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Comments
             guard !recentComments.isEmpty else { return }
             let comment = recentComments[indexPath.row]
-            guard let type = comment["type"] as? Int else { return }
-            
-            if type == 0 {
+            if comment.type == 0 {
                 // Post
-                if let postUid = comment["refUid"] as? String {
                     showLoadingView()
-                    PostService.fetchPost(withPostId: postUid) { post in
+                    PostService.fetchPost(withPostId: comment.refUid) { post in
                         self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
                         layout.scrollDirection = .vertical
@@ -1034,13 +1033,12 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         self.navigationItem.backBarButtonItem = backItem
                         
                         self.navigationController?.pushViewController(controller, animated: true)
-                    }
+                    
                 }
             } else {
                 // Case
-                if let caseUid = comment["refUid"] as? String {
                     showLoadingView()
-                    CaseService.fetchCase(withCaseId: caseUid) { clinicalCase in
+                    CaseService.fetchCase(withCaseId: comment.refUid) { clinicalCase in
                         self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
                         layout.scrollDirection = .vertical
@@ -1056,7 +1054,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                         self.navigationItem.backBarButtonItem = backItem
                         
                         self.navigationController?.pushViewController(controller, animated: true)
-                    }
+                    
                 }
             }
         }
@@ -1335,18 +1333,13 @@ extension UserProfileViewController: MainSearchHeaderDelegate {
             //controller.displaysSinglePost = true
             navigationController?.pushViewController(controller, animated: true)
         } else if header.tag == 4 {
-            let layout = UICollectionViewFlowLayout()
-            layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .zero)
-            
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-            
-            let controller = UserCommentsViewController(user: user, collectionViewFlowLayout: layout)
-       
+            let controller = UserCommentsViewController(user: user)
             navigationController?.pushViewController(controller, animated: true)
+            
         } else if header.tag == 5 {
             let controller = ExperienceSectionViewController(experiences: experiences, isCurrentUser: user.isCurrentUser)
             controller.delegate = self
@@ -1488,9 +1481,7 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     func fetchNewExperienceValues() {
         fetchExperience(isUpdatingValues: true)
     }
-    
-    
-    
+
     func fetchNewLanguageValues() {
         fetchLanguages(isUpdatingValues: true)
     }
@@ -1519,17 +1510,15 @@ extension UserProfileViewController: EditProfileViewControllerDelegate, AddAbout
     }
     
     func handleUpdateAbout() {
-        fetchSections()
+        fetchSections(isUpdatingValues: true)
     }
     
     func fetchNewAboutValues(withUid uid: String) {
-        fetchSections()
+        fetchSections(isUpdatingValues: true)
     }
     
     func fetchNewUserValues(withUid uid: String) {
         UserService.fetchUser(withUid: uid) { user in
-    
-            #warning("Asignar al user al main tab controllerl també perquè sinó es perd la info nova")
             self.user = user
             self.collectionView.reloadData()
         }

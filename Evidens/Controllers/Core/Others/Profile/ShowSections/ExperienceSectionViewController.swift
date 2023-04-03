@@ -46,7 +46,6 @@ class ExperienceSectionViewController: UIViewController {
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
             let _ = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(200)))
@@ -79,7 +78,6 @@ class ExperienceSectionViewController: UIViewController {
             editAction.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
             return UISwipeActionsConfiguration(actions: self.isCurrentUser ? [deleteAction, editAction] : [])
         }
-        
         return configuration
     }
     
@@ -121,6 +119,18 @@ extension ExperienceSectionViewController: UICollectionViewDataSource, UICollect
         cell.set(experience: experiences[indexPath.row])
         cell.separatorView.isHidden = true
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let controller = AddExperienceViewController(previousExperience: experiences[indexPath.row])
+        controller.delegate = self
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        controller.hidesBottomBarWhenPushed = true
+        indexPathSelected = indexPath
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 

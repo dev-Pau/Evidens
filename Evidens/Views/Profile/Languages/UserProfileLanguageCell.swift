@@ -29,15 +29,11 @@ class UserProfileLanguageCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var buttonImage: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        button.configuration?.buttonSize = .mini
-        button.isHidden = true
-        button.isUserInteractionEnabled = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    var separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .quaternarySystemFill
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     override init(frame: CGRect) {
@@ -51,7 +47,7 @@ class UserProfileLanguageCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(languageTitleLabel, languageLevelLabel)
+        addSubviews(languageTitleLabel, languageLevelLabel, separatorView)
         
         NSLayoutConstraint.activate([
             languageTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -62,6 +58,11 @@ class UserProfileLanguageCell: UICollectionViewCell {
             languageLevelLabel.leadingAnchor.constraint(equalTo: languageTitleLabel.leadingAnchor),
             languageLevelLabel.trailingAnchor.constraint(equalTo: languageTitleLabel.trailingAnchor),
             languageLevelLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            separatorView.heightAnchor.constraint(equalToConstant: 1),
         ])
     }
     

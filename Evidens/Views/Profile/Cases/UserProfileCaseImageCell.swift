@@ -13,26 +13,22 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         didSet { configure() }
     }
     
-    private lazy var caseStateButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 10, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Solved", attributes: container)
-        
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    var user: User?
+    
+    private let caseStateLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.numberOfLines = 0
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.numberOfLines = 1
-        //label.text = "The title is a summary of the abstract itself and should convince the reader that the topic is important"
+        label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -41,8 +37,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 3
-        //label.text = "Clinical narratives represent the main form of communication within health care, providing a personalized account of patient history and assessments, and offering rich information for clinical decision making. Natural language processing (NLP) has repeatedly demonstrated its feasibility"
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -53,7 +48,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         iv.layer.cornerRadius = 5
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .secondaryLabel
+        iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
     
@@ -61,15 +56,13 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
-        //button.configuration?.baseForegroundColor = pinkColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let likesCommentsLabel: UILabel = {
         let label = UILabel()
-        //label.text = "24 · 36 comments"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.textAlignment = .left
         label.textColor = .secondaryLabel
@@ -77,10 +70,9 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         return label
     }()
     
-    private let timeLabel: UILabel = {
+    private let caseLabel: UILabel = {
         let label = UILabel()
-        //label.text = "3h ago"
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -106,14 +98,16 @@ class UserProfileCaseImageCell: UICollectionViewCell {
     
     private func configureUI() {
         backgroundColor = .systemBackground
-        addSubviews(caseStateButton, titleCaseLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel, timeLabel, separatorView)
+        addSubviews(titleCaseLabel, caseStateLabel, descriptionCaseLabel, caseImageView, likesButton, likesCommentsLabel, caseLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            //timeLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
+            caseLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            caseLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             
-            likesCommentsLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            caseStateLabel.topAnchor.constraint(equalTo: caseLabel.bottomAnchor, constant: 2),
+            caseStateLabel.leadingAnchor.constraint(equalTo: caseLabel.leadingAnchor),
+
+            likesCommentsLabel.topAnchor.constraint(equalTo: caseLabel.topAnchor),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
@@ -121,22 +115,19 @@ class UserProfileCaseImageCell: UICollectionViewCell {
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            caseStateButton.centerYAnchor.constraint(equalTo: timeLabel.centerYAnchor),
-            caseStateButton.leadingAnchor.constraint(equalTo: timeLabel.trailingAnchor, constant: 10),
-            
-            caseImageView.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
+            caseImageView.topAnchor.constraint(equalTo: caseStateLabel.bottomAnchor, constant: 8),
             caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             caseImageView.heightAnchor.constraint(equalToConstant: 75),
             caseImageView.widthAnchor.constraint(equalToConstant: 75),
             
-            titleCaseLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 10),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: timeLabel.leadingAnchor),
+            titleCaseLabel.topAnchor.constraint(equalTo: caseImageView.topAnchor),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: caseLabel.leadingAnchor),
             titleCaseLabel.trailingAnchor.constraint(equalTo: caseImageView.leadingAnchor, constant: -10),
             
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
-            
+            descriptionCaseLabel.bottomAnchor.constraint(lessThanOrEqualTo: caseImageView.bottomAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -150,14 +141,22 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         titleCaseLabel.text = viewModel.caseTitle
         descriptionCaseLabel.text = viewModel.caseDescription
         caseImageView.sd_setImage(with: URL(string: (viewModel.caseImages.first!)))
-        timeLabel.text = viewModel.timestampString
+        caseLabel.attributedText = caseLabelAttributedString()
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
-        
-        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
-        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
-        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
-        
+        caseStateLabel.attributedText = caseStageAttributedString()
+    }
+    
+    func caseStageAttributedString() -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: viewModel!.caseStageString + ". ", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: viewModel!.caseTypeDetails.joined(separator: "•"), attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        return attributedText
+    }
+    
+    func caseLabelAttributedString() -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: user!.firstName! + " " + user!.lastName!, attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSAttributedString(string: " shared this • \(viewModel!.timestampString!)", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        return attributedText
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -166,7 +165,7 @@ class UserProfileCaseImageCell: UICollectionViewCell {
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 120))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 135))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

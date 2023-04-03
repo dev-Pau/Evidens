@@ -45,6 +45,7 @@ struct CaseViewModel {
     
     var caseViews: Int {
         return clinicalCase.numberOfViews
+        
     }
     
     var caseStage: AttributedString {
@@ -52,6 +53,10 @@ struct CaseViewModel {
         container.font = .systemFont(ofSize: 11, weight: .semibold)
         
         return clinicalCase.stage.rawValue == 0 ? AttributedString("Solved", attributes: container) : AttributedString("Unsolved", attributes: container)
+    }
+    
+    var caseStageString: String {
+        return clinicalCase.stage.caseStageString
     }
     
     var caseImageStage: UIImage {
@@ -78,7 +83,46 @@ struct CaseViewModel {
         case .group:
             return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         }
-
+    }
+    
+    var mainCaseProfession: Profession.Professions {
+        guard let profession = clinicalCase.professions.first else { return .medicine }
+        return Profession.Professions.init(rawValue: profession) ?? .medicine
+    }
+    
+    var caseProfessions: [String] {
+        return clinicalCase.professions
+    }
+    
+    var caseBackgroundColor: UIColor {
+        switch mainCaseProfession {
+        case .medicine:
+            return .systemTeal
+        case .odontology:
+            return .systemBlue
+        case .pharmacy:
+            return .systemPink
+        case .physiotherapy:
+            return .systemPurple
+        case .nursing:
+            return .systemCyan
+        case .veterinary:
+            return .systemIndigo
+        case .psychology:
+            return .systemMint
+        case .podiatry:
+            return .systemOrange
+        case .nutrition:
+            return .systemGreen
+        case .optics:
+            return .systemYellow
+        case .biomedical:
+            return .systemGray
+        case .physical:
+            return .systemBrown
+        case .speech:
+            return .systemRed
+        }
     }
     
     var caseStageTextColor: UIColor {

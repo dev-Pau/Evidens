@@ -11,6 +11,7 @@ import MessageUI
 
 private let exploreHeaderReuseIdentifier = "ExploreHeaderReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
+private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 private let primaryEmtpyCellReuseIdentifier = "PrimaryEmptyCellReuseIdentifier"
 private let exploreCaseCellReuseIdentifier = "ExploreCaseCellReuseIdentifier"
@@ -160,6 +161,19 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     let section = NSCollectionLayoutSection(group: group)
                     return section
                 } else {
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    
+                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                    let section = NSCollectionLayoutSection(group: group)
+                    
+                    section.interGroupSpacing = 20
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+                    
+                    return section
+                    
+                    /*
                     let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                     let item = NSCollectionLayoutItem(layoutSize: itemSize)
                     
@@ -174,6 +188,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
                     
                     return section
+                     */
                 }
             case .explore:
                 if sectionNumber == 0 {
@@ -279,7 +294,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             casesCollectionView.frame = view.bounds
         }
         
-        casesCollectionView.register(CasesFeedCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
+        casesCollectionView.register(CaseFeedTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(CaseFeedTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
         casesCollectionView.register(CategoriesExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
         casesCollectionView.register(RegistrationInterestsCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
@@ -388,24 +404,46 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 cell.delegate = self
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
-                cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                guard cases[indexPath.row].privacyOptions == .visible else { return cell }
-                
-                let userIndex = users.firstIndex { user in
+                switch cases[indexPath.row].type {
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
+                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
                     
-                    if user.uid == cases[indexPath.row].ownerUid {
-                        return true
+                    let userIndex = users.firstIndex { user in
+                        
+                        if user.uid == cases[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
                     }
-                    return false
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: users[userIndex])
+                    }
+                    
+                    //cell.delegate = self
+                    return cell
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseFeedTextImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
+                    
+                    let userIndex = users.firstIndex { user in
+                        
+                        if user.uid == cases[indexPath.row].ownerUid {
+                            return true
+                        }
+                        return false
+                    }
+                    
+                    if let userIndex = userIndex {
+                        cell.set(user: users[userIndex])
+                    }
+                    
+                    //cell.delegate = self
+                    return cell
                 }
-                
-                if let userIndex = userIndex {
-                    cell.set(user: users[userIndex])
-                }
-                
-                cell.delegate = self
-                return cell
             }
         case .explore:
             if indexPath.section == 0 {

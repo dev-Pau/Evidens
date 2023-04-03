@@ -28,15 +28,6 @@ class UserProfilePublicationCell: UICollectionViewCell {
         return label
     }()
     
-    private let calendarImage: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
-        iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "calendar")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
     private let publicationDateLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
@@ -47,23 +38,23 @@ class UserProfilePublicationCell: UICollectionViewCell {
         return label
     }()
   
-    private let urlImage: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
-        iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "paperclip")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    private let publicationUrlLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 1
-        label.textAlignment = .left
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private let publicationUrlButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .plain()
+        button.configuration?.image = UIImage(systemName: "arrow.up.forward.app", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        button.configuration?.imagePlacement = .trailing
+        button.configuration?.buttonSize = .mini
+        button.configuration?.imagePadding = 5
+        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeColor = .secondaryLabel
+        
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .medium)
+        container.foregroundColor = .secondaryLabel
+        button.configuration?.attributedTitle = AttributedString(" Show publication ", attributes: container)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let collectionView: UICollectionView = {
@@ -96,34 +87,24 @@ class UserProfilePublicationCell: UICollectionViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
         backgroundColor = .systemBackground
-        addSubviews(publicationTitleLabel, collectionView, urlImage, publicationUrlLabel, calendarImage, publicationDateLabel, separatorView)
+        addSubviews(publicationTitleLabel, collectionView, publicationUrlButton, publicationDateLabel, separatorView)
         
         NSLayoutConstraint.activate([
             publicationTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             publicationTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             publicationTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            urlImage.topAnchor.constraint(equalTo: publicationTitleLabel.bottomAnchor, constant: 5),
-            urlImage.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
-            urlImage.widthAnchor.constraint(equalToConstant: 15),
-            urlImage.heightAnchor.constraint(equalToConstant: 15),
-            
-            publicationUrlLabel.centerYAnchor.constraint(equalTo: urlImage.centerYAnchor),
-            publicationUrlLabel.leadingAnchor.constraint(equalTo: urlImage.trailingAnchor, constant: 10),
-            publicationUrlLabel.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
-            
-            calendarImage.topAnchor.constraint(equalTo: publicationUrlLabel.bottomAnchor, constant: 5),
-            calendarImage.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
-            calendarImage.widthAnchor.constraint(equalToConstant: 15),
-            calendarImage.heightAnchor.constraint(equalToConstant: 15),
-            
-            publicationDateLabel.centerYAnchor.constraint(equalTo: calendarImage.centerYAnchor),
-            publicationDateLabel.leadingAnchor.constraint(equalTo: calendarImage.trailingAnchor, constant: 10),
+            publicationDateLabel.topAnchor.constraint(equalTo: publicationTitleLabel.bottomAnchor, constant: 2),
+            publicationDateLabel.leadingAnchor.constraint(equalTo: publicationTitleLabel.leadingAnchor),
             publicationDateLabel.trailingAnchor.constraint(equalTo: publicationTitleLabel.trailingAnchor),
-            publicationDateLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -52),
+            publicationDateLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -78),
             
-            collectionView.topAnchor.constraint(equalTo: publicationDateLabel.bottomAnchor, constant: 5),
-            collectionView.leadingAnchor.constraint(equalTo: calendarImage.leadingAnchor),
+            publicationUrlButton.topAnchor.constraint(equalTo: publicationDateLabel.bottomAnchor, constant: 5),
+            publicationUrlButton.leadingAnchor.constraint(equalTo: publicationDateLabel.leadingAnchor),
+            publicationUrlButton.heightAnchor.constraint(equalToConstant: 30),
+            
+            collectionView.topAnchor.constraint(equalTo: publicationUrlButton.bottomAnchor, constant: 5),
+            collectionView.leadingAnchor.constraint(equalTo: publicationDateLabel.leadingAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 32),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
@@ -136,7 +117,7 @@ class UserProfilePublicationCell: UICollectionViewCell {
     
     func set(publication: Publication) {
         publicationTitleLabel.text = publication.title
-        publicationUrlLabel.text = publication.url
+        //publicationUrlLabel.text = publication.url
         publicationDateLabel.text = publication.date
         UserService.fetchUsers(withUids: publication.contributorUids) { users in
             self.users = users

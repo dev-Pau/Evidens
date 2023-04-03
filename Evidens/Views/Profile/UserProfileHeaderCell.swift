@@ -40,7 +40,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
 
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 27, weight: .semibold)
+        label.font = .systemFont(ofSize: 27, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.textColor = .label
@@ -115,7 +115,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 50),
+            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 60),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
@@ -155,7 +155,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         // Configure with user info
         //bannerImageView.sd_setImage(with: viewModel.bannerImageUrl)
         nameLabel.text = "\(viewModel.firstName ) \(viewModel.lastName)"
-        professionLabel.text = "\(viewModel.profession ) · \( viewModel.speciality)"
+        professionLabel.text = "\(viewModel.profession ) • \( viewModel.speciality)"
         
         // Edit Profile/Follow/Unfollow button
         var container = AttributeContainer()
@@ -192,10 +192,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color name
-                 //profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
-                 //profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
-                 //profileImageView.layer.borderColor = UIColor.systemBackground.cgColor
+                 // ColorUtils.loadCGColorFromAsset returns cgcolor for color na,¡me
                  sendMessageButton.configuration?.background.strokeColor = .quaternarySystemFill
                  guard let viewModel = viewModel else { return }
                  followButton.configuration?.background.strokeColor = viewModel.followButtonBorderColor
