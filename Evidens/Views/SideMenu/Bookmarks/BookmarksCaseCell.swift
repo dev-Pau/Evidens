@@ -16,25 +16,21 @@ class BookmarksCaseCell: UICollectionViewCell {
     
     private var userPostView = MEUserPostView()
     
-    private lazy var caseStateButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.configuration?.buttonSize = .mini
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 10, weight: .bold)
-        
-        button.configuration?.baseBackgroundColor = primaryColor
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let caseInfoLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -86,7 +82,7 @@ class BookmarksCaseCell: UICollectionViewCell {
         
         
         backgroundColor = .systemBackground
-        addSubviews(userPostView, caseStateButton, titleCaseLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, separatorView)
+        addSubviews(userPostView, titleCaseLabel, caseInfoLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, separatorView)
         
         NSLayoutConstraint.activate([
             
@@ -94,13 +90,13 @@ class BookmarksCaseCell: UICollectionViewCell {
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
-           
-            caseStateButton.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            caseStateButton.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
-            caseStateButton.heightAnchor.constraint(equalToConstant: 25),
             
-            titleCaseLabel.topAnchor.constraint(equalTo: caseStateButton.bottomAnchor, constant: 10),
-            titleCaseLabel.leadingAnchor.constraint(equalTo: caseStateButton.leadingAnchor),
+            caseInfoLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
+            caseInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            caseInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+           
+            titleCaseLabel.topAnchor.constraint(equalTo: caseInfoLabel.bottomAnchor, constant: 10),
+            titleCaseLabel.leadingAnchor.constraint(equalTo: caseInfoLabel.leadingAnchor),
             titleCaseLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
@@ -126,37 +122,30 @@ class BookmarksCaseCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
+        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
         titleCaseLabel.text = viewModel.caseTitle
-        userPostView.postTimeLabel.text = viewModel.timestampString
+        userPostView.postTimeLabel.text = viewModel.timestampString! + " • "
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         descriptionCaseLabel.text = viewModel.caseDescription
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         
-        caseStateButton.configuration?.attributedTitle = viewModel.caseStage
-        caseStateButton.configuration?.baseBackgroundColor = viewModel.caseStageBackgroundColor
-        caseStateButton.configuration?.baseForegroundColor = viewModel.caseStageTextColor
+        if viewModel.caseIsAnonymous {
+            userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
+            userPostView.usernameLabel.text = "Anonymous Case"
+        } else {
+            userPostView.profileImageView.image = UIImage(named: "user.profile")
+        }
     }
     
     func set(user: User) {
-        guard let viewModel = viewModel else { return }
-
-        if viewModel.caseIsAnonymous {
-            #warning("configiure privacy image")
-            userPostView.profileImageView.image = UIImage(named: "")
-            userPostView.usernameLabel.text = "Shared anonymously"
-            
-        } else {
-            if let imageUrl = user.profileImageUrl, imageUrl != "" {
-                userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
-            }
-            //userPostView.profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
-            userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
+        if let imageUrl = user.profileImageUrl, imageUrl != "" {
+            userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
-        
-        
-        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
+        userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
     }
-    
+
+
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 

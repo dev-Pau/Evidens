@@ -13,6 +13,8 @@ class CaseFeedTextImageCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    weak var delegate: CaseCellDelegate?
+    
     private var user: User?
     
     private let caseImageView: UIImageView = {
@@ -61,6 +63,14 @@ class CaseFeedTextImageCell: UICollectionViewCell {
         return view
     }()
     
+    private let blurViewBackground: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black.withAlphaComponent(0.5)
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let caseProfessionLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
@@ -79,13 +89,14 @@ class CaseFeedTextImageCell: UICollectionViewCell {
         return label
     }()
     
-    private let profileImageView: UIImageView = {
+    private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 2
         iv.layer.borderColor = UIColor.white.cgColor
+        iv.isUserInteractionEnabled = true
         return iv
     }()
     
@@ -115,13 +126,14 @@ class CaseFeedTextImageCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.cornerRadius = 10
+
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
         
-        //profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
-        //addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
+        let blurEffect = UIBlurEffect(style: .regular)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
         
-        //backgroundColor = .systemPurple
-        
-        //actionButtonsView.delegate = self
         
         addSubviews(caseImageView, caseTitleBackgroundView, dotsImageButton, caseTimestampLabel, caseProfessionLabel, caseTitleLabel, caseTagsLabel, profileImageView, fullNameLabel, caseDescriptionLabel)
         
@@ -163,17 +175,19 @@ class CaseFeedTextImageCell: UICollectionViewCell {
             caseTitleBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseTitleBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
             caseTitleBackgroundView.bottomAnchor.constraint(equalTo: profileImageView.topAnchor, constant: -10),
-            /*
-            caseImageView.topAnchor.constraint(equalTo: topAnchor),
-            caseImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            caseImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseImageView.bottomAnchor.constraint(equalTo: bottomAnchor)
-             */
         ])
         
         caseImageView.layer.cornerRadius = layer.cornerRadius
         caseTitleBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = 30 / 2
+        caseImageView.insertSubview(blurView, at: 0)
+        
+        NSLayoutConstraint.activate([
+            blurView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            blurView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            blurView.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: -10)
+        ])
     }
     
     private func configure() {
@@ -183,11 +197,11 @@ class CaseFeedTextImageCell: UICollectionViewCell {
         caseTagsLabel.text = viewModel.caseTypeDetails.joined(separator: " • ")
         caseDescriptionLabel.text = viewModel.caseDescription
         caseProfessionLabel.text = viewModel.caseProfessions.joined(separator: " • ")
+        dotsImageButton.menu = addMenuItems()
         if let firstImage = viewModel.caseImages.first {
             caseImageView.sd_setImage(with: URL(string: firstImage))
         }
-        //backgroundColor = viewModel.caseBackgroundColor
-
+        
         if viewModel.caseIsAnonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")
             fullNameLabel.text = "Anonymous Case"
@@ -218,6 +232,28 @@ class CaseFeedTextImageCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel else { return nil }
+        //  Not owner
+        let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            UIAction(title: Case.CaseMenuOptions.report.rawValue, image: Case.CaseMenuOptions.report.menuOptionsImage, handler: { (_) in
+                self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
+            })
+        ])
+        dotsImageButton.showsMenuAsPrimaryAction = true
+        return menuItems
+    }
+    
+    @objc func handleProfileTap() {
+        guard let user = user, let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
+        delegate?.clinicalCase(self, wantsToShowProfileFor: user)
+    }
+    
+    @objc func didTapClinicalCase() {
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
     }
 }
     

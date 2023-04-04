@@ -153,7 +153,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
         
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
+        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
         postTextLabel.text = viewModel.postText

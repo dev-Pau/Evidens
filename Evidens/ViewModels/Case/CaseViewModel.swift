@@ -59,6 +59,40 @@ struct CaseViewModel {
         return clinicalCase.stage.caseStageString
     }
     
+    var caseInfoString: [String] {
+        var caseInfoArray = [String]()
+        caseInfoArray.append(caseStageString)
+        
+        if caseResolvedWithDiagnosis {
+            caseInfoArray.append("Diagnosis")
+        } else if caseHasUpdates {
+            caseInfoArray.append("Updates")
+        }
+        
+        if clinicalCase.type == .textWithImage {
+            caseInfoArray.append("Images")
+        }
+        
+        caseInfoArray.append(timestampString!)
+        
+        return caseInfoArray
+    }
+    
+    var caseSummaryInfoString: [String] {
+        var caseInfoArray = [String]()
+        caseInfoArray.append(caseStageString)
+        
+        if caseResolvedWithDiagnosis {
+            caseInfoArray.append("Diagnosis")
+        } else if caseHasUpdates {
+            caseInfoArray.append("Updates")
+        }
+        
+        caseInfoArray.append(contentsOf: caseProfessions)
+        
+        return caseInfoArray
+    }
+    
     var caseImageStage: UIImage {
         return clinicalCase.stage.rawValue == 0 ? UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))! : UIImage(systemName: "magnifyingglass", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
     }
@@ -202,7 +236,7 @@ struct CaseViewModel {
         } else if caseLikes == 0 && caseComments != 0 {
             return "\(caseComments) \( commentText)"
         } else {
-            return "\(caseLikes) · \(caseComments) \(commentText)"
+            return "\(caseLikes) • \(caseComments) \(commentText)"
         }
     }
     

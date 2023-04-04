@@ -130,11 +130,10 @@ struct PostService {
         }
     }
     
-    static func fetchPostsForYou(completion: @escaping([Post]) -> Void) {
+    static func fetchPostsForYou(user: User, completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp
-        let query = COLLECTION_POSTS.order(by: "timestamp", descending: true).limit(to: 3)
-        var count: Int = 0
-        query.getDocuments { (snapshot, error) in
+        let query = COLLECTION_POSTS.whereField("ownerUid", isNotEqualTo: user.uid!).whereField("professions", arrayContains: user.profession!).limit(to: 3)
+        query.getDocuments { snapshot, error in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])
                 return
@@ -151,8 +150,7 @@ struct PostService {
                                 posts[index].numberOfComments = comments
                                 posts[index].didLike = like
                                 posts[index].didBookmark = bookmark
-                                count += 1
-                                if count == posts.count {
+                                if snapshot.count == posts.count {
                                     completion(posts)
                                 }
                             }

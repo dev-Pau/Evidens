@@ -60,6 +60,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
 
     private func fetchMainSearchContent() {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         var count = 0
         NewService.fetchTopNewsForYou { news in
             self.newsForYou = news
@@ -79,7 +82,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             self.checkIfAllTheContentIsFetched(count: count)
         }
         
-        PostService.fetchPostsForYou { posts in
+        PostService.fetchPostsForYou(user: user) { posts in
             guard !posts.isEmpty else {
                 count += 1
                 self.checkIfAllTheContentIsFetched(count: count)
@@ -94,12 +97,13 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             }
         }
         
-        CaseService.fetchCasesForYou { cases in
+        CaseService.fetchCasesForYou(user: user) { cases in
             guard !cases.isEmpty else {
                 count += 1
                 self.checkIfAllTheContentIsFetched(count: count)
                 return
             }
+            
             self.cases = cases
             let uids = cases.map { $0.ownerUid }
             UserService.fetchUsers(withUids: uids) { users in
@@ -111,8 +115,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     }
 
     func checkIfAllTheContentIsFetched(count: Int) {
-
-        
         if count == 5 {
             guard let tab = tabBarController as? MainTabController else { return }
             guard let user = tab.user else { return }
@@ -190,13 +192,12 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.90), heightDimension: .absolute(260)), subitems: [item])
-
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.93), heightDimension: .absolute(260)), subitems: [item])
+                
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .groupPagingCentered
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                section.interGroupSpacing = 7
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                 section.boundarySupplementaryItems = [header]
                 return section
             } else if sectionNumber == 1 {
@@ -205,12 +206,12 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
 
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.90), heightDimension: .absolute(100)), subitems: [item])
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.93), heightDimension: .absolute(100)), subitems: [item])
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .groupPagingCentered
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
+                section.interGroupSpacing = 7
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
                 section.boundarySupplementaryItems = [header]
 
                 return section
@@ -224,9 +225,11 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
                 let section = NSCollectionLayoutSection(group: group)
                 //section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
-                if !self.users.isEmpty { section.boundarySupplementaryItems = [header] }
-                
+              
+                if !self.users.isEmpty {
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
+                    section.boundarySupplementaryItems = [header]
+                }
 
                 return section
             } else {
@@ -240,12 +243,14 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 0
-                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
+
                 
                 if sectionNumber == 3 && !self.posts.isEmpty {
                     section.boundarySupplementaryItems = [header]
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                 } else if sectionNumber == 4 && !self.cases.isEmpty {
                     section.boundarySupplementaryItems = [header]
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                 }
 
                 return section

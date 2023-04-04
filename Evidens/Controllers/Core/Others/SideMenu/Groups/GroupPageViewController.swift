@@ -24,6 +24,7 @@ private let homeTwoImageTextCell = "HomeTwoImageTextCell"
 private let homeImageTextCell = "HomeImageTextCell"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
+private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIDentifier"
 
 protocol GroupPageViewControllerDelegate: AnyObject {
     func didUpdateGroup(_ group: Group)
@@ -44,6 +45,9 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     
     private var group: Group
     private var members: [User]?
+    private var countGroupInformationFetched: Int = 0
+    private var countGroupInformationToFetch: Int = 0
+    private var groupInformationFetched: Bool = false
     
     private var adminUserRoles = [UserGroup]()
     private var adminUsers = [User]()
@@ -106,7 +110,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configureSearchBar()
         configureUI()
         configureCollectionView()
         
@@ -120,15 +123,16 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
             customRightButton.configuration?.background.strokeWidth = 1
             customRightButton.configuration?.attributedTitle = AttributedString(memberType.buttonText, attributes: container)
-            
-            collectionView.isHidden = false
+        
             // User is from group or is pending
             // If user is pending, don't have access to members
             guard memberType != .pending else {
+                countGroupInformationToFetch = 1
                 fetchGroupAdminTeam()
                 return
             }
             // User is from group, fetch group users
+            countGroupInformationToFetch = 2
             fetchGroupUsers()
             fetchGroupContent()
             
@@ -172,12 +176,12 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                 self.customRightButton.configuration?.background.strokeColor = .quaternarySystemFill
                 self.customRightButton.configuration?.background.strokeWidth = 1
             }
-            
-            //self.collectionView.isHidden = false
-            self.collectionView.reloadData()
+
             if memberType == .external || memberType == .pending {
+                self.countGroupInformationToFetch = 1
                 self.fetchGroupAdminTeam()
             } else {
+                self.countGroupInformationToFetch = 2
                 self.fetchGroupUsers()
                 self.fetchGroupContent()
                 return
@@ -189,15 +193,11 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         DatabaseManager.shared.fetchGroupAdminTeamRoles(groupId: self.group.groupId) { adminUserRoles in
             self.adminUserRoles = adminUserRoles
             // Get all admin uid's
-            let adminUids = adminUserRoles.map { admin in
-                return admin.uid
-            }
-            
+            let adminUids = adminUserRoles.map { $0.uid }
+
             UserService.fetchUsers(withUids: adminUids) { admins in
                 self.adminUsers = admins
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
+                self.checkIfAllGroupInformationIsFetched()
             }
         }
     }
@@ -261,22 +261,32 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         navigationItem.titleView?.isHidden = true
     }
     
-    private func configureSearchBar() {
-        //let atrString = NSAttributedString(string: "Search content in \(group.name)", attributes: [.font : UIFont.systemFont(ofSize: 15)])
-        //searchBar.searchTextField.attributedPlaceholder = atrString
-        //searchBar.searchTextField.placeholder = "Search content in \(group.name)"
-    }
-    
     private func configureUI() {
         view.backgroundColor = .systemBackground
-
     }
     
     private func fetchGroupUsers() {
         DatabaseManager.shared.fetchFirstGroupUsers(forGroupId: group.groupId) { uids in
             UserService.fetchUsers(withUids: uids) { users in
                 self.members = users
+                self.checkIfAllGroupInformationIsFetched()
                 //self.collectionView.reloadData()
+            }
+        }
+    }
+    
+    private func checkIfAllGroupInformationIsFetched() {
+        if groupInformationFetched {
+            loaded = true
+            collectionView.reloadData()
+        } else {
+            countGroupInformationFetched += 1
+            if countGroupInformationFetched == countGroupInformationToFetch {
+                // All Group data fetched
+                groupInformationFetched = true
+                loaded = true
+                collectionView.reloadData()
+                scrollViewDidScroll(collectionView)
             }
         }
     }
@@ -345,7 +355,8 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             guard !contentGroup.isEmpty else {
                 // There's no content published in the group
                 self.loaded = true
-                self.collectionView.reloadData()
+                print("called from fetchGroupContents")
+                self.checkIfAllGroupInformationIsFetched()
                 return
             }
             // If there's content, check content type and fetch accordingly
@@ -367,9 +378,11 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
-                                self.loaded = true
-                                self.collectionView.reloadData()
-                                self.collectionView.isHidden = false
+                                print("called from fetchGroupContents")
+                                self.checkIfAllGroupInformationIsFetched()
+                                //self.loaded = true
+                                //self.collectionView.reloadData()
+                                //self.collectionView.isHidden = false
                             }
                         }
                     }
@@ -389,9 +402,11 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             
                             UserService.fetchUsers(withUids: ownerUniqueUids) { users in
                                 self.users = users
-                                self.loaded = true
-                                self.collectionView.reloadData()
-                                self.collectionView.isHidden = false
+                                print("called from fetchGroupContents")
+                                self.checkIfAllGroupInformationIsFetched()
+                                //self.loaded = true
+                                //self.collectionView.reloadData()
+                                //self.collectionView.isHidden = false
                             }
                         }
                     }
@@ -403,6 +418,11 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     
     private func fetchGroupCases() {
         DatabaseManager.shared.fetchAllGroupCases(withGroupId: group.groupId, lastTimestampValue: nil) { caseIds in
+            guard !caseIds.isEmpty else {
+                self.checkIfAllGroupInformationIsFetched()
+                return
+            }
+            
             caseIds.forEach { id in
                 CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: id) { clinicalCase in
                     self.cases.append(clinicalCase)
@@ -413,11 +433,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                         // Obtain all cases owner uids & make the array unique
                         let uniqueOwnerUids = Array(Set(self.cases.map({ $0.ownerUid })))
                         UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
-                            self.checkIfUserLikedCase()
-                            self.checkIfUserBookmarkedCase()
+                            //self.checkIfUserLikedCase()
+                            //self.checkIfUserBookmarkedCase()
                             self.users = users
-                            self.loaded = true
-                            self.collectionView.reloadData()
+                            self.checkIfAllGroupInformationIsFetched()
                         }
                     }
                 }
@@ -427,6 +446,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     
     private func fetchGroupPosts() {
         DatabaseManager.shared.fetchAllGroupPosts(withGroupId: self.group.groupId, lastTimestampValue: nil) { postIds in
+            guard !postIds.isEmpty else {
+                self.checkIfAllGroupInformationIsFetched()
+                return
+            }
             postIds.forEach { id in
                 PostService.fetchGroupPost(withGroupId: self.group.groupId, withPostId: id) { post in
                     self.posts.append(post)
@@ -436,11 +459,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
 
                         let uniqueOwnerUids = Array(Set(self.posts.map({ $0.ownerUid })))
                         UserService.fetchUsers(withUids: uniqueOwnerUids) { users in
-                            self.checkIfUserLikedPosts()
-                            self.checkIfUserBookmarkedPost()
+                            //self.checkIfUserLikedPosts()
+                            //self.checkIfUserBookmarkedPost()
                             self.users = users
-                            self.loaded = true
-                            self.collectionView.reloadData()
+                            self.checkIfAllGroupInformationIsFetched()
                         }
                     }
                 }
@@ -476,13 +498,13 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
         
-        if memberType == nil { collectionView.isHidden = true }
+        //if memberType == nil { collectionView.isHidden = true }
     
         
         collectionView.register(MEStretchyHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: stretchyHeaderReuseIdentifier)
         collectionView.register(GroupPageHeaderCell.self, forCellWithReuseIdentifier: groupHeaderReuseIdentifier)
         collectionView.register(GroupContentCreationCell.self, forCellWithReuseIdentifier: groupContentCreationReuseIdentifier)
-        
+        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(GroupContentSelectionHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: groupContentSelectionReuseIdentifier)
         
         // External users
@@ -531,6 +553,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                 section.boundarySupplementaryItems = [header]
                 return section
             } else if sectionNumber == 1 {
+                // Loading header while fetching data && Group Header
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                          elementKind: ElementKind.sectionHeader,
                                                                          alignment: .top)
@@ -543,7 +566,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                 //section.orthogonalScrollingBehavior = .continuous
                 return section
             } else {
-                if self.memberType == .external || self.memberType == .pending {
+                if self.memberType == .external || self.memberType == .pending || !self.loaded {
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)),
                                                                              elementKind: ElementKind.sectionHeader,
                                                                              alignment: .top)
@@ -726,10 +749,10 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                                 
                                 UserService.fetchUsers(withUids: newOwners) { users in
                                     self.users.append(contentsOf: users)
-                                    self.checkIfUserLikedPosts()
-                                    self.checkIfUserLikedCase()
-                                    self.checkIfUserBookmarkedCase()
-                                    self.checkIfUserBookmarkedPost()
+                                    //self.checkIfUserLikedPosts()
+                                    //self.checkIfUserLikedCase()
+                                    //self.checkIfUserBookmarkedCase()
+                                    //self.checkIfUserBookmarkedPost()
                                     self.loaded = true
                                     self.collectionView.reloadData()
                                 }
@@ -826,13 +849,15 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
 extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return groupInformationFetched ? 3 : 2
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return (memberType == .external || memberType == .pending) ? 1 : 2
+            // If is not loaded, just return 1 item -> Group header with all the information
+            return groupInformationFetched ? (memberType == .external || memberType == .pending) ? 1 : 2 : 1
         } else if section == 1 {
+            guard groupInformationFetched else { return 0 }
             if memberType == .external || memberType == .pending {
                 return 1
             } else {
@@ -840,11 +865,11 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 //if !loaded { return 3 }
                 switch contentIndexSelected {
                 case .all:
-                    return content.isEmpty ? 1 : content.count//loaded ? (content.isEmpty ? 1 : content.count) : 3
+                    return loaded ? content.isEmpty ? 1 : content.count : 0//loaded ? (content.isEmpty ? 1 : content.count) : 3
                 case .cases:
-                    return cases.isEmpty ? 1 : cases.count//loaded ? (cases.isEmpty ? 1 : cases.count) : 3  //cases.isEmpty ? 1 :  loaded ? cases.count : 4
+                    return loaded ? cases.isEmpty ? 1 : cases.count : 0//loaded ? (cases.isEmpty ? 1 : cases.count) : 3  //cases.isEmpty ? 1 :  loaded ? cases.count : 4
                 case .posts:
-                    return posts.isEmpty ? 1 : posts.count//loaded ? (posts.isEmpty ? 1 : posts.count) : 3 //posts.isEmpty ? 1 : loaded ? posts.count : 4
+                    return  loaded ? posts.isEmpty ? 1 : posts.count : 0//loaded ? (posts.isEmpty ? 1 : posts.count) : 3 //posts.isEmpty ? 1 : loaded ? posts.count : 4
                 }
             }
         } else {
@@ -856,6 +881,10 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         if indexPath.section == 0 {
             if indexPath.row == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupHeaderReuseIdentifier, for: indexPath) as! GroupPageHeaderCell
+                
+                cell.configurationButton.isHidden = groupInformationFetched ? false : true
+                cell.customUserButton.isHidden = groupInformationFetched ? false : true
+
                 cell.viewModel = GroupViewModel(group: group)
                 cell.users = members
                 cell.memberType = memberType
@@ -881,7 +910,8 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                 case .all:
                     if content.isEmpty {
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-                        cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Be the first to share content in this group and get the conversation going.", withDescription: "Create your first post or clinical case")
+                        cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Be the first to share content in this group.", withDescription: "Start sharing content and get the conversation going.", withButtonText: "  Dismiss  ")
+                        cell.delegate = self
                         return cell
                     }
                     // Content can be a post or a clinical case
@@ -918,12 +948,22 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
                     }
                     
                 case .cases:
-
+                    if cases.isEmpty {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                        cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Be the first to share cases in this group.", withDescription: "Start sharing cases and get the conversation going.", withButtonText: "  Dismiss  ")
+                        cell.delegate = self
+                        return cell
+                    }
                     return displayClinicalCaseCell(clinicalCase: cases[indexPath.row], indexPath: indexPath, collectionView: collectionView)
                     
                     
                 case .posts:
-                    
+                    if posts.isEmpty {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupContentCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
+                        cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Be the first to share posts in this group.", withDescription: "Start uploading posts and get the conversation going.", withButtonText: "  Dismiss  ")
+                        cell.delegate = self
+                        return cell
+                    }
                     return displayPostCell(post: posts[indexPath.row], indexPath: indexPath, collectionView: collectionView)
                 }
             }
@@ -959,6 +999,16 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             return header
         }
         
+        if !groupInformationFetched && indexPath.section == 1 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
+        }
+        
+        if !loaded && indexPath.section == 2 {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            return header
+        }
+        
         if memberType == .external || memberType == .pending {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: groupContentHeaderReuseIdentifier, for: indexPath) as! GroupAboutHeader
             if indexPath.section == 1 {
@@ -975,13 +1025,6 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
         }
     }
     
-    /*
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if section == 0 { return CGSize(width: view.frame.width, height: view.frame.width / 3) }
-        
-        return CGSize(width: UIScreen.main.bounds.width, height: 50)
-    }
-    */
     func displayPostCell(post: Post, indexPath: IndexPath, collectionView: UICollectionView) -> UICollectionViewCell {
         let userIndex = users.firstIndex { user in
             if user.uid == post.ownerUid {
@@ -1294,15 +1337,15 @@ extension GroupPageViewController: GroupContentSelectionHeaderDelegate {
     func didTapContentCategory(category: ContentGroup.ContentTopics) {
         if contentIndexSelected == category { return } else {
             contentIndexSelected = category
-            
             self.loaded = false
             self.collectionView.reloadData()
-            
             
             switch category {
             case .all:
                 self.cases.removeAll()
                 self.posts.removeAll()
+                self.content.removeAll()
+                self.contentLastTimestamp = nil
                 fetchGroupContent()
             case .cases:
                 self.cases.removeAll()
@@ -2372,8 +2415,12 @@ extension GroupPageViewController: CaseUpdatesViewControllerDelegate {
             } else { return }
         }
     }
-    
+}
 
+extension GroupPageViewController: EmptyGroupCellDelegate {
+    func didTapDiscoverGroup() {
+        navigationController?.popViewController(animated: true)
+    }
 }
 
 

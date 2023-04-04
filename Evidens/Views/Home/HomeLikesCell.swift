@@ -97,6 +97,6 @@ class HomeLikesCell: UICollectionViewCell {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         nameLabel.attributedText = user.userLabelText()
-        professionLabel.text = user.profession! + " · " + user.speciality!
+        professionLabel.text = user.profession! + " • " + user.speciality!
     }
 }

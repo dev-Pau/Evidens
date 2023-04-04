@@ -176,7 +176,7 @@ class ApplyJobHeader: UICollectionReusableView {
     private func configureWithUser() {
         guard let user = user else { return }
         usernameLabel.text = user.firstName! + " " + user.lastName!
-        professionLabel.text = user.profession! + " · " + user.speciality!
+        professionLabel.text = user.profession! + " • " + user.speciality!
         emailAddressTextField.text = user.email!
         if let imageUrl = user.profileImageUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))

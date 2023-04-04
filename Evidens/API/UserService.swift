@@ -442,7 +442,6 @@ struct UserService {
     static func fetchWhoToFollowUsers(completion: @escaping([User]) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var users = [User]()
-        var count: Int = 0
         COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).limit(to: 3).getDocuments { snapshot, error in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion(users)
@@ -453,8 +452,7 @@ struct UserService {
             users.enumerated().forEach { index, user in
                 self.checkIfUserIsFollowed(uid: user.uid!) { followed in
                     users[index].isFollowed = followed
-                    count += 1
-                    if count == users.count {
+                    if snapshot.count == users.count {
                         completion(users)
                     }
                 }

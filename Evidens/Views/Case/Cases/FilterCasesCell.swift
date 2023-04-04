@@ -14,18 +14,20 @@ protocol FilterCasesCellDelegate: AnyObject {
 class FilterCasesCell: UICollectionViewCell {
     
     weak var delegate: FilterCasesCellDelegate?
+    var changeAppearanceOnSelection: Bool = true
     
     override var isSelected: Bool {
         didSet {
+            guard changeAppearanceOnSelection else { return }
             //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
-            backgroundColor = isSelected ? primaryColor : .clear
-            tagsLabel.textColor = isSelected ? .white : .label
+            //backgroundColor = isSelected ? primaryColor : .clear
+            tagsLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
         }
     }
     
     var tagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 0
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false

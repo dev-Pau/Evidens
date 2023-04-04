@@ -17,12 +17,22 @@ protocol ExploreCasesToolbarDelegate: AnyObject {
 
 class ExploreCasesToolbar: UIToolbar {
     
+    private let selectionCellView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = primaryColor
+        return view
+    }()
+    
     private var filterCollectionView: UICollectionView!
     
     private var indexSelected: Int = 1
+    private var didSelectFirstByDefault: Bool = false
+    private var cellPoint: CGPoint!
     
     weak var exploreDelegate: ExploreCasesToolbarDelegate?
-
+   
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -35,12 +45,20 @@ class ExploreCasesToolbar: UIToolbar {
     private func createFilterCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .fractionalHeight(1)))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(45), heightDimension: .absolute(30)), subitems: [item])
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
             section.interGroupSpacing = 10
             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 0)
+
+            section.visibleItemsInvalidationHandler = { (visibleItems, point, env) -> Void in
+                self.cellPoint = point
+                if let indexPath = self.filterCollectionView.indexPathsForSelectedItems?.first, let cell = self.filterCollectionView.cellForItem(at: indexPath) as? FilterCasesCell {
+                    self.selectionCellView.frame.origin.x = cell.frame.origin.x - point.x
+                }
+            }
+            
             return section
         }
         return layout
@@ -53,7 +71,7 @@ class ExploreCasesToolbar: UIToolbar {
         filterCollectionView.alwaysBounceHorizontal = true
         filterCollectionView.backgroundColor = .clear
         
-        addSubview(filterCollectionView)
+        addSubviews(selectionCellView, filterCollectionView)
         NSLayoutConstraint.activate([
             filterCollectionView.topAnchor.constraint(equalTo: topAnchor),
             filterCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -62,9 +80,6 @@ class ExploreCasesToolbar: UIToolbar {
         ])
         
         filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
-        //filterCollectionView.register(ExploreCasesCell.self, forCellWithReuseIdentifier: exploreCellReuseIdentifier)
-        //filterCollectionView.register(SeparatorCell.self, forCellWithReuseIdentifier: separatorCellReuseIdentifier)
-        
         filterCollectionView.allowsSelection = true
         filterCollectionView.allowsMultipleSelection = false
         filterCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -72,9 +87,26 @@ class ExploreCasesToolbar: UIToolbar {
         filterCollectionView.dataSource = self
         filterCollectionView.delegate = self
         
-        filterCollectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: true, scrollPosition: [])
+        selectionCellView.layer.cornerRadius = 30 / 2
         
+
     }
+    
+    func selectFirstIndex() {
+        DispatchQueue.main.async {
+            self.filterCollectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: true, scrollPosition: [])
+            self.collectionView(self.filterCollectionView, didSelectItemAt: IndexPath(item: 1, section: 0))
+        }
+    }
+    
+    /*
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print(scrollView.contentOffset)
+        if let indexPath = filterCollectionView.indexPathsForSelectedItems?.first, let cell = filterCollectionView.cellForItem(at: indexPath) as? FilterCasesCell {
+            selectionCellView.frame.origin.x = cell.frame.origin.x - scrollView.contentOffset.x
+        }
+    }
+     */
 }
 
 extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -92,6 +124,28 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selection = Case.FilterCategories.allCases[indexPath.row]
         
+        if let cell = collectionView.cellForItem(at: indexPath) as? FilterCasesCell {
+            
+            if !didSelectFirstByDefault {
+                self.selectionCellView.frame.origin.x = cell.frame.origin.x
+                self.selectionCellView.frame = cell.frame
+                didSelectFirstByDefault.toggle()
+            } else {
+                
+                let cellOrigin = (collectionView.layoutAttributesForItem(at: indexPath)?.frame)!
+                let cellFrameOrigin = collectionView.convert(cellOrigin, to: collectionView.superview)
+                
+                UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseOut) {
+                    //collectionView.scrollToItem(at: indexPath, at: .left, animated: true)
+                    print(cell.frame.origin.x)
+                    print(self.cellPoint.x)
+                    //self.selectionCellView.frame.origin.x = cell.frame.origin.x - self.cellPoint.x
+                    self.selectionCellView.frame = CGRect(x: cell.frame.origin.x - self.cellPoint.x, y: cell.frame.origin.y, width: cell.frame.width, height: cell.frame.height)
+                    // self.selectionCellView.frame = collectionView.convert(cell.frame, to: collectionView.superview)
+                }
+            }
+        }
+        
         switch selection {
         case .explore:
            break
@@ -103,6 +157,14 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
             if indexSelected == indexPath.row { return }
             exploreDelegate?.wantsToSeeCategory(category: .recents)
             indexSelected = indexPath.row
+        case .solved:
+            return
+        case .unsolved:
+            return
+        case .diagnosis:
+            return
+        case .images:
+            return
         }
     }
     

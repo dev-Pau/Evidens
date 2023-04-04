@@ -116,7 +116,7 @@ class UserSelectionCell: UICollectionViewCell {
         }
 
         if user.category == .student {
-            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
+            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " • Student"
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
         }

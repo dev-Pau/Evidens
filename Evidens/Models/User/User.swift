@@ -81,7 +81,7 @@ extension User {
         if category == .professional {
             attributedText.append(NSAttributedString(string: "\(speciality!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
         } else {
-            attributedText.append(NSAttributedString(string: "\(speciality!) · ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+            attributedText.append(NSAttributedString(string: "\(speciality!) • ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
             attributedText.append(NSAttributedString(string: category.userCategoryString, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
             
         }
@@ -93,7 +93,7 @@ extension User {
             let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
             return attributedString
         } else {
-            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName! + " · ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName! + " • ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
             attributedString.append(NSAttributedString(string: "Student", attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
             return attributedString
         }

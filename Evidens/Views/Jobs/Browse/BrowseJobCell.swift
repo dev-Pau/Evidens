@@ -36,7 +36,7 @@ class BrowseJobCell: UICollectionViewCell {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(named: "company.profile")
         iv.backgroundColor = .quaternarySystemFill
         return iv
     }()
@@ -172,13 +172,13 @@ class BrowseJobCell: UICollectionViewCell {
             button.isUserInteractionEnabled = self.isUpdatingJoiningState! ? false : true
         }
         
-        companyImageView.layer.cornerRadius = 7
+        //companyImageView.layer.cornerRadius = 7
     }
     
     private func configureWithJob() {
         guard let viewModel = viewModel else { return }
         jobPositionName.text = viewModel.jobName
-        jobLocationLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
+        jobLocationLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
         //jobDetailsLabel.text = viewModel.jobProfession + " · " + viewModel.jobType
         timestampLabel.text = viewModel.jobTimestampString! + " ago"
         bookmarkButton.configuration?.image = viewModel.bookMarkImage

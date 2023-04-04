@@ -77,7 +77,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         return collectionView
     }()
     
-    private lazy var configurationButton: UIButton = {
+    lazy var configurationButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -96,7 +96,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         return button
     }()
     
-    private lazy var customUserButton: UIButton = {
+    lazy var customUserButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule

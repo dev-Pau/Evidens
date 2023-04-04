@@ -133,7 +133,7 @@ class JobUserApplicationCell: UICollectionViewCell {
 
     func configureWith(user: User, applicant: JobUserApplicant) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        userCategoryLabel.text = user.profession! + " · " + user.speciality!
+        userCategoryLabel.text = user.profession! + " • " + user.speciality!
 
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]

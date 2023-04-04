@@ -15,25 +15,17 @@ protocol CreateJobHeaderDelegate: AnyObject {
 class CreateJobHeader: UICollectionReusableView {
     
     weak var delegate: CreateJobHeaderDelegate?
-    
-    private lazy var companyImageButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = .systemGray4
-        button.configuration?.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemGray).scalePreservingAspectRatio(targetSize: CGSize(width: 50, height: 50))
-        //button.configuration?.background.strokeColor = .quaternarySystemFill
-        //button.configuration?.background.strokeWidth = 2
-        button.addTarget(self, action: #selector(handleAddExistingCompany), for: .touchUpInside)
-        return button
-    }()
+    private var trailingImageView: NSLayoutConstraint!
     
     private lazy var companyImageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.image = UIImage(named: "company.profile")
         iv.contentMode = .scaleAspectFill
         iv.backgroundColor = .quaternarySystemFill
         iv.clipsToBounds = true
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAddExistingCompany)))
         return iv
     }()
     
@@ -55,7 +47,7 @@ class CreateJobHeader: UICollectionReusableView {
         label.textColor = primaryColor
         label.text = "Select or create a company"
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         return label
     }()
     
@@ -69,42 +61,39 @@ class CreateJobHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(companyImageButton, addImageButton, companyLabel)
+        addSubviews(companyImageView, addImageButton, companyLabel)
+        
+        trailingImageView = companyImageView.trailingAnchor.constraint(equalTo: centerXAnchor, constant: -10)
+        trailingImageView.isActive = true
+        
         NSLayoutConstraint.activate([
-            companyImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-            companyImageButton.trailingAnchor.constraint(equalTo: centerXAnchor, constant: -10),
-            companyImageButton.heightAnchor.constraint(equalToConstant: 70),
-            companyImageButton.widthAnchor.constraint(equalToConstant: 70),
+            companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            //companyImageView.trailingAnchor.constraint(equalTo: centerXAnchor, constant: -10),
+            companyImageView.heightAnchor.constraint(equalToConstant: 70),
+            companyImageView.widthAnchor.constraint(equalToConstant: 70),
             
             addImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             addImageButton.leadingAnchor.constraint(equalTo: centerXAnchor, constant: 10),
             addImageButton.heightAnchor.constraint(equalToConstant: 70),
             addImageButton.widthAnchor.constraint(equalToConstant: 70),
             
-            companyLabel.topAnchor.constraint(equalTo: companyImageButton.bottomAnchor, constant: 20),
+            companyLabel.topAnchor.constraint(equalTo: companyImageView.bottomAnchor, constant: 10),
             companyLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             companyLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
         ])
     }
     
     func setWithCompany(company: Company) {
-        companyImageButton.isHidden = true
+        trailingImageView.constant = 35
+        trailingImageView.isActive = true
+        
         addImageButton.isHidden = true
-        addSubview(companyImageView)
-        
-        NSLayoutConstraint.activate([
-            companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-            companyImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            companyImageView.heightAnchor.constraint(equalToConstant: 70),
-            companyImageView.widthAnchor.constraint(equalToConstant: 70)
-        ])
-        
+        addImageButton.isUserInteractionEnabled = false
+    
         companyLabel.text = company.name
         if let companyUrl = company.companyImageUrl, companyUrl != "" {
             companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
         }
-
-        companyImageView.layer.cornerRadius = 7
     }
     
     @objc func handleAddExistingCompany() {

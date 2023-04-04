@@ -123,6 +123,14 @@ struct CaseService {
                 
                 completion(snapshot)
             }
+        case .solved:
+            return
+        case .unsolved:
+            return
+        case .diagnosis:
+            return
+        case .images:
+            return
         }
     }
     
@@ -677,18 +685,17 @@ struct CaseService {
         })
     }
     
-    static func fetchCasesForYou(completion: @escaping([Case]) -> Void) {
+    static func fetchCasesForYou(user: User, completion: @escaping([Case]) -> Void) {
         //Fetch posts by filtering according to timestamp
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_CASES.whereField("ownerUid", isNotEqualTo: uid).limit(to: 3)
-        var count: Int = 0
-        query.getDocuments { (snapshot, error) in
+        let query = COLLECTION_CASES.whereField("ownerUid", isNotEqualTo: uid).whereField("professions", arrayContains: user.profession!).limit(to: 3)
+        query.getDocuments { snapshot, error in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])
                 return
             }
             
-            //Mapping that creates an array for each post
+            //Mapping that creates an array for each Case
             var cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             cases.enumerated().forEach { index, clinicalCase in
                 self.checkIfUserLikedCase(clinicalCase: clinicalCase) { like in
@@ -699,8 +706,7 @@ struct CaseService {
                                 cases[index].numberOfComments = comments
                                 cases[index].didLike = like
                                 cases[index].didBookmark = bookmark
-                                count += 1
-                                if count == cases.count {
+                                if snapshot.count == cases.count {
                                     completion(cases)
                                 }
                             }

@@ -120,7 +120,6 @@ class CasesFeedCell: UICollectionViewCell {
         cellContentView.addSubviews(compositionalCollectionView, titleCaseLabel, profileImageView, actionButtonsView, caseStateButton)
        
         NSLayoutConstraint.activate([
-         
             compositionalCollectionView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             compositionalCollectionView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             compositionalCollectionView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),

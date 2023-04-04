@@ -90,7 +90,7 @@ struct GroupViewModel {
     }
     
     var groupCategories: String {
-        return group.categories.joined(separator: " · ")
+        return group.categories.joined(separator: " • ")
     }
     
     var groupSizeString: String {

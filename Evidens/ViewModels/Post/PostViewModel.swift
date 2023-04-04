@@ -108,7 +108,7 @@ struct PostViewModel {
         } else if likes == 0 && comments != 0 {
             return "\(comments) \( commentText)"
         } else {
-            return "\(likes) · \(comments) \(commentText)"
+            return "\(likes) • \(comments) \(commentText)"
         }
     }
 

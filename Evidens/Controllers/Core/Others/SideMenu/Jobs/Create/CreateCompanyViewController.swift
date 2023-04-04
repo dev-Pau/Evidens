@@ -166,9 +166,9 @@ extension CreateCompanyViewController: UICollectionViewDelegateFlowLayout, UICol
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: createCompanyImageCellReuseIdentifier, for: indexPath) as! EditProfilePictureCell
             cell.delegate = self
-            cell.profileImageView.image = nil
-            cell.profileImageView.layer.cornerRadius = 7
-            cell.editProfileButton.configuration?.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35)).withRenderingMode(.alwaysOriginal).withTintColor(.systemGray)
+            cell.profileImageView.image = UIImage(named: "company.profile")
+            cell.profileImageView.layer.cornerRadius = 0
+           
             //if let group = group {
               //  cell.set(bannerImageUrl: group.bannerUrl!)
                 //cell.set(profileImageUrl: group.profileUrl!)

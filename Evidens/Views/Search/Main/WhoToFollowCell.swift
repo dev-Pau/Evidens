@@ -130,7 +130,7 @@ class WhoToFollowCell: UICollectionViewCell {
         }
         nameLabel.text = user.firstName! + " " + user.lastName!
         if user.category == .student {
-            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " · Student"
+            userCategoryLabel.text = user.profession! + ", " + user.speciality! + " • Student"
         } else {
             userCategoryLabel.text = user.profession! + ", " + user.speciality!
         }

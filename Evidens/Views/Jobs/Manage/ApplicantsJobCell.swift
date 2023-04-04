@@ -138,7 +138,7 @@ class ApplicantsJobCell: UICollectionViewCell {
     private func configureWithJob() {
         guard let viewModel = viewModel else { return }
         jobPositionName.text = viewModel.jobName
-        jobLocationLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
+        jobLocationLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
         timestampLabel.text = viewModel.jobTimestampString! + " ago"
     }
     

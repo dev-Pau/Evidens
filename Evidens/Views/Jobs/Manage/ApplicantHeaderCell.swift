@@ -151,7 +151,7 @@ class ApplicantHeaderCell: UICollectionViewCell {
     
     func configureWithUser(user: User, applicant: JobUserApplicant) {
         nameLabel.text = user.firstName! + " " + user.lastName!
-        userCategoryLabel.text = user.profession! + " · " + user.speciality!
+        userCategoryLabel.text = user.profession! + " • " + user.speciality!
         emailLabel.text = user.email!
         phoneLabel.text = applicant.phoneNumber
         

@@ -13,6 +13,8 @@ class CaseFeedTextCell: UICollectionViewCell {
         didSet { configure() }
     }
     
+    weak var delegate: CaseCellDelegate?
+    
     private var user: User?
     
     private lazy var dotsImageButton: UIButton = {
@@ -30,7 +32,7 @@ class CaseFeedTextCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         label.textColor = .white
         return label
     }()
@@ -70,13 +72,14 @@ class CaseFeedTextCell: UICollectionViewCell {
         return label
     }()
     
-    private let profileImageView: UIImageView = {
+    private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 2
         iv.layer.borderColor = UIColor.white.cgColor
+        iv.isUserInteractionEnabled = true
         return iv
     }()
     
@@ -98,19 +101,13 @@ class CaseFeedTextCell: UICollectionViewCell {
         return label
     }()
     
-    
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.cornerRadius = 10
-        
-        //profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
-        //addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
-        
-        //backgroundColor = .systemPurple
-        
-        //actionButtonsView.delegate = self
-        
+
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapClinicalCase)))
+
         addSubviews(caseTitleBackgroundView, dotsImageButton, caseTimestampLabel, caseProfessionLabel, caseTitleLabel, caseTagsLabel, profileImageView, fullNameLabel, caseDescriptionLabel)
         
         NSLayoutConstraint.activate([
@@ -160,13 +157,14 @@ class CaseFeedTextCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        caseTimestampLabel.text = viewModel.caseStageString + " • " + viewModel.timestampString!
+        caseTimestampLabel.text = viewModel.caseInfoString.joined(separator: " • ")
         caseTitleLabel.text = viewModel.caseTitle
         caseTagsLabel.text = viewModel.caseTypeDetails.joined(separator: " • ")
         caseDescriptionLabel.text = viewModel.caseDescription
         caseProfessionLabel.text = viewModel.caseProfessions.joined(separator: " • ")
         backgroundColor = viewModel.caseBackgroundColor
-
+        dotsImageButton.menu = addMenuItems()
+        
         if viewModel.caseIsAnonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")?.withTintColor(viewModel.caseBackgroundColor)
             fullNameLabel.text = "Anonymous Case"
@@ -174,7 +172,6 @@ class CaseFeedTextCell: UICollectionViewCell {
             profileImageView.image = UIImage(named: "user.profile")
         }
     }
-    
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
@@ -198,5 +195,27 @@ class CaseFeedTextCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
     
+    private func addMenuItems() -> UIMenu? {
+        guard let viewModel = viewModel else { return nil }
+        //  Not owner
+        let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            UIAction(title: Case.CaseMenuOptions.report.rawValue, image: Case.CaseMenuOptions.report.menuOptionsImage, handler: { (_) in
+                self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .report)
+            })
+        ])
+        dotsImageButton.showsMenuAsPrimaryAction = true
+        return menuItems
+    }
+    
+    @objc func handleProfileTap() {
+        guard let user = user, let viewModel = viewModel, !viewModel.caseIsAnonymous else { return }
+        delegate?.clinicalCase(self, wantsToShowProfileFor: user)
+    }
+    
+    @objc func didTapClinicalCase() {
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.clinicalCase(self, wantsToSeeCase: viewModel.clinicalCase, withAuthor: user)
+    }
+}
+

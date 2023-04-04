@@ -37,7 +37,7 @@ struct UserCellViewModel {
     
     var profession: String {
         if user.category == 3 {
-            return user.profession + ", " + user.speciality + " · Student"
+            return user.profession + ", " + user.speciality + " • Student"
         } else {
             return user.profession + ", " + user.speciality
         }

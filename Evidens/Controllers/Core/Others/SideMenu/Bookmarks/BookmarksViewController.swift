@@ -68,7 +68,7 @@ class BookmarksViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 0
-        //layout.minimumInteritemSpacing = 0
+        layout.minimumInteritemSpacing = 0
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
@@ -83,7 +83,7 @@ class BookmarksViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = .systemBackground
         return view
     }()
     
@@ -157,7 +157,15 @@ class BookmarksViewController: UIViewController {
         contentCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         
         view.addSubviews(categoriesCollectionView, separatorView, contentCollectionView)
-        
+       
+        if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
+            separatorView.backgroundColor = tabControllerShadowColor
+        }
+        /*
+         if let tab = tabBarController as? MainTabController {
+             separatorView.layer.borderColor = tab.tabBar.standardAppearance.shadowColor?.cgColor
+         }
+        */
         NSLayoutConstraint.activate([
             categoriesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             categoriesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -167,7 +175,7 @@ class BookmarksViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             contentCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             contentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -272,6 +280,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
 
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
                     
                     let userIndex = caseUsers.firstIndex { user in
                         if user.uid == cases[indexPath.row].ownerUid {
@@ -290,7 +299,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
 
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    
+                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
                     let userIndex = caseUsers.firstIndex { user in
                         if user.uid == cases[indexPath.row].ownerUid {
                             return true

@@ -89,7 +89,7 @@ class BrowseCompanyCell: UICollectionViewCell {
         guard let company = company else { return }
         companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
         companyTitleLabel.text = company.name
-        companyDetailsLabel.text = "Company" + " · " + company.industry + " · " + company.specialities.joined(separator: ", ")
+        companyDetailsLabel.text = "Company" + " • " + company.industry + " • " + company.specialities.joined(separator: ", ")
         
     }
 }

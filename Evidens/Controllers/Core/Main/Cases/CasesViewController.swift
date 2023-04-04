@@ -57,6 +57,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         fetchFirstGroupOfCases()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
     init(contentSource: Case.FeedContentSource) {
         self.contentSource = contentSource
         super.init(nibName: nil, bundle: nil)
@@ -230,18 +234,15 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     let section = NSCollectionLayoutSection(group: group)
                     return section
                 } else {
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300))
                     let item = NSCollectionLayoutItem(layoutSize: itemSize)
                     
-                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(350))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
-                    
-                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                    
+                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300))
+                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                     let section = NSCollectionLayoutSection(group: group)
                     
-                    section.interGroupSpacing = 10
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+                    section.interGroupSpacing = 20
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
                     
                     return section
                 }
@@ -313,6 +314,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         casesCollectionView.refreshControl = contentSource == .home ? refresher : nil
+        exploreCasesToolbar.selectFirstIndex()
     }
     
     @objc func handleRefresh() {
@@ -367,6 +369,14 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                         }
                     }
                 }
+            case .solved:
+                return
+            case .unsolved:
+                return
+            case .diagnosis:
+                return
+            case .images:
+                return
             }
         }
     }
@@ -404,6 +414,26 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 cell.delegate = self
                 return cell
             } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
+                cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
+                guard cases[indexPath.row].privacyOptions == .visible else { return cell }
+                
+                let userIndex = users.firstIndex { user in
+                    
+                    if user.uid == cases[indexPath.row].ownerUid {
+                        return true
+                    }
+                    return false
+                }
+                
+                if let userIndex = userIndex {
+                    cell.set(user: users[userIndex])
+                }
+                
+                cell.delegate = self
+                return cell
+                
+                /*
                 switch cases[indexPath.row].type {
                 case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
@@ -422,7 +452,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                         cell.set(user: users[userIndex])
                     }
                     
-                    //cell.delegate = self
+                    cell.delegate = self
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseFeedTextImageCell
@@ -441,9 +471,10 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                         cell.set(user: users[userIndex])
                     }
                     
-                    //cell.delegate = self
+                    cell.delegate = self
                     return cell
                 }
+                 */
             }
         case .explore:
             if indexPath.section == 0 {
@@ -462,7 +493,8 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 cell.delegate = self
                 return cell
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CasesFeedCell
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
                 cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                 guard cases[indexPath.row].privacyOptions == .visible else { return cell }
                 
@@ -502,15 +534,15 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .home:
             return
         case .explore:
-            let profession = Profession.Professions.allCases[indexPath.row].rawValue
-            
             self.navigationController?.delegate = self
             let controller = CasesViewController(contentSource: .filter)
             controller.controllerIsBeeingPushed = true
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
+            
             if indexPath.section == 0 {
+                let profession = Profession.Professions.allCases[indexPath.row].rawValue
                 controller.title = profession
             } else {
                 controller.title = dataCategoryHeaders[indexPath.row]
@@ -593,9 +625,18 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                     }
                 }
             }
+        case .solved:
+            return
+        case .unsolved:
+            return
+        case .diagnosis:
+            return
+        case .images:
+            return
         }
     }
 }
+
 
 extension CasesViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapMenuOptionsFor clinicalCase: Case, option: Case.CaseMenuOptions) {
@@ -696,7 +737,6 @@ extension CasesViewController: CaseCellDelegate {
         DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
     }
 
-
     func clinicalCase(_ cell: UICollectionViewCell, didBookmark clinicalCase: Case) {
         guard let indexPath = casesCollectionView.indexPath(for: cell) else { return }
         HapticsManager.shared.vibrate(for: .success)
@@ -722,7 +762,6 @@ extension CasesViewController: CaseCellDelegate {
         default:
             return
         }
-        
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -812,6 +851,14 @@ extension CasesViewController {
                         }
                     }
                 }
+            case .solved:
+                return
+            case .unsolved:
+                return
+            case .diagnosis:
+                return
+            case .images:
+                return
             }
         case .explore:
             // No cases to append

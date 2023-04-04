@@ -1736,11 +1736,18 @@ extension DatabaseManager {
         let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryStarting(atValue: 0).queryEnding(atValue: 2).queryLimited(toLast: 3)
         
         groupRef.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(uids)
+                return
+            }
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any], let uid = value["uid"] as? String else { return }
                 uids.append(uid)
+                if uids.count == snapshot.children.allObjects.count {
+                    completion(uids)
+                }
             }
-            completion(uids)
         }
     }
     
@@ -1782,11 +1789,18 @@ extension DatabaseManager {
         var adminUsers = [UserGroup]()
         
         groupRef.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(adminUsers)
+                return
+            }
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
                 guard let value = child.value as? [String: Any] else { return }
                 adminUsers.append(UserGroup(dictionary: value))
-            }  
-            completion(adminUsers)
+                if adminUsers.count == snapshot.children.allObjects.count {
+                    completion(adminUsers)
+                }
+            }
         }
     }
     
@@ -1872,13 +1886,14 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let userRef = database.child("users").child(uid).child("groups").queryOrdered(byChild: "groupId").queryEqual(toValue: groupId)
         userRef.observeSingleEvent(of: .value) { snapshot in
-            
-            if !snapshot.exists() {
+            guard snapshot.exists() else {
                 completion(Group.MemberType.external)
+                return
             }
             
             snapshot.children.forEach { child in
                 if let child = child as? DataSnapshot, let value = child.value as? [String: Any], let memberType = value["memberType"] as? Int {
+                    print(Group.MemberType(rawValue: memberType)!)
                     completion(Group.MemberType(rawValue: memberType)!)
                 }
             }
@@ -1964,7 +1979,10 @@ extension DatabaseManager {
         if lastTimestampValue == nil {
             let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             contentRef.observeSingleEvent(of: .value) { snapshot in
-                
+                guard snapshot.exists() else {
+                    completion(recentContent)
+                    return
+                }
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
                     recentContent.append(ContentGroup(dictionary: value))
@@ -1976,7 +1994,10 @@ extension DatabaseManager {
         } else {
             let contentRef = database.child("groups").child(groupId).child("content").child("all").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
             contentRef.observeSingleEvent(of: .value) { snapshot in
-                
+                guard snapshot.exists() else {
+                    completion(recentContent)
+                    return
+                }
                 for child in snapshot.children.allObjects as! [DataSnapshot] {
                     guard let value = child.value as? [String: Any] else { return }
                     recentContent.append(ContentGroup(dictionary: value))
@@ -1994,22 +2015,36 @@ extension DatabaseManager {
             // Fetch first group posts
             let postsRef = database.child("groups").child(groupId).child("content").child("posts").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             postsRef.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists() else {
+                    completion(postIds)
+                    return
+                }
                 if let values = snapshot.value as? [String: Any] {
                     values.forEach { value in
                         postIds.append(value.key)
+                        if postIds.count == values.count {
+                            completion(postIds)
+                        }
                     }
-                    completion(postIds)
                 }
             }
         } else {
             // Fetch more posts
             let postsRef = database.child("groups").child(groupId).child("content").child("posts").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
+
             postsRef.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists() else {
+                    completion(postIds)
+                    return
+                }
+                
                 if let values = snapshot.value as? [String: Any] {
                     values.forEach { value in
                         postIds.append(value.key)
+                        if postIds.count == values.count {
+                            completion(postIds)
+                        }
                     }
-                    completion(postIds)
                 }
             }
         }
@@ -2020,23 +2055,36 @@ extension DatabaseManager {
         if lastTimestampValue == nil {
             let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryLimited(toLast: 10)
             casesRef.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists() else {
+                    completion(caseIds)
+                    return
+                }
                 
                 if let values = snapshot.value as? [String: Any] {
                     values.forEach { value in
                         caseIds.append(value.key)
+                        if caseIds.count == values.count {
+                            completion(caseIds)
+                        }
                     }
-                    completion(caseIds)
                 }
+               
             }
         } else {
             let casesRef = database.child("groups").child(groupId).child("content").child("cases").queryOrdered(byChild: "timestamp").queryEnding(atValue: lastTimestampValue).queryLimited(toLast: 10)
             casesRef.observeSingleEvent(of: .value) { snapshot in
+                guard snapshot.exists() else {
+                    completion(caseIds)
+                    return
+                }
                 
                 if let values = snapshot.value as? [String: Any] {
                     values.forEach { value in
                         caseIds.append(value.key)
+                        if caseIds.count == values.count {
+                            completion(caseIds)
+                        }
                     }
-                    completion(caseIds)
                 }
             }
         }

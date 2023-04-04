@@ -289,12 +289,11 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                     self.collectionView.reloadData()
                     self.collectionView.isHidden = false
                 } else {
-                    
                     self.postsLastSnapshot = snapshot.documents.last
                     self.posts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data()) })
                     
                     PostService.getPostValuesFor(posts: self.posts) { posts in
-                        self.posts = self.posts
+                        self.posts = posts
                         UserService.fetchUsers(withUids: self.posts.map({ $0.ownerUid })) { users in
                             self.users = users
                             self.loaded = true

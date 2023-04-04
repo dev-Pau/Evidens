@@ -32,7 +32,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
 
     var tagsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
         label.isUserInteractionEnabled = false
         label.textColor = .systemBackground
@@ -79,7 +79,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
         //layer.borderColor = UIColor.quaternarySystemFill.cgColor
         backgroundColor = .label
         
-        addSubviews(tagsLabel, arrowImageView, button)
+        addSubviews(tagsLabel, button)
         
         NSLayoutConstraint.activate([
             button.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -91,11 +91,12 @@ class ProfessionSelectedCell: UICollectionViewCell {
             tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25),
             tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
             tagsLabel.topAnchor.constraint(equalTo: topAnchor),
-            
+            /*
             arrowImageView.centerYAnchor.constraint(equalTo: tagsLabel.centerYAnchor),
             arrowImageView.leadingAnchor.constraint(equalTo: tagsLabel.trailingAnchor, constant: 5),
             arrowImageView.heightAnchor.constraint(equalToConstant: 13),
             arrowImageView.widthAnchor.constraint(equalToConstant: 11)
+             */
         ])
         
         //addMenuItems()

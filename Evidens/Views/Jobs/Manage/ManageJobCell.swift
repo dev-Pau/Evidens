@@ -156,7 +156,7 @@ class ManageJobCell: UICollectionViewCell {
         }
 
         jobTitle.text = viewModel.jobName
-        locationWorksplaceLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
+        locationWorksplaceLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
         timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago"
         jobStageButton.configuration?.baseBackgroundColor = viewModel.jobStageBackgroundColor
         

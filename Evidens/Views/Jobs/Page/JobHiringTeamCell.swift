@@ -103,7 +103,7 @@ class JobHiringTeamCell: UICollectionViewCell {
         UserService.fetchUser(withUid: memberUid) { user in
             self.user = user
             self.nameLabel.text = user.firstName! + " " + user.lastName!
-            self.userInfoCategoryLabel.text = user.profession! + " · " + user.speciality!
+            self.userInfoCategoryLabel.text = user.profession! + " • " + user.speciality!
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
                 self.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }

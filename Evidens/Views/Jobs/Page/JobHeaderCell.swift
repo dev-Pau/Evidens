@@ -21,8 +21,8 @@ class JobHeaderCell: UICollectionViewCell {
     private let companyImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.image = UIImage(systemName: "building.2.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(named: "company.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.backgroundColor = .quaternarySystemFill
         return iv
@@ -177,7 +177,7 @@ class JobHeaderCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        companyImageView.layer.cornerRadius = 7
+        //companyImageView.layer.cornerRadius = 7
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
@@ -188,9 +188,9 @@ class JobHeaderCell: UICollectionViewCell {
         jobNameLabel.text = viewModel.jobName
         industryLabel.text = company.industry
         companyNameLabel.text = company.name
-        specialitiesLabel.text = company.specialities.joined(separator: " · ")
+        specialitiesLabel.text = company.specialities.joined(separator: " • ")
         jobTypeLabel.text = viewModel.jobType
-        locationLabel.text = viewModel.jobLocation + " · " + viewModel.jobWorkplaceType
+        locationLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
         timestampLabel.text = viewModel.jobTimestampString! + " ago"
     }
 }

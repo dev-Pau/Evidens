@@ -24,16 +24,14 @@ class MESearchToolbar: UIToolbar {
     private let searchDataSource = Search.Topics.allCases
     private var isInSearchMode: Bool = false
     private var searchingWithCategorySelected: Bool = false
+    private var separatorColor: UIColor!
     
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
         return view
     }()
-    
-    
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -47,8 +45,6 @@ class MESearchToolbar: UIToolbar {
     }
     
     private func configure() {
-        //setBackgroundImage(UIImage(), forToolbarPosition: .topAttached, barMetrics: .default)
-        //barTintColor = UIColor.systemBackground
         displayDataSource = dataSource
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
         collectionView.backgroundColor = .systemBackground
@@ -60,6 +56,12 @@ class MESearchToolbar: UIToolbar {
         collectionView.register(ProfessionSelectedCell.self, forCellWithReuseIdentifier: professionSelectedCellReuseIdentifier)
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: "kek")
         addSubviews(collectionView, separatorView)
+        
+        if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
+            separatorColor = tabControllerShadowColor
+            separatorView.backgroundColor = separatorColor
+        }
+        
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -69,21 +71,18 @@ class MESearchToolbar: UIToolbar {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.5)
         ])
     }
     
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-            let headerSize = NSCollectionLayoutSize(widthDimension: .absolute(50), heightDimension: .absolute(30))
-
-            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(300), heightDimension: .fractionalHeight(1)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
          
             section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
             section.interGroupSpacing = 5
-            
 
             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
             return section
@@ -98,12 +97,6 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
         return displayDataSource.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "kek", for: indexPath)
-        header.backgroundColor = .systemPink
-        return header
-    }
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if isInSearchMode && indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: professionSelectedCellReuseIdentifier, for: indexPath) as! ProfessionSelectedCell
@@ -116,6 +109,7 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
+            cell.changeAppearanceOnSelection = false
             //cell.tagsLabel.text = displayDataSource[indexPath.row]
             cell.setText(text: displayDataSource[indexPath.row])
             //if isInSearchMode { collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: .left) }
@@ -151,12 +145,11 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
                 
                 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
                     collectionView.frame.origin.y = 0
-                    self.separatorView.backgroundColor = .quaternarySystemFill
+                    self.separatorView.backgroundColor = self.separatorColor
                 }
             }
             searchDelegate?.didSelectSearchTopic(dataSource[indexPath.row])
         }
-        //collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -239,7 +232,7 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
             
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
                 self.collectionView.frame.origin.y = 0
-                self.separatorView.backgroundColor = .quaternarySystemFill
+                self.separatorView.backgroundColor = self.separatorColor
                 self.searchDelegate?.didRestoreMenu()
             }
         }

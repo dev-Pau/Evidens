@@ -15,15 +15,6 @@ private let emptySearchResultsReuseIdentifier = "EmptySearchResultsReuseIdentifi
 private let recentContentSearchReuseIdentifier = "RecentContentSearchReuseIdentifier"
 private let jobCellReuseIdentifier = "JobCellReuseIdentifier"
 
-/*
-protocol SearchConversationViewControllerDelegate: AnyObject {
-    func didTapUser(user: User)
-    func updatePan()
-    func didTapTextToSearch(text: String)
-    func filterConversationsWithText(text: String, completion: @escaping([User]) -> Void)
-}
-*/
-
 protocol SearchJobsViewControllerDelegate: AnyObject {
     func didTapTextToSearch(text: String)
     func didBookmarkJob(job: Job)

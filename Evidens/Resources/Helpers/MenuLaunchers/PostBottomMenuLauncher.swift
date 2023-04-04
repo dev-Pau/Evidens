@@ -22,9 +22,9 @@ enum ShareableContent: String, CaseIterable {
     var contentString: String {
         switch self {
         case .post:
-            return "Upload a post"
+            return "Upload a Post"
         case .clinicalCase:
-            return "Share a clinical case"
+            return "Share a Clinical Case"
         }
     }
     

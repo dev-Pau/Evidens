@@ -92,7 +92,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
             userPostViewHeightConstraint,
             
-            postImage.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
+            postImage.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
             postImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postImage.widthAnchor.constraint(equalToConstant: 75),
             postImageViewHeightConstraint,
@@ -121,7 +121,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         userPostView.dotsImageButton.isHidden = true
         
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " · Edited · " : viewModel.timestampString! + " · "
+        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
         postImage.sd_setImage(with: viewModel.postImageUrl.first)
         postTextLabel.text = viewModel.postText
@@ -142,7 +142,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 185)
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 175)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
