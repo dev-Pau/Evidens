@@ -7,7 +7,12 @@
 
 import UIKit
 
-class MESearchMenuHeder: UICollectionReusableView {
+protocol MESearchMenuHeaderDelegate: AnyObject {
+    func didTapResetFilters()
+}
+
+class MESearchMenuHeader: UICollectionReusableView {
+    weak var delegate: MESearchMenuHeaderDelegate?
 
     private let padding: CGFloat = 10
     
@@ -25,7 +30,7 @@ class MESearchMenuHeder: UICollectionReusableView {
         button.configuration = .plain()
         button.configuration?.buttonSize = .mini
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 17, weight: .semibold)
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
         button.configuration?.attributedTitle = AttributedString("Reset", attributes: container)
         button.addTarget(self, action: #selector(handleResetFilters), for: .touchUpInside)
         button.configuration?.baseForegroundColor = primaryColor
@@ -69,7 +74,7 @@ class MESearchMenuHeder: UICollectionReusableView {
             menuTitle.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 10),
             menuTitle.leadingAnchor.constraint(equalTo: leadingAnchor),
             
-            resetButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
+            resetButton.centerYAnchor.constraint(equalTo: menuTitle.centerYAnchor),
             resetButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -80,6 +85,6 @@ class MESearchMenuHeder: UICollectionReusableView {
     }
     
     @objc func handleResetFilters() {
-        
+        delegate?.didTapResetFilters()
     }
 }

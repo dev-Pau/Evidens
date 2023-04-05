@@ -14,7 +14,9 @@ protocol MESearchToolbarDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectSearchTopic(_ topic: String)
     func didSelectSearchCategory(_ category: Search.Topics)
-    func showDisciplinesMenu()
+    
+    
+    func showDisciplinesMenu(withOption option: String)
 }
 
 class MESearchToolbar: UIToolbar {
@@ -153,8 +155,7 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected {
-            print("Selected Disicpline that has been selected. Show menu here")
-            searchDelegate?.showDisciplinesMenu()
+            searchDelegate?.showDisciplinesMenu(withOption: displayDataSource[0])
             return false
             
         }
@@ -218,6 +219,7 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
     }
     
     func didRestoreMenu() {
+        print("did restore menu")
         UIView.animate(withDuration: 0.2) {
             self.collectionView.alpha = 0
             self.separatorView.backgroundColor = .systemBackground

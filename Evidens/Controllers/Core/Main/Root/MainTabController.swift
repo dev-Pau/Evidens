@@ -61,6 +61,7 @@ class MainTabController: UITabBarController {
         self.tabBar.isHidden = true
         
         postMenuLauncher.delegate = self
+        topicsMenuLauncher.delegate = self
         checkIfUserIsLoggedIn()
         fetchUser()
     }
@@ -263,8 +264,8 @@ class MainTabController: UITabBarController {
         }
     }
     
-    func showSearchMenuLauncher() {
-        topicsMenuLauncher.showPostSettings(in: view)
+    func showSearchMenuLauncher(withOption option: String) {
+        topicsMenuLauncher.showPostSettings(withOption: option, in: view)
     }
 }
 
@@ -382,5 +383,20 @@ extension MainTabController: HomeViewControllerDelegate {
             currentNavController.viewControllers.last?.navigationItem.rightBarButtonItem?.tintColor = .label.withAlphaComponent(alpha > 1 ? 1 : alpha)
             //currentNavController.viewControllers.last?.navigationItem.title
         }
+    }
+}
+
+extension MainTabController: SearchAssistantMenuLauncherDelegate {
+    func didTapRestoreFilters() {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            if let searchController = currentNavController.viewControllers.first as? SearchViewController {
+                searchController.resetSearchResultsUpdatingToolbar()
+                topicsMenuLauncher.handleDismissMenu()
+            }
+        }
+    }
+    
+    func didTapShowResults(forTopic: String) {
+        print(forTopic)
     }
 }

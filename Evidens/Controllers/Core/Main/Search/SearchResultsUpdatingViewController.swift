@@ -31,13 +31,13 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 private let browseJobCellReuseIdentifier = "BrowseJobCellReuseIdentifier"
 
 protocol SearchResultsUpdatingViewControllerDelegate: AnyObject {
-    func didTapDisciplinesMenu()
+    func didTapDisciplinesMenu(withOption option: String)
 }
 
 class SearchResultsUpdatingViewController: UIViewController {
     
     var toolbarHeightAnchor: NSLayoutConstraint!
-    weak var delegate: SearchResultsUpdatingViewControllerDelegate?
+    weak var searchResultsDelegate: SearchResultsUpdatingViewControllerDelegate?
     
     private var dataLoaded: Bool = false
     private var isInSearchTopicMode: Bool = false
@@ -308,6 +308,10 @@ class SearchResultsUpdatingViewController: UIViewController {
         
     }
     
+    func restartSearchMenu() {
+        categoriesToolbar.didRestoreMenu()
+    }
+    
     func fetchContentFor(topic: String, category: Search.Topics) {
         //resultItemsCount = 0
         SearchService.fetchContentWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
@@ -458,8 +462,8 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 }
 
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
-    func showDisciplinesMenu() {
-        delegate?.didTapDisciplinesMenu()
+    func showDisciplinesMenu(withOption option: String) {
+        searchResultsDelegate?.didTapDisciplinesMenu(withOption: option)
     }
 
     func didRestoreMenu() {
@@ -479,6 +483,12 @@ extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
         isInSearchTopicMode = true
         isInSearchCategoryMode = false
         fetchTopFor(topic: category)
+        
+        //#warning here deletage
+        
+        
+        
+        
         // fetch top 3 of each
         // when is fetch, clal the toolbar to revert the animation
     }

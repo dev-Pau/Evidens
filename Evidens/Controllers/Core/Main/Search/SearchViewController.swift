@@ -138,7 +138,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         
         if user.phase == .verified {
             let controller = SearchResultsUpdatingViewController()
-            controller.delegate = self
+            controller.searchResultsDelegate = self
             searchController = UISearchController(searchResultsController: controller)
             searchController.searchResultsUpdater = controller
             searchController.searchBar.delegate = controller
@@ -183,6 +183,14 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         ])
         
         activityIndicator.start()
+    }
+    
+    func resetSearchResultsUpdatingToolbar() {
+        print("before searchresults")
+        if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
+            print("inside search results updating")
+            searchController.restartSearchMenu()
+        }
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
@@ -1284,8 +1292,8 @@ extension SearchViewController: ZoomTransitioningDelegate {
 }
 
 extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
-    func didTapDisciplinesMenu() {
+    func didTapDisciplinesMenu(withOption option: String) {
         guard let tab = tabBarController as? MainTabController else { return }
-        tab.showSearchMenuLauncher()
+        tab.showSearchMenuLauncher(withOption: option)
     }
 }
