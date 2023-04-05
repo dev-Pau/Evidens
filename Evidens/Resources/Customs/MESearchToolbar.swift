@@ -14,6 +14,7 @@ protocol MESearchToolbarDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectSearchTopic(_ topic: String)
     func didSelectSearchCategory(_ category: Search.Topics)
+    func showDisciplinesMenu()
 }
 
 class MESearchToolbar: UIToolbar {
@@ -54,7 +55,6 @@ class MESearchToolbar: UIToolbar {
         collectionView.dataSource = self
         collectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
         collectionView.register(ProfessionSelectedCell.self, forCellWithReuseIdentifier: professionSelectedCellReuseIdentifier)
-        collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: "kek")
         addSubviews(collectionView, separatorView)
         
         if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
@@ -101,10 +101,10 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
         if isInSearchMode && indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: professionSelectedCellReuseIdentifier, for: indexPath) as! ProfessionSelectedCell
             cell.setText(text: displayDataSource[indexPath.row])
-            cell.selectedTag = displayDataSource[indexPath.row]
-            if searchingWithCategorySelected { cell.selectedCategory = displayDataSource[indexPath.row + 1] } else {
-                cell.selectedCategory = nil
-            }
+            //cell.selectedTag = displayDataSource[indexPath.row]
+            //if searchingWithCategorySelected { cell.selectedCategory = displayDataSource[indexPath.row + 1] } else {
+              //  cell.selectedCategory = nil
+            //}
             cell.delegate = self
             return cell
         } else {
@@ -129,7 +129,6 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
                 self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
                 self.searchDelegate?.didSelectSearchCategory(self.searchDataSource[indexPath.row - 1])
             }
-
         } else {
             UIView.animate(withDuration: 0.2) {
                 collectionView.frame.origin.y = -50
@@ -153,7 +152,12 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected { return false }
+        if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected {
+            print("Selected Disicpline that has been selected. Show menu here")
+            searchDelegate?.showDisciplinesMenu()
+            return false
+            
+        }
         return true
     }
 }
@@ -170,11 +174,9 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
                 self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.rawValue }))
                 self.collectionView.reloadData()
                 self.searchingWithCategorySelected = false
-                
-                
+
                 self.searchDelegate?.didSelectSearchTopic(topic)
-                
-                
+
                 UIView.animate(withDuration: 0.2) {
                     self.collectionView.alpha = 1
                 }
@@ -198,7 +200,6 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
             self.collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [])
         } else {
             if let index = displayDataSource.firstIndex(where: { $0 == category.rawValue }) {
-
                 collectionView.performBatchUpdates {
                     self.collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
                     self.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: 1, section: 0))
@@ -209,7 +210,6 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
                         self.searchingWithCategorySelected = true
                         self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
                     } completion: { _ in
-                        
                     }
                 }
             }

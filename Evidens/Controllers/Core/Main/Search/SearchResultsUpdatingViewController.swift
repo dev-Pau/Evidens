@@ -30,14 +30,19 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 
 private let browseJobCellReuseIdentifier = "BrowseJobCellReuseIdentifier"
 
+protocol SearchResultsUpdatingViewControllerDelegate: AnyObject {
+    func didTapDisciplinesMenu()
+}
+
 class SearchResultsUpdatingViewController: UIViewController {
     
     var toolbarHeightAnchor: NSLayoutConstraint!
+    weak var delegate: SearchResultsUpdatingViewControllerDelegate?
     
     private var dataLoaded: Bool = false
     private var isInSearchTopicMode: Bool = false
     private var isInSearchCategoryMode: Bool = false
-    
+
     private var topicSearched: String?
     private var categorySearched: Search.Topics = .people
     private var resultItemsCount: Int = 0
@@ -253,6 +258,7 @@ class SearchResultsUpdatingViewController: UIViewController {
         toolbarHeightAnchor = categoriesToolbar.heightAnchor.constraint(equalToConstant: 0)
         toolbarHeightAnchor.isActive = true
         categoriesToolbar.searchDelegate = self
+
         
         NSLayoutConstraint.activate([
             categoriesToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -452,6 +458,9 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 }
 
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
+    func showDisciplinesMenu() {
+        delegate?.didTapDisciplinesMenu()
+    }
 
     func didRestoreMenu() {
         activityIndicator.stop()
@@ -463,6 +472,7 @@ extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
     
     func didSelectSearchTopic(_ category: String) {
         print(category)
+        //topicsMenuLauncher.showPostSettings(in: view)
         collectionView.isHidden = true
         topicSearched = category
         activityIndicator.start()
@@ -800,3 +810,6 @@ extension SearchResultsUpdatingViewController: MESecondaryEmptyCellDelegate {
         categoriesToolbar.didRestoreMenu()
     }
 }
+
+
+

@@ -23,18 +23,9 @@ protocol MainTabControllerDelegate: AnyObject {
 class MainTabController: UITabBarController {
     
     //MARK: Properties
-    
-    private let topBlurView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     private var postMenuLauncher = PostBottomMenuLauncher()
-
     weak var menuDelegate: MainTabControllerDelegate?
-    
+    private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Profession.getAllProfessions().map({ $0.profession }))
     private var collapsed: Bool = false
     
     var user: User? {
@@ -47,7 +38,6 @@ class MainTabController: UITabBarController {
             //controller.user = user
         }
     }
-    
     
     //MARK: - Lifecycle
     
@@ -271,6 +261,10 @@ class MainTabController: UITabBarController {
             currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             currentNavController.pushViewController(settingsController, animated: true)
         }
+    }
+    
+    func showSearchMenuLauncher() {
+        topicsMenuLauncher.showPostSettings(in: view)
     }
 }
 

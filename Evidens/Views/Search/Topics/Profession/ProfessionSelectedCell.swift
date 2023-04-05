@@ -18,6 +18,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
     //weak var delegate: FilterCasesCellDelegate?
     private let searchDataSource = Search.Topics.allCases
     
+    /*
     var selectedTag: String? {
         didSet {
             configureMenuWithTag()
@@ -29,7 +30,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
             configureMenuWithTag()
         }
     }
-
+*/
     var tagsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
@@ -39,29 +40,6 @@ class ProfessionSelectedCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let arrowImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.isUserInteractionEnabled = false
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "arrowtriangle.down.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    private lazy var button: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(tapButton), for: .touchUpInside)
-        button.isUserInteractionEnabled = true
-        button.backgroundColor = .clear
-        return button
-    }()
-    
-    @objc func tapButton() {
-        print("omegakek")
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -73,38 +51,22 @@ class ProfessionSelectedCell: UICollectionViewCell {
     }
     
     private func configure() {
-       
         layer.cornerRadius = 15
-        //layer.borderWidth = 1
-        //layer.borderColor = UIColor.quaternarySystemFill.cgColor
         backgroundColor = .label
-        
-        addSubviews(tagsLabel, button)
-        
+        addSubviews(tagsLabel)
         NSLayoutConstraint.activate([
-            button.leadingAnchor.constraint(equalTo: leadingAnchor),
-            button.trailingAnchor.constraint(equalTo: trailingAnchor),
-            button.bottomAnchor.constraint(equalTo: bottomAnchor),
-            button.topAnchor.constraint(equalTo: topAnchor),
-            
             tagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25),
+            tagsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             tagsLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
             tagsLabel.topAnchor.constraint(equalTo: topAnchor),
-            /*
-            arrowImageView.centerYAnchor.constraint(equalTo: tagsLabel.centerYAnchor),
-            arrowImageView.leadingAnchor.constraint(equalTo: tagsLabel.trailingAnchor, constant: 5),
-            arrowImageView.heightAnchor.constraint(equalToConstant: 13),
-            arrowImageView.widthAnchor.constraint(equalToConstant: 11)
-             */
         ])
-        
-        //addMenuItems()
-
     }
     
     private func configureMenuWithTag() {
-        guard let tag = selectedTag else { return }
+        //guard let tag = selectedTag else { return }
+        //delegate?.showDisciplinesMenu()
+        /*
+        
         let topics = UIMenu(title: "Topics", subtitle: tag, image: UIImage(systemName: "arrow.up.arrow.down", withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), options: .singleSelection, children: [
             UIAction(title: Profession.getAllProfessions()[0].profession, state: Profession.getAllProfessions()[0].profession == tag ? .on : .off,  handler: { _ in
                 self.delegate?.didSelectSearchTopic(Profession.getAllProfessions()[0].profession)
@@ -171,10 +133,11 @@ class ProfessionSelectedCell: UICollectionViewCell {
                 
         button.menu = UIMenu(title: "", children: [topics, category, reset])
         button.showsMenuAsPrimaryAction = true
+         */
     }
     
     func setText(text: String) {
-        tagsLabel.text = "     \(text)"
+        tagsLabel.text = "     \(text)     "
     }
     
     /*

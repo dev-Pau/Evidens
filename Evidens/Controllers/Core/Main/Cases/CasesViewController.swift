@@ -432,7 +432,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 
                 cell.delegate = self
                 return cell
-                
+
                 /*
                 switch cases[indexPath.row].type {
                 case .text:
@@ -474,7 +474,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                     cell.delegate = self
                     return cell
                 }
-                 */
+             */
             }
         case .explore:
             if indexPath.section == 0 {

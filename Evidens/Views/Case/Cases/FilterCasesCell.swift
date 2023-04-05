@@ -21,6 +21,7 @@ class FilterCasesCell: UICollectionViewCell {
             guard changeAppearanceOnSelection else { return }
             //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
             //backgroundColor = isSelected ? primaryColor : .clear
+            tagsLabel.textColor = isSelected ? .white : .label
             tagsLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
         }
     }

@@ -364,6 +364,7 @@ extension HomeViewController: UICollectionViewDelegate {
         }
     }
     
+    
     /*
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let safeAreaTop = topbarHeight
