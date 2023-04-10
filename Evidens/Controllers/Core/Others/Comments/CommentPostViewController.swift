@@ -292,9 +292,9 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.collectionView.insertItems(at: [indexPath])
             self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
             
-            self.delegate?.didCommentPost(post: self.post, user: self.user, comment: addedComment)
+            self.delegate?.didCommentPost(post: self.post, user: currentUser, comment: addedComment)
             
-            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withComment: comment)
+            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
         }
     }
 }

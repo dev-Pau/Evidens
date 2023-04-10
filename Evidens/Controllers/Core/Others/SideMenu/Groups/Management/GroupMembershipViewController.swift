@@ -234,22 +234,22 @@ class GroupMembershipViewController: UIViewController {
     
     
     private func configureCollectionView() {
-        membersCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        //membersCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: //loadingHeaderReuseIdentifier)
         membersCollectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         membersCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupMembersCellReuseIdentifier)
         membersCollectionView.register(GroupMemberUserCell.self, forCellWithReuseIdentifier: groupMemberUserCellReuseIdentifier)
         
-        requestsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        //requestsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: //loadingHeaderReuseIdentifier)
         requestsCollectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         requestsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupMembersCellReuseIdentifier)
         requestsCollectionView.register(GroupUserRequestCell.self, forCellWithReuseIdentifier: pendingUserCellReuseIdentifier)
         
-        invitedCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        //invitedCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: //loadingHeaderReuseIdentifier)
         invitedCollectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         invitedCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupMembersCellReuseIdentifier)
         invitedCollectionView.register(GroupMemberUserCell.self, forCellWithReuseIdentifier: groupMemberUserCellReuseIdentifier)
         
-        blockedCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        //blockedCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         blockedCollectionView.register(GroupSearchBarHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
         blockedCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupMembersCellReuseIdentifier)
         blockedCollectionView.register(GroupMemberUserCell.self, forCellWithReuseIdentifier: groupMemberUserCellReuseIdentifier)
@@ -320,11 +320,11 @@ class GroupMembershipViewController: UIViewController {
 
 extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 0 { return 0 }
+        //if section == 0 { return 0 }
         
         if collectionView == membersCollectionView {
             return membersLoaded ? memberUsers.isEmpty ? 1 : memberUsers.count : 0
@@ -354,7 +354,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
         if collectionView == membersCollectionView {
             if memberUsers.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "This group has no members - yet.", description: "Invite your network to join the group.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.configure(image: UIImage(named: "content.empty"), title: "This group has no members - yet.", description: "Invite your network to join the group.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             }
@@ -367,7 +367,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
         } else if collectionView == requestsCollectionView {
             if memberRequests.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No active requests.", description: "Check back for all new requests.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.configure(image: UIImage(named: "content.empty"), title: "No active requests.", description: "Check back for all new requests.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             }
@@ -380,7 +380,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
         } else if collectionView == invitedCollectionView {
             if memberInvited.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Build your community.", description: "Invite your network to join the group.", buttonText: EmptyCellButtonOptions.invite)
+                cell.configure(image: UIImage(named: "content.empty"), title: "Build your community.", description: "Invite your network to join the group.", buttonText: EmptyCellButtonOptions.invite)
                 cell.delegate = self
                 return cell
             }
@@ -394,7 +394,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
         } else {
             if memberBlocked.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupMembersCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "No blocked members.", description: "Once you block a member from a group, they will be removed from the group and will no longer be able to request to join.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.configure(image: UIImage(named: "content.empty"), title: "No blocked members.", description: "Once you block a member from a group, they will be removed from the group and will no longer be able to request to join.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             }
@@ -406,7 +406,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
             return cell
         }
     }
-    
+    /*
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if section == 1 { return CGSize.zero }
         
@@ -420,7 +420,8 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
             return memberBlocked.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55)
         }
     }
-    
+    */
+    /*
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if collectionView == membersCollectionView {
             if !membersLoaded {
@@ -461,6 +462,7 @@ extension GroupMembershipViewController: UICollectionViewDelegate, UICollectionV
             }
         }
     }
+     */
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         var user = User(dictionary: [:])
@@ -733,6 +735,7 @@ extension GroupMembershipViewController: GroupBlockedUserCellDelegate {
     }
 }
 
+/*
 extension GroupMembershipViewController: GroupSearchBarHeaderDelegate {
     func didSearchText(text: String) {
         #warning("implementar això quan hi hagi més d'un usuari a diferents llocs per veure les searchbars sino están amagades")
@@ -753,3 +756,4 @@ extension GroupMembershipViewController: GroupSearchBarHeaderDelegate {
     
     
 }
+*/

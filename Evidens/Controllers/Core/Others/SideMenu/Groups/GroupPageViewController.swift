@@ -291,62 +291,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         }
     }
     
-    func checkIfUserLikedPosts() {
-            //For every post in array fetched
-            self.posts.forEach { post in
-                //Check if user did like
-                PostService.checkIfUserLikedPost(post: post) { didLike in
-                    //Check the postId of the current post looping
-                    if let index = self.posts.firstIndex(where: {$0.postId == post.postId}) {
-                        //Change the didLike according if user did like post
-                        self.posts[index].didLike = didLike
-                        //self.updateData(on: self.posts)
-                        self.collectionView.reloadData()
-                    }
-            }
-        }
-    }
-    
-    func checkIfUserBookmarkedPost() {
-        //For every post in array fetched
-        self.posts.forEach { post in
-            PostService.checkIfUserBookmarkedPost(post: post) { didBookmark in
-                if let index = self.posts.firstIndex(where: { $0.postId == post.postId}) {
-                    self.posts[index].didBookmark = didBookmark
-                    self.collectionView.reloadData()
-                }
-            }
-        }
-    }
-    
-    func checkIfUserLikedCase() {
-        self.cases.forEach { clinicalCase in
-            //Check if user did like
-            CaseService.checkIfUserLikedCase(clinicalCase: clinicalCase) { didLike in
-                //Check the postId of the current post looping
-                if let index = self.cases.firstIndex(where: {$0.caseId == clinicalCase.caseId}) {
-                    //Change the didLike according if user did like post
-                    self.cases[index].didLike = didLike
-                    self.collectionView.reloadData()
-                }
-            }
-        }
-    }
-    
-    func checkIfUserBookmarkedCase() {
-        self.cases.forEach { clinicalCase in
-            CaseService.checkIfUserBookmarkedCase(clinicalCase: clinicalCase) { didBookmark in
-                if let index = self.cases.firstIndex(where: { $0.caseId == clinicalCase.caseId}) {
-                    self.cases[index].didBookmark = didBookmark
-                    self.collectionView.reloadData()
-
-                }
-            }
-        }
-    }
-    
-    
-    
     private func fetchGroupContent() {
         // Fetch the post/cases id's ordered by timestamp
         // For each id obtained, fetch the case or post associated
@@ -355,7 +299,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             guard !contentGroup.isEmpty else {
                 // There's no content published in the group
                 self.loaded = true
-                print("called from fetchGroupContents")
                 self.checkIfAllGroupInformationIsFetched()
                 return
             }
@@ -778,10 +721,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                                 }
                                 
                                 UserService.fetchUsers(withUids: newOwners) { users in
-                                    self.checkIfUserLikedPosts()
-                                    self.checkIfUserLikedCase()
-                                    self.checkIfUserBookmarkedCase()
-                                    self.checkIfUserBookmarkedPost()
                                     self.users.append(contentsOf: users)
                                     self.loaded = true
                                     self.collectionView.reloadData()
@@ -805,8 +744,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
                             // Obtain all cases owner uids & make the array unique
                             //let uniqueOwnerUids = Array(Set(self.cases.map({ $0.ownerUid })))
                             UserService.fetchUsers(withUids: newOwners) { users in
-                                self.checkIfUserLikedCase()
-                                self.checkIfUserBookmarkedCase()
+                              
                                 self.users.append(contentsOf: users)
                                 self.loaded = true
                                 self.collectionView.reloadData()
@@ -830,8 +768,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
 
                             //let uniqueOwnerUids = Array(Set(self.posts.map({ $0.ownerUid })))
                             UserService.fetchUsers(withUids: newOwners) { users in
-                                self.checkIfUserLikedPosts()
-                                self.checkIfUserBookmarkedPost()
+                               
                                 self.users.append(contentsOf: users)
                                 self.loaded = true
                                 self.collectionView.reloadData()

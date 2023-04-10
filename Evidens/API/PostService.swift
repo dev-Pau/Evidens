@@ -259,18 +259,30 @@ struct PostService {
     
     static func fetchHomePosts(snapshot: QuerySnapshot, completion: @escaping([Post]) -> Void) {
         var posts = [Post]()
-        snapshot.documents.forEach({ document in
-            fetchPost(withPostId: document.documentID) { post in
-                getPostValuesFor(post: post) { newPost in
-                    posts.append(newPost)
+
+        snapshot.documents.forEach { document in
+            let bookmarkPostType = PostSource(dictionary: document.data())
+            if let groupId = bookmarkPostType.groupId {
+                fetchGroupPost(withGroupId: groupId, withPostId: document.documentID) { post in
+                    posts.append(post)
+                    if snapshot.documents.count == posts.count {
+                        posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        completion(posts)
+                    }
+                }
+            } else {
+                fetchPost(withPostId: document.documentID) { post in
+                    //getPostValuesFor(post: post) { newPost in
+                    posts.append(post)
                     if snapshot.documents.count == posts.count {
                         posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                         completion(posts)
                     }
                 }
             }
-        })
+        }
     }
+    
     
     static func checkIfUserHasNewerPostsToDisplay(snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
@@ -310,14 +322,14 @@ struct PostService {
         var posts = [Post]()
         postIds.forEach { postId in
             fetchPost(withPostId: postId) { post in
-                getPostValuesFor(post: post) { postWithValues in
-                    posts.append(postWithValues)
+                //getPostValuesFor(post: post) { postWithValues in
+                    posts.append(post)
                     if posts.count == postIds.count {
                         posts.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                         completion(posts)
                     }
                 }
-            }
+            //}
         }
     }
     

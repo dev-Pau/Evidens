@@ -183,7 +183,6 @@ extension JobsBrowserViewController: UICollectionViewDelegateFlowLayout, UIColle
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return jobsLoaded ? jobs.isEmpty ? 1 : jobs.count : 0
-        
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

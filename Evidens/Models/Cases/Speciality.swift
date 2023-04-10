@@ -194,7 +194,7 @@ extension Speciality {
     static func pharmacySpecialities() -> [Speciality] {
         var specialities: [Speciality] = []
         
-        let os1 = Speciality(name: "General Physiotherapy")
+        let os1 = Speciality(name: "General Pharmacy")
         let os11 = Speciality(name: "Academic Pharmacy")
         let os2 = Speciality(name: "Ambulatory Care Pharmacy")
         let os3 = Speciality(name: "Cardiology Pharmacy")

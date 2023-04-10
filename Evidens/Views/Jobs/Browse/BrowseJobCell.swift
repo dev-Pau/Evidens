@@ -55,7 +55,7 @@ class BrowseJobCell: UICollectionViewCell {
     private let jobPositionName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
@@ -65,7 +65,7 @@ class BrowseJobCell: UICollectionViewCell {
     private let companyNameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail

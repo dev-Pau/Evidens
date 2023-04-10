@@ -57,7 +57,6 @@ class TertiarySearchHeader: UICollectionReusableView {
             seeAllButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
-
     }
     
     func configureWith(title: String, linkText: String) {
@@ -65,5 +64,15 @@ class TertiarySearchHeader: UICollectionReusableView {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .medium)
         seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
+    }
+    
+    func hideSeeAllButton() {
+        seeAllButton.isHidden = true
+        seeAllButton.isUserInteractionEnabled = false
+    }
+    
+    func unhideSeeAllButton() {
+        seeAllButton.isHidden = false
+        seeAllButton.isUserInteractionEnabled = true
     }
 }

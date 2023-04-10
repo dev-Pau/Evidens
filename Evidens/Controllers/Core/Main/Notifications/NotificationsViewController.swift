@@ -20,6 +20,14 @@ class NotificationsViewController: NavigationBarViewController {
     private var users = [User]()
     private var posts = [Post]()
     private var cases = [Case]()
+    
+    private var postLike = [Post]()
+    private var caseLike = [Case]()
+    
+    private var comments = [Comment]()
+    
+    private var fetchedCount = 0
+
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     
     private var loaded: Bool = false
@@ -86,30 +94,146 @@ class NotificationsViewController: NavigationBarViewController {
             
             self.notificationsLastSnapshot = snapshot.documents.last
             self.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
+
+            self.checkIfUserIsFollowed()
+            self.fetchPostsForLikeNotification()
+            self.fetchCaseForLikeNotification()
+            self.fetchCommentsForPostCommentNotification()
+            self.fetchCommentsForCaseCommentNotification()
             
             let userUids = self.notifications.map { $0.uid }
             let uniqueUserUids = Array(Set(userUids))
             UserService.fetchUsers(withUids: uniqueUserUids) { users in
+                print("we got user users")
                 self.users = users
-                self.checkIfUserIsFollowed()
-                self.loaded = true
-                self.activityIndicator.stop()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
+                self.checkIfAllNotificationInfoIsFetched()
             }
         }
     }
     
     func checkIfUserIsFollowed() {
-        notifications.forEach { notification in
-            guard notification.type == .follow else { return }
-            
+        var count = 0
+        let notificationFollow = notifications.filter({ $0.type == .follow })
+        notificationFollow.forEach { notification in
             UserService.checkIfUserIsFollowed(uid: notification.uid) { isFollowed in
                 if let index = self.notifications.firstIndex(where: { $0.id == notification.id }) {
                     self.notifications[index].userIsFollowed = isFollowed
-                    self.collectionView.reloadData()
+                    count += 1
+                    if notificationFollow.count == count {
+                        print("we got user is followed")
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
                 }
             }
+        }
+    }
+    
+    func fetchPostsForLikeNotification() {
+        let notificationPostLikes = notifications.filter({ $0.type == .likePost })
+        guard !notificationPostLikes.isEmpty else {
+            print("we got  posts")
+            self.checkIfAllNotificationInfoIsFetched()
+            return
+        }
+        
+        var count = 0
+        let postLikeIds = notificationPostLikes.map({ $0.postId ?? "" })
+        PostService.fetchPosts(withPostIds: postLikeIds) { posts in
+            print("we got  posts")
+            self.postLike = posts
+            
+            posts.forEach { post in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.postId ?? "" == post.postId }) {
+                    
+                    self.notifications[notificationIndex].post = post
+                    count += 1
+                    if posts.count == count {
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
+
+                }
+            }
+        }
+    }
+    
+    func fetchCaseForLikeNotification() {
+        let notificationCaseLikes = notifications.filter({ $0.type == .likeCase })
+        guard !notificationCaseLikes.isEmpty else {
+            print("we got  cases")
+            self.checkIfAllNotificationInfoIsFetched()
+            return
+        }
+        
+        var count = 0
+        let caseLikeIds = notificationCaseLikes.map({ $0.caseId ?? "" })
+        CaseService.fetchCases(withCaseIds: caseLikeIds) { cases in
+            print("we got  cases")
+            self.caseLike = cases
+            cases.forEach { clinicalCase in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.caseId ?? "" == clinicalCase.caseId }) {
+                    self.notifications[notificationIndex].clinicalCase = clinicalCase
+                    count += 1
+                    if cases.count == count {
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
+                }
+            }
+        }
+    }
+    
+    func fetchCommentsForPostCommentNotification() {
+        let notificationCommentPost = notifications.filter({ $0.type == .commentPost })
+        guard !notificationCommentPost.isEmpty else {
+            print("we got comment post")
+            self.checkIfAllNotificationInfoIsFetched()
+            return
+        }
+        CommentService.fetchNotificationPostComments(withNotifications: notificationCommentPost) { comments in
+            self.comments.append(contentsOf: comments)
+            var count = 0
+            comments.forEach { comment in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.commentId == comment.id }) {
+                    self.notifications[notificationIndex].comment = comment
+                    count += 1
+                    if comments.count == count {
+                        print("we got comment post")
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
+                }
+            }
+        }
+    }
+    
+    func fetchCommentsForCaseCommentNotification() {
+        let notificationCommentCase = notifications.filter({ $0.type == .commentCase })
+        guard !notificationCommentCase.isEmpty else {
+            print("we got comment case empty")
+            self.checkIfAllNotificationInfoIsFetched()
+            return
+        }
+        CommentService.fetchNotificationCaseComments(withNotifications: notificationCommentCase) { comments in
+            self.comments.append(contentsOf: comments)
+            var count = 0
+            comments.forEach { comment in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.commentId == comment.id }) {
+                    self.notifications[notificationIndex].comment = comment
+                    count += 1
+                    if comments.count == count {
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
+                }
+            }
+        }
+    }
+    
+    func checkIfAllNotificationInfoIsFetched() {
+        fetchedCount += 1
+        if fetchedCount == 6 {
+            self.loaded = true
+            self.activityIndicator.stop()
+            self.collectionView.reloadData()
+            self.collectionView.isHidden = false
+            self.collectionView.reloadData()
         }
     }
 }
@@ -132,14 +256,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
                 cell.delegate = self
                 
-                let userIndex = users.firstIndex { user in
-                    if user.uid == notifications[indexPath.row].uid {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
+                if let userIndex = users.firstIndex(where: { $0.uid == notifications[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }
                 
@@ -150,15 +267,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
                 cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
                 cell.delegate = self
                 
-                
-                let userIndex = users.firstIndex { user in
-                    if user.uid == notifications[indexPath.row].uid {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
+                if let userIndex = users.firstIndex(where: { $0.uid == notifications[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }
                 
@@ -249,6 +358,7 @@ extension NotificationsViewController: NotificationCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
+        
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical

@@ -218,13 +218,15 @@ class GroupContentManagementViewController: UIViewController, UINavigationContro
         if group.permissions == .all || group.permissions == .review {
             groupNeedsToReviewContent = true
             DatabaseManager.shared.fetchPendingCasesForGroup(withGroupId: group.groupId) { pendingCases in
-                let postIds = pendingCases.map({ $0.id })
+                print(pendingCases)
+                let caseIds = pendingCases.map({ $0.id })
                 if pendingCases.isEmpty {
+                    print("pending cases empty")
                     self.casesLoaded = true
                     self.casesCollectionView.reloadData()
                     return
                 }
-                postIds.forEach { id in
+                caseIds.forEach { id in
                     CaseService.fetchGroupCase(withGroupId: self.group.groupId, withCaseId: id) { clinicalCase in
                         self.cases.append(clinicalCase)
                         if self.cases.count == pendingCases.count {
@@ -368,13 +370,13 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
         if collectionView == postsCollectionView {
             if !groupNeedsToReviewContent {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Posts don't require admin review", description: "Group owners can activate the ability to review all group posts before they are shared with members.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.configure(image: UIImage(named: "content.empty"), title: "Posts don't require admin review", description: "Group owners can activate the ability to review all group posts before they are shared with members.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             } else {
                 if posts.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "No pending posts.", description: "Check back for all the new posts that need review.", buttonText: EmptyCellButtonOptions.goToGroup)
+                    cell.configure(image: UIImage(named: "content.empty"), title: "No pending posts.", description: "Check back for all the new posts that need review.", buttonText: EmptyCellButtonOptions.goToGroup)
                     cell.delegate = self
                     return cell
                 } else {
@@ -435,13 +437,13 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
             // Cases
             if !groupNeedsToReviewContent {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                cell.configure(image: nil, title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: EmptyCellButtonOptions.goToGroup)
+                cell.configure(image: UIImage(named: "content.empty"), title: "Cases don't require admin review", description: "Group owners can activate the ability to review all group cases before they are shared with members.", buttonText: EmptyCellButtonOptions.goToGroup)
                 cell.delegate = self
                 return cell
             } else {
                 if cases.isEmpty {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyPostsCellReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: nil, title: "No pending cases.", description: "Check back for all the new cases that need review.", buttonText: EmptyCellButtonOptions.goToGroup)
+                    cell.configure(image: UIImage(named: "content.empty"), title: "No pending cases.", description: "Check back for all the new cases that need review.", buttonText: EmptyCellButtonOptions.goToGroup)
                     cell.delegate = self
                     return cell
                 } else {

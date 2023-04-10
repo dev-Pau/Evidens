@@ -122,7 +122,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
         userPostView.dotsImageButton.isHidden = true
         
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
-        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.black)
+        userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         postImage.sd_setImage(with: viewModel.postImageUrl.first)
         postTextLabel.text = viewModel.postText
         likesCommentsLabel.text = viewModel.likesCommentsText

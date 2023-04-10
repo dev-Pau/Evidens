@@ -17,6 +17,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
     //MARK: - Properties
     
     let screenSize = UIScreen.main.bounds.size.width
+    private var profileIsConfigured: Bool = false
     
     weak var delegate: UserProfileHeaderCellDelegate?
     
@@ -173,7 +174,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         // Followers & Following information
         followersLabel.attributedText = viewModel.followingFollowersText
-        
+
         //pointsMessageButton.configuration?.attributedTitle = AttributedString(viewModel.pointsMessageText, attributes: container)
     }
     

@@ -173,3 +173,13 @@ extension Post {
     }
 }
 
+struct PostSource {
+    var timestamp: Timestamp
+    var groupId: String?
+    
+    init(dictionary: [String: Any]) {
+        self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
+        self.groupId = dictionary["groupId"] as? String ?? nil
+    }
+}
+

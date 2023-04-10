@@ -25,7 +25,8 @@ class MainTabController: UITabBarController {
     //MARK: Properties
     private var postMenuLauncher = PostBottomMenuLauncher()
     weak var menuDelegate: MainTabControllerDelegate?
-    private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Profession.getAllProfessions().map({ $0.profession }))
+    private let disciplinesMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Profession.getAllProfessions().map({ $0.profession }))
+    private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Search.Topics.allCases.map({ $0.rawValue }))
     private var collapsed: Bool = false
     
     var user: User? {
@@ -61,6 +62,7 @@ class MainTabController: UITabBarController {
         self.tabBar.isHidden = true
         
         postMenuLauncher.delegate = self
+        disciplinesMenuLauncher.delegate = self
         topicsMenuLauncher.delegate = self
         checkIfUserIsLoggedIn()
         fetchUser()
@@ -265,7 +267,11 @@ class MainTabController: UITabBarController {
     }
     
     func showSearchMenuLauncher(withOption option: String) {
-        topicsMenuLauncher.showPostSettings(withOption: option, in: view)
+        disciplinesMenuLauncher.showPostSettings(withOption: option, in: view)
+    }
+    
+    func showTopicsMenuLauncher(withCategory category: String) {
+        topicsMenuLauncher.showPostSettings(withOption: category, in: view)
     }
 }
 
@@ -332,7 +338,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
     
     func updateUserProfileImageViewAlpha(alfa: CGFloat) {
         if let currentNavController = selectedViewController as? UINavigationController {
-            if collapsed { return }
+            if collapsed { return }
             //if currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha ?? 0.0 < 0.1 { return }
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = 1 - 2*alfa
         }
@@ -391,12 +397,27 @@ extension MainTabController: SearchAssistantMenuLauncherDelegate {
         if let currentNavController = selectedViewController as? UINavigationController {
             if let searchController = currentNavController.viewControllers.first as? SearchViewController {
                 searchController.resetSearchResultsUpdatingToolbar()
+                disciplinesMenuLauncher.handleDismissMenu()
                 topicsMenuLauncher.handleDismissMenu()
             }
         }
     }
     
-    func didTapShowResults(forTopic: String) {
-        print(forTopic)
+    func didTapShowResults(_ object: NSObject, forTopic topic: String) {
+        if let currentObject = object as? SearchAssistantMenuLauncher {
+            if currentObject == disciplinesMenuLauncher {
+                if let currentNavController = selectedViewController as? UINavigationController {
+                    if let searchController = currentNavController.viewControllers.first as? SearchViewController {
+                        searchController.showSearchResultsFor(forTopic: topic)
+                    }
+                }
+            } else {
+                if let currentNavController = selectedViewController as? UINavigationController {
+                    if let searchController = currentNavController.viewControllers.first as? SearchViewController {
+                        searchController.showSearchResultsWithCategory(forCategory: topic)
+                    }
+                }
+            }
+        }
     }
 }

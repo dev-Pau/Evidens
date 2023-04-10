@@ -18,7 +18,7 @@ struct CaseService {
                     "description": caseDescription,
                     "specialities": specialities,
                     "details": details,
-                    "updates": "",
+                    //"updates": "",
                     "stage": stage.caseStage,
                     "professions": professions.map({ $0.profession }),
                     "diagnosis": diagnosis as Any,
@@ -100,7 +100,7 @@ struct CaseService {
     
     static func checkIfUserHasNewCasesToDisplay(category: Case.FilterCategories, snapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let snapshot = snapshot else { return }
-
+        
         switch category {
         case .explore:
             return
@@ -127,15 +127,13 @@ struct CaseService {
             return
         case .unsolved:
             return
-        case .diagnosis:
-            return
-        case .images:
+        case .you:
             return
         }
     }
     
     static func fetchClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-
+        
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
@@ -229,7 +227,7 @@ struct CaseService {
     
     
     static func fetchLastUploadedClinicalCases(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-
+        
         if lastSnapshot == nil {
             let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
@@ -313,16 +311,16 @@ struct CaseService {
     
     /*
      static func fetchCasesWithDetailsFilter(fieldToQuery: String, valueToQuery: String) {
-         COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in
-             guard let documents = snapshot?.documents else { return }
-             let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-             cases.forEach { clinicalCase in
-                 print(clinicalCase.caseDescription)
-             }
-         }
+     COLLECTION_CASES.order(by: "timestamp", descending: true).whereField(fieldToQuery, arrayContains: valueToQuery).getDocuments { snapshot, error in
+     guard let documents = snapshot?.documents else { return }
+     let cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+     cases.forEach { clinicalCase in
+     print(clinicalCase.caseDescription)
+     }
+     }
      }
      */
-     
+    
     
     static func uploadCaseUpdate(withCaseId caseId: String, withUpdate text: String, withGroupId groupId: String? = nil, completion: @escaping(Bool) -> Void) {
         if let groupId = groupId {
@@ -394,7 +392,7 @@ struct CaseService {
                 cases.append(post)
                 
                 cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-
+                
                 completion(cases)
                 
             }
@@ -407,7 +405,7 @@ struct CaseService {
         
         query.getDocuments { (snapshot, error) in
             guard let documents = snapshot?.documents else { return }
-        
+            
             var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             
             cases.enumerated().forEach { index, clinicalCase in
@@ -429,7 +427,7 @@ struct CaseService {
         
         query.getDocuments { (snapshot, error) in
             guard let documents = snapshot?.documents else { return }
-        
+            
             var cases = documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
             
             //Order posts by timestamp
@@ -471,14 +469,17 @@ struct CaseService {
             getGroupCaseValuesFor(clinicalCase: clinicalCase) { fetchedCase in
                 completion(fetchedCase)
             }
+            //getGroupCaseValuesFor(clinicalCase: clinicalCase) { fetchedCase in
+            //    completion(fetchedCase)
+            //}
             /*
-            GroupService.fetchLikesForGroupCase(groupId: groupId, postId: caseId) { likes in
-                clinicalCase.likes = likes
-                CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .group) { comments in
-                    clinicalCase.numberOfComments = comments
-                    completion(clinicalCase)
-                }
-            }
+             GroupService.fetchLikesForGroupCase(groupId: groupId, postId: caseId) { likes in
+             clinicalCase.likes = likes
+             CommentService.fetchNumberOfCommentsForCase(clinicalCase: clinicalCase, type: .group) { comments in
+             clinicalCase.numberOfComments = comments
+             completion(clinicalCase)
+             }
+             }
              */
         }
     }
@@ -494,6 +495,7 @@ struct CaseService {
                         auxCase.didBookmark = bookmark
                         auxCase.likes = likes
                         auxCase.numberOfComments = comments
+                        completion(auxCase)
                     }
                 }
             }
@@ -518,7 +520,7 @@ struct CaseService {
         guard clinicalCase.likes > 0 else { return }
         
         //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["likes" : clinicalCase.likes - 1])
-
+        
         COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).delete(completion: completion)
         }
@@ -540,7 +542,7 @@ struct CaseService {
             }
         }
     }
-
+    
     static func bookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
@@ -577,18 +579,18 @@ struct CaseService {
         if lastSnapshot == nil {
             if let groupId = clinicalCase.groupId {
                 COLLECTION_GROUPS.document(groupId).collection("cases").document(clinicalCase.caseId).collection("case-likes").limit(to: 30).getDocuments { snapshot, _ in
-                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                         completion(snapshot!)
-                         return
-                     }
-                     
-                     guard snapshot.documents.last != nil else {
-                         completion(snapshot)
-                         return
-                     }
-                     
-                     completion(snapshot)
-                 }
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
             } else {
                 COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").limit(to: 30).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -673,9 +675,18 @@ struct CaseService {
     static func fetchCases(snapshot: QuerySnapshot, completion: @escaping([Case]) -> Void) {
         var cases = [Case]()
         snapshot.documents.forEach({ document in
-            fetchCase(withCaseId: document.documentID) { clinicalCase in
-                getCaseValuesFor(clinicalCase: clinicalCase) { newClinicalCase in
-                    cases.append(newClinicalCase)
+            let caseSource = CaseSource(dictionary: document.data())
+            if let groupId = caseSource.groupId {
+                fetchGroupCase(withGroupId: groupId, withCaseId: document.documentID) { clinicalCase in
+                    cases.append(clinicalCase)
+                    if snapshot.count == cases.count {
+                        cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                        completion(cases)
+                    }
+                }
+            } else {
+                fetchCase(withCaseId: document.documentID) { clinicalCase in
+                    cases.append(clinicalCase)
                     if snapshot.count == cases.count {
                         cases.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                         completion(cases)
@@ -717,5 +728,167 @@ struct CaseService {
             }
         }
     }
+    
+    static func fetchCasesWithFilterCategoriesQuery(query: Case.FilterCategories, user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            switch query {
+            case .explore:
+                return
+            case .all:
+                let casesQuery = COLLECTION_CASES.limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    completion(snapshot)
+                }
+            case .recents:
+                let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).limit(to: 10)
+                firstGroupToFetch.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    completion(snapshot)
+                }
+            case .you:
+                let casesQuery = COLLECTION_CASES.whereField("professions", arrayContains: user.profession!).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .solved:
+                let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: 1).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .unsolved:
+                let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: 0).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        } else {
+            switch query {
+            case .explore:
+                return
+            case .all:
+                let casesQuery = COLLECTION_CASES.limit(to: 10).start(afterDocument: lastSnapshot!)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    completion(snapshot)
+                }
+            case .recents:
+                let firstGroupToFetch = COLLECTION_CASES.order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+                firstGroupToFetch.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    completion(snapshot)
+                }
+            case .you:
+                let casesQuery = COLLECTION_CASES.whereField("professions", arrayContains: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+                
+            case .solved:
+                let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: Case.CaseStage.resolved.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            case .unsolved:
+                let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: Case.CaseStage.unresolved.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        }
+    }
 }
+
+
+
+
+
 

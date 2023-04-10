@@ -18,7 +18,6 @@ struct SearchService {
                 firstGroupToFetch.getDocuments { snapshot, error in
                     
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        print("we didn't¡ find any user with \(topic) and \(category.rawValue)")
                         completion(snapshot!)
                         return
                     }
@@ -30,11 +29,9 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .posts:
-                print("posts tapped")
                 let firstGroupToFetch = COLLECTION_POSTS.whereField("professions", arrayContains: topic).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        print("we didn't¡ find any post with \(topic) and \(category.rawValue)")
                         completion(snapshot!)
                         return
                     }
@@ -58,7 +55,6 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .groups:
-                #warning("falta posar professions a group")
                 let firstGroupToFetch = COLLECTION_GROUPS.whereField("professions", arrayContains: topic).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -72,7 +68,7 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .jobs:
-                let firstGroupToFetch = COLLECTION_GROUPS.whereField("profession", arrayContains: topic).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_JOBS.whereField("profession", isEqualTo: topic).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
@@ -89,7 +85,7 @@ struct SearchService {
         } else {
             switch category {
             case .people:
-                let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: topic).start(afterDocument: lastSnapshot!).limit(to: 25)
+                let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
@@ -128,7 +124,6 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .groups:
-                #warning("falta posar professions a group")
                 let firstGroupToFetch = COLLECTION_GROUPS.whereField("professions", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
@@ -142,7 +137,7 @@ struct SearchService {
                     completion(snapshot)
                 }
             case .jobs:
-                let firstGroupToFetch = COLLECTION_GROUPS.whereField("profession", arrayContains: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let firstGroupToFetch = COLLECTION_JOBS.whereField("profession", isEqualTo: topic).start(afterDocument: lastSnapshot!).limit(to: 10)
                 firstGroupToFetch.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)

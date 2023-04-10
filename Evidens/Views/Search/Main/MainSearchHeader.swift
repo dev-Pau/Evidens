@@ -69,5 +69,15 @@ class MainSearchHeader: UICollectionReusableView {
     @objc func handleSeeAllButtonTap() {
         delegate?.didTapSeeAll(self)
     }
+    
+    func hideSeeAllButton() {
+        seeAllButton.isHidden = true
+        seeAllButton.isUserInteractionEnabled = false
+    }
+    
+    func unhideSeeAllButton() {
+        seeAllButton.isHidden = false
+        seeAllButton.isUserInteractionEnabled = true
+    }
 
 }

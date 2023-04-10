@@ -781,6 +781,7 @@ extension DetailsPostViewController: CommentPostViewControllerDelegate {
             users.append(user)
         }
 
+        
         self.post.numberOfComments += 1
         collectionView.reloadData()
         delegate?.didComment(forPost: post)

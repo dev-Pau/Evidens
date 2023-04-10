@@ -141,7 +141,7 @@ struct JobService {
                 return
             }
             
-            var jobs = snapshot.documents.map( { Job(jobId: $0.documentID, dictionary: $0.data()) })
+            let jobs = snapshot.documents.map( { Job(jobId: $0.documentID, dictionary: $0.data()) })
             completion(jobs)
             
         }

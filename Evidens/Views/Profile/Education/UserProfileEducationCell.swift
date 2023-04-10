@@ -51,7 +51,7 @@ class UserProfileEducationCell: UICollectionViewCell {
     private let educationTypeLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
-        label.numberOfLines = 1
+        label.numberOfLines = 3
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -109,9 +109,10 @@ class UserProfileEducationCell: UICollectionViewCell {
     }
     
     func set(education: Education) {
+        print(education)
         educationCenterTitleLabel.text = education.school
-        educationTitleLabel.text = education.degree
+        educationTitleLabel.text = education.fieldOfStudy
         educationIntervalLabel.text = education.startDate + " - " + education.endDate
-        educationTypeLabel.text = education.fieldOfStudy
+        educationTypeLabel.text = education.degree
     }
 }

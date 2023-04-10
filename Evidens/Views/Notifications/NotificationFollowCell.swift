@@ -115,7 +115,7 @@ class NotificationFollowCell: UICollectionViewCell {
             profileImageView.heightAnchor.constraint(equalToConstant: 45),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
             dotsImageButton.heightAnchor.constraint(equalToConstant: 15),
             dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
             
@@ -225,9 +225,9 @@ class NotificationFollowCell: UICollectionViewCell {
         
         let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: ".  \(viewModel.notificationTimeStamp)", attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        //attributedText.append(NSAttributedString(string: viewModel.notificationText!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notificationTimeStamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         
         fullNameLabel.attributedText = attributedText
     }
@@ -239,7 +239,8 @@ class NotificationFollowCell: UICollectionViewCell {
         followButton.configuration?.attributedTitle = AttributedString("   \(viewModel.followButtonText)   ", attributes: container)
         followButton.configuration?.baseBackgroundColor = viewModel.followButtonBackgroundColor
         followButton.configuration?.baseForegroundColor = viewModel.followButtonTextColor
-        followButton.configuration?.background.strokeWidth = viewModel.followButtonCornerWidth
+        followButton.configuration?.background.strokeWidth = viewModel.followButtonBorderWidth
+        
         
         if viewModel.notification.userIsFollowed {
             followButton.menu = addUnfollowMenu()

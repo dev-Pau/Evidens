@@ -28,10 +28,13 @@ private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseId
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
+private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
+
 private let browseJobCellReuseIdentifier = "BrowseJobCellReuseIdentifier"
 
 protocol SearchResultsUpdatingViewControllerDelegate: AnyObject {
     func didTapDisciplinesMenu(withOption option: String)
+    func didTapShowCategoriesMenu(withCategory category: String)
 }
 
 class SearchResultsUpdatingViewController: UIViewController {
@@ -40,7 +43,9 @@ class SearchResultsUpdatingViewController: UIViewController {
     weak var searchResultsDelegate: SearchResultsUpdatingViewControllerDelegate?
     
     private var dataLoaded: Bool = false
+    // Used to track when a discipline is selected to fetch top content of each category
     private var isInSearchTopicMode: Bool = false
+    // Used to track when a category discipline is selected in ordre to display the content selected
     private var isInSearchCategoryMode: Bool = false
 
     private var topicSearched: String?
@@ -132,14 +137,10 @@ class SearchResultsUpdatingViewController: UIViewController {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
-                
-                //let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.categorySearched == .people ? .fractionalHeight(1) : .estimated(65)))
-                
-                #warning("previous it was with the instructoin above but only worked for empty people")
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.resultItemsCount == 0 ? .fractionalHeight(1) : .estimated(65)))
                 
-                item.contentInsets.leading = 10
-                item.contentInsets.trailing = 10
+                //item.contentInsets.leading = 10
+                //item.contentInsets.trailing = 10
                 
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.resultItemsCount == 0 ? .fractionalHeight(0.9) : .estimated(65)), subitems: [item])
                 
@@ -162,8 +163,8 @@ class SearchResultsUpdatingViewController: UIViewController {
                     // People
                     let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                     
-                    item.contentInsets.leading = 10
-                    item.contentInsets.trailing = 10
+                    //item.contentInsets.leading = 10
+                    //item.contentInsets.trailing = 10
                     
                     let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension:
                                                                                                         self.topUsers.isEmpty && self.topPosts.isEmpty && self.topCases.isEmpty && self.topGroups.isEmpty && self.topJobs.isEmpty ? .fractionalHeight(0.9) : .absolute(65)), subitems: [item])
@@ -302,6 +303,8 @@ class SearchResultsUpdatingViewController: UIViewController {
         
         collectionView.register(BrowseJobCell.self, forCellWithReuseIdentifier: browseJobCellReuseIdentifier)
         
+        collectionView.register(GroupCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
+        
         collectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCategoriesTopicsCellReuseIdentifier)
         
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "kek")
@@ -317,30 +320,72 @@ class SearchResultsUpdatingViewController: UIViewController {
         SearchService.fetchContentWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
             switch category {
             case .people:
+                guard !snapshot.isEmpty else {
+                    self.resultItemsCount = 0
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    return
+                }
+                
                 self.usersLastSnapshot = snapshot.documents.last
                 self.topUsers = snapshot.documents.map({ User(dictionary: $0.data() )})
-                self.resultItemsCount = self.topUsers.count
-                self.activityIndicator.stop()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
-                
+                let uids = self.topUsers.map { $0.uid! }
+                UserService.fetchUsers(withUids: uids) { users in
+                    self.topUsers = users
+                    self.resultItemsCount = self.topUsers.count
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    
+                }
+
             case .posts:
+                guard !snapshot.isEmpty else {
+                    self.resultItemsCount = 0
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    return
+                }
                 self.postsLastSnapshot = snapshot.documents.last
                 self.topPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data() )})
-                self.resultItemsCount = self.topPosts.count
-                self.activityIndicator.stop()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
-                
+                let ownerUids = self.topPosts.map { $0.ownerUid }
+                UserService.fetchUsers(withUids: ownerUids) { users in
+                    self.topPostUsers = users
+                    self.resultItemsCount = self.topPosts.count
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                }
+
             case .cases:
+                guard !snapshot.isEmpty else {
+                    self.resultItemsCount = 0
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    return
+                }
                 self.caseLastSnapshot = snapshot.documents.last
                 self.topCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data() )})
-                self.resultItemsCount = self.topCases.count
-                self.activityIndicator.stop()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
-                
+                let visibleOwnerUids = self.topCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                UserService.fetchUsers(withUids: visibleOwnerUids) { users in
+                    self.topCaseUsers = users
+                    self.resultItemsCount = self.topPosts.count
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                }
+
             case .groups:
+                guard !snapshot.isEmpty else {
+                    self.resultItemsCount = 0
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    return
+                }
                 self.groupsLastSnapshot = snapshot.documents.last
                 self.topGroups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data() )})
                 self.resultItemsCount = self.topGroups.count
@@ -349,12 +394,23 @@ class SearchResultsUpdatingViewController: UIViewController {
                 self.collectionView.isHidden = false
                 
             case .jobs:
+                guard !snapshot.isEmpty else {
+                    self.resultItemsCount = 0
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                    return
+                }
                 self.jobsLastSnapshot = snapshot.documents.last
                 self.topJobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
-                self.resultItemsCount = self.topJobs.count
-                self.activityIndicator.stop()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
+                let companyIds = self.topJobs.map { $0.companyId }
+                CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                    self.topCompanies = companies
+                    self.resultItemsCount = self.topJobs.count
+                    self.activityIndicator.stop()
+                    self.collectionView.reloadData()
+                    self.collectionView.isHidden = false
+                }
             }
         }
     }
@@ -392,7 +448,7 @@ class SearchResultsUpdatingViewController: UIViewController {
                 return
             }
             
-            let uids = self.topCases.map { $0.ownerUid }
+            let uids = self.topCases.filter({ $0.privacyOptions == .visible }).map { $0.ownerUid }
             UserService.fetchUsers(withUids: uids) { users in
                 self.topCaseUsers = users
                 count += 1
@@ -415,13 +471,29 @@ class SearchResultsUpdatingViewController: UIViewController {
                 self.checkIfFetchedAllInfo(count: count)
             }
         }
+        
+        GroupService.fetchTopGroupsForTopic(topic: topic) { groups in
+            self.topGroups = groups
+            count += 1
+            self.checkIfFetchedAllInfo(count: count)
+        }
     }
     
     func checkIfFetchedAllInfo(count: Int) {
-        if count == 4 {
+        if count == 5 {
             self.activityIndicator.stop()
             self.collectionView.reloadData()
             self.collectionView.isHidden = false
+        }
+    }
+    
+    func didSelectSearchCategoryFromMenu(_ category: String) {
+        categoriesToolbar.didSelectSearchTopic(category)
+    }
+    
+    func didSelectTopicFromMenu(_ topic: String) {
+        if let searchTopic = Search.Topics(rawValue: topic) {
+            categoriesToolbar.didSelectSearchCategory(searchTopic)
         }
     }
 }
@@ -462,6 +534,10 @@ extension SearchResultsUpdatingViewController: UISearchResultsUpdating, UISearch
 }
 
 extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
+    func showCategoriesMenu(withCategory category: String) {
+        searchResultsDelegate?.didTapShowCategoriesMenu(withCategory: category)
+    }
+    
     func showDisciplinesMenu(withOption option: String) {
         searchResultsDelegate?.didTapDisciplinesMenu(withOption: option)
     }
@@ -475,20 +551,13 @@ extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
     }
     
     func didSelectSearchTopic(_ category: String) {
-        print(category)
-        //topicsMenuLauncher.showPostSettings(in: view)
         collectionView.isHidden = true
         topicSearched = category
         activityIndicator.start()
         isInSearchTopicMode = true
         isInSearchCategoryMode = false
         fetchTopFor(topic: category)
-        
-        //#warning here deletage
-        
-        
-        
-        
+
         // fetch top 3 of each
         // when is fetch, clal the toolbar to revert the animation
     }
@@ -511,7 +580,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             return 5
         } else {
             return recentSearches.isEmpty && recentUserSearches.isEmpty ? 1 : 2
-            //return 2
         }
     }
     
@@ -559,26 +627,37 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             }
         } else {
             // Topic selected
-            if indexPath.section == 0 {
+            if isInSearchCategoryMode {
                 let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
-                header.configureWith(title: "People", linkText: "See All")
+                header.configureWith(title: categorySearched.rawValue, linkText: "")
                 return header
             } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
-                if indexPath.section == 1 {
-                    header.configureWith(title: "Posts", linkText: "See All")
-                    if topUsers.isEmpty { header.separatorView.isHidden = true }
-                } else if indexPath.section == 2 {
-                    header.configureWith(title: "Cases", linkText: "See All")
-                    if topUsers.isEmpty && topPosts.isEmpty { header.separatorView.isHidden = true }
-                } else if indexPath.section == 3 {
-                    header.configureWith(title: "Groups", linkText: "See All")
-                    if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty { header.separatorView.isHidden = true }
+                if indexPath.section == 0 {
+                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: topHeaderReuseIdentifier, for: indexPath) as! MainSearchHeader
+                    header.configureWith(title: "People", linkText: "See All")
+                    if topUsers.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                    return header
                 } else {
-                    header.configureWith(title: "Jobs", linkText: "See All")
-                    if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty { header.separatorView.isHidden = true }
+                    let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! TertiarySearchHeader
+                    if indexPath.section == 1 {
+                        header.configureWith(title: "Posts", linkText: "See All")
+                        if topPosts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                        if topUsers.isEmpty { header.separatorView.isHidden = true }
+                    } else if indexPath.section == 2 {
+                        header.configureWith(title: "Cases", linkText: "See All")
+                        if topUsers.isEmpty && topPosts.isEmpty { header.separatorView.isHidden = true }
+                        if topCases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                    } else if indexPath.section == 3 {
+                        header.configureWith(title: "Groups", linkText: "See All")
+                        if topGroups.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                        if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty { header.separatorView.isHidden = true }
+                    } else {
+                        header.configureWith(title: "Jobs", linkText: "See All")
+                        if topJobs.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
+                        if topUsers.isEmpty && topPosts.isEmpty && topCases.isEmpty && topGroups.isEmpty { header.separatorView.isHidden = true }
+                    }
+                    return header
                 }
-                return header
             }
         }
     }
@@ -671,9 +750,8 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     
                 }
                 case .groups:
-#warning("put the groups cell")
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
-                    cell.backgroundColor = .systemPink
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
+                    cell.viewModel = GroupViewModel(group: topGroups[indexPath.row])
                     return cell
 
                 case .jobs:
@@ -796,11 +874,9 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     
                 }
             } else if indexPath.section == 3 {
-                
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "kek", for: indexPath)
-                cell.backgroundColor = .systemPink
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
+                cell.viewModel = GroupViewModel(group: topGroups[indexPath.row])
                 return cell
-                
             } else {
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: browseJobCellReuseIdentifier, for: indexPath) as! BrowseJobCell

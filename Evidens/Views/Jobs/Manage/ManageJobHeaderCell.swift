@@ -132,7 +132,7 @@ class ManageJobHeaderCell: UICollectionReusableView {
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
 
-        companyImageView.layer.cornerRadius = 7
+        //companyImageView.layer.cornerRadius = 7
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {

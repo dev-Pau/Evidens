@@ -96,10 +96,9 @@ struct Case {
         case explore = "   Explore   "
         case all = "   All   "
         case recents = "   Recents   "
+        case you = "   For You   "
         case solved = "   Solved   "
         case unsolved = "   Unsolved    "
-        case diagnosis = "   Diagnosis   "
-        case images = "   Images   "
     }
     
     enum Privacy: Int, CaseIterable {
@@ -185,5 +184,15 @@ extension Case {
         case home
         case explore
         case filter
+    }
+}
+
+struct CaseSource {
+    var timestamp: Timestamp
+    var groupId: String?
+    
+    init(dictionary: [String: Any]) {
+        self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
+        self.groupId = dictionary["groupId"] as? String ?? nil
     }
 }

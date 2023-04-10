@@ -23,7 +23,6 @@ private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseId
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
-
 class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
     
     //MARK: - Properties
@@ -181,15 +180,24 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             activityIndicator.heightAnchor.constraint(equalToConstant: 100),
             activityIndicator.widthAnchor.constraint(equalToConstant: 200),
         ])
-        
         activityIndicator.start()
     }
     
     func resetSearchResultsUpdatingToolbar() {
-        print("before searchresults")
         if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
-            print("inside search results updating")
             searchController.restartSearchMenu()
+        }
+    }
+    
+    func showSearchResultsFor(forTopic topic: String) {
+        if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
+            searchController.didSelectSearchCategoryFromMenu(topic)
+        }
+    }
+    
+    func showSearchResultsWithCategory(forCategory category: String) {
+        if let searchController = navigationItem.searchController?.searchResultsController as? SearchResultsUpdatingViewController {
+            searchController.didSelectTopicFromMenu(category)
         }
     }
     
@@ -236,7 +244,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
                 //section.interGroupSpacing = 10
               
                 if !self.users.isEmpty {
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 20, trailing: 20)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 20, trailing: 10)
                     section.boundarySupplementaryItems = [header]
                 }
 
@@ -292,6 +300,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
             if indexPath.section == 2 {
                 header.configureWith(title: "Who to follow", linkText: "See All")
+                if users.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 header.delegate = self
                 header.tag = 2
             } else if indexPath.section == 3 {
@@ -1292,8 +1301,15 @@ extension SearchViewController: ZoomTransitioningDelegate {
 }
 
 extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
+    func didTapShowCategoriesMenu(withCategory category: String) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        searchController.searchBar.searchTextField.resignFirstResponder()
+        tab.showTopicsMenuLauncher(withCategory: category)
+    }
+    
     func didTapDisciplinesMenu(withOption option: String) {
         guard let tab = tabBarController as? MainTabController else { return }
+        searchController.searchBar.searchTextField.resignFirstResponder()
         tab.showSearchMenuLauncher(withOption: option)
     }
 }

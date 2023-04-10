@@ -80,7 +80,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         guard let user = tab.user else { return }
         
         switch contentSource {
-            
         case .home:
             // Main Cases navigation view. Displayed cases are random & do not follow any specific query
             CaseService.fetchClinicalCases(lastSnapshot: nil) { snapshot in
@@ -176,23 +175,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                     section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
                     
                     return section
-                    
-                    /*
-                    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                    
-                    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(350))
-                    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
-                    
-                    group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
-                    
-                    let section = NSCollectionLayoutSection(group: group)
-                    
-                    section.interGroupSpacing = 10
-                    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-                    
-                    return section
-                     */
                 }
             case .explore:
                 if sectionNumber == 0 {
@@ -324,7 +306,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             return
         }
         checkIfUserHasNewCasesToDisplay()
-
     }
     
     private func checkIfUserHasNewCasesToDisplay() {
@@ -373,9 +354,7 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                 return
             case .unsolved:
                 return
-            case .diagnosis:
-                return
-            case .images:
+            case .you:
                 return
             }
         }
@@ -570,8 +549,9 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
 
 extension CasesViewController: ExploreCasesToolbarDelegate {
     func wantsToSeeCategory(category: Case.FilterCategories) {
-        switch category {
-        case .explore:
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        guard category != .explore else {
             self.navigationController?.delegate = self
             let controller = CasesViewController(contentSource: .explore)
             controller.controllerIsBeeingPushed = true
@@ -584,57 +564,43 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
             controller.title = category.rawValue
             
             navigationController?.pushViewController(controller, animated: true)
-            
-        case .all:
-            casesCategorySelected = category
-            casesLoaded = false
-            casesCollectionView.isHidden = true
-            cases.removeAll()
-            users.removeAll()
-            activityIndicator.start()
-            fetchFirstGroupOfCases()
+            return
+        }
+        
+        casesCategorySelected = category
+        casesLoaded = false
+        casesCollectionView.isHidden = true
+        cases.removeAll()
+        users.removeAll()
+        activityIndicator.start()
+        
 
-        case .recents:
-            casesCategorySelected = category
-            casesLoaded = false
-            cases.removeAll()
-            users.removeAll()
-            casesCollectionView.isHidden = true
-            activityIndicator.start()
+        CaseService.fetchCasesWithFilterCategoriesQuery(query: category, user: user, lastSnapshot: nil) { snapshot in
             
-            CaseService.fetchLastUploadedClinicalCases(lastSnapshot: nil) { snapshot in
-                if snapshot.isEmpty {
-                    self.casesLoaded = true
-                    self.activityIndicator.stop()
-                    self.casesCollectionView.reloadData()
-                    self.casesCollectionView.isHidden = false
-                } else {
-                    self.casesFirstSnapshot = snapshot.documents.first
-                    self.casesLastSnapshot = snapshot.documents.last
-                    self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
-                    CaseService.getCaseValuesFor(cases: self.cases) { cases in
-                        self.cases = cases
-
-                        let visibleUserUids = cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
-                        UserService.fetchUsers(withUids: visibleUserUids) { users in
-                            self.users = users
-                            self.casesLoaded = true
-                            self.casesCollectionView.reloadData()
-                            self.casesCollectionView.isHidden = false
-                        }
+            if snapshot.isEmpty {
+                self.casesLoaded = true
+                self.activityIndicator.stop()
+                self.casesCollectionView.reloadData()
+                self.casesCollectionView.isHidden = false
+            } else {
+                self.casesFirstSnapshot = snapshot.documents.first
+                self.casesLastSnapshot = snapshot.documents.last
+                self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                CaseService.getCaseValuesFor(cases: self.cases) { cases in
+                    self.cases = cases
+                    
+                    let visibleUserUids = cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    UserService.fetchUsers(withUids: visibleUserUids) { users in
+                        self.users = users
+                        self.casesLoaded = true
+                        self.casesCollectionView.reloadData()
+                        self.casesCollectionView.isHidden = false
                     }
                 }
             }
-        case .solved:
-            return
-        case .unsolved:
-            return
-        case .diagnosis:
-            return
-        case .images:
-            return
         }
     }
+        
 }
 
 
@@ -812,6 +778,10 @@ extension CasesViewController: ZoomTransitioningDelegate {
 
 extension CasesViewController {
     func getMoreCases() {
+        
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         switch contentSource {
         case .home:
             switch casesCategorySelected {
@@ -852,13 +822,73 @@ extension CasesViewController {
                     }
                 }
             case .solved:
+                CaseService.fetchCasesWithFilterCategoriesQuery(query: casesCategorySelected, user: user, lastSnapshot: casesLastSnapshot) { snapshot in
+                    guard !snapshot.isEmpty else { return }
+                    self.casesLastSnapshot = snapshot.documents.last
+                    let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                    CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
+                        self.cases.append(contentsOf: casesWithValues)
+                        let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
+                            self.users.append(contentsOf: newUsers)
+                            self.casesCollectionView.reloadData()
+                        }
+                    }
+                }
+                /*
+                 CaseService.fetchCasesWithFilterCategoriesQuery(query: category, user: user, lastSnapshot: nil) { snapshot in
+                     
+                     if snapshot.isEmpty {
+                         self.casesLoaded = true
+                         self.activityIndicator.stop()
+                         self.casesCollectionView.reloadData()
+                         self.casesCollectionView.isHidden = false
+                     } else {
+                         self.casesFirstSnapshot = snapshot.documents.first
+                         self.casesLastSnapshot = snapshot.documents.last
+                         self.cases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                         CaseService.getCaseValuesFor(cases: self.cases) { cases in
+                             self.cases = cases
+                             
+                             let visibleUserUids = cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                             UserService.fetchUsers(withUids: visibleUserUids) { users in
+                                 self.users = users
+                                 self.casesLoaded = true
+                                 self.casesCollectionView.reloadData()
+                                 self.casesCollectionView.isHidden = false
+                             }
+                         }
+                     }
+                 */
                 return
             case .unsolved:
-                return
-            case .diagnosis:
-                return
-            case .images:
-                return
+                CaseService.fetchCasesWithFilterCategoriesQuery(query: casesCategorySelected, user: user, lastSnapshot: casesLastSnapshot) { snapshot in
+                    guard !snapshot.isEmpty else { return }
+                    self.casesLastSnapshot = snapshot.documents.last
+                    let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                    CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
+                        self.cases.append(contentsOf: casesWithValues)
+                        let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
+                            self.users.append(contentsOf: newUsers)
+                            self.casesCollectionView.reloadData()
+                        }
+                    }
+                }
+            case .you:
+                CaseService.fetchCasesWithFilterCategoriesQuery(query: casesCategorySelected, user: user, lastSnapshot: casesLastSnapshot) { snapshot in
+                    guard !snapshot.isEmpty else { return }
+                    self.casesLastSnapshot = snapshot.documents.last
+                    let newCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data()) })
+                    CaseService.getCaseValuesFor(cases: newCases) { casesWithValues in
+                        self.cases.append(contentsOf: casesWithValues)
+                        let visibleUserUids = casesWithValues.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                        UserService.fetchUsers(withUids: visibleUserUids) { newUsers in
+                            self.users.append(contentsOf: newUsers)
+                            self.casesCollectionView.reloadData()
+                        }
+                    }
+                }
             }
         case .explore:
             // No cases to append

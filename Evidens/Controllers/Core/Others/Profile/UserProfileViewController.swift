@@ -601,7 +601,7 @@ class UserProfileViewController: UIViewController {
                 self.checkIfAllUserInformationIsFetched()
                 return
             }
-            self.relatedUsers = relatedUsers
+            self.relatedUsers = relatedUsers.filter( { $0.uid! != self.user.uid! })
             self.checkIfAllUserInformationIsFetched()
         }
     }
@@ -1188,7 +1188,8 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                 UserService.unfollow(uid: uid) { error in
                     
                     self.user.isFollowed = false
-                    self.fetchUserStats()
+                    
+                    currentCell.viewModel?.user.isFollowed = false
                     currentCell.isUpdatingFollowState = false
                     currentCell.updateButtonAfterAction = true
                     // Delete user feed posts related to the unfollowed user
@@ -1198,7 +1199,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                 // Handle follow user
                 UserService.follow(uid: uid) { error in
                     self.user.isFollowed = true
-                    self.fetchUserStats()
+                    currentCell.viewModel?.user.isFollowed = true
                     currentCell.isUpdatingFollowState = false
                     currentCell.updateButtonAfterAction = true
                     NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)

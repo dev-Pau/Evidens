@@ -191,6 +191,7 @@
 		5F91F11929BF380B007BB567 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11829BF380B007BB567 /* SearchService.swift */; };
 		5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11A29BF8253007BB567 /* NewViewModel.swift */; };
 		5F91F11D29C05820007BB567 /* NewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11C29C05820007BB567 /* NewService.swift */; };
+		5F93E7B029DF0C76001E146C /* PostAssistantToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
 		5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */; };
@@ -619,6 +620,7 @@
 		5F91F11829BF380B007BB567 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		5F91F11A29BF8253007BB567 /* NewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewModel.swift; sourceTree = "<group>"; };
 		5F91F11C29C05820007BB567 /* NewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewService.swift; sourceTree = "<group>"; };
+		5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAssistantToolbar.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
 		5F94477A2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCaseBookmarksTextCell.swift; sourceTree = "<group>"; };
@@ -1200,6 +1202,7 @@
 				5F8E528B2865F38E0053F011 /* PostAttachementCell */,
 				5F6607F42854EB4400FCF895 /* PostMenuCell */,
 				5F9F08A328630F630069FD2C /* PostPrivacyCell */,
+				5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -2879,6 +2882,7 @@
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
 				5F25908B28D0CE360018965C /* SearchBarContainerView.swift in Sources */,
+				5F93E7B029DF0C76001E146C /* PostAssistantToolbar.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
 				5F992AFE28ACD6EA0030F7F1 /* TopCaseImageCell.swift in Sources */,
 				5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */,

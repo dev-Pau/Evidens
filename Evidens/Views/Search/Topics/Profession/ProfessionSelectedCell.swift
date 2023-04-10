@@ -15,28 +15,14 @@ protocol ProfessionSelectedCellDelegate: AnyObject {
 
 class ProfessionSelectedCell: UICollectionViewCell {
     weak var delegate: ProfessionSelectedCellDelegate?
-    //weak var delegate: FilterCasesCellDelegate?
     private let searchDataSource = Search.Topics.allCases
     
-    /*
-    var selectedTag: String? {
-        didSet {
-            configureMenuWithTag()
-        }
-    }
-    
-    var selectedCategory: String? {
-        didSet {
-            configureMenuWithTag()
-        }
-    }
-*/
     var tagsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
         label.isUserInteractionEnabled = false
-        label.textColor = .systemBackground
+        label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -52,7 +38,7 @@ class ProfessionSelectedCell: UICollectionViewCell {
     
     private func configure() {
         layer.cornerRadius = 15
-        backgroundColor = .label
+        backgroundColor = primaryColor
         addSubviews(tagsLabel)
         NSLayoutConstraint.activate([
             tagsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),

@@ -82,7 +82,7 @@ class BrowseCompanyCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        companyImageView.layer.cornerRadius = 7
+        //companyImageView.layer.cornerRadius = 7
     }
     
     private func configureWithCompany() {

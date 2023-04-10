@@ -12,11 +12,99 @@ import FirebaseAuth
 struct NotificationService {
     
     //Upload a notification to a specific user
-    static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, clinicalCase: Case? = nil, withComment: String? = nil) {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+    static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, clinicalCase: Case? = nil, withCommentId: String? = nil) {
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //To avoid receiving user own notifications
         guard uid != currentUid else { return }
         
+        if let post = post {
+            
+            let id = post.postId
+            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("postId", isEqualTo: id).whereField("type", isEqualTo: type.rawValue)
+            notificationExists.getDocuments { snapshot, error in
+                guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
+                    let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
+                    
+                    var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
+                                               "uid": fromUser.uid as Any,
+                                               "postId": post.postId,
+                                               "type": type.rawValue,
+                                               "id": docRef.documentID]
+                    
+                    if let comment = withCommentId {
+                        data["commentId"] = comment
+                    }
+                    
+                    docRef.setData(data)
+                    return
+                }
+                
+                // We have a notification type associated with this post registered already
+                let notification = Notification(dictionary: notificationSnapshot.data() )
+                var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
+                                           "uid": fromUser.uid as Any]
+                if let comment = withCommentId {
+                    data["commentId"] = comment
+                }
+                
+                COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notification.id).setData(data, merge: true)
+            }
+        } else if let clinicalCase = clinicalCase {
+            
+            let id = clinicalCase.caseId
+            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("caseId", isEqualTo: id).whereField("type", isEqualTo: type.rawValue)
+            notificationExists.getDocuments { snapshot, error in
+                guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
+                    let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
+                    
+                    var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
+                                               "uid": fromUser.uid as Any,
+                                               "caseId": clinicalCase.caseId,
+                                               "type": type.rawValue,
+                                               "id": docRef.documentID]
+                    
+                    if let comment = withCommentId {
+                        data["commentId"] = comment
+                    }
+                    
+                    docRef.setData(data)
+                    return
+                }
+                
+                // We have a notification type associated with this post registered already
+                let notification = Notification(dictionary: notificationSnapshot.data() )
+                var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
+                                           "uid": fromUser.uid as Any]
+                if let comment = withCommentId {
+                    data["commentId"] = comment
+                }
+                
+                COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notification.id).setData(data, merge: true)
+            }
+        } else {
+            // Follow
+            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("type", isEqualTo: type.rawValue)
+            notificationExists.getDocuments { snapshot, error in
+                guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
+                    let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
+                    
+                    let data: [String: Any] = ["timestamp": Timestamp(date: Date()),
+                                               "uid": fromUser.uid as Any,
+                                               "type": type.rawValue,
+                                               "id": docRef.documentID]
+                    docRef.setData(data)
+                    return
+                }
+                
+                // We have a notification type associated with this post registered already
+                let notification = Notification(dictionary: notificationSnapshot.data() )
+                let data: [String: Any] = ["timestamp": Timestamp(date: Date()),
+                                           "uid": fromUser.uid as Any]
+                COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notification.id).setData(data, merge: true)
+            }
+        }
+        
+        /*
         let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
         
         var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
@@ -28,12 +116,12 @@ struct NotificationService {
         if let post = post {
             data["postId"] = post.postId
             //Put all the post information to navigate
-            data["postText"] = post.postText
+            //data["postText"] = post.postText
         }
         
         if let clinicalCase = clinicalCase {
             data["caseId"] = clinicalCase.caseId
-            data["caseTitle"] = clinicalCase.caseTitle
+            //data["caseTitle"] = clinicalCase.caseTitle
         }
         
         //If notification is a reply
@@ -42,6 +130,7 @@ struct NotificationService {
         }
         
         docRef.setData(data)
+         */
     }
     
     static func deleteNotification(withUid notificationUid: String, completion: @escaping(Bool) -> Void) {

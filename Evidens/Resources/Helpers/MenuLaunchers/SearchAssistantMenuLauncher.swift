@@ -13,7 +13,8 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 
 protocol SearchAssistantMenuLauncherDelegate: AnyObject {
     func didTapRestoreFilters()
-    func didTapShowResults(forTopic: String)
+    func didTapShowResults(_ object: NSObject, forTopic topic: String)
+    //func didTapShowResultsWithCategory(forCategory category: String)
 }
 
 class SearchAssistantMenuLauncher: NSObject {
@@ -30,7 +31,7 @@ class SearchAssistantMenuLauncher: NSObject {
     private var selectedOption = String()
     private var cellPoint: CGPoint!
     
-    private var menuHeight: CGFloat = 300
+    private var menuHeight: CGFloat = 220
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     private var screenWidth: CGFloat = UIScreen.main.bounds.width
     private var didLoad: Bool = false
@@ -40,15 +41,13 @@ class SearchAssistantMenuLauncher: NSObject {
     func showPostSettings(withOption option: String, in view: UIView) {
         screenWidth = view.frame.width
         configurePostSettings(in: view)
-        //if selectedOption.isEmpty {
-        //  selectedOption = option
-        //configurePostSettings(in: view)
-        //} else {
+
         if let footer = collectionView.supplementaryView(forElementKind: ElementKind.sectionFooter, at: IndexPath(item: 0, section: 0)) as? MESearchMenuFooter {
             footer.disableButton()
         }
         //  }
         selectedOption = option
+        
         
         if let optionIndex = self.searchOptions.firstIndex(where: { $0 == self.selectedOption }) {
             self.collectionView.selectItem(at: IndexPath(item: optionIndex, section: 0), animated: false, scrollPosition: [])
@@ -59,10 +58,7 @@ class SearchAssistantMenuLauncher: NSObject {
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
         }, completion: nil)
     }
-    
-    
-    
-    
+
     @objc func handleDismiss() {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
             self.blackBackgroundView.alpha = 0
@@ -85,13 +81,13 @@ class SearchAssistantMenuLauncher: NSObject {
             }
             if let optionIndex = self.searchOptions.firstIndex(where: { $0 == self.selectedOption }) {
                 self.collectionView.scrollToItem(at: IndexPath(item: optionIndex, section: 0), at: .centeredHorizontally, animated: true)
+                self.collectionView.selectItem(at: IndexPath(item: optionIndex, section: 0), animated: false, scrollPosition: .centeredHorizontally)
                 //self.collectionView.selectItem(at: IndexPath(item: optionIndex, section: 0), animated: true, scrollPosition: .centeredHorizontally)
             }
         }
     }
     
     func configurePostSettings(in view: UIView) {
-        print("first time")
         view.addSubview(blackBackgroundView)
         view.addSubview(collectionView)
         
@@ -102,26 +98,8 @@ class SearchAssistantMenuLauncher: NSObject {
         blackBackgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismissMenu)))
         
         collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: screenWidth, height: menuHeight)
-        
     }
-    
-    
-    /*
-     collectionView.performBatchUpdates {
-     menuHeight = collectionView.collectionViewLayout.collectionViewContentSize.height + 30
-     print(menuHeight)
-     collectionView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: screenWidth, height: menuHeight)
-     if let selectedIndex = searchOptions.firstIndex(where: { $0 == selectedOption }) {
-     self.collectionView.selectItem(at: IndexPath(item: selectedIndex, section: 0) , animated: false, scrollPosition: [])
-     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-     self.blackBackgroundView.alpha = 1
-     self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
-     }, completion: nil)
-     }
-     }
-     */
-    
-    
+
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.layer.cornerRadius = 20
@@ -222,7 +200,6 @@ extension SearchAssistantMenuLauncher: UICollectionViewDelegateFlowLayout, UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
         cell.setText(text: searchOptions[indexPath.row])
-        
         return cell
     }
     
@@ -232,28 +209,21 @@ extension SearchAssistantMenuLauncher: UICollectionViewDelegateFlowLayout, UICol
         if let footer = collectionView.supplementaryView(forElementKind: ElementKind.sectionFooter, at: IndexPath(item: 0, section: 0)) as? MESearchMenuFooter, let cell = collectionView.cellForItem(at: indexPath) as? RegistrationInterestsCell {
             footer.didSelectOption(selectedOption)
             
-             let visibleRect = CGRect(origin: cellPoint, size: collectionView.bounds.size)
-             let cellRect = cell.frame
-             
-             if cellRect.minX < visibleRect.minX {
-             print("more to the left")
-             // Cell is more to the left, so configure it accordingly
-             collectionView.scrollToItem(at: indexPath, at: .left, animated: true)
-             //collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
-             // ...
-             } else if cellRect.maxX > visibleRect.maxX {
-             print("more to the right")
-             // Cell is more to the right, so configure it accordingly
-             collectionView.scrollToItem(at: indexPath, at: .right, animated: true)
-             //collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
-             // ...
-             } else {
-             // Cell is visible, configure it accordingly
-             //collectionView.scrollToItem(at: indexPath, at: .left, animated: true)
-             //collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-             // ...
-             }
-             
+            let visibleRect = CGRect(origin: cellPoint, size: collectionView.bounds.size)
+            let cellRect = cell.frame
+            
+            if cellRect.minX < visibleRect.minX {
+                // Cell is more to the left, so configure it accordingly
+                collectionView.scrollToItem(at: indexPath, at: .left, animated: true)
+                //collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+                // ...
+            } else if cellRect.maxX > visibleRect.maxX {
+                // Cell is more to the right, so configure it accordingly
+                collectionView.scrollToItem(at: indexPath, at: .right, animated: true)
+                //collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .right)
+                // ..
+            }
+            
         }
     }
 }
@@ -263,8 +233,13 @@ extension SearchAssistantMenuLauncher: UICollectionViewDelegateFlowLayout, UICol
 extension SearchAssistantMenuLauncher: MESearchMenuFooterDelegate {
     func handleShowResults(withOption option: String) {
         //delegate?.didTapUpload(content: option)
-        delegate?.didTapShowResults(forTopic: option)
+        delegate?.didTapShowResults(self, forTopic: option)
         selectedOption = option
+        /*
+        if let optionIndex = self.searchOptions.firstIndex(where: { $0 == self.selectedOption }) {
+            self.collectionView.selectItem(at: IndexPath(item: optionIndex, section: 0), animated: false, scrollPosition: [])
+        }
+        */
         handleDismissMenu()
     }
 }

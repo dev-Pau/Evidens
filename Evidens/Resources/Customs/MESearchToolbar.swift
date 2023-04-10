@@ -15,8 +15,8 @@ protocol MESearchToolbarDelegate: AnyObject {
     func didSelectSearchTopic(_ topic: String)
     func didSelectSearchCategory(_ category: Search.Topics)
     
-    
     func showDisciplinesMenu(withOption option: String)
+    func showCategoriesMenu(withCategory category: String)
 }
 
 class MESearchToolbar: UIToolbar {
@@ -155,15 +155,19 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected {
-            searchDelegate?.showDisciplinesMenu(withOption: displayDataSource[0])
+            if indexPath.row == 0 {
+                searchDelegate?.showDisciplinesMenu(withOption: displayDataSource[0])
+            } else {
+                searchDelegate?.showCategoriesMenu(withCategory: displayDataSource[indexPath.row])
+            }
             return false
-            
         }
         return true
     }
 }
 
 extension MESearchToolbar: ProfessionSelectedCellDelegate {
+    
     func didSelectSearchTopic(_ topic: String) {
         if displayDataSource[0] == topic { return }
         if searchingWithCategorySelected {
@@ -186,13 +190,13 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
             displayDataSource[0] = topic
             self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
             self.collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
-            
             searchDelegate?.didSelectSearchTopic(topic)
         }
     }
     
     func didSelectSearchCategory(_ category: Search.Topics) {
         if searchingWithCategorySelected {
+            print("search with category selected")
             if displayDataSource[1] == category.rawValue { return }
             displayDataSource[1] = category.rawValue
             self.collectionView.reloadItems(at: [IndexPath(item: 1, section: 0)])
@@ -219,7 +223,6 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
     }
     
     func didRestoreMenu() {
-        print("did restore menu")
         UIView.animate(withDuration: 0.2) {
             self.collectionView.alpha = 0
             self.separatorView.backgroundColor = .systemBackground

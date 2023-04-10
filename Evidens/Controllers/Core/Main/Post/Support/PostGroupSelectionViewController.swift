@@ -31,6 +31,8 @@ class PostGroupSelectionViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.allowsSelection = true
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
         collectionView.allowsMultipleSelection = false
         return collectionView
     }()
@@ -55,7 +57,7 @@ class PostGroupSelectionViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        title = "Select a Group"
+        title = "Select Group"
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancelGroupSelection))
         navigationItem.leftBarButtonItem?.tintColor = .label
         

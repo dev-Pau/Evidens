@@ -44,13 +44,6 @@ class UploadPostViewController: UIViewController {
         return view
     }()
     
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
-        return view
-    }()
-    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -60,30 +53,8 @@ class UploadPostViewController: UIViewController {
         return scrollView
     }()
     
-    private let toolbar: UIToolbar = {
-        let toolbar = UIToolbar()
-        toolbar.barTintColor = .systemBackground
-        toolbar.clipsToBounds = true
-        toolbar.sizeToFit()
-        toolbar.translatesAutoresizingMaskIntoConstraints = false
-        return toolbar
-    }()
+    private let postAssistantToolbar: PostAssistantToolbar!
     
-    private lazy var professionsView = CaseDetailsView(title: "Professions")
-    
-    private var professionsCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.estimatedItemSize = CGSize(width: 100, height: 40)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.bounces = true
-        collectionView.alwaysBounceHorizontal = true
-        return collectionView
-    }()
-
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -118,16 +89,6 @@ class UploadPostViewController: UIViewController {
         
         button.translatesAutoresizingMaskIntoConstraints = false
     
-        return button
-    }()
-    
-    private lazy var attachementsButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "photo.on.rectangle.angled")
-        button.configuration?.baseForegroundColor = primaryColor
-        button.addTarget(self, action: #selector(handleAttachementsTap), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -202,7 +163,7 @@ class UploadPostViewController: UIViewController {
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
         postPrivacyMenuLauncher.delegate = self
-        professionsView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToProfessionsViewController)))
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -213,7 +174,7 @@ class UploadPostViewController: UIViewController {
     
     init(user: User, group: Group? = nil) {
         self.user = user
-        
+        postAssistantToolbar = PostAssistantToolbar(postDisciplines: [user.profession!])
         if let group = group {
             privacyType = .group
             self.group = group
@@ -249,7 +210,7 @@ class UploadPostViewController: UIViewController {
         
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(profileImageView, fullName, topSeparatorView, separatorView, professionsView, postTextView, settingsPostButton)
+        scrollView.addSubviews(profileImageView, fullName, topSeparatorView, postTextView, settingsPostButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -278,53 +239,25 @@ class UploadPostViewController: UIViewController {
             topSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
             
-            professionsView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
-            professionsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            professionsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            professionsView.heightAnchor.constraint(equalToConstant: 62),
-            
-            separatorView.topAnchor.constraint(equalTo: professionsView.bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: professionsView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: professionsView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            
-            postTextView.topAnchor.constraint(equalTo: professionsView.bottomAnchor, constant: 10),
+            postTextView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
         
-        professionsView.configure(collectionView: professionsCollectionView)
-        professionsView.topView.isHidden = true
-        
-        professionsCollectionView.delegate = self
-        professionsCollectionView.dataSource = self
-        professionsCollectionView.register(SpecialitiesCell.self, forCellWithReuseIdentifier: professionCellReuseIdentifier)
-
         profileImageView.layer.cornerRadius = 50/2
         
         if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
 
+        postAssistantToolbar.toolbarDelegate = self
         fullName.text = user.firstName! + " " + user.lastName!
         updateForm()
     }
     
     func configureKeyboard() {
-        toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 50)
-        
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
-        let fixedSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.fixedSpace, target: self, action: nil)
-        fixedSpace.width = 10
-
-        let attachementButton = UIBarButtonItem(customView: attachementsButton)
-      
-        toolbar.setItems([flexibleSpace, attachementButton], animated: true)
-        toolbar.barTintColor = UIColor.systemBackground
-        toolbar.setBackgroundImage(UIImage(), forToolbarPosition: .bottom, barMetrics: .default)
-        toolbar.setShadowImage(UIImage(), forToolbarPosition: .bottom)
-        
-        postTextView.inputAccessoryView = toolbar //postTextView.textView
+        postAssistantToolbar.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 50)
+        postTextView.inputAccessoryView = postAssistantToolbar
     }
     
     func addSinglePostImageToView(image: UIImage) {
@@ -339,10 +272,7 @@ class UploadPostViewController: UIViewController {
         postImageView.setHeight(newHeight)
 
         addCancelButtonImagePost(to: postImageView)
-        
-        attachementsButton.isUserInteractionEnabled = false
-        attachementsButton.alpha = 0.5
-        
+
         textViewDidChange(postTextView)
         
         viewModel.hasImage = true
@@ -371,10 +301,7 @@ class UploadPostViewController: UIViewController {
         ])
         
         addCancelButtonImagePost(to: gridImagesView)
-    
-        attachementsButton.isUserInteractionEnabled = false
-        attachementsButton.alpha = 0.5
-        
+
         viewModel.hasImage = true
         updateForm()
        
@@ -421,41 +348,11 @@ class UploadPostViewController: UIViewController {
         
         viewModel.hasImage = false
         updateForm()
-        
-        attachementsButton.isUserInteractionEnabled = true
-        attachementsButton.alpha = 1
     }
     
     @objc func handleSettingsTap() {
         postTextView.resignFirstResponder()
         postPrivacyMenuLauncher.showPostSettings(in: view)
-    }
-    
-    @objc func goToProfessionsViewController() {
-        let controller = ProfessionListViewController(professionsSelected: selectedProfessions)
-        controller.delegate = self
-        
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .label
-        navigationItem.backBarButtonItem = backButton
-                
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    @objc func handleAttachementsTap() {
-        postTextView.resignFirstResponder()
-        
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 4
-        config.preferredAssetRepresentationMode = .current
-        config.selection = .ordered
-        config.filter = PHPickerFilter.any(of: [.images])
-        
-        let vc = PHPickerViewController(configuration: config)
-        vc.delegate = self
-        present(vc, animated: true)
-        
     }
     
     //MARK: - Actions
@@ -714,37 +611,37 @@ extension UploadPostViewController: PostGroupSelectionViewControllerDelegate {
     }
 }
 
-extension UploadPostViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return selectedProfessions.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = professionsCollectionView.dequeueReusableCell(withReuseIdentifier: professionCellReuseIdentifier, for: indexPath) as! SpecialitiesCell
-        cell.backgroundColor = primaryColor
-        cell.specialityLabel.textColor = .white
-        cell.specialityLabel.text = selectedProfessions[indexPath.row].profession
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: size(forHeight: 30, forText: selectedProfessions[indexPath.item].profession).width + 30, height: 30)
-    }
-    
-    func size(forHeight height: CGFloat, forText text: String) -> CGSize {
-        let label = UILabel()
-        label.numberOfLines = 2
-        label.text = text
-        label.lineBreakMode = .byWordWrapping
-        label.heightAnchor.constraint(equalToConstant: height).isActive = true
-        return label.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-    }
-}
-
 extension UploadPostViewController: ProfessionListViewControllerDelegate {
     func didTapAddProfessions(profession: [Profession]) {
         selectedProfessions = profession
-        professionsCollectionView.reloadData()
+        postAssistantToolbar.setDisciplines(profession.map({ $0.profession }))
+    }
+}
+
+extension UploadPostViewController: PostAssistantToolbarDelegate {
+    func didTapAddMediaButton() {
+        postTextView.resignFirstResponder()
+        
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 4
+        config.preferredAssetRepresentationMode = .current
+        config.selection = .ordered
+        config.filter = PHPickerFilter.any(of: [.images])
+        
+        let vc = PHPickerViewController(configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
+    }
+    
+    func didTapConfigureDisciplines() {
+        let controller = ProfessionListViewController(professionsSelected: selectedProfessions)
+        controller.delegate = self
+        
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .label
+        navigationItem.backBarButtonItem = backButton
+                
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

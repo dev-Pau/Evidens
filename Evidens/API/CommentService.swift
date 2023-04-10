@@ -307,7 +307,55 @@ struct CommentService {
         }
     }
     
-  
+    static func fetchNotificationPostComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
+        var comments = [Comment]()
+        
+        guard !notifications.isEmpty else {
+            completion(comments)
+            return
+        }
+        
+        notifications.forEach { notification in
+            let query = COLLECTION_POSTS.document(notification.postId!).collection("comments").document(notification.commentId)
+            query.getDocument { snapshot, error in
+                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
+                    completion(comments)
+                    return
+                }
+                
+                comments.append(Comment(dictionary: data))
+                if comments.count == notifications.count {
+                    completion(comments)
+                }
+            }
+        }
+    }
+    
+    static func fetchNotificationCaseComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
+        var comments = [Comment]()
+        
+        guard !notifications.isEmpty else {
+            completion(comments)
+            return
+        }
+        
+        notifications.forEach { notification in
+            let query = COLLECTION_CASES.document(notification.caseId!).collection("comments").document(notification.commentId)
+            query.getDocument { snapshot, error in
+                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
+                    completion(comments)
+                    return
+                }
+                
+                comments.append(Comment(dictionary: data))
+                if comments.count == notifications.count {
+                    print(comments)
+                    completion(comments)
+                }
+            }
+        }
+    }
+    
     static func fetchNumberOfCommentsForPost(post: Post, type: Comment.CommentType, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
@@ -382,5 +430,5 @@ struct CommentService {
             completion(true)
         }
     }
-    
+   
 }

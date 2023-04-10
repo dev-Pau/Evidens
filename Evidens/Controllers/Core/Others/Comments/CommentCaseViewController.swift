@@ -257,6 +257,7 @@ extension CommentCaseViewController: CommentCellDelegate {
 
 extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
+        print("uploading \(comment)")
         //Get user from MainTabController
         guard let tab = self.tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }
@@ -280,12 +281,14 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "isAuthor": true as Any,
                     "anonymous": true as Any as Any])
                 
-                self.comments.append(newComment)
-               
-                let indexPath = IndexPath(item: self.comments.count - 1, section: 0)
+                self.comments.insert(newComment, at: 1)
+                
+                let indexPath = IndexPath(item: 1, section: 0)
+                self.collectionView.insertItems(at: [indexPath])
+                self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+
                 self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.user, comment: newComment)
-                self.collectionView.reloadData()
-                self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+
             }
         } else {
             CommentService.uploadCaseComment(comment: comment, clinicalCase: clinicalCase, user: currentUser, type: type) { ids in
@@ -309,8 +312,6 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "timestamp": "Now" as Any,
                     "isAuthor": isAuthor as Any as Any])
                 
-                self.comments.append(newComment)
-                
                 self.users.append(User(dictionary: [
                     "uid": currentUser.uid as Any,
                     "firstName": currentUser.firstName as Any,
@@ -320,13 +321,15 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                     "category": currentUser.category.rawValue as Any,
                     "speciality": currentUser.speciality as Any]))
                 
+                self.comments.insert(newComment, at: 1)
+                
                 let indexPath = IndexPath(item: 1, section: 0)
                 self.collectionView.insertItems(at: [indexPath])
                 self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
                 
-                self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.user, comment: newComment)
+                self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: currentUser, comment: newComment)
                 
-                NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withComment: comment)
+                NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withCommentId: commentUid)
             }
         }
     }

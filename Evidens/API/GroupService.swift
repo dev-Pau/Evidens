@@ -56,6 +56,19 @@ struct GroupService {
         }
     }
     
+    static func fetchTopGroupsForTopic(topic: String, completion: @escaping([Group]) -> Void) {
+        let query = COLLECTION_GROUPS.whereField("professions", arrayContains: topic).limit(to: 3)
+        query.getDocuments { snapshot, error in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                completion([])
+                return
+            }
+            
+            let groups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+            completion(groups)
+        }
+    }
+    
     static func fetchGroupsWithText(_ text: [String], lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             COLLECTION_GROUPS.whereField("searchFor", arrayContainsAny: text).limit(to: 10).getDocuments { snapshot, _ in
@@ -66,8 +79,8 @@ struct GroupService {
                 guard snapshot.documents.last != nil else {
                     completion(snapshot)
                     return
-                    
                 }
+                
                 completion(snapshot)
             }
         } else {

@@ -26,20 +26,6 @@ struct NotificationViewModel {
         return formatter.string(from: notification.timestamp.dateValue(), to: Date())
     }
     
-
-    var notificationUserInfo: NSAttributedString {
-        let firstName = notification.firstName
-        let lastName = notification.lastName
-        let messageType = notification.type.notificationMessage
-        
-        let attributedText = NSMutableAttributedString(string: firstName, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
-        attributedText.append(NSAttributedString(string: " \(lastName)", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: messageType, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        
-        return attributedText
-    }
-    
     var notificationUserImage: UIImage? {
         let notificationType = notification.type.notificationImage
         return notificationType
@@ -47,15 +33,6 @@ struct NotificationViewModel {
     
     var notificationTimeStamp: String {
         return timestampString ?? ""
-    }
-    
-    var notificationComment: String? {
-        if notification.comment.isEmpty {
-            return ""
-        } else {
-            return ": \(notification.comment)"
-        }
-
     }
     
     var shouldShowFollowButton: Bool {
@@ -67,24 +44,60 @@ struct NotificationViewModel {
     }
     
     var followButtonBackgroundColor: UIColor {
-        return notification.userIsFollowed ? .secondarySystemGroupedBackground : primaryColor
+        return notification.userIsFollowed ? .systemBackground : .label
     }
     
     var followButtonTextColor: UIColor {
-        return notification.userIsFollowed ? .label : .white
+        return notification.userIsFollowed ? .label : .systemBackground
     }
     
-    var followButtonCornerWidth: CGFloat {
+    var followButtonBorderColor: UIColor {
+        return notification.userIsFollowed ? .quaternarySystemFill : .label
+    }
+    
+    var followButtonBorderWidth: CGFloat {
         return notification.userIsFollowed ? 1 : 0
     }
+
+    var notificationType: Notification.NotificationType {
+        return notification.type
+    }
     
-    var notificationPostText: String? {
-        if notification.type == .likeCase {
-            return notification.caseText
-        } else if notification.type == .likePost {
-            return notification.postText
-        } else {
+    var notificationTypeDescription: String {
+        switch notificationType {
+        case .likePost:
+            guard let likes = notification.post?.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .likeCase:
+            guard let likes = notification.clinicalCase?.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .follow:
             return ""
+        case .commentPost:
+            guard let likes = notification.post?.numberOfComments, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .commentCase:
+            guard let likes = notification.clinicalCase?.numberOfComments, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        }
+    }
+    
+    var notificationTypeSummary: String {
+        switch notificationType {
+        case .likePost:
+            guard let post = notification.post else { return "" }
+            return "\"\(post.postText.trimmingCharacters(in: .whitespaces))\". "
+        case .likeCase:
+            guard let clinicalCase = notification.clinicalCase else { return "" }
+            return "\"\(clinicalCase.caseTitle.trimmingCharacters(in: .whitespaces))\". "
+        case .follow:
+            return ""
+        case .commentPost:
+            guard let comment = notification.comment else { return "" }
+            return "\"\(comment.commentText.trimmingCharacters(in: .whitespaces))\". "
+        case .commentCase:
+            guard let comment = notification.comment else { return "" }
+            return "\"\(comment.commentText.trimmingCharacters(in: .whitespaces))\". "
         }
     }
 }

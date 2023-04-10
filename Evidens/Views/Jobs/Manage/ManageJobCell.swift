@@ -120,7 +120,7 @@ class ManageJobCell: UICollectionViewCell {
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
         
-        companyImageView.layer.cornerRadius = 7
+        //companyImageView.layer.cornerRadius = 7
         dotsImageButton.menu = addMenuItems()
     }
     

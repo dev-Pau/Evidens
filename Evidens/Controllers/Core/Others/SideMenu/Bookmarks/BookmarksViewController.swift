@@ -280,7 +280,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
 
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
+                    guard cases[indexPath.row].privacyOptions == .visible || cases[indexPath.row].privacyOptions == .group else { return cell }
                     
                     let userIndex = caseUsers.firstIndex { user in
                         if user.uid == cases[indexPath.row].ownerUid {

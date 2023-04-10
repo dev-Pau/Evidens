@@ -25,7 +25,7 @@ class PostGroupCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .systemBackground
+        iv.image = UIImage(named: "group.profile")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -34,7 +34,7 @@ class PostGroupCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.backgroundColor = .label
+        label.textColor = .label
         label.numberOfLines = 0
         return label
     }()
@@ -64,14 +64,14 @@ class PostGroupCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .systemBackground
+
         addSubviews(groupImageView, selectionOptionButton, groupNameLabel, separatorView)
         
         NSLayoutConstraint.activate([
             groupImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             groupImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            groupImageView.widthAnchor.constraint(equalToConstant: 30),
-            groupImageView.heightAnchor.constraint(equalToConstant: 30),
+            groupImageView.widthAnchor.constraint(equalToConstant: 40),
+            groupImageView.heightAnchor.constraint(equalToConstant: 40),
             
             selectionOptionButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             selectionOptionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
@@ -84,7 +84,7 @@ class PostGroupCell: UICollectionViewCell {
             groupNameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 1)
         ])
@@ -94,6 +94,8 @@ class PostGroupCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         groupNameLabel.text = viewModel.groupName
         selectionOptionButton.configuration?.image = UIImage(systemName: "circle")
-        groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        if let url = viewModel.groupProfileUrl, url != "" {
+            groupImageView.sd_setImage(with: URL(string: viewModel.groupProfileUrl!))
+        }
     }
 }
