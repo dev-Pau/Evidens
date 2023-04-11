@@ -110,10 +110,10 @@ class BrowseJobCell: UICollectionViewCell {
         return label
     }()
     
-    private let separatorView: UIView = {
+    var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -163,7 +163,7 @@ class BrowseJobCell: UICollectionViewCell {
             timestampLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.5),
             separatorView.leadingAnchor.constraint(equalTo: timestampLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])

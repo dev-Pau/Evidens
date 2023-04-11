@@ -113,7 +113,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
+            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
             postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             

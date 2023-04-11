@@ -13,7 +13,7 @@ class SecondarySearchHeader: UICollectionReusableView {
     var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.isHidden = false
         return view
     }()
@@ -52,7 +52,7 @@ class SecondarySearchHeader: UICollectionReusableView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),

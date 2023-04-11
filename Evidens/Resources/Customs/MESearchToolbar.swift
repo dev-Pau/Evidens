@@ -92,6 +92,13 @@ class MESearchToolbar: UIToolbar {
         
         return layout
     }
+    
+    func showToolbar() {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
+            self.collectionView.frame.origin.y = 0
+            self.separatorView.backgroundColor = self.separatorColor
+        }
+    }
 }
 
 extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -144,10 +151,12 @@ extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewD
                 self.collectionView.reloadData()
                 self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
                 
+                /*
                 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
                     collectionView.frame.origin.y = 0
                     self.separatorView.backgroundColor = self.separatorColor
                 }
+                 */
             }
             searchDelegate?.didSelectSearchTopic(dataSource[indexPath.row])
         }

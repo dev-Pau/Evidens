@@ -38,7 +38,7 @@ class SearchRecentsHeader: UICollectionReusableView {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -63,8 +63,8 @@ class SearchRecentsHeader: UICollectionReusableView {
             
             separatorView.topAnchor.constraint(equalTo: emptyTitleLabel.bottomAnchor, constant: 10),
             separatorView.leadingAnchor.constraint(equalTo: emptyTitleLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.trailingAnchor.constraint(equalTo: clearLabel.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     

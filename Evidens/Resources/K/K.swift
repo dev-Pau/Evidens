@@ -21,6 +21,7 @@ let lightGrayColor = UIColor(rgb: 0xDCE4EA)
 let pinkColor = UIColor.systemRed //UIColor(rgb: 0xEC7480)
 let leafGreenColor = UIColor(rgb: 0x55B684)
 let interactiveColor = UIColor(rgb: 0x2176FF)
+let separatorColor = UIColor.init(named: "separatorColor")
 
 
 // Firebase collections

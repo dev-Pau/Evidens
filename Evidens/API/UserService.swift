@@ -448,11 +448,13 @@ struct UserService {
                 return
             }
 
+            var count = 0
             users = snapshot.documents.map({ User(dictionary: $0.data()) })
             users.enumerated().forEach { index, user in
                 self.checkIfUserIsFollowed(uid: user.uid!) { followed in
                     users[index].isFollowed = followed
-                    if snapshot.count == users.count {
+                    count += 1
+                    if users.count == count {
                         completion(users)
                     }
                 }

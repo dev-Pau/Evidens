@@ -114,5 +114,6 @@ class UserProfileEducationCell: UICollectionViewCell {
         educationTitleLabel.text = education.fieldOfStudy
         educationIntervalLabel.text = education.startDate + " - " + education.endDate
         educationTypeLabel.text = education.degree
+        
     }
 }

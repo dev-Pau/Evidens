@@ -70,7 +70,7 @@ class MEPostActionButtons: UIView {
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -116,7 +116,7 @@ class MEPostActionButtons: UIView {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     

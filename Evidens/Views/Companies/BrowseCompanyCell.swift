@@ -18,8 +18,8 @@ class BrowseCompanyCell: UICollectionViewCell {
     private let companyImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = .quaternarySystemFill
+        iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = .systemBackground
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -46,7 +46,7 @@ class BrowseCompanyCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -77,7 +77,7 @@ class BrowseCompanyCell: UICollectionViewCell {
             companyDetailsLabel.trailingAnchor.constraint(equalTo: companyTitleLabel.trailingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.5),
             separatorView.leadingAnchor.constraint(equalTo: companyTitleLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
@@ -87,7 +87,9 @@ class BrowseCompanyCell: UICollectionViewCell {
     
     private func configureWithCompany() {
         guard let company = company else { return }
-        companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        if let url = company.companyImageUrl, url != "" {
+            companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        }
         companyTitleLabel.text = company.name
         companyDetailsLabel.text = "Company" + " • " + company.industry + " • " + company.specialities.joined(separator: ", ")
         

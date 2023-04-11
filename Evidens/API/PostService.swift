@@ -132,7 +132,7 @@ struct PostService {
     
     static func fetchPostsForYou(user: User, completion: @escaping([Post]) -> Void) {
         //Fetch posts by filtering according to timestamp
-        let query = COLLECTION_POSTS.whereField("ownerUid", isNotEqualTo: user.uid!).whereField("professions", arrayContains: user.profession!).limit(to: 3)
+        let query = COLLECTION_POSTS.whereField("ownerUid", isNotEqualTo: user.uid!).whereField("professions", arrayContainsAny: [user.profession!]).limit(to: 3)
         query.getDocuments { snapshot, error in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])

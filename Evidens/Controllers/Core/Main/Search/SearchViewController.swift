@@ -63,6 +63,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         guard let user = tab.user else { return }
         
         var count = 0
+        
         NewService.fetchTopNewsForYou { news in
             self.newsForYou = news
             count += 1
@@ -134,9 +135,9 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
         title = "Search"
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        
+
         if user.phase == .verified {
-            let controller = SearchResultsUpdatingViewController()
+            let controller = SearchResultsUpdatingViewController(user: user)
             controller.searchResultsDelegate = self
             searchController = UISearchController(searchResultsController: controller)
             searchController.searchResultsUpdater = controller
@@ -148,6 +149,8 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
             navigationItem.hidesSearchBarWhenScrolling = false
             navigationItem.searchController = searchController
         }
+        
+        self.definesPresentationContext = true
     }
     
     private func configureUI() {
@@ -305,10 +308,12 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 header.tag = 2
             } else if indexPath.section == 3 {
                 header.configureWith(title: "Posts for you", linkText: "See All")
+                if posts.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 header.delegate = self
                 header.tag = 3
             } else {
                 header.configureWith(title: "Cases for you", linkText: "See All")
+                if cases.count < 3 { header.hideSeeAllButton() } else { header.unhideSeeAllButton() }
                 header.delegate = self
                 header.tag = 4
             }
@@ -353,30 +358,35 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
+                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
+                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithTwoImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
+                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithThreeImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
+                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithFourImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                     cell.viewModel = PostViewModel(post: posts[indexPath.row])
                     cell.set(user: postUsers[index])
                     cell.delegate = self
+                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .document:
                     return UICollectionViewCell()
@@ -394,11 +404,13 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                     cell.set(user: caseUsers[index])
                     cell.delegate = self
+                    if indexPath.row == cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
                 case .textWithImage:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                     cell.set(user: caseUsers[index])
+                    if indexPath.row == posts.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     cell.delegate = self
                     return cell
                 }
@@ -687,6 +699,7 @@ extension SearchViewController: CaseCellDelegate {
     func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
+        
         self.navigationController?.delegate = zoomTransitioning
 
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
@@ -975,9 +988,9 @@ extension SearchViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
         let map: [UIImage] = image.compactMap { $0.image }
         selectedImage = image[index]
+        self.navigationController?.delegate = zoomTransitioning
         let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        //controller.customDelegate = self
-       
+
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .clear

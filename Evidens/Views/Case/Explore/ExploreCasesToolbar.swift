@@ -48,7 +48,7 @@ class ExploreCasesToolbar: UIToolbar {
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
             section.interGroupSpacing = 10
-            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
 
             section.visibleItemsInvalidationHandler = { (visibleItems, point, env) -> Void in
                 self.cellPoint = point
@@ -71,10 +71,12 @@ class ExploreCasesToolbar: UIToolbar {
         
         addSubviews(selectionCellView, filterCollectionView)
         NSLayoutConstraint.activate([
-            filterCollectionView.topAnchor.constraint(equalTo: topAnchor),
+            //filterCollectionView.topAnchor.constraint(equalTo: topAnchor),
+            filterCollectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            filterCollectionView.heightAnchor.constraint(equalToConstant: 30),
             filterCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             filterCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            filterCollectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            //filterCollectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
         filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
@@ -115,6 +117,7 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
             if !didSelectFirstByDefault {
                 self.selectionCellView.frame.origin.x = cell.frame.origin.x
                 self.selectionCellView.frame = cell.frame
+                self.selectionCellView.frame.origin.y = 10
                 didSelectFirstByDefault.toggle()
             } else {
                 
@@ -128,7 +131,7 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
                 }
                 
                 UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) {
-                    self.selectionCellView.frame = CGRect(x: cell.frame.origin.x - self.cellPoint.x, y: cell.frame.origin.y, width: cell.frame.width, height: cell.frame.height)
+                    self.selectionCellView.frame = CGRect(x: cell.frame.origin.x - self.cellPoint.x, y: 10, width: cell.frame.width, height: cell.frame.height)
                 }
             }
         }

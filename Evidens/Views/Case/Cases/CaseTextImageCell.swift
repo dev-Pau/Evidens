@@ -54,7 +54,7 @@ class CaseTextImageCell: UICollectionViewCell {
     var titleCaseLabel = METitleCaseLabel()
     var descriptionCaseLabel = MEPostLabel()
     private var updateView = MECaseUpdateView()
-    private var actionButtonsView = MEPostActionButtons()
+    var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
     private var compositionalCollectionView: UICollectionView!

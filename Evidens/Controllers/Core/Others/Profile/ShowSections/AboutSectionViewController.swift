@@ -57,7 +57,7 @@ class AboutSectionViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         
-        scrollView.addSubviews(infoLabel)
+        scrollView.addSubviews(titleLabel, infoLabel)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),

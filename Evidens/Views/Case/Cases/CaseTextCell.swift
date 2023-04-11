@@ -22,14 +22,7 @@ class CaseTextCell: UICollectionViewCell {
     weak var delegate: CaseCellDelegate?
     
     private let cellContentView = UIView()
-    
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
-        return view
-    }()
-    
+
     private var heightCaseUpdatesConstraint: NSLayoutConstraint!
 
     private let caseInfoLabel: UILabel = {
@@ -45,7 +38,7 @@ class CaseTextCell: UICollectionViewCell {
     var titleCaseLabel = METitleCaseLabel()
     var descriptionCaseLabel = MEPostLabel()
     private var updateView = MECaseUpdateView()
-    private var actionButtonsView = MEPostActionButtons()
+    var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
     override init(frame: CGRect) {

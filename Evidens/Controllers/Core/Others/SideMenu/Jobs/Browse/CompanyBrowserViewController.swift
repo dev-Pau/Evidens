@@ -127,7 +127,7 @@ extension CompanyBrowserViewController: UICollectionViewDelegateFlowLayout, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return companies.isEmpty ? CGSize(width: view.frame.width, height: view.frame.height * 0.7) : CGSize(width: UIScreen.main.bounds.width, height: 60)
+        return companies.isEmpty ? CGSize(width: view.frame.width, height: view.frame.height * 0.7) : CGSize(width: UIScreen.main.bounds.width, height: 65)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -140,6 +140,11 @@ extension CompanyBrowserViewController: UICollectionViewDelegateFlowLayout, UICo
 extension CompanyBrowserViewController: GroupSearchBarHeaderDelegate {
     func didSearchText(text: String) {
         CompanyService.searchCompanyWithText(text: text.trimmingCharacters(in: .whitespaces)) { companies in
+            guard !companies.isEmpty else {
+                self.filteredCompanies.removeAll()
+                self.collectionView.reloadSections(IndexSet(integer: 1))
+                return
+            }
             self.filteredCompanies = companies
             self.collectionView.reloadSections(IndexSet(integer: 1))
         }

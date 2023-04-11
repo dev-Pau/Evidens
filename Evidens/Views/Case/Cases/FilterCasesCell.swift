@@ -21,7 +21,10 @@ class FilterCasesCell: UICollectionViewCell {
             guard changeAppearanceOnSelection else { return }
             //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
             //backgroundColor = isSelected ? primaryColor : .clear
-            tagsLabel.textColor = isSelected ? .white : .label
+            UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) {
+                self.tagsLabel.textColor = self.isSelected ? .white : .label
+            }
+
             tagsLabel.font = .systemFont(ofSize: 14, weight: isSelected ? .semibold : .medium)
         }
     }
