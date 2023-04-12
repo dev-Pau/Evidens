@@ -115,8 +115,7 @@ extension DiscoverGroupsViewController: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !groups.isEmpty else { return }
         let groupSelected = groups[indexPath.row]
-        
-        #warning("PROBLEMA. Aquí em de mirar previament si l'usuari forma part del grup o no, mirar a RTD si forma part del grup i quin rol té")
+    
         let controller = GroupPageViewController(group: groupSelected)
         
         let backItem = UIBarButtonItem()

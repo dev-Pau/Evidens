@@ -268,6 +268,14 @@
 		5F9AFAED28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */; };
 		5F9AFAF428D60E56004D61D3 /* SkeletonImageTextHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */; };
 		5F9AFAFA28D6E718004D61D3 /* CasesFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */; };
+		5F9D7D4729E68E0F002EA21C /* ReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4629E68E0F002EA21C /* ReportViewController.swift */; };
+		5F9D7D4929E6AD6C002EA21C /* ReportTargetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4829E6AD6C002EA21C /* ReportTargetViewController.swift */; };
+		5F9D7D4C29E6B89A002EA21C /* ReportTargetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4B29E6B89A002EA21C /* ReportTargetCell.swift */; };
+		5F9D7D4E29E6B8A9002EA21C /* ReportMainHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4D29E6B8A9002EA21C /* ReportMainHeader.swift */; };
+		5F9D7D5029E6DF19002EA21C /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D4F29E6DF19002EA21C /* Report.swift */; };
+		5F9D7D5229E6F066002EA21C /* ReportTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D5129E6F066002EA21C /* ReportTypeViewController.swift */; };
+		5F9D7D5429E6FD93002EA21C /* SubmitReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D5329E6FD93002EA21C /* SubmitReportViewController.swift */; };
+		5F9D7D5629E70B3E002EA21C /* AddReportContextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D5529E70B3E002EA21C /* AddReportContextViewController.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
 		5F9E4285287BE5C700C2153B /* DiagnosisResolvedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4284287BE5C700C2153B /* DiagnosisResolvedView.swift */; };
@@ -697,6 +705,14 @@
 		5F9AFAEC28D4CF9C004D61D3 /* SkeletonTextHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonTextHomeCell.swift; sourceTree = "<group>"; };
 		5F9AFAF328D60E56004D61D3 /* SkeletonImageTextHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonImageTextHomeCell.swift; sourceTree = "<group>"; };
 		5F9AFAF928D6E718004D61D3 /* CasesFeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesFeedCell.swift; sourceTree = "<group>"; };
+		5F9D7D4629E68E0F002EA21C /* ReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportViewController.swift; sourceTree = "<group>"; };
+		5F9D7D4829E6AD6C002EA21C /* ReportTargetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportTargetViewController.swift; sourceTree = "<group>"; };
+		5F9D7D4B29E6B89A002EA21C /* ReportTargetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportTargetCell.swift; sourceTree = "<group>"; };
+		5F9D7D4D29E6B8A9002EA21C /* ReportMainHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportMainHeader.swift; sourceTree = "<group>"; };
+		5F9D7D4F29E6DF19002EA21C /* Report.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
+		5F9D7D5129E6F066002EA21C /* ReportTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportTypeViewController.swift; sourceTree = "<group>"; };
+		5F9D7D5329E6FD93002EA21C /* SubmitReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitReportViewController.swift; sourceTree = "<group>"; };
+		5F9D7D5529E70B3E002EA21C /* AddReportContextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReportContextViewController.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
 		5F9E4284287BE5C700C2153B /* DiagnosisResolvedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisResolvedView.swift; sourceTree = "<group>"; };
@@ -1354,6 +1370,7 @@
 				5F71C17928CCFE7300A16571 /* Comments */,
 				5F598C08283690F400189722 /* Profile */,
 				5F4493FA27942802008FD6ED /* Chat */,
+				5F9D7D4529E68DF9002EA21C /* Report */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -1854,6 +1871,27 @@
 				5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */,
 			);
 			path = Skeleton;
+			sourceTree = "<group>";
+		};
+		5F9D7D4529E68DF9002EA21C /* Report */ = {
+			isa = PBXGroup;
+			children = (
+				5F9D7D4629E68E0F002EA21C /* ReportViewController.swift */,
+				5F9D7D4829E6AD6C002EA21C /* ReportTargetViewController.swift */,
+				5F9D7D5129E6F066002EA21C /* ReportTypeViewController.swift */,
+				5F9D7D5329E6FD93002EA21C /* SubmitReportViewController.swift */,
+				5F9D7D5529E70B3E002EA21C /* AddReportContextViewController.swift */,
+			);
+			path = Report;
+			sourceTree = "<group>";
+		};
+		5F9D7D4A29E6B88C002EA21C /* Report */ = {
+			isa = PBXGroup;
+			children = (
+				5F9D7D4D29E6B8A9002EA21C /* ReportMainHeader.swift */,
+				5F9D7D4B29E6B89A002EA21C /* ReportTargetCell.swift */,
+			);
+			path = Report;
 			sourceTree = "<group>";
 		};
 		5F9E42972880589C00C2153B /* Register */ = {
@@ -2496,6 +2534,7 @@
 				5FA0874E28BFC5EB00D44829 /* Section */,
 				5F9E42972880589C00C2153B /* Register */,
 				5F8B7C4A2873FC3C005094A5 /* Cases */,
+				5F9D7D4F29E6DF19002EA21C /* Report.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2503,6 +2542,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5F9D7D4A29E6B88C002EA21C /* Report */,
 				5FA758DC29DD71B800F1DEA4 /* MenuLauncher */,
 				5FA9D17229A4B40F004EF26A /* Companies */,
 				5FA6938C29A3593B00DF3ADC /* Jobs */,
@@ -2833,6 +2873,7 @@
 				5FA417AD295497D00026F267 /* GroupContentSelectionHeader.swift in Sources */,
 				5F05207627C63A35001E7D8F /* SearchResult.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */,
+				5F9D7D5429E6FD93002EA21C /* SubmitReportViewController.swift in Sources */,
 				5F9A28142976C0850052E618 /* GroupMembershipViewController.swift in Sources */,
 				5F6607F62854EB5600FCF895 /* PostMenuCell.swift in Sources */,
 				5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */,
@@ -2855,6 +2896,7 @@
 				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
 				5F9A2820297805C10052E618 /* GroupSearchBarHeader.swift in Sources */,
 				5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */,
+				5F9D7D4929E6AD6C002EA21C /* ReportTargetViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
 				5FA1FC2C28CF8CD30099BF2C /* BookmarkCategoriesCell.swift in Sources */,
 				5FE8DE8C28918416009F08F9 /* UserProfileTitleFooter.swift in Sources */,
@@ -2881,6 +2923,7 @@
 				5F9F977929954BAB0087293B /* OnboardingHomeCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
+				5F9D7D5629E70B3E002EA21C /* AddReportContextViewController.swift in Sources */,
 				5F25908B28D0CE360018965C /* SearchBarContainerView.swift in Sources */,
 				5F93E7B029DF0C76001E146C /* PostAssistantToolbar.swift in Sources */,
 				5F8666FE2755255F009B26E6 /* CommentViewModel.swift in Sources */,
@@ -2912,6 +2955,7 @@
 				5FC4D87D2707059D006B7A34 /* SearchViewController.swift in Sources */,
 				5F05207127C4D04F001E7D8F /* NewConversationCell.swift in Sources */,
 				5FA9D17F29A6358A004EF26A /* JobHeaderCell.swift in Sources */,
+				5F9D7D4729E68E0F002EA21C /* ReportViewController.swift in Sources */,
 				5F6607FF2856518100FCF895 /* ShareClinicalCaseViewController.swift in Sources */,
 				5FA758E029DD86A000F1DEA4 /* MESearchMenuFooter.swift in Sources */,
 				5F39B4A3283108A70079F8CF /* RecentTextCell.swift in Sources */,
@@ -2927,6 +2971,7 @@
 				5FA5A87829D4843B00E2848C /* SearchJobsViewController.swift in Sources */,
 				5FB290222886D04D002FBAE1 /* MECaseInfoView.swift in Sources */,
 				5FBCB9F628A6AC0F007EF79D /* NotificationsViewController.swift in Sources */,
+				5F9D7D4C29E6B89A002EA21C /* ReportTargetCell.swift in Sources */,
 				5F91F0EF29ACF0E0007BB567 /* SecondarySearchHeader.swift in Sources */,
 				5F71C18028CD179C00A16571 /* SideMenuHeader.swift in Sources */,
 				5FA2FB3128DD891E00B37424 /* TermsOfUseViewController.swift in Sources */,
@@ -3049,6 +3094,7 @@
 				5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */,
 				5FA1FC2828CF8AA60099BF2C /* BookmarksViewController.swift in Sources */,
 				5F598C14283D2E8D00189722 /* PostImageViewModel.swift in Sources */,
+				5F9D7D5029E6DF19002EA21C /* Report.swift in Sources */,
 				5F4DBCB4274799080005AEC3 /* PostViewModel.swift in Sources */,
 				5F9FB27D28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift in Sources */,
 				5FA9D17829A4DE17004EF26A /* MyJobsViewController.swift in Sources */,
@@ -3057,6 +3103,7 @@
 				5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */,
 				5F9136D329ABA55600675BCE /* ReviewApplicantViewController.swift in Sources */,
 				5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */,
+				5F9D7D4E29E6B8A9002EA21C /* ReportMainHeader.swift in Sources */,
 				5F9E428B287F19E600C2153B /* CategoryRegistrationViewController.swift in Sources */,
 				5FB290282886FD43002FBAE1 /* CaseImageCell.swift in Sources */,
 				5F0D2AF828C0EEFD00BE5DD5 /* SettingsOptionFooter.swift in Sources */,
@@ -3141,6 +3188,7 @@
 				5F204F932992933E009A416A /* AddContributorsViewController.swift in Sources */,
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
 				5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */,
+				5F9D7D5229E6F066002EA21C /* ReportTypeViewController.swift in Sources */,
 				5F8E52B0286846A20053F011 /* METextField.swift in Sources */,
 				5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */,
 				5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */,

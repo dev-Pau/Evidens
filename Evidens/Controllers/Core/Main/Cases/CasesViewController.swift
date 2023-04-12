@@ -648,7 +648,10 @@ extension CasesViewController: CaseCellDelegate {
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         case .report:
-            break
+            let controller = ReportViewController(contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
         }
     }
     

@@ -908,7 +908,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             } else if indexPath.section == 3 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
                 cell.viewModel = GroupViewModel(group: topGroups[indexPath.row])
-                #warning("groups delegate")
                 if indexPath.row == topGroups.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
             } else {
@@ -960,6 +959,20 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     let navController = UINavigationController(rootViewController: controller)
                     navController.modalPresentationStyle = .fullScreen
                     present(navController, animated: true)
+                }
+            } else if indexPath.row == 3 {
+                // Groups
+                guard !topGroups.isEmpty else { return }
+                let groupSelected = topGroups[indexPath.row]
+                let controller = GroupPageViewController(group: groupSelected)
+                
+                let backItem = UIBarButtonItem()
+                backItem.tintColor = .label
+                backItem.title = ""
+                navigationItem.backBarButtonItem = backItem
+                
+                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    navVC.pushViewController(controller, animated: true)
                 }
             }
         } else { return }
@@ -1048,15 +1061,17 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         #warning("Check if commenting works, because inside we get the user in the main tab controller and i'm not sure it's possible as in this controller we cannot get it.")
         let controller = CommentPostViewController(post: post, user: user, type: .regular)
-        #warning("implement delegate")
-        //controller.delegate = self
+        controller.delegate = self
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
+        //navigationItem.backBarButtonItem = backItem
         
         controller.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1183,8 +1198,10 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
-        navigationController?.pushViewController(controller, animated: true)
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        }
     }
     
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
@@ -1310,7 +1327,9 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         backItem.tintColor = .clear
         navigationItem.backBarButtonItem = backItem
 
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -1320,7 +1339,9 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
@@ -1333,15 +1354,16 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         self.navigationController?.delegate = self
         
         let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
-        #warning("implement delegate")
-        //controller.delegate = self
+        controller.delegate = self
        
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
 }
 
@@ -1360,19 +1382,22 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
 
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
         let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular)
-        #warning("delegate")
-        //controller.delegate = self
+        controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -1488,7 +1513,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-        print("did tap user")
         let controller = UserProfileViewController(user: user)
         
         let backItem = UIBarButtonItem()
@@ -1497,16 +1521,13 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         navigationItem.backBarButtonItem = backItem
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            print("is not nil")
             navVC.pushViewController(controller, animated: true)
-        } else {
-            print("is nil")
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
-        
         //let navigationController = UINavigationController(rootViewController: self)
         //navigationController.pushViewController(controller, animated: true)
         //navigationController?.pushViewController(UINavigationController(rootViewController: controller, animated: true))
-        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
@@ -1519,7 +1540,10 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
             backItem.tintColor = .label
             self.navigationItem.backBarButtonItem = backItem
             
-            self.navigationController?.pushViewController(controller, animated: true)
+            if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                navVC.pushViewController(controller, animated: true)
+            }
+
         }
     }
     
@@ -1536,7 +1560,9 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         backItem.tintColor = .clear
         navigationItem.backBarButtonItem = backItem
 
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
@@ -1547,14 +1573,285 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         layout.minimumInteritemSpacing = 0
         
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
-        //controller.delegate = self
+        controller.delegate = self
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
         
-        navigationController?.pushViewController(controller, animated: true)
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            navVC.pushViewController(controller, animated: true)
+        }
+    }
+}
+
+extension SearchResultsUpdatingViewController: CommentPostViewControllerDelegate {
+    func didCommentPost(post: Post, user: User, comment: Comment) {
+        if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
+            topPosts[postIndex].numberOfComments += 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
+    func didDeletePostComment(post: Post, comment: Comment) {
+        if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
+            topPosts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+}
+
+extension SearchResultsUpdatingViewController: DetailsPostViewControllerDelegate {
+    func didTapLikeAction(forPost post: Post) {
+        if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) {
+                self.cell(cell, didLike: post)
+            }
+        }
+    }
+    
+    func didTapBookmarkAction(forPost post: Post) {
+        if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) {
+                self.cell(cell, didBookmark: post)
+            }
+        }
+    }
+    
+    func didComment(forPost post: Post) {
+        let index = topPosts.firstIndex { homePost in
+            if homePost.postId == post.postId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+
+            topPosts[index].numberOfComments += 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 1)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments += 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+
+        }
+    }
+    
+    func didDeleteComment(forPost post: Post) {
+        if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
+            topPosts[postIndex].numberOfComments -= 1
+            
+            switch post.type {
+            case .plainText:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithTwoImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeTwoImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithThreeImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeThreeImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .textWithFourImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: postIndex, section: isInSearchCategoryMode ? 0 : 1)) as! HomeFourImageTextCell
+                cell.viewModel?.post.numberOfComments -= 1
+                
+            case .document:
+                break
+            case .poll:
+                break
+            case .video:
+                break
+            }
+        }
+    }
+    
+    func didEditPost(forPost post: Post) { return }
+}
+
+extension SearchResultsUpdatingViewController: CommentCaseViewControllerDelegate {
+    func didCommentCase(clinicalCase: Case, user: User, comment: Comment) {
+        let caseIndex = topCases.firstIndex { searchCase in
+            if searchCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = caseIndex {
+            topCases[index].numberOfComments += 1
+            collectionView.reloadItems(at: [IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 2)])
+        }
+    }
+    
+    func didDeleteCaseComment(clinicalCase: Case, comment: Comment) {
+        if let caseIndex = topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            topCases[caseIndex].numberOfComments -= 1
+            
+            switch clinicalCase.type {
+            case .text:
+                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextCell
+                cell.viewModel?.clinicalCase.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextImageCell
+                cell.viewModel?.clinicalCase.numberOfComments -= 1
+            }
+        }
+    }
+}
+
+extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate {
+    func didTapLikeAction(forCase clinicalCase: Case) {
+        let index = topCases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 2)) {
+                self.clinicalCase(cell, didLike: clinicalCase)
+            }
+        }
+    }
+    
+    func didTapBookmarkAction(forCase clinicalCase: Case) {
+        let index = topCases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = index {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 2)) {
+                self.clinicalCase(cell, didBookmark: clinicalCase)
+            }
+        }
+    }
+    
+    func didComment(forCase clinicalCase: Case) {
+        let caseIndex = topCases.firstIndex { homeCase in
+            if homeCase.caseId == clinicalCase.caseId {
+                return true
+            }
+            return false
+        }
+        
+        if let index = caseIndex {
+            topCases[index].numberOfComments += 1
+            collectionView.reloadItems(at: [IndexPath(item: index, section: isInSearchCategoryMode ? 0 : 2)])
+        }
+    }
+    
+    func didAddUpdate(forCase clinicalCase: Case) { }
+    
+    func didAddDiagnosis(forCase clinicalCase: Case) { }
+    
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if let caseIndex = topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            topCases[caseIndex].numberOfComments -= 1
+            
+            switch clinicalCase.type {
+            case .text:
+                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextCell
+                cell.viewModel?.clinicalCase.numberOfComments -= 1
+                
+            case .textWithImage:
+                let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextImageCell
+                cell.viewModel?.clinicalCase.numberOfComments -= 1
+            }
+        }
     }
 }
 

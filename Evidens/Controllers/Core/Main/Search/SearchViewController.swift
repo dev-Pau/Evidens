@@ -1046,7 +1046,7 @@ extension SearchViewController: CommentCaseViewControllerDelegate {
         
         if let index = caseIndex {
             cases[index].numberOfComments += 1
-            collectionView.reloadSections(IndexSet(integer: 4))
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 4)])
         }
     }
 }
@@ -1108,7 +1108,7 @@ extension SearchViewController: DetailsCaseViewControllerDelegate {
         
         if let index = caseIndex {
             cases[index].numberOfComments += 1
-            collectionView.reloadSections(IndexSet(integer: 4))
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 4)])
         }
     }
     

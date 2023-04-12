@@ -73,7 +73,7 @@ class ExploreCasesToolbar: UIToolbar {
         NSLayoutConstraint.activate([
             //filterCollectionView.topAnchor.constraint(equalTo: topAnchor),
             filterCollectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            filterCollectionView.heightAnchor.constraint(equalToConstant: 30),
+            filterCollectionView.heightAnchor.constraint(equalToConstant: 35),
             filterCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             filterCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             //filterCollectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
@@ -87,7 +87,7 @@ class ExploreCasesToolbar: UIToolbar {
         filterCollectionView.dataSource = self
         filterCollectionView.delegate = self
         
-        selectionCellView.layer.cornerRadius = 30 / 2
+        selectionCellView.layer.cornerRadius = 35 / 2
     }
     
     func selectFirstIndex() {
@@ -117,7 +117,7 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
             if !didSelectFirstByDefault {
                 self.selectionCellView.frame.origin.x = cell.frame.origin.x
                 self.selectionCellView.frame = cell.frame
-                self.selectionCellView.frame.origin.y = 10
+                self.selectionCellView.frame.origin.y = 7.5
                 didSelectFirstByDefault.toggle()
             } else {
                 
@@ -131,7 +131,7 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
                 }
                 
                 UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) {
-                    self.selectionCellView.frame = CGRect(x: cell.frame.origin.x - self.cellPoint.x, y: 10, width: cell.frame.width, height: cell.frame.height)
+                    self.selectionCellView.frame = CGRect(x: cell.frame.origin.x - self.cellPoint.x, y: 7.5, width: cell.frame.width, height: cell.frame.height)
                 }
             }
         }
@@ -170,3 +170,5 @@ extension ExploreCasesToolbar: UICollectionViewDelegateFlowLayout, UICollectionV
         return true
     }
 }
+
+
