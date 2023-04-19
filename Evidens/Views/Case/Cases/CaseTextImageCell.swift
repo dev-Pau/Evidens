@@ -40,13 +40,6 @@ class CaseTextImageCell: UICollectionViewCell {
     weak var delegate: CaseCellDelegate?
     private let cellContentView = UIView()
     private let pagingInfoSubject = PassthroughSubject<PagingInfo, Never>()
-    
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
-        return view
-    }()
 
     private var stringUrlImages: [String] = []
     

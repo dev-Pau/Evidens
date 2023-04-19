@@ -18,7 +18,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
     private var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.layer.shadowColor = UIColor.quaternarySystemFill.cgColor
         view.layer.shadowOffset = CGSize(width: 0, height: 0)
         view.layer.shadowRadius = 5.0
@@ -62,7 +62,7 @@ class UserProfileTitleHeader: UICollectionReusableView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             sectionTitle.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             sectionTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),

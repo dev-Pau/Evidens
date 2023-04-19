@@ -48,7 +48,7 @@ class CustomSectionCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -84,7 +84,7 @@ class CustomSectionCell: UICollectionViewCell {
             separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             addSectionButton.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             addSectionButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),

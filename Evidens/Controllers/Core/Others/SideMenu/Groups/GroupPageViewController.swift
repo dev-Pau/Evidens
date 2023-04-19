@@ -33,6 +33,7 @@ protocol GroupPageViewControllerDelegate: AnyObject {
 class GroupPageViewController: UIViewController, UINavigationControllerDelegate {
     
     weak var delegate: GroupPageViewControllerDelegate?
+    private var groupContextMenu = MEContextMenuLauncher(menuLauncherData: .groupPrivacy)
     
     private var zoomTransitioning = ZoomTransitioning()
     var selectedImage: UIImageView!
@@ -87,6 +88,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         iv.contentMode = .scaleAspectFill
         iv.layer.borderWidth = 3
         iv.image = UIImage(named: "group.profile")
+        iv.backgroundColor = .quaternarySystemFill
         iv.layer.borderColor = UIColor.systemBackground.cgColor
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
         iv.isUserInteractionEnabled = true
@@ -215,7 +217,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             scrollViewDidScrollHigherThanActionButton.toggle()
             navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.label).withRenderingMode(.alwaysOriginal), style: .done, target: self, action: #selector(handleBack))
             groupProfileImageView.isHidden = true
-            navigationItem.titleView?.isHidden = false
+
             
             if memberType == .external || memberType == .admin || memberType == .owner {
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: customRightButton)
@@ -229,7 +231,7 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             groupProfileImageView.isHidden = false
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
             navigationItem.setRightBarButton(nil, animated: true)
-            navigationItem.titleView?.isHidden = true
+
         }
     }
     
@@ -247,18 +249,6 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
         standardAppearance.backgroundColor = .systemBackground
         self.navigationItem.standardAppearance = standardAppearance
         //navigationController?.navigationBar.standardAppearance = standardAppearance
-        
-        let imageView = UIImageView()
-        imageView.clipsToBounds = true
-        imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 5
-        imageView.sd_setImage(with: URL(string: group.profileUrl!))
-        
-        let imageViewContainer = LogoContainerView(imageView: imageView)
-        imageViewContainer.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-
-        navigationItem.titleView = imageViewContainer
-        navigationItem.titleView?.isHidden = true
     }
     
     private func configureUI() {
@@ -425,15 +415,15 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
             
             groupProfileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.width / 3 - 25),
             groupProfileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            groupProfileImageView.widthAnchor.constraint(equalToConstant: 70),
-            groupProfileImageView.heightAnchor.constraint(equalToConstant: 70),
+            groupProfileImageView.widthAnchor.constraint(equalToConstant: 90),
+            groupProfileImageView.heightAnchor.constraint(equalToConstant: 90),
         ])
         
         if let imageUrl = group.profileUrl, imageUrl != "" {
             groupProfileImageView.sd_setImage(with: URL(string: imageUrl))
         }
         
-        groupProfileImageView.layer.cornerRadius = 7
+        //groupProfileImageView.layer.cornerRadius = 90 / 3
         
         collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.bounces = true
@@ -619,7 +609,18 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     }
     
     @objc func handleProfileTap() {
-        
+        let controller = ProfileImageViewController(isBanner: false)
+        controller.cornerRadius = 0
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            if let imageUrl = self.group.profileUrl, imageUrl != "" {
+                controller.profileImageView.sd_setImage(with: URL(string: imageUrl))
+            } else {
+                controller.profileImageView.image = UIImage(named: "group.profile")
+            }
+            controller.modalPresentationStyle = .overFullScreen
+            self.present(controller, animated: true)
+        }
     }
     
     @objc func handleGroupButton() {
@@ -932,6 +933,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: stretchyHeaderReuseIdentifier, for: indexPath) as! MEStretchyHeader
+            header.delegate = self
             header.setImageWithStringUrl(imageUrl: group.bannerUrl!)
             return header
         }
@@ -1202,26 +1204,6 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
         }
     }
     
-    func didTapGroupProfilePicture() {
-        let controller = ProfileImageViewController(isBanner: false)
-        controller.hidesBottomBarWhenPushed = true
-        DispatchQueue.main.async {
-            controller.profileImageView.sd_setImage(with: URL(string: self.group.profileUrl!))
-            controller.modalPresentationStyle = .overFullScreen
-            self.present(controller, animated: true)
-        }
-    }
-    
-    func didTapGroupBannerPicture() {
-        let controller = ProfileImageViewController(isBanner: true)
-        controller.hidesBottomBarWhenPushed = true
-        DispatchQueue.main.async {
-            controller.profileImageView.sd_setImage(with: URL(string: self.group.bannerUrl!))
-            controller.modalPresentationStyle = .overFullScreen
-            self.present(controller, animated: true)
-        }
-    }
-    
     func didTapInfoButton() {
         let controller = GroupInformationViewController(group: group)
         controller.delegate = self
@@ -1237,6 +1219,11 @@ extension GroupPageViewController: GroupPageHeaderCellDelegate {
 }
 
 extension GroupPageViewController: GroupContentCreationCellDelegate {
+    func didTapShowAudience() {
+        print("show audience menu")
+        groupContextMenu.showImageSettings(in: view)
+    }
+    
     func didTapUploadPost() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
@@ -1334,17 +1321,15 @@ class StretchyGroupHeaderLayout: UICollectionViewFlowLayout {
 
 extension GroupPageViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User) {
-        let controller = CommentPostViewController(post: post, user: forAuthor, type: .group)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentPostViewController(post: post, user: forAuthor, type: .group, currentUser: currentUser)
         controller.delegate = self
        // displayState = displaysSinglePost ? .others : .none
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        controller.hidesBottomBarWhenPushed = true
-
-        navigationController?.pushViewController(controller, animated: true)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1921,17 +1906,15 @@ extension GroupPageViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .group)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .group, currentUser: currentUser)
         controller.delegate = self
        // displayState = displaysSinglePost ? .others : .none
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        controller.hidesBottomBarWhenPushed = true
-
-        navigationController?.pushViewController(controller, animated: true)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -2277,7 +2260,6 @@ extension GroupPageViewController: DetailsCaseViewControllerDelegate {
         // cases[index].caseUpdates = clinicalCase.caseUpdates
         if contentIndexSelected == .all {
             if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
-                let indexPath = IndexPath(item: index, section: 1)
                 if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
                     cases[caseIndex].caseUpdates = clinicalCase.caseUpdates
                     collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
@@ -2339,7 +2321,6 @@ extension GroupPageViewController: CaseUpdatesViewControllerDelegate {
         // just search the case and add
         if contentIndexSelected == .all {
             if let index = content.firstIndex(where: { $0.id == caseId }) {
-                let indexPath = IndexPath(item: index, section: 1)
                 if let caseIndex = cases.firstIndex(where: { $0.caseId == caseId }) {
                     cases[caseIndex].caseUpdates = updates
                     collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
@@ -2357,6 +2338,21 @@ extension GroupPageViewController: CaseUpdatesViewControllerDelegate {
 extension GroupPageViewController: EmptyGroupCellDelegate {
     func didTapDiscoverGroup() {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension GroupPageViewController: MEStretchyHeaderDelegate {
+    func didTapBanner() {
+        let controller = ProfileImageViewController(isBanner: true)
+        controller.hidesBottomBarWhenPushed = true
+        DispatchQueue.main.async {
+            if let bannerUrl = self.group.bannerUrl, bannerUrl != "" {
+                controller.profileImageView.sd_setImage(with: URL(string: bannerUrl))
+            }
+        }
+        
+        controller.modalPresentationStyle = .overFullScreen
+        self.present(controller, animated: true)
     }
 }
 

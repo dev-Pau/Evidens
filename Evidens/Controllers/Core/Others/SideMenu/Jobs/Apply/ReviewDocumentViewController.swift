@@ -53,7 +53,8 @@ class ReviewDocumentViewController: UIViewController {
     
     private func configure() {
         view.addSubviews(pdfView, dismissButton)
-        guard let document = PDFDocument(url: url) else { return }
+        guard let document = PDFDocument(url: url) else {
+            return }
         pdfView.document = document
         
     }

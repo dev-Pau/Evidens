@@ -11,8 +11,7 @@ import Firebase
 struct Notification {
     
     let uid: String
-    var postId: String?
-    var caseId: String?
+    var contentId: String
     let timestamp: Timestamp
     let type: NotificationType
     let id: String
@@ -23,6 +22,7 @@ struct Notification {
     var post: Post?
     var clinicalCase: Case?
     var comment: Comment?
+    var job: Job?
     
     enum NotificationType: Int {
         case likePost
@@ -30,6 +30,7 @@ struct Notification {
         case follow
         case commentPost
         case commentCase
+        case jobApplicant
         
         var notificationMessage: String {
             switch self {
@@ -38,21 +39,8 @@ struct Notification {
             case .follow: return " followed you"
             case .commentPost: return " commented on your post"
             case .commentCase: return " commented on your case"
-            }
-        }
-        
-        var notificationImage: UIImage? {
-            switch self {
-            case .likePost:
-                return UIImage(systemName: "heart.fill")?.withTintColor(UIColor(rgb: 0x79CBBF), renderingMode: .alwaysOriginal)
-            case .likeCase:
-                return UIImage(systemName: "heart.fill")?.withTintColor(UIColor(rgb: 0x79CBBF), renderingMode: .alwaysOriginal)
-            case .follow:
-                return UIImage(systemName: "person.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
-            case .commentPost:
-                return UIImage(systemName: "plus.bubble.fill")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal)
-            case .commentCase:
-                return UIImage(systemName: "plus.bubble.fill")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+            case .jobApplicant: return " applied to your job"
+                
             }
         }
     }
@@ -79,8 +67,7 @@ struct Notification {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.id = dictionary["id"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
-        self.postId = dictionary["postId"] as? String ?? ""
-        self.caseId = dictionary["caseId"] as? String ?? ""
+        self.contentId = dictionary["contentId"] as? String ?? ""
         self.type = NotificationType(rawValue: dictionary["type"] as? Int ?? 0) ?? .likePost
         self.userProfileImageUrl = dictionary["userProfileImageUrl"] as? String ?? ""
         self.commentId = dictionary["commentId"] as? String ?? ""

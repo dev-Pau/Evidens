@@ -46,7 +46,7 @@ class HomeLikesCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternaryLabel
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -85,7 +85,7 @@ class HomeLikesCell: UICollectionViewCell {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         profileImageView.layer.cornerRadius = 40 / 2

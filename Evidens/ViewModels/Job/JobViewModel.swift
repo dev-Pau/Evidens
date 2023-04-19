@@ -74,6 +74,10 @@ struct JobViewModel {
         }
     }
     
+    var applicants: String {
+        return job.numberOfApplicants > 0 ? job.numberOfApplicants == 1 ?  " • \(job.numberOfApplicants) applicant" : " • \(job.numberOfApplicants) applicants" : String()
+    }
+    
     var bookMarkImage: UIImage? {
         let imageName = job.didBookmark ? "bookmark.fill" : "bookmark"
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label)
@@ -95,6 +99,7 @@ struct ApplyJobViewModel {
     var jobIsValid: Bool {
         return hasDocument && hasPhone
     }
+    
 }
 
 struct CreateJobViewModel {

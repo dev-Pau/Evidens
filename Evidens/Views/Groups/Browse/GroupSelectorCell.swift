@@ -7,7 +7,6 @@
 
 import UIKit
 
-private let groupBrowseSkeletonCellReuseIdentifier = "GroupBrowseSkeletonReuseIdentifier"
 private let groupCellReuseIdentifier = "GroupCellReuseIdentifier"
 private let groupFooterReuseIdentifier = "GroupFooterReuseIdentifier"
 private let emptyGroupCellReuseIdentifier = "EmptyGroupCellReuseIdentifier"
@@ -75,7 +74,6 @@ class GroupSelectorCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         addSubview(collectionView)
         collectionView.frame = bounds
-        collectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
         collectionView.register(GroupBrowseCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         collectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
@@ -98,11 +96,6 @@ extension GroupSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if !loaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier, for: indexPath) as! GroupBrowseSkeletonCell
-            return cell
-        }
-        
         if groups.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
             cell.set(withImage: UIImage(named: "groups.empty")!, withTitle: "We could not find any group you are a part of - yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "Discover")

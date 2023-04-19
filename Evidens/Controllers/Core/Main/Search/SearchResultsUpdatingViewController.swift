@@ -344,16 +344,20 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 
                 self.usersLastSnapshot = snapshot.documents.last
                 self.topUsers = snapshot.documents.map({ User(dictionary: $0.data() )})
-                let uids = self.topUsers.map { $0.uid! }
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.topUsers = users
-                    self.resultItemsCount = self.topUsers.count
-                    self.activityIndicator.stop()
-                    self.collectionView.reloadData()
-                    self.collectionView.isHidden = false
-                    
+                var count = 0
+                self.topUsers.enumerated().forEach { index, user in
+                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                        self.topUsers[index].isFollowed = followed
+                        count += 1
+                        if count == self.topUsers.count {
+                            self.resultItemsCount = self.topUsers.count
+                            self.activityIndicator.stop()
+                            self.collectionView.reloadData()
+                            self.collectionView.isHidden = false
+                        }
+                    }
                 }
-
+                
             case .posts:
                 guard !snapshot.isEmpty else {
                     self.resultItemsCount = 0
@@ -364,15 +368,18 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 }
                 self.postsLastSnapshot = snapshot.documents.last
                 self.topPosts = snapshot.documents.map({ Post(postId: $0.documentID, dictionary: $0.data() )})
-                let ownerUids = self.topPosts.map { $0.ownerUid }
-                UserService.fetchUsers(withUids: ownerUids) { users in
-                    self.topPostUsers = users
-                    self.resultItemsCount = self.topPosts.count
-                    self.activityIndicator.stop()
-                    self.collectionView.reloadData()
-                    self.collectionView.isHidden = false
+                PostService.getPostValuesFor(posts: self.topPosts) { posts in
+                    self.topPosts = posts
+                    let ownerUids = self.topPosts.map { $0.ownerUid }
+                    UserService.fetchUsers(withUids: ownerUids) { users in
+                        self.topPostUsers = users
+                        self.resultItemsCount = self.topPosts.count
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
+                    }
                 }
-
+                
             case .cases:
                 guard !snapshot.isEmpty else {
                     self.resultItemsCount = 0
@@ -383,15 +390,18 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 }
                 self.caseLastSnapshot = snapshot.documents.last
                 self.topCases = snapshot.documents.map({ Case(caseId: $0.documentID, dictionary: $0.data() )})
-                let visibleOwnerUids = self.topCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
-                UserService.fetchUsers(withUids: visibleOwnerUids) { users in
-                    self.topCaseUsers = users
-                    self.resultItemsCount = self.topPosts.count
-                    self.activityIndicator.stop()
-                    self.collectionView.reloadData()
-                    self.collectionView.isHidden = false
+                CaseService.getCaseValuesFor(cases: self.topCases) { cases in
+                    self.topCases = cases
+                    let visibleOwnerUids = self.topCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                    UserService.fetchUsers(withUids: visibleOwnerUids) { users in
+                        self.topCaseUsers = users
+                        self.resultItemsCount = self.topCases.count
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
+                    }
                 }
-
+                 
             case .groups:
                 guard !snapshot.isEmpty else {
                     self.resultItemsCount = 0
@@ -402,10 +412,20 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 }
                 self.groupsLastSnapshot = snapshot.documents.last
                 self.topGroups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data() )})
-                self.resultItemsCount = self.topGroups.count
-                self.activityIndicator.stop()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
+                var aggrCount = 0
+                self.topGroups.enumerated().forEach { index, group in
+                    DatabaseManager.shared.fetchNumberOfGroupUsers(groupId: group.groupId) { members in
+                        self.topGroups[index].members = members
+                        aggrCount += 1
+                        if aggrCount == self.topGroups.count {
+                            self.resultItemsCount = self.topGroups.count
+                            self.activityIndicator.stop()
+                            self.collectionView.reloadData()
+                            self.collectionView.isHidden = false
+                        }
+                    }
+                }
+
                 
             case .jobs:
                 guard !snapshot.isEmpty else {
@@ -418,12 +438,15 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 self.jobsLastSnapshot = snapshot.documents.last
                 self.topJobs = snapshot.documents.map({ Job(jobId: $0.documentID, dictionary: $0.data()) })
                 let companyIds = self.topJobs.map { $0.companyId }
-                CompanyService.fetchCompanies(withIds: companyIds) { companies in
-                    self.topCompanies = companies
-                    self.resultItemsCount = self.topJobs.count
-                    self.activityIndicator.stop()
-                    self.collectionView.reloadData()
-                    self.collectionView.isHidden = false
+                JobService.fetchJobValuesFor(jobs: self.topJobs) { jobs in
+                    self.topJobs = jobs
+                    CompanyService.fetchCompanies(withIds: companyIds) { companies in
+                        self.topCompanies = companies
+                        self.resultItemsCount = self.topJobs.count
+                        self.activityIndicator.stop()
+                        self.collectionView.reloadData()
+                        self.collectionView.isHidden = false
+                    }
                 }
             }
         }
@@ -618,6 +641,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             }
         } else {
             // Recents information
+            if !dataLoaded { return 0 }
             if recentSearches.isEmpty && recentUserSearches.isEmpty { return 1 } else {
                 if section == 0 {
                     return users.count
@@ -629,7 +653,6 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-
         if !isInSearchTopicMode {
             // Recents
             if dataLoaded {
@@ -908,6 +931,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             } else if indexPath.section == 3 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupCellReuseIdentifier, for: indexPath) as! GroupCell
                 cell.viewModel = GroupViewModel(group: topGroups[indexPath.row])
+                
                 if indexPath.row == topGroups.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                 return cell
             } else {
@@ -931,13 +955,36 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             switch categorySearched {
                 
             case .people:
-                return
+                guard !topUsers.isEmpty else { return }
+                let controller = UserProfileViewController(user: topUsers[indexPath.row])
+                
+                let backItem = UIBarButtonItem()
+                backItem.title = ""
+                backItem.tintColor = .label
+
+                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    searchViewController.navigationItem.backBarButtonItem = backItem
+                    navVC.pushViewController(controller, animated: true)
+                    DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+                }
             case .posts:
-                return
+                guard !topPosts.isEmpty else { return }
+                
             case .cases:
-                return
+                guard !topCases.isEmpty else { return }
+                
             case .groups:
-                return
+                guard !topGroups.isEmpty else { return }
+                let controller = GroupPageViewController(group: topGroups[indexPath.row])
+                let backItem = UIBarButtonItem()
+                backItem.tintColor = .label
+                backItem.title = ""
+
+                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    searchViewController.navigationItem.backBarButtonItem = backItem
+                    navVC.pushViewController(controller, animated: true)
+                }
+  
             case .jobs:
                 guard !topJobs.isEmpty else { return }
                 if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
@@ -950,7 +997,21 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
             }
         } else if isInSearchTopicMode {
             // User is searching for a specific Topic
-            if indexPath.section == 4 {
+            if indexPath.section == 0 {
+                guard !topUsers.isEmpty else { return }
+                let controller = UserProfileViewController(user: topUsers[indexPath.row])
+                
+                let backItem = UIBarButtonItem()
+                backItem.title = ""
+                backItem.tintColor = .label
+
+                if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    searchViewController.navigationItem.backBarButtonItem = backItem
+                    navVC.pushViewController(controller, animated: true)
+                    DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+                }
+            }
+            else if indexPath.section == 4 {
                 // Jobs
                 guard !topJobs.isEmpty else { return }
                 if let companyIndex = topCompanies.firstIndex(where: { $0.id == topJobs[indexPath.row].companyId }) {
@@ -960,7 +1021,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     navController.modalPresentationStyle = .fullScreen
                     present(navController, animated: true)
                 }
-            } else if indexPath.row == 3 {
+            } else if indexPath.section == 3 {
                 // Groups
                 guard !topGroups.isEmpty else { return }
                 let groupSelected = topGroups[indexPath.row]
@@ -969,9 +1030,9 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 let backItem = UIBarButtonItem()
                 backItem.tintColor = .label
                 backItem.title = ""
-                navigationItem.backBarButtonItem = backItem
-                
+
                 if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                    searchViewController.navigationItem.backBarButtonItem = backItem
                     navVC.pushViewController(controller, animated: true)
                 }
             }
@@ -1059,19 +1120,13 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
 
 extension SearchResultsUpdatingViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        #warning("Check if commenting works, because inside we get the user in the main tab controller and i'm not sure it's possible as in this controller we cannot get it.")
-        let controller = CommentPostViewController(post: post, user: user, type: .regular)
-        controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        //navigationItem.backBarButtonItem = backItem
         
-        controller.hidesBottomBarWhenPushed = true
-        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            searchViewController.navigationItem.backBarButtonItem = backItem
-            navVC.pushViewController(controller, animated: true)
-        }
+        #warning("Check if commenting works, because inside we get the user in the main tab controller and i'm not sure it's possible as in this controller we cannot get it.")
+        let controller = CommentPostViewController(post: post, user: user, type: .regular, currentUser: self.user)
+        controller.delegate = self
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -1196,9 +1251,9 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
             DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
@@ -1314,32 +1369,16 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
-        
-        self.navigationController?.delegate = zoomTransitioning
+    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
 
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .clear
-        navigationItem.backBarButtonItem = backItem
-
-        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            navVC.pushViewController(controller, animated: true)
-        }
-    }
-    
     func cell(wantsToSeeLikesFor post: Post) {
         let controller = PostLikesViewController(contentType: post)
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
         }
     }
@@ -1359,9 +1398,9 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
         }
     }
@@ -1380,24 +1419,19 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
 
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
         }
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular)
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, currentUser: self.user)
         controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            navVC.pushViewController(controller, animated: true)
-        }
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -1518,9 +1552,9 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
             DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
         }
@@ -1538,32 +1572,16 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
-            self.navigationItem.backBarButtonItem = backItem
             
             if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+                searchViewController.navigationItem.backBarButtonItem = backItem
                 navVC.pushViewController(controller, animated: true)
             }
 
         }
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        selectedImage = image[index]
-        
-        self.navigationController?.delegate = zoomTransitioning
-
-        let controller = HomeImageViewController(image: map, imageCount: image.count, index: index)
-        
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .clear
-        navigationItem.backBarButtonItem = backItem
-
-        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            navVC.pushViewController(controller, animated: true)
-        }
-    }
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User) {
         let layout = UICollectionViewFlowLayout()
@@ -1578,9 +1596,9 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
         }
     }

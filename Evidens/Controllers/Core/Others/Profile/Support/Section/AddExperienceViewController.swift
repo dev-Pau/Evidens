@@ -167,14 +167,14 @@ class AddExperienceViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let bottomSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -312,7 +312,7 @@ class AddExperienceViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: companyTextField.bottomAnchor, constant: 10),
             separatorView.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             squareButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             squareButton.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
@@ -326,7 +326,7 @@ class AddExperienceViewController: UIViewController {
             bottomSeparatorView.topAnchor.constraint(equalTo: squareButton.bottomAnchor, constant: 10),
             bottomSeparatorView.leadingAnchor.constraint(equalTo: roleTextField.leadingAnchor),
             bottomSeparatorView.trailingAnchor.constraint(equalTo: roleTextField.trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             startDateTextField.topAnchor.constraint(equalTo: bottomSeparatorView.bottomAnchor, constant: 20),
             startDateTextField.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),

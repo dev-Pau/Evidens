@@ -40,7 +40,7 @@ class JobUserApplicationCell: UICollectionViewCell {
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .medium)
         label.numberOfLines = 1
         return label
     }()
@@ -66,7 +66,7 @@ class JobUserApplicationCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -110,7 +110,7 @@ class JobUserApplicationCell: UICollectionViewCell {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2

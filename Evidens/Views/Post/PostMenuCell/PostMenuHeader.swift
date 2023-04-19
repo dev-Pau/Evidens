@@ -32,7 +32,7 @@ class PostMenuHeader: UICollectionReusableView {
     
     private let bottomSeparator: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -62,7 +62,7 @@ class PostMenuHeader: UICollectionReusableView {
             bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomSeparator.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomSeparator.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bottomSeparator.heightAnchor.constraint(equalToConstant: 1)
+            bottomSeparator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
 }

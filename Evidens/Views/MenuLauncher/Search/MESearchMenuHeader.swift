@@ -48,7 +48,7 @@ class MESearchMenuHeader: UICollectionReusableView {
     
     private let bottomSeparator: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -80,7 +80,7 @@ class MESearchMenuHeader: UICollectionReusableView {
             bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomSeparator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -10),
             bottomSeparator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            bottomSeparator.heightAnchor.constraint(equalToConstant: 1)
+            bottomSeparator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     

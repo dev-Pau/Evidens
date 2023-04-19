@@ -476,20 +476,22 @@ struct PostService {
 
     static func likePost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
         //Add a new like to the post
         //Update posts likes collection to track likes for a particular post
-        COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
+        COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData(likeData) { _ in
             //Update user likes collection to track likes for a particular user
-            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).setData(likeData, completion: completion)
         }
     }
     
     static func bookmarkPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let bookmarkData = ["timestamp": Timestamp(date: Date())]
         //Update post bookmark collection to track bookmarks for a particular post
-        COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData([:]) { _ in
+        COLLECTION_POSTS.document(post.postId).collection("posts-bookmarks").document(uid).setData(bookmarkData) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData(["timestamp": Timestamp(date: Date())], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-posts-bookmarks").document(post.postId).setData(bookmarkData, completion: completion)
         }
     }
     

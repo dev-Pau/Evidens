@@ -48,7 +48,7 @@ class ChatCell: UICollectionViewCell {
     
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.textAlignment = .right
@@ -68,7 +68,7 @@ class ChatCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -97,11 +97,11 @@ class ChatCell: UICollectionViewCell {
         
             usernameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             usernameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            usernameLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor),
+            usernameLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -5),
             
             userMessageLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor),
             userMessageLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
-            usernameLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
+            userMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
             messageUnreadImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             messageUnreadImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -109,7 +109,7 @@ class ChatCell: UICollectionViewCell {
             messageUnreadImage.heightAnchor.constraint(equalToConstant: 10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor)
         ])
@@ -119,6 +119,7 @@ class ChatCell: UICollectionViewCell {
     
     public func configure() {
         guard let viewModel = viewModel else { return }
+        dateLabel.text = viewModel.timestampString
         userMessageLabel.attributedText = viewModel.messageToDisplay()
         messageUnreadImage.isHidden = viewModel.isMessageRead
     }

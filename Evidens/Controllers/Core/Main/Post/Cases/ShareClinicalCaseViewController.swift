@@ -171,35 +171,35 @@ class ShareClinicalCaseViewController: UIViewController {
     
     private let imageTitleSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let titleDescriptionSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let bottomSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let privacySeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let professionSeparatorLabel: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -418,7 +418,7 @@ class ShareClinicalCaseViewController: UIViewController {
             imageTitleSeparatorLabel.topAnchor.constraint(equalTo: infoImageLabel.bottomAnchor, constant: 20),
             imageTitleSeparatorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             imageTitleSeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            imageTitleSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            imageTitleSeparatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
             
             privacyTypeImage.topAnchor.constraint(equalTo: imageTitleSeparatorLabel.bottomAnchor, constant: 20),
             privacyTypeImage.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
@@ -437,7 +437,7 @@ class ShareClinicalCaseViewController: UIViewController {
             professionSeparatorLabel.topAnchor.constraint(equalTo: professionsView.bottomAnchor),
             professionSeparatorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             professionSeparatorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            professionSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            professionSeparatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
             
             titleTextField.topAnchor.constraint(equalTo: professionSeparatorLabel.bottomAnchor, constant: 20),
             titleTextField.leadingAnchor.constraint(equalTo: professionSeparatorLabel.leadingAnchor),
@@ -456,7 +456,7 @@ class ShareClinicalCaseViewController: UIViewController {
             titleDescriptionSeparatorLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 20),
             titleDescriptionSeparatorLabel.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
             titleDescriptionSeparatorLabel.trailingAnchor.constraint(equalTo: imageTitleSeparatorLabel.trailingAnchor),
-            titleDescriptionSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            titleDescriptionSeparatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
           
             descriptionTextView.topAnchor.constraint(equalTo: titleDescriptionSeparatorLabel.bottomAnchor, constant: 20),
             descriptionTextView.leadingAnchor.constraint(equalTo: imageTitleSeparatorLabel.leadingAnchor),
@@ -490,7 +490,7 @@ class ShareClinicalCaseViewController: UIViewController {
     }
     
     func configureCaseCollectionView() {
-        caseImagesCollectionView.register(CasesCell.self, forCellWithReuseIdentifier: casesCellReuseIdentifier)
+        caseImagesCollectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: casesCellReuseIdentifier)
         caseImagesCollectionView.delegate = self
         caseImagesCollectionView.dataSource = self
     }
@@ -865,7 +865,7 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
             return cell
           
         } else if collectionView == caseImagesCollectionView {
-            let cell = caseImagesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! CasesCell
+            let cell = caseImagesCollectionView.dequeueReusableCell(withReuseIdentifier: casesCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
             cell.delegate = self
             cell.set(image: collectionImages[indexPath.row])
             return cell
@@ -907,8 +907,8 @@ extension ShareClinicalCaseViewController: UICollectionViewDelegate, UICollectio
     }
 }
 
-extension ShareClinicalCaseViewController: CasesCellDelegate {
-    func delete(_ cell: CasesCell) {
+extension ShareClinicalCaseViewController: ShareCaseImageCellDelegate {
+    func delete(_ cell: ShareCaseImageCell) {
         if let indexPath = caseImagesCollectionView.indexPath(for: cell) {
             caseImagesCollectionView.performBatchUpdates {
                 newCellWidth.remove(at: indexPath.item)

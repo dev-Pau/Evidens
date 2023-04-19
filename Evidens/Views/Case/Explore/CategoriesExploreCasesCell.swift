@@ -11,9 +11,10 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     
     private let categoryLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
+        label.textColor = .label
         label.numberOfLines = 0
         return label
     }()
@@ -28,8 +29,9 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = .quaternarySystemFill
         layer.cornerRadius = 7
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.quaternarySystemFill.cgColor
         
         addSubviews(categoryLabel)
         NSLayoutConstraint.activate([
@@ -42,5 +44,9 @@ class CategoriesExploreCasesCell: UICollectionViewCell {
     
     func set(category: String) {
         categoryLabel.text = category
+        
+        //let profession = Profession.Professions(rawValue: category) ?? .medicine
+        //backgroundColor = profession.professionColor
+        
     }
 }

@@ -22,15 +22,6 @@ class JobHiringTeamCell: UICollectionViewCell {
     
     private var user: User?
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .bold)
-        label.textColor = .label
-        label.text = "Hiring team"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -43,9 +34,9 @@ class JobHiringTeamCell: UICollectionViewCell {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textColor = .label
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -54,7 +45,7 @@ class JobHiringTeamCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         label.font = .systemFont(ofSize: 12, weight: .medium)
         return label
@@ -73,26 +64,21 @@ class JobHiringTeamCell: UICollectionViewCell {
         isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapHiringMember)))
         
-        addSubviews(titleLabel, profileImageView, nameLabel, userInfoCategoryLabel)
+        addSubviews(profileImageView, nameLabel, userInfoCategoryLabel)
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            profileImageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            profileImageView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.widthAnchor.constraint(equalToConstant: 50),
             profileImageView.heightAnchor.constraint(equalToConstant: 50),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: 5),
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             userInfoCategoryLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            //userInfoCategoryLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
         ])
         
         profileImageView.layer.cornerRadius = 50 / 2

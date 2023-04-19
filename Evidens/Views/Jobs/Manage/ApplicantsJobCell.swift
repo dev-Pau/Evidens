@@ -42,7 +42,7 @@ class ApplicantsJobCell: UICollectionViewCell {
     private let jobPositionName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .systemFont(ofSize: 17, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 2
         label.lineBreakMode = .byTruncatingTail
@@ -60,23 +60,21 @@ class ApplicantsJobCell: UICollectionViewCell {
         return button
     }()
     
-    private let attachementButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = UIColor(rgb: 0xF40F02)
-        button.configuration?.baseForegroundColor = .white
-
-        button.configuration?.image = UIImage(systemName: "paperclip", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-        return button
+    
+    private let companyNameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.textColor = .label
+        label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
+        return label
     }()
     
     private let timestampLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
@@ -86,7 +84,7 @@ class ApplicantsJobCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -100,7 +98,7 @@ class ApplicantsJobCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(companyImageView, jobLocationLabel, jobPositionName, dotsImageButton, timestampLabel, separatorView)
+        addSubviews(companyImageView, companyNameLabel, jobLocationLabel, jobPositionName, dotsImageButton, timestampLabel, separatorView)
         NSLayoutConstraint.activate([
             companyImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             companyImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -116,20 +114,23 @@ class ApplicantsJobCell: UICollectionViewCell {
             jobPositionName.leadingAnchor.constraint(equalTo: companyImageView.trailingAnchor, constant: 10),
             jobPositionName.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
             
-            jobLocationLabel.topAnchor.constraint(equalTo: jobPositionName.bottomAnchor, constant: 5),
-            jobLocationLabel.leadingAnchor.constraint(equalTo: jobPositionName.leadingAnchor),
-            jobLocationLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            companyNameLabel.topAnchor.constraint(equalTo: jobPositionName.bottomAnchor, constant: 2),
+            companyNameLabel.leadingAnchor.constraint(equalTo: jobPositionName.leadingAnchor),
+            companyNameLabel.trailingAnchor.constraint(equalTo: jobPositionName.trailingAnchor),
             
-            timestampLabel.topAnchor.constraint(equalTo: jobLocationLabel.bottomAnchor, constant: 5),
+            jobLocationLabel.topAnchor.constraint(equalTo: companyNameLabel.bottomAnchor, constant: 2),
+            jobLocationLabel.leadingAnchor.constraint(equalTo: companyNameLabel.leadingAnchor),
+            jobLocationLabel.trailingAnchor.constraint(equalTo: companyNameLabel.trailingAnchor),
+            
+            timestampLabel.topAnchor.constraint(equalTo: jobLocationLabel.bottomAnchor, constant: 2),
             timestampLabel.leadingAnchor.constraint(equalTo: jobLocationLabel.leadingAnchor),
-            timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            timestampLabel.trailingAnchor.constraint(equalTo: jobLocationLabel.trailingAnchor),
             timestampLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: jobLocationLabel.leadingAnchor),
-
+            separatorView.heightAnchor.constraint(equalToConstant: 0.5),
+            separatorView.leadingAnchor.constraint(equalTo: timestampLabel.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         dotsImageButton.menu = addMenuItems()
@@ -139,11 +140,12 @@ class ApplicantsJobCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         jobPositionName.text = viewModel.jobName
         jobLocationLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
-        timestampLabel.text = viewModel.jobTimestampString! + " ago"
+        timestampLabel.text = viewModel.jobTimestampString! + " ago" + viewModel.applicants
     }
     
     func configureWithCompany(company: Company) {
         companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))
+        companyNameLabel.text = company.name
     }
     
     private func addMenuItems() -> UIMenu {

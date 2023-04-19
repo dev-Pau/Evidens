@@ -32,9 +32,21 @@ class PostAssistantToolbar: UIToolbar {
         return button
     }()
     
+    private lazy var addReferenceButton: UIButton = {
+        let button = UIButton()
+        button.configuration = .plain()
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.buttonSize = .mini
+        button.configuration?.image = UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        button.configuration?.baseBackgroundColor = primaryColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleAddMediaButton), for: .touchUpInside)
+        return button
+    }()
+    
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -62,17 +74,22 @@ class PostAssistantToolbar: UIToolbar {
         collectionView.alwaysBounceHorizontal = true
         collectionView.alwaysBounceVertical = false
         collectionView.allowsSelection = true
-        addSubviews(collectionView, addMediaButton, separatorView)
+        addSubviews(collectionView, addMediaButton, addReferenceButton, separatorView)
         NSLayoutConstraint.activate([
             addMediaButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             addMediaButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             addMediaButton.heightAnchor.constraint(equalToConstant: 22),
             addMediaButton.widthAnchor.constraint(equalToConstant: 22),
             
-            separatorView.trailingAnchor.constraint(equalTo: addMediaButton.leadingAnchor, constant: -10),
+            addReferenceButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            addReferenceButton.trailingAnchor.constraint(equalTo: addMediaButton.leadingAnchor, constant: -10),
+            addReferenceButton.heightAnchor.constraint(equalToConstant: 22),
+            addReferenceButton.widthAnchor.constraint(equalToConstant: 22),
+            
+            separatorView.trailingAnchor.constraint(equalTo: addReferenceButton.leadingAnchor, constant: -10),
             separatorView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            separatorView.widthAnchor.constraint(equalToConstant: 0.5),
+            separatorView.widthAnchor.constraint(equalToConstant: 0.4),
             
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.topAnchor.constraint(equalTo: topAnchor),

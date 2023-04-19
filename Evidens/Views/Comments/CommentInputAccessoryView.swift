@@ -18,7 +18,7 @@ class CommentInputAccessoryView: UIView {
     
     var caseIsAnonymous: Bool = false
     
-    weak var delegate: CommentInputAccessoryViewDelegate?
+    weak var accessoryViewDelegate: CommentInputAccessoryViewDelegate?
 
     let profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -31,9 +31,9 @@ class CommentInputAccessoryView: UIView {
     
     let commentTextView: CommentInputTextView = {
         let tv = CommentInputTextView()
-        tv.placeholderText = "Share your thoughts here..."
-        tv.placeholderLabel.font = .systemFont(ofSize: 13, weight: .regular)
-        tv.font = UIFont.systemFont(ofSize: 15)
+        tv.placeholderText = "Text Message"
+        tv.placeholderLabel.font = .systemFont(ofSize: 17, weight: .regular)
+        tv.font = UIFont.systemFont(ofSize: 17)
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
         tv.layer.cornerRadius = 16
@@ -63,7 +63,7 @@ class CommentInputAccessoryView: UIView {
     
     private lazy var topView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -82,16 +82,16 @@ class CommentInputAccessoryView: UIView {
         
         commentTextView.delegate = self
         
-        commentTextView.maxHeight = 120
+        commentTextView.maxHeight = 170
         
         addSubviews(profileImageView, postButton, commentTextView, topView)
         
         NSLayoutConstraint.activate([
             
-            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
             commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
-            commentTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -15),
+            commentTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
             
             profileImageView.centerYAnchor.constraint(equalTo: commentTextView.centerYAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -99,14 +99,14 @@ class CommentInputAccessoryView: UIView {
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
             
             postButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            postButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             //postButton.widthAnchor.constraint(equalToConstant: 80),
             //postButton.heightAnchor.constraint(equalToConstant: 50),
             
             topView.topAnchor.constraint(equalTo: topAnchor),
             topView.leadingAnchor.constraint(equalTo: leadingAnchor),
             topView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            topView.heightAnchor.constraint(equalToConstant: 1)
+            topView.heightAnchor.constraint(equalToConstant: 0.4)
 
         ])
     
@@ -138,15 +138,18 @@ class CommentInputAccessoryView: UIView {
     //MARK: - Actions
     
     @objc func didTapPostButton() {
-        delegate?.inputView(self, wantsToUploadComment: commentTextView.text)
+        accessoryViewDelegate?.inputView(self, wantsToUploadComment: commentTextView.text)
+        clearCommentTextView()
     }
     
     func clearCommentTextView() {
+        commentTextView.text = String()
         commentTextView.text = nil
         commentTextView.placeholderLabel.isHidden = false
         postButton.isEnabled = false
+        commentTextView.invalidateIntrinsicContentSize()
     }
-    
+   
     override var intrinsicContentSize: CGSize {
             return CGSize.zero
     }

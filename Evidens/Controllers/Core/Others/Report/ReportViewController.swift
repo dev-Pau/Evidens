@@ -11,6 +11,7 @@ class ReportViewController: UIViewController {
     
     private var contentOwnerUid: String
     private var contentId: String
+    private var source: Report.Source
     private var report = Report(dictionary: [:])
  
     private let scrollView: UIScrollView = {
@@ -27,7 +28,7 @@ class ReportViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "flag.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: "flag")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     
@@ -68,7 +69,7 @@ class ReportViewController: UIViewController {
         super.viewDidLoad()
         report.contentId = contentId
         report.contentOwnerUid = contentOwnerUid
-        
+        report.source = source
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         report.reportOwnerUid = uid
         
@@ -76,9 +77,19 @@ class ReportViewController: UIViewController {
         configureUI()
     }
     
-    init(contentOwnerUid: String, contentId: String) {
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
+    init(source: Report.Source, contentOwnerUid: String, contentId: String) {
         self.contentOwnerUid = contentOwnerUid
         self.contentId = contentId
+        self.source = source
         super.init(nibName: nil, bundle: nil)
     }
     

@@ -224,10 +224,9 @@ class LoginViewController: UIViewController {
             }
 
             //self.dismiss(animated: true, completion: nil)
-            let controller = MainTabController()
-            //let nav = UINavigationController(rootViewController: controller)
+            let controller = ContainerViewController()
             controller.modalPresentationStyle = .fullScreen
-            self.present(controller, animated: false, completion: nil)
+            self.present(controller, animated: false)
         }
     }
 }

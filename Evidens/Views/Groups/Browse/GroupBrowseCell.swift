@@ -62,13 +62,11 @@ class GroupBrowseCell: UICollectionViewCell {
         return label
     }()
     
-    private let membersCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumInteritemSpacing = 0
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
     }()
 
     override init(frame: CGRect) {
@@ -84,15 +82,15 @@ class GroupBrowseCell: UICollectionViewCell {
         
         backgroundColor = .systemBackground
         
-        layer.borderWidth = 1
-        layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        layer.cornerRadius = 7
+        //layer.borderWidth = 1
+        //layer.borderColor = UIColor.quaternarySystemFill.cgColor
+        //layer.cornerRadius = 7
         
-        layer.shadowColor = UIColor.quaternarySystemFill.cgColor
-        layer.shadowOffset = CGSize(width: 0, height: 0)
-        layer.shadowRadius = 5.0
-        layer.shadowOpacity = 1
-        layer.masksToBounds = false
+        //layer.shadowColor = UIColor.quaternarySystemFill.cgColor
+        //layer.shadowOffset = CGSize(width: 0, height: 0)
+        //layer.shadowRadius = 5.0
+        //layer.shadowOpacity = 1
+        //layer.masksToBounds = false
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -104,11 +102,11 @@ class GroupBrowseCell: UICollectionViewCell {
         ])
         
         
-        cellContentView.addSubviews(groupImageView, groupNameLabel, categoriesGroupLabel, memberTypeButton, groupSizeLabel, membersCollectionView)
+        cellContentView.addSubviews(groupImageView, groupNameLabel, categoriesGroupLabel, memberTypeButton, groupSizeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 4),
-            groupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 4),
+            groupImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
+            groupImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             groupImageView.heightAnchor.constraint(equalToConstant: 70),
             groupImageView.widthAnchor.constraint(equalToConstant: 70),
             
@@ -126,9 +124,12 @@ class GroupBrowseCell: UICollectionViewCell {
             groupSizeLabel.topAnchor.constraint(equalTo: memberTypeButton.bottomAnchor, constant: 2),
             groupSizeLabel.leadingAnchor.constraint(equalTo: memberTypeButton.leadingAnchor),
             groupSizeLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            
+            separatorView.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -1),
+            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
-        
-        groupImageView.layer.cornerRadius = 7
     }
     
     private func configureGroup() {
@@ -158,9 +159,7 @@ class GroupBrowseCell: UICollectionViewCell {
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
-        let height = max(90, autoLayoutSize.height)
-        
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }

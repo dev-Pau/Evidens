@@ -50,6 +50,15 @@ class SubmitReportViewController: UIViewController {
         configureUI()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
     init(report: Report) {
         self.report = report
         super.init(nibName: nil, bundle: nil)
@@ -118,11 +127,21 @@ class SubmitReportViewController: UIViewController {
     }
     
     @objc func handleContinueReport() {
-        
+        guard let source = report.source else { return }
+        DatabaseManager.shared.reportContent(source: source, report: report) { reported in
+            if reported {
+                let popupView = METopPopupView(title: "Your report has been received and will be analyzed promptly", image: "checkmark.circle.fill", popUpType: .regular)
+                popupView.showTopPopup(inView: self.view)
+                self.dismiss(animated: true)
+            }
+        }
     }
     
     @objc func handleAddContext() {
-        
+        let controller = AddReportContextViewController(report: report)
+        controller.delegate = self
+        controller.modalPresentationStyle = .fullScreen
+        present(controller, animated: true)
     }
 }
 
@@ -147,6 +166,12 @@ extension SubmitReportViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         reportButton.isEnabled = true
+    }
+}
+
+extension SubmitReportViewController: AddReportContextViewControllerDelegate {
+    func didAddReport(_ report: Report) {
+        self.report = report
     }
 }
 

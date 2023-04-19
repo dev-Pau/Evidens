@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import JGProgressHUD
 
 
 class NotificationFollowCell: UICollectionViewCell {
@@ -14,6 +15,8 @@ class NotificationFollowCell: UICollectionViewCell {
     //MARK: - Properties
     
     weak var delegate: NotificationCellDelegate?
+    var followers = 0
+
     
     var viewModel: NotificationViewModel? {
         didSet {
@@ -45,12 +48,14 @@ class NotificationFollowCell: UICollectionViewCell {
         return iv
     }()
     
-    private let fullNameLabel: UILabel = {
+    private lazy var fullNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleFollowersTap)))
         return label
     }()
     
@@ -82,7 +87,7 @@ class NotificationFollowCell: UICollectionViewCell {
     
     private lazy var separatorLabel: UILabel = {
         let view = UILabel()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -122,12 +127,13 @@ class NotificationFollowCell: UICollectionViewCell {
             fullNameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
+            fullNameLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -50),
             
             followButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 10),
             followButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             followButton.heightAnchor.constraint(equalToConstant: 30),
             
-            separatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            separatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
             separatorLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
             separatorLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             separatorLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor)
@@ -199,6 +205,11 @@ class NotificationFollowCell: UICollectionViewCell {
         delegate?.cell(self, wantsToViewProfile: viewModel.notification.uid)
     }
     
+    @objc func handleFollowersTap() {
+        guard let viewModel = viewModel else { return }
+        delegate?.cell(self, wantsToSeeFollowingDetailsForNotification: viewModel.notification)
+    }
+    
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
@@ -206,9 +217,9 @@ class NotificationFollowCell: UICollectionViewCell {
 
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
-        let height = max(autoLayoutSize.height, 83)
+        //let height = max(autoLayoutSize.height)
         
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
@@ -225,6 +236,10 @@ class NotificationFollowCell: UICollectionViewCell {
         
         let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        if followers > 1 {
+            attributedText.append(NSAttributedString(string: " and others", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
+        }
+
         attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         //attributedText.append(NSAttributedString(string: viewModel.notificationText!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notificationTimeStamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))

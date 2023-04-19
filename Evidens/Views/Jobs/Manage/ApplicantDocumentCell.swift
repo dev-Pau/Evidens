@@ -17,8 +17,8 @@ class ApplicantDocumentCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.text = "Documentation"
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.text = "Resume"
+        label.font = .systemFont(ofSize: 16, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ class ApplicantDocumentCell: UICollectionViewCell {
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         button.addTarget(self, action: #selector(handleButtonTap), for: .touchUpInside)
-        button.configuration?.image = UIImage(systemName: "doc", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        button.configuration?.image = UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))
         button.configuration?.imagePadding = 5
         button.configuration?.imagePlacement = .leading
         
@@ -60,10 +60,6 @@ class ApplicantDocumentCell: UICollectionViewCell {
             uploadResumeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             uploadResumeButton.heightAnchor.constraint(equalToConstant: 40),
         ])
-        
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
-        uploadResumeButton.configuration?.attributedTitle = AttributedString("Document", attributes: container)
     }
     
     @objc func handleButtonTap() {

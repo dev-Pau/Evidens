@@ -23,7 +23,7 @@ class GroupCategoriesCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -74,7 +74,7 @@ class GroupCategoriesCell: UICollectionViewCell {
             separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             categoriesTitleLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             categoriesTitleLabel.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),

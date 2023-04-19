@@ -26,11 +26,6 @@ struct NotificationViewModel {
         return formatter.string(from: notification.timestamp.dateValue(), to: Date())
     }
     
-    var notificationUserImage: UIImage? {
-        let notificationType = notification.type.notificationImage
-        return notificationType
-    }
-    
     var notificationTimeStamp: String {
         return timestampString ?? ""
     }
@@ -79,6 +74,9 @@ struct NotificationViewModel {
         case .commentCase:
             guard let likes = notification.clinicalCase?.numberOfComments, likes > 0 else { return "" }
             return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .jobApplicant:
+            guard let applicants = notification.job?.numberOfApplicants, applicants > 0 else { return "" }
+            return applicants == 1 ? "" : applicants < 3 ? " and others " : "and \(applicants - 1) others "
         }
     }
     
@@ -98,6 +96,9 @@ struct NotificationViewModel {
         case .commentCase:
             guard let comment = notification.comment else { return "" }
             return "\"\(comment.commentText.trimmingCharacters(in: .whitespaces))\". "
+        case .jobApplicant:
+            guard let job = notification.job else { return "" }
+            return "\"\(job.title.trimmingCharacters(in: .whitespaces))\". "
         }
     }
 }

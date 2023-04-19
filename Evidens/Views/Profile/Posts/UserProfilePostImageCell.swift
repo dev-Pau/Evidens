@@ -66,7 +66,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
     
     var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -108,7 +108,7 @@ class UserProfilePostImageCell: UICollectionViewCell {
             postTextLabel.bottomAnchor.constraint(lessThanOrEqualTo: postImage.bottomAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])

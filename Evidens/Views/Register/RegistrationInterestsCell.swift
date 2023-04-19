@@ -13,11 +13,14 @@ class RegistrationInterestsCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
+            guard isSelectable else { return }
             //layer.borderColor = isSelected ? primaryColor.cgColor : UIColor.quaternarySystemFill.cgColor
             backgroundColor = isSelected ? primaryColor : .clear
             tagsLabel.textColor = isSelected ? .white : .label
         }
     }
+    
+    var isSelectable: Bool = true
     
     var tagsLabel: UILabel = {
         let label = UILabel()
@@ -65,11 +68,6 @@ class RegistrationInterestsCell: UICollectionViewCell {
              }
          }
     }
-    /*
-    @objc func handleImageTap() {
-        delegate?.didTapFilterImage(self)
-    }
-     */
 }
 
 

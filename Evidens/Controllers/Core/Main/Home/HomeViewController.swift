@@ -191,6 +191,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private func checkIfUserHasNewPostsToDisplay() {
         PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { snapshot in
             if snapshot.isEmpty {
+
                 self.collectionView.refreshControl?.endRefreshing()
                 //self.collectionView.reloadData()
             } else {
@@ -232,6 +233,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
                 // User does not have any type of content to display in home
                 if snapshot.isEmpty {
                     self.loaded = true
+                    self.collectionView.refreshControl?.endRefreshing()
                     self.activityIndicator.stop()
                     self.collectionView.reloadData()
                     self.collectionView.isHidden = false
@@ -246,6 +248,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
 
                     UserService.fetchUsers(withUids: self.posts.map({ $0.ownerUid })) { users in
                         print("got more data completed")
+                        self.collectionView.refreshControl?.endRefreshing()
                         self.users = users
                         self.loaded = true
                         self.activityIndicator.stop()
@@ -640,17 +643,22 @@ extension HomeViewController: HomeCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let controller = CommentPostViewController(post: post, user: user, type: .regular)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentPostViewController(post: post, user: user, type: .regular, currentUser: currentUser)
         controller.delegate = self
         displayState = displaysSinglePost ? .others : .none
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
+        //let backItem = UIBarButtonItem()
+        //backItem.title = ""
+        //backItem.tintColor = .label
+        //navigationItem.backBarButtonItem = backItem
         
-        controller.hidesBottomBarWhenPushed = true
-
-        navigationController?.pushViewController(controller, animated: true)
+        //controller.hidesBottomBarWhenPushed = true
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
+        //navigationController?.pushViewController(controller, animated: true)
     }
     
     

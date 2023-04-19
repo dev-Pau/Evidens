@@ -14,7 +14,7 @@ class JobHeaderCell: UICollectionViewCell {
         label.textColor = .label
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 19, weight: .bold)
+        label.font = .systemFont(ofSize: 20, weight: .medium)
         return label
     }()
     
@@ -97,14 +97,14 @@ class JobHeaderCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -172,9 +172,9 @@ class JobHeaderCell: UICollectionViewCell {
             timestampLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -6),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 6)
         ])
         
         //companyImageView.layer.cornerRadius = 7
@@ -191,6 +191,6 @@ class JobHeaderCell: UICollectionViewCell {
         specialitiesLabel.text = company.specialities.joined(separator: " • ")
         jobTypeLabel.text = viewModel.jobType
         locationLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
-        timestampLabel.text = viewModel.jobTimestampString! + " ago"
+        timestampLabel.text = viewModel.jobTimestampString! + " ago" + viewModel.applicants
     }
 }

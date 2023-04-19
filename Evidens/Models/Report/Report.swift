@@ -14,7 +14,8 @@ struct Report {
     var target: Target
     var topic: Topics
     var reportOwnerUid: String
-    var reportInfo: String
+    var reportInfo: String?
+    var source: Source?
     
     init(dictionary: [String: Any]) {
         self.contentId = dictionary["contentId"] as? String ?? ""
@@ -80,5 +81,13 @@ extension Report {
                 return "Behaviors that offer tips and incentives, encourage users to engage in deceptive practices, promote inappropriate content or behavior, or exploit the platform to earn rewards or other currencies."
             }
         }
+    }
+    
+    enum Source: String, CaseIterable {
+        case post = "posts"
+        case clinicalCase = "cases"
+        case comment = "comments"
+        case user = "users"
+        case group = "groups"
     }
 }

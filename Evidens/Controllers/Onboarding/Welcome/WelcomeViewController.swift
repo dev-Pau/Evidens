@@ -138,7 +138,7 @@ class WelcomeViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -239,7 +239,7 @@ class WelcomeViewController: UIViewController {
             separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
             separatorView.leadingAnchor.constraint(equalTo: appleSingInButton.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: appleSingInButton.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             signUpButton.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 10),
             signUpButton.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),

@@ -473,12 +473,12 @@ extension SearchViewController: MainSearchHeaderDelegate {
             controller.title = text
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 2 {
-            text = "Who to follow"
-            let controller = WhoToFollowViewController()
+            text = "Who to Follow"
+            let controller = WhoToFollowViewController(user: user)
             controller.title = text
             navigationController?.pushViewController(controller, animated: true)
         } else if tag == 3 {
-            text = "Posts for you"
+            text = "Posts for You"
             let controller = HomeViewController(contentSource: .search)
             controller.controllerIsBeeingPushed = true
             controller.displaysSinglePost = true
@@ -486,7 +486,7 @@ extension SearchViewController: MainSearchHeaderDelegate {
             controller.title = text
             navigationController?.pushViewController(controller, animated: true)
         } else {
-            text = "Cases for you"
+            text = "Cases for You"
             let controller = CaseViewController(user: user, contentSource: .search)
             navigationController?.pushViewController(controller, animated: true)
             controller.title = text
@@ -547,14 +547,14 @@ extension SearchViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, currentUser: currentUser)
         controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        navigationController?.pushViewController(controller, animated: true)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -733,17 +733,15 @@ extension SearchViewController: CaseCellDelegate {
 
 extension SearchViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let controller = CommentPostViewController(post: post, user: user, type: .regular)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentPostViewController(post: post, user: user, type: .regular, currentUser: currentUser)
         controller.delegate = self
         //displayState = displaysSinglePost ? .others : .none
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
-        controller.hidesBottomBarWhenPushed = true
-
-        navigationController?.pushViewController(controller, animated: true)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {

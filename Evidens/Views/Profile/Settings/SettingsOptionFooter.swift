@@ -17,7 +17,7 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -43,7 +43,7 @@ class SettingsOptionFooter: UITableViewHeaderFooterView {
             separatorView.topAnchor.constraint(equalTo: contentView.topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             logoutLabel.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             logoutLabel.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor, constant: 10),

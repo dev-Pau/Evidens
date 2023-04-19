@@ -14,7 +14,7 @@ class MECaseActionButtons: UIView {
     private let bottomSeparatorLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.backgroundColor = .quaternarySystemFill
+        label.backgroundColor = separatorColor
         return label
     }()
     
@@ -64,7 +64,7 @@ class MECaseActionButtons: UIView {
             bottomSeparatorLabel.topAnchor.constraint(equalTo: topAnchor),
             bottomSeparatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomSeparatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 1),
+            bottomSeparatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
         ])
     }
     

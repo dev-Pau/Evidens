@@ -47,7 +47,7 @@ class SideMenuHeader: UICollectionReusableView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -73,10 +73,10 @@ class SideMenuHeader: UICollectionReusableView {
             viewProfileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             viewProfileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             separatorView.leadingAnchor.constraint(equalTo: viewProfileLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: viewProfileLabel.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         userImageView.layer.cornerRadius = 60 / 2

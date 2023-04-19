@@ -84,7 +84,7 @@ class GroupContentManagementViewController: UIViewController, UINavigationContro
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -163,7 +163,7 @@ class GroupContentManagementViewController: UIViewController, UINavigationContro
             browserSegmentedButtonsView.heightAnchor.constraint(equalToConstant: 51),
             
             separatorView.topAnchor.constraint(equalTo: browserSegmentedButtonsView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             

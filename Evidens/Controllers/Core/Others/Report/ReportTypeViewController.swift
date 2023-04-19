@@ -24,7 +24,7 @@ class ReportTypeViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Continue", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Next", attributes: container)
         button.isEnabled = false
         button.addTarget(self, action: #selector(handleContinueReport), for: .touchUpInside)
         return button
@@ -39,6 +39,15 @@ class ReportTypeViewController: UIViewController {
     init(report: Report) {
         self.report = report
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
     
     required init?(coder: NSCoder) {

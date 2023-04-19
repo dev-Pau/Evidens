@@ -14,6 +14,10 @@ private let searchHeaderReuseIdentifier = "SearchHeaderReuseIdentifier"
 private let groupMemberUserCellReuseIdentifier = "GroupMemberUserCellReuseIdentifier"
 private let pendingUserCellReuseIdentifier = "PendingUserCellReuseIdentifier"
 
+protocol GroupMembershipViewControllerDelegate: AnyObject {
+    #warning("implement protocol to when user added/removed etc update previous controllers, the grouop page and the other")
+}
+
 class GroupMembershipViewController: UIViewController {
     
     private var group: Group
@@ -57,7 +61,7 @@ class GroupMembershipViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -277,7 +281,7 @@ class GroupMembershipViewController: UIViewController {
             browserSegmentedButtonsView.heightAnchor.constraint(equalToConstant: 50),
             
             separatorView.topAnchor.constraint(equalTo: browserSegmentedButtonsView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
@@ -671,6 +675,7 @@ extension GroupMembershipViewController: GroupUserRequestCellDelegate {
                     self.memberRequests.remove(at: indexPath.row)
                     self.requestsCollectionView.deleteItems(at: [indexPath])
                 }
+                
                 let popUp = METopPopupView(title: "\(name) has been successfully added to this group", image: "checkmark.circle.fill", popUpType: .regular)
                 popUp.showTopPopup(inView: self.view)
                 return

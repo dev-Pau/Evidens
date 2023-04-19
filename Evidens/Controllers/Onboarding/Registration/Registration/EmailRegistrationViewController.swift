@@ -10,7 +10,7 @@ import UIKit
 class EmailRegistrationViewController: UIViewController {
     
     private var viewModel = EmailRegistrationViewModel()
-    private var whoCanJoinMenuLauncher = WhoCanJoinMenuLauncher()
+    private var whoCanJoinMenuLauncher = MEContextMenuLauncher(menuLauncherData: .joiningGroups)
     
     private var textFieldSelected: Bool = false
     

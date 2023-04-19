@@ -61,7 +61,7 @@ class MyJobsViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -106,7 +106,7 @@ class MyJobsViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         
             jobsCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             jobsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

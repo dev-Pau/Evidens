@@ -64,8 +64,17 @@ struct GroupService {
                 return
             }
             
-            let groups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
-            completion(groups)
+            var groups = snapshot.documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+            var aggrCount = 0
+            groups.enumerated().forEach { index, group in
+                DatabaseManager.shared.fetchNumberOfGroupUsers(groupId: group.groupId) { members in
+                    groups[index].members = members
+                    aggrCount += 1
+                    if aggrCount == groups.count {
+                        completion(groups)
+                    }
+                }
+            }
         }
     }
     

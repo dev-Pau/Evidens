@@ -73,7 +73,6 @@ class GroupPendingCell: UICollectionViewCell {
         
         layer.borderWidth = 1
         layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        layer.cornerRadius = 7
         
         layer.shadowColor = UIColor.quaternarySystemFill.cgColor
         layer.shadowOffset = CGSize(width: 0, height: 0)

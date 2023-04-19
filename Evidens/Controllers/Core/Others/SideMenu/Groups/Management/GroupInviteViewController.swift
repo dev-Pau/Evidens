@@ -100,14 +100,24 @@ class GroupInviteViewController: UIViewController {
     }
     
     private func fetchUsers() {
-        #warning("modiifcar la funció perquè no apareguin els users que ja estàn al grup...")
-        UserService.fetchOnboardingUsers { users in
-            self.users = users
-            self.loaded = true
-            self.collectionView.reloadData()
+    #warning("modiifcar la funció perquè no apareguin els users que ja estàn al grup...")
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        UserService.fetchFollowing(forUid: uid, lastSnapshot: nil) { snapshot in
+            guard !snapshot.isEmpty else {
+                self.loaded = true
+                self.collectionView.reloadData()
+                return
+            }
+            //self.followingLastSnapshot = snapshot.documents.last
+            let uids = snapshot.documents.map({ $0.documentID })
+            UserService.fetchUsers(withUids: uids) { users in
+                self.loaded = true
+                self.users = users
+                self.collectionView.reloadData()
+            }
         }
     }
-    
+     
     @objc func handleInviteMembers() {
         let uids = usersSelected.map { $0.uid! }
         activityIndicator.show(in: view)
@@ -161,7 +171,9 @@ extension GroupInviteViewController: UICollectionViewDelegateFlowLayout, UIColle
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerLoadingReuseIdentifier, for: indexPath) as! MELoadingHeader
             return header
         } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchBarHeaderReuseIdentifier, for: indexPath) as! GroupSearchBarHeader
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: searchBarHeaderReuseIdentifier, for: indexPath) as!
+            GroupSearchBarHeader
+            #warning("need to implement search bar header")
             return header
         }
     }

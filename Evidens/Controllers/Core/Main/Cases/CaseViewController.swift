@@ -436,15 +436,16 @@ extension CaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular)
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, currentUser: currentUser)
         controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
         displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        navigationItem.backBarButtonItem = backItem
 
-        navigationController?.pushViewController(controller, animated: true)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
 }
 

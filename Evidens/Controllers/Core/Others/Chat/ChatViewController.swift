@@ -77,7 +77,7 @@ class ChatViewController: MessagesViewController {
             return
         }
         
-        let deleteAction = UIAction(title: "Delete conversation", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let deleteAction = UIAction(title: "Delete Conversation", image: UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             self.displayMEDestructiveAlert(withTitle: "Delete conversation", withMessage: "This conversation will be deleted from your inbox. Other people in the conversation will still be able to see it.", withCancelButtonText: "Cancel", withDoneButtonText: "Delete") {
                 self.deleteConversationAlert(withUserFirstName: self.user.firstName!) {
                     if let conversationId = self.conversationId {
@@ -89,7 +89,7 @@ class ChatViewController: MessagesViewController {
             
         }
         
-        let markAsUnreadAction = UIAction(title: "Mark as unread", image: UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
+        let markAsUnreadAction = UIAction(title: "Mark as Unread", image: UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)) { action in
             if let conversationId = self.conversationId {
                 DatabaseManager.shared.makeLastMessageStateToIsRead(conversationID: conversationId, isReadState: false)
             }

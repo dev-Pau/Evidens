@@ -33,6 +33,13 @@ class GroupContentSelectionHeader: UICollectionReusableView {
         return collectionView
     }()
     
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -49,12 +56,17 @@ class GroupContentSelectionHeader: UICollectionReusableView {
         categoriesCollectionView.delegate = self
         categoriesCollectionView.dataSource = self
         
-        addSubview(categoriesCollectionView)
+        addSubviews(categoriesCollectionView, separatorView)
         NSLayoutConstraint.activate([
             categoriesCollectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             categoriesCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             categoriesCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 30)
+            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 30),
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         categoriesCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
         //categoriesCollectionView.reloadData()

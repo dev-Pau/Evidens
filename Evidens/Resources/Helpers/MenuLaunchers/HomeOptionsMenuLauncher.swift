@@ -158,7 +158,7 @@ class HomeOptionsMenuLauncher: NSObject {
             let followImage = isFollowed ? "xmark.circle.fill" : "plus.circle.fill"
             
             menuOptionsText = [followText + " " + firstName, "Report this Post"]
-            menuOptionsImages = [UIImage(systemName: followImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
+            menuOptionsImages = [UIImage(systemName: followImage, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!, UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!.withRenderingMode(.alwaysOriginal).withTintColor(.red)]
             menuHeight = 160
             collectionView.reloadData()
         }

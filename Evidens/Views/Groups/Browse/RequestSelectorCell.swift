@@ -69,7 +69,6 @@ class RequestSelectorCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         addSubview(collectionView)
         collectionView.frame = bounds
-        collectionView.register(GroupBrowseSkeletonCell.self, forCellWithReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier)
         collectionView.register(GroupPendingCell.self, forCellWithReuseIdentifier: groupCellReuseIdentifier)
         collectionView.register(GroupBrowseFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: groupFooterReuseIdentifier)
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyGroupCellReuseIdentifier)
@@ -92,11 +91,6 @@ extension RequestSelectorCell: UICollectionViewDelegateFlowLayout, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if !loaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: groupBrowseSkeletonCellReuseIdentifier, for: indexPath) as! GroupBrowseSkeletonCell
-            return cell
-        }
-        
         if groups.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
             cell.delegate = self

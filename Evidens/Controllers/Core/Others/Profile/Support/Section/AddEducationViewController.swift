@@ -189,14 +189,14 @@ class AddEducationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let bottomSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -344,7 +344,7 @@ class AddEducationViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: fieldOfStudyTextField.bottomAnchor, constant: 10),
             separatorView.leadingAnchor.constraint(equalTo: fieldOfStudyTextField.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: fieldOfStudyTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             squareButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             squareButton.leadingAnchor.constraint(equalTo: fieldOfStudyLabel.leadingAnchor),
@@ -358,7 +358,7 @@ class AddEducationViewController: UIViewController {
             bottomSeparatorView.topAnchor.constraint(equalTo: squareButton.bottomAnchor, constant: 10),
             bottomSeparatorView.leadingAnchor.constraint(equalTo: fieldOfStudyTextField.leadingAnchor),
             bottomSeparatorView.trailingAnchor.constraint(equalTo: fieldOfStudyTextField.trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             startDateTextField.topAnchor.constraint(equalTo: bottomSeparatorView.bottomAnchor, constant: 20),
             startDateTextField.leadingAnchor.constraint(equalTo: squareButton.leadingAnchor),

@@ -22,7 +22,7 @@ class AppearanceSettingsFooter: UICollectionReusableView {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -41,7 +41,7 @@ class AppearanceSettingsFooter: UICollectionReusableView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             descriptionAppearanceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             descriptionAppearanceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

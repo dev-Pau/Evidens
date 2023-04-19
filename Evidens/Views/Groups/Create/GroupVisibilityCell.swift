@@ -19,7 +19,7 @@ class GroupVisibilityCell: UICollectionViewCell {
     
     private var topSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -38,7 +38,7 @@ class GroupVisibilityCell: UICollectionViewCell {
     
     private var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -71,7 +71,7 @@ class GroupVisibilityCell: UICollectionViewCell {
             topSeparatorView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             topSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             topSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            topSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             discoverabilityTitle.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 5),
             discoverabilityTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -85,7 +85,7 @@ class GroupVisibilityCell: UICollectionViewCell {
             separatorView.topAnchor.constraint(equalTo: visibleView.bottomAnchor, constant: 5),
             separatorView.leadingAnchor.constraint(equalTo: visibleView.leadingAnchor, constant: 40),
             separatorView.trailingAnchor.constraint(equalTo: visibleView.trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             nonVisibleView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             nonVisibleView.leadingAnchor.constraint(equalTo: visibleView.leadingAnchor),

@@ -40,7 +40,7 @@ class UploadPostViewController: UIViewController {
     private let topSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -237,7 +237,7 @@ class UploadPostViewController: UIViewController {
             topSeparatorView.topAnchor.constraint(equalTo: settingsPostButton.bottomAnchor, constant: 10),
             topSeparatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             topSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            topSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             postTextView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),

@@ -107,7 +107,7 @@ class CommentCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -169,7 +169,7 @@ class CommentCell: UICollectionViewCell {
             //separatorView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 3),
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
         
@@ -232,7 +232,26 @@ class CommentCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         dotsImageButton.showsMenuAsPrimaryAction = true
+        
+        if viewModel.commentOnwerUid == uid {
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
+                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
+                })])
+            return menuItems
+        } else {
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Comment.CommentOptions.report.rawValue, image: Comment.CommentOptions.report.commentOptionsImage, handler: { _ in
+                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .report)
+                })])
+            return menuItems
+        }
+        
+        
+        
+        /*
         if viewModel.isTextFromAuthor {
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Comment.CommentOptions.back.rawValue, image: Comment.CommentOptions.back.commentOptionsImage, handler: { _ in
@@ -252,6 +271,7 @@ class CommentCell: UICollectionViewCell {
                 })])
             return menuItems
         }
+         */
     }
     
     @objc func didTapProfile() {

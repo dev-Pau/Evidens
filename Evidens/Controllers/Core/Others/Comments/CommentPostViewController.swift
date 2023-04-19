@@ -23,6 +23,7 @@ class CommentPostViewController: UICollectionViewController {
     
     private var post: Post
     private var user: User
+    private var currentUser: User
     private var type: Comment.CommentType
     private var commentsLoaded: Bool = false
     private var lastCommentSnapshot: QueryDocumentSnapshot?
@@ -32,17 +33,17 @@ class CommentPostViewController: UICollectionViewController {
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
-        cv.delegate = self
+        cv.accessoryViewDelegate = self
         return cv
     }()
     
     //MARK: - Lifecycle
     
-    init(post: Post, user: User, type: Comment.CommentType) {
-        print(user)
+    init(post: Post, user: User, type: Comment.CommentType, currentUser: User) {
         self.post = post
         self.user = user
         self.type = type
+        self.currentUser = currentUser
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -116,7 +117,8 @@ class CommentPostViewController: UICollectionViewController {
     //MARK: - Helpers
     
     func configureCollectionView() {
-        navigationItem.title = "Comments"
+        //navigationItem.title = "Comments"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(handleDismiss))
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
@@ -127,7 +129,7 @@ class CommentPostViewController: UICollectionViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
-        
+     
     }
     
     private func configureUI() {
@@ -157,6 +159,10 @@ class CommentPostViewController: UICollectionViewController {
                 self.collectionView.reloadData()
             }
         }
+    }
+    
+    @objc func handleDismiss() {
+        dismiss(animated: true)
     }
 }
 
@@ -251,8 +257,8 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         
         //Get user from MainTabController
-        guard let tab = self.tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
+        //guard let tab = self.tabBarController as? MainTabController else { return }
+        //guard let currentUser = tab.user else { return }
 
         //Upload commento to Firebase
         CommentService.uploadPostComment(comment: comment, post: post, user: currentUser, type: type) { ids in
@@ -267,11 +273,11 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
-            let isAuthor = currentUser.uid == self.post.ownerUid ? true : false
+            let isAuthor = self.currentUser.uid == self.post.ownerUid ? true : false
             
             let addedComment = Comment(dictionary: [
                 "comment": comment,
-                "uid": currentUser.uid as Any,
+                "uid": self.currentUser.uid as Any,
                 "id": commentUid as Any,
                 "timestamp": "Now" as Any,
                 "isTextFromAuthor": false as Bool,
@@ -280,21 +286,21 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.comments.insert(addedComment, at: 1)
             
             self.users.append(User(dictionary: [
-                "uid": currentUser.uid as Any,
-                "firstName": currentUser.firstName as Any,
-                "lastName": currentUser.lastName as Any,
-                "profileImageUrl": currentUser.profileImageUrl as Any,
-                "profession": currentUser.profession as Any,
-                "category": currentUser.category.rawValue as Any,
-                "speciality": currentUser.speciality as Any]))
+                "uid": self.currentUser.uid as Any,
+                "firstName": self.currentUser.firstName as Any,
+                "lastName": self.currentUser.lastName as Any,
+                "profileImageUrl": self.currentUser.profileImageUrl as Any,
+                "profession": self.currentUser.profession as Any,
+                "category": self.currentUser.category.rawValue as Any,
+                "speciality": self.currentUser.speciality as Any]))
             
             let indexPath = IndexPath(item: 1, section: 0)
             self.collectionView.insertItems(at: [indexPath])
             self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
             
-            self.delegate?.didCommentPost(post: self.post, user: currentUser, comment: addedComment)
+            self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
             
-            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
+            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: self.currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
         }
     }
 }

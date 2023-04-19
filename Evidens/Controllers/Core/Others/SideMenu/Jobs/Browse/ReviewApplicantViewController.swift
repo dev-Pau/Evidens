@@ -34,8 +34,8 @@ class ReviewApplicantViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .semibold)
-        button.configuration?.attributedTitle = AttributedString("  Reject  ", attributes: container)
-        
+        button.configuration?.attributedTitle = AttributedString("     Reject     ", attributes: container)
+       
         button.addTarget(self, action: #selector(handleRejectApplicant), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -45,9 +45,30 @@ class ReviewApplicantViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemBackground
-        view.layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        view.layer.borderWidth = 1
         return view
+    }()
+    
+    private let bottomSeparatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
+    private lazy var callButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .systemBlue
+        button.configuration?.baseForegroundColor = .white
+        button.configuration?.cornerStyle = .capsule
+        button.configuration?.image = UIImage(systemName: "phone.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.configuration?.attributedTitle = AttributedString("   Call   ", attributes: container)
+        
+        button.addTarget(self, action: #selector(handleCallApplicant), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     
@@ -96,12 +117,17 @@ class ReviewApplicantViewController: UIViewController {
         //collectionView.register(JobDescriptionCell.self, forCellWithReuseIdentifier: jobDescriptionCellReuseIdentifier)
         //collectionView.register(JobHiringTeamCell.self, forCellWithReuseIdentifier: jobHiringTeamCellReuseIdentifier)
         
-        view.addSubviews(collectionView, bottomView, rejectButton)
+        view.addSubviews(collectionView, bottomView, rejectButton, callButton, bottomSeparatorView)
         NSLayoutConstraint.activate([
             bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             bottomView.heightAnchor.constraint(equalToConstant: 80),
             bottomView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            bottomSeparatorView.topAnchor.constraint(equalTo: bottomView.topAnchor),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -110,6 +136,10 @@ class ReviewApplicantViewController: UIViewController {
             
             rejectButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             rejectButton.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: 5),
+            rejectButton.bottomAnchor.constraint(equalTo: callButton.bottomAnchor),
+            
+            callButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            callButton.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: 5)
         ])
     }
     
@@ -129,6 +159,14 @@ class ReviewApplicantViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    @objc func handleCallApplicant() {
+        guard let url = URL(string: "tel:\(applicant.phoneNumber)"), UIApplication.shared.canOpenURL(url) else {
+            print("error on call")
+            return
+        }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 }
 

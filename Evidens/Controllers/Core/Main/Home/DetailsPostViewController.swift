@@ -100,7 +100,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         CommentService.fetchComments(forPost: post, forType: type, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.commentsLoaded = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.collectionView.reloadData()
                 return
             }
             
@@ -110,7 +110,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             UserService.fetchUsers(withUids: userUids) { users in
                 self.users = users
                 self.commentsLoaded = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
+                self.collectionView.reloadData()
             }
         }
     }
@@ -185,6 +185,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
                 cell.layer.borderWidth = 0
                 cell.delegate = self
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.postTextLabel.numberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
@@ -257,8 +258,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
                 cell.authorButton.isHidden = true
-                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                cell.delegate = self
                 
                 let userIndex = users.firstIndex { user in
                     if user.uid == comments[indexPath.row].uid {
@@ -268,8 +267,12 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 }
                 
                 if let userIndex = userIndex {
+                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.set(user: users[userIndex])
+                    cell.delegate = self
+
                 }
+                
                 
                 return cell
             }
@@ -297,17 +300,24 @@ extension DetailsPostViewController: HomeCellDelegate {
     }
 
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        let controller = CommentPostViewController(post: post, user: user, type: type)
-        controller.hidesBottomBarWhenPushed = true
-        controller.delegate = self
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
         
+        let controller = CommentPostViewController(post: post, user: user, type: type, currentUser: currentUser)
+        //controller.hidesBottomBarWhenPushed = true
+        controller.delegate = self
+        /*
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
+        */
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
         
         displayState = .others
-        navigationController?.pushViewController(controller, animated: true)
+        //navigationController?.pushViewController(controller, animated: true)
     }
     
     func cell(_ cell: UICollectionViewCell, didLike post: Post) {
@@ -826,32 +836,34 @@ extension DetailsPostViewController: EditPostViewControllerDelegate {
 
 extension DetailsPostViewController: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
-        let controller = CommentPostViewController(post: post, user: user, type: type)
-        controller.hidesBottomBarWhenPushed = true
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentPostViewController(post: post, user: user, type: type, currentUser: currentUser)
+        //controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
         displayState = .others
-        navigationController?.pushViewController(controller, animated: true)
+        //navigationController?.pushViewController(controller, animated: true)
     }
 }
 
 extension DetailsPostViewController: MainSearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
-        let controller = CommentPostViewController(post: post, user: user, type: type)
-        controller.hidesBottomBarWhenPushed = true
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        
+        let controller = CommentPostViewController(post: post, user: user, type: type, currentUser: currentUser)
+        //controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
         displayState = .others
-        navigationController?.pushViewController(controller, animated: true)
+        //navigationController?.pushViewController(controller, animated: true)
     }
 }

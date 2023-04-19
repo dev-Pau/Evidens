@@ -38,7 +38,7 @@ class EditNameCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -74,7 +74,7 @@ class EditNameCell: UICollectionViewCell {
             separatorView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             titleLabel.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),

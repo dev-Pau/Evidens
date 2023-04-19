@@ -309,17 +309,16 @@ extension DetailsCaseViewController: CaseCellDelegate {
     }
     
     func clinicalCase(wantsToShowCommentsFor clinicalCase: Case, forAuthor user: User) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
         
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type)
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type, currentUser: currentUser)
         controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
         
-        navigationController?.pushViewController(controller, animated: true)
+        displayState = .others
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, didLike clinicalCase: Case) {
@@ -592,31 +591,30 @@ extension DetailsCaseViewController: ReviewContentGroupDelegate {
 
 extension DetailsCaseViewController: MESecondaryEmptyCellDelegate {
     func didTapEmptyCellButton(option: EmptyCellButtonOptions) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type)
-        controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
         
-        navigationController?.pushViewController(controller, animated: true)
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type, currentUser: currentUser)
+        controller.delegate = self
+        
+        displayState = .others
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
 }
 
 extension DetailsCaseViewController: MainSearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
-        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type)
-        controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        displayState = .others
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
         
-        navigationController?.pushViewController(controller, animated: true)
+        let controller = CommentCaseViewController(clinicalCase: clinicalCase, user: user, type: type, currentUser: currentUser)
+        controller.delegate = self
+        displayState = .others
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        present(navVC, animated: true)
     }
 }
 

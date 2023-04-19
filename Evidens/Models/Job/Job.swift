@@ -25,6 +25,7 @@ struct Job {
     
     var didBookmark = false
     var didApply = false
+    var numberOfApplicants = 0
     
     init(jobId: String, dictionary: [String: Any]) {
         self.jobId = jobId
@@ -91,14 +92,14 @@ extension Job {
     }
     
     enum ManageJobOptions: String, CaseIterable {
-        case edit = "Edit"
-        case applicants = "Applicants"
-        case delete = "Delete"
+        case edit = "Edit Job"
+        case applicants = "Show Job Applicants"
+        case delete = "Delete Job"
     }
     
     enum ApplicantJobOptions: String, CaseIterable {
-        case review = "Review"
-        case reject = "Reject"
+        case review = "Review Applicant"
+        case reject = "Reject Applicant"
     }
     
     /*

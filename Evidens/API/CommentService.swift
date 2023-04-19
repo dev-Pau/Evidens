@@ -316,7 +316,7 @@ struct CommentService {
         }
         
         notifications.forEach { notification in
-            let query = COLLECTION_POSTS.document(notification.postId!).collection("comments").document(notification.commentId)
+            let query = COLLECTION_POSTS.document(notification.contentId).collection("comments").document(notification.commentId)
             query.getDocument { snapshot, error in
                 guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
                     completion(comments)
@@ -340,7 +340,7 @@ struct CommentService {
         }
         
         notifications.forEach { notification in
-            let query = COLLECTION_CASES.document(notification.caseId!).collection("comments").document(notification.commentId)
+            let query = COLLECTION_CASES.document(notification.contentId).collection("comments").document(notification.commentId)
             query.getDocument { snapshot, error in
                 guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
                     completion(comments)
@@ -413,7 +413,7 @@ struct CommentService {
                 return
             }
             print("Comment deleted from firestore")
-            COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments - 1])
+            //COLLECTION_POSTS.document(post.postId).updateData(["comments": post.numberOfComments - 1])
             completion(true)
         }
     }
@@ -426,7 +426,7 @@ struct CommentService {
                 return
             }
             print("Comment deleted from firestore")
-            COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments - 1])
+            //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments - 1])
             completion(true)
         }
     }

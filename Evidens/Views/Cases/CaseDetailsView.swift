@@ -47,7 +47,7 @@ class CaseDetailsView: UIView {
     
     var topView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -94,7 +94,7 @@ class CaseDetailsView: UIView {
             topView.topAnchor.constraint(equalTo: topAnchor),
             topView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             topView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            topView.heightAnchor.constraint(equalToConstant: 1),
+            topView.heightAnchor.constraint(equalToConstant: 0.4),
             
             chevronButton.trailingAnchor.constraint(equalTo: topView.trailingAnchor, constant: 5),
             chevronButton.topAnchor.constraint(equalTo: topView.bottomAnchor, constant: 20),

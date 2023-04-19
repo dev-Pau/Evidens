@@ -119,7 +119,7 @@ class PasswordRegistrationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -253,7 +253,7 @@ class PasswordRegistrationViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: bottomStackView.bottomAnchor, constant: 20),
             separatorView.leadingAnchor.constraint(equalTo: passwordTextField.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             squareButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 20),
             squareButton.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),

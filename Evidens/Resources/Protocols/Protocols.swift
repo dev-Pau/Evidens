@@ -38,6 +38,7 @@ protocol NotificationCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToViewPost postId: String)
     func cell(_ cell: UICollectionViewCell, wantsToViewCase caseId: String)
     func cell(_ cell: UICollectionViewCell, wantsToViewProfile uid: String)
+    func cell(_ cell: UICollectionViewCell, wantsToSeeFollowingDetailsForNotification: Notification)
     func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: Notification.NotificationMenuOptions)
 }
 

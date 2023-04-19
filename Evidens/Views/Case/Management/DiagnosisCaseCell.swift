@@ -40,7 +40,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -82,7 +82,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
             separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         imageView.layer.cornerRadius = 30 / 2

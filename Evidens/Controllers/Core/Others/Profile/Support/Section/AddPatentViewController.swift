@@ -106,7 +106,7 @@ class AddPatentViewController: UIViewController {
 
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -262,7 +262,7 @@ class AddPatentViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: patentNumberTextField.bottomAnchor, constant: 10),
             separatorView.leadingAnchor.constraint(equalTo: patentNumberTextField.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: patentNumberTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             addContributorsButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             addContributorsButton.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),

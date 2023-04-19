@@ -95,14 +95,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         label.isUserInteractionEnabled = true
         return label
     }()
-    
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
-        return view
-    }()
-    
+
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
@@ -116,7 +109,7 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 60),
+            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 75),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             professionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),

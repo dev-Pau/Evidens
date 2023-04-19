@@ -462,6 +462,7 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! RegistrationInterestsCell
+                cell.isSelectable = false
                 cell.setText(text: dataCategoryHeaders[indexPath.row])
                 return cell
             }
@@ -590,17 +591,24 @@ extension CasesViewController: ExploreCasesToolbarDelegate {
                     self.cases = cases
                     
                     let visibleUserUids = cases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
-                    UserService.fetchUsers(withUids: visibleUserUids) { users in
-                        self.users = users
+                    
+                    if visibleUserUids.isEmpty {
+                        // All the cases are anonimous
                         self.casesLoaded = true
                         self.casesCollectionView.reloadData()
                         self.casesCollectionView.isHidden = false
+                    } else {
+                        UserService.fetchUsers(withUids: visibleUserUids) { users in
+                            self.users = users
+                            self.casesLoaded = true
+                            self.casesCollectionView.reloadData()
+                            self.casesCollectionView.isHidden = false
+                        }
                     }
                 }
             }
         }
     }
-        
 }
 
 
@@ -648,7 +656,7 @@ extension CasesViewController: CaseCellDelegate {
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
         case .report:
-            let controller = ReportViewController(contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)

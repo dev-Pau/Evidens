@@ -56,7 +56,7 @@ class AddCaseUpdateViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -102,7 +102,7 @@ class AddCaseUpdateViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
             separatorView.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             profileImageView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 13),

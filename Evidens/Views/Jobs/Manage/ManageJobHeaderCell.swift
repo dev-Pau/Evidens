@@ -71,7 +71,7 @@ class ManageJobHeaderCell: UICollectionReusableView {
     
     private lazy var applicantsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.isUserInteractionEnabled = true
@@ -82,7 +82,7 @@ class ManageJobHeaderCell: UICollectionReusableView {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -118,7 +118,7 @@ class ManageJobHeaderCell: UICollectionReusableView {
             applicantsImageView.widthAnchor.constraint(equalToConstant: 20),
             
             applicantsLabel.centerYAnchor.constraint(equalTo: applicantsImageView.centerYAnchor),
-            applicantsLabel.leadingAnchor.constraint(equalTo: applicantsImageView.trailingAnchor, constant: 3),
+            applicantsLabel.leadingAnchor.constraint(equalTo: applicantsImageView.trailingAnchor, constant: 1),
           
             jobStageButton.topAnchor.constraint(equalTo: companyImageView.bottomAnchor, constant: 10),
             jobStageButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -129,18 +129,15 @@ class ManageJobHeaderCell: UICollectionReusableView {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
 
         //companyImageView.layer.cornerRadius = 7
     }
     
     func configure(withJob viewModel: JobViewModel, withCompany company: Company) {
-        DatabaseManager.shared.fetchJobApplicationsForJob(withJobId: viewModel.jobId) { applicants in
-            self.applicantNumber = applicants.count
-            let text = applicants.count == 1 ? " applicant" : " applicants"
-            self.applicantsLabel.text = self.applicantNumber == 0 ? "No applicants" : "\(self.applicantNumber)\(text)"
-        }
+        applicantNumber = viewModel.job.numberOfApplicants
+        applicantsLabel.text = viewModel.applicants.isEmpty ? "No applicants" : viewModel.applicants
         
         if let companyUrl = company.companyImageUrl, companyUrl != "" {
             companyImageView.sd_setImage(with: URL(string: company.companyImageUrl!))

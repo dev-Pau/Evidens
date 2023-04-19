@@ -66,14 +66,12 @@ class GroupBrowserViewController: UIViewController {
         return button
     }()
 
-    private let groupCollectionView: UICollectionView = {
+    private lazy var groupCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 10
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
-        
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
@@ -86,13 +84,12 @@ class GroupBrowserViewController: UIViewController {
     private var groupsLoaded: Bool = false
     private var requestsLoaded: Bool = false
     
-    private let requestsCollectionView: UICollectionView = {
+    private lazy var  requestsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 10
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .vertical
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 0)
-        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -108,7 +105,7 @@ class GroupBrowserViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -197,7 +194,7 @@ class GroupBrowserViewController: UIViewController {
             browserSegmentedButtonsView.heightAnchor.constraint(equalToConstant: 50),
             
             separatorView.topAnchor.constraint(equalTo: browserSegmentedButtonsView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
@@ -245,7 +242,7 @@ extension GroupBrowserViewController: UICollectionViewDelegate, UICollectionView
         if collectionView == groupCollectionView {
             if groups.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyGroupCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-                cell.set(withImage: UIImage(named: "groups.empty")!, withTitle: "We could not find any group you are part of —— yet.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "   Discover   ")
+                cell.set(withImage: UIImage(named: "groups.empty")!, withTitle: "We could not find any group you are part of.", withDescription: "Discover listed groups or communities that share your interests, vision or goals.", withButtonText: "   Discover   ")
                 cell.delegate = self
                 return cell
             } else {

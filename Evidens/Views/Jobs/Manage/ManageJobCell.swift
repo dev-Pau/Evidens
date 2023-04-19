@@ -72,7 +72,7 @@ class ManageJobCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -117,7 +117,7 @@ class ManageJobCell: UICollectionViewCell {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: jobTitle.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         //companyImageView.layer.cornerRadius = 7
@@ -157,7 +157,7 @@ class ManageJobCell: UICollectionViewCell {
 
         jobTitle.text = viewModel.jobName
         locationWorksplaceLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
-        timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago"
+        timestampLabel.text = "Created " + viewModel.jobTimestampString! + " ago" + viewModel.applicants
         jobStageButton.configuration?.baseBackgroundColor = viewModel.jobStageBackgroundColor
         
         var container = AttributeContainer()

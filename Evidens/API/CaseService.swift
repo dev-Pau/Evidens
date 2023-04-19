@@ -504,14 +504,12 @@ struct CaseService {
     
     static func likeCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
+        let likeData = ["timestamp": Timestamp(date: Date())]
         //Add a new like to the post
-        //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["likes": clinicalCase.likes + 1])
-        
         //Update posts likes collection to track likes for a particular post
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).setData([:]) { _ in
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").document(uid).setData(likeData) { _ in
             //Update user likes collection to track likes for a particular user
-            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).setData([:], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).setData(likeData, completion: completion)
         }
     }
     
@@ -545,13 +543,13 @@ struct CaseService {
     
     static func bookmarkCase(clinicalCase: Case, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
+        let bookmarkData = ["timestamp": Timestamp(date: Date())]
         //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["bookmarks" : clinicalCase.numberOfBookmarks + 1])
         
         //Update post bookmark collection to track bookmarks for a particular post
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).setData([:]) { _ in
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("case-bookmarks").document(uid).setData(bookmarkData) { _ in
             //Update user bookmarks collection to track bookmarks for a particular user
-            COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).setData(["timestamp": Timestamp(date: Date())], completion: completion)
+            COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).setData(bookmarkData, completion: completion)
         }
     }
     
@@ -777,25 +775,27 @@ struct CaseService {
                     completion(snapshot)
                 }
             case .solved:
-                let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: 1).limit(to: 10)
-                casesQuery.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty else {
-                        completion(snapshot!)
-                        return
-                    }
-                    
-                    guard snapshot.documents.last != nil else {
-                        completion(snapshot)
-                        return
-                    }
-                    
-                    completion(snapshot)
-                }
-            case .unsolved:
                 let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: 0).limit(to: 10)
                 casesQuery.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
+                        print("no snap")
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    print("snap")
+                    completion(snapshot)
+                }
+            case .unsolved:
+                let casesQuery = COLLECTION_CASES.whereField("stage", isEqualTo: 1).limit(to: 10)
+                casesQuery.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+
+                        completion(snapshot!)
                         return
                     }
                     
@@ -804,6 +804,7 @@ struct CaseService {
                         return
                     }
                     
+
                     completion(snapshot)
                 }
             }

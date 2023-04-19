@@ -10,6 +10,7 @@ import UIKit
 protocol GroupContentCreationCellDelegate: AnyObject {
     func didTapUploadPost()
     func didTapUploadCase()
+    func didTapShowAudience()
 }
 
 class GroupContentCreationCell: UICollectionViewCell {
@@ -26,12 +27,16 @@ class GroupContentCreationCell: UICollectionViewCell {
         return button
     }()
     
-    private let shareContentLabel: UILabel = {
+    private lazy var shareContentLabel: UILabel = {
         let label = UILabel()
-        label.text = "Start a post or share a case in this group"
+        //label.text = "The content shared here is exclusively accessible to members of the group."
+        label.text = "Privacy Rules"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .label
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = primaryColor
+        label.textAlignment = .right
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAudienceTap)))
         return label
     }()
     
@@ -57,21 +62,21 @@ class GroupContentCreationCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
     private let horizontalSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
     private let bottomSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -86,7 +91,7 @@ class GroupContentCreationCell: UICollectionViewCell {
     
     private func configure() {
         backgroundColor = .systemBackground
-        addSubviews(createContentButton, separatorView, createCaseButton, shareContentLabel, horizontalSeparatorView, shareInfoLabel, bottomSeparatorView)
+        addSubviews(createContentButton, separatorView, createCaseButton, shareContentLabel, bottomSeparatorView)
         NSLayoutConstraint.activate([
             createContentButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             createContentButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -95,32 +100,34 @@ class GroupContentCreationCell: UICollectionViewCell {
             
             separatorView.centerYAnchor.constraint(equalTo: createContentButton.centerYAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 25),
-            separatorView.widthAnchor.constraint(equalToConstant: 1),
+            separatorView.widthAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: createContentButton.trailingAnchor, constant: 10),
             
             createCaseButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             createCaseButton.leadingAnchor.constraint(equalTo: separatorView.trailingAnchor, constant: 10),
             createCaseButton.heightAnchor.constraint(equalToConstant: 20),
             createCaseButton.widthAnchor.constraint(equalToConstant: 20),
-            
+
             shareContentLabel.centerYAnchor.constraint(equalTo: createContentButton.centerYAnchor),
             shareContentLabel.leadingAnchor.constraint(equalTo: createCaseButton.trailingAnchor, constant: 10),
             shareContentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
+
+            /*
             horizontalSeparatorView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 5),
-            horizontalSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            horizontalSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             horizontalSeparatorView.leadingAnchor.constraint(equalTo: createContentButton.leadingAnchor),
             horizontalSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
+             */
+            /*
             shareInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             shareInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             shareInfoLabel.topAnchor.constraint(equalTo: horizontalSeparatorView.bottomAnchor, constant: 10),
             shareInfoLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
+            */
             bottomSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1)
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4)
 
         ])
     }
@@ -132,7 +139,7 @@ class GroupContentCreationCell: UICollectionViewCell {
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         
-        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
+        let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: 40))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
@@ -143,5 +150,9 @@ class GroupContentCreationCell: UICollectionViewCell {
     
     @objc func handleUploadCase() {
         delegate?.didTapUploadCase()
+    }
+    
+    @objc func handleAudienceTap() {
+        delegate?.didTapShowAudience()
     }
 }

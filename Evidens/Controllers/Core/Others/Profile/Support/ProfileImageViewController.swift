@@ -12,6 +12,7 @@ class ProfileImageViewController: UIViewController {
     //MARK: - Properties
     
     private var isBanner: Bool
+    var cornerRadius: CGFloat?
     
     init (isBanner: Bool) {
         self.isBanner = isBanner
@@ -82,8 +83,11 @@ class ProfileImageViewController: UIViewController {
                 profileImageView.heightAnchor.constraint(equalToConstant: height),
                 profileImageView.widthAnchor.constraint(equalToConstant: height)
             ])
-         
-            profileImageView.layer.cornerRadius = height / 2
+            if let cornerRadius = cornerRadius {
+                profileImageView.layer.cornerRadius = cornerRadius
+            } else {
+                profileImageView.layer.cornerRadius = height / 2
+            }
         } else {
             profileImageView.backgroundColor = primaryColor.withAlphaComponent(0.5)
             let height = view.frame.width / 3

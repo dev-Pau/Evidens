@@ -27,9 +27,40 @@ extension Profession {
         case biomedical = "Biomedical Science"
         case physical = "Physical Activity & Sport Science"
         case speech = "Speech Therapy"
+        
+        var professionColor: UIColor {
+            switch self {
+            case .medicine:
+                return .systemTeal
+            case .odontology:
+                return .systemBlue
+            case .pharmacy:
+                return .systemPink
+            case .physiotherapy:
+                return .systemPurple
+            case .nursing:
+                return .systemCyan
+            case .veterinary:
+                return .systemIndigo
+            case .psychology:
+                return .systemMint
+            case .podiatry:
+                return .systemOrange
+            case .nutrition:
+                return .systemGreen
+            case .optics:
+                return .systemYellow
+            case .biomedical:
+                return .systemGray
+            case .physical:
+                return .systemBrown
+            case .speech:
+                return .systemRed
+                
+            }
+            
+        }
     }
-    
-    
     
     static func professionalProfessions() -> [Profession] {
         var profession: [Profession] = []
@@ -52,7 +83,7 @@ extension Profession {
         let sp11 = Profession(profession: "Biomedical Science")
         let sp12 = Profession(profession: "Physical Activity & Sport Science")
         let sp13 = Profession(profession: "Speech Therapy")
-       
+        
         profession.append(contentsOf: [sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13])
         return profession
         
@@ -67,7 +98,8 @@ extension Profession {
     
     static func researcherProfessions() -> [Profession] {
         var profession: [Profession] = []
-
+        
         return profession
     }
 }
+

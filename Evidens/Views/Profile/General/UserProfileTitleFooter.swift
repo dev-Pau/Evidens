@@ -28,7 +28,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -50,7 +50,7 @@ class UserProfileTitleFooter: UICollectionReusableView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             sectionAboutTitle.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             sectionAboutTitle.leadingAnchor.constraint(equalTo: leadingAnchor),

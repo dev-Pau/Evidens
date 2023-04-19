@@ -59,7 +59,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -103,7 +103,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
             fullNameLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor)
         ])
@@ -172,10 +172,10 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         let type = viewModel.notification.type
         if type == .likePost || type == .commentPost {
-            delegate?.cell(self, wantsToViewPost: viewModel.notification.postId!)
+            delegate?.cell(self, wantsToViewPost: viewModel.notification.contentId)
             return
         } else if type == .likeCase || type == .commentCase {
-            delegate?.cell(self, wantsToViewCase: viewModel.notification.caseId!)
+            delegate?.cell(self, wantsToViewCase: viewModel.notification.contentId)
             return
         } else {
             return

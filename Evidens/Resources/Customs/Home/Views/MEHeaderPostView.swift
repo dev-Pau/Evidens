@@ -47,7 +47,7 @@ class MEHeaderPostView: UIView {
     
     private let separatorLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = lightGrayColor
+        label.backgroundColor = separatorColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -108,7 +108,7 @@ class MEHeaderPostView: UIView {
             separatorLabel.topAnchor.constraint(equalTo: categoryPostButton.bottomAnchor, constant: paddingTop),
             separatorLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorLabel.heightAnchor.constraint(equalToConstant: 1)
+            separatorLabel.heightAnchor.constraint(equalToConstant: 0.4)
         ])
     }
     

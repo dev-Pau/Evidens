@@ -7,9 +7,8 @@
 
 import UIKit
 
-class PostMenuTitleHeader: UICollectionReusableView {
-    
-    
+class ContextMenuHeader: UICollectionReusableView {
+
     private let padding: CGFloat = 10
 
     private let separator: UIView = {
@@ -24,7 +23,8 @@ class PostMenuTitleHeader: UICollectionReusableView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 25, weight: .heavy)
         return label
     }()
 
@@ -41,13 +41,12 @@ class PostMenuTitleHeader: UICollectionReusableView {
         addSubviews(separator, titleLabel)
         
         NSLayoutConstraint.activate([
-            
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),
             separator.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             separator.heightAnchor.constraint(equalToConstant: 5),
             separator.widthAnchor.constraint(equalToConstant: 50),
             
-            titleLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
         ])

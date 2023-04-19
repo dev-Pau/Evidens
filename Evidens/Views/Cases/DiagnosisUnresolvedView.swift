@@ -43,14 +43,14 @@ class DiagnosisUnresolvedView: UIView {
     private lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
     private lazy var bottomSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
 
@@ -88,12 +88,12 @@ class DiagnosisUnresolvedView: UIView {
             separatorView.topAnchor.constraint(equalTo: topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             bottomSeparatorView.topAnchor.constraint(equalTo: bottomAnchor),
             bottomSeparatorView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             bottomSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1)
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         profileImageView.layer.cornerRadius = 45 / 2

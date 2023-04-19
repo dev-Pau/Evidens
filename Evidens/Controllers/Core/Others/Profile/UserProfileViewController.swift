@@ -39,10 +39,15 @@ struct ElementKind {
     //static let layoutFooter = "layout-footer-element-kind"
 }
 
+protocol UserProfileViewControllerDelegate: AnyObject {
+    func didFollowUser(user: User, didFollow: Bool)
+}
+
 class UserProfileViewController: UIViewController {
     
 
     //MARK: - Properties
+    weak var delegate: UserProfileViewControllerDelegate?
     private var standardAppearance = UINavigationBarAppearance()
     private lazy var profileImageTopPadding = view.frame.width / 3 - 20
     private var userSectionsFetched: Int = 0
@@ -280,8 +285,8 @@ class UserProfileViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: profileImageTopPadding),
-            profileImageView.heightAnchor.constraint(equalToConstant: 80),
-            profileImageView.widthAnchor.constraint(equalToConstant: 80),
+            profileImageView.heightAnchor.constraint(equalToConstant: 90),
+            profileImageView.widthAnchor.constraint(equalToConstant: 90),
             profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
         ])
 
@@ -289,7 +294,7 @@ class UserProfileViewController: UIViewController {
             profileImageView.sd_setImage(with: URL(string: user.profileImageUrl!))
         }
      
-        profileImageView.layer.cornerRadius = 80 / 2
+        profileImageView.layer.cornerRadius = 90 / 2
 
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -360,6 +365,7 @@ class UserProfileViewController: UIViewController {
             } else if sectionNumber == 10 {
                 // Related Users
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 item.contentInsets.leading = 10
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(0.30), heightDimension: .absolute(!self.relatedUsers.isEmpty ? 120 : .leastNonzeroMagnitude)), subitems: [item])
@@ -660,6 +666,13 @@ class UserProfileViewController: UIViewController {
         }
     }
     
+    func updateUserStats() {
+        UserService.fetchUserStats(uid: user.uid!) { stats in
+            self.user.stats = stats
+            self.collectionView.reloadSections(IndexSet(integer: 0))
+        }
+    }
+        
     func checkIfUserIsFollowed() {
         UserService.checkIfUserIsFollowed(uid: user.uid!) { isFollowed in
             self.user.isFollowed = isFollowed
@@ -978,7 +991,7 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             }
         } else if indexPath.section == 2 {
             // Posts
-            guard !recentCases.isEmpty else { return }
+            guard !recentPosts.isEmpty else { return }
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = CGSize(width: view.frame.width, height: .leastNonzeroMagnitude)
@@ -1192,6 +1205,7 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     currentCell.viewModel?.user.isFollowed = false
                     currentCell.isUpdatingFollowState = false
                     currentCell.updateButtonAfterAction = true
+                    self.delegate?.didFollowUser(user: user, didFollow: false)
                     // Delete user feed posts related to the unfollowed user
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: false)
                 }
@@ -1203,7 +1217,10 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     currentCell.isUpdatingFollowState = false
                     currentCell.updateButtonAfterAction = true
                     NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)
+                    self.delegate?.didFollowUser(user: user, didFollow: true)
                     //Update user feed posts related to the followed user
+                    #warning("we need to fetch user stats again")
+                    self.updateUserStats()
                     PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
                 }
             }

@@ -115,8 +115,11 @@ struct JobService {
         COLLECTION_JOBS.document(id).getDocument { snapshot, error in
             guard let snapshot = snapshot else { return }
             guard let data = snapshot.data() else { return }
-            let job = Job(jobId: snapshot.documentID, dictionary: data)
-            completion(job)
+            var job = Job(jobId: snapshot.documentID, dictionary: data)
+            fetchNumberOfApplicantsFor(job: job) { applicants in
+                job.numberOfApplicants = applicants
+                completion(job)
+            }
         }
     }
     
@@ -147,6 +150,12 @@ struct JobService {
         }
     }
     
+    static func applyForJob(job: Job, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let timestampData = ["timestamp": Timestamp(date: Date())]
+        COLLECTION_JOBS.document(job.jobId).collection("job-applicants").document(uid).setData(timestampData, completion: completion)
+    }
+    
     static func bookmarkJob(job: Job, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
 
@@ -170,29 +179,15 @@ struct JobService {
         var count = 0
         jobs.enumerated().forEach { index, job in
             checkIfUserBookmarkedJob(job: job) { didBookmark in
-                auxJobs[index].didBookmark = didBookmark
-                count += 1
-                if auxJobs.count == count {
-                    completion(auxJobs)
+                fetchNumberOfApplicantsFor(job: job) { applicants in
+                    auxJobs[index].didBookmark = didBookmark
+                    auxJobs[index].numberOfApplicants = applicants
+                    count += 1
+                    if auxJobs.count == count {
+                        completion(auxJobs)
+                    }
                 }
             }
-            
-            /*
-            COLLECTION_USERS.document(uid).collection("user-job-bookmarks").document(job.jobId).getDocument { (snapshot, _) in
-                //If the snapshot (document) exists, means current user did like the post
-                if let snapshot = snapshot, snapshot.exists {
-                    auxJobs[index].didBookmark = true
-                } else {
-                    auxJobs[index].didBookmark = false
-                }
-                
-                count += 1
-                
-                if auxJobs.count == count {
-                    completion(auxJobs)
-                }
-            }
-             */
         }
     }
     
@@ -202,6 +197,18 @@ struct JobService {
             //If the snapshot (document) exists, means current user did like the post
             guard let didBookmark = snapshot?.exists else { return }
             completion(didBookmark)
+        }
+    }
+    
+    static func fetchNumberOfApplicantsFor(job: Job, completion: @escaping(Int) -> Void) {
+        let query = COLLECTION_JOBS.document(job.jobId).collection("job-applicants").count
+        query.getAggregation(source: .server) { snapshot, _ in
+            guard let snapshot = snapshot else {
+                completion(0)
+                return
+            }
+            
+            completion(snapshot.count.intValue)
         }
     }
     

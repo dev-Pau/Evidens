@@ -11,8 +11,7 @@ private let userCellReuseIdentifier = "UserCellReuseIdentifier"
 private let userCountCellReuseIdentifier = "UserCountCellReuseIdentifier"
 
 protocol GroupPageHeaderCellDelegate: AnyObject {
-    func didTapGroupProfilePicture()
-    func didTapGroupBannerPicture()
+
     func didTapInfoButton()
     func didTapActionButton(memberType: Group.MemberType)
     func didTapGroupOptions(option: Group.GroupManagement)
@@ -48,11 +47,11 @@ class GroupPageHeaderCell: UICollectionViewCell {
 
     private let groupNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.font = .systemFont(ofSize: 20, weight: .heavy)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.textAlignment = .left
-        label.numberOfLines = 2
+        label.numberOfLines = 3
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
@@ -63,7 +62,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .secondaryLabel
         label.textAlignment = .left
-        label.numberOfLines = 2
+        label.numberOfLines = 4
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
@@ -110,13 +109,13 @@ class GroupPageHeaderCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
     private lazy var groupSizeLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         return label
@@ -144,7 +143,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
         addSubviews(groupNameLabel, groupDescriptionLabel, configurationButton, membersCollectionView, customUserButton, groupSizeLabel, separatorView)
         NSLayoutConstraint.activate([
             groupNameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            groupNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 60),
+            groupNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 75),
             groupNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             groupDescriptionLabel.leadingAnchor.constraint(equalTo: groupNameLabel.leadingAnchor),
@@ -158,7 +157,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
             configurationButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3 - 30),
             
             customUserButton.topAnchor.constraint(equalTo: configurationButton.topAnchor),
-            customUserButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 100),
+            customUserButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 120),
             customUserButton.trailingAnchor.constraint(equalTo: configurationButton.leadingAnchor, constant: -10),
             customUserButton.heightAnchor.constraint(equalToConstant: 30),
 
@@ -173,7 +172,7 @@ class GroupPageHeaderCell: UICollectionViewCell {
             groupSizeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
@@ -304,14 +303,6 @@ class GroupPageHeaderCell: UICollectionViewCell {
         
         if memberType == .external { customUserButton.configuration?.background.strokeColor = .quaternarySystemFill }
         customUserButton.menu = addMenuItems()
-    }
-    
-    @objc func handleBannerTap() {
-        delegate?.didTapGroupBannerPicture()
-    }
-    
-    @objc func handleProfileTap() {
-        delegate?.didTapGroupProfilePicture()
     }
     
     @objc func handleConfigurationButtonTap() {

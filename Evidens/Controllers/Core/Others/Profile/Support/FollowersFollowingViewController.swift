@@ -12,10 +12,14 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let emptyContentCellReuseIdentifier = "EmptyContentCellReuseIdentifier"
 private let followFollowingCellReuseIdentifier = "FollowFollowingCellReuseIdentifier"
 
+protocol FollowersFollowingViewControllerDelegate: AnyObject {
+    func didFollowUnfollowUser(withUid uid: String, didFollow: Bool)
+}
+
 class FollowersFollowingViewController: UIViewController {
     
     private let user: User
-    
+    weak var followDelegate: FollowersFollowingViewControllerDelegate?
     weak var delegate: CollectionViewDidScrollDelegate?
     
     private let topics = ["Followers", "Following"]
@@ -67,7 +71,7 @@ class FollowersFollowingViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -134,7 +138,7 @@ class FollowersFollowingViewController: UIViewController {
             segmentedButtonsView.heightAnchor.constraint(equalToConstant: 51),
             
             separatorView.topAnchor.constraint(equalTo: segmentedButtonsView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
@@ -194,9 +198,18 @@ class FollowersFollowingViewController: UIViewController {
             let uids = snapshot.documents.map({ $0.documentID })
             UserService.fetchUsers(withUids: uids) { users in
                 self.following = users
-                users.forEach({ self.followingIsFollowed.append(UserFollow(dictionary: ["uid": $0.uid!, "isFollow": true])) })
-                self.followingLoaded = true
-                self.followingCollectionView.reloadData()
+                users.forEach { user in
+                    UserService.checkIfUserIsFollowed(uid: user.uid!) { followed in
+                        self.followingIsFollowed.append(UserFollow(dictionary: ["uid": user.uid!, "isFollow": followed]))
+                        if self.followingIsFollowed.count == users.count {
+                            self.followingLoaded = true
+                            self.followingCollectionView.reloadData()
+                        }
+                    }
+                }
+                //users.forEach({ self.followingIsFollowed.append(UserFollow(dictionary: ["uid": $0.uid!, "isFollow": true])) })
+                //self.followingLoaded = true
+                //self.followingCollectionView.reloadData()
             }
         }
     }
@@ -307,31 +320,6 @@ extension FollowersFollowingViewController: UICollectionViewDataSource, UICollec
                 return cell
             }
         }
-        
-/*
-        if collectionView == followersCollectionView {
-            cell.followerDelegate = self
-            cell.user = followers[indexPath.row]
-            
-            let userIndex = followerIsFollowed.firstIndex { user in
-                if user.uid == followers[indexPath.row].uid! {
-                    return true
-                }
-                return false
-            }
-            
-            if let userIndex = userIndex {
-                cell.userIsFollowing = followerIsFollowed[userIndex].isFollow
-            }
-            
-        } else {
-            cell.followingDelegate = self
-            cell.user = following[indexPath.row]
-            cell.userIsFollowing = true
-        }
-        
-        return cell
- */
     }
 
     
@@ -414,6 +402,7 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
                 self.followerIsFollowed[index].isFollow = true
             }
             
+            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
             PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
         }
     }
@@ -439,6 +428,7 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
                 }
             }
             
+            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
             PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
     }
@@ -457,6 +447,7 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
                 self.followingIsFollowed[index].isFollow = true
             }
             
+            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: true)
             PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: true)
         }
     }
@@ -475,6 +466,7 @@ extension FollowersFollowingViewController: UsersFollowCellDelegate, UsersFollow
                 self.followingIsFollowed[index].isFollow = false
             }
             
+            self.followDelegate?.didFollowUnfollowUser(withUid: user.uid!, didFollow: false)
             PostService.updateUserFeedAfterFollowing(userUid: user.uid!, didFollow: false)
         }
     }

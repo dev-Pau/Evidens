@@ -21,7 +21,7 @@ class GroupPermissionCell: UICollectionViewCell {
     
     private var topSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -40,7 +40,7 @@ class GroupPermissionCell: UICollectionViewCell {
     
     private var separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -74,7 +74,7 @@ class GroupPermissionCell: UICollectionViewCell {
             topSeparatorView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             topSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             topSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            topSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             discoverabilityTitle.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 5),
             discoverabilityTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -88,7 +88,7 @@ class GroupPermissionCell: UICollectionViewCell {
             separatorView.topAnchor.constraint(equalTo: invitePermissionView.bottomAnchor, constant: 5),
             separatorView.leadingAnchor.constraint(equalTo: invitePermissionView.leadingAnchor, constant: 40),
             separatorView.trailingAnchor.constraint(equalTo: invitePermissionView.trailingAnchor, constant: -10),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             reviewPermissionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
             reviewPermissionView.leadingAnchor.constraint(equalTo: invitePermissionView.leadingAnchor),

@@ -103,7 +103,7 @@ class BrowseJobCell: UICollectionViewCell {
     private let timestampLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .secondaryLabel
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
@@ -180,7 +180,7 @@ class BrowseJobCell: UICollectionViewCell {
         jobPositionName.text = viewModel.jobName
         jobLocationLabel.text = viewModel.jobLocation + " • " + viewModel.jobWorkplaceType
         //jobDetailsLabel.text = viewModel.jobProfession + " · " + viewModel.jobType
-        timestampLabel.text = viewModel.jobTimestampString! + " ago"
+        timestampLabel.text = viewModel.jobTimestampString! + " ago" + viewModel.applicants
         bookmarkButton.configuration?.image = viewModel.bookMarkImage
     }
     

@@ -37,7 +37,7 @@ class RecentContentSearchCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -57,7 +57,7 @@ class RecentContentSearchCell: UICollectionViewCell {
             goToTextButton.widthAnchor.constraint(equalToConstant: 15),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.leadingAnchor.constraint(equalTo: recentSearchedTextLabel.leadingAnchor)
         ])

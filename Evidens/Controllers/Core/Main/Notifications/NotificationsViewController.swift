@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import JGProgressHUD
 
 private let followCellReuseIdentifier = "FollowCellReuseIdentifier"
 private let likeCellReuseIdentifier = "LikeCellReuseIdentifier"
@@ -20,11 +21,15 @@ class NotificationsViewController: NavigationBarViewController {
     private var users = [User]()
     private var posts = [Post]()
     private var cases = [Case]()
+    private var jobs = [Job]()
+    private var followCellIndexPath = IndexPath()
+    private var progressIndicator = JGProgressHUD()
     
     private var postLike = [Post]()
     private var caseLike = [Case]()
     
     private var comments = [Comment]()
+    private var userFollowers: Int = 0
     
     private var fetchedCount = 0
 
@@ -32,6 +37,7 @@ class NotificationsViewController: NavigationBarViewController {
     
     private var loaded: Bool = false
     
+    private var notificationsFirstSnapshot: QueryDocumentSnapshot?
     private var notificationsLastSnapshot: QueryDocumentSnapshot?
     
     private lazy var collectionView: UICollectionView = {
@@ -74,7 +80,11 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.register(NotificationLikeCommentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
        
         collectionView.register(MEPrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.refreshControl = refresher
     }
+    
     
     private func fetchNotifications() {
         guard let tab = tabBarController as? MainTabController else { return }
@@ -87,11 +97,14 @@ class NotificationsViewController: NavigationBarViewController {
                 if user.phase != .verified {
                     self.view.addSubview(self.lockView)
                 }
+                self.collectionView.refreshControl?.endRefreshing()
                 self.collectionView.reloadData()
                 self.collectionView.isHidden = false
                 return
             }
+
             
+            self.notificationsFirstSnapshot = snapshot.documents.first
             self.notificationsLastSnapshot = snapshot.documents.last
             self.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
 
@@ -100,28 +113,43 @@ class NotificationsViewController: NavigationBarViewController {
             self.fetchCaseForLikeNotification()
             self.fetchCommentsForPostCommentNotification()
             self.fetchCommentsForCaseCommentNotification()
+            self.fetchNumberOfFollowers()
+            self.fetchJobsForJobNotification()
             
             let userUids = self.notifications.map { $0.uid }
             let uniqueUserUids = Array(Set(userUids))
             UserService.fetchUsers(withUids: uniqueUserUids) { users in
-                print("we got user users")
                 self.users = users
+                print("users fetched")
                 self.checkIfAllNotificationInfoIsFetched()
             }
+        }
+    }
+    
+    func fetchNumberOfFollowers() {
+        UserService.fetchNumberOfFollowers { followers in
+            self.userFollowers = followers
+            self.checkIfAllNotificationInfoIsFetched()
+            print("num of followes fetched")
         }
     }
     
     func checkIfUserIsFollowed() {
         var count = 0
         let notificationFollow = notifications.filter({ $0.type == .follow })
+        guard !notificationFollow.isEmpty else {
+            self.checkIfAllNotificationInfoIsFetched()
+            print("follow noti empty")
+            return
+        }
         notificationFollow.forEach { notification in
             UserService.checkIfUserIsFollowed(uid: notification.uid) { isFollowed in
                 if let index = self.notifications.firstIndex(where: { $0.id == notification.id }) {
                     self.notifications[index].userIsFollowed = isFollowed
                     count += 1
                     if notificationFollow.count == count {
-                        print("we got user is followed")
                         self.checkIfAllNotificationInfoIsFetched()
+                        print("check if is followed done")
                     }
                 }
             }
@@ -131,24 +159,24 @@ class NotificationsViewController: NavigationBarViewController {
     func fetchPostsForLikeNotification() {
         let notificationPostLikes = notifications.filter({ $0.type == .likePost })
         guard !notificationPostLikes.isEmpty else {
-            print("we got  posts")
             self.checkIfAllNotificationInfoIsFetched()
+            print("post like empty")
             return
         }
         
         var count = 0
-        let postLikeIds = notificationPostLikes.map({ $0.postId ?? "" })
+        let postLikeIds = notificationPostLikes.map({ $0.contentId })
         PostService.fetchPosts(withPostIds: postLikeIds) { posts in
-            print("we got  posts")
             self.postLike = posts
             
             posts.forEach { post in
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.postId ?? "" == post.postId }) {
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == post.postId }) {
                     
                     self.notifications[notificationIndex].post = post
                     count += 1
                     if posts.count == count {
                         self.checkIfAllNotificationInfoIsFetched()
+                        print("like posts")
                     }
 
                 }
@@ -159,21 +187,21 @@ class NotificationsViewController: NavigationBarViewController {
     func fetchCaseForLikeNotification() {
         let notificationCaseLikes = notifications.filter({ $0.type == .likeCase })
         guard !notificationCaseLikes.isEmpty else {
-            print("we got  cases")
             self.checkIfAllNotificationInfoIsFetched()
+            print("like cases empty")
             return
         }
         
         var count = 0
-        let caseLikeIds = notificationCaseLikes.map({ $0.caseId ?? "" })
+        let caseLikeIds = notificationCaseLikes.map({ $0.contentId })
         CaseService.fetchCases(withCaseIds: caseLikeIds) { cases in
-            print("we got  cases")
             self.caseLike = cases
             cases.forEach { clinicalCase in
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.caseId ?? "" == clinicalCase.caseId }) {
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == clinicalCase.caseId }) {
                     self.notifications[notificationIndex].clinicalCase = clinicalCase
                     count += 1
                     if cases.count == count {
+                        print("like cases")
                         self.checkIfAllNotificationInfoIsFetched()
                     }
                 }
@@ -184,10 +212,11 @@ class NotificationsViewController: NavigationBarViewController {
     func fetchCommentsForPostCommentNotification() {
         let notificationCommentPost = notifications.filter({ $0.type == .commentPost })
         guard !notificationCommentPost.isEmpty else {
-            print("we got comment post")
             self.checkIfAllNotificationInfoIsFetched()
+            print("comments post empty")
             return
         }
+        
         CommentService.fetchNotificationPostComments(withNotifications: notificationCommentPost) { comments in
             self.comments.append(contentsOf: comments)
             var count = 0
@@ -196,7 +225,7 @@ class NotificationsViewController: NavigationBarViewController {
                     self.notifications[notificationIndex].comment = comment
                     count += 1
                     if comments.count == count {
-                        print("we got comment post")
+                        print("comments post")
                         self.checkIfAllNotificationInfoIsFetched()
                     }
                 }
@@ -207,8 +236,8 @@ class NotificationsViewController: NavigationBarViewController {
     func fetchCommentsForCaseCommentNotification() {
         let notificationCommentCase = notifications.filter({ $0.type == .commentCase })
         guard !notificationCommentCase.isEmpty else {
-            print("we got comment case empty")
             self.checkIfAllNotificationInfoIsFetched()
+            print("comments case empty")
             return
         }
         CommentService.fetchNotificationCaseComments(withNotifications: notificationCommentCase) { comments in
@@ -219,6 +248,31 @@ class NotificationsViewController: NavigationBarViewController {
                     self.notifications[notificationIndex].comment = comment
                     count += 1
                     if comments.count == count {
+                        print("comments case")
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
+                }
+            }
+        }
+    }
+    
+    func fetchJobsForJobNotification() {
+        let notificationJob = notifications.filter({ $0.type == .jobApplicant })
+        guard !notificationJob.isEmpty else {
+            self.checkIfAllNotificationInfoIsFetched()
+            print("jobs empty")
+            return
+        }
+        
+        JobService.fetchJobs(withJobIds: notificationJob.map({ $0.contentId })) { jobsFetched in
+            self.jobs = jobsFetched
+            var count = 0
+            jobsFetched.forEach { job in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == job.jobId }) {
+                    self.notifications[notificationIndex].job = job
+                    count += 1
+                    if jobsFetched.count == count {
+                        print("jobs")
                         self.checkIfAllNotificationInfoIsFetched()
                     }
                 }
@@ -228,12 +282,58 @@ class NotificationsViewController: NavigationBarViewController {
     
     func checkIfAllNotificationInfoIsFetched() {
         fetchedCount += 1
-        if fetchedCount == 6 {
+        print(fetchedCount)
+        if fetchedCount == 8 {
+            print("we got all data")
             self.loaded = true
             self.activityIndicator.stop()
             self.collectionView.reloadData()
             self.collectionView.isHidden = false
-            self.collectionView.reloadData()
+            self.collectionView.refreshControl?.endRefreshing()
+        }
+    }
+    
+    @objc func handleRefresh() {
+        HapticsManager.shared.vibrate(for: .success)
+        guard notificationsFirstSnapshot != nil else {
+            // Refreshing on an empty notifications collectionView. Check if the user has any new notification
+            fetchNotifications()
+            return
+        }
+        
+        NotificationService.getNewNotifications(lastSnapshot: notificationsFirstSnapshot!) { snapshot in
+            guard let snapshot = snapshot, !snapshot.isEmpty else {
+                // Refreshing without having any new notification
+                self.collectionView.refreshControl?.endRefreshing()
+                return
+            }
+            
+            // New group of notifications received. Get the ID of each notification.
+            self.notificationsFirstSnapshot = snapshot.documents.first
+            
+            var newNotifications: [Notification] = snapshot.documents.map({ Notification(dictionary: $0.data()) })
+
+            // Check if any new notification is an update of the ones already fetched by the user to delete duplicity
+            let newNotificationIds = newNotifications.map({ $0.id })
+            let uniquePreviousNotifications = self.notifications.filter({ newNotificationIds.contains($0.id) == false })
+            // Get the full array of notifications (new ones + unique older ones) and keep the first 15
+            newNotifications.append(contentsOf: uniquePreviousNotifications)
+            let newSizedNotifications = Array(newNotifications.prefix(15))
+            self.notifications = newSizedNotifications
+            
+            // Get unique users
+            let newUniqueNotificationUserUids = Array(Set(newSizedNotifications.map({ $0.uid })))
+            let currentFetchedUserUids = self.users.map { $0.uid }
+            let newUidsToFetch = newUniqueNotificationUserUids.filter({ currentFetchedUserUids.contains($0) == false })
+            UserService.fetchUsers(withUids: newUidsToFetch) { newUsers in
+                self.users.append(contentsOf: newUsers)
+                if let lastNotification = self.notifications.last {
+                    NotificationService.getSnapshotForLastNotification(lastNotification) { lastSnapshot in
+                        self.notificationsLastSnapshot = lastSnapshot.documents.last
+                        self.collectionView.reloadData()
+                    }
+                }
+            }
         }
     }
 }
@@ -253,6 +353,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
         } else {
             if notifications[indexPath.row].type.rawValue == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
+                cell.followers = userFollowers
                 cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
                 cell.delegate = self
                 
@@ -352,6 +453,21 @@ extension NotificationsViewController: NotificationCellDelegate {
         default:
             break
         }
+    }
+    
+    func cell(_ cell: UICollectionViewCell, wantsToSeeFollowingDetailsForNotification: Notification) {
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        guard let indexSelected = collectionView.indexPath(for: cell) else { return }
+        followCellIndexPath = indexSelected
+        let controller = FollowersFollowingViewController(user: user)
+        controller.followDelegate = self
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        self.navigationItem.backBarButtonItem = backItem
+        
+        self.navigationController?.pushViewController(controller, animated: true)
         
     }
     
@@ -366,9 +482,9 @@ extension NotificationsViewController: NotificationCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        showLoadingView()
+        progressIndicator.show(in: view)
         PostService.fetchPost(withPostId: postId) { post in
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
             
             let controller = DetailsPostViewController(post: post, user: user, type: .regular, collectionViewLayout: layout)
             
@@ -391,11 +507,11 @@ extension NotificationsViewController: NotificationCellDelegate {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        showLoadingView()
+        progressIndicator.show(in: view)
         
         CaseService.fetchCase(withCaseId: caseId) { clinicalCase in
             
-            self.dismissLoadingView()
+            self.progressIndicator.dismiss(animated: true)
             
             let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
             
@@ -431,6 +547,22 @@ extension NotificationsViewController: NotificationCellDelegate {
     }
 }
 
+extension NotificationsViewController: FollowersFollowingViewControllerDelegate {
+    func didFollowUnfollowUser(withUid uid: String, didFollow: Bool) {
+        let followNotification = notifications[followCellIndexPath.row]
+        if let userIndex = users.firstIndex(where: { $0.uid == notifications[followCellIndexPath.row].uid }) {
+            if users[userIndex].uid! == uid, let cell = collectionView.cellForItem(at: followCellIndexPath) as? NotificationFollowCell {
+                // User edited the user displayed in the cell
+                if didFollow {
+                    self.cell(cell, wantsToFollow: uid)
+                } else {
+                    self.cell(cell, wantsToUnfollow: uid)
+                }
+            }
+        }
+    }
+}
+
 extension NotificationsViewController {
     func getMoreNotifications() {
         NotificationService.fetchNotifications(lastSnapshot: notificationsLastSnapshot) { snapshot in
@@ -443,11 +575,14 @@ extension NotificationsViewController {
             let newNotifications = documents.map({ Notification(dictionary: $0.data()) })
             self.notifications.append(contentsOf: newNotifications)
 
-            let newNotificationUserUids = newNotifications.map { $0.uid }
-            let newNotificationUniqueUserUids = Array(Set(newNotificationUserUids))
+            let newNotificationUidsFetched = newNotifications.map { $0.uid }
+            let newNotificationUniqueUniqueUidsFetched = Array(Set(newNotificationUidsFetched))
+            
+            let currentUserUids = self.users.map { $0.uid }
+            
+            let newNotificationUsersUidsToFetch = newNotificationUniqueUniqueUidsFetched.filter({ currentUserUids.contains($0) == false })
         #warning("Befroe fetching check if some of the new users are already present in the previous user array")
-
-            UserService.fetchUsers(withUids: newNotificationUserUids) { users in
+            UserService.fetchUsers(withUids: newNotificationUsersUidsToFetch) { users in
                 self.users.append(contentsOf: users)
                 self.collectionView.reloadData()
             }

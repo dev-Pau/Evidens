@@ -74,7 +74,7 @@ class VerificationRegistrationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -189,7 +189,7 @@ class VerificationRegistrationViewController: UIViewController {
             separatorView.bottomAnchor.constraint(equalTo: emailLabel.topAnchor, constant: -20),
             separatorView.leadingAnchor.constraint(equalTo: passportView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: passportView.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             orLabel.centerXAnchor.constraint(equalTo: separatorView.centerXAnchor),
             orLabel.centerYAnchor.constraint(equalTo: separatorView.centerYAnchor),

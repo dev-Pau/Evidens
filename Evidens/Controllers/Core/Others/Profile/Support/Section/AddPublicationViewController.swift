@@ -139,7 +139,7 @@ class AddPublicationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -317,7 +317,7 @@ class AddPublicationViewController: UIViewController {
             separatorView.topAnchor.constraint(equalTo: publicationDateTextField.bottomAnchor, constant: 10),
             separatorView.leadingAnchor.constraint(equalTo: publicationDateTextField.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: publicationDateTextField.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             addContributorsButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 10),
             addContributorsButton.trailingAnchor.constraint(equalTo: separatorView.trailingAnchor),

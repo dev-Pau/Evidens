@@ -181,7 +181,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return conversationsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 70)
+        return conversationsLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 72)
     }
             
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

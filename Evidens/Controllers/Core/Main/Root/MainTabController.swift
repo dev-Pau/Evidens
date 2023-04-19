@@ -329,7 +329,7 @@ extension MainTabController: PostBottomMenuLauncherDelegate {
             present(nav, animated: true, completion: nil)
         case .clinicalCase:
             let clinicalCaseController = ShareClinicalCaseViewController(user: user)
-            
+            //let clinicalCaseController = ShareCaseViewController(user: user)
             let nav = UINavigationController(rootViewController: clinicalCaseController)
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true, completion: nil)

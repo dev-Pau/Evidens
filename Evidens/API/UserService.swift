@@ -135,13 +135,7 @@ struct UserService {
             }
         }
     }
-    
-    static func updateUserOnboarding(viewModel: OnboardingViewModel, completion: @escaping(User) -> Void) {
-        
-    }
-    
-    
-    
+
     static func fetchRelatedUsers(withProfession profession: String, completion: @escaping([User]) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var usersFetched: [User] = []
@@ -202,6 +196,7 @@ struct UserService {
     }
     
     static func fetchOnboardingUsers(completion: @escaping([User]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         COLLECTION_USERS.limit(to: 50).getDocuments { (snapshot, error) in
             guard let snapshot = snapshot, !snapshot.isEmpty else {
                 completion([])
@@ -213,6 +208,8 @@ struct UserService {
             completion(filteredUsers)
         }
     }
+    
+    
     
     /*
      static func fetchHomeDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
@@ -325,23 +322,24 @@ struct UserService {
      */
     
     static func follow(uid: String, completion: @escaping(FirestoreCompletion)) {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).setData([:]) { error in
-            COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData([:], completion: completion)
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let followData = ["timestamp": Timestamp(date: Date())]
+
+        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).setData(followData) { error in
+            COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).setData(followData, completion: completion)
         }
     }
     
     static func unfollow(uid: String, completion: @escaping(FirestoreCompletion)) {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
         COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).delete() { error in
             COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid).delete(completion: completion)
         }
     }
     
     static func checkIfUserIsFollowed(uid: String, completion: @escaping(Bool) -> Void) {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).getDocument { (snapshot, error) in
             //If snapshot exists means user is followed by current user
@@ -350,25 +348,17 @@ struct UserService {
         }
     }
     
-    #warning("Only for testing purposes, for counting number of likes and display without updating the document field likes")
-   
-    static func fetchUserFollowerws() {
+    static func fetchNumberOfFollowers(completion: @escaping(Int) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        query.getAggregation(source: .server) { snaphsot, _ in
-            print(snaphsot?.count)
+        query.getAggregation(source: .server) { snapshot, _ in
+            guard let snapshot = snapshot else {
+                completion(0)
+                return
+            }
+            
+            completion(snapshot.count.intValue)
         }
-        
-        /*let query = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        do {
-            let snapshot = try await query.getAggregation(source: .server)
-            print(snapshot.count)
-        } catch {
-            print(error)
-        }
-         */
-        
-        
     }
     
     
@@ -463,22 +453,38 @@ struct UserService {
     }
     
     static func fetchUsersToFollow(forUser user: User, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
-
         if lastSnapshot == nil {
             // Fetch first group of posts
-            let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).limit(to: 25)
+            // COLLECTION_USERS.whereField("profession", isEqualTo: topic).whereField("uid", isNotEqualTo: uid).limit(to: 3)
+            let firstGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).whereField("uid", isNotEqualTo: user.uid!).limit(to: 25)
             firstGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                
                 completion(snapshot)
             }
         } else {
             // Append new posts
-            let nextGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).start(afterDocument: lastSnapshot!).limit(to: 25)
+            let nextGroupToFetch = COLLECTION_USERS.whereField("profession", isEqualTo: user.profession!).whereField("uid", isNotEqualTo: user.uid!).start(afterDocument: lastSnapshot!).limit(to: 25)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
-                guard let snapshot = snapshot else { return }
-                guard snapshot.documents.last != nil else { return }
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(snapshot!)
+                    return
+                }
+                guard snapshot.documents.last != nil else {
+                    completion(snapshot)
+                    return
+                    
+                }
+                
                 completion(snapshot)
             }
         }
@@ -500,12 +506,12 @@ struct UserService {
                 
                 COLLECTION_USERS.order(by: "lastName").whereField("lastName", isGreaterThanOrEqualTo: text.capitalized).whereField("lastName",
                                                                                                                                    isLessThanOrEqualTo: text.capitalized+"\u{f8ff}").limit(to: lastNameToFetch).getDocuments { snapshot, error in
-                    
                     guard let snapshot = snapshot else {
                         completion(users)
                         return
                         
                     }
+                    
                     let fetchedLastNameUsers = snapshot.documents.map({ User(dictionary: $0.data()) })
                     users.append(contentsOf: fetchedLastNameUsers)
                     completion(users)

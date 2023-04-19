@@ -57,14 +57,14 @@ class MEReviewActionButtons: UIView {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let topSeparatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -90,7 +90,7 @@ class MEReviewActionButtons: UIView {
             topSeparatorView.topAnchor.constraint(equalTo: topAnchor),
             topSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             topSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            topSeparatorView.heightAnchor.constraint(equalToConstant: 1),
+            topSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             deleteButton.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 5),
             deleteButton.trailingAnchor.constraint(equalTo: centerXAnchor),
@@ -107,7 +107,7 @@ class MEReviewActionButtons: UIView {
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
     }

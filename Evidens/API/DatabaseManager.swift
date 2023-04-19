@@ -658,6 +658,26 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
+    public func reportContent(source: Report.Source, report: Report, completion: @escaping(Bool) -> Void) {
+        var reportData = ["contentOwnerUid": report.contentOwnerUid,
+                          "target": report.target.rawValue,
+                          "topic": report.topic.rawValue,
+                          "reportOwnerUid": report.reportOwnerUid]
+        
+        if let reportInfo = report.reportInfo {
+            reportData["reportInfo"] = reportInfo
+        }
+        
+        let ref = database.child("reports").child(source.rawValue).child(report.contentId).childByAutoId()
+        ref.setValue(reportData) { error, _ in
+            if let _ = error {
+                completion(false)
+                return
+            }
+            completion(true)
+        }
+    }
+    
     public func reportPost(forUid postUid: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") else { return }
         let ref = database.child("reports").child("posts").child(postUid).childByAutoId()
@@ -1473,11 +1493,19 @@ extension DatabaseManager {
     }
     
     public func inviteUsersToGroup(groupId: String, uids: [String], completion: @escaping(Bool) -> Void) {
+        var usersThatAlreadyExist: Int = 0
+        var count = 0
         uids.forEach { uid in
 
             let existsRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "uid").queryEqual(toValue: uid)
             existsRef.observeSingleEvent(of: .value) { snapshot in
+                count += 1
+                
                 guard !snapshot.exists() else {
+                    if count == uids.count {
+                        completion(true)
+                        return
+                    }
                     print("user is already in the group")
                     return
                 }
@@ -1506,7 +1534,11 @@ extension DatabaseManager {
                             completion(false)
                             return
                         }
-                        completion(true)
+                        
+                        if count == uids.count {
+                            completion(true)
+                            return
+                        }
                     }
                 }
               
@@ -2357,7 +2389,7 @@ extension DatabaseManager {
                     completion(false)
                     return
                 }
-                
+
                 completion(true)
             }
         }

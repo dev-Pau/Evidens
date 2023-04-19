@@ -23,6 +23,7 @@ class CommentCaseViewController: UICollectionViewController {
     weak var delegate: CommentCaseViewControllerDelegate?
     
     private var clinicalCase: Case
+    private var currentUser: User
     private var user: User
     private var type: Comment.CommentType
     private var commentsLoaded: Bool = false
@@ -33,16 +34,17 @@ class CommentCaseViewController: UICollectionViewController {
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
-        cv.delegate = self
+        cv.accessoryViewDelegate = self
         return cv
     }()
     
     //MARK: - Lifecycle
     
-    init(clinicalCase: Case, user: User, type: Comment.CommentType) {
+    init(clinicalCase: Case, user: User, type: Comment.CommentType, currentUser: User) {
         self.clinicalCase = clinicalCase
         self.user = user
         self.type = type
+        self.currentUser = currentUser
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 0
@@ -132,7 +134,7 @@ class CommentCaseViewController: UICollectionViewController {
     }
     
     private func configureUI() {
-        navigationItem.title = "Comments"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(handleDismiss))
         
         if clinicalCase.privacyOptions == .nonVisible {
             commentInputView.profileImageView.image = UIImage(named: "user.profile.privacy")
@@ -164,6 +166,10 @@ class CommentCaseViewController: UICollectionViewController {
                 self.collectionView.reloadData()
             }
         }
+    }
+    
+    @objc func handleDismiss() {
+        dismiss(animated: true)
     }
 }
 
@@ -257,11 +263,6 @@ extension CommentCaseViewController: CommentCellDelegate {
 
 extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
-        print("uploading \(comment)")
-        //Get user from MainTabController
-        guard let tab = self.tabBarController as? MainTabController else { return }
-        guard let currentUser = tab.user else { return }
-
         //Upload commento to Firebase
         if clinicalCase.ownerUid == currentUser.uid && clinicalCase.privacyOptions == .nonVisible {
             // Owner of the anonymous case. Upload the comments as Anonymous & prevent from uploading to recent user comments
@@ -275,7 +276,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
 
                 let newComment = Comment(dictionary: [
                     "comment": comment,
-                    "uid": currentUser.uid as Any,
+                    "uid": self.currentUser.uid as Any,
                     "id": commentUid as Any,
                     "timestamp": "Now" as Any,
                     "isAuthor": true as Any,
@@ -303,23 +304,23 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 inputView.clearCommentTextView()
                 
                 
-                let isAuthor = currentUser.uid == self.clinicalCase.ownerUid ? true : false
+                let isAuthor = self.currentUser.uid == self.clinicalCase.ownerUid ? true : false
                 
                 let newComment = Comment(dictionary: [
                     "comment": comment,
-                    "uid": currentUser.uid as Any,
+                    "uid": self.currentUser.uid as Any,
                     "id": commentUid as Any,
                     "timestamp": "Now" as Any,
                     "isAuthor": isAuthor as Any as Any])
                 
                 self.users.append(User(dictionary: [
-                    "uid": currentUser.uid as Any,
-                    "firstName": currentUser.firstName as Any,
-                    "lastName": currentUser.lastName as Any,
-                    "profileImageUrl": currentUser.profileImageUrl as Any,
-                    "profession": currentUser.profession as Any,
-                    "category": currentUser.category.rawValue as Any,
-                    "speciality": currentUser.speciality as Any]))
+                    "uid": self.currentUser.uid as Any,
+                    "firstName": self.currentUser.firstName as Any,
+                    "lastName": self.currentUser.lastName as Any,
+                    "profileImageUrl": self.currentUser.profileImageUrl as Any,
+                    "profession": self.currentUser.profession as Any,
+                    "category": self.currentUser.category.rawValue as Any,
+                    "speciality": self.currentUser.speciality as Any]))
                 
                 self.comments.insert(newComment, at: 1)
                 
@@ -327,9 +328,9 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 self.collectionView.insertItems(at: [indexPath])
                 self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
                 
-                self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: currentUser, comment: newComment)
+                self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.currentUser, comment: newComment)
                 
-                NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withCommentId: commentUid)
+                NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: self.currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withCommentId: commentUid)
             }
         }
     }

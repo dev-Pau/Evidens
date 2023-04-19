@@ -8,6 +8,7 @@
 import UIKit
 
 protocol ApplyJobHeaderDelegate: AnyObject {
+    func didTapShowPrivacyRules()
     func phoneNumberIsValid(number: String?)
 }
 
@@ -23,10 +24,38 @@ class ApplyJobHeader: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Contact information"
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .systemFont(ofSize: 20, weight: .medium)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    lazy var descriptionTextView: UITextView = {
+        let tv = UITextView()
+        tv.isSelectable = true
+        tv.isUserInteractionEnabled = true
+        tv.delegate = self
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        
+        let attributedText = NSMutableAttributedString(string: "To apply for this job, you will need to provide some basic information or details. For more information, you can tap our ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        attributedText.append(NSMutableAttributedString(string: "privacy rules", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+        
+        attributedText.addAttribute(NSAttributedString.Key.link, value: "privacyInformation", range: (attributedText.string as NSString).range(of: "privacy rules"))
+        // link: value(forKey: "presentCommunityInformation"),
+        attributedText.append(NSMutableAttributedString(string: ".", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular), .foregroundColor: UIColor.secondaryLabel]))
+        
+        tv.attributedText = attributedText
+        return tv
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = separatorColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     private lazy var profileImageView: UIImageView = {
@@ -44,7 +73,7 @@ class ApplyJobHeader: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .label
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
@@ -77,40 +106,24 @@ class ApplyJobHeader: UICollectionReusableView {
         return tf
     }()
     
-    private let phoneNumberLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
-        label.numberOfLines = 1
-        label.textColor = .label
-        label.text = "Phone number"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let indexLabel: UILabel = {
-        let label = UILabel()
-        label.text = "+34"
-        label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private lazy var phoneNumberTextField: UITextField = {
         let tf = UITextField()
         tf.font = .systemFont(ofSize: 15, weight: .regular)
+        tf.textColor = primaryColor
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.clearButtonMode = .whileEditing
         tf.keyboardType = .numberPad
-        tf.placeholder = "Phone number"
+        //tf.placeholder = "Insert your phone number here"
+        tf.attributedPlaceholder = NSAttributedString(string: "Insert your phone number here", attributes: [.foregroundColor: UIColor.secondaryLabel])
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
         tf.tintColor = primaryColor
         return tf
     }()
     
-    private let separatorView: UIView = {
+    private let midSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .quaternarySystemFill
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -125,13 +138,22 @@ class ApplyJobHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(titleLabel, profileImageView, usernameLabel, professionLabel, emailAddressLabel, emailAddressTextField, indexLabel, phoneNumberLabel, phoneNumberTextField, separatorView)
+        addSubviews(titleLabel, descriptionTextView, midSeparatorView, profileImageView, usernameLabel, professionLabel, /*indexLabel, phoneNumberLabel,*/ phoneNumberTextField, separatorView)
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
-            profileImageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            descriptionTextView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 1),
+            descriptionTextView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor, constant: -4),
+            descriptionTextView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            midSeparatorView.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 4),
+            midSeparatorView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            midSeparatorView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            midSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            
+            profileImageView.topAnchor.constraint(equalTo: midSeparatorView.bottomAnchor, constant: 10),
             profileImageView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             profileImageView.widthAnchor.constraint(equalToConstant: 55),
             profileImageView.heightAnchor.constraint(equalToConstant: 55),
@@ -143,15 +165,7 @@ class ApplyJobHeader: UICollectionReusableView {
             professionLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 2),
             professionLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
             professionLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
-                      
-            emailAddressLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
-            emailAddressLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            emailAddressLabel.widthAnchor.constraint(equalToConstant: 130),
-            
-            emailAddressTextField.topAnchor.constraint(equalTo: emailAddressLabel.topAnchor, constant: -1),
-            emailAddressTextField.leadingAnchor.constraint(equalTo: emailAddressLabel.trailingAnchor, constant: 10),
-            emailAddressTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            
+            /*
             phoneNumberLabel.topAnchor.constraint(equalTo: emailAddressLabel.bottomAnchor, constant: 10),
             phoneNumberLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             phoneNumberLabel.widthAnchor.constraint(equalToConstant: 130),
@@ -159,15 +173,17 @@ class ApplyJobHeader: UICollectionReusableView {
             indexLabel.topAnchor.constraint(equalTo: phoneNumberLabel.topAnchor),
             indexLabel.leadingAnchor.constraint(equalTo: phoneNumberLabel.trailingAnchor, constant: 10),
             indexLabel.widthAnchor.constraint(equalToConstant: 30),
-            
-            phoneNumberTextField.topAnchor.constraint(equalTo: phoneNumberLabel.topAnchor, constant: -1),
-            phoneNumberTextField.leadingAnchor.constraint(equalTo: indexLabel.trailingAnchor, constant: 10),
-            phoneNumberTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            indexLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            */
+            phoneNumberTextField.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 15),
+            phoneNumberTextField.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
+            phoneNumberTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            phoneNumberTextField.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.leadingAnchor.constraint(equalTo: phoneNumberTextField.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: phoneNumberTextField.trailingAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
         profileImageView.layer.cornerRadius = 55 / 2
@@ -191,4 +207,51 @@ class ApplyJobHeader: UICollectionReusableView {
             delegate?.phoneNumberIsValid(number: nil)
         }
     }
+}
+
+extension ApplyJobHeader: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        if URL.absoluteString == "privacyInformation" {
+            delegate?.didTapShowPrivacyRules()
+            return false
+        }
+        return true
+    }
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        if textView.selectedTextRange != nil {
+            textView.delegate = nil
+            textView.selectedTextRange = nil
+            textView.delegate = self
+        }
+    }
+    
+    /*
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        guard textView == phoneNumberTextField else { return true }
+        let currentText = phoneNumberTextField.text ?? ""
+        let replacementRange = Range(range, in: currentText)!
+        
+        let updatedText = currentText.replacingCharacters(in: replacementRange, with: text)
+        let numericText = updatedText.components(separatedBy: .decimalDigits.inverted).joined()
+        let formattedText = formatPhoneNumber(numericText)
+        phoneNumberTextField.text = formattedText
+        return false
+    }
+    
+    func formatPhoneNumber(_ phoneNumber: String) -> String {
+        var formattedPhoneNumber = ""
+        var digits = 0
+        for i in 0..<phoneNumber.count {
+            if digits == 3 {
+                formattedPhoneNumber += " "
+                digits = 0
+            }
+            formattedPhoneNumber += String(phoneNumber[phoneNumber.index(phoneNumber.startIndex, offsetBy: i)])
+            digits += 1
+        }
+        
+        return formattedPhoneNumber
+    }
+     */
 }

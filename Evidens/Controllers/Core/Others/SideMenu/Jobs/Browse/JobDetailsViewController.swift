@@ -8,6 +8,7 @@
 import UIKit
 
 private let jobHeaderCellReuseIdentifier = "JobHeaderCellReuseIdentifier"
+private let sectionHeaderReuseIdentifier = "SectionHeaderReuseIdentifier"
 private let jobDescriptionCellReuseIdentifier = "JobDescriptionCellReuseIdentifier"
 private let jobHiringTeamCellReuseIdentifier = "JobHiringTeamCellReuseIdentifier"
 
@@ -42,8 +43,8 @@ class JobDetailsViewController: UIViewController {
         button.configuration?.baseBackgroundColor = .systemBackground
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.background.strokeColor = .secondaryLabel
-        button.configuration?.background.strokeWidth = 1
+        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeWidth = 0.4
         
         button.addTarget(self, action: #selector(handleSaveJob), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -54,8 +55,13 @@ class JobDetailsViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemBackground
-        view.layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        view.layer.borderWidth = 1
+        return view
+    }()
+    
+    private let bottomSeparatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
         return view
     }()
     
@@ -83,11 +89,12 @@ class JobDetailsViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.register(JobDetailsHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: sectionHeaderReuseIdentifier)
         collectionView.register(JobHeaderCell.self, forCellWithReuseIdentifier: jobHeaderCellReuseIdentifier)
         collectionView.register(JobDescriptionCell.self, forCellWithReuseIdentifier: jobDescriptionCellReuseIdentifier)
         collectionView.register(JobHiringTeamCell.self, forCellWithReuseIdentifier: jobHiringTeamCellReuseIdentifier)
         
-        view.addSubviews(collectionView, bottomView, saveButton, applyButton)
+        view.addSubviews(collectionView, bottomView, bottomSeparatorView, saveButton, applyButton)
         NSLayoutConstraint.activate([
             bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             bottomView.heightAnchor.constraint(equalToConstant: 80),
@@ -98,6 +105,11 @@ class JobDetailsViewController: UIViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: bottomView.topAnchor),
+            
+            bottomSeparatorView.topAnchor.constraint(equalTo: bottomView.topAnchor),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor),
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             saveButton.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: 5),
@@ -128,18 +140,32 @@ class JobDetailsViewController: UIViewController {
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
-        let section = NSCollectionLayoutSection(group: group)
-      
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 0
-        config.scrollDirection = .horizontal
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
+            
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: sectionNumber == 2 ? .absolute(70) : .estimated(200))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: sectionNumber == 2 ? .absolute(70) : .estimated(200)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            
+            if sectionNumber != 0 {
+                section.boundarySupplementaryItems = [header]
+            }
+            
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6)
+            let config = UICollectionViewCompositionalLayoutConfiguration()
+            config.interSectionSpacing = 0
+            config.scrollDirection = .horizontal
+            return section
+        }
         
-        return UICollectionViewCompositionalLayout(section: section)
+        return layout
     }
     
     private func configureNavigationBar() {
+        navigationController?.navigationBar.prefersLargeTitles = true
         title = "Job"
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
     }
@@ -190,16 +216,20 @@ class JobDetailsViewController: UIViewController {
 }
 
 extension JobDetailsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 3
     }
     
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.row == 0 {
+        if indexPath.section == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobHeaderCellReuseIdentifier, for: indexPath) as! JobHeaderCell
             cell.configure(withJob: JobViewModel(job: job), withCompany: company)
             return cell
-        } else if indexPath.row == 1 {
+        } else if indexPath.section == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: jobDescriptionCellReuseIdentifier, for: indexPath) as! JobDescriptionCell
             cell.viewModel = JobViewModel(job: job)
             return cell
@@ -209,6 +239,17 @@ extension JobDetailsViewController: UICollectionViewDelegateFlowLayout, UICollec
             cell.delegate = self
             return cell
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sectionHeaderReuseIdentifier, for: indexPath) as! JobDetailsHeader
+        if indexPath.section == 1 {
+            header.configure(withTitle: "Job Description")
+        } else {
+            header.configure(withTitle: "Hiring Team")
+        }
+        
+        return header
     }
 }
 
