@@ -20,21 +20,14 @@ class UploadPostViewController: UIViewController {
     
     private var user: User
     private var group: Group?
-    
+    private var collectionView: UICollectionView!
     private var viewModel = UploadPostViewModel()
-    
     private var postPrivacyMenuLauncher = PostPrivacyMenuLauncher()
-    
     private var postImages: [UIImage] = []
-    
     private var selectedProfessions = [Profession]()
-    
     private var privacyType: Post.PrivacyOptions = .all
-    
     var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
-    
     private let progressIndicator = JGProgressHUD()
-    
     var newHeight: CGFloat = 0.0
     
     private let topSeparatorView: UIView = {
@@ -170,6 +163,7 @@ class UploadPostViewController: UIViewController {
         super.viewDidAppear(true)
         scrollView.resizeScrollViewContentSize()
         postTextView.becomeFirstResponder()
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PostReferenceWebLink"), object: nil)
     }
     
     init(user: User, group: Group? = nil) {
@@ -526,8 +520,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         postTextView.becomeFirstResponder()
         if results.count == 0 { return }
-        
-        
+
         let group = DispatchGroup()
         var order = [String]()
         var asyncDict = [String:UIImage]()
@@ -551,6 +544,8 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         }
         
         group.notify(queue: .main) {
+            
+
             if order.count == 1 {
                 self.addSinglePostImageToView(image: asyncDict[order[0]]!)
                 
@@ -619,6 +614,23 @@ extension UploadPostViewController: ProfessionListViewControllerDelegate {
 }
 
 extension UploadPostViewController: PostAssistantToolbarDelegate {
+    func didTapQuoteButton() {
+        postTextView.resignFirstResponder()
+        let controller = ReferencesViewController()
+        
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.modalPresentationStyle = .fullScreen
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReferenceWebLink"), object: nil)
+        
+        present(navVC, animated: true)
+    }
+    
+    @objc func didReceiveNotification(notification: NSNotification) {
+        print(notification)
+        
+    }
+    
     func didTapAddMediaButton() {
         postTextView.resignFirstResponder()
         

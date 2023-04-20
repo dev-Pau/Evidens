@@ -18,23 +18,15 @@ class HomeFourImageTextCell: UICollectionViewCell {
     }
     
     private var user: User?
-    
     weak var reviewDelegate: ReviewContentGroupDelegate?
-    
     weak var delegate: HomeCellDelegate?
-    
     private let cellContentView = UIView()
-    
     private var userPostView = MEUserPostView()
-    
-    var postTextLabel = MEPostLabel()
-    
+    var postTextView = MEPostTextView()
+    let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
-    
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
-    
-    private var appended: [Int] = []
-    
+
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -105,7 +97,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         userPostView.delegate = self
         actionButtonsView.delegate = self
         reviewActionButtonsView.delegate = self
-        cellContentView.addSubviews(userPostView, postTextLabel, postImageView, postTwoImageView, postThreeImageView, postFourImageView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, postThreeImageView, postFourImageView, actionButtonsView)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -113,11 +105,11 @@ class HomeFourImageTextCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
-            postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
+            postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 200),
             postImageView.widthAnchor.constraint(equalToConstant: frame.width),
@@ -156,13 +148,26 @@ class HomeFourImageTextCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
-        postTextLabel.text = viewModel.postText
+        postTextView.text = viewModel.postText
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
         actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+        
+        if postTextView.isTextTruncated {
+            addSubview(showMoreView)
+            NSLayoutConstraint.activate([
+                showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
+                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
+                showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+                showMoreView.widthAnchor.constraint(equalToConstant: 130),
+            ])
+            
+        } else {
+            showMoreView.isHidden = true
+        }
        
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
@@ -203,7 +208,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         userPostView.dotsImageButton.isHidden = true
         addSubviews(reviewActionButtonsView)
         NSLayoutConstraint.activate([
-            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)

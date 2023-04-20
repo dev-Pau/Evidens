@@ -18,26 +18,14 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     }
     
     private var user: User?
-    
-    
     weak var reviewDelegate: ReviewContentGroupDelegate?
-    
-    
-    
-    
     weak var delegate: HomeCellDelegate?
-    
     private let cellContentView = UIView()
-    
     private var userPostView = MEUserPostView()
-    
-   var postTextLabel = MEPostLabel()
-    
+    var postTextView = MEPostTextView()
+    let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
-    
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
-    
-    private var appended: [Int] = []
     
     private lazy var postImageView: UIImageView = {
         let iv = UIImageView()
@@ -87,7 +75,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(userPostView, postTextLabel, postImageView, postTwoImageView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, actionButtonsView)
         
         let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 350)
         postImageViewHeightConstraint.priority = UILayoutPriority(999)
@@ -99,17 +87,17 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
-            postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
+            postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             //postImageView.heightAnchor.constraint(equalToConstant: 350),
             postImageViewHeightConstraint,
             postImageView.widthAnchor.constraint(equalToConstant: frame.width / 2 - 4),
             
-            postTwoImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            postTwoImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postTwoImageView.leadingAnchor.constraint(equalTo: postImageView.trailingAnchor, constant: 2),
             postTwoImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             postTwoImageView.bottomAnchor.constraint(equalTo: postImageView.bottomAnchor),
@@ -150,7 +138,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " ·• Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
-        postTextLabel.text = viewModel.postText
+        postTextView.text = viewModel.postText
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
         actionButtonsView.commentLabel.text = viewModel.commentsLabelText
@@ -170,6 +158,18 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             }
         }
          */
+        if postTextView.isTextTruncated {
+            addSubview(showMoreView)
+            NSLayoutConstraint.activate([
+                showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
+                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
+                showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+                showMoreView.widthAnchor.constraint(equalToConstant: 130),
+            ])
+            
+        } else {
+            showMoreView.isHidden = true
+        }
         
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])

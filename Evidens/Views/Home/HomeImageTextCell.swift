@@ -18,19 +18,14 @@ class HomeImageTextCell: UICollectionViewCell {
     }
     
     var user: User?
-    
     weak var reviewDelegate: ReviewContentGroupDelegate?
-    
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
-
     private let cellContentView = UIView()
-    
     weak var delegate: HomeCellDelegate?
-    
     var userPostView = MEUserPostView()
     
-    var postTextLabel = MEPostLabel()
-    
+    var postTextView = MEPostTextView()
+    let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
     
     lazy var postImageView: UIImageView = {
@@ -70,7 +65,7 @@ class HomeImageTextCell: UICollectionViewCell {
         ])
          
 
-        cellContentView.addSubviews(userPostView, postTextLabel, postImageView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextView, postImageView, actionButtonsView)
         
 
         
@@ -81,11 +76,11 @@ class HomeImageTextCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             userPostView.heightAnchor.constraint(equalToConstant: 67),
             
-            postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
-            postTextLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postTextLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            
-            postImageView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
+            postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+
+            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             postImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 300),
@@ -110,7 +105,7 @@ class HomeImageTextCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
-        postTextLabel.text = viewModel.postText
+        postTextView.text = viewModel.postText
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
         actionButtonsView.commentLabel.text = viewModel.commentsLabelText
@@ -123,6 +118,19 @@ class HomeImageTextCell: UICollectionViewCell {
         postImageViewHeightConstraint.isActive = true
         
         postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
+        
+        if postTextView.isTextTruncated {
+            addSubview(showMoreView)
+            NSLayoutConstraint.activate([
+                showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
+                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
+                showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
+                showMoreView.widthAnchor.constraint(equalToConstant: 130),
+            ])
+            
+        } else {
+            showMoreView.isHidden = true
+        }
     }
     
     func set(user: User) {
@@ -173,7 +181,7 @@ class HomeImageTextCell: UICollectionViewCell {
         userPostView.dotsImageButton.isHidden = true
         addSubviews(reviewActionButtonsView)
         NSLayoutConstraint.activate([
-            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            reviewActionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             reviewActionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             reviewActionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             reviewActionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)

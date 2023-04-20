@@ -134,7 +134,7 @@ class CommentCaseViewController: UICollectionViewController {
     }
     
     private func configureUI() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(handleDismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         
         if clinicalCase.privacyOptions == .nonVisible {
             commentInputView.profileImageView.image = UIImage(named: "user.profile.privacy")

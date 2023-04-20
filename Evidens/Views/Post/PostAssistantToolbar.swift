@@ -11,6 +11,7 @@ private let postDisciplinesCellReuseIdentifier = "PostDisciplinesCellReuseIdenti
 
 protocol PostAssistantToolbarDelegate: AnyObject {
     func didTapAddMediaButton()
+    func didTapQuoteButton()
     func didTapConfigureDisciplines()
 }
 
@@ -25,7 +26,7 @@ class PostAssistantToolbar: UIToolbar {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground).scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15))
+        button.configuration?.image = UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.systemBackground).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddMediaButton), for: .touchUpInside)
@@ -40,8 +41,17 @@ class PostAssistantToolbar: UIToolbar {
         button.configuration?.image = UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleAddMediaButton), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleAddQuote), for: .touchUpInside)
         return button
+    }()
+    
+    private let addReferenceLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Include Reference"
+        label.textColor = primaryColor
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        return label
     }()
     
     private let separatorView: UIView = {
@@ -131,6 +141,10 @@ class PostAssistantToolbar: UIToolbar {
     
     @objc func handleAddMediaButton() {
         toolbarDelegate?.didTapAddMediaButton()
+    }
+    
+    @objc func handleAddQuote() {
+        toolbarDelegate?.didTapQuoteButton()
     }
 }
 
