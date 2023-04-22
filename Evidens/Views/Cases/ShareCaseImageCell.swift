@@ -45,11 +45,12 @@ class ShareCaseImageCell: UICollectionViewCell {
     
     lazy var deleteImageButton: UIButton = {
         let button = UIButton()
-        button.configuration = .plain()
+        button.configuration = .filled()
+
+        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 13, height: 13))
         button.configuration?.cornerStyle = .capsule
-        button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.7)
-        button.configuration?.baseBackgroundColor = .white
-        button.configuration?.image = UIImage(systemName: "xmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
+        //button.configuration?.tintc
+        button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.8)
         button.addTarget(self, action: #selector(handleDelete), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -67,8 +68,6 @@ class ShareCaseImageCell: UICollectionViewCell {
     private func configure() {
         layer.cornerRadius = 10
         
-        /*
-        print("width is \(frame.width)")
         addSubviews(cellImage, pictureHintImageView)
         caseImageWith = cellImage.widthAnchor.constraint(equalToConstant: frame.width)
         caseImageWith.isActive = true
@@ -90,19 +89,24 @@ class ShareCaseImageCell: UICollectionViewCell {
             //deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
             //deleteImageButton.widthAnchor.constraint(equalToConstant: 26)
         ])
-        */
+        /*
+        addSubview(cellImage)
+        
+        caseImageWith = cellImage.widthAnchor.constraint(equalToConstant: frame.width)
+        caseImageWith.isActive = true
         
         NSLayoutConstraint.activate([
             cellImage.topAnchor.constraint(equalTo: topAnchor),
             cellImage.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellImage.trailingAnchor.constraint(equalTo: trailingAnchor),
+            //cellImage.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellImage.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 3),
-            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
-            deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
-            deleteImageButton.widthAnchor.constraint(equalToConstant: 26)
+            //deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 3),
+            //deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
+            //deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
+            //deleteImageButton.widthAnchor.constraint(equalToConstant: 26)
         ])
+         */
          
     }
     

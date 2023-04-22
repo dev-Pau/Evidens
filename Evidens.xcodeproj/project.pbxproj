@@ -192,6 +192,7 @@
 		5F91F11929BF380B007BB567 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11829BF380B007BB567 /* SearchService.swift */; };
 		5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11A29BF8253007BB567 /* NewViewModel.swift */; };
 		5F91F11D29C05820007BB567 /* NewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11C29C05820007BB567 /* NewService.swift */; };
+		5F931CAF29F4221B0009E508 /* AddReferenceHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */; };
 		5F93E7B029DF0C76001E146C /* PostAssistantToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
 		5F94477929151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */; };
@@ -332,6 +333,7 @@
 		5FA276C829F11A4E005A339D /* AddWebLinkReferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA276C729F11A4E005A339D /* AddWebLinkReferenceViewController.swift */; };
 		5FA276CA29F12C3B005A339D /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA276C929F12C3B005A339D /* WebViewController.swift */; };
 		5FA276CC29F13EBA005A339D /* AddAuthorReferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA276CB29F13EBA005A339D /* AddAuthorReferenceViewController.swift */; };
+		5FA2770729F27623005A339D /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2770629F27623005A339D /* Reference.swift */; };
 		5FA2EAED28FD58E00054BA5B /* SkeletonNotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAEC28FD58E00054BA5B /* SkeletonNotificationCell.swift */; };
 		5FA2EAEF28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */; };
 		5FA2FB2928DC2D7100B37424 /* EmptyBookmarkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */; };
@@ -641,6 +643,7 @@
 		5F91F11829BF380B007BB567 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		5F91F11A29BF8253007BB567 /* NewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewModel.swift; sourceTree = "<group>"; };
 		5F91F11C29C05820007BB567 /* NewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewService.swift; sourceTree = "<group>"; };
+		5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReferenceHeader.swift; sourceTree = "<group>"; };
 		5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAssistantToolbar.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
 		5F94477829151BF0003B3DA0 /* SekeletonCaseBookmarksImageTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SekeletonCaseBookmarksImageTextCell.swift; sourceTree = "<group>"; };
@@ -781,6 +784,7 @@
 		5FA276C729F11A4E005A339D /* AddWebLinkReferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWebLinkReferenceViewController.swift; sourceTree = "<group>"; };
 		5FA276C929F12C3B005A339D /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		5FA276CB29F13EBA005A339D /* AddAuthorReferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAuthorReferenceViewController.swift; sourceTree = "<group>"; };
+		5FA2770629F27623005A339D /* Reference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
 		5FA2EAEC28FD58E00054BA5B /* SkeletonNotificationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonNotificationCell.swift; sourceTree = "<group>"; };
 		5FA2EAEE28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonFollowersFollowingCell.swift; sourceTree = "<group>"; };
 		5FA2FB2828DC2D7100B37424 /* EmptyBookmarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyBookmarkCell.swift; sourceTree = "<group>"; };
@@ -1244,6 +1248,7 @@
 				5F6607F42854EB4400FCF895 /* PostMenuCell */,
 				5F9F08A328630F630069FD2C /* PostPrivacyCell */,
 				5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */,
+				5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -2234,6 +2239,14 @@
 			path = Bookmarks;
 			sourceTree = "<group>";
 		};
+		5FA2770529F27607005A339D /* Reference */ = {
+			isa = PBXGroup;
+			children = (
+				5FA2770629F27623005A339D /* Reference.swift */,
+			);
+			path = Reference;
+			sourceTree = "<group>";
+		};
 		5FA32DC528E1E83E00D83759 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
@@ -2597,6 +2610,7 @@
 		5FC4D87327070334006B7A34 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5FA2770529F27607005A339D /* Reference */,
 				5FA3F4E029EC2D7700CE89E3 /* MenuLauncher */,
 				5F9D7D5729E7EFE5002EA21C /* Report */,
 				5FA758D329D89D7B00F1DEA4 /* Profile */,
@@ -3100,6 +3114,7 @@
 				5F71C18428CE359100A16571 /* MainViewController.swift in Sources */,
 				5F9F08A0286306440069FD2C /* PostPrivacyMenuLauncher.swift in Sources */,
 				5FA2FB2928DC2D7100B37424 /* EmptyBookmarkCell.swift in Sources */,
+				5F931CAF29F4221B0009E508 /* AddReferenceHeader.swift in Sources */,
 				5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */,
 				5F91C15828AFB951006F1BAD /* UserCommentsViewController.swift in Sources */,
 				5F71C17828CCF7F600A16571 /* SideMenuViewController.swift in Sources */,
@@ -3362,6 +3377,7 @@
 				5F05207427C639CD001E7D8F /* Chat.swift in Sources */,
 				5F94478A291D4645003B3DA0 /* GroupCell.swift in Sources */,
 				5F85218328A163430033AF67 /* AboutSectionViewController.swift in Sources */,
+				5FA2770729F27623005A339D /* Reference.swift in Sources */,
 				5FB2903D288FBCA2002FBAE1 /* MECaseUpdateView.swift in Sources */,
 				5FB29035288D2B81002FBAE1 /* PagingSectionFooterView.swift in Sources */,
 				5F9A9FA42899433A00A25152 /* MERegistrationDocumentView.swift in Sources */,

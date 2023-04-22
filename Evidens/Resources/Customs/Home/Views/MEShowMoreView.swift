@@ -13,10 +13,10 @@ class MEShowMoreView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = " MORE"
-        label.textColor = primaryColor
+        label.textColor = .label
         label.backgroundColor = .systemBackground
         //label.backgroundColor = .systemBackground
-        label.font = .systemFont(ofSize: 13, weight: .bold)
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
         return label
     }()
     

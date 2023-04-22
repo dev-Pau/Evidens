@@ -67,8 +67,8 @@ class AddAuthorReferenceViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 18, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Add Web Link", attributes: container)
-        //button.addTarget(self, action: #selector(handleContinueReference), for: .touchUpInside)
+        button.configuration?.attributedTitle = AttributedString("Add Author Citation", attributes: container)
+        button.addTarget(self, action: #selector(handleContinueReference), for: .touchUpInside)
         button.isEnabled = false
         return button
     }()
@@ -131,6 +131,12 @@ class AddAuthorReferenceViewController: UIViewController {
         referenceTitleLabel.text = "Citation with Authors"
         referenceDescriptionLabel.text = "Enhance your content with credible sources! Add proper citations with authors to give credit where it's due and strengthen the reliability of your post. Including reputable authors in your references showcases your commitment to accurate and trustworthy information, while upholding academic integrity and professionalism. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications."
         authorCitationTextView.delegate = self
+    }
+    
+    @objc func handleContinueReference() {
+        guard let text = authorCitationTextView.text, !text.isEmpty else { return }
+        let reference = Reference(option: .reference, referenceText: text)
+        NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
     }
 
     /*

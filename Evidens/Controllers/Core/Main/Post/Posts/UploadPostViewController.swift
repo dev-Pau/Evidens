@@ -13,6 +13,8 @@ import SDWebImage
 import JGProgressHUD
 
 private let professionPostCellReuseIdentifier = "ProfessionCellReuseIdentifier"
+private let shareCaseImageCellReuseIdentifier = "SharePostImageCellReuseIdentifier"
+private let referenceHeaderReuseIdentifier = "ReferenceHeaderReuseIdentifier"
 
 class UploadPostViewController: UIViewController {
     
@@ -20,6 +22,7 @@ class UploadPostViewController: UIViewController {
     
     private var user: User
     private var group: Group?
+    private var reference: Reference?
     private var collectionView: UICollectionView!
     private var viewModel = UploadPostViewModel()
     private var postPrivacyMenuLauncher = PostPrivacyMenuLauncher()
@@ -94,6 +97,9 @@ class UploadPostViewController: UIViewController {
         tv.delegate = self
         tv.isScrollEnabled = false
         tv.placeHolderShouldCenter = false
+        tv.contentInset = UIEdgeInsets.zero
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = .zero
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
@@ -159,11 +165,16 @@ class UploadPostViewController: UIViewController {
         
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollView.resizeScrollViewContentSize()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         scrollView.resizeScrollViewContentSize()
         postTextView.becomeFirstResponder()
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PostReferenceWebLink"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PostReference"), object: nil)
     }
     
     init(user: User, group: Group? = nil) {
@@ -233,11 +244,17 @@ class UploadPostViewController: UIViewController {
             topSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             topSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            postTextView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+            postTextView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ])
         
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(ShareCaseImageCell.self, forCellWithReuseIdentifier: shareCaseImageCellReuseIdentifier)
+        collectionView.register(AddReferenceHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: referenceHeaderReuseIdentifier)
         profileImageView.layer.cornerRadius = 50/2
         
         if let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" {
@@ -247,6 +264,24 @@ class UploadPostViewController: UIViewController {
         postAssistantToolbar.toolbarDelegate = self
         fullName.text = user.firstName! + " " + user.lastName!
         updateForm()
+    }
+    
+    private func createLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+           
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(200)), subitems: [item])
+            
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)), elementKind: ElementKind.sectionHeader, alignment: .top)
+                                                                     
+            let section = NSCollectionLayoutSection(group: group)
+            if self.reference != nil { section.boundarySupplementaryItems = [header] }
+            section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+            section.interGroupSpacing = 10
+            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
+            return section
+        }
+        return layout
     }
     
     func configureKeyboard() {
@@ -301,6 +336,19 @@ class UploadPostViewController: UIViewController {
        
         //scrollView.resizeScrollViewContentSize()
         textViewDidChange(postTextView)
+    }
+    
+    func addContentCollectionView() {
+        scrollView.addSubview(collectionView)
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: 250)
+        ])
+        
+        collectionView.reloadData()
+        scrollView.resizeScrollViewContentSize()
     }
     
     
@@ -494,6 +542,25 @@ class UploadPostViewController: UIViewController {
     }
 }
 
+extension UploadPostViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return postImages.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
+        cell.caseImage = postImages[indexPath.row]
+        //cell.delegate = self
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: referenceHeaderReuseIdentifier, for: indexPath) as! AddReferenceHeader
+        header.reference = reference
+        return header
+    }
+}
+
 //MARK: - UITextViewDelegate
 
 extension UploadPostViewController: UITextViewDelegate {
@@ -554,7 +621,9 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
                     images.append(asyncDict[id]!)
                 }
                 self.postImages = images
-                self.addPostImagesToView(images: self.postImages)
+                //self.addPostImagesToView(images: self.postImages)
+                self.addContentCollectionView()
+                
             }
             self.progressIndicator.dismiss(animated: true)
         }
@@ -615,20 +684,28 @@ extension UploadPostViewController: ProfessionListViewControllerDelegate {
 
 extension UploadPostViewController: PostAssistantToolbarDelegate {
     func didTapQuoteButton() {
+        #warning("If reference is not nil. means user is editing, check type and present the controller.")
         postTextView.resignFirstResponder()
         let controller = ReferencesViewController()
         
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReferenceWebLink"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
         
         present(navVC, animated: true)
     }
     
     @objc func didReceiveNotification(notification: NSNotification) {
-        print(notification)
-        
+        #warning("add the thing as a header to the collectionView")
+        if let reference = notification.userInfo, let selectedReference = reference["reference"] as? Reference {
+            self.reference = selectedReference
+            if postImages.isEmpty {
+                addContentCollectionView()
+            } else {
+                collectionView.reloadData()
+            }
+        }
     }
     
     func didTapAddMediaButton() {

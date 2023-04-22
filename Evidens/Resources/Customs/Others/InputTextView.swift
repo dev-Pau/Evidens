@@ -25,10 +25,10 @@ class InputTextView: UITextView {
     var placeHolderShouldCenter = true {
         didSet {
             if placeHolderShouldCenter {
-                placeholderLabel.anchor(left: leftAnchor, right: rightAnchor, paddingLeft: 8)
+                placeholderLabel.anchor(left: leftAnchor, right: rightAnchor)
                 placeholderLabel.centerY(inView: self)
             } else {
-                placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 7, paddingLeft: 5)
+                placeholderLabel.anchor(top: topAnchor, left: leftAnchor)
             }
         }
     }

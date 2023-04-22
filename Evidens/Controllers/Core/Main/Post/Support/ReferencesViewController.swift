@@ -8,7 +8,7 @@
 import UIKit
 
 class ReferencesViewController: UIViewController {
-    
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -74,8 +74,6 @@ class ReferencesViewController: UIViewController {
         button.addTarget(self, action: #selector(handleAddCitation), for: .touchUpInside)
         return button
     }()
-    
-
     
     override func viewDidLoad() {
         configureNavigationBar()

@@ -192,11 +192,11 @@ class AddWebLinkReferenceViewController: UIViewController {
         
         if let url = URL(string: text) {
             if UIApplication.shared.canOpenURL(url) {
-                
-                NotificationCenter.default.post(name: NSNotification.Name("PostReferenceWebLink"), object: nil, userInfo: ["link": text])
+                let reference = Reference(option: .link, referenceText: text)
+                NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
                 
             } else {
-                let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect. Please double-check the URL and try again.", image: "exclamationmark.circle.fill", popUpType: .destructive)
+                let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect", image: "exclamationmark.circle.fill", popUpType: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
             }
         } else {
