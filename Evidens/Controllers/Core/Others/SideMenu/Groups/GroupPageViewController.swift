@@ -62,6 +62,8 @@ class GroupPageViewController: UIViewController, UINavigationControllerDelegate 
     private var cases = [Case]()
     private var casesLastTimestamp: Int64?
     
+    private let referenceMenuLauncher = MEReferenceMenuLauncher()
+    
     private var users = [User]()
     
     private var loaded: Bool = false
@@ -1321,7 +1323,9 @@ class StretchyGroupHeaderLayout: UICollectionViewFlowLayout {
 
 extension GroupPageViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        #warning("SHOW REFERENCE MENU")
+        referenceMenuLauncher.reference = reference
+        referenceMenuLauncher.delegate = self
+        referenceMenuLauncher.showImageSettings(in: view)
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor: User) {
@@ -2359,5 +2363,31 @@ extension GroupPageViewController: MEStretchyHeaderDelegate {
         self.present(controller, animated: true)
     }
 }
+
+extension GroupPageViewController: MEReferenceMenuLauncherDelegate {
+    func didTapReference(reference: Reference) {
+        switch reference.option {
+        case .link:
+            if let url = URL(string: reference.referenceText) {
+                if UIApplication.shared.canOpenURL(url) {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        case .reference:
+            let wordToSearch = reference.referenceText
+            if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+}
+
+
 
 

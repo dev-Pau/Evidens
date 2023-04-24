@@ -23,7 +23,7 @@ class ReferencesViewController: UIViewController {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: "quote.bubble")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: "note")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     

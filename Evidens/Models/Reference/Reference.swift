@@ -30,9 +30,9 @@ extension Reference {
         var image: UIImage {
             switch self {
             case .link:
-                return (UIImage(systemName: "globe", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+                return (UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
             case .reference:
-                return (UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+                return (UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
             }
         }
         

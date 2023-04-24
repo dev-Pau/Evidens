@@ -23,6 +23,8 @@ class HomeFourImageTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     private var userPostView = MEUserPostView()
     var postTextView = MEPostTextView()
+    private let postReferenceView = MEReferenceView()
+    private var referenceHeightAnchor: NSLayoutConstraint!
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
@@ -95,9 +97,11 @@ class HomeFourImageTextCell: UICollectionViewCell {
         ])
         
         userPostView.delegate = self
+        postReferenceView.delegate = self
         actionButtonsView.delegate = self
         reviewActionButtonsView.delegate = self
-        cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, postThreeImageView, postFourImageView, actionButtonsView)
+        
+        cellContentView.addSubviews(userPostView, postTextView, postReferenceView, postImageView, postTwoImageView, postThreeImageView, postFourImageView, actionButtonsView)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -109,7 +113,11 @@ class HomeFourImageTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
+            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            
+            postImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 200),
             postImageView.widthAnchor.constraint(equalToConstant: frame.width),
@@ -173,6 +181,16 @@ class HomeFourImageTextCell: UICollectionViewCell {
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
         postThreeImageView.sd_setImage(with: viewModel.postImageUrl[2])
         postFourImageView.sd_setImage(with: viewModel.postImageUrl[3])
+        
+        if let reference = viewModel.postReference {
+            postReferenceView.isHidden = false
+            referenceHeightAnchor.isActive = false
+            referenceHeightAnchor.constant = 26
+            referenceHeightAnchor.isActive = true
+            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
+        } else {
+            postReferenceView.isHidden = true
+        }
         
     }
     
@@ -280,6 +298,13 @@ extension HomeFourImageTextCell: MEPostInfoViewDelegate {
     }
 }
 
+
+extension HomeFourImageTextCell: MEReferenceViewDelegate {
+    func didTapShowReference() {
+        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
+        delegate?.cell(self, wantsToSeeReference: reference)
+    }
+}
 
 extension HomeFourImageTextCell: MEPostActionButtonsDelegate {
     func handleShowLikes() {

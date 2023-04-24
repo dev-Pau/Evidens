@@ -23,7 +23,8 @@ class HomeImageTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
     var userPostView = MEUserPostView()
-    
+    private let postReferenceView = MEReferenceView()
+    private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = MEPostTextView()
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
@@ -43,16 +44,13 @@ class HomeImageTextCell: UICollectionViewCell {
     
     override init (frame: CGRect) {
         super.init(frame: frame)
-        
-        
-        
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
-        reviewActionButtonsView.delegate = self
         backgroundColor = .systemBackground
         
         userPostView.delegate = self
-      
+        postReferenceView.delegate = self
         actionButtonsView.delegate = self
+        reviewActionButtonsView.delegate = self
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -63,14 +61,12 @@ class HomeImageTextCell: UICollectionViewCell {
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-         
-
-        cellContentView.addSubviews(userPostView, postTextView, postImageView, actionButtonsView)
         
+        referenceHeightAnchor = postReferenceView.heightAnchor.constraint(equalToConstant: 0)
+        referenceHeightAnchor.isActive = true
 
-        
+        cellContentView.addSubviews(userPostView, postReferenceView, postTextView, postImageView, actionButtonsView)
         NSLayoutConstraint.activate([
-          
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
@@ -80,7 +76,11 @@ class HomeImageTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
 
-            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
+            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            
+            postImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
             postImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             postImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 300),
@@ -102,7 +102,7 @@ class HomeImageTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         
 
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
+        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + viewModel.evidenceString + " • Edited • " : viewModel.timestampString! + viewModel.evidenceString + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
         postTextView.text = viewModel.postText
@@ -130,6 +130,16 @@ class HomeImageTextCell: UICollectionViewCell {
             
         } else {
             showMoreView.isHidden = true
+        }
+        
+        if let reference = viewModel.postReference {
+            postReferenceView.isHidden = false
+            referenceHeightAnchor.isActive = false
+            referenceHeightAnchor.constant = 26
+            referenceHeightAnchor.isActive = true
+            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
+        } else {
+            postReferenceView.isHidden = true
         }
     }
     
@@ -220,6 +230,12 @@ extension HomeImageTextCell: MEUserPostViewDelegate {
     }
 }
 
+extension HomeImageTextCell: MEReferenceViewDelegate {
+    func didTapShowReference() {
+        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
+        delegate?.cell(self, wantsToSeeReference: reference)
+    }
+}
 
 extension HomeImageTextCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {

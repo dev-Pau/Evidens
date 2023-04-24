@@ -35,9 +35,8 @@ protocol DetailsPostViewControllerDelegate: AnyObject {
 }
 
 class DetailsPostViewController: UICollectionViewController, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
-    
     private var zoomTransitioning = ZoomTransitioning()
-
+    private let referenceMenuLauncher = MEReferenceMenuLauncher()
     var selectedImage: UIImageView!
     
     weak var delegate: DetailsPostViewControllerDelegate?
@@ -281,7 +280,9 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 
 extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        #warning("SHOW MENU")
+        referenceMenuLauncher.reference = reference
+        referenceMenuLauncher.delegate = self
+        referenceMenuLauncher.showImageSettings(in: view)
     }
     
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
@@ -868,5 +869,29 @@ extension DetailsPostViewController: MainSearchHeaderDelegate {
         present(navVC, animated: true)
         displayState = .others
         //navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension DetailsPostViewController: MEReferenceMenuLauncherDelegate {
+    func didTapReference(reference: Reference) {
+        switch reference.option {
+        case .link:
+            if let url = URL(string: reference.referenceText) {
+                if UIApplication.shared.canOpenURL(url) {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        case .reference:
+            let wordToSearch = reference.referenceText
+            if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        }
     }
 }

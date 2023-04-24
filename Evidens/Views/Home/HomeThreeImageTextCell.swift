@@ -24,6 +24,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
     private var userPostView = MEUserPostView()
     var postTextView = MEPostTextView()
     let showMoreView = MEShowMoreView()
+    private let postReferenceView = MEReferenceView()
+    private var referenceHeightAnchor: NSLayoutConstraint!
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
@@ -73,8 +75,9 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         
         userPostView.delegate = self
-        reviewActionButtonsView.delegate = self
+        postReferenceView.delegate = self
         actionButtonsView.delegate = self
+        reviewActionButtonsView.delegate = self
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -86,13 +89,16 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, postThreeImageView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextView, postReferenceView, postImageView, postTwoImageView, postThreeImageView, actionButtonsView)
         
         let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 200)
         postImageViewHeightConstraint.priority = UILayoutPriority(999)
         
         let postTwoImageViewHeightConstraint = postTwoImageView.heightAnchor.constraint(equalToConstant: 150)
         postTwoImageViewHeightConstraint.priority = UILayoutPriority(999)
+        
+        referenceHeightAnchor = postReferenceView.heightAnchor.constraint(equalToConstant: 0)
+        referenceHeightAnchor.isActive = true
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -104,7 +110,11 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
+            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            
+            postImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postImageViewHeightConstraint,
             postImageView.widthAnchor.constraint(equalToConstant: frame.width),
@@ -146,19 +156,6 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
-        /*
-        viewModel.post.postImageUrl.forEach { url in
-            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
-
-            appended.append(Int(currentURL[0..<1])!)
-
-            if appended.count == viewModel.postImageUrl.count {
-              
-              
-                appended.removeAll()
-            }
-        }
-         */
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
             NSLayoutConstraint.activate([
@@ -175,6 +172,16 @@ class HomeThreeImageTextCell: UICollectionViewCell {
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
         postThreeImageView.sd_setImage(with: viewModel.postImageUrl[2])
+        
+        if let reference = viewModel.postReference {
+            postReferenceView.isHidden = false
+            referenceHeightAnchor.isActive = false
+            referenceHeightAnchor.constant = 26
+            referenceHeightAnchor.isActive = true
+            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
+        } else {
+            postReferenceView.isHidden = true
+        }
        
     }
     
@@ -273,6 +280,14 @@ extension HomeThreeImageTextCell: MEUserPostViewDelegate {
         delegate?.cell(self, wantsToShowProfileFor: user)
     }
 }
+
+extension HomeThreeImageTextCell: MEReferenceViewDelegate {
+    func didTapShowReference() {
+        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
+        delegate?.cell(self, wantsToSeeReference: reference)
+    }
+}
+
 
 
 extension HomeThreeImageTextCell: MEPostInfoViewDelegate {

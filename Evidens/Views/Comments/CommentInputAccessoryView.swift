@@ -37,8 +37,8 @@ class CommentInputAccessoryView: UIView {
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
         tv.layer.cornerRadius = 16
-        tv.layer.borderColor = UIColor.quaternarySystemFill.cgColor
-        tv.layer.borderWidth = 1
+        tv.layer.borderColor = separatorColor!.cgColor
+        tv.layer.borderWidth = 0.4
         tv.isScrollEnabled = false
         tv.tintColor = primaryColor
         tv.placeHolderShouldCenter = true
@@ -46,16 +46,23 @@ class CommentInputAccessoryView: UIView {
         return tv
     }()
     
-    private lazy var postButton: UIButton = {
+    private let referenceImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.image = UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        return iv
+    }()
+
+    private lazy var postRoundedButton: UIButton = {
         let button = UIButton(type: .system)
-        button.configuration = .plain()
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Post", attributes: container)
+        button.configuration = .filled()
         button.isEnabled = false
-        button.configuration?.baseForegroundColor = primaryColor
-        button.configuration?.titleAlignment = .trailing
+        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.image = UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
+        button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
         button.sizeToFit()
         return button
@@ -84,24 +91,27 @@ class CommentInputAccessoryView: UIView {
         
         commentTextView.maxHeight = 170
         
-        addSubviews(profileImageView, postButton, commentTextView, topView)
+        addSubviews(profileImageView, postRoundedButton, commentTextView, referenceImageView, topView)
         
         NSLayoutConstraint.activate([
             
             commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
-            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
+            commentTextView.trailingAnchor.constraint(equalTo: postRoundedButton.leadingAnchor, constant: -10),
             commentTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
             
-            profileImageView.centerYAnchor.constraint(equalTo: commentTextView.centerYAnchor),
+            profileImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 40),
             profileImageView.widthAnchor.constraint(equalToConstant: 40),
             
-            postButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            postButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            //postButton.widthAnchor.constraint(equalToConstant: 80),
-            //postButton.heightAnchor.constraint(equalToConstant: 50),
+            postRoundedButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
+            postRoundedButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            referenceImageView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor, constant: -10),
+            referenceImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor, constant: -2),
+            referenceImageView.heightAnchor.constraint(equalToConstant: 25),
+            referenceImageView.widthAnchor.constraint(equalToConstant: 25),
             
             topView.topAnchor.constraint(equalTo: topAnchor),
             topView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -146,7 +156,7 @@ class CommentInputAccessoryView: UIView {
         commentTextView.text = String()
         commentTextView.text = nil
         commentTextView.placeholderLabel.isHidden = false
-        postButton.isEnabled = false
+        postRoundedButton.isEnabled = false
         commentTextView.invalidateIntrinsicContentSize()
     }
    
@@ -157,6 +167,6 @@ class CommentInputAccessoryView: UIView {
 
 extension CommentInputAccessoryView: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        postButton.isEnabled = commentTextView.text.isEmpty ? false : true
+        postRoundedButton.isEnabled = commentTextView.text.isEmpty ? false : true
     }
 }

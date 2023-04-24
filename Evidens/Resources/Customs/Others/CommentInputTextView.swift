@@ -11,6 +11,8 @@ class CommentInputTextView: UITextView {
     
     //MARK: - Properties
     
+    
+    
     var maxHeight: CGFloat = 0.0
     
     var placeholderText: String? {
@@ -40,7 +42,9 @@ class CommentInputTextView: UITextView {
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
         
-        addSubview(placeholderLabel)
+        addSubviews(placeholderLabel)
+        verticalScrollIndicatorInsets.right = 40
+        textContainerInset.right = 40
         
         //Observer on textDidChange to update placeholder
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChange), name: UITextView.textDidChangeNotification, object: nil)

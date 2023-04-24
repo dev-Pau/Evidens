@@ -28,6 +28,7 @@ class GroupContentManagementViewController: UIViewController, UINavigationContro
     weak var scrollDelegate: CollectionViewDidScrollDelegate?
     
     private var zoomTransitioning = ZoomTransitioning()
+    private let referenceMenuLauncher = MEReferenceMenuLauncher()
     
     private lazy var browserSegmentedButtonsView: FollowersFollowingSegmentedButtonsView = {
         let segmentedButtonsView = FollowersFollowingSegmentedButtonsView()
@@ -657,7 +658,9 @@ extension GroupContentManagementViewController: ReviewContentGroupDelegate {
 
 extension GroupContentManagementViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        #warning("SHOW REFERENCE MENU")
+        referenceMenuLauncher.reference = reference
+        referenceMenuLauncher.delegate = self
+        referenceMenuLauncher.showImageSettings(in: view)
     }
     
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
@@ -804,4 +807,34 @@ extension GroupContentManagementViewController: ZoomTransitioningDelegate {
         return selectedImage
     }
 }
+
+
+extension GroupContentManagementViewController: MEReferenceMenuLauncherDelegate {
+    func didTapReference(reference: Reference) {
+        switch reference.option {
+        case .link:
+            if let url = URL(string: reference.referenceText) {
+                if UIApplication.shared.canOpenURL(url) {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        case .reference:
+            let wordToSearch = reference.referenceText
+            if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
 

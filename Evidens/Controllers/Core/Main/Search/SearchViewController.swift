@@ -39,6 +39,7 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     private var cases = [Case]()
     private var caseUsers = [User]()
     private var zoomTransitioning = ZoomTransitioning()
+    private let referenceMenuLauncher = MEReferenceMenuLauncher()
     var selectedImage: UIImageView!
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
@@ -733,7 +734,9 @@ extension SearchViewController: CaseCellDelegate {
 
 extension SearchViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
-        #warning("SHOW REFERENCE MENU")
+        referenceMenuLauncher.reference = reference
+        referenceMenuLauncher.delegate = self
+        referenceMenuLauncher.showImageSettings(in: view)
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
@@ -1328,3 +1331,28 @@ extension SearchViewController: SearchResultsUpdatingViewControllerDelegate {
         tab.showSearchMenuLauncher(withOption: option)
     }
 }
+
+extension SearchViewController: MEReferenceMenuLauncherDelegate {
+    func didTapReference(reference: Reference) {
+        switch reference.option {
+        case .link:
+            if let url = URL(string: reference.referenceText) {
+                if UIApplication.shared.canOpenURL(url) {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        case .reference:
+            let wordToSearch = reference.referenceText
+            if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+}
+

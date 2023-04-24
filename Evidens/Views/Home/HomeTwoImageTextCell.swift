@@ -23,6 +23,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     private var userPostView = MEUserPostView()
     var postTextView = MEPostTextView()
+    private let postReferenceView = MEReferenceView()
+    private var referenceHeightAnchor: NSLayoutConstraint!
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
@@ -58,12 +60,12 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         super.init(frame: frame)
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
-        reviewActionButtonsView.delegate = self
         backgroundColor = .systemBackground
         
         userPostView.delegate = self
-    
+        postReferenceView.delegate = self
         actionButtonsView.delegate = self
+        reviewActionButtonsView.delegate = self
         
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -75,13 +77,15 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextView, postReferenceView, postImageView, postTwoImageView, actionButtonsView)
         
         let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 350)
         postImageViewHeightConstraint.priority = UILayoutPriority(999)
         
+        referenceHeightAnchor = postReferenceView.heightAnchor.constraint(equalToConstant: 0)
+        referenceHeightAnchor.isActive = true
+        
         NSLayoutConstraint.activate([
-         
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
@@ -91,13 +95,17 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
+            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            
+            postImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             //postImageView.heightAnchor.constraint(equalToConstant: 350),
             postImageViewHeightConstraint,
             postImageView.widthAnchor.constraint(equalToConstant: frame.width / 2 - 4),
             
-            postTwoImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            postTwoImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
             postTwoImageView.leadingAnchor.constraint(equalTo: postImageView.trailingAnchor, constant: 2),
             postTwoImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             postTwoImageView.bottomAnchor.constraint(equalTo: postImageView.bottomAnchor),
@@ -145,19 +153,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        
-        /*
-        viewModel.post.postImageUrl.forEach { url in
-            let currentURL = url.replacingOccurrences(of: "https://firebasestorage.googleapis.com:443/v0/b/evidens-ec6bd.appspot.com/o/post_images%2F", with: "")
-            appended.append(Int(currentURL[0..<1])!)
 
-            if appended.count == viewModel.postImageUrl.count {
-
-                
-                appended.removeAll()
-            }
-        }
-         */
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
             NSLayoutConstraint.activate([
@@ -173,6 +169,16 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
+        
+        if let reference = viewModel.postReference {
+            postReferenceView.isHidden = false
+            referenceHeightAnchor.isActive = false
+            referenceHeightAnchor.constant = 26
+            referenceHeightAnchor.isActive = true
+            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
+        } else {
+            postReferenceView.isHidden = true
+        }
     }
     
     private func addMenuItems() -> UIMenu? {
@@ -253,6 +259,12 @@ extension HomeTwoImageTextCell: MEUserPostViewDelegate {
     }
 }
 
+extension HomeTwoImageTextCell: MEReferenceViewDelegate {
+    func didTapShowReference() {
+        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
+        delegate?.cell(self, wantsToSeeReference: reference)
+    }
+}
 
 extension HomeTwoImageTextCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {

@@ -38,7 +38,7 @@ class PostAssistantToolbar: UIToolbar {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        button.configuration?.image = UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddQuote), for: .touchUpInside)
         return button
