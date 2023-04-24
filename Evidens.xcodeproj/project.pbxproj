@@ -213,6 +213,9 @@
 		5F9742C62937687200704022 /* DiscoverGroupSkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9742C52937687200704022 /* DiscoverGroupSkeletonCell.swift */; };
 		5F9742C829389EC800704022 /* GroupSkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9742C729389EC800704022 /* GroupSkeletonCell.swift */; };
 		5F979C5E286DDB3D00C05D57 /* ShareCaseImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F979C5D286DDB3D00C05D57 /* ShareCaseImageCell.swift */; };
+		5F98413229F596E800AE437F /* MEReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98413129F596E800AE437F /* MEReferenceView.swift */; };
+		5F98413429F6607200AE437F /* MEReferenceMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98413329F6607200AE437F /* MEReferenceMenuLauncher.swift */; };
+		5F98413729F6702300AE437F /* ContentReferenceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98413629F6702300AE437F /* ContentReferenceCell.swift */; };
 		5F98F99729895C4C00F21074 /* MEPreviewSelectedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F99629895C4C00F21074 /* MEPreviewSelectedCell.swift */; };
 		5F98F9992989668300F21074 /* GroupInviteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F9982989668300F21074 /* GroupInviteCell.swift */; };
 		5F98F9BC298CF8E900F21074 /* SearchRecentsHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F98F9BB298CF8E900F21074 /* SearchRecentsHeader.swift */; };
@@ -664,6 +667,9 @@
 		5F9742C52937687200704022 /* DiscoverGroupSkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverGroupSkeletonCell.swift; sourceTree = "<group>"; };
 		5F9742C729389EC800704022 /* GroupSkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSkeletonCell.swift; sourceTree = "<group>"; };
 		5F979C5D286DDB3D00C05D57 /* ShareCaseImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseImageCell.swift; sourceTree = "<group>"; };
+		5F98413129F596E800AE437F /* MEReferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEReferenceView.swift; sourceTree = "<group>"; };
+		5F98413329F6607200AE437F /* MEReferenceMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEReferenceMenuLauncher.swift; sourceTree = "<group>"; };
+		5F98413629F6702300AE437F /* ContentReferenceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentReferenceCell.swift; sourceTree = "<group>"; };
 		5F98F99629895C4C00F21074 /* MEPreviewSelectedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEPreviewSelectedCell.swift; sourceTree = "<group>"; };
 		5F98F9982989668300F21074 /* GroupInviteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInviteCell.swift; sourceTree = "<group>"; };
 		5F98F9BB298CF8E900F21074 /* SearchRecentsHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRecentsHeader.swift; sourceTree = "<group>"; };
@@ -1343,6 +1349,7 @@
 				5F77BF7D2858EF5B00F31A75 /* MEPostActionButtons.swift */,
 				5F94DA76297FF02600FA7D5C /* MEReviewActionButtons.swift */,
 				5F99BCD929F1013000681C5C /* MEShowMoreView.swift */,
+				5F98413129F596E800AE437F /* MEReferenceView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1679,6 +1686,14 @@
 				5F9E876129CA00CE00BEA131 /* ExploreCaseCell.swift */,
 			);
 			path = Cases;
+			sourceTree = "<group>";
+		};
+		5F98413529F6701500AE437F /* Reference */ = {
+			isa = PBXGroup;
+			children = (
+				5F98413629F6702300AE437F /* ContentReferenceCell.swift */,
+			);
+			path = Reference;
 			sourceTree = "<group>";
 		};
 		5F98F99529895C3200F21074 /* Other */ = {
@@ -2488,6 +2503,7 @@
 				5FEB92E3289C062F004BE2E4 /* MEContextMenuLauncher.swift */,
 				5F99C1D629C8638400C681E2 /* AppearanceMenuLauncher.swift */,
 				5FA758DA29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift */,
+				5F98413329F6607200AE437F /* MEReferenceMenuLauncher.swift */,
 			);
 			path = MenuLaunchers;
 			sourceTree = "<group>";
@@ -2640,6 +2656,7 @@
 		5FC4D87427070352006B7A34 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5F98413529F6701500AE437F /* Reference */,
 				5F9D7D4A29E6B88C002EA21C /* Report */,
 				5FA758DC29DD71B800F1DEA4 /* MenuLauncher */,
 				5FA9D17229A4B40F004EF26A /* Companies */,
@@ -3020,6 +3037,7 @@
 				5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */,
 				5F9F977929954BAB0087293B /* OnboardingHomeCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
+				5F98413729F6702300AE437F /* ContentReferenceCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
 				5F9D7D5629E70B3E002EA21C /* AddReportContextViewController.swift in Sources */,
 				5F25908B28D0CE360018965C /* SearchBarContainerView.swift in Sources */,
@@ -3267,6 +3285,7 @@
 				5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */,
 				5F77BF772858DA2B00F31A75 /* MEPostLabel.swift in Sources */,
 				5F598C052836569400189722 /* TopPostHeader.swift in Sources */,
+				5F98413429F6607200AE437F /* MEReferenceMenuLauncher.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* ContextMenuHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
 				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
@@ -3367,6 +3386,7 @@
 				5F71C17D28CCFE9E00A16571 /* NavigationBarViewController.swift in Sources */,
 				5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */,
 				5F85218928A3A7970033AF67 /* PatentSectionViewController.swift in Sources */,
+				5F98413229F596E800AE437F /* MEReferenceView.swift in Sources */,
 				5F91F11929BF380B007BB567 /* SearchService.swift in Sources */,
 				5F8B7C54287596C6005094A5 /* SpecialitiesCell.swift in Sources */,
 				5F77BF6528573D5700F31A75 /* HomeTwoImageTextCell.swift in Sources */,

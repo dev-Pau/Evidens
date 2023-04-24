@@ -14,9 +14,9 @@ struct Reference {
 
 extension Reference {
     
-    enum Options {
-        case link
-        case reference
+    enum Options: Int {
+        case link = 0
+        case reference = 1
         
         var message: String {
             switch self  {
@@ -33,6 +33,15 @@ extension Reference {
                 return (UIImage(systemName: "globe", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
             case .reference:
                 return (UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+            }
+        }
+        
+        var optionMenuMessage: String {
+            switch self {
+            case .link:
+                return "The content you are viewing is backed up by a web link that provides evidence supporting the ideas and concepts presented."
+            case .reference:
+                return "The content you are viewing is supported by a reference that provides evidence supporting the ideas and concepts presented."
             }
         }
     }

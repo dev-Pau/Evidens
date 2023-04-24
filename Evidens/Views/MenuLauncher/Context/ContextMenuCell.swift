@@ -32,7 +32,7 @@ class ContextMenuCell: UICollectionViewCell {
             contextDescriptionLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             contextDescriptionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             contextDescriptionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            contextDescriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
+            contextDescriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         ])
     }
     

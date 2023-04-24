@@ -1,18 +1,28 @@
 //
-//  WhoCanJoinMenuLauncher.swift
+//  MEReferenceMenuLauncher.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 4/8/22.
+//  Created by Pau Fernández Solà on 24/4/23.
 //
 
 import UIKit
 
 private let cellReuseIdentifier = "PostMenuCellReuseIdentifier"
 private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
+private let referenceCellReuseIdentifier = "ReferenceCellReuseIdentifier"
 private let footerReuseIdentifier = "FooterReuseIdentifier"
 
-class MEContextMenuLauncher: NSObject {
-    private let menuLauncherData: MenuLauncher.MenuType
+protocol MEReferenceMenuLauncherDelegate: AnyObject {
+    func didTapReference(reference: Reference)
+}
+
+class MEReferenceMenuLauncher: NSObject {
+    weak var delegate: MEReferenceMenuLauncherDelegate?
+    var reference: Reference? {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -85,12 +95,12 @@ class MEContextMenuLauncher: NSObject {
         collectionView.delegate = self
         collectionView.register(ContextMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(ContextMenuFooter.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerReuseIdentifier)
+        collectionView.register(ContentReferenceCell.self, forCellWithReuseIdentifier: referenceCellReuseIdentifier)
         collectionView.register(ContextMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = true
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         collectionView.addGestureRecognizer(pan)
-        
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -114,24 +124,29 @@ class MEContextMenuLauncher: NSObject {
         }
     }
     
-    init(menuLauncherData: MenuLauncher.MenuType) {
-        self.menuLauncherData = menuLauncherData
+    override init() {
         super.init()
         configureCollectionView()
     }
 }
 
-extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+extension MEReferenceMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionFooter {
             let footer = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: footerReuseIdentifier, for: indexPath) as!
             ContextMenuFooter
             footer.delegate = self
+            if let reference = reference { footer.configureWithReference(reference: reference) }
+
+            let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
+            menuHeight = contentSize.height
             return footer
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! ContextMenuHeader
-            header.set(title: menuLauncherData.title)
+            if let reference = reference { header.set(title: reference.option.message) }
+            let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
+            menuHeight = contentSize.height
             return header
         }
     }
@@ -141,24 +156,38 @@ extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 80)
+            return CGSize(width: screenWidth, height: 80)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! ContextMenuCell
-        cell.configure(withDescription: menuLauncherData.description)
-        let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
-        menuHeight = contentSize.height + 200
-        return cell
+        if indexPath.row == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! ContextMenuCell
+            if let reference = reference { cell.configure(withDescription: reference.option.optionMenuMessage) }
+            
+            let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
+            menuHeight = contentSize.height
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: referenceCellReuseIdentifier, for: indexPath) as! ContentReferenceCell
+            if let reference = reference { cell.configureWithReference(text: reference.referenceText) }
+            
+            let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
+            menuHeight = contentSize.height
+            return cell
+        }
     }
 }
 
-extension MEContextMenuLauncher: ContextMenuFooterDelegate {
+extension MEReferenceMenuLauncher: ContextMenuFooterDelegate {
     func didTapCloseMenu() {
+        guard let reference = reference else { return }
         handleDismissMenu()
+        delegate?.didTapReference(reference: reference)
+        // https://pubmed.ncbi.nlm.nih.gov/30141140/
     }
 }
+

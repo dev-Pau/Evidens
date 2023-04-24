@@ -7,27 +7,35 @@
 
 import UIKit
 
+protocol AddReferenceHeaderDelegate: AnyObject {
+    func didTapEditReference(_ reference: Reference)
+}
+
 class AddReferenceHeader: UICollectionReusableView {
-    
+    weak var delegate: AddReferenceHeaderDelegate?
     var reference: Reference? {
         didSet {
             configureWithReference()
         }
     }
     
-    private let referenceImageView: UIImageView = {
+    private lazy var referenceImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditReference)))
         return iv
     }()
     
-    private let referenceLabel: UILabel = {
+    private lazy var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = primaryColor
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditReference)))
         return label
     }()
     
@@ -48,7 +56,7 @@ class AddReferenceHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        addSubviews(referenceImageView, referenceLabel, separatorView)
+        addSubviews(referenceImageView, referenceLabel)
         NSLayoutConstraint.activate([
             referenceImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             referenceImageView.heightAnchor.constraint(equalToConstant: 20),
@@ -56,13 +64,8 @@ class AddReferenceHeader: UICollectionReusableView {
             referenceImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             
             referenceLabel.centerYAnchor.constraint(equalTo: referenceImageView.centerYAnchor),
-            referenceLabel.leadingAnchor.constraint(equalTo: referenceImageView.trailingAnchor, constant: 10),
+            referenceLabel.leadingAnchor.constraint(equalTo: referenceImageView.trailingAnchor, constant: 5),
             referenceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
     
@@ -70,5 +73,10 @@ class AddReferenceHeader: UICollectionReusableView {
         guard let reference = reference else { return }
         referenceLabel.text = reference.option == .link ? "Link Reference" : "Author Citation"
         referenceImageView.image = reference.option.image
+    }
+    
+    @objc func handleEditReference() {
+        guard let reference = reference else { return }
+        delegate?.didTapEditReference(reference)
     }
 }

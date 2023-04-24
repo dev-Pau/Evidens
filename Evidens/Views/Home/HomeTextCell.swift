@@ -22,7 +22,8 @@ class HomeTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
     private var userPostView = MEUserPostView()
-
+    private let postReferenceView = MEReferenceView()
+    private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = MEPostTextView()
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
@@ -37,6 +38,7 @@ class HomeTextCell: UICollectionViewCell {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
         
         userPostView.delegate = self
+        postReferenceView.delegate = self
         actionButtonsView.delegate = self
         reviewActionButtonsView.delegate = self
         
@@ -52,8 +54,10 @@ class HomeTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
          
-    
-        cellContentView.addSubviews(userPostView, postTextView, actionButtonsView)
+        referenceHeightAnchor = postReferenceView.heightAnchor.constraint(equalToConstant: 0)
+        referenceHeightAnchor.isActive = true
+        
+        cellContentView.addSubviews(userPostView, postReferenceView, postTextView, actionButtonsView)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -64,8 +68,12 @@ class HomeTextCell: UICollectionViewCell {
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 10),
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-
-            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            
+            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
+            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            
+            actionButtonsView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
@@ -80,7 +88,7 @@ class HomeTextCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
+        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + viewModel.evidenceString + " • Edited • " : viewModel.timestampString! + viewModel.evidenceString  + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         postTextView.text = viewModel.postText
         userPostView.dotsImageButton.menu = addMenuItems()
@@ -97,18 +105,23 @@ class HomeTextCell: UICollectionViewCell {
                 showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
                 showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
                 showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-                showMoreView.widthAnchor.constraint(equalToConstant: 130),
+                showMoreView.widthAnchor.constraint(equalToConstant: 70),
             ])
             
         } else {
             showMoreView.isHidden = true
         }
-    }
-    
-    /*
-     Over the past few days, I have been discussing circadian rhythms and their significant role in our daily lives. One of the key takeaways is that not syncing our meals with our biological clock can increase the risk of metabolic health issues. The biological clock is mainly regulated by the light in our surroundings, controlling not only the sleep-wake and eating-fasting cycles but also various metabolic processes, such as glucose homeostasis. It's surprising to see how little information patients receive on this topic. What do you think? Share your thoughts in the comments below.
-     */
         
+        if let reference = viewModel.postReference {
+            postReferenceView.isHidden = false
+            referenceHeightAnchor.isActive = false
+            referenceHeightAnchor.constant = 26
+            referenceHeightAnchor.isActive = true
+            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
+        } else {
+            postReferenceView.isHidden = true
+        }
+    }
 
     func set(user: User) {
         self.user = user
@@ -122,7 +135,6 @@ class HomeTextCell: UICollectionViewCell {
     }
     
     func configureWithReviewOptions() {
-        //private lazy var reviewActionButtonsView = MEReviewActionButtons()
         actionButtonsView.isHidden = true
         userPostView.dotsImageButton.isHidden = true
         addSubviews(reviewActionButtonsView)
@@ -190,6 +202,13 @@ extension HomeTextCell: MEUserPostViewDelegate {
     func didTapProfile() {
         guard let user = user else { return }
         delegate?.cell(self, wantsToShowProfileFor: user)
+    }
+}
+
+extension HomeTextCell: MEReferenceViewDelegate {
+    func didTapShowReference() {
+        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
+        delegate?.cell(self, wantsToSeeReference: reference)
     }
 }
 

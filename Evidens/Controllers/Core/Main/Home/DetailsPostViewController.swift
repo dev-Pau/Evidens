@@ -280,6 +280,10 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
 }
 
 extension DetailsPostViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
+        #warning("SHOW MENU")
+    }
+    
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
         switch option {
         case .delete:

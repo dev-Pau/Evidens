@@ -1119,6 +1119,10 @@ extension SearchResultsUpdatingViewController: UsersFollowCellDelegate {
 }
 
 extension SearchResultsUpdatingViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
+        #warning("SHOW REFERENCE MENU")
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         
         #warning("Check if commenting works, because inside we get the user in the main tab controller and i'm not sure it's possible as in this controller we cannot get it.")

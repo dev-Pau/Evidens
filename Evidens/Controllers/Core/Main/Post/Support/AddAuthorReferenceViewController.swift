@@ -8,6 +8,8 @@
 import UIKit
 
 class AddAuthorReferenceViewController: UIViewController {
+    weak var delegate: AddWebLinkReferenceDelegate?
+    private var reference: Reference?
     private var firstTimeTap: Bool = true
     
     private let scrollView: UIScrollView = {
@@ -50,10 +52,12 @@ class AddAuthorReferenceViewController: UIViewController {
         tf.textColor = UIColor.lightGray
         tf.text = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658"
         tf.textContainerInset = UIEdgeInsets.zero
-        tf.contentInset = UIEdgeInsets.zero
+        tf.contentInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
         tf.textContainer.lineFragmentPadding = .zero
         tf.font = .systemFont(ofSize: 15, weight: .regular)
         tf.isScrollEnabled = true
+        tf.backgroundColor = .quaternarySystemFill
+        tf.layer.cornerRadius = 7
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
@@ -73,12 +77,34 @@ class AddAuthorReferenceViewController: UIViewController {
         return button
     }()
     
+    private lazy var deleteReferenceButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseForegroundColor = .white
+        button.configuration?.cornerStyle = .capsule
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 18, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Remove Reference", attributes: container)
+        button.addTarget(self, action: #selector(handleRemoveReference), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
     }
     
+    init(reference: Reference? = nil) {
+        self.reference = reference
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -131,36 +157,36 @@ class AddAuthorReferenceViewController: UIViewController {
         referenceTitleLabel.text = "Citation with Authors"
         referenceDescriptionLabel.text = "Enhance your content with credible sources! Add proper citations with authors to give credit where it's due and strengthen the reliability of your post. Including reputable authors in your references showcases your commitment to accurate and trustworthy information, while upholding academic integrity and professionalism. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications."
         authorCitationTextView.delegate = self
+        
+        if let reference = reference {
+            authorCitationTextView.text = ""
+            authorCitationTextView.tintColor = primaryColor
+            authorCitationTextView.textColor = primaryColor
+            firstTimeTap.toggle()
+            authorCitationTextView.text = reference.referenceText
+            
+            scrollView.addSubview(deleteReferenceButton)
+            NSLayoutConstraint.activate([
+                deleteReferenceButton.bottomAnchor.constraint(equalTo: submitReferenceButton.topAnchor, constant: -5),
+                deleteReferenceButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                deleteReferenceButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                deleteReferenceButton.heightAnchor.constraint(equalToConstant: 50),
+            ])
+        }
     }
     
     @objc func handleContinueReference() {
         guard let text = authorCitationTextView.text, !text.isEmpty else { return }
         let reference = Reference(option: .reference, referenceText: text)
         NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
+        dismiss(animated: true)
+    }
+    
+    @objc func handleRemoveReference() {
+        delegate?.didTapDeleteReference()
+        dismiss(animated: true)
     }
 
-    /*
-    @objc func handleContinueReference() {
-        guard let text = webLinkTextField.text else {
-            return
-        }
-        
-        if let url = URL(string: text) {
-            if UIApplication.shared.canOpenURL(url) {
-                
-                NotificationCenter.default.post(name: NSNotification.Name("PostReferenceWebLink"), object: nil, userInfo: ["link": text])
-                
-            } else {
-                let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect. Please double-check the URL and try again.", image: "exclamationmark.circle.fill", popUpType: .destructive)
-                reportPopup.showTopPopup(inView: self.view)
-            }
-        } else {
-            let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect", image: "exclamationmark.circle.fill", popUpType: .destructive)
-            reportPopup.showTopPopup(inView: self.view)
-        }
-    }
-     */
-    
     @objc func handleDismiss() {
         dismiss(animated: true)
     }
@@ -184,5 +210,9 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
             textView.text = "Roy, P S, and B J Saikia. “Cancer and cure: A critical analysis.” Indian journal of cancer vol. 53,3 (2016): 441-442. doi:10.4103/0019-509X.200658"
             firstTimeTap.toggle()
         }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        submitReferenceButton.isEnabled = textView.text.isEmpty ? false : true
     }
 }

@@ -656,6 +656,10 @@ extension GroupContentManagementViewController: ReviewContentGroupDelegate {
 }
 
 extension GroupContentManagementViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
+        #warning("SHOW REFERENCE MENU")
+    }
+    
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
         switch option {
         case .delete:

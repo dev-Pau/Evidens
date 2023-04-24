@@ -26,13 +26,11 @@ class UploadPostViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var viewModel = UploadPostViewModel()
     private var postPrivacyMenuLauncher = PostPrivacyMenuLauncher()
-    private var postImages: [UIImage] = []
+    private var postImages = [UIImage]()
     private var selectedProfessions = [Profession]()
     private var privacyType: Post.PrivacyOptions = .all
-    var gridImagesView = MEImagesGridView(images: [UIImage()], screenWidth: .zero)
     private let progressIndicator = JGProgressHUD()
-    var newHeight: CGFloat = 0.0
-    
+
     private let topSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -82,9 +80,7 @@ class UploadPostViewController: UIViewController {
         button.configuration?.attributedTitle = AttributedString(" \(privacyType.privacyTitle)", attributes: container)
         button.configuration?.baseForegroundColor = primaryColor
         button.addTarget(self, action: #selector(handleSettingsTap), for: .touchUpInside)
-        
         button.translatesAutoresizingMaskIntoConstraints = false
-    
         return button
     }()
     
@@ -103,44 +99,16 @@ class UploadPostViewController: UIViewController {
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
-     
-    private lazy var postImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.layer.cornerRadius = 10
-        iv.contentMode = .scaleAspectFill
-        return iv
-    }()
     
-   
-    private lazy var deleteImageButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.buttonSize = .mini
-        button.configuration?.baseBackgroundColor = .systemRed.withAlphaComponent(0.7)
-        button.configuration?.image = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18)).withTintColor(.white)
-        button.addTarget(self, action: #selector(didTapDeletePostImage), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-   
     private lazy var shareButton: UIButton = {
         let button = UIButton()
-
         button.configuration = .filled()
-
         button.configuration?.baseBackgroundColor = primaryColor
         button.configuration?.baseForegroundColor = .white
-
         button.configuration?.cornerStyle = .capsule
-        
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Upload", attributes: container)
-        
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
     }()
@@ -272,7 +240,7 @@ class UploadPostViewController: UIViewController {
            
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(200)), subitems: [item])
             
-            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40)), elementKind: ElementKind.sectionHeader, alignment: .top)
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)), elementKind: ElementKind.sectionHeader, alignment: .top)
                                                                      
             let section = NSCollectionLayoutSection(group: group)
             if self.reference != nil { section.boundarySupplementaryItems = [header] }
@@ -288,108 +256,18 @@ class UploadPostViewController: UIViewController {
         postAssistantToolbar.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 50)
         postTextView.inputAccessoryView = postAssistantToolbar
     }
-    
-    func addSinglePostImageToView(image: UIImage) {
-        postImageView.image = image
-        postImages.append(image)
-        
-        scrollView.addSubview(postImageView)
-        postImageView.anchor(top: postTextView.bottomAnchor, left: postTextView.leftAnchor, right: postTextView.rightAnchor, paddingTop: 10)
-        
-        let ratio = image.size.width / image.size.height
-        newHeight = view.bounds.width / ratio
-        postImageView.setHeight(newHeight)
-
-        addCancelButtonImagePost(to: postImageView)
-
-        textViewDidChange(postTextView)
-        
-        viewModel.hasImage = true
-        updateForm()
-    }
-    
-    func addPostImagesToView(images: [UIImage]) {
-        gridImagesView.images = images
-
-        gridImagesView.screenWidth = postTextView.bounds.size.width
-        
-        gridImagesView.configure()
-        
-        gridImagesView.translatesAutoresizingMaskIntoConstraints = false
-        gridImagesView.layer.cornerRadius = 10
-        gridImagesView.layer.borderWidth = 1
-        gridImagesView.layer.borderColor = UIColor.black.cgColor
-        
-        scrollView.addSubview(gridImagesView)
-        
-        NSLayoutConstraint.activate([
-            gridImagesView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
-            gridImagesView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
-            gridImagesView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            gridImagesView.heightAnchor.constraint(equalToConstant: 300)
-        ])
-        
-        addCancelButtonImagePost(to: gridImagesView)
-
-        viewModel.hasImage = true
-        updateForm()
-       
-        //scrollView.resizeScrollViewContentSize()
-        textViewDidChange(postTextView)
-    }
-    
+   
     func addContentCollectionView() {
         scrollView.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 250)
+            collectionView.heightAnchor.constraint(equalToConstant: 240)
         ])
         
         collectionView.reloadData()
         scrollView.resizeScrollViewContentSize()
-    }
-    
-    
-    
-    func addCancelButtonImagePost(to imageView: UIImageView) {
-        scrollView.addSubview(deleteImageButton)
-        deleteImageButton.anchor(top: imageView.topAnchor, right: imageView.rightAnchor, paddingTop: 10, paddingRight: 10)
-    }
-    
-    
-    func addCancelButtonImagePost(to imageView: MEImagesGridView) {
-        scrollView.addSubview(deleteImageButton)
-        deleteImageButton.anchor(top: imageView.topAnchor, right: imageView.rightAnchor, paddingTop: 10, paddingRight: 10)
-    }
-
-    @objc func didTapDeletePostImage() {
-        postImageView.removeFromSuperview()
-        gridImagesView.removeFromSuperview()
-        deleteImageButton.removeFromSuperview()
-        
-        let group = DispatchGroup()
-        
-        postImageView.constraints.forEach { constraint in
-            group.enter()
-            defer {
-                group.leave()
-            }
-            constraint.isActive = false
-        }
-        
-        postImages.removeAll()
-        newHeight = 0.0
-        
-        group.notify(queue: .main) {
-            self.scrollView.resizeScrollViewContentSize()
-        }
-        
-        scrollView.resizeScrollViewContentSize()
-        
-        viewModel.hasImage = false
-        updateForm()
     }
     
     @objc func handleSettingsTap() {
@@ -421,20 +299,33 @@ class UploadPostViewController: UIViewController {
     }
     
     @objc func didTapShare() {
-        guard let postTextView = postTextView.text else { return }
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let postTextView = postTextView.text, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let imagesToUpload = postImages.compactMap { $0 }
+        let postType = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
+        
+        var postToUpload = Post(postId: "", dictionary: [:])
+        postToUpload.postText = postTextView
+        postToUpload.ownerUid = uid
+        postToUpload.professions = selectedProfessions
+        postToUpload.type = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
+        postToUpload.privacyOptions = group != nil ? .group : .all
+        
+        if let reference = reference {
+            postToUpload.reference = reference.option
+            postToUpload.referenceText = reference.referenceText
+        }
         
         progressIndicator.show(in: view)
-      
+        
         if let group = group {
             // Group post
-            if postImages.count > 0 {
-                let imagesToUpload = postImages.compactMap { $0 }
-                var postType = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
-                if postImages.count == 1 {
+            if postImages.isEmpty {
+                //let imagesToUpload = postImages.compactMap { $0 }
+                let postType = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
+                //if postImages.count == 1 {
                     
                     #warning("pujar el post amb type")
-                } else {
+                //} else {
                     StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
                         GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: self.selectedProfessions, type: postType, privacy: .group, groupPermission: group.permissions, postImageUrl: imageUrl) { error in
                             self.progressIndicator.dismiss(animated: true)
@@ -446,7 +337,7 @@ class UploadPostViewController: UIViewController {
                                 return
                             }
                         }
-                    }
+                  //  }
                 }
             } else {
                 GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: selectedProfessions, type: .plainText, privacy: .group, groupPermission: group.permissions, postImageUrl: nil) { error in
@@ -462,8 +353,41 @@ class UploadPostViewController: UIViewController {
                 }
             }
             }
+        
         else {
             // No group post
+            if postImages.isEmpty {
+                print(postToUpload)
+                return
+                postToUpload.postImageUrl = [String]()
+                PostService.uploadPost(post: postToUpload) { error in
+                    self.progressIndicator.dismiss(animated: true)
+                    if let error = error {
+                        print("DEBUG: \(error.localizedDescription)")
+                        return
+                    } else {
+                        self.dismiss(animated: true)
+                    }
+                }
+            } else {
+                let imagesToUpload = postImages.compactMap { $0 }
+                print(postToUpload)
+                print("We are uploading \(imagesToUpload.count) images")
+                return
+                StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imagesUrl in
+                    postToUpload.postImageUrl = imagesUrl
+                    PostService.uploadPost(post: postToUpload) { error in
+                        self.progressIndicator.dismiss(animated: true)
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            self.dismiss(animated: true)
+                        }
+                    }
+                }
+            }
+            /*
             if postImages.count > 0 {
                 let imagesToUpload = postImages.compactMap { $0 }
                 
@@ -538,6 +462,7 @@ class UploadPostViewController: UIViewController {
                     }
                 }
             }
+             */
         }
     }
 }
@@ -550,14 +475,53 @@ extension UploadPostViewController: UICollectionViewDataSource, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: shareCaseImageCellReuseIdentifier, for: indexPath) as! ShareCaseImageCell
         cell.caseImage = postImages[indexPath.row]
-        //cell.delegate = self
+        cell.delegate = self
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: referenceHeaderReuseIdentifier, for: indexPath) as! AddReferenceHeader
         header.reference = reference
+        header.delegate = self
         return header
+    }
+}
+
+extension UploadPostViewController: ShareCaseImageCellDelegate, AddReferenceHeaderDelegate {
+    func didTapEditReference(_ reference: Reference) {
+        switch reference.option {
+        case .link:
+            let controller = AddWebLinkReferenceViewController(reference: reference)
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        case .reference:
+            let controller = AddAuthorReferenceViewController(reference: reference)
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
+    }
+    
+    func delete(_ cell: ShareCaseImageCell) {
+        if let indexPath = collectionView.indexPath(for: cell) {
+            postImages.remove(at: indexPath.row)
+            collectionView.deleteItems(at: [indexPath])
+            if postImages.isEmpty {
+                postAssistantToolbar.handleUpdateMediaButtonInteraction()
+            }
+        }
+    }
+}
+
+extension UploadPostViewController: AddWebLinkReferenceDelegate {
+    func didTapDeleteReference() {
+        reference = nil
+        collectionView.reloadData()
     }
 }
 
@@ -587,7 +551,7 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
         postTextView.becomeFirstResponder()
         if results.count == 0 { return }
-
+        
         let group = DispatchGroup()
         var order = [String]()
         var asyncDict = [String:UIImage]()
@@ -611,25 +575,18 @@ extension UploadPostViewController: PHPickerViewControllerDelegate {
         }
         
         group.notify(queue: .main) {
-            
-
-            if order.count == 1 {
-                self.addSinglePostImageToView(image: asyncDict[order[0]]!)
-                
-            } else {
-                for id in order {
-                    images.append(asyncDict[id]!)
+            for id in order {
+                images.append(asyncDict[id]!)
+                if images.count == order.count {
+                    self.postImages = images
+                    self.addContentCollectionView()
+                    self.postAssistantToolbar.handleUpdateMediaButtonInteraction()
+                    self.progressIndicator.dismiss(animated: true)
                 }
-                self.postImages = images
-                //self.addPostImagesToView(images: self.postImages)
-                self.addContentCollectionView()
-                
             }
-            self.progressIndicator.dismiss(animated: true)
         }
     }
 }
-
 
 extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
     func didTapPrivacyOption(_ option: Post.PrivacyOptions) {
@@ -651,7 +608,7 @@ extension UploadPostViewController: PostPrivacyMenuLauncherDelegate {
         privacyType = option
         self.group = Group(groupId: "", dictionary: [:])
     }
- 
+    
     func didDissmisMenu() {
         postTextView.becomeFirstResponder()
     }
@@ -684,20 +641,22 @@ extension UploadPostViewController: ProfessionListViewControllerDelegate {
 
 extension UploadPostViewController: PostAssistantToolbarDelegate {
     func didTapQuoteButton() {
-        #warning("If reference is not nil. means user is editing, check type and present the controller.")
-        postTextView.resignFirstResponder()
-        let controller = ReferencesViewController()
-        
-        let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
-        
-        present(navVC, animated: true)
+        if let reference = reference {
+            didTapEditReference(reference)
+        } else {
+            postTextView.resignFirstResponder()
+            let controller = ReferencesViewController()
+            
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
+            
+            present(navVC, animated: true)
+        }
     }
     
     @objc func didReceiveNotification(notification: NSNotification) {
-        #warning("add the thing as a header to the collectionView")
         if let reference = notification.userInfo, let selectedReference = reference["reference"] as? Reference {
             self.reference = selectedReference
             if postImages.isEmpty {
@@ -710,13 +669,11 @@ extension UploadPostViewController: PostAssistantToolbarDelegate {
     
     func didTapAddMediaButton() {
         postTextView.resignFirstResponder()
-        
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.selectionLimit = 4
         config.preferredAssetRepresentationMode = .current
         config.selection = .ordered
         config.filter = PHPickerFilter.any(of: [.images])
-        
         let vc = PHPickerViewController(configuration: config)
         vc.delegate = self
         present(vc, animated: true)
@@ -725,12 +682,10 @@ extension UploadPostViewController: PostAssistantToolbarDelegate {
     func didTapConfigureDisciplines() {
         let controller = ProfessionListViewController(professionsSelected: selectedProfessions)
         controller.delegate = self
-        
         let backButton = UIBarButtonItem()
         backButton.title = ""
         backButton.tintColor = .label
         navigationItem.backBarButtonItem = backButton
-                
         navigationController?.pushViewController(controller, animated: true)
     }
 }

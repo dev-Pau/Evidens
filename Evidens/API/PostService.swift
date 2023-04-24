@@ -75,6 +75,26 @@ struct PostService {
         self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
+    static func uploadPost(post: Post, completion: @escaping(FirestoreCompletion)) {
+        var data = ["post": post.postText,
+                    "timestamp": Timestamp(date: Date()),
+                    "ownerUid": post.ownerUid,
+                    "professions": post.professions.map { $0.profession },
+                    "type": post.type.rawValue,
+                    "privacy": post.privacyOptions.rawValue] as [String : Any]
+
+        if !post.postImageUrl.isEmpty {
+            data["postImageUrl"] = post.postImageUrl
+        }
+               
+        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
+        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
+            print("Post uploaded to recents")
+        }
+
+        self.updateUserFeedAfterPost(postId: docRef.documentID)
+    }
+    
     static func editGroupPost(withGroupId groupId: String, withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
         let postData = ["post": text,
                         "edited": true] as [String : Any]

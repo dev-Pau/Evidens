@@ -22,6 +22,7 @@ struct MenuLauncher {
                 return "Privacy Rules"
             case .joiningGroups:
                 return "Eligibility Requirements"
+                
             }
         }
         

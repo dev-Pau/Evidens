@@ -732,6 +732,10 @@ extension SearchViewController: CaseCellDelegate {
 }
 
 extension SearchViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
+        #warning("SHOW REFERENCE MENU")
+    }
+    
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let currentUser = tab.user else { return }

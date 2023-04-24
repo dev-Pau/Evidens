@@ -111,6 +111,14 @@ struct PostViewModel {
             return "\(likes) • \(comments) \(commentText)"
         }
     }
+    
+    var postReference: Reference? {
+        return post.referenceText.isEmpty ? nil : Reference(option: post.reference!, referenceText: post.referenceText)
+    }
+    
+    var postReferenceText: String {
+        return post.reference == .link ? "Web Link" : "Author Citation"
+    }
 
     var timestampString: String? {
         let formatter = DateComponentsFormatter()
@@ -118,6 +126,10 @@ struct PostViewModel {
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         return formatter.string(from: post.timestamp.dateValue(), to: Date())
+    }
+    
+    var evidenceString: String {
+        return post.referenceText.isEmpty ? String() : " • Evidence-Based"
     }
     
     var privacyImage: UIImage {

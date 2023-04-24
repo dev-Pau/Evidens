@@ -27,6 +27,8 @@ class WebViewController: UIViewController, WKNavigationDelegate {
         view.addSubview(activityIndicator)
         
         webView.load(URLRequest(url: url))
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
     }
     
     init(url: URL) {
@@ -46,6 +48,10 @@ class WebViewController: UIViewController, WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // Hide the activity indicator when web content finishes loading
         activityIndicator.stopAnimating()
+    }
+    
+    @objc func handleDismiss() {
+        dismiss(animated: true)
     }
     
 }

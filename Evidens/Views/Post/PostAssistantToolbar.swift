@@ -39,7 +39,6 @@ class PostAssistantToolbar: UIToolbar {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
         button.configuration?.image = UIImage(systemName: "quote.bubble", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        button.configuration?.baseBackgroundColor = primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddQuote), for: .touchUpInside)
         return button
@@ -137,6 +136,10 @@ class PostAssistantToolbar: UIToolbar {
         section.interGroupSpacing = 10
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
         return UICollectionViewCompositionalLayout(section: section)
+    }
+    
+    func handleUpdateMediaButtonInteraction() {
+        addMediaButton.isEnabled.toggle()
     }
     
     @objc func handleAddMediaButton() {

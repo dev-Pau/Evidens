@@ -50,6 +50,18 @@ class ContextMenuFooter: UICollectionReusableView {
         ])
     }
     
+    func configureWithReference(reference: Reference) {
+        if reference.option == .reference {
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 18, weight: .bold)
+            reportButton.configuration?.attributedTitle = AttributedString("Explore Author Citation", attributes: container)
+        } else {
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 18, weight: .bold)
+            reportButton.configuration?.attributedTitle = AttributedString("Explore Web Source", attributes: container)
+        }
+    }
+
     @objc func handleDismissMenu() {
         delegate?.didTapCloseMenu()
     }

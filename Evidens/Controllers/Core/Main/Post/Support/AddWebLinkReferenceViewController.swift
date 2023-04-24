@@ -8,7 +8,13 @@
 import UIKit
 import WebKit
 
+protocol AddWebLinkReferenceDelegate: AnyObject {
+    func didTapDeleteReference()
+}
+
 class AddWebLinkReferenceViewController: UIViewController {
+    weak var delegate: AddWebLinkReferenceDelegate?
+    private var reference: Reference?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -85,10 +91,33 @@ class AddWebLinkReferenceViewController: UIViewController {
         return button
     }()
     
+    private lazy var deleteReferenceButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.configuration = .filled()
+        button.configuration?.baseBackgroundColor = .systemRed
+        button.configuration?.baseForegroundColor = .white
+        button.configuration?.cornerStyle = .capsule
+        var container = AttributeContainer()
+        container.font = .systemFont(ofSize: 18, weight: .bold)
+        button.configuration?.attributedTitle = AttributedString("Remove Reference", attributes: container)
+        button.addTarget(self, action: #selector(handleRemoveReference), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
         configureUI()
+    }
+    
+    init(reference: Reference? = nil) {
+        self.reference = reference
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     
@@ -145,6 +174,18 @@ class AddWebLinkReferenceViewController: UIViewController {
         
         referenceTitleLabel.text = "Web Links"
         referenceDescriptionLabel.text = "By utilizing web links as references, you can ensure proper attribution and demonstrate your commitment to referencing and citing sources accurately, in accordance with evidence-based practice principles. This highlights your dedication to upholding accuracy and professionalism in your content. Some examples may be research articles, scholarly publications, official guidelines, educational videos or any other relevant resources."
+        
+        if let reference = reference {
+            webLinkTextField.text = reference.referenceText
+            
+            scrollView.addSubview(deleteReferenceButton)
+            NSLayoutConstraint.activate([
+                deleteReferenceButton.bottomAnchor.constraint(equalTo: submitReferenceButton.topAnchor, constant: -5),
+                deleteReferenceButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                deleteReferenceButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                deleteReferenceButton.heightAnchor.constraint(equalToConstant: 50),
+            ])
+        }
     }
     
     @objc func handleLinkVerification() {
@@ -194,7 +235,7 @@ class AddWebLinkReferenceViewController: UIViewController {
             if UIApplication.shared.canOpenURL(url) {
                 let reference = Reference(option: .link, referenceText: text)
                 NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
-                
+                dismiss(animated: true)
             } else {
                 let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect", image: "exclamationmark.circle.fill", popUpType: .destructive)
                 reportPopup.showTopPopup(inView: self.view)
@@ -203,6 +244,11 @@ class AddWebLinkReferenceViewController: UIViewController {
             let reportPopup = METopPopupView(title: "Apologies, but the URL you entered seems to be incorrect", image: "exclamationmark.circle.fill", popUpType: .destructive)
             reportPopup.showTopPopup(inView: self.view)
         }
+    }
+    
+    @objc func handleRemoveReference() {
+        delegate?.didTapDeleteReference()
+        dismiss(animated: true)
     }
     
     @objc func handleDismiss() {

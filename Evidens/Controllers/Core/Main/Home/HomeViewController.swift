@@ -27,7 +27,7 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     //MARK: - Properties
     
     weak var scrollDelegate: HomeViewControllerDelegate?
-    
+    private let referenceMenuLauncher = MEReferenceMenuLauncher()
     private let contentSource: Post.ContentSource
 
     var user: User?
@@ -51,8 +51,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     var posts = [Post]()
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
-    
-   
     //MARK: - Lifecycle
     
     init(contentSource: Post.ContentSource) {
@@ -399,7 +397,6 @@ extension HomeViewController: UICollectionViewDataSource {
         1
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return posts.isEmpty ? 1 : posts.count
     }
@@ -570,6 +567,12 @@ extension HomeViewController: UICollectionViewDataSource {
 //MARK: - HomeCellDelegate
 
 extension HomeViewController: HomeCellDelegate {
+    func cell(_ cell: UICollectionViewCell, wantsToSeeReference reference: Reference) {
+        referenceMenuLauncher.reference = reference
+        referenceMenuLauncher.delegate = self
+        referenceMenuLauncher.showImageSettings(in: view)
+    }
+    
     func cell(_ cell: UICollectionViewCell, didTapMenuOptionsFor post: Post, option: Post.PostMenuOptions) {
         switch option {
         case .delete:
@@ -1183,4 +1186,27 @@ extension HomeViewController: HomeOnboardingViewControllerDelegate {
     }
 }
 
+extension HomeViewController: MEReferenceMenuLauncherDelegate {
+    func didTapReference(reference: Reference) {
+        switch reference.option {
+        case .link:
+            if let url = URL(string: reference.referenceText) {
+                if UIApplication.shared.canOpenURL(url) {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        case .reference:
+            let wordToSearch = reference.referenceText
+            if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {
+                    let webViewController = WebViewController(url: url)
+                    let navVC = UINavigationController(rootViewController: webViewController)
+                    present(navVC, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+}
 
