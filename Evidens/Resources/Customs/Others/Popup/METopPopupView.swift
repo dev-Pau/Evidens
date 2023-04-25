@@ -41,13 +41,6 @@ class METopPopupView: UIView {
     
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        
-        
-        //layer.borderColor = primaryColor.cgColor
-        //layer.borderWidth = 1
-        //backgroundColor = .systemBackground
         layer.cornerRadius = 10
         clipsToBounds = false
     }

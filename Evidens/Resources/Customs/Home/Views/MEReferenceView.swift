@@ -30,6 +30,8 @@ class MEReferenceView: UIView {
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
+        label.textAlignment = .right
+        label.text = "EVIDENCE"
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleReferenceTap)))
         return label
     }()
@@ -39,14 +41,9 @@ class MEReferenceView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         addSubviews(referenceImageView, referenceLabel)
         NSLayoutConstraint.activate([
-            referenceImageView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 3),
-            referenceImageView.heightAnchor.constraint(equalToConstant: 20),
-            referenceImageView.widthAnchor.constraint(equalToConstant: 20),
-            referenceImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            
-            referenceLabel.centerYAnchor.constraint(equalTo: referenceImageView.centerYAnchor),
-            referenceLabel.leadingAnchor.constraint(equalTo: referenceImageView.trailingAnchor, constant: 5),
-            referenceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            referenceLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            referenceLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            referenceLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
     }
     
@@ -56,10 +53,5 @@ class MEReferenceView: UIView {
     
     @objc func handleReferenceTap() {
         delegate?.didTapShowReference()
-    }
-    
-    func configureWithReference(_ reference: Reference, referenceText: String) {
-        referenceImageView.image = reference.option.image
-        referenceLabel.text = referenceText
     }
 }

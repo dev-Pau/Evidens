@@ -25,6 +25,7 @@ class CommentPostViewController: UICollectionViewController {
     private var user: User
     private var currentUser: User
     private var type: Comment.CommentType
+    private var reference: Reference?
     private var commentsLoaded: Bool = false
     private var lastCommentSnapshot: QueryDocumentSnapshot?
     
@@ -249,11 +250,64 @@ extension CommentPostViewController: CommentCellDelegate {
         
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+
+    
+}
+
+extension CommentPostViewController: AddWebLinkReferenceDelegate {
+    
+    func didTapEditReference(_ reference: Reference) {
+        switch reference.option {
+        case .link:
+            let controller = AddWebLinkReferenceViewController(reference: reference)
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        case .reference:
+            let controller = AddAuthorReferenceViewController(reference: reference)
+            controller.delegate = self
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            present(navVC, animated: true)
+        }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
+    }
+    
+    func didTapDeleteReference() {
+        reference = nil
+        commentInputView.updateReferenceButton(reference: nil)
+    }
 }
 
 //MARK: - CommentInputAccesoryViewDelegate
 
 extension CommentPostViewController: CommentInputAccessoryViewDelegate {
+    func didTapAddReference() {
+        if let reference = reference {
+            didTapEditReference(reference)
+        } else {
+            let controller = ReferencesViewController()
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
+            present(navVC, animated: true)
+        }
+    }
+    
+    @objc func didReceiveNotification(notification: NSNotification) {
+        if let reference = notification.userInfo, let selectedReference = reference["reference"] as? Reference {
+            self.reference = selectedReference
+            let reportPopup = METopPopupView(title: "Reference added to your comment.", image: "xmark.circle.fill", popUpType: .regular)
+            reportPopup.showTopPopup(inView: self.view)
+            
+            commentInputView.updateReferenceButton(reference: selectedReference)
+            
+        }
+    }
+    
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         
         //Get user from MainTabController

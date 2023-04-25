@@ -22,9 +22,8 @@ class CommentCell: UICollectionViewCell {
     }
     
     private var user: User?
-    
-    private var timeLabelLeadingConstraint: NSLayoutConstraint!
-    
+    private var heightAuthorAnchor: NSLayoutConstraint!
+
     weak var delegate: CommentCellDelegate?
     
     private let cellContentView = UIView()
@@ -69,7 +68,7 @@ class CommentCell: UICollectionViewCell {
         button.backgroundColor = primaryColor
         button.layer.cornerRadius = 5
         button.isHidden = true
-        let title = NSMutableAttributedString(string: "Author", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        let title = NSMutableAttributedString(string: "   Author   ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
         button.setAttributedTitle(title, for: .normal)
         return button
     }()
@@ -94,6 +93,9 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
+    private let commentTextView = MEPostTextView()
+    let showMoreView = MEShowMoreView()
+    
     private let commentLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -104,6 +106,9 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
+    private let commentActionButtons = MECommentActionButtons()
+    private let commentReplyView = MECommentReplyView()
+    #warning("Add this view ^")
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -128,10 +133,12 @@ class CommentCell: UICollectionViewCell {
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-        cellContentView.addSubviews(profileImageView, dotsImageButton, commentLabel, authorButton, timestampLabel, nameLabel, professionLabel, separatorView)
+        cellContentView.addSubviews(profileImageView, dotsImageButton, commentTextView, authorButton, timestampLabel, nameLabel, professionLabel, commentActionButtons, separatorView)
         
         //timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
         //timeLabelLeadingConstraint.isActive = true
+        heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
+        heightAuthorAnchor.isActive = true
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -158,15 +165,19 @@ class CommentCell: UICollectionViewCell {
             
             authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 2),
             authorButton.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
-            authorButton.heightAnchor.constraint(equalToConstant: 18),
-            authorButton.widthAnchor.constraint(equalToConstant: 50),
+            //authorButton.heightAnchor.constraint(equalToConstant: 18),
+            //authorButton.widthAnchor.constraint(equalToConstant: 50),
             
-            commentLabel.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 10),
-            commentLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            commentLabel.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -10),
+            commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 5),
+            commentTextView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            commentTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            //commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -30),
             
-            //separatorView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 3),
+            commentActionButtons.topAnchor.constraint(equalTo: commentTextView.bottomAnchor),
+            commentActionButtons.leadingAnchor.constraint(equalTo: commentTextView.leadingAnchor),
+            commentActionButtons.heightAnchor.constraint(equalToConstant: 40),
+            commentActionButtons.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+            
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
@@ -185,24 +196,22 @@ class CommentCell: UICollectionViewCell {
     
     private func configure() {
         guard let viewModel = viewModel else { return }
-        commentLabel.text = viewModel.commentText
+        commentTextView.text = viewModel.commentText
         timestampLabel.text = viewModel.timestampString
-        //dotsImageButton.isHidden = viewModel.isTextFromAuthor ? true : false
         dotsImageButton.menu = addMenuItems()
         
-        /*
-        if viewModel.isTextFromAuthor {
-            dotsImageButton.isHidden = true
-            //timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
-            //timeLabelLeadingConstraint.isActive = true
-            //layoutIfNeeded()
+        if commentTextView.isTextTruncated {
+            addSubview(showMoreView)
+            NSLayoutConstraint.activate([
+                showMoreView.heightAnchor.constraint(equalToConstant: commentTextView.font?.lineHeight ?? 0.0),
+                showMoreView.bottomAnchor.constraint(equalTo: commentTextView.bottomAnchor, constant: -1),
+                showMoreView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor),
+                showMoreView.widthAnchor.constraint(equalToConstant: 70),
+            ])
+            
         } else {
-            dotsImageButton.isHidden = false
-            //timeLabelLeadingConstraint = timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10)
-            //timeLabelLeadingConstraint.isActive = true
-            //layoutIfNeeded()
+            showMoreView.isHidden = true
         }
-         */
     }
     
     
@@ -224,10 +233,18 @@ class CommentCell: UICollectionViewCell {
         
         if viewModel.isAuthor {
             authorButton.isHidden = false
+            heightAuthorAnchor.isActive = false
+            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
+            heightAuthorAnchor.isActive = true
             
         } else {
             authorButton.isHidden = true
+            heightAuthorAnchor.isActive = false
+            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
+            heightAuthorAnchor.isActive = true
         }
+        
+        
     }
     
     private func addMenuItems() -> UIMenu? {
@@ -235,7 +252,13 @@ class CommentCell: UICollectionViewCell {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         dotsImageButton.showsMenuAsPrimaryAction = true
         
-        if viewModel.commentOnwerUid == uid {
+        if viewModel.isTextFromAuthor {
+            let menuItems = UIMenu(options: .displayInline, children: [
+                UIAction(title: Comment.CommentOptions.back.rawValue, image: Comment.CommentOptions.back.commentOptionsImage, handler: { _ in
+                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .back)
+                })])
+            return menuItems
+        } else if viewModel.commentOnwerUid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
                     self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)

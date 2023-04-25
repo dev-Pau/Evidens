@@ -9,6 +9,7 @@ import UIKit
 import SDWebImage
 
 protocol CommentInputAccessoryViewDelegate: AnyObject {
+    func didTapAddReference()
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String)
 }
 
@@ -46,12 +47,14 @@ class CommentInputAccessoryView: UIView {
         return tv
     }()
     
-    private let referenceImageView: UIImageView = {
+    private lazy var referenceImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.image = UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
         iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.isUserInteractionEnabled = true
+        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAddReference)))
         return iv
     }()
 
@@ -95,6 +98,11 @@ class CommentInputAccessoryView: UIView {
         
         NSLayoutConstraint.activate([
             
+            postRoundedButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
+            postRoundedButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postRoundedButton.widthAnchor.constraint(equalToConstant: 37),
+            postRoundedButton.heightAnchor.constraint(equalToConstant: 37),
+            
             commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
             commentTextView.trailingAnchor.constraint(equalTo: postRoundedButton.leadingAnchor, constant: -10),
@@ -102,14 +110,11 @@ class CommentInputAccessoryView: UIView {
             
             profileImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 40),
-            profileImageView.widthAnchor.constraint(equalToConstant: 40),
-            
-            postRoundedButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
-            postRoundedButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            profileImageView.heightAnchor.constraint(equalToConstant: 37),
+            profileImageView.widthAnchor.constraint(equalToConstant: 37),
             
             referenceImageView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor, constant: -10),
-            referenceImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor, constant: -2),
+            referenceImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor),
             referenceImageView.heightAnchor.constraint(equalToConstant: 25),
             referenceImageView.widthAnchor.constraint(equalToConstant: 25),
             
@@ -117,10 +122,9 @@ class CommentInputAccessoryView: UIView {
             topView.leadingAnchor.constraint(equalTo: leadingAnchor),
             topView.trailingAnchor.constraint(equalTo: trailingAnchor),
             topView.heightAnchor.constraint(equalToConstant: 0.4)
-
         ])
     
-        profileImageView.layer.cornerRadius = 40 / 2
+        profileImageView.layer.cornerRadius = 37 / 2
         /*
         if caseIsAnonymous {
             profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
@@ -158,6 +162,18 @@ class CommentInputAccessoryView: UIView {
         commentTextView.placeholderLabel.isHidden = false
         postRoundedButton.isEnabled = false
         commentTextView.invalidateIntrinsicContentSize()
+    }
+    
+    func updateReferenceButton(reference: Reference?) {
+        if reference == nil {
+            referenceImageView.image = UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        } else {
+            referenceImageView.image = UIImage(systemName: "note.text", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        }
+    }
+    
+    @objc func handleAddReference() {
+        accessoryViewDelegate?.didTapAddReference()
     }
    
     override var intrinsicContentSize: CGSize {

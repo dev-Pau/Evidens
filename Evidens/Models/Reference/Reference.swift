@@ -23,7 +23,7 @@ extension Reference {
             case .link:
                 return "Link Reference"
             case .reference:
-                return "Author Citation"
+                return "Complete Citation"
             }
         }
         

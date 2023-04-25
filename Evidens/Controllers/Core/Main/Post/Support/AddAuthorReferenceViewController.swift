@@ -154,7 +154,7 @@ class AddAuthorReferenceViewController: UIViewController {
             submitReferenceButton.heightAnchor.constraint(equalToConstant: 50),
         ])
         
-        referenceTitleLabel.text = "Citation with Authors"
+        referenceTitleLabel.text = "Complete Citation"
         referenceDescriptionLabel.text = "Enhance your content with credible sources! Add proper citations with authors to give credit where it's due and strengthen the reliability of your post. Including reputable authors in your references showcases your commitment to accurate and trustworthy information, while upholding academic integrity and professionalism. Examples of sources with authors may include research papers, scholarly articles, official reports, expert opinions, and other reputable publications."
         authorCitationTextView.delegate = self
         

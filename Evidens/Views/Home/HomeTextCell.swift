@@ -22,7 +22,6 @@ class HomeTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
     private var userPostView = MEUserPostView()
-    private let postReferenceView = MEReferenceView()
     private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = MEPostTextView()
     let showMoreView = MEShowMoreView()
@@ -36,9 +35,8 @@ class HomeTextCell: UICollectionViewCell {
         super.init(frame: frame)
 
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapPost)))
-        
+
         userPostView.delegate = self
-        postReferenceView.delegate = self
         actionButtonsView.delegate = self
         reviewActionButtonsView.delegate = self
         
@@ -53,11 +51,8 @@ class HomeTextCell: UICollectionViewCell {
             cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-         
-        referenceHeightAnchor = postReferenceView.heightAnchor.constraint(equalToConstant: 0)
-        referenceHeightAnchor.isActive = true
-        
-        cellContentView.addSubviews(userPostView, postReferenceView, postTextView, actionButtonsView)
+
+        cellContentView.addSubviews(userPostView, postTextView, actionButtonsView)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -69,28 +64,54 @@ class HomeTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
-            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            
-            actionButtonsView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
+            actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(textViewTapped(_:)))
+        postTextView.addGestureRecognizer(tapGestureRecognizer)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc func textViewTapped(_ gestureRecognizer: UITapGestureRecognizer) {
+        // Get the touch location
+        guard let viewModel = viewModel, let user = user else { return }
+        if viewModel.postReference == nil {
+            delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
+            return
+        }
+        
+        let touchLocation = gestureRecognizer.location(in: postTextView)
+        postTextView.isSelectable = false
+        // Check if the tap is within the desired range
+        let linkRange = postTextView.attributedText.string.range(of: "EVIDENCE")
+        let layoutManager = postTextView.layoutManager
+        let charIndex = layoutManager.characterIndex(for: touchLocation, in: postTextView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+        if let range = linkRange {
+            let nsRange = NSRange(range, in: postTextView.attributedText.string)
+            if NSLocationInRange(charIndex, nsRange) {
+                guard let reference = viewModel.postReference else { return }
+                delegate?.cell(self, wantsToSeeReference: reference)
+                postTextView.isSelectable = true
+            } else {
+                delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
+                postTextView.isSelectable = true
+            }
+        }
+        postTextView.isSelectable = true
+    }
+        
     // MARK: - Helpers
     
     func configure() {
         guard let viewModel = viewModel else { return }
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + viewModel.evidenceString + " • Edited • " : viewModel.timestampString! + viewModel.evidenceString  + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
-        postTextView.text = viewModel.postText
         userPostView.dotsImageButton.menu = addMenuItems()
         
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
@@ -98,6 +119,15 @@ class HomeTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
+        
+        
+        if let _ = viewModel.postReference {
+            let attributedText = NSMutableAttributedString(string: "EVIDENCE", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: primaryColor])
+            attributedText.append(NSAttributedString(string: " • " + viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label]))
+            postTextView.attributedText = attributedText
+        } else {
+            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])
+        }
         
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
@@ -110,16 +140,6 @@ class HomeTextCell: UICollectionViewCell {
             
         } else {
             showMoreView.isHidden = true
-        }
-        
-        if let reference = viewModel.postReference {
-            postReferenceView.isHidden = false
-            referenceHeightAnchor.isActive = false
-            referenceHeightAnchor.constant = 26
-            referenceHeightAnchor.isActive = true
-            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
-        } else {
-            postReferenceView.isHidden = true
         }
     }
 
@@ -202,13 +222,6 @@ extension HomeTextCell: MEUserPostViewDelegate {
     func didTapProfile() {
         guard let user = user else { return }
         delegate?.cell(self, wantsToShowProfileFor: user)
-    }
-}
-
-extension HomeTextCell: MEReferenceViewDelegate {
-    func didTapShowReference() {
-        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
-        delegate?.cell(self, wantsToSeeReference: reference)
     }
 }
 

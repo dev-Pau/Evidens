@@ -10,9 +10,6 @@ import UIKit
 class CommentInputTextView: UITextView {
     
     //MARK: - Properties
-    
-    
-    
     var maxHeight: CGFloat = 0.0
     
     var placeholderText: String? {
@@ -53,7 +50,7 @@ class CommentInputTextView: UITextView {
     
     override var intrinsicContentSize: CGSize {
             var size = super.intrinsicContentSize
-            
+           
             if size.height == UIView.noIntrinsicMetric {
                 // force layout
                 layoutManager.glyphRange(for: textContainer)
@@ -79,6 +76,7 @@ class CommentInputTextView: UITextView {
     
     //MARK: - Actions
     @objc func handleTextDidChange() {
+
         invalidateIntrinsicContentSize()
         placeholderLabel.isHidden = !text.isEmpty
     }

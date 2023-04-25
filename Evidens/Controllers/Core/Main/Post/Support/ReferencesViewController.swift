@@ -70,7 +70,7 @@ class ReferencesViewController: UIViewController {
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
-        button.configuration?.attributedTitle = AttributedString("Citation with Authors", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Complete Citation", attributes: container)
         button.addTarget(self, action: #selector(handleAddCitation), for: .touchUpInside)
         return button
     }()

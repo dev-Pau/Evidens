@@ -225,6 +225,29 @@ struct GroupService {
         }
     }
     
+    static func uploadGroupPost(post: Post, withPermission permission: Group.Permissions, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupId = post.groupId else { return }
+        
+        let postId = COLLECTION_GROUPS.document(groupId).collection("posts").document().documentID
+        
+        var data = ["post": post.postText,
+                    "timestamp": Timestamp(date: Date()),
+                    "ownerUid": uid,
+                    "professions": post.professions.map({ $0.profession }),
+                    "groupId": groupId,
+                    "type": post.type.rawValue,
+                    "privacy": post.privacyOptions.rawValue] as [String : Any]
+        
+        if post.postImageUrl.count > 0 {
+            data["postImageUrl"] = post.postImageUrl
+        }
+
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).setData(data, completion: completion)
+        DatabaseManager.shared.uploadRecentPostToGroup(withGroupId: groupId, withPostId: postId, withPermission: permission) { uploaded in
+            print("post group uploaded")
+        }
+    }
+    
     static func deleteGroupPost(groupId: String, postId: String, completion: @escaping(FirestoreCompletion)) {
         COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).delete(completion: completion)
     }

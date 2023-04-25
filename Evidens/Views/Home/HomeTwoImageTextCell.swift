@@ -23,8 +23,6 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     private var userPostView = MEUserPostView()
     var postTextView = MEPostTextView()
-    private let postReferenceView = MEReferenceView()
-    private var referenceHeightAnchor: NSLayoutConstraint!
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
@@ -63,7 +61,6 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         
         userPostView.delegate = self
-        postReferenceView.delegate = self
         actionButtonsView.delegate = self
         reviewActionButtonsView.delegate = self
         
@@ -77,13 +74,10 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         
-        cellContentView.addSubviews(userPostView, postTextView, postReferenceView, postImageView, postTwoImageView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, postTextView, postImageView, postTwoImageView, actionButtonsView)
         
         let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 350)
         postImageViewHeightConstraint.priority = UILayoutPriority(999)
-        
-        referenceHeightAnchor = postReferenceView.heightAnchor.constraint(equalToConstant: 0)
-        referenceHeightAnchor.isActive = true
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -95,17 +89,12 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postReferenceView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
-            postReferenceView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            postReferenceView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            
-            postImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
+            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            //postImageView.heightAnchor.constraint(equalToConstant: 350),
             postImageViewHeightConstraint,
             postImageView.widthAnchor.constraint(equalToConstant: frame.width / 2 - 4),
             
-            postTwoImageView.topAnchor.constraint(equalTo: postReferenceView.bottomAnchor),
+            postTwoImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
             postTwoImageView.leadingAnchor.constraint(equalTo: postImageView.trailingAnchor, constant: 2),
             postTwoImageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             postTwoImageView.bottomAnchor.constraint(equalTo: postImageView.bottomAnchor),
@@ -115,12 +104,37 @@ class HomeTwoImageTextCell: UICollectionViewCell {
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(textViewTapped(_:)))
+        postTextView.addGestureRecognizer(tapGestureRecognizer)
     }
     
 
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func textViewTapped(_ gestureRecognizer: UITapGestureRecognizer) {
+        // Get the touch location
+        let touchLocation = gestureRecognizer.location(in: postTextView)
+        postTextView.isSelectable = false
+        // Check if the tap is within the desired range
+        let linkRange = postTextView.attributedText.string.range(of: "EVIDENCE")
+        let layoutManager = postTextView.layoutManager
+        let charIndex = layoutManager.characterIndex(for: touchLocation, in: postTextView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+        if let range = linkRange {
+            let nsRange = NSRange(range, in: postTextView.attributedText.string)
+                    if NSLocationInRange(charIndex, nsRange) {
+                        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
+                        delegate?.cell(self, wantsToSeeReference: reference)
+                    } else {
+                        guard let viewModel = viewModel, let user = user else { return }
+                        delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
+                    }
+            
+            postTextView.isSelectable = true
+        }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
@@ -146,39 +160,37 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " ·• Edited • " : viewModel.timestampString! + " • "
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
-        postTextView.text = viewModel.postText
-        
+
         actionButtonsView.likesLabel.text = viewModel.likesLabelText
         actionButtonsView.commentLabel.text = viewModel.commentsLabelText
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-
+        
+        if let _ = viewModel.postReference {
+            let attributedText = NSMutableAttributedString(string: "EVIDENCE", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: primaryColor])
+            attributedText.append(NSAttributedString(string: " • " + viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label]))
+            postTextView.attributedText = attributedText
+        } else {
+            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])
+        }
+        
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
             NSLayoutConstraint.activate([
                 showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
                 showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
                 showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-                showMoreView.widthAnchor.constraint(equalToConstant: 130),
+                showMoreView.widthAnchor.constraint(equalToConstant: 70),
             ])
             
         } else {
             showMoreView.isHidden = true
         }
-        
+
         postImageView.sd_setImage(with: viewModel.postImageUrl[0])
         postTwoImageView.sd_setImage(with: viewModel.postImageUrl[1])
         
-        if let reference = viewModel.postReference {
-            postReferenceView.isHidden = false
-            referenceHeightAnchor.isActive = false
-            referenceHeightAnchor.constant = 26
-            referenceHeightAnchor.isActive = true
-            postReferenceView.configureWithReference(reference, referenceText: viewModel.postReferenceText)
-        } else {
-            postReferenceView.isHidden = true
-        }
     }
     
     private func addMenuItems() -> UIMenu? {
@@ -259,20 +271,12 @@ extension HomeTwoImageTextCell: MEUserPostViewDelegate {
     }
 }
 
-extension HomeTwoImageTextCell: MEReferenceViewDelegate {
-    func didTapShowReference() {
-        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
-        delegate?.cell(self, wantsToSeeReference: reference)
-    }
-}
-
 extension HomeTwoImageTextCell: MEPostInfoViewDelegate {
     func wantsToShowLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.cell(wantsToSeeLikesFor: viewModel.post)
     }
 }
-
 
 extension HomeTwoImageTextCell: MEPostActionButtonsDelegate {
     func handleShowLikes() {

@@ -262,6 +262,10 @@ extension CommentCaseViewController: CommentCellDelegate {
 //MARK: - CommentInputAccesoryViewDelegate
 
 extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
+    func didTapAddReference() {
+        
+    }
+    
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         //Upload commento to Firebase
         if clinicalCase.ownerUid == currentUser.uid && clinicalCase.privacyOptions == .nonVisible {

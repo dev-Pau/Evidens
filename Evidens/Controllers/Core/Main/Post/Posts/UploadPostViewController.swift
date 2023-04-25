@@ -301,7 +301,6 @@ class UploadPostViewController: UIViewController {
     @objc func didTapShare() {
         guard let postTextView = postTextView.text, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let imagesToUpload = postImages.compactMap { $0 }
-        let postType = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
         
         var postToUpload = Post(postId: "", dictionary: [:])
         postToUpload.postText = postTextView
@@ -318,14 +317,37 @@ class UploadPostViewController: UIViewController {
         progressIndicator.show(in: view)
         
         if let group = group {
-            // Group post
+            postToUpload.groupId = group.groupId
             if postImages.isEmpty {
+                GroupService.uploadGroupPost(post: postToUpload, withPermission: group.permissions) { error in
+                    self.progressIndicator.dismiss(animated: true)
+                    if let error = error {
+                        print("DEBUG: \(error.localizedDescription)")
+                        return
+                    } else {
+                        self.dismiss(animated: true)
+                    }
+                }
+            } else {
+                StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
+                    postToUpload.postImageUrl = imageUrl
+                    GroupService.uploadGroupPost(post: postToUpload, withPermission: group.permissions) { error in
+                        self.progressIndicator.dismiss(animated: true)
+                        if let error = error {
+                            print("DEBUG: \(error.localizedDescription)")
+                            return
+                        } else {
+                            self.dismiss(animated: true)
+                        }
+                    }
+                }
+            }
+            /*
+            postToUpload.groupId = group.groupId
+            // Group post
+            if !postImages.isEmpty {
                 //let imagesToUpload = postImages.compactMap { $0 }
-                let postType = Post.PostType(rawValue: imagesToUpload.count) ?? .plainText
-                //if postImages.count == 1 {
-                    
-                    #warning("pujar el post amb type")
-                //} else {
+                
                     StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
                         GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: self.selectedProfessions, type: postType, privacy: .group, groupPermission: group.permissions, postImageUrl: imageUrl) { error in
                             self.progressIndicator.dismiss(animated: true)
@@ -337,7 +359,6 @@ class UploadPostViewController: UIViewController {
                                 return
                             }
                         }
-                  //  }
                 }
             } else {
                 GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: selectedProfessions, type: .plainText, privacy: .group, groupPermission: group.permissions, postImageUrl: nil) { error in
@@ -352,14 +373,11 @@ class UploadPostViewController: UIViewController {
                     }
                 }
             }
+             */
             }
-        
         else {
             // No group post
             if postImages.isEmpty {
-                print(postToUpload)
-                return
-                postToUpload.postImageUrl = [String]()
                 PostService.uploadPost(post: postToUpload) { error in
                     self.progressIndicator.dismiss(animated: true)
                     if let error = error {
@@ -370,10 +388,7 @@ class UploadPostViewController: UIViewController {
                     }
                 }
             } else {
-                let imagesToUpload = postImages.compactMap { $0 }
-                print(postToUpload)
-                print("We are uploading \(imagesToUpload.count) images")
-                return
+
                 StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imagesUrl in
                     postToUpload.postImageUrl = imagesUrl
                     PostService.uploadPost(post: postToUpload) { error in

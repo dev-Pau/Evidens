@@ -192,6 +192,8 @@
 		5F91F11929BF380B007BB567 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11829BF380B007BB567 /* SearchService.swift */; };
 		5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11A29BF8253007BB567 /* NewViewModel.swift */; };
 		5F91F11D29C05820007BB567 /* NewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11C29C05820007BB567 /* NewService.swift */; };
+		5F92FD2929F7BB9400E2894D /* MECommentActionButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */; };
+		5F92FD2B29F7C07100E2894D /* MECommentReplyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */; };
 		5F931CAF29F4221B0009E508 /* AddReferenceHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */; };
 		5F93E7B029DF0C76001E146C /* PostAssistantToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */; };
 		5F944776290A63DC003B3DA0 /* DiagnosisCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */; };
@@ -646,6 +648,8 @@
 		5F91F11829BF380B007BB567 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		5F91F11A29BF8253007BB567 /* NewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewModel.swift; sourceTree = "<group>"; };
 		5F91F11C29C05820007BB567 /* NewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewService.swift; sourceTree = "<group>"; };
+		5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECommentActionButtons.swift; sourceTree = "<group>"; };
+		5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECommentReplyView.swift; sourceTree = "<group>"; };
 		5F931CAE29F4221B0009E508 /* AddReferenceHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReferenceHeader.swift; sourceTree = "<group>"; };
 		5F93E7AF29DF0C76001E146C /* PostAssistantToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAssistantToolbar.swift; sourceTree = "<group>"; };
 		5F944775290A63DC003B3DA0 /* DiagnosisCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisCaseCell.swift; sourceTree = "<group>"; };
@@ -2168,6 +2172,8 @@
 				5F25908A28D0CE360018965C /* SearchBarContainerView.swift */,
 				5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */,
 				5F6076C0299A7BBF0015AA16 /* MEProgressHUD.swift */,
+				5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */,
+				5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -3103,6 +3109,7 @@
 				5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */,
 				5F9E42962880583D00C2153B /* ProfessionRegistrationViewController.swift in Sources */,
 				5F9A280A29769E1B0052E618 /* GroupPermissionCell.swift in Sources */,
+				5F92FD2B29F7C07100E2894D /* MECommentReplyView.swift in Sources */,
 				5F77BF7028587DBF00F31A75 /* MEUserPostView.swift in Sources */,
 				5F9A9F8F2897F28A00A25152 /* AddLanguageViewController.swift in Sources */,
 				5F0A4F3F271C2BC300700304 /* MEStretchyHeader.swift in Sources */,
@@ -3358,6 +3365,7 @@
 				5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F8F094029A49A2400927270 /* CompanyService.swift in Sources */,
+				5F92FD2929F7BB9400E2894D /* MECommentActionButtons.swift in Sources */,
 				5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
 				5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */,
