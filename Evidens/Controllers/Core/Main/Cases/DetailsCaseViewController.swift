@@ -209,6 +209,24 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 }
 
 extension DetailsCaseViewController: CommentCellDelegate {
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        #warning("implement")
+    }
+    
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        if comment.isTextFromAuthor { return }
+        if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+            #warning("Create one for comment replies case")
+            //let controller = CommentsRepliesViewController(comments: [comment], users: [users[userIndex]])
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
+            //navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:

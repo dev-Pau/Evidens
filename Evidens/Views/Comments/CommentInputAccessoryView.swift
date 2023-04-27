@@ -63,7 +63,7 @@ class CommentInputAccessoryView: UIView {
         button.configuration = .filled()
         button.isEnabled = false
         button.configuration?.baseBackgroundColor = primaryColor
-        button.configuration?.image = UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        button.configuration?.image = UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
         button.configuration?.cornerStyle = .capsule
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -94,29 +94,24 @@ class CommentInputAccessoryView: UIView {
         
         commentTextView.maxHeight = 170
         
-        addSubviews(profileImageView, postRoundedButton, commentTextView, referenceImageView, topView)
+        addSubviews(profileImageView, commentTextView, postRoundedButton, topView)
         
         NSLayoutConstraint.activate([
             
-            postRoundedButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
-            postRoundedButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            postRoundedButton.widthAnchor.constraint(equalToConstant: 37),
-            postRoundedButton.heightAnchor.constraint(equalToConstant: 37),
-            
             commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
-            commentTextView.trailingAnchor.constraint(equalTo: postRoundedButton.leadingAnchor, constant: -10),
+            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
             
-            profileImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor),
+            profileImageView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 37),
             profileImageView.widthAnchor.constraint(equalToConstant: 37),
-            
-            referenceImageView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor, constant: -10),
-            referenceImageView.centerYAnchor.constraint(equalTo: postRoundedButton.centerYAnchor),
-            referenceImageView.heightAnchor.constraint(equalToConstant: 25),
-            referenceImageView.widthAnchor.constraint(equalToConstant: 25),
+
+            postRoundedButton.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor, constant: -5),
+            postRoundedButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            postRoundedButton.heightAnchor.constraint(equalToConstant: 27),
+            postRoundedButton.widthAnchor.constraint(equalToConstant: 27),
             
             topView.topAnchor.constraint(equalTo: topAnchor),
             topView.leadingAnchor.constraint(equalTo: leadingAnchor),

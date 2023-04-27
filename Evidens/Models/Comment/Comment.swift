@@ -22,6 +22,10 @@ struct Comment {
     let isAuthor: Bool
     let isTextFromAuthor: Bool
     
+    var didLike = false
+    var likes = 0
+    var numberOfComments = 0
+    
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""
         self.id = dictionary["id"] as? String ?? ""

@@ -8,7 +8,7 @@
 import UIKit
 
 struct CommentViewModel {
-    let comment: Comment
+    var comment: Comment
     
     var anonymousComment: Bool {
         return comment.anonymous
@@ -38,6 +38,30 @@ struct CommentViewModel {
         return formatter.string(from: comment.timestamp.dateValue(), to: Date())
     }
     
+    var numberOfComments: Int {
+        return comment.numberOfComments
+    }
+    
+    var commentsLabelText: String {
+        return numberOfComments == 0 ? String() : "\(numberOfComments)"
+    }
+    
+    var likes: Int {
+        return comment.likes
+    }
+    
+    var likesLabelText: String {
+        return likes == 0 ? String() : "\(likes)"
+    }
+    
+    var likeButtonImage: UIImage? {
+        let imageName = comment.didLike ? "heart.fill" : "heart"
+        if comment.didLike {
+            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.systemPink)
+        } else {
+            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.label)
+        }
+    }
     
     init(comment: Comment) {
         self.comment = comment

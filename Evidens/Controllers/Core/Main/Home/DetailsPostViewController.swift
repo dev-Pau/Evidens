@@ -717,6 +717,57 @@ extension DetailsPostViewController: HomeCellDelegate {
 }
 
 extension DetailsPostViewController: CommentCellDelegate {
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        #warning("Implement")
+        /*
+         func cell(_ cell: UICollectionViewCell, didLike post: Post) {
+             guard let tab = tabBarController as? MainTabController else { return }
+             guard let user = tab.user else { return }
+             
+             
+             HapticsManager.shared.vibrate(for: .success)
+             
+             switch cell {
+             case is HomeTextCell:
+                 let currentCell = cell as! HomeTextCell
+                 currentCell.viewModel?.post.didLike.toggle()
+                 if post.didLike {
+                     //Unlike post here
+                     switch type {
+                     case .regular:
+                         PostService.unlikePost(post: post) { _ in
+                             currentCell.viewModel?.post.likes = post.likes - 1
+                             self.delegate?.didTapLikeAction(forPost: post)
+                         }
+                     case .group:
+                         //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
+                         //  currentCell.viewModel?.post.likes = post.likes + 1+
+                         currentCell.viewModel?.post.likes = post.likes - 1
+                         self.delegate?.didTapLikeAction(forPost: post)
+                         // }
+                     }
+                     
+                 } else {
+                     //Like post here
+         */
+    }
+    
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        if comment.isTextFromAuthor { return }
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
+        if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+            let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: .regular, currentUser: user)
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:

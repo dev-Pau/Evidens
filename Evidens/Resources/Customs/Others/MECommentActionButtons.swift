@@ -7,14 +7,20 @@
 
 import UIKit
 
+protocol MECommentActionButtonsDelegate: AnyObject {
+    func handleLike()
+    //func wantsToSeeCommentLikes()
+    func wantsToSeeReplies()
+}
+
 class MECommentActionButtons: UIView {
+    weak var delegate: MECommentActionButtonsDelegate?
     
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "hand.thumbsup", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        //button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleLike), for: .touchUpInside)
         return button
     }()
     
@@ -34,8 +40,8 @@ class MECommentActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
-        //button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
+        button.configuration?.image = UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
     
@@ -58,6 +64,7 @@ class MECommentActionButtons: UIView {
     
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
+        isUserInteractionEnabled = true
         addSubviews(likeButton, likesLabel, commentButton)
         NSLayoutConstraint.activate([
             likeButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -66,19 +73,23 @@ class MECommentActionButtons: UIView {
             likeButton.widthAnchor.constraint(equalToConstant: 20),
             
             likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: -5),
+            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
             likesLabel.widthAnchor.constraint(equalToConstant: 30),
             //likesLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -20),
             
             commentButton.leadingAnchor.constraint(equalTo: likesLabel.trailingAnchor, constant: 10),
             commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            commentButton.widthAnchor.constraint(equalToConstant: 20),
-            commentButton.heightAnchor.constraint(equalToConstant: 20),
-            
-            
+            commentButton.widthAnchor.constraint(equalToConstant: 22),
+            commentButton.heightAnchor.constraint(equalToConstant: 22),
         ])
     }
     
+    @objc func handleLike() {
+        HomeHeartAnimation.shared.animateLikeTap(likeButton)
+        delegate?.handleLike()
+    }
     
-    
+    @objc func handleComment() {
+        delegate?.wantsToSeeReplies()
+    }
 }

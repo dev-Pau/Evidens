@@ -104,12 +104,15 @@ class CommentPostViewController: UICollectionViewController {
                 // Found comments
                 self.lastCommentSnapshot = snapshot.documents.last
                 let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
-                self.comments.append(contentsOf: comments)
-                let uids = comments.map { $0.uid }
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.users.append(contentsOf: users)
-                    self.commentsLoaded = true
-                    self.collectionView.reloadData()
+                
+                CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: comments, forType: self.type) { fetchedComments in
+                    self.comments.append(contentsOf: fetchedComments)
+                    let uids = comments.map { $0.uid }
+                    UserService.fetchUsers(withUids: uids) { users in
+                        self.users.append(contentsOf: users)
+                        self.commentsLoaded = true
+                        self.collectionView.reloadData()
+                    }
                 }
             }
         }
@@ -154,6 +157,7 @@ class CommentPostViewController: UICollectionViewController {
             self.lastCommentSnapshot = snapshot.documents.last
             let newComments = snapshot.documents.map( { Comment(dictionary: $0.data()) })
             let newOwnerUids = newComments.map({ $0.uid })
+            #warning("fetch new comment values")
             UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
                 self.comments.append(contentsOf: newComments)
                 self.users.append(contentsOf: newUsers)
@@ -200,6 +204,54 @@ extension CommentPostViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension CommentPostViewController: CommentCellDelegate {
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        HapticsManager.shared.vibrate(for: .success)
+        let currentCell = cell as! CommentCell
+        currentCell.viewModel?.comment.didLike.toggle()
+
+        if comment.didLike {
+            switch type {
+            case .regular:
+                CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                    currentCell.viewModel?.comment.likes = comment.likes - 1
+                    self.comments[indexPath.row].didLike = false
+                    self.comments[indexPath.row].likes -= 1
+                }
+            case .group:
+                print("group unlike")
+                #warning("implement group like")
+            }
+        } else {
+            switch type {
+                
+            case .regular:
+                CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                    currentCell.viewModel?.comment.likes = comment.likes + 1
+                    self.comments[indexPath.row].didLike = true
+                    self.comments[indexPath.row].likes += 1
+                }
+            case .group:
+                print("group like")
+                #warning("implement group like")
+            }
+        }
+    }
+    
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        if comment.isTextFromAuthor { return }
+        if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+            let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser)
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
+            navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:
@@ -300,7 +352,7 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
     @objc func didReceiveNotification(notification: NSNotification) {
         if let reference = notification.userInfo, let selectedReference = reference["reference"] as? Reference {
             self.reference = selectedReference
-            let reportPopup = METopPopupView(title: "Reference added to your comment.", image: "xmark.circle.fill", popUpType: .regular)
+            let reportPopup = METopPopupView(title: "Reference added to your comment", image: "checkmark.circle.fill", popUpType: .regular)
             reportPopup.showTopPopup(inView: self.view)
             
             commentInputView.updateReferenceButton(reference: selectedReference)

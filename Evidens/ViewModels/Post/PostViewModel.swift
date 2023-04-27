@@ -15,7 +15,7 @@ struct PostViewModel {
     }
     
     var postText: String {
-        return post.postText
+        return post.postText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     var comments: Int {

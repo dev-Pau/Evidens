@@ -209,6 +209,24 @@ extension CommentCaseViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension CommentCaseViewController: CommentCellDelegate {
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        #warning("implement")
+    }
+    
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        if comment.isTextFromAuthor { return }
+        if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+            #warning("Create one for commentrepliescase")
+            //let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser)
+            let backItem = UIBarButtonItem()
+            backItem.tintColor = .label
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
+            
+            //navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:

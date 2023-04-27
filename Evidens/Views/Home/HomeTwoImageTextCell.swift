@@ -120,7 +120,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         let touchLocation = gestureRecognizer.location(in: postTextView)
         postTextView.isSelectable = false
         // Check if the tap is within the desired range
-        let linkRange = postTextView.attributedText.string.range(of: "EVIDENCE")
+        let linkRange = postTextView.attributedText.string.range(of: "Reference")
         let layoutManager = postTextView.layoutManager
         let charIndex = layoutManager.characterIndex(for: touchLocation, in: postTextView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
         if let range = linkRange {
@@ -168,8 +168,8 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
         
         if let _ = viewModel.postReference {
-            let attributedText = NSMutableAttributedString(string: "EVIDENCE", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: primaryColor])
-            attributedText.append(NSAttributedString(string: " • " + viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label]))
+            let attributedText = NSMutableAttributedString(string: "Reference", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.secondaryLabel])
+            attributedText.append(NSAttributedString(string: "\n\(viewModel.postText)", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label]))
             postTextView.attributedText = attributedText
         } else {
             postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])

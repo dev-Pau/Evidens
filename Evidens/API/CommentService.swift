@@ -41,6 +41,22 @@ struct CommentService {
         }
     }
     
+    static func uploadPostReplyComment(comment: String, commentId: String, post: Post, user: User, type: Comment.CommentType, completion: @escaping(String) -> Void) {
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
+            let data: [String: Any] = ["uid": user.uid as Any,
+                                       "comment": comment,
+                                       "id": commentRef.documentID,
+                                       "timestamp": Timestamp(date: Date())]
+            commentRef.setData(data) { _ in
+                completion(commentRef.documentID)
+            }
+        case .group:
+            #warning("implement group")
+        }
+    }
+    
     static func uploadCaseComment(comment: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping([String]) -> Void) {
         let isAuthor = (clinicalCase.ownerUid == user.uid) ? true : false
         
@@ -403,7 +419,6 @@ struct CommentService {
             }
         }
     }
-     
     
     static func deletePostComment(forPost post: Post, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
         COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).delete { error in
@@ -430,5 +445,154 @@ struct CommentService {
             completion(true)
         }
     }
-   
+    
+    
+    static func likePostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
+            }
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comment-likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
+            }
+        }
+    }
+    
+    static func unlikePostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).delete(completion: completion)
+            }
+            
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comment-likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).delete(completion: completion)
+            }
+        }
+    }
+    
+    static func getPostCommmentsValuesFor(forPost post: Post, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+        var commentsWithValues = [Comment]()
+        
+        switch type {
+        case .regular:
+            comments.forEach { comment in
+                getPostCommentValuesFor(forPost: post, forComment: comment, forType: .regular) { fetchedComment in
+                    commentsWithValues.append(fetchedComment)
+                    if commentsWithValues.count == comments.count {
+                        completion(commentsWithValues)
+                    }
+                }
+            }
+        case .group:
+            #warning("implement group")
+        }
+    }
+    
+    static func getPostCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, completion: @escaping(Comment) -> Void) {
+        var auxComment = comment
+        switch type {
+        case .regular:
+            checkIfUserLikedPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { like in
+                fetchLikesForPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { likes in
+                    fetchNumberOfCommentsForPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { comments in
+                        auxComment.didLike = like
+                        auxComment.likes = likes
+                        auxComment.numberOfComments = comments
+                        completion(auxComment)
+                    }
+                }
+            }
+        case .group:
+            #warning("implement group")
+        }
+    }
+    
+    static func fetchLikesForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+        switch type {
+        case .regular:
+            let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        case .group:
+            let likesRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comment-likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        }
+    }
+    
+    static func fetchNumberOfCommentsForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+        switch type {
+        case .regular:
+            let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").count
+            commentsRef.getAggregation(source: .server) { snapshot, _ in
+                if let comments = snapshot?.count {
+                    completion(comments.intValue)
+                }
+            }
+        case .group:
+            let commentsRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comment-likes").count
+            commentsRef.getAggregation(source: .server) { snapshot, _ in
+                if let comments = snapshot?.count {
+                    completion(comments.intValue)
+                }
+            }
+        }
+        
+    }
+  
+    /*
+     static func getGroupPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
+         var auxPost = post
+         checkIfUserLikedPost(post: post) { like in
+             checkIfUserBookmarkedPost(post: post) { bookmark in
+                 GroupService.fetchLikesForGroupPost(groupId: post.groupId!, postId: post.postId) { likes in
+                     CommentService.fetchNumberOfCommentsForPost(post: post, type: .group) { comments in
+                         auxPost.didLike = like
+                         auxPost.didBookmark = bookmark
+                         auxPost.numberOfComments = comments
+                         auxPost.likes = likes
+                         completion(auxPost)
+                     }
+                 }
+             }
+         }
+     }
+     */
+    
+    static func checkIfUserLikedPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let _ = post.groupId {
+            COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        } else {
+            COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        }
+
+    }
 }

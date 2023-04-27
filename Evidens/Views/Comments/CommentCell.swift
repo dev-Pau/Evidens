@@ -11,6 +11,8 @@ import SDWebImage
 protocol CommentCellDelegate: AnyObject {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions)
     func didTapProfile(forUser user: User)
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment)
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment)
 }
 
 class CommentCell: UICollectionViewCell {
@@ -23,6 +25,8 @@ class CommentCell: UICollectionViewCell {
     
     private var user: User?
     private var heightAuthorAnchor: NSLayoutConstraint!
+    private var heightActionsConstraint: NSLayoutConstraint!
+    var showingRepliesForComment: Bool = false
 
     weak var delegate: CommentCellDelegate?
     
@@ -139,6 +143,8 @@ class CommentCell: UICollectionViewCell {
         //timeLabelLeadingConstraint.isActive = true
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
         heightAuthorAnchor.isActive = true
+        heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
+        heightActionsConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
@@ -175,8 +181,10 @@ class CommentCell: UICollectionViewCell {
             
             commentActionButtons.topAnchor.constraint(equalTo: commentTextView.bottomAnchor),
             commentActionButtons.leadingAnchor.constraint(equalTo: commentTextView.leadingAnchor),
-            commentActionButtons.heightAnchor.constraint(equalToConstant: 40),
+            commentActionButtons.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            //commentActionButtons.heightAnchor.constraint(equalToConstant: 40),
             commentActionButtons.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
+
             
             separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
@@ -184,14 +192,26 @@ class CommentCell: UICollectionViewCell {
             separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
         
+        commentActionButtons.delegate = self
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(textViewTapped(_:)))
+        commentTextView.addGestureRecognizer(tapGestureRecognizer)
         profileImageView.layer.cornerRadius = 40 / 2
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
- 
+    
+    @objc func textViewTapped(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard let viewModel = viewModel else { return }
+        commentTextView.isSelectable = false
+        delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
+        commentTextView.isSelectable = true
+    }
+     
+    
     //MARK: - Helpers
     
     private func configure() {
@@ -200,8 +220,19 @@ class CommentCell: UICollectionViewCell {
         timestampLabel.text = viewModel.timestampString
         dotsImageButton.menu = addMenuItems()
         
-        if commentTextView.isTextTruncated {
+        commentActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
+        commentActionButtons.likesLabel.text = viewModel.likesLabelText
+        
+        if showingRepliesForComment {
+            commentTextView.textContainer.maximumNumberOfLines = 0
+            return
+        }
+        
+        if commentTextView.isTextTruncated && !viewModel.isTextFromAuthor {
             addSubview(showMoreView)
+            showMoreView.isHidden = false
+            showMoreView.isUserInteractionEnabled = true
+            showMoreView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))
             NSLayoutConstraint.activate([
                 showMoreView.heightAnchor.constraint(equalToConstant: commentTextView.font?.lineHeight ?? 0.0),
                 showMoreView.bottomAnchor.constraint(equalTo: commentTextView.bottomAnchor, constant: -1),
@@ -210,10 +241,23 @@ class CommentCell: UICollectionViewCell {
             ])
             
         } else {
+            showMoreView.isUserInteractionEnabled = false
             showMoreView.isHidden = true
         }
+        
+        if viewModel.isTextFromAuthor {
+            commentTextView.textContainer.maximumNumberOfLines = 0
+            commentActionButtons.isHidden = true
+            //heightActionsConstraint.isActive = false
+            heightActionsConstraint.constant = 10
+            heightActionsConstraint.isActive = true
+        } else {
+            commentTextView.textContainer.maximumNumberOfLines = 4
+            commentActionButtons.isHidden = false
+            heightActionsConstraint.constant = 40
+            heightActionsConstraint.isActive = true
+        }
     }
-    
     
     func set(user: User) {
         guard let viewModel = viewModel else { return }
@@ -243,8 +287,6 @@ class CommentCell: UICollectionViewCell {
             heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
             heightAuthorAnchor.isActive = true
         }
-        
-        
     }
     
     private func addMenuItems() -> UIMenu? {
@@ -271,30 +313,6 @@ class CommentCell: UICollectionViewCell {
                 })])
             return menuItems
         }
-        
-        
-        
-        /*
-        if viewModel.isTextFromAuthor {
-            let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.back.rawValue, image: Comment.CommentOptions.back.commentOptionsImage, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .back)
-                })])
-            return menuItems
-        } else if viewModel.isAuthor {
-            let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
-                })])
-            return menuItems
-        } else {
-            let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.report.rawValue, image: Comment.CommentOptions.report.commentOptionsImage, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .report)
-                })])
-            return menuItems
-        }
-         */
     }
     
     @objc func didTapProfile() {
@@ -304,6 +322,10 @@ class CommentCell: UICollectionViewCell {
         }
     }
     
+    @objc func handleSeeMore() {
+        guard let viewModel = viewModel, let user = user else { return }
+        delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
+    }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
@@ -312,5 +334,17 @@ class CommentCell: UICollectionViewCell {
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
+    }
+}
+
+extension CommentCell: MECommentActionButtonsDelegate {
+    func wantsToSeeReplies() {
+        guard let viewModel = viewModel else { return }
+        delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
+    }
+    
+    func handleLike() {
+        guard let viewModel = viewModel else { return }
+        delegate?.didTapLikeActionFor(self, forComment: viewModel.comment)
     }
 }
