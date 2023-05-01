@@ -27,6 +27,7 @@ class CommentCell: UICollectionViewCell {
     private var heightAuthorAnchor: NSLayoutConstraint!
     private var heightActionsConstraint: NSLayoutConstraint!
     var showingRepliesForComment: Bool = false
+    var isReply: Bool = false
 
     weak var delegate: CommentCellDelegate?
     
@@ -110,10 +111,9 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
-    private let commentActionButtons = MECommentActionButtons()
-    private let commentReplyView = MECommentReplyView()
-    #warning("Add this view ^")
-    private let separatorView: UIView = {
+    var commentActionButtons = MECommentActionButtons()
+
+    var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = separatorColor
@@ -222,9 +222,12 @@ class CommentCell: UICollectionViewCell {
         
         commentActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
         commentActionButtons.likesLabel.text = viewModel.likesLabelText
+        commentActionButtons.commentsLabel.text = viewModel.commentsLabelText
         
         if showingRepliesForComment {
             commentTextView.textContainer.maximumNumberOfLines = 0
+            commentActionButtons.commentsLabel.removeFromSuperview()
+            commentActionButtons.ownerPostImageView.removeFromSuperview()
             return
         }
         
@@ -329,7 +332,7 @@ class CommentCell: UICollectionViewCell {
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+        let targetSize = CGSize(width: isReply ? layoutAttributes.frame.width - 50 : layoutAttributes.frame.width, height: 0)
         let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame

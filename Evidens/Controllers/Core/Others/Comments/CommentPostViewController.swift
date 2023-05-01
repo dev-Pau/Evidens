@@ -105,6 +105,7 @@ class CommentPostViewController: UICollectionViewController {
                 self.lastCommentSnapshot = snapshot.documents.last
                 let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
                 
+                // Get comment post values
                 CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: comments, forType: self.type) { fetchedComments in
                     self.comments.append(contentsOf: fetchedComments)
                     let uids = comments.map { $0.uid }
@@ -121,7 +122,7 @@ class CommentPostViewController: UICollectionViewController {
     //MARK: - Helpers
     
     func configureCollectionView() {
-        //navigationItem.title = "Comments"
+        navigationItem.title = "Comments"
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -157,11 +158,12 @@ class CommentPostViewController: UICollectionViewController {
             self.lastCommentSnapshot = snapshot.documents.last
             let newComments = snapshot.documents.map( { Comment(dictionary: $0.data()) })
             let newOwnerUids = newComments.map({ $0.uid })
-            #warning("fetch new comment values")
-            UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
-                self.comments.append(contentsOf: newComments)
-                self.users.append(contentsOf: newUsers)
-                self.collectionView.reloadData()
+            CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: newComments, forType: self.type) { newCommentsFetched in
+                self.comments.append(contentsOf: newCommentsFetched)
+                UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                    self.users.append(contentsOf: newUsers)
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -193,6 +195,12 @@ extension CommentPostViewController: UICollectionViewDelegateFlowLayout {
         }!
         
         cell.set(user: users[userIndex])
+        
+        if comments[indexPath.row].hasCommentFromAuthor {
+            cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+        } else {
+            cell.commentActionButtons.ownerPostImageView.image = nil
+        }
 
         return cell
     }

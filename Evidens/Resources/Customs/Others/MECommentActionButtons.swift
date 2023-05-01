@@ -45,7 +45,19 @@ class MECommentActionButtons: UIView {
         return button
     }()
     
-    private let ownerPostImageView: UIImageView = {
+    lazy var commentsLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.textColor = primaryColor
+        label.numberOfLines = 0
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleComment)))
+        return label
+    }()
+    
+    lazy var ownerPostImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
@@ -65,7 +77,7 @@ class MECommentActionButtons: UIView {
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = true
-        addSubviews(likeButton, likesLabel, commentButton)
+        addSubviews(likeButton, likesLabel, commentButton, ownerPostImageView, commentsLabel)
         NSLayoutConstraint.activate([
             likeButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             likeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -81,6 +93,15 @@ class MECommentActionButtons: UIView {
             commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             commentButton.widthAnchor.constraint(equalToConstant: 22),
             commentButton.heightAnchor.constraint(equalToConstant: 22),
+            
+            commentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentsLabel.centerYAnchor.constraint(equalTo: likesLabel.centerYAnchor),
+            
+            ownerPostImageView.centerYAnchor.constraint(equalTo: commentButton.centerYAnchor),
+            ownerPostImageView.trailingAnchor.constraint(equalTo: commentsLabel.leadingAnchor, constant: -5),
+            ownerPostImageView.heightAnchor.constraint(equalToConstant: 20),
+            ownerPostImageView.widthAnchor.constraint(equalToConstant: 20),
+            
         ])
     }
     

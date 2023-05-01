@@ -38,12 +38,20 @@ struct CommentViewModel {
         return formatter.string(from: comment.timestamp.dateValue(), to: Date())
     }
     
+    var hasCommentFromAuthor: Bool {
+        return comment.hasCommentFromAuthor
+    }
+    
     var numberOfComments: Int {
         return comment.numberOfComments
     }
     
     var commentsLabelText: String {
-        return numberOfComments == 0 ? String() : "\(numberOfComments)"
+        return numberOfComments == 0 ? String() : numberOfComments == 1 ? "\(commentsReplyText)\(numberOfComments) reply" : "\(commentsReplyText)\(numberOfComments) replies"
+    }
+    
+    var commentsReplyText: String {
+        return hasCommentFromAuthor ? "• " : String()
     }
     
     var likes: Int {

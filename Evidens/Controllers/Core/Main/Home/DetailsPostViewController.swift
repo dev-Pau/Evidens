@@ -105,11 +105,15 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             
             self.commentsLastSnapshot = snapshot.documents.last
             self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            let userUids = self.comments.map { $0.uid }
-            UserService.fetchUsers(withUids: userUids) { users in
-                self.users = users
-                self.commentsLoaded = true
-                self.collectionView.reloadData()
+            
+            CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: self.comments, forType: self.type) { fetchedComments in
+                self.comments = fetchedComments
+                let uids = self.comments.map { $0.uid }
+                UserService.fetchUsers(withUids: uids) { users in
+                    self.users.append(contentsOf: users)
+                    self.commentsLoaded = true
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -268,9 +272,13 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
                     cell.set(user: users[userIndex])
                     cell.delegate = self
-
                 }
                 
+                if comments[indexPath.row].hasCommentFromAuthor {
+                    cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                } else {
+                    cell.commentActionButtons.ownerPostImageView.image = nil
+                }
                 
                 return cell
             }

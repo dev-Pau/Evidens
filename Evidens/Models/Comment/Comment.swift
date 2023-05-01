@@ -25,6 +25,7 @@ struct Comment {
     var didLike = false
     var likes = 0
     var numberOfComments = 0
+    var hasCommentFromAuthor = false
     
     init(dictionary: [String: Any]) {
         self.uid = dictionary["uid"] as? String ?? ""

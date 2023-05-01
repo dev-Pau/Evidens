@@ -289,6 +289,7 @@
 		5F9D7D5629E70B3E002EA21C /* AddReportContextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D5529E70B3E002EA21C /* AddReportContextViewController.swift */; };
 		5F9D7D5B29E80A90002EA21C /* ContextMenuFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D5A29E80A90002EA21C /* ContextMenuFooter.swift */; };
 		5F9D7D5D29E80E8E002EA21C /* ContextMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D7D5C29E80E8E002EA21C /* ContextMenuCell.swift */; };
+		5F9E12D029FFBF2E00CC5325 /* MELoadingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E12CF29FFBF2E00CC5325 /* MELoadingCell.swift */; };
 		5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */; };
 		5F9E4283287B352000C2153B /* CircularShapeTextTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */; };
 		5F9E4285287BE5C700C2153B /* DiagnosisResolvedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9E4284287BE5C700C2153B /* DiagnosisResolvedView.swift */; };
@@ -746,6 +747,7 @@
 		5F9D7D5529E70B3E002EA21C /* AddReportContextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReportContextViewController.swift; sourceTree = "<group>"; };
 		5F9D7D5A29E80A90002EA21C /* ContextMenuFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuFooter.swift; sourceTree = "<group>"; };
 		5F9D7D5C29E80E8E002EA21C /* ContextMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuCell.swift; sourceTree = "<group>"; };
+		5F9E12CF29FFBF2E00CC5325 /* MELoadingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MELoadingCell.swift; sourceTree = "<group>"; };
 		5F9E4280287ADDA000C2153B /* CaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5F9E4282287B352000C2153B /* CircularShapeTextTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularShapeTextTracker.swift; sourceTree = "<group>"; };
 		5F9E4284287BE5C700C2153B /* DiagnosisResolvedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisResolvedView.swift; sourceTree = "<group>"; };
@@ -1851,6 +1853,7 @@
 				5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */,
 				5FF1B3FB2985A671002806E6 /* MELoadingHeader.swift */,
 				5F99C1D429C6242700C681E2 /* MEPrimaryBlurLockView.swift */,
+				5F9E12CF29FFBF2E00CC5325 /* MELoadingCell.swift */,
 			);
 			path = Empty;
 			sourceTree = "<group>";
@@ -3125,6 +3128,7 @@
 				5F9D7D5B29E80A90002EA21C /* ContextMenuFooter.swift in Sources */,
 				5F527D99288554BC009D5027 /* CaseStageViewController.swift in Sources */,
 				5F9483B52923E66A00D68B46 /* GroupCategoriesCell.swift in Sources */,
+				5F9E12D029FFBF2E00CC5325 /* MELoadingCell.swift in Sources */,
 				5F9742C829389EC800704022 /* GroupSkeletonCell.swift in Sources */,
 				5F98F9992989668300F21074 /* GroupInviteCell.swift in Sources */,
 				5F98F99729895C4C00F21074 /* MEPreviewSelectedCell.swift in Sources */,

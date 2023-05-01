@@ -42,10 +42,11 @@ struct CommentService {
     }
     
     static func uploadPostReplyComment(comment: String, commentId: String, post: Post, user: User, type: Comment.CommentType, completion: @escaping(String) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         switch type {
         case .regular:
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
-            let data: [String: Any] = ["uid": user.uid as Any,
+            let data: [String: Any] = ["uid": uid,
                                        "comment": comment,
                                        "id": commentRef.documentID,
                                        "timestamp": Timestamp(date: Date())]
@@ -301,6 +302,88 @@ struct CommentService {
         }
     }
     
+    static func fetchRepliesForPostComment(forPost post: Post, type: Comment.CommentType, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            switch type {
+            case .regular:
+                let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        print("first")
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        print("second")
+                        completion(snapshot)
+                        return
+                    }
+                    print("third")
+                    completion(snapshot)
+
+                }
+            case .group:
+                //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes")
+                let query = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        } else {
+            switch type {
+            case .regular:
+                let query = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+
+                }
+            case .group:
+                //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes")
+                let query = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        }
+        
+    }
+    
+    
     
     static func fetchCaseComments(forCase clinicalCase: Case, forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
         switch type {
@@ -396,6 +479,7 @@ struct CommentService {
         }
     }
     
+
     static func fetchNumberOfCommentsForCase(clinicalCase: Case, type: Comment.CommentType, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
@@ -506,10 +590,14 @@ struct CommentService {
             checkIfUserLikedPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { like in
                 fetchLikesForPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { likes in
                     fetchNumberOfCommentsForPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { comments in
-                        auxComment.didLike = like
-                        auxComment.likes = likes
-                        auxComment.numberOfComments = comments
-                        completion(auxComment)
+                        checkIfAuthorDidReplyComment(forPost: post, forType: type, forCommentUid: comment.id) { comment in
+                            auxComment.didLike = like
+                            auxComment.likes = likes
+                            auxComment.numberOfComments = comments
+                            auxComment.hasCommentFromAuthor = comment
+                            completion(auxComment)
+                        }
+                       
                     }
                 }
             }
@@ -555,6 +643,25 @@ struct CommentService {
             }
         }
         
+    }
+    
+    static func checkIfAuthorDidReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+        switch type {
+        case .regular:
+            let commentsRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: post.ownerUid).limit(to: 1)
+            commentsRef.getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    print("no comment")
+                    completion(false)
+                    return
+                }
+                print("has comment")
+                completion(true)
+            }
+            
+        case .group:
+            #warning("Finish for group")
+        }
     }
   
     /*
