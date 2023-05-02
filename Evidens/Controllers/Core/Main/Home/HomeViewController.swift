@@ -659,7 +659,7 @@ extension HomeViewController: HomeCellDelegate {
         
         //controller.hidesBottomBarWhenPushed = true
         let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
+        navVC.modalPresentationStyle = .automatic
         present(navVC, animated: true)
         //navigationController?.pushViewController(controller, animated: true)
     }
@@ -1076,6 +1076,18 @@ extension HomeViewController: DetailsPostViewControllerDelegate {
 }
 
 extension HomeViewController: CommentPostViewControllerDelegate {
+    func didPressUserProfileFor(_ user: User) {
+        let controller = UserProfileViewController(user: user)
+        displayState = displaysSinglePost ? .others : .none
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+    
     func didDeletePostComment(post: Post, comment: Comment) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex].numberOfComments -= 1

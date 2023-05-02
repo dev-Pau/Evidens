@@ -533,7 +533,7 @@ extension DetailsPostViewController: HomeCellDelegate {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
        
             let controller = UserProfileViewController(user: user)
-        displayState = .others
+            displayState = .others
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
@@ -833,6 +833,18 @@ extension DetailsPostViewController: ZoomTransitioningDelegate {
 }
 
 extension DetailsPostViewController: CommentPostViewControllerDelegate {
+    func didPressUserProfileFor(_ user: User) {
+        let controller = UserProfileViewController(user: user)
+        displayState = .others
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+    
     func didDeletePostComment(post: Post, comment: Comment) {
         if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
             self.post.numberOfComments -= 1

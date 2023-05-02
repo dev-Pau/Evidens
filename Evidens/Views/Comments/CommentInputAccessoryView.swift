@@ -9,7 +9,6 @@ import UIKit
 import SDWebImage
 
 protocol CommentInputAccessoryViewDelegate: AnyObject {
-    func didTapAddReference()
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String)
 }
 
@@ -47,17 +46,6 @@ class CommentInputAccessoryView: UIView {
         return tv
     }()
     
-    private lazy var referenceImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.isUserInteractionEnabled = true
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAddReference)))
-        return iv
-    }()
-
     private lazy var postRoundedButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
@@ -159,18 +147,6 @@ class CommentInputAccessoryView: UIView {
         commentTextView.invalidateIntrinsicContentSize()
     }
     
-    func updateReferenceButton(reference: Reference?) {
-        if reference == nil {
-            referenceImageView.image = UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        } else {
-            referenceImageView.image = UIImage(systemName: "note.text", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
-        }
-    }
-    
-    @objc func handleAddReference() {
-        accessoryViewDelegate?.didTapAddReference()
-    }
-   
     override var intrinsicContentSize: CGSize {
             return CGSize.zero
     }

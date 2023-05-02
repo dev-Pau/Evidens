@@ -46,6 +46,10 @@ struct CommentViewModel {
         return comment.numberOfComments
     }
     
+    var commentsText: String {
+        return numberOfComments == 0 ? String() : "\(numberOfComments)"
+    }
+    
     var commentsLabelText: String {
         return numberOfComments == 0 ? String() : numberOfComments == 1 ? "\(commentsReplyText)\(numberOfComments) reply" : "\(commentsReplyText)\(numberOfComments) replies"
     }

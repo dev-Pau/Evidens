@@ -14,6 +14,7 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 protocol CommentPostViewControllerDelegate: AnyObject {
     func didCommentPost(post: Post, user: User, comment: Comment)
     func didDeletePostComment(post: Post, comment: Comment)
+    func didPressUserProfileFor(_ user: User)
 }
 
 class CommentPostViewController: UICollectionViewController {
@@ -108,6 +109,7 @@ class CommentPostViewController: UICollectionViewController {
                 // Get comment post values
                 CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: comments, forType: self.type) { fetchedComments in
                     self.comments.append(contentsOf: fetchedComments)
+                    self.comments.sort { $0.timestamp.seconds < $1.timestamp.seconds }
                     let uids = comments.map { $0.uid }
                     UserService.fetchUsers(withUids: uids) { users in
                         self.users.append(contentsOf: users)
@@ -251,6 +253,7 @@ extension CommentPostViewController: CommentCellDelegate {
         if comment.isTextFromAuthor { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser)
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label
             backItem.title = ""
@@ -300,74 +303,14 @@ extension CommentPostViewController: CommentCellDelegate {
     }
     
     func didTapProfile(forUser user: User) {
-        
-        let controller = UserProfileViewController(user: user)
-        
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .label
-        navigationItem.backBarButtonItem = backButton
-        
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-
-    
-}
-
-extension CommentPostViewController: AddWebLinkReferenceDelegate {
-    
-    func didTapEditReference(_ reference: Reference) {
-        switch reference.option {
-        case .link:
-            let controller = AddWebLinkReferenceViewController(reference: reference)
-            controller.delegate = self
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            present(navVC, animated: true)
-        case .reference:
-            let controller = AddAuthorReferenceViewController(reference: reference)
-            controller.delegate = self
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            present(navVC, animated: true)
-        }
-
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
-    }
-    
-    func didTapDeleteReference() {
-        reference = nil
-        commentInputView.updateReferenceButton(reference: nil)
+        dismiss(animated: true)
+        delegate?.didPressUserProfileFor(user)
     }
 }
 
 //MARK: - CommentInputAccesoryViewDelegate
 
 extension CommentPostViewController: CommentInputAccessoryViewDelegate {
-    func didTapAddReference() {
-        if let reference = reference {
-            didTapEditReference(reference)
-        } else {
-            let controller = ReferencesViewController()
-            let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("PostReference"), object: nil)
-            present(navVC, animated: true)
-        }
-    }
-    
-    @objc func didReceiveNotification(notification: NSNotification) {
-        if let reference = notification.userInfo, let selectedReference = reference["reference"] as? Reference {
-            self.reference = selectedReference
-            let reportPopup = METopPopupView(title: "Reference added to your comment", image: "checkmark.circle.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
-            
-            commentInputView.updateReferenceButton(reference: selectedReference)
-            
-        }
-    }
-    
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         
         //Get user from MainTabController
@@ -415,6 +358,16 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
             
             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: self.currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
+        }
+    }
+}
+
+extension CommentPostViewController: CommentsRepliesViewControllerDelegate {
+    func didLikeComment(comment: Comment) {
+        if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].likes = comment.likes
+            self.comments[commentIndex].didLike = comment.didLike
+            self.collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 0)])
         }
     }
 }

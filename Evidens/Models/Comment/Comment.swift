@@ -19,7 +19,7 @@ struct Comment {
     let timestamp: Timestamp
     let commentText: String
     let anonymous: Bool
-    let isAuthor: Bool
+    var isAuthor: Bool
     let isTextFromAuthor: Bool
     
     var didLike = false

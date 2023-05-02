@@ -213,7 +213,6 @@ class CommentCell: UICollectionViewCell {
      
     
     //MARK: - Helpers
-    
     private func configure() {
         guard let viewModel = viewModel else { return }
         commentTextView.text = viewModel.commentText
@@ -223,6 +222,7 @@ class CommentCell: UICollectionViewCell {
         commentActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
         commentActionButtons.likesLabel.text = viewModel.likesLabelText
         commentActionButtons.commentsLabel.text = viewModel.commentsLabelText
+        commentActionButtons.commentsHintLabel.text = viewModel.commentsText
         
         if showingRepliesForComment {
             commentTextView.textContainer.maximumNumberOfLines = 0
@@ -242,7 +242,6 @@ class CommentCell: UICollectionViewCell {
                 showMoreView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor),
                 showMoreView.widthAnchor.constraint(equalToConstant: 70),
             ])
-            
         } else {
             showMoreView.isUserInteractionEnabled = false
             showMoreView.isHidden = true

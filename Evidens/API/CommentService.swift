@@ -547,6 +547,7 @@ struct CommentService {
             }
         }
     }
+
     
     static func unlikePostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -606,6 +607,8 @@ struct CommentService {
         }
     }
     
+    
+    
     static func fetchLikesForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
         switch type {
         case .regular:
@@ -663,7 +666,8 @@ struct CommentService {
             #warning("Finish for group")
         }
     }
-  
+    
+    
     /*
      static func getGroupPostValuesFor(post: Post, completion: @escaping(Post) -> Void) {
          var auxPost = post
@@ -701,5 +705,114 @@ struct CommentService {
             }
         }
 
+    }
+    
+    //MARK: - Comment Reply
+    
+    static func checkIfUserLikedPostCommentReply(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let _ = post.groupId {
+#warning("change it its still not done")
+            COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+                #warning("change it")
+            }
+        } else {
+            COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        }
+    }
+    
+    static func fetchLikesForPostCommentReply(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
+        switch type {
+        case .regular:
+            let likesRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        case .group:
+#warning("change it its still not done")
+            let likesRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comment-likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        }
+    }
+    
+    static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
+        var auxComment = reply
+        switch type {
+        case .regular:
+            checkIfUserLikedPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
+                fetchLikesForPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
+                    auxComment.likes = likes
+                    auxComment.didLike = didLike
+                    auxComment.isAuthor = post.ownerUid == reply.uid ? true : false
+                    completion(auxComment)
+                }
+            }
+            
+        case .group:
+            #warning("implement group")
+        }
+    }
+    
+    
+    
+    static func getPostRepliesCommmentsValuesFor(forPost post: Post, forComment comment: Comment, forReplies replies: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+        var repliesWithValues = [Comment]()
+        
+        switch type {
+        case .regular:
+            replies.forEach { reply in
+                getPostReplyCommentValuesFor(forPost: post, forComment: comment, forType: type, forReply: reply) { fetchedReplies in
+                    repliesWithValues.append(fetchedReplies)
+                    if repliesWithValues.count == replies.count {
+                        completion(repliesWithValues)
+                    }
+                }
+            }
+        case .group:
+            #warning("implement group")
+        }
+    }
+
+    static func likePostReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
+            }
+        case .group:
+            #warning("Implement group")
+        }
+    }
+    
+    static func unlikePostReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
+            }
+        case .group:
+            #warning("Implement group")
+        }
     }
 }

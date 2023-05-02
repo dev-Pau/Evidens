@@ -11,6 +11,10 @@ import Firebase
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 
+protocol CommentsRepliesViewControllerDelegate: AnyObject {
+    func didLikeComment(comment: Comment)
+}
+
 class CommentsRepliesViewController: UICollectionViewController {
     private let currentUser: User
     private let type: Comment.CommentType
@@ -21,6 +25,9 @@ class CommentsRepliesViewController: UICollectionViewController {
     private var users = [User]()
     private var commentsLoaded: Bool = false
     private var lastReplySnapshot: QueryDocumentSnapshot?
+    private let repliesEnabled: Bool
+    weak var delegate: CommentsRepliesViewControllerDelegate?
+    //weak var delegate: CommentPostViewControllerDelegate?
     
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -28,18 +35,18 @@ class CommentsRepliesViewController: UICollectionViewController {
         return cv
     }()
     
-    init(comment: Comment, user: User, post: Post, type: Comment.CommentType, currentUser: User) {
+    init(comment: Comment, user: User, post: Post, type: Comment.CommentType, currentUser: User, repliesEnabled: Bool? = true) {
         self.comment = comment
         self.user = user
         self.post = post
         self.type = type
         self.currentUser = currentUser
+        self.repliesEnabled = repliesEnabled ?? true
         let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             
-            //if self.commentsLoaded { section.boundarySupplementaryItems = [header] }
             section.contentInsets.leading = sectionIndex == 0 ? .zero : 50
             return section
        }
@@ -51,24 +58,6 @@ class CommentsRepliesViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    /*
-     private func createLayout() -> UICollectionViewCompositionalLayout {
-
-         let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
-         let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
-         let section = NSCollectionLayoutSection(group: group)
-         section.orthogonalScrollingBehavior = .continuous
-         section.interGroupSpacing = 10
-         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-
-         let config = UICollectionViewCompositionalLayoutConfiguration()
-         config.interSectionSpacing = 10
-         config.scrollDirection = .horizontal
-         
-         return UICollectionViewCompositionalLayout(section: section)
-     }
-     */
-    
     override func viewDidLoad() {
         configureCollectionView()
         configureNavigationBar()
@@ -77,7 +66,7 @@ class CommentsRepliesViewController: UICollectionViewController {
     }
     
     override var inputAccessoryView: UIView? {
-        get { return commentInputView }
+        get { return repliesEnabled ? commentInputView : nil }
     }
     
     override var canBecomeFirstResponder: Bool {
@@ -90,6 +79,7 @@ class CommentsRepliesViewController: UICollectionViewController {
     }
     
     private func fetchRepliesForComment() {
+        guard repliesEnabled else { return }
         CommentService.fetchRepliesForPostComment(forPost: post, type: type, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.commentsLoaded = true
@@ -99,13 +89,16 @@ class CommentsRepliesViewController: UICollectionViewController {
             
             self.lastReplySnapshot = snapshot.documents.last
             let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
-            let replyUids = comments.map { $0.uid }
             
-            UserService.fetchUsers(withUids: replyUids) { users in
-                self.users = users
-                self.comments = comments
-                self.commentsLoaded = true
-                self.collectionView.reloadData()
+            let replyUids = comments.map { $0.uid }
+
+            CommentService.getPostRepliesCommmentsValuesFor(forPost: self.post, forComment: self.comment, forReplies: comments, forType: self.type) { fetchedReplies in
+                UserService.fetchUsers(withUids: replyUids) { users in
+                    self.users = users
+                    self.comments = fetchedReplies.sorted { $0.timestamp.seconds > $1.timestamp.seconds }
+                    self.commentsLoaded = true
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -131,21 +124,20 @@ class CommentsRepliesViewController: UICollectionViewController {
 
 extension CommentsRepliesViewController: UICollectionViewDelegateFlowLayout {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return repliesEnabled ? 2 : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return section == 0 ? 1 : commentsLoaded ? comments.count : 0
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
-        
         if indexPath.section == 1 && !commentsLoaded {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingCell
             return cell
         } else {
-            //cell.delegate = self
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
+            cell.delegate = self
             cell.showingRepliesForComment = indexPath.section == 0 ? true : false
             cell.isReply = indexPath.section == 1 ? true : false
             cell.viewModel = CommentViewModel(comment: indexPath.section == 0 ? comment : comments[indexPath.row])
@@ -163,24 +155,25 @@ extension CommentsRepliesViewController: UICollectionViewDelegateFlowLayout {
                 cell.separatorView.isHidden = true
                 cell.commentActionButtons.commentButton.isHidden = true
             } else {
-                cell.separatorView.isHidden = false
-                cell.commentActionButtons.commentButton.isHidden = false
+                if repliesEnabled {
+                    cell.separatorView.isHidden = false
+                    cell.commentActionButtons.commentButton.isHidden = false
+                } else {
+                    cell.separatorView.isHidden = false
+                    cell.commentActionButtons.commentButton.isHidden = true
+                }
             }
             
-            return cell
+            return cell 
         }
     }
 }
 
 extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
-    func didTapAddReference() {
-        
-    }
     
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         CommentService.uploadPostReplyComment(comment: comment, commentId: self.comment.id, post: post, user: user, type: type) { commentId in
-            //let commentId = "OMEGAKEK"
             self.comment.numberOfComments += 1
             inputView.clearCommentTextView()
             
@@ -209,7 +202,7 @@ extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
             let indexPath = IndexPath(item: self.comments.count - 1, section: 1)
             self.collectionView.insertItems(at: [indexPath])
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
-            
+            //self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
             /*
              self.collectionView.insertItems(at: [indexPath])
              let indexPath = IndexPath(item: 1, section: 0)
@@ -220,6 +213,136 @@ extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
              
              NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: self.currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
              */
+        }
+    }
+}
+
+extension CommentsRepliesViewController: CommentCellDelegate {
+    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
+        
+        #warning("Implement")
+    }
+    
+    func didTapProfile(forUser user: User) {
+        guard let rootController = navigationController?.viewControllers.first as? CommentPostViewController else {
+            return
+            
+        }
+        rootController.didTapProfile(forUser: user)
+        
+    }
+    
+    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        guard repliesEnabled else { return }
+        print("1")
+        if let indexPath = collectionView.indexPath(for: cell) {
+            guard indexPath.section != 0 else { return }
+            if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+                print("4")
+                let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser, repliesEnabled: false)
+                controller.delegate = self
+                let backItem = UIBarButtonItem()
+                backItem.tintColor = .label
+                backItem.title = ""
+                navigationItem.backBarButtonItem = backItem
+                
+                navigationController?.pushViewController(controller, animated: true)
+            }
+        }
+    }
+
+    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        HapticsManager.shared.vibrate(for: .success)
+        let currentCell = cell as! CommentCell
+        currentCell.viewModel?.comment.didLike.toggle()
+        
+        
+        if indexPath.section == 0 && repliesEnabled {
+            // Comment like
+            if comment.didLike {
+                switch type {
+                case .regular:
+                    CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                        currentCell.viewModel?.comment.likes = comment.likes - 1
+                        self.comment.didLike = false
+                        self.comment.likes -= 1
+                        self.delegate?.didLikeComment(comment: self.comment)
+                    }
+                case .group:
+                    print("group unlike")
+                    #warning("implement group like")
+                }
+            } else {
+                switch type {
+                    
+                case .regular:
+                    CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                        currentCell.viewModel?.comment.likes = comment.likes + 1
+                        self.comment.didLike = true
+                        self.comment.likes += 1
+                        self.delegate?.didLikeComment(comment: self.comment)
+                    }
+                case .group:
+                    print("group like")
+                    #warning("implement group like")
+                }
+            }
+        } else {
+            // Reply like
+            if comment.didLike {
+                switch type {
+                    
+                case .regular:
+                    CommentService.unlikePostReplyComment(forPost: post, forType: type, forCommentUid: self.comment.id, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                        currentCell.viewModel?.comment.likes = comment.likes - 1
+                        if self.repliesEnabled {
+                            self.comments[indexPath.row].didLike = false
+                            self.comments[indexPath.row].likes -= 1
+                            self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
+                        } else {
+                            self.comment.didLike = false
+                            self.comment.likes -= 1
+                            self.delegate?.didLikeComment(comment: self.comment)
+                        }
+                    }
+                case .group:
+                    print("group like")
+                    #warning("implement group unlike")
+                }
+            } else {
+                switch type {
+                    
+                case .regular:
+                    CommentService.likePostReplyComment(forPost: post, forType: type, forCommentUid: self.comment.id, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                        currentCell.viewModel?.comment.likes = comment.likes + 1
+                        if self.repliesEnabled {
+                            self.comments[indexPath.row].didLike = true
+                            self.comments[indexPath.row].likes += 1
+                            self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
+                        } else {
+                            self.comment.didLike = true
+                            self.comment.likes += 1
+                            self.delegate?.didLikeComment(comment: self.comment)
+                        }
+                        
+                    }
+                case .group:
+                    print("group like")
+                    #warning("implement group like")
+                }
+            }
+        }
+    }
+}
+
+extension CommentsRepliesViewController: CommentsRepliesViewControllerDelegate {
+    func didLikeComment(comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            comments[commentIndex].didLike = comment.didLike
+            comments[commentIndex].likes = comment.likes
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
         }
     }
 }

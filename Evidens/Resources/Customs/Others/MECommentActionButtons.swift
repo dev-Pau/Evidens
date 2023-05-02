@@ -57,6 +57,19 @@ class MECommentActionButtons: UIView {
         return label
     }()
     
+    lazy var commentsHintLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        //label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLikesTap)))
+        return label
+    }()
+    
+    
     lazy var ownerPostImageView: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
@@ -77,7 +90,7 @@ class MECommentActionButtons: UIView {
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = true
-        addSubviews(likeButton, likesLabel, commentButton, ownerPostImageView, commentsLabel)
+        addSubviews(likeButton, likesLabel, commentButton, commentsHintLabel, ownerPostImageView, commentsLabel)
         NSLayoutConstraint.activate([
             likeButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             likeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -93,6 +106,9 @@ class MECommentActionButtons: UIView {
             commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             commentButton.widthAnchor.constraint(equalToConstant: 22),
             commentButton.heightAnchor.constraint(equalToConstant: 22),
+            
+            commentsHintLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            commentsHintLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 5),
             
             commentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             commentsLabel.centerYAnchor.constraint(equalTo: likesLabel.centerYAnchor),

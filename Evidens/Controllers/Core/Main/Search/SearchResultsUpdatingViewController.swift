@@ -1612,6 +1612,20 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
 }
 
 extension SearchResultsUpdatingViewController: CommentPostViewControllerDelegate {
+    func didPressUserProfileFor(_ user: User) {
+        let controller = UserProfileViewController(user: user)
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+
+        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
+            searchViewController.navigationItem.backBarButtonItem = backItem
+            navVC.pushViewController(controller, animated: true)
+            DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+        }
+    }
+    
     func didCommentPost(post: Post, user: User, comment: Comment) {
         if let postIndex = topPosts.firstIndex(where: { $0.postId == post.postId }) {
             topPosts[postIndex].numberOfComments += 1

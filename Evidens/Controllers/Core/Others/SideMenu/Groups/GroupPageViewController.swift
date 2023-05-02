@@ -1670,6 +1670,17 @@ extension GroupPageViewController: EditPostViewControllerDelegate {
 }
 
 extension GroupPageViewController: CommentPostViewControllerDelegate {
+    func didPressUserProfileFor(_ user: User) {
+        let controller = UserProfileViewController(user: user)
+        let backItem = UIBarButtonItem()
+        backItem.title = ""
+        backItem.tintColor = .label
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+        DatabaseManager.shared.uploadRecentUserSearches(withUid: user.uid!) { _ in }
+    }
+    
     func didDeletePostComment(post: Post, comment: Comment) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex].numberOfComments -= 1

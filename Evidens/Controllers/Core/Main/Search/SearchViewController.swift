@@ -1236,6 +1236,16 @@ extension SearchViewController: DetailsPostViewControllerDelegate {
 }
 
 extension SearchViewController: CommentPostViewControllerDelegate {
+    func didPressUserProfileFor(_ user: User) {
+        let controller = UserProfileViewController(user: user)
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        navigationItem.backBarButtonItem = backItem
+        
+        navigationController?.pushViewController(controller, animated: true)
+    }
+    
     func didDeletePostComment(post: Post, comment: Comment) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex].numberOfComments -= 1
