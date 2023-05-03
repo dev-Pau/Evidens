@@ -325,7 +325,7 @@ extension DetailsPostViewController: HomeCellDelegate {
         navigationItem.backBarButtonItem = backItem
         */
         let navVC = UINavigationController(rootViewController: controller)
-        navVC.modalPresentationStyle = .fullScreen
+        navVC.modalPresentationStyle = .automatic
         present(navVC, animated: true)
         
         displayState = .others
@@ -726,38 +726,26 @@ extension DetailsPostViewController: HomeCellDelegate {
 
 extension DetailsPostViewController: CommentCellDelegate {
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        #warning("Implement")
-        /*
-         func cell(_ cell: UICollectionViewCell, didLike post: Post) {
-             guard let tab = tabBarController as? MainTabController else { return }
-             guard let user = tab.user else { return }
-             
-             
-             HapticsManager.shared.vibrate(for: .success)
-             
-             switch cell {
-             case is HomeTextCell:
-                 let currentCell = cell as! HomeTextCell
-                 currentCell.viewModel?.post.didLike.toggle()
-                 if post.didLike {
-                     //Unlike post here
-                     switch type {
-                     case .regular:
-                         PostService.unlikePost(post: post) { _ in
-                             currentCell.viewModel?.post.likes = post.likes - 1
-                             self.delegate?.didTapLikeAction(forPost: post)
-                         }
-                     case .group:
-                         //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
-                         //  currentCell.viewModel?.post.likes = post.likes + 1+
-                         currentCell.viewModel?.post.likes = post.likes - 1
-                         self.delegate?.didTapLikeAction(forPost: post)
-                         // }
-                     }
-                     
-                 } else {
-                     //Like post here
-         */
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        HapticsManager.shared.vibrate(for: .success)
+        let currentCell = cell as! CommentCell
+        currentCell.viewModel?.comment.didLike.toggle()
+        
+        if comment.didLike {
+            CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes - 1
+                self.comments[indexPath.row].didLike = false
+                self.comments[indexPath.row].likes -= 1
+            }
+        } else {
+            
+            CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes + 1
+                self.comments[indexPath.row].didLike = true
+                self.comments[indexPath.row].likes += 1
+            }
+        }
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
@@ -766,7 +754,8 @@ extension DetailsPostViewController: CommentCellDelegate {
         guard let user = tab.user else { return }
         
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: .regular, currentUser: user)
+            let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: user)
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label
             backItem.title = ""
@@ -963,6 +952,23 @@ extension DetailsPostViewController: MEReferenceMenuLauncherDelegate {
                     present(navVC, animated: true, completion: nil)
                 }
             }
+        }
+    }
+}
+
+extension DetailsPostViewController: CommentsRepliesViewControllerDelegate {
+    func didAddReplyToComment(comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].numberOfComments += 1
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+        }
+    }
+    
+    func didLikeComment(comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            comments[commentIndex].didLike = comment.didLike
+            comments[commentIndex].likes = comment.likes
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
         }
     }
 }

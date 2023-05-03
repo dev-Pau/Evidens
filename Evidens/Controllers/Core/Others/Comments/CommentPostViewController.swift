@@ -220,31 +220,18 @@ extension CommentPostViewController: CommentCellDelegate {
         HapticsManager.shared.vibrate(for: .success)
         let currentCell = cell as! CommentCell
         currentCell.viewModel?.comment.didLike.toggle()
-
+        
         if comment.didLike {
-            switch type {
-            case .regular:
-                CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
-                    currentCell.viewModel?.comment.likes = comment.likes - 1
-                    self.comments[indexPath.row].didLike = false
-                    self.comments[indexPath.row].likes -= 1
-                }
-            case .group:
-                print("group unlike")
-                #warning("implement group like")
+            CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes - 1
+                self.comments[indexPath.row].didLike = false
+                self.comments[indexPath.row].likes -= 1
             }
         } else {
-            switch type {
-                
-            case .regular:
-                CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
-                    currentCell.viewModel?.comment.likes = comment.likes + 1
-                    self.comments[indexPath.row].didLike = true
-                    self.comments[indexPath.row].likes += 1
-                }
-            case .group:
-                print("group like")
-                #warning("implement group like")
+            CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes + 1
+                self.comments[indexPath.row].didLike = true
+                self.comments[indexPath.row].likes += 1
             }
         }
     }
@@ -312,11 +299,10 @@ extension CommentPostViewController: CommentCellDelegate {
 
 extension CommentPostViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
-        
         //Get user from MainTabController
         //guard let tab = self.tabBarController as? MainTabController else { return }
         //guard let currentUser = tab.user else { return }
-
+        
         //Upload commento to Firebase
         CommentService.uploadPostComment(comment: comment, post: post, user: currentUser, type: type) { ids in
             let commentUid = ids[0]
@@ -326,7 +312,7 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
                 DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: postUid, title: "", comment: comment, type: .post, withTimestamp: Date()) { uploaded in
                 }
             }
-
+            
             self.post.numberOfComments += 1
             inputView.clearCommentTextView()
             
@@ -363,6 +349,20 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentPostViewController: CommentsRepliesViewControllerDelegate {
+    func didAddReplyToComment(comment: Comment) {
+        if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].numberOfComments += 1
+            self.collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 0)])
+        }
+    }
+    
+    func didAddReplyToComment(_ cell: UICollectionViewCell) {
+        if let indexPath = collectionView.indexPath(for: cell) {
+            self.comments[indexPath.row].numberOfComments += 1
+            self.collectionView.reloadItems(at: [indexPath])
+        }
+    }
+    
     func didLikeComment(comment: Comment) {
         if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
             self.comments[commentIndex].likes = comment.likes

@@ -13,6 +13,7 @@ private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 
 protocol CommentsRepliesViewControllerDelegate: AnyObject {
     func didLikeComment(comment: Comment)
+    func didAddReplyToComment(comment: Comment)
 }
 
 class CommentsRepliesViewController: UICollectionViewController {
@@ -23,6 +24,7 @@ class CommentsRepliesViewController: UICollectionViewController {
     private var comments = [Comment]()
     private let user: User
     private var users = [User]()
+    private var referenceCommentId: String
     private var commentsLoaded: Bool = false
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
@@ -35,13 +37,14 @@ class CommentsRepliesViewController: UICollectionViewController {
         return cv
     }()
     
-    init(comment: Comment, user: User, post: Post, type: Comment.CommentType, currentUser: User, repliesEnabled: Bool? = true) {
+    init(referenceCommentId: String? = nil, comment: Comment, user: User, post: Post, type: Comment.CommentType, currentUser: User, repliesEnabled: Bool? = true) {
         self.comment = comment
         self.user = user
         self.post = post
         self.type = type
         self.currentUser = currentUser
         self.repliesEnabled = repliesEnabled ?? true
+        self.referenceCommentId = referenceCommentId ?? ""
         let compositionalLayout = UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
@@ -175,6 +178,7 @@ extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         CommentService.uploadPostReplyComment(comment: comment, commentId: self.comment.id, post: post, user: user, type: type) { commentId in
             self.comment.numberOfComments += 1
+            
             inputView.clearCommentTextView()
             
             let isAuthor = uid == self.post.ownerUid ? true : false
@@ -202,6 +206,7 @@ extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
             let indexPath = IndexPath(item: self.comments.count - 1, section: 1)
             self.collectionView.insertItems(at: [indexPath])
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+            self.delegate?.didAddReplyToComment(comment: self.comment)
             //self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
             /*
              self.collectionView.insertItems(at: [indexPath])
@@ -239,7 +244,7 @@ extension CommentsRepliesViewController: CommentCellDelegate {
             guard indexPath.section != 0 else { return }
             if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                 print("4")
-                let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser, repliesEnabled: false)
+                let controller = CommentsRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser, repliesEnabled: false)
                 controller.delegate = self
                 let backItem = UIBarButtonItem()
                 backItem.tintColor = .label
@@ -250,7 +255,7 @@ extension CommentsRepliesViewController: CommentCellDelegate {
             }
         }
     }
-
+    
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
@@ -262,75 +267,51 @@ extension CommentsRepliesViewController: CommentCellDelegate {
         if indexPath.section == 0 && repliesEnabled {
             // Comment like
             if comment.didLike {
-                switch type {
-                case .regular:
-                    CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
-                        currentCell.viewModel?.comment.likes = comment.likes - 1
-                        self.comment.didLike = false
-                        self.comment.likes -= 1
-                        self.delegate?.didLikeComment(comment: self.comment)
-                    }
-                case .group:
-                    print("group unlike")
-                    #warning("implement group like")
+                
+                CommentService.unlikePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                    currentCell.viewModel?.comment.likes = comment.likes - 1
+                    self.comment.didLike = false
+                    self.comment.likes -= 1
+                    self.delegate?.didLikeComment(comment: self.comment)
                 }
+                
             } else {
-                switch type {
-                    
-                case .regular:
-                    CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
-                        currentCell.viewModel?.comment.likes = comment.likes + 1
-                        self.comment.didLike = true
-                        self.comment.likes += 1
-                        self.delegate?.didLikeComment(comment: self.comment)
-                    }
-                case .group:
-                    print("group like")
-                    #warning("implement group like")
+                
+                CommentService.likePostComment(forPost: post, forType: type, forCommentUid: comment.id) { _ in
+                    currentCell.viewModel?.comment.likes = comment.likes + 1
+                    self.comment.didLike = true
+                    self.comment.likes += 1
+                    self.delegate?.didLikeComment(comment: self.comment)
                 }
             }
         } else {
             // Reply like
             if comment.didLike {
-                switch type {
-                    
-                case .regular:
-                    CommentService.unlikePostReplyComment(forPost: post, forType: type, forCommentUid: self.comment.id, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
-                        currentCell.viewModel?.comment.likes = comment.likes - 1
-                        if self.repliesEnabled {
-                            self.comments[indexPath.row].didLike = false
-                            self.comments[indexPath.row].likes -= 1
-                            self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
-                        } else {
-                            self.comment.didLike = false
-                            self.comment.likes -= 1
-                            self.delegate?.didLikeComment(comment: self.comment)
-                        }
+                
+                CommentService.unlikePostReplyComment(forPost: post, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                    currentCell.viewModel?.comment.likes = comment.likes - 1
+                    if self.repliesEnabled {
+                        self.comments[indexPath.row].didLike = false
+                        self.comments[indexPath.row].likes -= 1
+                        self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
+                    } else {
+                        self.comment.didLike = false
+                        self.comment.likes -= 1
+                        self.delegate?.didLikeComment(comment: self.comment)
                     }
-                case .group:
-                    print("group like")
-                    #warning("implement group unlike")
                 }
             } else {
-                switch type {
-                    
-                case .regular:
-                    CommentService.likePostReplyComment(forPost: post, forType: type, forCommentUid: self.comment.id, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
-                        currentCell.viewModel?.comment.likes = comment.likes + 1
-                        if self.repliesEnabled {
-                            self.comments[indexPath.row].didLike = true
-                            self.comments[indexPath.row].likes += 1
-                            self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
-                        } else {
-                            self.comment.didLike = true
-                            self.comment.likes += 1
-                            self.delegate?.didLikeComment(comment: self.comment)
-                        }
-                        
+                CommentService.likePostReplyComment(forPost: post, forType: type, forCommentUid: repliesEnabled ? self.comment.id : referenceCommentId, forReplyId: repliesEnabled ? comments[indexPath.row].id : self.comment.id) { _ in
+                    currentCell.viewModel?.comment.likes = comment.likes + 1
+                    if self.repliesEnabled {
+                        self.comments[indexPath.row].didLike = true
+                        self.comments[indexPath.row].likes += 1
+                        self.delegate?.didLikeComment(comment: self.comments[indexPath.row])
+                    } else {
+                        self.comment.didLike = true
+                        self.comment.likes += 1
+                        self.delegate?.didLikeComment(comment: self.comment)
                     }
-                case .group:
-                    print("group like")
-                    #warning("implement group like")
                 }
             }
         }
@@ -338,6 +319,9 @@ extension CommentsRepliesViewController: CommentCellDelegate {
 }
 
 extension CommentsRepliesViewController: CommentsRepliesViewControllerDelegate {
+    // This will never get called because this call will come from another CommentRepliesViewController on top of it, which is not available to comment there, only like
+    func didAddReplyToComment(comment: Comment) { return }
+    
     func didLikeComment(comment: Comment) {
         if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
             comments[commentIndex].didLike = comment.didLike

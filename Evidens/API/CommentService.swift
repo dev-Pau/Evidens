@@ -42,7 +42,7 @@ struct CommentService {
     }
     
     static func uploadPostReplyComment(comment: String, commentId: String, post: Post, user: User, type: Comment.CommentType, completion: @escaping(String) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         switch type {
         case .regular:
             let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(commentId).collection("comments").document()
@@ -54,7 +54,14 @@ struct CommentService {
                 completion(commentRef.documentID)
             }
         case .group:
-            #warning("implement group")
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentId).collection("comments").document()
+            let data: [String: Any] = ["uid": uid,
+                                       "comment": comment,
+                                       "id": commentRef.documentID,
+                                       "timestamp": Timestamp(date: Date())]
+            commentRef.setData(data) { _ in
+                completion(commentRef.documentID)
+            }
         }
     }
     
@@ -541,7 +548,7 @@ struct CommentService {
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
             }
         case .group:
-            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comment-likes").document(uid)
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
             commentRef.setData(likeData) { _ in
                 COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
             }
@@ -559,7 +566,7 @@ struct CommentService {
             }
             
         case .group:
-            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comment-likes").document(uid)
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("likes").document(uid)
             commentRef.delete { _ in
                 COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).delete(completion: completion)
             }
@@ -568,47 +575,33 @@ struct CommentService {
     
     static func getPostCommmentsValuesFor(forPost post: Post, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
-        
-        switch type {
-        case .regular:
-            comments.forEach { comment in
-                getPostCommentValuesFor(forPost: post, forComment: comment, forType: .regular) { fetchedComment in
-                    commentsWithValues.append(fetchedComment)
-                    if commentsWithValues.count == comments.count {
-                        completion(commentsWithValues)
-                    }
+        comments.forEach { comment in
+            getPostCommentValuesFor(forPost: post, forComment: comment, forType: type) { fetchedComment in
+                commentsWithValues.append(fetchedComment)
+                if commentsWithValues.count == comments.count {
+                    completion(commentsWithValues)
                 }
             }
-        case .group:
-            #warning("implement group")
         }
     }
     
     static func getPostCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, completion: @escaping(Comment) -> Void) {
         var auxComment = comment
-        switch type {
-        case .regular:
-            checkIfUserLikedPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { like in
-                fetchLikesForPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { likes in
-                    fetchNumberOfCommentsForPostComment(forPost: post, forType: .regular, forCommentUid: comment.id) { comments in
-                        checkIfAuthorDidReplyComment(forPost: post, forType: type, forCommentUid: comment.id) { comment in
-                            auxComment.didLike = like
-                            auxComment.likes = likes
-                            auxComment.numberOfComments = comments
-                            auxComment.hasCommentFromAuthor = comment
-                            completion(auxComment)
-                        }
-                       
+        checkIfUserLikedPostComment(forPost: post, forType: type, forCommentUid: comment.id) { like in
+            fetchLikesForPostComment(forPost: post, forType: type, forCommentUid: comment.id) { likes in
+                fetchNumberOfCommentsForPostComment(forPost: post, forType: type, forCommentUid: comment.id) { comments in
+                    checkIfAuthorDidReplyComment(forPost: post, forType: type, forCommentUid: comment.id) { comment in
+                        auxComment.didLike = like
+                        auxComment.likes = likes
+                        auxComment.numberOfComments = comments
+                        auxComment.hasCommentFromAuthor = comment
+                        completion(auxComment)
                     }
                 }
             }
-        case .group:
-            #warning("implement group")
         }
     }
-    
-    
-    
+
     static func fetchLikesForPostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
         switch type {
         case .regular:
@@ -619,9 +612,12 @@ struct CommentService {
                 }
             }
         case .group:
-            let likesRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comment-likes").count
+            print("we in group")
+            let likesRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("likes").count
             likesRef.getAggregation(source: .server) { snapshot, _ in
+                print("looking if we get snapshot")
                 if let likes = snapshot?.count {
+                    print(likes)
                     completion(likes.intValue)
                 }
             }
@@ -638,7 +634,7 @@ struct CommentService {
                 }
             }
         case .group:
-            let commentsRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comment-likes").count
+            let commentsRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comments").count
             commentsRef.getAggregation(source: .server) { snapshot, _ in
                 if let comments = snapshot?.count {
                     completion(comments.intValue)
@@ -663,7 +659,16 @@ struct CommentService {
             }
             
         case .group:
-            #warning("Finish for group")
+            let commentsRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: post.ownerUid).limit(to: 1)
+            commentsRef.getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    print("no comment")
+                    completion(false)
+                    return
+                }
+                print("has comment")
+                completion(true)
+            }
         }
     }
     
@@ -712,13 +717,11 @@ struct CommentService {
     static func checkIfUserLikedPostCommentReply(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if let _ = post.groupId {
-#warning("change it its still not done")
-            COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
+            COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
                 
                 //If the snapshot (document) exists, means current user did like the post
                 guard let didLike = snapshot?.exists else { return }
                 completion(didLike)
-                #warning("change it")
             }
         } else {
             COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
@@ -740,8 +743,7 @@ struct CommentService {
                 }
             }
         case .group:
-#warning("change it its still not done")
-            let likesRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comment-likes").count
+            let likesRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
             likesRef.getAggregation(source: .server) { snapshot, _ in
                 if let likes = snapshot?.count {
                     completion(likes.intValue)
@@ -752,39 +754,27 @@ struct CommentService {
     
     static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
         var auxComment = reply
-        switch type {
-        case .regular:
-            checkIfUserLikedPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
-                fetchLikesForPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
-                    auxComment.likes = likes
-                    auxComment.didLike = didLike
-                    auxComment.isAuthor = post.ownerUid == reply.uid ? true : false
-                    completion(auxComment)
-                }
+        #warning("MARK")
+        checkIfUserLikedPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
+            fetchLikesForPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
+                auxComment.likes = likes
+                auxComment.didLike = didLike
+                auxComment.isAuthor = post.ownerUid == reply.uid ? true : false
+                completion(auxComment)
             }
-            
-        case .group:
-            #warning("implement group")
         }
     }
-    
-    
-    
+
     static func getPostRepliesCommmentsValuesFor(forPost post: Post, forComment comment: Comment, forReplies replies: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
         var repliesWithValues = [Comment]()
         
-        switch type {
-        case .regular:
-            replies.forEach { reply in
-                getPostReplyCommentValuesFor(forPost: post, forComment: comment, forType: type, forReply: reply) { fetchedReplies in
-                    repliesWithValues.append(fetchedReplies)
-                    if repliesWithValues.count == replies.count {
-                        completion(repliesWithValues)
-                    }
+        replies.forEach { reply in
+            getPostReplyCommentValuesFor(forPost: post, forComment: comment, forType: type, forReply: reply) { fetchedReplies in
+                repliesWithValues.append(fetchedReplies)
+                if repliesWithValues.count == replies.count {
+                    completion(repliesWithValues)
                 }
             }
-        case .group:
-            #warning("implement group")
         }
     }
 
@@ -798,7 +788,10 @@ struct CommentService {
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
             }
         case .group:
-            #warning("Implement group")
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
+            }
         }
     }
     
@@ -812,7 +805,12 @@ struct CommentService {
                 COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
             }
         case .group:
-            #warning("Implement group")
+            let commentRef = COLLECTION_GROUPS.document(post.groupId!).collection("posts").document(post.postId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
+                //COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
+                
+            }
         }
     }
 }
