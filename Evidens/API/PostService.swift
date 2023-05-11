@@ -11,50 +11,6 @@ import FirebaseAuth
 
 struct PostService {
 
-    static func uploadSingleImagePost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        let data = ["post": post,
-                    "timestamp": Timestamp(date: Date()),
-                    "ownerUid": uid,
-                    "professions": professions.map({ $0.profession }),
-                    "type": type.rawValue,
-                    "privacy": privacy.rawValue,
-                    "postImageUrl": postImageUrl as Any] as [String : Any]
-
-        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
-        
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
-            print("Post uploaded to recents")
-        }
-        
-        self.updateUserFeedAfterPost(postId: docRef.documentID)
-    }
-    
-    
-    static func uploadPost(post: String, professions: [Profession], type: Post.PostType, privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
-        
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        let data = ["post": post,
-                    "timestamp": Timestamp(date: Date()),
-                    "ownerUid": uid,
-                    "professions": professions.map({ $0.profession }),
-                    "type": type.rawValue,
-                    "privacy": privacy.rawValue,
-                    "postImageUrl": postImageUrl as Any] as [String : Any]
-                   
-        
-        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
-        
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
-            print("Post uploaded to recents")
-        }
-        
-        
-        self.updateUserFeedAfterPost(postId: docRef.documentID)
-    }
-    
     static func uploadPost(post: Post, completion: @escaping(FirestoreCompletion)) {
         var data = ["post": post.postText,
                     "timestamp": Timestamp(date: Date()),
@@ -68,12 +24,8 @@ struct PostService {
         }
                
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
-        #warning("remove this comment")
-        //DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
-            print("Post uploaded to recents")
-        //}
 
-        //self.updateUserFeedAfterPost(postId: docRef.documentID)
+        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { _ in }
     }
     
     static func editGroupPost(withGroupId groupId: String, withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {
@@ -614,6 +566,7 @@ struct PostService {
     }
     
     static func updateUserFeedAfterFollowing(userUid: String, didFollow: Bool) {
+        /*
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let query =  COLLECTION_POSTS.whereField("ownerUid", isEqualTo: userUid as Any)
         query.getDocuments { (snapshot, error) in
@@ -630,6 +583,7 @@ struct PostService {
                 }
             }
         }
+         */
     }
     
     private static func updateUserFeedAfterPost(postId: String) {
