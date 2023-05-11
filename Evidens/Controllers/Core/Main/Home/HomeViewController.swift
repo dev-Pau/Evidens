@@ -415,7 +415,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 
                 cell.delegate = self
                 
-                cell.layer.borderWidth = 0
+                //cell.layer.borderWidth = 0
                 
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
@@ -435,7 +435,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     }
                 }
                 
-                cell.layoutIfNeeded()
+                //cell.layoutIfNeeded()
                 return cell
                 
             } else if posts[indexPath.row].type.postType == 1 {

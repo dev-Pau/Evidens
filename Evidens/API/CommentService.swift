@@ -309,6 +309,81 @@ struct CommentService {
         }
     }
     
+    static func fetchRepliesForCaseComment(forClinicalCase clinicalCase: Case, type: Comment.CommentType, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+        if lastSnapshot == nil {
+            switch type {
+            case .regular:
+                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    completion(snapshot)
+                    
+                }
+            case .group:
+                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        } else {
+            switch type {
+            case .regular:
+                let query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                    
+                }
+            case .group:
+                let query = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").order(by: "timestamp", descending: false).start(afterDocument: lastSnapshot!).limit(to: 15)
+                
+                query.getDocuments { snapshot, error in
+                    guard let snapshot = snapshot, !snapshot.isEmpty else {
+                        completion(snapshot!)
+                        return
+                    }
+                    
+                    guard snapshot.documents.last != nil else {
+                        completion(snapshot)
+                        return
+                    }
+                    
+                    completion(snapshot)
+                }
+            }
+        }
+    }
+    
     static func fetchRepliesForPostComment(forPost post: Post, type: Comment.CommentType, forCommentId commentId: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             switch type {
@@ -537,6 +612,41 @@ struct CommentService {
         }
     }
     
+    static func likeCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
+            }
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).setData(likeData, completion: completion)
+            }
+        }
+    }
+    
+    static func unlikeCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).delete(completion: completion)
+            }
+            
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).delete(completion: completion)
+            }
+        }
+    }
+    
     
     static func likePostComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -572,6 +682,120 @@ struct CommentService {
             }
         }
     }
+    
+    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+        var commentsWithValues = [Comment]()
+        comments.forEach { comment in
+            getCaseCommentValuesFor(forCase: clinicalCase, forComment: comment, forType: type) { fetchedComment in
+                commentsWithValues.append(fetchedComment)
+                if commentsWithValues.count == comments.count {
+                    completion(commentsWithValues)
+                }
+            }
+        }
+    }
+    
+    static func getCaseCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forType type: Comment.CommentType, completion: @escaping(Comment) -> Void) {
+        var auxComment = comment
+        checkIfUserLikedCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { like in
+            fetchLikesForCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { likes in
+                fetchNumberOfCommentsForCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { comments in
+                    checkIfAuthorDidReplyCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { comment in
+                        auxComment.didLike = like
+                        auxComment.likes = likes
+                        auxComment.numberOfComments = comments
+                        auxComment.hasCommentFromAuthor = comment
+                        completion(auxComment)
+                    }
+                }
+            }
+        }
+    }
+    
+    static func checkIfUserLikedCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let _ = clinicalCase.groupId {
+            COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
+                //If the snapshot (document) exists, means current user did like the csae
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        } else {
+            COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        }
+    }
+    
+    static func fetchLikesForCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+        switch type {
+        case .regular:
+            let likesRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        case .group:
+            print("we in group")
+            let likesRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                print("looking if we get snapshot")
+                if let likes = snapshot?.count {
+                    print(likes)
+                    completion(likes.intValue)
+                }
+            }
+        }
+    }
+    
+    static func fetchNumberOfCommentsForCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
+        switch type {
+        case .regular:
+            let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").count
+            commentsRef.getAggregation(source: .server) { snapshot, _ in
+                if let comments = snapshot?.count {
+                    completion(comments.intValue)
+                }
+            }
+        case .group:
+            let commentsRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").count
+            commentsRef.getAggregation(source: .server) { snapshot, _ in
+                if let comments = snapshot?.count {
+                    completion(comments.intValue)
+                }
+            }
+        }
+    }
+    
+    static func checkIfAuthorDidReplyCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
+        switch type {
+        case .regular:
+            let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: clinicalCase.ownerUid).limit(to: 1)
+            commentsRef.getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(false)
+                    return
+                }
+                completion(true)
+            }
+            
+        case .group:
+            let commentsRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("posts").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").whereField("uid", isEqualTo: clinicalCase.ownerUid).limit(to: 1)
+            commentsRef.getDocuments { snapshot, _ in
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(false)
+                    return
+                }
+                completion(true)
+            }
+        }
+    }
+    
+    //MARK: - Post
     
     static func getPostCommmentsValuesFor(forPost post: Post, forComments comments: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
         var commentsWithValues = [Comment]()
@@ -641,7 +865,6 @@ struct CommentService {
                 }
             }
         }
-        
     }
     
     static func checkIfAuthorDidReplyComment(forPost post: Post, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
@@ -709,7 +932,6 @@ struct CommentService {
                 completion(didLike)
             }
         }
-
     }
     
     //MARK: - Comment Reply
@@ -754,7 +976,6 @@ struct CommentService {
     
     static func getPostReplyCommentValuesFor(forPost post: Post, forComment comment: Comment, forType type: Comment.CommentType, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
         var auxComment = reply
-        #warning("MARK")
         checkIfUserLikedPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
             fetchLikesForPostCommentReply(forPost: post, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
                 auxComment.likes = likes
@@ -810,6 +1031,136 @@ struct CommentService {
                 COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
                 //COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(post.postId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
                 
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    static func getCaseRepliesCommmentsValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forReplies replies: [Comment], forType type: Comment.CommentType, completion: @escaping([Comment]) -> Void) {
+        var repliesWithValues = [Comment]()
+        
+        replies.forEach { reply in
+            getCaseReplyCommentValuesFor(forCase: clinicalCase, forComment: comment, forType: type, forReply: reply) { fetchedReplies in
+                repliesWithValues.append(fetchedReplies)
+                if repliesWithValues.count == replies.count {
+                    completion(repliesWithValues)
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    static func getCaseReplyCommentValuesFor(forCase clinicalCase: Case, forComment comment: Comment, forType type: Comment.CommentType, forReply reply: Comment, completion: @escaping(Comment) -> Void) {
+        var auxComment = reply
+        checkIfUserLikedCaseCommentReply(forCase: clinicalCase, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { didLike in
+            fetchLikesForCaseCommentReply(forCase: clinicalCase, forType: type, forCommentUid: comment.id, forReplyId: reply.id) { likes in
+                auxComment.likes = likes
+                auxComment.didLike = didLike
+                auxComment.isAuthor = clinicalCase.ownerUid == reply.uid ? true : false
+                completion(auxComment)
+            }
+        }
+    }
+    
+    static func checkIfUserLikedCaseCommentReply(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Bool) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        if let _ = clinicalCase.groupId {
+            COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        } else {
+            COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).getDocument { (snapshot, _) in
+                
+                //If the snapshot (document) exists, means current user did like the post
+                guard let didLike = snapshot?.exists else { return }
+                completion(didLike)
+            }
+        }
+    }
+    
+    static func fetchLikesForCaseCommentReply(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(Int) -> Void) {
+        switch type {
+        case .regular:
+            let likesRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        case .group:
+            let likesRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").count
+            likesRef.getAggregation(source: .server) { snapshot, _ in
+                if let likes = snapshot?.count {
+                    completion(likes.intValue)
+                }
+            }
+        }
+    }
+    
+    static func uploadCaseReplyComment(comment: String, commentId: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping(String) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document()
+            let data: [String: Any] = ["uid": uid,
+                                       "comment": comment,
+                                       "id": commentRef.documentID,
+                                       "timestamp": Timestamp(date: Date())]
+            commentRef.setData(data) { _ in
+                completion(commentRef.documentID)
+            }
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("posts").document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document()
+            let data: [String: Any] = ["uid": uid,
+                                       "comment": comment,
+                                       "id": commentRef.documentID,
+                                       "timestamp": Timestamp(date: Date())]
+            commentRef.setData(data) { _ in
+                completion(commentRef.documentID)
+            }
+        }
+    }
+    
+    static func unlikeCaseReplyComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
+            }
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.delete { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).delete(completion: completion)
+              
+            }
+        }
+    }
+    
+    static func likeCaseReplyComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, forReplyId replyId: String, completion: @escaping(FirestoreCompletion)) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let likeData = ["timestamp": Timestamp(date: Date())]
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
+            }
+        case .group:
+            let commentRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").document(replyId).collection("likes").document(uid)
+            commentRef.setData(likeData) { _ in
+                COLLECTION_USERS.document(uid).collection("user-group-comments-like").document(clinicalCase.caseId).collection("comment-likes").document(commentUid).collection("comment-likes").document(replyId).setData(likeData, completion: completion)
             }
         }
     }

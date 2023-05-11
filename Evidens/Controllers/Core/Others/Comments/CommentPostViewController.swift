@@ -26,7 +26,6 @@ class CommentPostViewController: UICollectionViewController {
     private var user: User
     private var currentUser: User
     private var type: Comment.CommentType
-    private var reference: Reference?
     private var commentsLoaded: Bool = false
     private var lastCommentSnapshot: QueryDocumentSnapshot?
     

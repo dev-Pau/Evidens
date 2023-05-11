@@ -78,6 +78,7 @@ class HomeTextCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     @objc func textViewTapped(_ gestureRecognizer: UITapGestureRecognizer) {
         // Get the touch location
         guard let viewModel = viewModel, let user = user else { return }
@@ -105,6 +106,7 @@ class HomeTextCell: UICollectionViewCell {
         }
         postTextView.isSelectable = true
     }
+     
         
     // MARK: - Helpers
     
@@ -166,10 +168,7 @@ class HomeTextCell: UICollectionViewCell {
         ])
     }
     
-    func hideSeparatorView() {
-        actionButtonsView.separatorView.isHidden = true
-    }
-    
+
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         if uid == viewModel.post.ownerUid {

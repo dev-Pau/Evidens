@@ -142,7 +142,7 @@ class CaseFeedTextCell: UICollectionViewCell {
             caseDescriptionLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             caseDescriptionLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             caseDescriptionLabel.trailingAnchor.constraint(equalTo: fullNameLabel.trailingAnchor),
-            caseDescriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            caseDescriptionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -15),
             
             caseTitleBackgroundView.topAnchor.constraint(equalTo: profileImageView.topAnchor, constant: -10),
             caseTitleBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),

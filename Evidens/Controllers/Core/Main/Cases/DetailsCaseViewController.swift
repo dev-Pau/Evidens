@@ -116,11 +116,15 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             
             self.commentsLastSnapshot = snapshot.documents.last
             self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            let userUids = self.comments.map { $0.uid }
-            UserService.fetchUsers(withUids: userUids) { users in
-                self.users = users
-                self.commentsLoaded = true
-                self.collectionView.reloadSections(IndexSet(integer: 1))
+            
+            CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: self.comments, forType: self.type) { fetchedComments in
+                self.comments = fetchedComments
+                let userUids = self.comments.map { $0.uid }
+                UserService.fetchUsers(withUids: userUids) { users in
+                    self.users = users
+                    self.commentsLoaded = true
+                    self.collectionView.reloadSections(IndexSet(integer: 1))
+                }
             }
         }
     }
@@ -202,6 +206,17 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                     cell.set(user: users[userIndex])
                 }
                 
+                if comments[indexPath.row].hasCommentFromAuthor {
+                    if comments[indexPath.row].anonymous {
+                        cell.commentActionButtons.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
+                    } else {
+                        cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                    }
+
+                } else {
+                    cell.commentActionButtons.ownerPostImageView.image = nil
+                }
+                
                 return cell
             }
         }
@@ -210,20 +225,42 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
 
 extension DetailsCaseViewController: CommentCellDelegate {
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        #warning("implement")
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        
+        HapticsManager.shared.vibrate(for: .success)
+        let currentCell = cell as! CommentCell
+        currentCell.viewModel?.comment.didLike.toggle()
+        
+        if comment.didLike {
+            CommentService.unlikeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes - 1
+                self.comments[indexPath.row].didLike = false
+                self.comments[indexPath.row].likes -= 1
+            }
+        } else {
+            
+            CommentService.likeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes + 1
+                self.comments[indexPath.row].didLike = true
+                self.comments[indexPath.row].likes += 1
+            }
+        }
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
         if comment.isTextFromAuthor { return }
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let user = tab.user else { return }
+        
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            #warning("Create one for comment replies case")
-            //let controller = CommentsRepliesViewController(comments: [comment], users: [users[userIndex]])
+            let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: user)
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label
             backItem.title = ""
             navigationItem.backBarButtonItem = backItem
             
-            //navigationController?.pushViewController(controller, animated: true)
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
     
@@ -633,6 +670,23 @@ extension DetailsCaseViewController: MainSearchHeaderDelegate {
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
         present(navVC, animated: true)
+    }
+}
+
+extension DetailsCaseViewController: CommentCaseRepliesViewControllerDelegate {
+    func didLikeComment(comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            comments[commentIndex].didLike = comment.didLike
+            comments[commentIndex].likes = comment.likes
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+        }
+    }
+    
+    func didAddReplyToComment(comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].numberOfComments += 1
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+        }
     }
 }
 

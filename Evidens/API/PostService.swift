@@ -10,27 +10,7 @@ import Firebase
 import FirebaseAuth
 
 struct PostService {
-    
-    static func uploadTextPost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, user: User, completion: @escaping(FirestoreCompletion)) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let data = ["post": post,
-                    "timestamp": Timestamp(date: Date()),
-                    "ownerUid": uid,
-                    "professions": professions.map({ $0.profession }),
-                    "type": type.rawValue,
-                    "privacy": privacy.rawValue] as [String : Any]
-                   
-        
-        let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
-        
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
-            print("Post uploaded to recents")
-        }
-        
-        self.updateUserFeedAfterPost(postId: docRef.documentID)
-    }
-    
+
     static func uploadSingleImagePost(post: String, type: Post.PostType, professions: [Profession], privacy: Post.PrivacyOptions, postImageUrl: [String]?, user: User, completion: @escaping(FirestoreCompletion)) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -88,11 +68,12 @@ struct PostService {
         }
                
         let docRef = COLLECTION_POSTS.addDocument(data: data, completion: completion)
-        DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
+        #warning("remove this comment")
+        //DatabaseManager.shared.uploadRecentPost(withUid: docRef.documentID, withDate: Date()) { uploaded in
             print("Post uploaded to recents")
-        }
+        //}
 
-        self.updateUserFeedAfterPost(postId: docRef.documentID)
+        //self.updateUserFeedAfterPost(postId: docRef.documentID)
     }
     
     static func editGroupPost(withGroupId groupId: String, withPostUid postUid: String, withNewText text: String, completion: @escaping(Bool) -> Void) {

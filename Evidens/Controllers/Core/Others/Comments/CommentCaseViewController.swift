@@ -14,6 +14,7 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 protocol CommentCaseViewControllerDelegate: AnyObject {
     func didCommentCase(clinicalCase: Case, user: User, comment: Comment)
     func didDeleteCaseComment(clinicalCase: Case, comment: Comment)
+    #warning("Need to put delegate of didPressUserProfileForUSer")
 }
 
 class CommentCaseViewController: UICollectionViewController {
@@ -104,12 +105,16 @@ class CommentCaseViewController: UICollectionViewController {
                 // Found comments
                 self.lastCommentSnapshot = snapshot.documents.last
                 let caseComments = snapshot.documents.map { Comment(dictionary: $0.data()) }
-                self.comments.append(contentsOf: caseComments)
-                let uids = caseComments.map( { $0.uid })
-                UserService.fetchUsers(withUids: uids) { users in
-                    self.users.append(contentsOf: users)
-                    self.commentsLoaded = true
-                    self.collectionView.reloadData()
+                
+                CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: caseComments, forType: self.type) { fetchedComments in
+                    self.comments.append(contentsOf: fetchedComments)
+                    self.comments.sort { $0.timestamp.seconds < $1.timestamp.seconds }
+                    let uids = caseComments.map( { $0.uid })
+                    UserService.fetchUsers(withUids: uids) { users in
+                        self.users.append(contentsOf: users)
+                        self.commentsLoaded = true
+                        self.collectionView.reloadData()
+                    }
                 }
             }
         }
@@ -118,6 +123,7 @@ class CommentCaseViewController: UICollectionViewController {
     //MARK: - Helpers
     
     func configureCollectionView() {
+        navigationItem.title = "Comments"
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
@@ -160,10 +166,15 @@ class CommentCaseViewController: UICollectionViewController {
             self.lastCommentSnapshot = snapshot.documents.last
             let newComments = snapshot.documents.map( { Comment(dictionary: $0.data()) })
             let newOwnerUids = newComments.map({ $0.uid })
-            UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
-                self.comments.append(contentsOf: newComments)
-                self.users.append(contentsOf: newUsers)
-                self.collectionView.reloadData()
+            
+            CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: newComments, forType: self.type) { newCommentsFetched in
+                self.comments.append(contentsOf: newCommentsFetched)
+                
+                UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                    self.comments.append(contentsOf: newComments)
+                    self.users.append(contentsOf: newUsers)
+                    self.collectionView.reloadData()
+                }
             }
         }
     }
@@ -172,7 +183,6 @@ class CommentCaseViewController: UICollectionViewController {
         dismiss(animated: true)
     }
 }
-
 
 //MARK: - UICollectionViewDataSource
 
@@ -199,6 +209,17 @@ extension CommentCaseViewController: UICollectionViewDelegateFlowLayout {
         
         cell.set(user: users[userIndex])
         
+        if comments[indexPath.row].hasCommentFromAuthor {
+            if comments[indexPath.row].anonymous {
+                cell.commentActionButtons.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
+            } else {
+                cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+            }
+
+        } else {
+            cell.commentActionButtons.ownerPostImageView.image = nil
+        }
+        
         return cell
     }
     
@@ -210,20 +231,37 @@ extension CommentCaseViewController: UICollectionViewDelegateFlowLayout {
 
 extension CommentCaseViewController: CommentCellDelegate {
     func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        #warning("implement")
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        HapticsManager.shared.vibrate(for: .success)
+        let currentCell = cell as! CommentCell
+        currentCell.viewModel?.comment.didLike.toggle()
+        
+        if comment.didLike {
+            CommentService.unlikeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes - 1
+                self.comments[indexPath.row].didLike = false
+                self.comments[indexPath.row].likes -= 1
+            }
+        } else {
+            CommentService.likeCaseComment(forCase: clinicalCase, forType: type, forCommentUid: comment.id) { _ in
+                currentCell.viewModel?.comment.likes = comment.likes + 1
+                self.comments[indexPath.row].didLike = true
+                self.comments[indexPath.row].likes += 1
+            }
+        }
     }
-    
+
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
         if comment.isTextFromAuthor { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
-            #warning("Create one for commentrepliescase")
-            //let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser)
+            let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: currentUser)
+            controller.delegate = self
             let backItem = UIBarButtonItem()
             backItem.tintColor = .label
             backItem.title = ""
             navigationItem.backBarButtonItem = backItem
             
-            //navigationController?.pushViewController(controller, animated: true)
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
     
@@ -280,10 +318,6 @@ extension CommentCaseViewController: CommentCellDelegate {
 //MARK: - CommentInputAccesoryViewDelegate
 
 extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
-    func didTapAddReference() {
-        
-    }
-    
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         //Upload commento to Firebase
         if clinicalCase.ownerUid == currentUser.uid && clinicalCase.privacyOptions == .nonVisible {
@@ -354,6 +388,23 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 
                 NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: self.currentUser, type: .commentCase, clinicalCase: self.clinicalCase, withCommentId: commentUid)
             }
+        }
+    }
+}
+
+extension CommentCaseViewController: CommentCaseRepliesViewControllerDelegate {
+    func didLikeComment(comment: Comment) {
+        if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].likes = comment.likes
+            self.comments[commentIndex].didLike = comment.didLike
+            self.collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 0)])
+        }
+    }
+    
+    func didAddReplyToComment(comment: Comment) {
+        if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
+            self.comments[commentIndex].numberOfComments += 1
+            self.collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 0)])
         }
     }
 }
