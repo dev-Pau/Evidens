@@ -137,7 +137,7 @@ class ApplyJobViewController: UIViewController {
                         reportPopup.showTopPopup(inView: self.view)
                         self.dismiss(animated: true)
                         let fileManager = FileManager.default
-                        NotificationService.uploadNotification(toUid: self.job.ownerUid, fromUser: self.user, type: .jobApplicant, job: self.job)
+                        //NotificationService.uploadNotification(toUid: self.job.ownerUid, fromUser: self.user, type: .jobApplicant, job: self.job)
                         do {
                             try fileManager.removeItem(at: temporaryFileURL)
                             print("Temporary file deleted successfully")

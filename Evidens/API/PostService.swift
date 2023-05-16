@@ -282,7 +282,6 @@ struct PostService {
                         completion(posts)
                     }
                 }
-            //}
         }
     }
     
@@ -316,6 +315,23 @@ struct PostService {
                 }
             }
              */
+        }
+    }
+    
+    static func fetchGroupPosts(withGroupId groupId: String, withPostIds postIds: [String], completion: @escaping([Post]) -> Void) {
+        var groupPosts = [Post]()
+        postIds.forEach { postId in
+            COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).getDocument { snapshot, _ in
+                guard let snapshot = snapshot else { return }
+                guard let data = snapshot.data() else { return }
+                let post = Post(postId: snapshot.documentID, dictionary: data)
+                getGroupPostValuesFor(post: post) { fetchedPost in
+                    groupPosts.append(fetchedPost)
+                    if groupPosts.count == postIds.count {
+                        completion(groupPosts)
+                    }
+                }
+            }
         }
     }
     

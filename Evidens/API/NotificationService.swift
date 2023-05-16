@@ -12,6 +12,10 @@ import FirebaseAuth
 struct NotificationService {
     
     //Upload a notification to a specific user
+    
+    
+    #warning("ADD GROUP ID TO NOTIFICATION IN CASE IT IS FROM GROUP, ADD THE CASE GROUP POST AND GROPU CASE AND BECAUSE RIGHT NOW FOR JULIA ROBERT IS NOT FETCHING GOOD")
+
     static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, clinicalCase: Case? = nil, withCommentId: String? = nil, job: Job? = nil) {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //To avoid receiving user own notifications
@@ -32,6 +36,11 @@ struct NotificationService {
                     
                     if let comment = withCommentId {
                         data["commentId"] = comment
+                    }
+                    
+                    // Notification related to a group
+                    if let groupId = post.groupId {
+                        data["groupId"] = groupId
                     }
                     
                     docRef.setData(data)
@@ -66,6 +75,11 @@ struct NotificationService {
                         data["commentId"] = comment
                     }
                     
+                    // Notification related to a group
+                    if let groupId = clinicalCase.groupId {
+                        data["groupId"] = groupId
+                    }
+                    
                     docRef.setData(data)
                     return
                 }
@@ -81,30 +95,7 @@ struct NotificationService {
                 COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notification.id).setData(data, merge: true)
             }
         } else {
-            if type == .jobApplicant {
-                guard let job = job else { return }
-                print("we try send job notification")
-                
-                let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("contentId", isEqualTo: job.jobId).whereField("type", isEqualTo: type.rawValue)
-                notificationExists.getDocuments { snapshot, error in
-                    guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
-                        let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
-                        
-                        let data: [String: Any] = ["timestamp": Timestamp(date: Date()),
-                                                   "uid": fromUser.uid as Any,
-                                                   "contentId": job.jobId,
-                                                   "type": type.rawValue,
-                                                   "id": docRef.documentID]
-                        docRef.setData(data)
-                        return
-                    }
-                    let notification = Notification(dictionary: notificationSnapshot.data() )
-                    let data: [String: Any] = ["timestamp": Timestamp(date: Date()),
-                                               "uid": fromUser.uid as Any]
 
-                    COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notification.id).setData(data, merge: true)
-                }
-            } else {
                 let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("type", isEqualTo: type.rawValue)
                 notificationExists.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
@@ -123,7 +114,7 @@ struct NotificationService {
                     let data: [String: Any] = ["timestamp": Timestamp(date: Date()),
                                                "uid": fromUser.uid as Any]
                     COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notification.id).setData(data, merge: true)
-                }
+                
             }
             // Follow
             

@@ -110,7 +110,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
             postTextView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
             postTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
             
-            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 5),
+            postImageView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             postImageView.heightAnchor.constraint(equalToConstant: 200),
             postImageView.widthAnchor.constraint(equalToConstant: frame.width),
@@ -136,35 +136,12 @@ class HomeFourImageTextCell: UICollectionViewCell {
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
         ])
         
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(textViewTapped(_:)))
-        postTextView.addGestureRecognizer(tapGestureRecognizer)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func textViewTapped(_ gestureRecognizer: UITapGestureRecognizer) {
-        // Get the touch location
-        let touchLocation = gestureRecognizer.location(in: postTextView)
-        postTextView.isSelectable = false
-        // Check if the tap is within the desired range
-        let linkRange = postTextView.attributedText.string.range(of: "Reference")
-        let layoutManager = postTextView.layoutManager
-        let charIndex = layoutManager.characterIndex(for: touchLocation, in: postTextView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-        if let range = linkRange {
-            let nsRange = NSRange(range, in: postTextView.attributedText.string)
-                    if NSLocationInRange(charIndex, nsRange) {
-                        guard let viewModel = viewModel, let reference = viewModel.postReference else { return }
-                        delegate?.cell(self, wantsToSeeReference: reference)
-                    } else {
-                        guard let viewModel = viewModel, let user = user else { return }
-                        delegate?.cell(self, wantsToSeePost: viewModel.post, withAuthor: user)
-                    }
-            
-            postTextView.isSelectable = true
-        }
-    }
     // MARK: - Helpers
     
     func configure() {
@@ -180,14 +157,7 @@ class HomeFourImageTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        
-        if let _ = viewModel.postReference {
-            let attributedText = NSMutableAttributedString(string: "Reference", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .medium), .foregroundColor: UIColor.secondaryLabel])
-            attributedText.append(NSAttributedString(string: "\n\(viewModel.postText)", attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label]))
-            postTextView.attributedText = attributedText
-        } else {
-            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])
-        }
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])
         
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
@@ -212,10 +182,13 @@ class HomeFourImageTextCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        
+        var menuItems = [UIMenuElement]()
+        
         if uid == viewModel.post.ownerUid {
             // Owner
             
-            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            let ownerMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
                 UIAction(title: Post.PostMenuOptions.delete.rawValue, image: Post.PostMenuOptions.delete.menuOptionsImage, handler: { (_) in
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .delete)
                 }),
@@ -223,19 +196,33 @@ class HomeFourImageTextCell: UICollectionViewCell {
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .edit)
                 })
             ])
-            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
-            return menuItems
+
+            menuItems.append(ownerMenuItems)
         } else {
             //  Not owner
-            let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+            let userMenuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
                 UIAction(title: Post.PostMenuOptions.report.rawValue, image: Post.PostMenuOptions.report.menuOptionsImage, handler: { (_) in
                     self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .report)
                 })
             ])
-            userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
-            return menuItems
+
+            menuItems.append(userMenuItems)
         }
+        
+        if viewModel.postReference != nil {
+            let referenceItem = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
+                UIAction(title: "Show Reference", image: Post.PostMenuOptions.report.menuOptionsImage, handler: { (_) in
+                    self.delegate?.cell(self, didTapMenuOptionsFor: viewModel.post, option: .reference)
+                })
+            ])
+            
+            menuItems.append(referenceItem)
+        }
+        
+        userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
+        return UIMenu(children: menuItems)
     }
+    
     func configureWithReviewOptions() {
         //
         actionButtonsView.isHidden = true

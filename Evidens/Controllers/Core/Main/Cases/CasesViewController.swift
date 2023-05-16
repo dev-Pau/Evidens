@@ -39,6 +39,10 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
     
     private let activityIndicator = MEProgressHUD(frame: .zero)
     
+    
+    var selectedIndexPath = IndexPath()
+    var selectedUserIndex = 0
+
     private let exploreCasesToolbar: ExploreCasesToolbar = {
         let toolbar = ExploreCasesToolbar(frame: .zero)
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -340,7 +344,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
                                 self.casesCollectionView.performBatchUpdates {
                                     self.casesCollectionView.isScrollEnabled = false
                                     self.casesCollectionView.insertItems(at: newIndexPaths)
-                                    
                                 }
                                 
                                 DispatchQueue.main.async {
@@ -535,6 +538,34 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
         case .filter:
             return
         }
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == cases[indexPath.item].ownerUid }) {
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            
+            let previewViewController = DetailsCaseViewController(clinicalCase: cases[indexPath.item], user: users[userIndex], type: .regular, collectionViewFlowLayout: layout)
+            let previewProvider: () -> DetailsCaseViewController? = { previewViewController }
+            return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { _ in
+                let action1 = UIAction(title: "Report Case", image: UIImage(systemName: "flag")) { action in
+                    UIMenuController.shared.hideMenu(from: self.view)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: self.users[userIndex].uid!, contentId: self.cases[indexPath.item].caseId)
+                        let navVC = UINavigationController(rootViewController: controller)
+                        navVC.modalPresentationStyle = .fullScreen
+                        self.present(navVC, animated: true)
+                    }
+                }
+                return UIMenu(children: [action1])
+            }
+        }
+        
+        return nil
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {

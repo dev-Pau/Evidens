@@ -21,12 +21,15 @@ class NotificationsViewController: NavigationBarViewController {
     private var users = [User]()
     private var posts = [Post]()
     private var cases = [Case]()
-    private var jobs = [Job]()
+    private var groups = [Group]()
+    
     private var followCellIndexPath = IndexPath()
     private var progressIndicator = JGProgressHUD()
     
     private var postLike = [Post]()
     private var caseLike = [Case]()
+    private var groupPosts = [Post]()
+    private var groupCases = [Case]()
     
     private var comments = [Comment]()
     private var userFollowers: Int = 0
@@ -114,7 +117,7 @@ class NotificationsViewController: NavigationBarViewController {
             self.fetchCommentsForPostCommentNotification()
             self.fetchCommentsForCaseCommentNotification()
             self.fetchNumberOfFollowers()
-            self.fetchJobsForJobNotification()
+            self.fetchNotificationGroups()
             
             let userUids = self.notifications.map { $0.uid }
             let uniqueUserUids = Array(Set(userUids))
@@ -178,7 +181,6 @@ class NotificationsViewController: NavigationBarViewController {
                         self.checkIfAllNotificationInfoIsFetched()
                         print("like posts")
                     }
-
                 }
             }
         }
@@ -255,24 +257,109 @@ class NotificationsViewController: NavigationBarViewController {
             }
         }
     }
-    
-    func fetchJobsForJobNotification() {
-        let notificationJob = notifications.filter({ $0.type == .jobApplicant })
-        guard !notificationJob.isEmpty else {
+    //fetchGroupPostsForLikeNotification
+    func fetchNotificationGroups() {
+        let groupNotifications = notifications.filter { !$0.groupId.isEmpty }
+        let groupIds = groupNotifications.map { $0.groupId }
+        let uniqueGroupIds = Array(Set(groupIds))
+        
+        guard !uniqueGroupIds.isEmpty else {
+            print("no group notifications to fetch")
             self.checkIfAllNotificationInfoIsFetched()
-            print("jobs empty")
+            return
+        }
+        print(uniqueGroupIds)
+        GroupService.fetchGroups(withGroupIds: uniqueGroupIds) { groupsFetched in
+            self.groups = groupsFetched
+            
+            
+            self.notifications.enumerated().forEach { index, notification in
+                self.notifications[index].group = self.groups.first(where: { $0.groupId == notification.groupId })
+            }
+            
+            print("we got groups")
+            self.fetchGroupPostsForLikeNotification()
+            self.fetchGroupCaseForLikeNotification()
+            self.fetchCommentsForGroupPostCommentNotification()
+            self.fetchCommentsForGroupCaseCommentNotification()
+        }
+    }
+    
+    func fetchGroupPostsForLikeNotification() {
+        let notificationGroupPostLikes = notifications.filter { $0.type == .likeGroupPost }
+        guard !notificationGroupPostLikes.isEmpty else {
+            self.checkIfAllNotificationInfoIsFetched()
+            print("like group post likes empty")
             return
         }
         
-        JobService.fetchJobs(withJobIds: notificationJob.map({ $0.contentId })) { jobsFetched in
-            self.jobs = jobsFetched
-            var count = 0
-            jobsFetched.forEach { job in
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == job.jobId }) {
-                    self.notifications[notificationIndex].job = job
+        var count = 0
+        
+        //let postIds = notificationGroupPostLikes.map { $0.contentId }
+        
+        notificationGroupPostLikes.forEach { notification in
+            PostService.fetchGroupPost(withGroupId: notification.groupId, withPostId: notification.contentId) { post in
+                self.groupPosts.append(post)
+                
+                self.groupPosts.forEach { post in
+                    if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == post.postId}) {
+                        self.notifications[notificationIndex].post = post
+                        count += 1
+                        if self.groupPosts.count == count {
+                            self.checkIfAllNotificationInfoIsFetched()
+                            print("like group posts")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func fetchGroupCaseForLikeNotification() {
+        let notificationGroupPostLikes = notifications.filter { $0.type == .likeGroupCase }
+        guard !notificationGroupPostLikes.isEmpty else {
+            self.checkIfAllNotificationInfoIsFetched()
+            print("like group case likes empty")
+            return
+        }
+        
+        var count = 0
+        
+        //let postIds = notificationGroupPostLikes.map { $0.contentId }
+        
+        notificationGroupPostLikes.forEach { notification in
+            CaseService.fetchGroupCase(withGroupId: notification.groupId, withCaseId: notification.contentId) { clinicalCase in
+                self.groupCases.append(clinicalCase)
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == clinicalCase.caseId }) {
+                    self.notifications[notificationIndex].clinicalCase = clinicalCase
                     count += 1
-                    if jobsFetched.count == count {
-                        print("jobs")
+                    if self.groupCases.count == count {
+                        self.checkIfAllNotificationInfoIsFetched()
+                        print("like group cases")
+                    }
+                }
+            }
+        }
+    }
+    
+    func fetchCommentsForGroupPostCommentNotification() {
+        let notificationCommentPost = notifications.filter({ $0.type == .commentGroupPost })
+        
+        guard !notificationCommentPost.isEmpty else {
+            self.checkIfAllNotificationInfoIsFetched()
+            print("group comments post empty")
+            return
+        }
+        
+        CommentService.fetchNotificationGroupPostComments(withNotifications: notificationCommentPost) { comments in
+            self.comments.append(contentsOf: comments)
+            var count = 0
+            comments.forEach { comment in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.commentId == comment.id }) {
+                    self.notifications[notificationIndex].comment = comment
+                    count += 1
+                    if comments.count == count {
+                        print("comments group post")
                         self.checkIfAllNotificationInfoIsFetched()
                     }
                 }
@@ -280,10 +367,44 @@ class NotificationsViewController: NavigationBarViewController {
         }
     }
     
+    func fetchCommentsForGroupCaseCommentNotification() {
+        let notificationCommentCase = notifications.filter({ $0.type == .commentGroupCase })
+        
+        guard !notificationCommentCase.isEmpty else {
+            self.checkIfAllNotificationInfoIsFetched()
+            print("group comments case empty")
+            return
+        }
+        
+        CommentService.fetchNotificationGroupCaseComments(withNotifications: notificationCommentCase) { comments in
+            self.comments.append(contentsOf: comments)
+            var count = 0
+            comments.forEach { comment in
+                if let notificationIndex = self.notifications.firstIndex(where: { $0.commentId == comment.id }) {
+                    self.notifications[notificationIndex].comment = comment
+                    count += 1
+                    if comments.count == count {
+                        print("comments group case")
+                        self.checkIfAllNotificationInfoIsFetched()
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    /*
+     self.fetchGroupPostsForLikeNotification()
+     
+     */
+    
     func checkIfAllNotificationInfoIsFetched() {
         fetchedCount += 1
         print(fetchedCount)
-        if fetchedCount == 8 {
+        if fetchedCount == 11 {
             print("we got all data")
             self.loaded = true
             self.activityIndicator.stop()

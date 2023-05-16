@@ -342,7 +342,9 @@ extension CommentPostViewController: CommentInputAccessoryViewDelegate {
             
             self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
             
-            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: self.currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
+            let type: Notification.NotificationType = self.post.groupId != nil ? .commentGroupPost : .commentPost
+            
+            NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: self.currentUser, type: type, post: self.post, withCommentId: commentUid)
         }
     }
 }

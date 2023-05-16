@@ -114,6 +114,7 @@ struct Post {
         case delete = "Delete Post"
         case edit = "Edit Post"
         case report = "Report Post"
+        case reference = "Show Reference"
         
         var menuOptionsImage: UIImage {
             switch self {
@@ -123,6 +124,8 @@ struct Post {
                 return UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
             case .report:
                 return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            case .reference:
+                return UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
             }
         }
     }

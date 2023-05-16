@@ -414,9 +414,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HomeTextCell
                 
                 cell.delegate = self
-                
-                //cell.layer.borderWidth = 0
-                
+                cell.postTextView.isSelectable = false
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
                 if user != nil {
@@ -441,6 +439,7 @@ extension HomeViewController: UICollectionViewDataSource {
             } else if posts[indexPath.row].type.postType == 1 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
+                cell.postTextView.isSelectable = false
                 cell.layer.borderWidth = 0
                 cell.layoutIfNeeded()
                 
@@ -468,6 +467,7 @@ extension HomeViewController: UICollectionViewDataSource {
             } else if posts[indexPath.row].type.postType == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
+                cell.postTextView.isSelectable = false
                 cell.layer.borderWidth = 0
                 
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
@@ -493,10 +493,11 @@ extension HomeViewController: UICollectionViewDataSource {
                 
             } else if posts[indexPath.row].type.postType == 3 {
                 //print("post type 1")
+                
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
-                
+                cell.postTextView.isSelectable = false
                 
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
@@ -520,7 +521,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
-                
+                cell.postTextView.isSelectable = false
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 
                 let userIndex = users.firstIndex { user in
@@ -543,7 +544,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
-                
+                cell.postTextView.isSelectable = false
                 cell.viewModel = PostViewModel(post: posts[indexPath.row])
                 let userIndex = users.firstIndex { user in
                     if user.uid == posts[indexPath.row].ownerUid {
@@ -562,6 +563,54 @@ extension HomeViewController: UICollectionViewDataSource {
             }
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        if let indexPath = collectionView.indexPathForItem(at: point), let userIndex = users.firstIndex(where: { $0.uid! == posts[indexPath.item].ownerUid }) {
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+            layout.minimumLineSpacing = 0
+            layout.minimumInteritemSpacing = 0
+            
+            let previewViewController = DetailsPostViewController(post: posts[indexPath.item], user: users[userIndex], type: .regular, collectionViewLayout: layout)
+            let previewProvider: () -> DetailsPostViewController? = { previewViewController }
+            return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { _ in
+                
+                var children = [UIMenuElement]()
+                
+                let action1 = UIAction(title: Post.PostMenuOptions.report.rawValue, image: Post.PostMenuOptions.report.menuOptionsImage) { action in
+                    UIMenuController.shared.hideMenu(from: self.view)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        let controller = ReportViewController(source: .post, contentOwnerUid: self.users[userIndex].uid!, contentId: self.posts[indexPath.item].postId)
+                        let navVC = UINavigationController(rootViewController: controller)
+                        navVC.modalPresentationStyle = .fullScreen
+                        self.present(navVC, animated: true)
+                    }
+                }
+                
+                children.append(action1)
+                
+                if self.posts[indexPath.item].reference != nil {
+                    let action2 = UIAction(title: Post.PostMenuOptions.reference.rawValue, image: Post.PostMenuOptions.reference.menuOptionsImage, handler: { (_) in
+                        let reference = Reference(option: self.posts[indexPath.item].reference!, referenceText: self.posts[indexPath.item].referenceText)
+                        self.referenceMenuLauncher.reference = reference
+                        self.referenceMenuLauncher.delegate = self
+                        self.referenceMenuLauncher.showImageSettings(in: self.view)
+                    })
+                    
+                    children.append(action2)
+                }
+                
+                
+                
+                return UIMenu(children: children)
+            }
+        }
+        
+        return nil
+    }
+    
 }
 
 //MARK: - HomeCellDelegate
@@ -585,8 +634,15 @@ extension HomeViewController: HomeCellDelegate {
             
             present(nav, animated: true)
         case .report:
-            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            let controller = ReportViewController(source: .post, contentOwnerUid: post.ownerUid, contentId: post.postId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
+        case .reference:
+            let reference = Reference(option: post.reference!, referenceText: post.referenceText)
+            referenceMenuLauncher.reference = reference
+            referenceMenuLauncher.delegate = self
+            referenceMenuLauncher.showImageSettings(in: view)
         }
     }
     

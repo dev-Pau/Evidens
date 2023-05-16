@@ -108,7 +108,21 @@ struct GroupService {
         }
     }
     
-    
+    static func fetchGroups(withGroupIds groupIds: [String], completion: @escaping([Group]) -> Void) {
+        var fetchedGroups = [Group]()
+        groupIds.forEach { id in
+            COLLECTION_GROUPS.whereField("id", isEqualTo: id).getDocuments { snapshot, error in
+                guard let documents = snapshot?.documents else { return }
+                let group = documents.map({ Group(groupId: $0.documentID, dictionary: $0.data()) })
+                fetchedGroups.append(contentsOf: group)
+                if fetchedGroups.count == groupIds.count {
+                    completion(fetchedGroups)
+                }
+            }
+        }
+    }
+            
+            
     
     static func fetchUserGroups(withGroupIds groupIds: [String], completion: @escaping([Group]) -> Void) {
         // Check user RTD all the ID groups

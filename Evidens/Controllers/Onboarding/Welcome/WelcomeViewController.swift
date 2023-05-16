@@ -62,12 +62,7 @@ class WelcomeViewController: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
-    
-    private let welcomeText: UILabel = {
-        let label = CustomLabel(placeholder: "Welcome to the healthcare community.")
-        return label
-    }()
-    
+
     private lazy var googleSingInButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()

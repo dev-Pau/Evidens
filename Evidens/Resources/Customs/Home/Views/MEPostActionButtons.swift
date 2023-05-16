@@ -48,9 +48,7 @@ class MEPostActionButtons: UIView {
         label.numberOfLines = 0
         return label
     }()
-    
-    
-    
+
     lazy var commentButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +110,7 @@ class MEPostActionButtons: UIView {
             bookmarkButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             bookmarkButton.heightAnchor.constraint(equalToConstant: 25),
             bookmarkButton.widthAnchor.constraint(equalToConstant: 25),
-            
+
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),

@@ -17,7 +17,6 @@ protocol HomeCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
     func cell(wantsToSeeLikesFor post: Post)
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User)
-    func cell(_ cell : UICollectionViewCell, wantsToSeeReference reference: Reference)
 }
 
 protocol CaseCellDelegate: AnyObject {

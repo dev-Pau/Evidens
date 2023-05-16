@@ -200,19 +200,18 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
                 if isReviewingPost {
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 return cell
                 
             } else if post.type.postType == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
@@ -220,24 +219,25 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 return cell
             } else if post.type.postType == 3 {
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
                 cell.layer.borderWidth = 0
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
                 if isReviewingPost {
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 return cell
             } else if post.type.postType == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
+
                 cell.layer.borderWidth = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
@@ -245,6 +245,7 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 return cell
             }
             else {
@@ -308,6 +309,11 @@ extension DetailsPostViewController: HomeCellDelegate {
             let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
             reportPopup.showTopPopup(inView: self.view)
             
+        case .reference:
+            let reference = Reference(option: post.reference!, referenceText: post.referenceText)
+            referenceMenuLauncher.reference = reference
+            referenceMenuLauncher.delegate = self
+            referenceMenuLauncher.showImageSettings(in: view)
         }
     }
 

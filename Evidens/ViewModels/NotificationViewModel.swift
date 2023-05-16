@@ -74,9 +74,18 @@ struct NotificationViewModel {
         case .commentCase:
             guard let likes = notification.clinicalCase?.numberOfComments, likes > 0 else { return "" }
             return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
-        case .jobApplicant:
-            guard let applicants = notification.job?.numberOfApplicants, applicants > 0 else { return "" }
-            return applicants == 1 ? "" : applicants < 3 ? " and others " : "and \(applicants - 1) others "
+        case .commentGroupPost:
+            guard let likes = notification.post?.numberOfComments, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .commentGroupCase:
+            guard let likes = notification.clinicalCase?.numberOfComments, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .likeGroupPost:
+            guard let likes = notification.post?.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
+        case .likeGroupCase:
+            guard let likes = notification.clinicalCase?.likes, likes > 0 else { return "" }
+            return likes == 1 ? "" : likes < 3 ? " and others " : "and \(likes - 1) others "
         }
     }
     
@@ -84,21 +93,57 @@ struct NotificationViewModel {
         switch notificationType {
         case .likePost:
             guard let post = notification.post else { return "" }
-            return "\"\(post.postText.trimmingCharacters(in: .whitespaces))\". "
+            return "\"\(post.postText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .likeCase:
             guard let clinicalCase = notification.clinicalCase else { return "" }
-            return "\"\(clinicalCase.caseTitle.trimmingCharacters(in: .whitespaces))\". "
+            return "\"\(clinicalCase.caseTitle.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .follow:
             return ""
         case .commentPost:
             guard let comment = notification.comment else { return "" }
-            return "\"\(comment.commentText.trimmingCharacters(in: .whitespaces))\". "
+            return "\"\(comment.commentText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .commentCase:
             guard let comment = notification.comment else { return "" }
-            return "\"\(comment.commentText.trimmingCharacters(in: .whitespaces))\". "
-        case .jobApplicant:
-            guard let job = notification.job else { return "" }
-            return "\"\(job.title.trimmingCharacters(in: .whitespaces))\". "
+            return "\"\(comment.commentText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .commentGroupPost:
+            guard let comment = notification.comment else { return "" }
+            return "\"\(comment.commentText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .commentGroupCase:
+            guard let comment = notification.comment else { return "" }
+            return "\"\(comment.commentText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .likeGroupPost:
+            guard let post = notification.post else { return "" }
+            return "\"\(post.postText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        case .likeGroupCase:
+            guard let clinicalCase = notification.clinicalCase else { return "" }
+            return "\"\(clinicalCase.caseTitle.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+        }
+    }
+    
+    var groupInformation: String {
+        switch notificationType {
+        case .likePost:
+            return ""
+        case .likeCase:
+            return ""
+        case .follow:
+            return ""
+        case .commentPost:
+            return ""
+        case .commentCase:
+            return ""
+        case .commentGroupPost:
+            guard let group = notification.group else { return "" }
+            return "\(group.name.trimmingCharacters(in: .whitespacesAndNewlines)). "
+        case .commentGroupCase:
+            guard let group = notification.group else { return "" }
+            return "\(group.name.trimmingCharacters(in: .whitespacesAndNewlines)). "
+        case .likeGroupPost:
+            guard let group = notification.group else { return "" }
+            return "\(group.name.trimmingCharacters(in: .whitespacesAndNewlines)). "
+        case .likeGroupCase:
+            guard let group = notification.group else { return "" }
+            return "\(group.name.trimmingCharacters(in: .whitespacesAndNewlines)). "
         }
     }
 }

@@ -39,7 +39,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     private let fullNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
-        label.numberOfLines = 3
+        label.numberOfLines = 4
         label.lineBreakMode = .byTruncatingMiddle
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -132,32 +132,21 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         let attributedText = NSMutableAttributedString(string: user.firstName! + " ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notificationTypeDescription, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + ", ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        attributedText.append(NSAttributedString(string: viewModel.notificationTypeSummary, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+
+        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + " ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        
+        //attributedText.append(NSAttributedString(string: viewModel.groupInformation, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: UIColor.label.cgColor]))
+        
+        attributedText.append(NSAttributedString(string: viewModel.groupInformation, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: UIColor.label.cgColor]))
+
+        
+        attributedText.append(NSAttributedString(string: viewModel.notificationTypeSummary.trimmingCharacters(in: .newlines), attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        
         
         attributedText.append(NSAttributedString(string: viewModel.notificationTimeStamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
+        
         fullNameLabel.attributedText = attributedText
-        /*
-        if let post = viewModel.notification.post {
-            if post.
-        } else if let clinicalCase = viewModel.notification.clinicalCase {
-            
-        }
         
-        
-        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + ", ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        //attributedText.append(NSAttributedString(string: viewModel.notificationComment!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
-        
-        
-        if let post = viewModel.notification.post {
-           
-        } else if let clinicalCase = viewModel.notification.clinicalCase {
-            
-        } else {
-            // Comment
-            attributedText.append(NSAttributedString(string: " \"\(viewModel.notificationText ?? "")\". ", attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.secondaryLabel.cgColor]))
-        }
-         */
 
         layoutIfNeeded()
     }

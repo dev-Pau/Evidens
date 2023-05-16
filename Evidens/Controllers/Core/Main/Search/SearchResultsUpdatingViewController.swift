@@ -1275,6 +1275,11 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
         case .report:
             let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
             reportPopup.showTopPopup(inView: self.view)
+        case .reference:
+            let reference = Reference(option: post.reference!, referenceText: post.referenceText)
+            referenceMenuLauncher.reference = reference
+            referenceMenuLauncher.delegate = self
+            referenceMenuLauncher.showImageSettings(in: view)
         }
     }
     

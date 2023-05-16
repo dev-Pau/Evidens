@@ -17,12 +17,13 @@ struct Notification {
     let id: String
     let userProfileImageUrl: String
     let commentId: String
+    let groupId: String
     var userIsFollowed = false
     
     var post: Post?
     var clinicalCase: Case?
     var comment: Comment?
-    var job: Job?
+    var group: Group?
     
     enum NotificationType: Int {
         case likePost
@@ -30,7 +31,10 @@ struct Notification {
         case follow
         case commentPost
         case commentCase
-        case jobApplicant
+        case commentGroupPost
+        case commentGroupCase
+        case likeGroupPost
+        case likeGroupCase
         
         var notificationMessage: String {
             switch self {
@@ -39,8 +43,10 @@ struct Notification {
             case .follow: return " followed you"
             case .commentPost: return " commented on your post"
             case .commentCase: return " commented on your case"
-            case .jobApplicant: return " applied to your job"
-                
+            case .commentGroupPost: return " commented your group post in"
+            case .commentGroupCase: return " commented your group case in"
+            case .likeGroupPost: return " liked your group post in"
+            case .likeGroupCase: return " liked your group case in"
             }
         }
     }
@@ -62,11 +68,12 @@ struct Notification {
             }
         }
     }
-
+    
     init(dictionary: [String: Any]) {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.id = dictionary["id"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
+        self.groupId = dictionary["groupId"] as? String ?? String()
         self.contentId = dictionary["contentId"] as? String ?? ""
         self.type = NotificationType(rawValue: dictionary["type"] as? Int ?? 0) ?? .likePost
         self.userProfileImageUrl = dictionary["userProfileImageUrl"] as? String ?? ""
