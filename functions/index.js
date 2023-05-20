@@ -95,8 +95,26 @@ exports.updateUserHomeFeedOnUnfollow = functions.firestore.document('followers/{
 })
 
 
-// Cloud Function that sends a notification to the 'userId' when a notification document is created
 
+// Cloud Function that sends a notification to the group members when new content is shared
+exports.sendGroupNotificationOnNewContent = functions.database.ref(`groups/{groupId}/content/all`).onCreate((snapshot, context) => {
+  let groupId = context.params.groupId;
+  let content = snapshot.val();
+
+  const id = content.id;
+  const type = content.type;
+
+  console.log('New content created in group:', groupId);
+  console.log('ID:', id);
+  console.log('Type:', type);
+
+  
+
+
+})
+
+
+// Cloud Function that sends a notification to the 'userId' when a notification document is created
 exports.sendNotification = functions.firestore.document('notifications/{userId}/user-notifications/{notificationId}').onCreate(async (snap, context) => {
   const userId = context.params.userId;
   const notificationId = context.params.notificationId;

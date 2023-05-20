@@ -403,6 +403,12 @@
 		5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */; };
 		5FA9D19A29A8B452004EF26A /* ReviewDocumentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19929A8B452004EF26A /* ReviewDocumentViewController.swift */; };
 		5FA9D19D29A8DBE2004EF26A /* ApplicantsJobCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D19C29A8DBE2004EF26A /* ApplicantsJobCell.swift */; };
+		5FAB2DC32A18CDA800BD094B /* Conversation.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DC12A18CDA800BD094B /* Conversation.xcdatamodeld */; };
+		5FAB2DC52A18D25700BD094B /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DC42A18D25700BD094B /* DataService.swift */; };
+		5FAB2DD22A18FD1700BD094B /* MessageEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DCE2A18FD1600BD094B /* MessageEntity+CoreDataClass.swift */; };
+		5FAB2DD32A18FD1700BD094B /* MessageEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DCF2A18FD1600BD094B /* MessageEntity+CoreDataProperties.swift */; };
+		5FAB2DD42A18FD1700BD094B /* ConversationEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DD02A18FD1600BD094B /* ConversationEntity+CoreDataClass.swift */; };
+		5FAB2DD52A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DD12A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
 		5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */; };
 		5FAC98CF29476BF500C72228 /* GroupInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CE29476BF500C72228 /* GroupInformationViewController.swift */; };
@@ -862,6 +868,12 @@
 		5FA9D19729A7C860004EF26A /* JobAttachementsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobAttachementsCell.swift; sourceTree = "<group>"; };
 		5FA9D19929A8B452004EF26A /* ReviewDocumentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewDocumentViewController.swift; sourceTree = "<group>"; };
 		5FA9D19C29A8DBE2004EF26A /* ApplicantsJobCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicantsJobCell.swift; sourceTree = "<group>"; };
+		5FAB2DC22A18CDA800BD094B /* Conversation.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Conversation.xcdatamodel; sourceTree = "<group>"; };
+		5FAB2DC42A18D25700BD094B /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		5FAB2DCE2A18FD1600BD094B /* MessageEntity+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MessageEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		5FAB2DCF2A18FD1600BD094B /* MessageEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MessageEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		5FAB2DD02A18FD1600BD094B /* ConversationEntity+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ConversationEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		5FAB2DD12A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ConversationEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
 		5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageHeaderCell.swift; sourceTree = "<group>"; };
 		5FAC98CE29476BF500C72228 /* GroupInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInformationViewController.swift; sourceTree = "<group>"; };
@@ -2614,11 +2626,16 @@
 				5FC4D87627070376006B7A34 /* ViewModels */,
 				5FC4D8752707035A006B7A34 /* Controllers */,
 				5FC4D87227070315006B7A34 /* Resources */,
-				5FC4D8772707038C006B7A34 /* API */,
+				5FC4D8772707038C006B7A34 /* Service */,
 				5FC4D86327070274006B7A34 /* Main.storyboard */,
 				5FC4D86B27070277006B7A34 /* Info.plist */,
 				5F0A4F4D27255F1300700304 /* GoogleService-Info.plist */,
 				5F6607EE2854D36500FCF895 /* ViewController.swift */,
+				5FAB2DC12A18CDA800BD094B /* Conversation.xcdatamodeld */,
+				5FAB2DD02A18FD1600BD094B /* ConversationEntity+CoreDataClass.swift */,
+				5FAB2DD12A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift */,
+				5FAB2DCE2A18FD1600BD094B /* MessageEntity+CoreDataClass.swift */,
+				5FAB2DCF2A18FD1600BD094B /* MessageEntity+CoreDataProperties.swift */,
 			);
 			path = Evidens;
 			sourceTree = "<group>";
@@ -2727,7 +2744,7 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		5FC4D8772707038C006B7A34 /* API */ = {
+		5FC4D8772707038C006B7A34 /* Service */ = {
 			isa = PBXGroup;
 			children = (
 				5F0A4F502725622800700304 /* AuthService.swift */,
@@ -2745,8 +2762,9 @@
 				5FA9D17529A4D138004EF26A /* JobService.swift */,
 				5F91F11829BF380B007BB567 /* SearchService.swift */,
 				5F91F11C29C05820007BB567 /* NewService.swift */,
+				5FAB2DC42A18D25700BD094B /* DataService.swift */,
 			);
-			path = API;
+			path = Service;
 			sourceTree = "<group>";
 		};
 		5FC4D88627071CC4006B7A34 /* Home */ = {
@@ -3111,6 +3129,7 @@
 				5F92FD6829F8F03900E2894D /* CommentRepliesViewController.swift in Sources */,
 				5F0D2B0328C34BD800BE5DD5 /* AboutSettingsViewController.swift in Sources */,
 				5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */,
+				5FAB2DC52A18D25700BD094B /* DataService.swift in Sources */,
 				5FE8DE952893A5B3009F08F9 /* UserProfileCaseImageCell.swift in Sources */,
 				5FA2639129CB49A700E61357 /* InterestsViewController.swift in Sources */,
 				5FA0874428B7422A00D44829 /* AlgoliaService.swift in Sources */,
@@ -3267,6 +3286,7 @@
 				5F05206B27BD4D9C001E7D8F /* ChatCell.swift in Sources */,
 				5FA398602939FCC2007293C2 /* GroupBrowseCell.swift in Sources */,
 				5FB29016288688D3002FBAE1 /* CaseService.swift in Sources */,
+				5FAB2DC32A18CDA800BD094B /* Conversation.xcdatamodeld in Sources */,
 				5F9A9FA22899048200A25152 /* CasePrivacyMenuLauncher.swift in Sources */,
 				5F527D8928817CFB009D5027 /* VerificationRegistrationViewController.swift in Sources */,
 				5F0A4F512725622900700304 /* AuthService.swift in Sources */,
@@ -3339,6 +3359,7 @@
 				5F598BFE28362E9200189722 /* TopPeopleCell.swift in Sources */,
 				5F85218528A168870033AF67 /* LanguageSectionViewController.swift in Sources */,
 				5F598C0C28376C5700189722 /* UserProfileHeaderCell.swift in Sources */,
+				5FAB2DD52A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift in Sources */,
 				5F98F9C2298F90F500F21074 /* MEMedia.swift in Sources */,
 				5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */,
 				5FA39862293DFF35007293C2 /* GroupUserCell.swift in Sources */,
@@ -3348,6 +3369,7 @@
 				5F9F0897285F83780069FD2C /* HomeLikesCell.swift in Sources */,
 				5F8E528D2865F3A60053F011 /* PostAttachementHeader.swift in Sources */,
 				5FB290262886F843002FBAE1 /* CaseTextImageCell.swift in Sources */,
+				5FAB2DD32A18FD1700BD094B /* MessageEntity+CoreDataProperties.swift in Sources */,
 				5FA276CC29F13EBA005A339D /* AddAuthorReferenceViewController.swift in Sources */,
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
 				5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */,
@@ -3377,6 +3399,7 @@
 				5F8B7C5628772982005094A5 /* CharacterTextTracker.swift in Sources */,
 				5F8666FC27552222009B26E6 /* Comment.swift in Sources */,
 				5F8F094029A49A2400927270 /* CompanyService.swift in Sources */,
+				5FAB2DD42A18FD1700BD094B /* ConversationEntity+CoreDataClass.swift in Sources */,
 				5F92FD2929F7BB9400E2894D /* MECommentActionButtons.swift in Sources */,
 				5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
@@ -3387,6 +3410,7 @@
 				5F9A28082975731E0052E618 /* GroupPendingCell.swift in Sources */,
 				5F598C0A2836912400189722 /* UserProfileViewController.swift in Sources */,
 				5F9E429328802FBD00C2153B /* SpecialityRegistrationViewController.swift in Sources */,
+				5FAB2DD22A18FD1700BD094B /* MessageEntity+CoreDataClass.swift in Sources */,
 				5F91F11D29C05820007BB567 /* NewService.swift in Sources */,
 				5FA1DD4229C08E7400C395BD /* OnboardingImageCell.swift in Sources */,
 				5F94477B2917CF58003B3DA0 /* SkeletonCaseBookmarksTextCell.swift in Sources */,
@@ -3665,6 +3689,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		5FAB2DC12A18CDA800BD094B /* Conversation.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				5FAB2DC22A18CDA800BD094B /* Conversation.xcdatamodel */,
+			);
+			currentVersion = 5FAB2DC22A18CDA800BD094B /* Conversation.xcdatamodel */;
+			path = Conversation.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 5FC4D85227070274006B7A34 /* Project object */;
 }

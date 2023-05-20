@@ -1873,10 +1873,9 @@ extension DatabaseManager {
             completion(members)
         }
     }
-    
-    
-    
+
     public func fetchGroupInvites(groupId: String, completion: @escaping([UserGroup]) -> Void) {
+        
         let groupRef = database.child("groups").child(groupId).child("users").queryOrdered(byChild: "memberType").queryEqual(toValue: Group.MemberType.invited.rawValue)
         
         var members = [UserGroup]()
@@ -1893,6 +1892,7 @@ extension DatabaseManager {
             }
             completion(members)
         }
+        
     }
     
     public func fetchGroupUserRequests(groupId: String, completion: @escaping([UserGroup]) -> Void) {

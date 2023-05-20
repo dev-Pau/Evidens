@@ -74,17 +74,6 @@ class PostMenuCell: UICollectionViewCell {
     func set(withText text: String, withImage image: UIImage) {
         postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
         postTypeLabel.text = text
-        
-        /*
-        
-        if text == "Delete" || text == "Report this Post" || text == "Delete notification" || text == "Report this Case" || text == "Delete conversation"  {
-            postTypeLabel.textColor = .systemRed
-            postTypeLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-            postTyeButton.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.systemRed)
-        } else {
-            postTypeLabel.textColor = primaryColor
-            postTypeLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        }
-         */
+
     }
 }

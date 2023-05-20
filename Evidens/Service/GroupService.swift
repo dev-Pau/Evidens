@@ -217,28 +217,6 @@ struct GroupService {
         }
     }
     
-    static func uploadGroupPost(groupId: String, post: String, professions: [Profession], type: Post.PostType, privacy: Post.PrivacyOptions, groupPermission: Group.Permissions, postImageUrl: [String]?, completion: @escaping(FirestoreCompletion)) {
-        
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let postId = COLLECTION_GROUPS.document(groupId).collection("posts").document().documentID
-        
-        let data = ["post": post,
-                    "timestamp": Timestamp(date: Date()),
-                    "ownerUid": uid,
-                    "professions": professions.map({ $0.profession }),
-                    "groupId": groupId,
-                    "type": type.rawValue,
-                    "privacy": privacy.rawValue,
-                    "postImageUrl": postImageUrl as Any] as [String : Any]
-        
-        
-        COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).setData(data, completion: completion)
-        DatabaseManager.shared.uploadRecentPostToGroup(withGroupId: groupId, withPostId: postId, withPermission: groupPermission) { uploaded in
-            print("post group uploaded")
-        }
-    }
-    
     static func uploadGroupPost(post: Post, withPermission permission: Group.Permissions, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupId = post.groupId else { return }
         
@@ -256,6 +234,7 @@ struct GroupService {
             data["postImageUrl"] = post.postImageUrl
         }
 
+        
         COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).setData(data, completion: completion)
         DatabaseManager.shared.uploadRecentPostToGroup(withGroupId: groupId, withPostId: postId, withPermission: permission) { uploaded in
             print("post group uploaded")

@@ -5,9 +5,9 @@
       location = "group:/Users/pau/Desktop/Evidens App/Evidens.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Pods/Pods.xcodeproj">
+      location = "group:Evidens.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Evidens.xcodeproj">
+      location = "group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>
