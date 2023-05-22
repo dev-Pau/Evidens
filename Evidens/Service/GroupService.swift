@@ -249,17 +249,42 @@ struct GroupService {
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).delete(completion: completion)
     }
     
-    static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, professions: [Profession], completion: @escaping(Error?) -> Void) {
+    static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]? = nil, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String? = nil, type: Case.CaseType, professions: [String], completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let caseId = COLLECTION_GROUPS.document(groupId).collection("cases").document().documentID
         
+        var data = ["title": caseTitle,
+                    "description": caseDescription,
+                    "specialities": specialities,
+                    "details": details,
+                    "groupId": groupId,
+                    "stage": stage.caseStage,
+                    "professions": professions,
+                    "ownerUid": uid,
+                    "privacy": Case.Privacy.group.rawValue,
+                    "timestamp": Timestamp(date: Date()),
+                    "type": type.rawValue] as [String : Any]
+        
+        if let diagnosis = diagnosis {
+            data["diagnosis"] = diagnosis
+        }
+        if let caseImageUrl = caseImageUrl {
+            data["caseImageUrl"] = caseImageUrl
+        }
+        
+        
+        COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).setData(data, completion: completion)
+        DatabaseManager.shared.uploadRecentCaseToGroup(withGroupId: groupId, withCaseId: caseId, withPermission: permissions) { uploaded in
+            print("case group uploaded")
+        }
+        
+        /*
         let data = ["title": caseTitle,
                     "description": caseDescription,
                     "specialities": specialities,
                     "details": details,
-                    "updates": "",
                     "stage": stage.caseStage,
-                    "professions": professions.map({ $0.profession }),
+                    "professions": professions,
                     "groupId": groupId,
                     "diagnosis": diagnosis as Any,
                     "ownerUid": uid,
@@ -268,10 +293,39 @@ struct GroupService {
                     "type": type.rawValue,
                     "caseImageUrl": caseImageUrl as Any]
         
-        COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).setData(data, completion: completion)
-        DatabaseManager.shared.uploadRecentCaseToGroup(withGroupId: groupId, withCaseId: caseId, withPermission: permissions) { uploaded in
-            print("case group uploaded")
-        }  
+        /*
+         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+         var data = ["title": caseTitle,
+                     "description": caseDescription,
+                     "specialities": specialities,
+                     "details": details,
+                     "stage": stage.caseStage,
+                     "professions": professions,
+                     "ownerUid": uid,
+                     "privacy": privacy.rawValue,
+                     "timestamp": Timestamp(date: Date()),
+                     "type": type.rawValue] as [String : Any]
+         
+         if let diagnosis = diagnosis {
+             data["diagnosis"] = diagnosis
+         }
+         if let caseImageUrl = caseImageUrl {
+             data["caseImageUrl"] = caseImageUrl
+         }
+*/
+         let caseRef = COLLECTION_CASES.addDocument(data: data, completion: completion)
+         
+         
+         if privacy == .visible {
+             DatabaseManager.shared.uploadRecentCase(withUid: caseRef.documentID) { uploaded in
+                 print("Case uploaded to recents")
+             }
+         }
+     }
+     
+         */
+        
+        
     }
     
     static func likeGroupPost(groupId: String, post: Post, completion: @escaping(FirestoreCompletion)) {

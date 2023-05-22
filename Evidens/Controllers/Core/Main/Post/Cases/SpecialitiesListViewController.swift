@@ -22,7 +22,7 @@ class SpecialitiesListViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Speciality>!
     
-    private var specialities = Speciality.allSpecialities()
+    private var specialities = [Speciality]()
     
     private var filteredSpecialities: [Speciality] = []
 
@@ -30,11 +30,16 @@ class SpecialitiesListViewController: UIViewController {
     
     private let searchController = UISearchController()
     private var specialitiesSelected: [String]
+    private var professions: [String]
     
     var previousSpecialities: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        professions.forEach { profession in
+            self.specialities.append(contentsOf: Speciality.getSpecialitiesByProfession(profession: Profession.Professions(rawValue: profession)!))
+        }
         configureNavigationBar()
         configureSearchBar()
         configureCollectionView()
@@ -42,8 +47,9 @@ class SpecialitiesListViewController: UIViewController {
         updateData(on: specialities)
     }
     
-    init(specialitiesSelected: [String]) {
+    init(specialitiesSelected: [String], professions: [String]) {
         self.specialitiesSelected = specialitiesSelected
+        self.professions = professions
         super.init(nibName: nil, bundle: nil)
     }
     

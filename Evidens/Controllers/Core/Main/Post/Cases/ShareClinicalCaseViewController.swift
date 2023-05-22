@@ -15,7 +15,7 @@ private let caseTypeCellReuseIdentifier = "CaseTypeCellReuseIdentifier"
 private let caseStageCellReuseIdentifier = "CaseStageCellReuseIdentifier"
 
 class ShareClinicalCaseViewController: UIViewController {
-    
+    /*
     //MARK: - Properties
     
     private var user: User
@@ -695,6 +695,7 @@ class ShareClinicalCaseViewController: UIViewController {
     
     
     @objc func goToSpecialitiesController() {
+        /*
         let controller = SpecialitiesListViewController(specialitiesSelected: specialitiesSelected)
         controller.delegate = self
         
@@ -704,6 +705,7 @@ class ShareClinicalCaseViewController: UIViewController {
         navigationItem.backBarButtonItem = backButton
                 
         navigationController?.pushViewController(controller, animated: true)
+         */
     }
     
     @objc func goToClinicalTypeController() {
@@ -812,6 +814,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
             }
         } else {
             if collectionImages.isEmpty {
+                /*
                 CaseService.uploadCase(privacy: casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: nil, specialities: specialitiesSelected, details: caseTypesSelected, stage: caseStage, diagnosis: diagnosisText, type: .text, user: self.user, professions: professionsSelected) { error in
                     self.progressIndicator.dismiss(animated: true)
                     if let error = error {
@@ -821,9 +824,11 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                         return
                     }
                 }
+                 */
             }
             
             else {
+                /*
                 StorageManager.uploadCaseImage(images: collectionImages, uid: uid) { imageUrl in
                     CaseService.uploadCase(privacy: self.casePrivacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.specialitiesSelected, details: self.caseTypesSelected, stage: self.caseStage, diagnosis: self.diagnosisText, type: .textWithImage, user: self.user, professions: self.professionsSelected) { error in
                         self.progressIndicator.dismiss(animated: true)
@@ -836,6 +841,7 @@ extension ShareClinicalCaseViewController: PHPickerViewControllerDelegate {
                         }
                     }
                 }
+                 */
             }
         }
     }
@@ -981,7 +987,6 @@ extension ShareClinicalCaseViewController: SpecialitiesListViewControllerDelegat
         viewModel.numberOfSpecialities = specialitiesSelected.count
         updateForm()
         addSpecialityCollectionView()
-       
     }
     
     func size(forHeight height: CGFloat, forText text: String) -> CGSize {
@@ -1119,6 +1124,7 @@ extension ShareClinicalCaseViewController: PostGroupSelectionViewControllerDeleg
         self.group = group
         casePrivacyMenuLauncher.updatePrivacyWithGroupOptions(group: group)
     }
+     */
 }
 
 

@@ -12,30 +12,35 @@ import AlgoliaSearchClient
 
 struct CaseService {
     
-    static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]?, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String?, type: Case.CaseType, user: User, professions: [Profession], completion: @escaping(Error?) -> Void) {
-        
-        let data = ["title": caseTitle,
+    static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]? = nil, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String? = nil, type: Case.CaseType, professions: [String], completion: @escaping(Error?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        var data = ["title": caseTitle,
                     "description": caseDescription,
                     "specialities": specialities,
                     "details": details,
-                    //"updates": "",
                     "stage": stage.caseStage,
-                    "professions": professions.map({ $0.profession }),
-                    "diagnosis": diagnosis as Any,
-                    "ownerUid": user.uid as Any,
+                    "professions": professions,
+                    "ownerUid": uid,
                     "privacy": privacy.rawValue,
                     "timestamp": Timestamp(date: Date()),
-                    "type": type.rawValue,
-                    "caseImageUrl": caseImageUrl as Any
-        ]
+                    "type": type.rawValue] as [String : Any]
         
+        if let diagnosis = diagnosis {
+            data["diagnosis"] = diagnosis
+        }
+        if let caseImageUrl = caseImageUrl {
+            data["caseImageUrl"] = caseImageUrl
+        }
+
         let caseRef = COLLECTION_CASES.addDocument(data: data, completion: completion)
         
+        /*
         if privacy == .visible {
             DatabaseManager.shared.uploadRecentCase(withUid: caseRef.documentID) { uploaded in
                 print("Case uploaded to recents")
             }
         }
+         */
     }
     
     static func fetchCases(completion: @escaping([Case]) -> Void) {

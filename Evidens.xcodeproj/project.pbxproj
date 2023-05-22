@@ -371,6 +371,10 @@
 		5FA6939429A380D600DF3ADC /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6939329A380D600DF3ADC /* LocationService.swift */; };
 		5FA6939729A391DD00DF3ADC /* JobViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6939629A391DD00DF3ADC /* JobViewModel.swift */; };
 		5FA6939929A3A17F00DF3ADC /* CreateCompanyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6939829A3A17F00DF3ADC /* CreateCompanyViewController.swift */; };
+		5FA6C2B12A1A618600C8E0EC /* CaseSeparatorFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B02A1A618600C8E0EC /* CaseSeparatorFooter.swift */; };
+		5FA6C2B32A1A87B500C8E0EC /* ShareCaseStageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B22A1A87B500C8E0EC /* ShareCaseStageViewController.swift */; };
+		5FA6C2B52A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B42A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift */; };
+		5FA6C2B72A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B62A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift */; };
 		5FA758D029D5B62900F1DEA4 /* SearchGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */; };
 		5FA758D229D6C53900F1DEA4 /* METertiaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */; };
 		5FA758D529D89D8A00F1DEA4 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D429D89D8A00F1DEA4 /* Profile.swift */; };
@@ -409,6 +413,10 @@
 		5FAB2DD32A18FD1700BD094B /* MessageEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DCF2A18FD1600BD094B /* MessageEntity+CoreDataProperties.swift */; };
 		5FAB2DD42A18FD1700BD094B /* ConversationEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DD02A18FD1600BD094B /* ConversationEntity+CoreDataClass.swift */; };
 		5FAB2DD52A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DD12A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift */; };
+		5FAB2DD72A19064100BD094B /* CasePrivacyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DD62A19064100BD094B /* CasePrivacyCell.swift */; };
+		5FAB2DD92A1926F200BD094B /* CaseTitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DD82A1926F200BD094B /* CaseTitleCell.swift */; };
+		5FAB2DDB2A1935A700BD094B /* CaseDescriptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DDA2A1935A700BD094B /* CaseDescriptionCell.swift */; };
+		5FAB2DDD2A1A2BB500BD094B /* EditCaseHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAB2DDC2A1A2BB500BD094B /* EditCaseHeader.swift */; };
 		5FAC975C2954CF1700D1E559 /* GroupContentSelectorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */; };
 		5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */; };
 		5FAC98CF29476BF500C72228 /* GroupInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAC98CE29476BF500C72228 /* GroupInformationViewController.swift */; };
@@ -836,6 +844,10 @@
 		5FA6939329A380D600DF3ADC /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		5FA6939629A391DD00DF3ADC /* JobViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobViewModel.swift; sourceTree = "<group>"; };
 		5FA6939829A3A17F00DF3ADC /* CreateCompanyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCompanyViewController.swift; sourceTree = "<group>"; };
+		5FA6C2B02A1A618600C8E0EC /* CaseSeparatorFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseSeparatorFooter.swift; sourceTree = "<group>"; };
+		5FA6C2B22A1A87B500C8E0EC /* ShareCaseStageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseStageViewController.swift; sourceTree = "<group>"; };
+		5FA6C2B42A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseProfessionsViewController.swift; sourceTree = "<group>"; };
+		5FA6C2B62A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseDiagnosisViewController.swift; sourceTree = "<group>"; };
 		5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchGroupsViewController.swift; sourceTree = "<group>"; };
 		5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METertiaryEmptyCell.swift; sourceTree = "<group>"; };
 		5FA758D429D89D8A00F1DEA4 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -874,6 +886,10 @@
 		5FAB2DCF2A18FD1600BD094B /* MessageEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MessageEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		5FAB2DD02A18FD1600BD094B /* ConversationEntity+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ConversationEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		5FAB2DD12A18FD1700BD094B /* ConversationEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ConversationEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		5FAB2DD62A19064100BD094B /* CasePrivacyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasePrivacyCell.swift; sourceTree = "<group>"; };
+		5FAB2DD82A1926F200BD094B /* CaseTitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseTitleCell.swift; sourceTree = "<group>"; };
+		5FAB2DDA2A1935A700BD094B /* CaseDescriptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseDescriptionCell.swift; sourceTree = "<group>"; };
+		5FAB2DDC2A1A2BB500BD094B /* EditCaseHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCaseHeader.swift; sourceTree = "<group>"; };
 		5FAC975B2954CF1700D1E559 /* GroupContentSelectorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContentSelectorCell.swift; sourceTree = "<group>"; };
 		5FAC98CC29470CCC00C72228 /* GroupPageHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPageHeaderCell.swift; sourceTree = "<group>"; };
 		5FAC98CE29476BF500C72228 /* GroupInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInformationViewController.swift; sourceTree = "<group>"; };
@@ -1474,6 +1490,9 @@
 				5F719B312885B533002666C0 /* PollConfiguratorViewController.swift */,
 				5F204F8D298FCF9F009A416A /* ProfessionListViewController.swift */,
 				5F905BAD29EFAB2A002262B6 /* ShareCaseViewController.swift */,
+				5FA6C2B22A1A87B500C8E0EC /* ShareCaseStageViewController.swift */,
+				5FA6C2B42A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift */,
+				5FA6C2B62A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift */,
 			);
 			path = Cases;
 			sourceTree = "<group>";
@@ -1776,6 +1795,11 @@
 			isa = PBXGroup;
 			children = (
 				5F99BCBD29EFC62200681C5C /* ShareCaseInformationFooter.swift */,
+				5FAB2DDC2A1A2BB500BD094B /* EditCaseHeader.swift */,
+				5FAB2DD62A19064100BD094B /* CasePrivacyCell.swift */,
+				5FAB2DD82A1926F200BD094B /* CaseTitleCell.swift */,
+				5FAB2DDA2A1935A700BD094B /* CaseDescriptionCell.swift */,
+				5FA6C2B02A1A618600C8E0EC /* CaseSeparatorFooter.swift */,
 			);
 			path = Case;
 			sourceTree = "<group>";
@@ -3035,6 +3059,7 @@
 				5F8B7C5C28797C97005094A5 /* CaseType.swift in Sources */,
 				5FA572672962E2FB0068284B /* GroupPageCategoriesCell.swift in Sources */,
 				5F9136DB29ACA47C00675BCE /* SearchResultsUpdatingViewController.swift in Sources */,
+				5FA6C2B32A1A87B500C8E0EC /* ShareCaseStageViewController.swift in Sources */,
 				5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5FA9D17429A4B423004EF26A /* BrowseCompanyCell.swift in Sources */,
@@ -3043,6 +3068,7 @@
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
 				5F9A2820297805C10052E618 /* GroupSearchBarHeader.swift in Sources */,
+				5FAB2DD92A1926F200BD094B /* CaseTitleCell.swift in Sources */,
 				5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */,
 				5F9D7D4929E6AD6C002EA21C /* ReportTargetViewController.swift in Sources */,
 				5FB290242886E9E6002FBAE1 /* MECaseActionButtons.swift in Sources */,
@@ -3083,6 +3109,7 @@
 				5F94DA77297FF02600FA7D5C /* MEReviewActionButtons.swift in Sources */,
 				5F9A28182976F4560052E618 /* GroupUserRequestCell.swift in Sources */,
 				5F9D7D5D29E80E8E002EA21C /* ContextMenuCell.swift in Sources */,
+				5FA6C2B52A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift in Sources */,
 				5FB29039288E86A6002FBAE1 /* CommentCaseViewController.swift in Sources */,
 				5F204F8E298FCF9F009A416A /* ProfessionListViewController.swift in Sources */,
 				5F9AFAC628D493E6004D61D3 /* BookmarksPostImageCell.swift in Sources */,
@@ -3113,6 +3140,7 @@
 				5FDB11D2289BA6810079463F /* WaitingVerificationViewController.swift in Sources */,
 				5FA3985C2938AB70007293C2 /* GroupBrowserViewController.swift in Sources */,
 				5F9A9F812896906100A25152 /* ConfigureSectionViewController.swift in Sources */,
+				5FAB2DD72A19064100BD094B /* CasePrivacyCell.swift in Sources */,
 				5F992B0B28ACEE590030F7F1 /* PeopleCollectionViewCell.swift in Sources */,
 				5FBCB9FE28A8D8EE007EF79D /* AddCaseUpdateViewController.swift in Sources */,
 				5F9A9FA82899603900A25152 /* IDCardViewController.swift in Sources */,
@@ -3162,6 +3190,7 @@
 				5F8B7C492873FACA005094A5 /* SpecialitiesListViewController.swift in Sources */,
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
 				5F91F11429B78337007BB567 /* NewsListViewController.swift in Sources */,
+				5FAB2DDD2A1A2BB500BD094B /* EditCaseHeader.swift in Sources */,
 				5FA9D18229A6625B004EF26A /* JobDescriptionCell.swift in Sources */,
 				5FA3985E2939F2D0007293C2 /* GroupBrowseSkeletonCell.swift in Sources */,
 				5F98F9BE298D1E0000F21074 /* RecentContentSearchCell.swift in Sources */,
@@ -3230,6 +3259,7 @@
 				5F527D8D2881DCF4009D5027 /* ImageRegistrationViewController.swift in Sources */,
 				5F9A9F9A2898448E00A25152 /* UserProfilePublicationCell.swift in Sources */,
 				5F9A2824297841490052E618 /* GroupMemberUserCell.swift in Sources */,
+				5FA6C2B12A1A618600C8E0EC /* CaseSeparatorFooter.swift in Sources */,
 				5FA2EAEF28FEADD70054BA5B /* SkeletonFollowersFollowingCell.swift in Sources */,
 				5F8AF97F292CA3E5005C6778 /* GroupService.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
@@ -3271,6 +3301,7 @@
 				5FA9D18E29A77198004EF26A /* ManageJobHeaderCell.swift in Sources */,
 				5F9E4289287ED50E00C2153B /* PasswordRegistrationViewController.swift in Sources */,
 				5F6607FA2855AC6900FCF895 /* MEImagesGridView.swift in Sources */,
+				5FAB2DDB2A1935A700BD094B /* CaseDescriptionCell.swift in Sources */,
 				5F91F11729BF03F0007BB567 /* WhoToFollowViewController.swift in Sources */,
 				5F8E528F2865F5A10053F011 /* PostAttachementCell.swift in Sources */,
 				5FDE4A7A289E412A00206BE5 /* UserProfileNoPostCell.swift in Sources */,
@@ -3353,6 +3384,7 @@
 				5F9F089A286082440069FD2C /* HomeHeartAnimation.swift in Sources */,
 				5F204F932992933E009A416A /* AddContributorsViewController.swift in Sources */,
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
+				5FA6C2B72A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift in Sources */,
 				5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */,
 				5F9D7D5229E6F066002EA21C /* ReportTypeViewController.swift in Sources */,
 				5F8E52B0286846A20053F011 /* METextField.swift in Sources */,

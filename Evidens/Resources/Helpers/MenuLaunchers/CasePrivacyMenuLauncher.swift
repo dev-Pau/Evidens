@@ -12,7 +12,6 @@ private let headerReuseIdentifier = "CasePrivacyHeaderReuseIdentifier"
 
 
 protocol CasePrivacyMenuLauncherDelegate: AnyObject {
-    //func didTapPrivacyOption(_ option: Case.Privacy, _ image: UIImage, _ privacyText: String)
     func didTapPrivacyOption(_ option: Case.Privacy)
 }
 
@@ -35,7 +34,7 @@ class CasePrivacyMenuLauncher: NSObject {
     
     weak var delegate: CasePrivacyMenuLauncherDelegate?
     
-    private var menuHeight: CGFloat = 110 + CGFloat(Case.Privacy.allCases.count) * 55 + 20
+    private var menuHeight: CGFloat = 85 + CGFloat(Case.Privacy.allCases.count) * 55 + 20
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -101,7 +100,8 @@ class CasePrivacyMenuLauncher: NSObject {
     private func configureCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(PostPrivacyHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
+        //collectionView.register(PostPrivacyHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
+        collectionView.register(PostMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(PostPrivacyCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
         
@@ -158,13 +158,15 @@ class CasePrivacyMenuLauncher: NSObject {
 extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostPrivacyHeader
-        header.subtitleLabel.text = "Your case will show up on the feed and in search results. Change the privacy mode to unlink the case with your profile"
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! PostMenuHeader
+        
+        //header.subtitleLabel.text = "Your case will show up on the feed and in search results. Change the privacy mode to unlink the case with your profile"
+        header.menuTitle.text = "Privacy"
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: screenWidth, height: 90)
+        return CGSize(width: screenWidth, height: 65)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -189,7 +191,7 @@ extension CasePrivacyMenuLauncher: UICollectionViewDelegateFlowLayout, UICollect
         }
        
         if indexPath.row == selectedOption {
-            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "smallcircle.fill.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+            cell.selectedOptionButton.configuration?.image = UIImage(systemName: "checkmark.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         } else {
             cell.selectedOptionButton.configuration?.image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
         }

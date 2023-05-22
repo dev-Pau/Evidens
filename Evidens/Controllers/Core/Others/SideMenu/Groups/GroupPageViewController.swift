@@ -1241,13 +1241,14 @@ extension GroupPageViewController: GroupContentCreationCellDelegate {
     func didTapUploadCase() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
-        
-        let controller = ShareClinicalCaseViewController(user: user, group: group)
-        
+
+        let controller = ShareCaseProfessionsViewController(user: user, group: group)
+       
         let navVC = UINavigationController(rootViewController: controller)
         navVC.modalPresentationStyle = .fullScreen
         
         present(navVC, animated: true)
+         
     }
 }
 
