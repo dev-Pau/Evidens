@@ -191,7 +191,10 @@ class UserProfileViewController: UIViewController {
     private func addEllipsisMenuItems() -> UIMenu? {
         let menuItems = UIMenu(options: .displayInline, children: [
             UIAction(title: "Report " + user.firstName!, image: UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!, handler: { _ in
-                print("did report user")
+                let controller = ReportViewController(source: .user, contentOwnerUid: self.user.uid!, contentId: "")
+                let navVC = UINavigationController(rootViewController: controller)
+                navVC.modalPresentationStyle = .fullScreen
+                self.present(navVC, animated: true)
             })
         ])
         ellipsisRightButton.showsMenuAsPrimaryAction = true

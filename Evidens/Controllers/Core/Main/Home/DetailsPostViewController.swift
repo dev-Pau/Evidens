@@ -186,7 +186,6 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
         if indexPath.section == 0 {
             if post.type.postType == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTextCellReuseIdentifier, for: indexPath) as! HomeTextCell
-                cell.layer.borderWidth = 0
                 cell.delegate = self
                 cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
@@ -199,53 +198,51 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             } else if post.type.postType == 1 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeImageTextCellReuseIdentifier, for: indexPath) as! HomeImageTextCell
                 cell.delegate = self
-                cell.layer.borderWidth = 0
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
                 if isReviewingPost {
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
+
                 return cell
                 
             } else if post.type.postType == 2 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeTwoImageTextCellReuseIdentifier, for: indexPath) as! HomeTwoImageTextCell
                 cell.delegate = self
-                cell.layer.borderWidth = 0
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
                 if isReviewingPost {
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 return cell
             } else if post.type.postType == 3 {
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeThreeImageTextCellReuseIdentifier, for: indexPath) as! HomeThreeImageTextCell
                 cell.delegate = self
-                cell.layer.borderWidth = 0
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
                 if isReviewingPost {
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
+
                 return cell
             } else if post.type.postType == 4 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homeFourImageTextCellReuseIdentifier, for: indexPath) as! HomeFourImageTextCell
                 cell.delegate = self
-
-                cell.layer.borderWidth = 0
+                cell.postTextView.textContainer.maximumNumberOfLines = 0
                 cell.viewModel = PostViewModel(post: post)
                 cell.set(user: user)
                 if isReviewingPost {
                     cell.reviewDelegate = self
                     cell.configureWithReviewOptions()
                 }
-                cell.postTextView.textContainer.maximumNumberOfLines = 0
+                
                 return cell
             }
             else {
@@ -306,8 +303,10 @@ extension DetailsPostViewController: HomeCellDelegate {
             
             present(nav, animated: true)
         case .report:
-            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            let controller = ReportViewController(source: .post, contentOwnerUid: user.uid!, contentId: post.postId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
             
         case .reference:
             let reference = Reference(option: post.reference!, referenceText: post.referenceText)

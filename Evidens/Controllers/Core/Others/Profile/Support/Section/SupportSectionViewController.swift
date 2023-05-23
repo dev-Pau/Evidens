@@ -19,7 +19,7 @@ class SupportSectionViewController: UICollectionViewController {
     
     var previousValue: String = ""
     
-    var collectionData = [Sections]() {
+    var collectionData = [Section]() {
         didSet {
             collectionView.reloadData()
         }

@@ -312,7 +312,6 @@
 		5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */; };
 		5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */; };
 		5F9F373A28AE4836002C59E4 /* CommentsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */; };
-		5F9F977929954BAB0087293B /* OnboardingHomeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F977829954BAB0087293B /* OnboardingHomeCell.swift */; };
 		5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */; };
 		5F9FB27B28EC3ACF00BABDFD /* FollowersFollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */; };
 		5F9FB27D28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */; };
@@ -324,7 +323,7 @@
 		5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874728B7627500D44829 /* TopPostImageCell.swift */; };
 		5FA0874A28BA6E1300D44829 /* UserRecentCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */; };
 		5FA0874D28BFC22700D44829 /* SupportSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874C28BFC22700D44829 /* SupportSectionViewController.swift */; };
-		5FA0875028BFC64600D44829 /* Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874F28BFC64600D44829 /* Sections.swift */; };
+		5FA0875028BFC64600D44829 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0874F28BFC64600D44829 /* Section.swift */; };
 		5FA0875328C099EE00D44829 /* SupportSectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875228C099EE00D44829 /* SupportSectionCell.swift */; };
 		5FA0875528C0CEA000D44829 /* ApplicationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */; };
 		5FA0875828C0D50D00D44829 /* SettingsOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */; };
@@ -375,6 +374,7 @@
 		5FA6C2B32A1A87B500C8E0EC /* ShareCaseStageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B22A1A87B500C8E0EC /* ShareCaseStageViewController.swift */; };
 		5FA6C2B52A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B42A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift */; };
 		5FA6C2B72A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B62A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift */; };
+		5FA6C2B92A1CA62500C8E0EC /* AppStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B82A1CA62500C8E0EC /* AppStrings.swift */; };
 		5FA758D029D5B62900F1DEA4 /* SearchGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */; };
 		5FA758D229D6C53900F1DEA4 /* METertiaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */; };
 		5FA758D529D89D8A00F1DEA4 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D429D89D8A00F1DEA4 /* Profile.swift */; };
@@ -785,7 +785,6 @@
 		5F9F08A428636A770069FD2C /* PostPrivacyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPrivacyHeader.swift; sourceTree = "<group>"; };
 		5F9F08C02865AEC20069FD2C /* PostAttachementsMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAttachementsMenuLauncher.swift; sourceTree = "<group>"; };
 		5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSectionHeader.swift; sourceTree = "<group>"; };
-		5F9F977829954BAB0087293B /* OnboardingHomeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomeCell.swift; sourceTree = "<group>"; };
 		5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHomeHeader.swift; sourceTree = "<group>"; };
 		5F9FB27A28EC3ACF00BABDFD /* FollowersFollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingViewController.swift; sourceTree = "<group>"; };
 		5F9FB27C28EC436C00BABDFD /* FollowersFollowingSegmentedButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersFollowingSegmentedButtonsView.swift; sourceTree = "<group>"; };
@@ -797,7 +796,7 @@
 		5FA0874728B7627500D44829 /* TopPostImageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopPostImageCell.swift; sourceTree = "<group>"; };
 		5FA0874928BA6E1300D44829 /* UserRecentCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRecentCellViewModel.swift; sourceTree = "<group>"; };
 		5FA0874C28BFC22700D44829 /* SupportSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSectionViewController.swift; sourceTree = "<group>"; };
-		5FA0874F28BFC64600D44829 /* Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sections.swift; sourceTree = "<group>"; };
+		5FA0874F28BFC64600D44829 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		5FA0875228C099EE00D44829 /* SupportSectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSectionCell.swift; sourceTree = "<group>"; };
 		5FA0875428C0CEA000D44829 /* ApplicationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsViewController.swift; sourceTree = "<group>"; };
 		5FA0875728C0D50D00D44829 /* SettingsOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsOptionCell.swift; sourceTree = "<group>"; };
@@ -848,6 +847,7 @@
 		5FA6C2B22A1A87B500C8E0EC /* ShareCaseStageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseStageViewController.swift; sourceTree = "<group>"; };
 		5FA6C2B42A1B5C8900C8E0EC /* ShareCaseProfessionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseProfessionsViewController.swift; sourceTree = "<group>"; };
 		5FA6C2B62A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCaseDiagnosisViewController.swift; sourceTree = "<group>"; };
+		5FA6C2B82A1CA62500C8E0EC /* AppStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStrings.swift; sourceTree = "<group>"; };
 		5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchGroupsViewController.swift; sourceTree = "<group>"; };
 		5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METertiaryEmptyCell.swift; sourceTree = "<group>"; };
 		5FA758D429D89D8A00F1DEA4 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -2260,7 +2260,7 @@
 		5FA0874E28BFC5EB00D44829 /* Section */ = {
 			isa = PBXGroup;
 			children = (
-				5FA0874F28BFC64600D44829 /* Sections.swift */,
+				5FA0874F28BFC64600D44829 /* Section.swift */,
 			);
 			path = Section;
 			sourceTree = "<group>";
@@ -2626,6 +2626,7 @@
 		5FC4D85127070274006B7A34 = {
 			isa = PBXGroup;
 			children = (
+				5FA6C2B82A1CA62500C8E0EC /* AppStrings.swift */,
 				5FC4D85C27070274006B7A34 /* Evidens */,
 				5FC4D85B27070274006B7A34 /* Products */,
 				77AAA27F2190F53DB61FB2FC /* Pods */,
@@ -2645,7 +2646,7 @@
 			isa = PBXGroup;
 			children = (
 				5FED53B428AE0F82002AC2E5 /* Evidens.entitlements */,
-				5FC4D87327070334006B7A34 /* Models */,
+				5FC4D87327070334006B7A34 /* Model */,
 				5FC4D87427070352006B7A34 /* Views */,
 				5FC4D87627070376006B7A34 /* ViewModels */,
 				5FC4D8752707035A006B7A34 /* Controllers */,
@@ -2679,7 +2680,7 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		5FC4D87327070334006B7A34 /* Models */ = {
+		5FC4D87327070334006B7A34 /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				5FA2770529F27607005A339D /* Reference */,
@@ -2693,7 +2694,6 @@
 				5F9E875729C9BA5A00BEA131 /* Job */,
 				5F9E875629C9BA5300BEA131 /* Group */,
 				5F9E875529C9BA4900BEA131 /* Case */,
-				5F9E875429C9BA3900BEA131 /* Message */,
 				5F9E875329C9BA3400BEA131 /* Comment */,
 				5F9E875229C9BA2E00BEA131 /* Post */,
 				5F9E875129C9BA2700BEA131 /* Notification */,
@@ -2705,8 +2705,9 @@
 				5FA0874E28BFC5EB00D44829 /* Section */,
 				5F9E42972880589C00C2153B /* Register */,
 				5F8B7C4A2873FC3C005094A5 /* Cases */,
+				5F9E875429C9BA3900BEA131 /* Message */,
 			);
-			path = Models;
+			path = Model;
 			sourceTree = "<group>";
 		};
 		5FC4D87427070352006B7A34 /* Views */ = {
@@ -2801,7 +2802,6 @@
 				5F9F089D2861C3CF0069FD2C /* HomeFourImageTextCell.swift */,
 				5F9F0896285F83780069FD2C /* HomeLikesCell.swift */,
 				5F9F373928AE4836002C59E4 /* CommentsSectionHeader.swift */,
-				5F9F977829954BAB0087293B /* OnboardingHomeCell.swift */,
 				5F9F977A299552E40087293B /* OnboardingHomeHeader.swift */,
 			);
 			path = Home;
@@ -3051,6 +3051,7 @@
 				5F91F0F929ADFAAE007BB567 /* WhoToFollowCell.swift in Sources */,
 				5F9A76C928E01CC30079126F /* SearchConversationViewController.swift in Sources */,
 				5F91F0F129ACF2E4007BB567 /* YourNewsCell.swift in Sources */,
+				5FA6C2B92A1CA62500C8E0EC /* AppStrings.swift in Sources */,
 				5F0D2AFF28C346FD00BE5DD5 /* SettingsSubOptionCell.swift in Sources */,
 				5FA34F9F28AF6483003C9C30 /* DetailsCaseViewController.swift in Sources */,
 				5F6076C3299A9AB40015AA16 /* ContributorsViewController.swift in Sources */,
@@ -3094,7 +3095,6 @@
 				5FA6939929A3A17F00DF3ADC /* CreateCompanyViewController.swift in Sources */,
 				5F8E52B32868AC820053F011 /* DocumentPostViewModel.swift in Sources */,
 				5F992B0728ACEAD60030F7F1 /* PostsCollectionViewCell.swift in Sources */,
-				5F9F977929954BAB0087293B /* OnboardingHomeCell.swift in Sources */,
 				5F9F089E2861C3CF0069FD2C /* HomeFourImageTextCell.swift in Sources */,
 				5F98413729F6702300AE437F /* ContentReferenceCell.swift in Sources */,
 				5F527D8B28818514009D5027 /* FullNameRegistrationViewController.swift in Sources */,
@@ -3339,7 +3339,7 @@
 				5FA9D19029A796EA004EF26A /* JobParticipantsViewController.swift in Sources */,
 				5FA3F4DF29EBFFF800CE89E3 /* JobDetailsHeader.swift in Sources */,
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
-				5FA0875028BFC64600D44829 /* Sections.swift in Sources */,
+				5FA0875028BFC64600D44829 /* Section.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
 				5F4493F927941D0F008FD6ED /* ConversationViewController.swift in Sources */,
 				5FA572702965CC1A0068284B /* MEPrimaryEmptyCell.swift in Sources */,

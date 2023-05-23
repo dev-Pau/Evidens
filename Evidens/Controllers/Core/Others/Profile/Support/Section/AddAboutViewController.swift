@@ -222,17 +222,25 @@ class AddAboutViewController: UIViewController {
                 }
             }
         } else if viewModel.hasProfile {
-            StorageManager.uploadProfileImage(image: viewModel.profileImage!, uid: user.uid!) { url in
-                UserService.updateUserProfileImages(profileImageUrl: url) { user in
-                    self.progressIndicator.dismiss(animated: true)
-                    self.goToCompleteOnboardingVC(user: user)
+            StorageManager.uploadProfileImage(image: viewModel.profileImage!, uid: user.uid!) { url, error  in
+                self.progressIndicator.dismiss(animated: true)
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    UserService.updateUserProfileImages(profileImageUrl: url) { user in
+                        self.goToCompleteOnboardingVC(user: user)
+                    }
                 }
             }
         } else if viewModel.hasBanner {
-            StorageManager.uploadBannerImage(image: viewModel.bannerImage!, uid: user.uid!) { url in
-                UserService.updateUserProfileImages(bannerImageUrl: url) { user in
-                    self.progressIndicator.dismiss(animated: true)
-                    self.goToCompleteOnboardingVC(user: user)
+            StorageManager.uploadBannerImage(image: viewModel.bannerImage!, uid: user.uid!) { url, error in
+                self.progressIndicator.dismiss(animated: true)
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    UserService.updateUserProfileImages(bannerImageUrl: url) { user in
+                        self.goToCompleteOnboardingVC(user: user)
+                    }
                 }
             }
         } else {

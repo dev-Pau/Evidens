@@ -177,23 +177,30 @@ class EditProfileViewController: UIViewController {
         } else {
             if userDidChangeBannerPicture {
                 // Banner image has changed
-                StorageManager.uploadBannerImage(image: newUserProfileBanner, uid: user.uid!) { url in
-                    newProfile.bannerImageUrl = url
-                    
-                    UserService.updateUser(from: self.user, to: newProfile) { user in
-                        self.progressIndicator.dismiss(animated: true)
-                        self.delegate?.didUpdateProfile(user: user)
-                        self.dismiss(animated: true)
+                StorageManager.uploadBannerImage(image: newUserProfileBanner, uid: user.uid!) { url, error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    } else {
+                        newProfile.bannerImageUrl = url
+                        UserService.updateUser(from: self.user, to: newProfile) { user in
+                            self.progressIndicator.dismiss(animated: true)
+                            self.delegate?.didUpdateProfile(user: user)
+                            self.dismiss(animated: true)
+                        }
                     }
                 }
             } else if userDidChangeProfilePicture {
                 // Profile image has changed
-                StorageManager.uploadProfileImage(image: newUserProfilePicture, uid: user.uid!) { url in
-                    newProfile.profileImageUrl = url
-                    UserService.updateUser(from: self.user, to: newProfile) { user in
-                        self.progressIndicator.dismiss(animated: true)
-                        self.delegate?.didUpdateProfile(user: user)
-                        self.dismiss(animated: true)
+                StorageManager.uploadProfileImage(image: newUserProfilePicture, uid: user.uid!) { url, error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    } else {
+                        newProfile.profileImageUrl = url
+                        UserService.updateUser(from: self.user, to: newProfile) { user in
+                            self.progressIndicator.dismiss(animated: true)
+                            self.delegate?.didUpdateProfile(user: user)
+                            self.dismiss(animated: true)
+                        }
                     }
                 }
             } else {

@@ -11,6 +11,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import GoogleSignIn
 
+/// The model for AuthCredentials
 struct AuthCredentials {
     var firstName: String
     var lastName: String
@@ -24,47 +25,62 @@ struct AuthCredentials {
     var interests: [String]
 }
 
+/// A authentication service used to interface with FirebaseAuth.
 struct AuthService {
     
+    /// Logs in a user with the provided email and password credentials in Firebase.
+    ///
+    /// - Parameters:
+    ///   - email: The user's email address.
+    ///   - password: The user's password.
+    ///   - completion: A closure to be called when the login process is completed. It takes two optional parameters: an `AuthDataResult` object containing information about the authenticated user, or `nil` if the login was unsuccessful, and an `Error` object if an error occurred during the login process.
     static func logUserIn(withEmail email: String, password: String, completion: @escaping(AuthDataResult?, Error?) -> Void) {
-        Auth.auth().signIn(withEmail: email, password: password, completion: completion)
+        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                completion(nil, error)
+            } else {
+                completion(authResult, nil)
+            }
+        }
     }
     
+    /// Registers a new user with the provided credentials in Firebase.
+    ///
+    /// - Parameters:
+    ///   - credentials: The authentication credentials for the user.
+    ///   - completion: A closure to be called when the registration process is completed. It takes an optional `Error` parameter, which will be `nil` if the registration was successful, or an `Error` object if an error occurred during the registration process.
     static func registerUser(withCredential credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
-        
-            Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { (result, error) in
-                
-                if let error = error {
-                    print(error)
-                    return
-                }
-                
-                //Unique identifier of user
+        Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { (result, error) in
+            if let error = error {
+                completion(error)
+            } else {
                 guard let uid = result?.user.uid else { return }
                 
                 let data: [String: Any] = ["firstName": credentials.firstName.capitalized,
                                            "lastName": credentials.lastName.capitalized,
                                            "email": credentials.email,
                                            "uid": uid,
-                                           "profileImageUrl": "",
-                                           "bannerImageUrl": "",
                                            "phase": credentials.phase.rawValue,
                                            "category": credentials.category.rawValue,
                                            "profession": credentials.profession,
                                            "speciality": credentials.speciality]
                 
-
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)
+            }
         }
     }
     
+    /// Registers a new user with the provided Google credentials and user UID in Firebase.
+    ///
+    /// - Parameters:
+    ///   - credentials: The authentication credentials for the user obtained from Google Sign-In.
+    ///   - uid: The unique identifier (UID) of the user.
+    ///   - completion: A closure to be called when the registration process is completed. It takes an optional `Error` parameter, which will be `nil` if the registration was successful, or an `Error` object if an error occurred during the registration process.
     static func registerGoogleUser(withCredential credentials: AuthCredentials, withUid uid: String, completion: @escaping(Error?) -> Void) {
-        
         let data: [String: Any] = ["firstName": credentials.firstName.capitalized,
                                    "lastName": credentials.lastName.capitalized,
                                    "email": credentials.email,
                                    "uid": uid,
-                                   "profileImageUrl": "",
                                    "phase": credentials.phase.rawValue,
                                    "category": credentials.category.rawValue,
                                    "profession": credentials.profession,
@@ -74,33 +90,47 @@ struct AuthService {
         
     }
     
+    /// Registers a new user with the provided Apple credentials and user UID in Firebase.
+    ///
+    /// - Parameters:
+    ///   - credentials: The authentication credentials for the user obtained from Apple Sign-In.
+    ///   - uid: The unique identifier (UID) of the user.
+    ///   - completion: A closure to be called when the registration process is completed. It takes an optional `Error` parameter, which will be `nil` if the registration was successful, or an `Error` object if an error occurred during the registration process.
     static func registerAppleUser(withCredential credentials: AuthCredentials, withUid uid: String, completion: @escaping(Error?) -> Void) {
         
         let data: [String: Any] = ["firstName": credentials.firstName.capitalized,
                                    "lastName": credentials.lastName.capitalized,
                                    "email": credentials.email,
                                    "uid": uid,
-                                   "profileImageUrl": "",
                                    "phase": credentials.phase.rawValue,
                                    "category": credentials.category.rawValue,
                                    "profession": credentials.profession,
                                    "speciality": credentials.speciality]
         
         COLLECTION_USERS.document(uid).setData(data, completion: completion)
-       
     }
     
+    /// Updates the registration category details of a user in Firebase.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier (UID) of the user.
+    ///   - credentials: The updated authentication credentials for the user.
+    ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
     static func updateUserRegistrationCategoryDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
-        
         let data: [String: Any] = ["phase": credentials.phase.rawValue,
                                    "category": credentials.category.rawValue,
                                    "profession": credentials.profession,
                                    "speciality": credentials.speciality]
         
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
-        
     }
     
+    /// Updates the registration name details of a user in Firebase.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier (UID) of the user.
+    ///   - credentials: The updated authentication credentials for the user.
+    ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
     static func updateUserRegistrationNameDetails(withUid uid: String, withCredentials credentials: AuthCredentials, completion: @escaping(Error?) -> Void) {
         var data = [String: Any]()
         if credentials.interests.isEmpty {
@@ -115,41 +145,55 @@ struct AuthService {
         }
        
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
-
     }
     
+    /// Updates the registration documentation details of a user in Firebase.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier (UID) of the user.
+    ///   - membershipCode: The membership code associated with the user's documentation.
+    ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
     static func updateUserRegistrationDocumentationDetails(withUid uid: String, withMembershipCode membershipCode: String, completion: @escaping(Error?) -> Void) {
         let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue,
                                    "membershipCode": membershipCode]
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
     }
     
+    /// Updates the registration documentation details of a user in Firebase.
+    ///
+    /// - Parameters:
+    ///   - uid: The unique identifier (UID) of the user.
+    ///   - completion: A closure to be called when the update process is completed. It takes an optional `Error` parameter, which will be `nil` if the update was successful, or an `Error` object if an error occurred during the update process.
     static func updateUserRegistrationDocumentationDetails(withUid uid: String, completion: @escaping(Error?) -> Void) {
         let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue]
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
     }
     
-    
+    /// Sends a password reset email to the provided email address.
+    ///
+    /// - Parameters:
+    ///   - email: The email address associated with the user's account.
+    ///   - completion: A closure to be called when the password reset email is sent. It takes an optional `Error` parameter, which will be `nil` if the email was sent successfully, or an `Error` object if an error occurred during the process.
     static func resetPassword(withEmail email: String, completion: @escaping(Error?) -> Void) {
         Auth.auth().sendPasswordReset(withEmail: email) { error in
             if let error = error {
-                print("Error")
                 completion(error)
-                return
             } else {
                 completion(nil)
             }
         }
     }
     
+    /// Logs out the currently authenticated user from Firebase.
     static func logout() {
         do {
             try Auth.auth().signOut()
         } catch {
-            print("DEBUG: Failed to logout")
+            print(error.localizedDescription)
         }
     }
     
+    /// Logs out the user from the Google sign-in provider.
     static func googleLogout() {
         GIDSignIn.sharedInstance.signOut()
     }

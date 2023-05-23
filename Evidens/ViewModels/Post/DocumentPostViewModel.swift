@@ -52,27 +52,6 @@ struct DocumentPostViewModel {
         }
     }
     
-   
-    var documentURL: URL? {
-        return URL(string: post.postDocumentUrl)
-    }
-    
-    var document: PDFDocument {
-        return PDFDocument(url: documentURL!)!
-    }
-    
-    var documentTitle: String {
-        return post.documentTitle
-    }
-    
-    var documentPages: Int {
-        return post.documentPages
-    }
-    
-    var documentPageText: String {
-        return post.documentPages > 1 ? "\(documentPages) pages" : "\(documentPages) page"
-    }
-    
     var likes: Int {
         return post.likes
     }

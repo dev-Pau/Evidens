@@ -8,47 +8,84 @@
 import FirebaseStorage
 import UIKit
 
-/// Allows to get get, fetch and upload files to firebase storage
+/// A storage manager used to interface with Firebase Storage
 struct StorageManager {
     
-    /// Uploads a profile image for a specific user to firebase storage with url string to download
-    static func uploadProfileImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
+    /// Uploads a profile image to Firebase Storage.
+    ///
+    /// - Parameters:
+    ///   - image: The UIImage object representing the image to be uploaded.
+    ///   - uid: The user ID associated with the profile image.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrl: The download URL of the uploaded image, or `nil` if the upload was unsuccessful.
+    ///                 - error: An `Error` object indicating any error that occurred during the upload process, or `nil` if there was no error.
+    static func uploadProfileImage(image: UIImage, uid: String, completion: @escaping(String?, Error?) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
-        //let filename = NSUUID().uuidString
+        
         let filename = uid
         let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
         
         ref.putData(imageData, metadata: nil) { metadata, error in
             if let error = error {
-                print("DEBUG: Failed to upload image \(error.localizedDescription)")
-                return
-            }
-            
-            ref.downloadURL { url, error in
-                guard let imageUrl = url?.absoluteString else { return }
-                completion(imageUrl)
+                completion(nil, error)
+            } else {
+                ref.downloadURL { url, error in
+                    if let error = error {
+                        completion(nil, error)
+                        return
+                    }
+                    if let imageUrl = url?.absoluteString {
+                        completion(imageUrl, nil)
+                        return
+                    }
+                    
+                    completion(nil, nil)
+                }
             }
         }
     }
     
-    static func uploadBannerImage(image: UIImage, uid: String, completion: @escaping(String) -> Void) {
+    /// Uploads a banner image to the storage service.
+    ///
+    /// - Parameters:
+    ///   - image: The UIImage object representing the image to be uploaded.
+    ///   - uid: The user ID associated with the banner image.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes two optional parameters:
+    ///                 - bannerUrl: The download URL of the uploaded banner image, or `nil` if the upload was unsuccessful.
+    ///                 - error: An `Error` object indicating any error that occurred during the upload process, or `nil` if there was no error.
+    static func uploadBannerImage(image: UIImage, uid: String, completion: @escaping(String?, Error?) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
         let filename = uid
         let ref = Storage.storage().reference(withPath: "/banners/\(filename)")
         
         ref.putData(imageData, metadata: nil) { metadata, error in
             if let error = error {
-                print("DEBUG: Failed to upload image \(error.localizedDescription)")
-                return
-            }
-            
-            ref.downloadURL { url, error in
-                guard let bannerUrl = url?.absoluteString else { return }
-                completion(bannerUrl)
+                completion(nil, error)
+            } else {
+                ref.downloadURL { url, error in
+                    if let error = error {
+                        completion(nil, error)
+                        return
+                    }
+                    if let bannerUrl = url?.absoluteString {
+                        completion(bannerUrl, nil)
+                        return
+                    }
+                    
+                    completion(nil, nil)
+                }
             }
         }
     }
     
+    /// Uploads both profile and banner images to the storage service.
+    ///
+    /// - Parameters:
+    ///   - images: An array of UIImage objects representing the images to be uploaded.
+    ///   - userUid: The user ID associated with the profile images.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrls: An array of strings representing the download URLs of the uploaded images.
+    ///                               The order of the URLs corresponds to the order of the input images.
     static func uploadProfileImages(images: [UIImage], userUid: String, completion: @escaping([String]) -> Void) {
         var groupImagesUrl: [String] = []
         var index = 0
@@ -56,15 +93,14 @@ struct StorageManager {
         let filename = userUid
         
         images.forEach { image in
-            
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
 
             let fileRef = (order == 0) ? "/banners/" : "/profile_images/"
             let ref = Storage.storage().reference(withPath: "\(fileRef)\(filename)")
             order += 1
             ref.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
-                    print("DEBUG: Failed to upload post image \(error.localizedDescription)")
+                    print(error.localizedDescription)
                     return
                 }
                 
@@ -82,7 +118,14 @@ struct StorageManager {
         }
     }
     
-    /// Uploads an image for a specific user to firebase storage to verify eligibility
+    /// Uploads an array of documentation images to the storage service.
+    ///
+    /// - Parameters:
+    ///   - images: An array of UIImage objects representing the images to be uploaded.
+    ///   - type: The type of documentation associated with the images.
+    ///   - uid: The user ID associated with the documentation images.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - success: A boolean value indicating whether the upload process was successful (true) or not (false).
     static func uploadDocumentationImage(images: [UIImage], type: String, uid: String, completion: @escaping(Bool) -> Void) {
         var index = 0
         
@@ -105,18 +148,21 @@ struct StorageManager {
         }
     }
     
-    /// Uploads a profile image for a specific user to firebase storage with url string to download
+    /// Uploads an array of post images to the storage service.
+    ///
+    /// - Parameters:
+    ///   - images: An array of UIImage objects representing the images to be uploaded.
+    ///   - uid: The user ID associated with the post images.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrls: An array of strings representing the download URLs of the uploaded images.
+    ///                               The order of the URLs corresponds to the order of the input images.
     static func uploadPostImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
-
         var postImagesUrl: [String] = []
         var index = 0
         var order = 0
         
         images.forEach { image in
-            
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
-            
-            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
             let filename = "\(order) \(uid) \(NSUUID().uuidString)"
             let ref = Storage.storage().reference(withPath: "/post_images/\(filename)")
             order += 1
@@ -138,17 +184,21 @@ struct StorageManager {
         }
     }
     
+    /// Uploads an array of case images to the storage service.
+    ///
+    /// - Parameters:
+    ///   - images: An array of UIImage objects representing the images to be uploaded.
+    ///   - uid: The user ID associated with the case images.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrls: An array of strings representing the download URLs of the uploaded images.
+    ///                               The order of the URLs corresponds to the order of the input images.
     static func uploadCaseImage(images: [UIImage], uid: String, completion: @escaping([String]) -> Void) {
-
         var postImagesUrl: [String] = []
         var index = 0
         var order = 0
         
         images.forEach { image in
-            
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
-            
-            
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
             let filename = "\(order) \(uid) \(NSUUID().uuidString)"
             print(filename)
             let ref = Storage.storage().reference(withPath: "/case_images/\(filename)")
@@ -171,7 +221,14 @@ struct StorageManager {
         }
     }
     
-    /// Uploads a profile image for a specific user to firebase storage with url string to download
+    /// Uploads an array of group images to the storage service.
+    ///
+    /// - Parameters:
+    ///   - images: An array of UIImage objects representing the images to be uploaded.
+    ///   - groupId: The group ID associated with the group images.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrls: An array of strings representing the download URLs of the uploaded images.
+    ///                               The order of the URLs corresponds to the order of the input images.
     static func uploadGroupImages(images: [UIImage], groupId: String, completion: @escaping([String]) -> Void) {
         var groupImagesUrl: [String] = []
         var index = 0
@@ -179,8 +236,7 @@ struct StorageManager {
         let filename = groupId
         
         images.forEach { image in
-            
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
 
             let fileRef = (order == 0) ? "/banners/" : "/profiles/"
             let ref = Storage.storage().reference(withPath: "/group_images/\(fileRef)\(filename)")
@@ -205,6 +261,14 @@ struct StorageManager {
         }
     }
     
+    /// Uploads a group image to the storage service.
+    ///
+    /// - Parameters:
+    ///   - image: The UIImage object representing the image to be uploaded.
+    ///   - isProfile: A boolean value indicating whether the image is a profile image (true) or a banner image (false).
+    ///   - groupId: The group ID associated with the image.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrl: A string representing the download URL of the uploaded image.
     static func uploadGroupImage(image: UIImage, isProfile: Bool, groupId: String, completion: @escaping(String) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
         let filename = groupId
@@ -223,27 +287,34 @@ struct StorageManager {
             }
         }
     }
+    
+    /// Uploads a company image to the storage service.
+    ///
+    /// - Parameters:
+    ///   - image: The UIImage object representing the image to be uploaded.
+    ///   - companyID: The company ID associated with the image.
+    ///   - completion: A closure to be called upon completion of the upload process. It takes a single parameter:
+    ///                 - imageUrl: A string representing the download URL of the uploaded image.
+    static func uploadCompanyImage(image: UIImage, companyId: String, completion: @escaping(String) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
+        let filename = companyId
+        let fileRef = "/profiles/"
+        let ref = Storage.storage().reference(withPath: "/company_images/\(fileRef)\(filename)")
         
-        static func uploadCompanyImage(image: UIImage, companyId: String, completion: @escaping(String) -> Void) {
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
-            let filename = companyId
-            let fileRef = "/profiles/"
-            let ref = Storage.storage().reference(withPath: "/company_images/\(fileRef)\(filename)")
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                print("DEBUG: Failed to upload image \(error.localizedDescription)")
+                return
+            }
             
-            ref.putData(imageData, metadata: nil) { metadata, error in
-                if let error = error {
-                    print("DEBUG: Failed to upload image \(error.localizedDescription)")
-                    return
-                }
-                
-                ref.downloadURL { url, error in
-                    guard let imageUrl = url?.absoluteString else { return }
-                    completion(imageUrl)
-                }
+            ref.downloadURL { url, error in
+                guard let imageUrl = url?.absoluteString else { return }
+                completion(imageUrl)
             }
         }
-        
-        
+    }
+    
+    
     static func uploadGroupCaseImage(images: [UIImage], uid: String, groupId: String, completion: @escaping([String]) -> Void) {
 
         var caseImagesUrl: [String] = []

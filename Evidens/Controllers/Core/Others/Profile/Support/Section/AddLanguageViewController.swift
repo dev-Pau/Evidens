@@ -290,10 +290,10 @@ extension AddLanguageViewController: UITextFieldDelegate {
         textFieldChanged = textField
         
         if textField == languageProficiencyTextField {
-            controller.collectionData = Sections.getAllLanguageLevels()
+            controller.collectionData = Section.getAllLanguageLevels()
             controller.previousValue = language.proficiency
         } else {
-            controller.collectionData = Sections.getAllLanguages()
+            controller.collectionData = Section.getAllLanguages()
             controller.previousValue = language.name
         }
         

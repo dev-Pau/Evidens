@@ -189,7 +189,8 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
     private func checkIfUserHasNewPostsToDisplay() {
         PostService.checkIfUserHasNewerPostsToDisplay(snapshot: postsFirstSnapshot) { snapshot in
             if snapshot.isEmpty {
-
+                // Fetch current posts again
+                
                 self.collectionView.refreshControl?.endRefreshing()
                 //self.collectionView.reloadData()
             } else {

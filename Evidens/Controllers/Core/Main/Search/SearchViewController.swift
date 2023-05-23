@@ -664,8 +664,10 @@ extension SearchViewController: CaseCellDelegate {
         case .solved:
             break
         case .report:
-            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
         case .edit:
             break
         }
@@ -887,8 +889,10 @@ extension SearchViewController: HomeCellDelegate {
         case .edit:
             break
         case .report:
-            let reportPopup = METopPopupView(title: "Post reported", image: "flag.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            let controller = ReportViewController(source: .post, contentOwnerUid: post.ownerUid, contentId: post.postId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
         case .reference:
             let reference = Reference(option: post.reference!, referenceText: post.referenceText)
             referenceMenuLauncher.reference = reference

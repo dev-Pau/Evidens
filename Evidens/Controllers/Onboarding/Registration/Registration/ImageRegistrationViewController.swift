@@ -277,19 +277,24 @@ class ImageRegistrationViewController: UIViewController {
                 } else {
                     if self.imageSelected {
                         guard let image = self.profileImageView.image else { return }
-                        StorageManager.uploadProfileImage(image: image, uid: uid) { url in
-                            UserService.updateProfileImageUrl(profileImageUrl: url) { error in
-                                //self.newUser.profileImageUrl = url
-                                //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
-                                self.progressIndicator.dismiss(animated: true)
-                                
-                                if let error = error {
-                                    print(error.localizedDescription)
-                                } else {
-                                    let controller = VerificationRegistrationViewController(user: self.user)
-                                    let nav = UINavigationController(rootViewController: controller)
-                                    nav.modalPresentationStyle = .fullScreen
-                                    self.present(nav, animated: true)
+                        StorageManager.uploadProfileImage(image: image, uid: uid) { url, error in
+                            if let error = error {
+                                print(error.localizedDescription)
+                            } else {
+                                guard let url = url else { return }
+                                UserService.updateProfileImageUrl(profileImageUrl: url) { error in
+                                    //self.newUser.profileImageUrl = url
+                                    //DatabaseManager.shared.insertUser(with: ChatUser(firstName: credentials.firstName, lastName: credentials.lastName, //emailAddress: credentials.email, uid: uid))
+                                    self.progressIndicator.dismiss(animated: true)
+                                    
+                                    if let error = error {
+                                        print(error.localizedDescription)
+                                    } else {
+                                        let controller = VerificationRegistrationViewController(user: self.user)
+                                        let nav = UINavigationController(rootViewController: controller)
+                                        nav.modalPresentationStyle = .fullScreen
+                                        self.present(nav, animated: true)
+                                    }
                                 }
                             }
                         }

@@ -267,8 +267,10 @@ extension DetailsCaseViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         switch action {
         case .report:
-            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: user.uid!, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
         case .delete:
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
@@ -336,8 +338,10 @@ extension DetailsCaseViewController: CaseCellDelegate {
             nav.modalPresentationStyle = .fullScreen
             present(nav, animated: true)
         case .report:
-            let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
-            reportPopup.showTopPopup(inView: self.view)
+            let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: user.uid!, contentId: clinicalCase.caseId)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.modalPresentationStyle = .fullScreen
+            self.present(navVC, animated: true)
         case .edit:
             let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
             controller.diagnosisIsUpdating = true

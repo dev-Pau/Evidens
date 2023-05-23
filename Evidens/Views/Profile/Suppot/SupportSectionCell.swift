@@ -89,7 +89,7 @@ class SupportSectionCell: UICollectionViewCell {
         ])
     }
     
-    func set(title: Sections) {
+    func set(title: Section) {
         typeTitle.text = title.name
     }
     

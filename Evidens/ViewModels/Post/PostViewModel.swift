@@ -116,10 +116,6 @@ struct PostViewModel {
         return post.referenceText.isEmpty ? nil : Reference(option: post.reference!, referenceText: post.referenceText)
     }
     
-    var postReferenceText: String {
-        return post.reference == .link ? "Web Link" : "Author Citation"
-    }
-
     var timestampString: String? {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
@@ -129,7 +125,7 @@ struct PostViewModel {
     }
     
     var evidenceString: String {
-        return post.referenceText.isEmpty ? String() : " • Evidence-Based"
+        return post.referenceText.isEmpty ? String() : " " + AppStrings.Global.dot + " " + AppStrings.Evidence.evidence
     }
     
     var privacyImage: UIImage {
