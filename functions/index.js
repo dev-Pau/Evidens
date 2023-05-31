@@ -20,7 +20,7 @@ exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCr
   const postCreatorId = post.ownerUid;
   const followersRef = db.collection('followers').doc(postCreatorId).collection('user-followers');
   const followersSnapshot = await followersRef.get();
-  
+
   const followerIds = followersSnapshot.docs.map(doc => doc.id);
 
   followerIds.push(postCreatorId);
@@ -31,7 +31,7 @@ exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCr
   const timestamp = admin.firestore.FieldValue.serverTimestamp();
 
   const feedData = {
-  timestamp: timestamp
+    timestamp: timestamp
   };
 
   // Loop through each follower document in the followersSnapshot
@@ -108,7 +108,7 @@ exports.sendGroupNotificationOnNewContent = functions.database.ref(`groups/{grou
   console.log('ID:', id);
   console.log('Type:', type);
 
-  
+
 
 
 })
@@ -169,4 +169,104 @@ exports.sendNotification = functions.firestore.document('notifications/{userId}/
   } catch (error) {
     functions.logger.error('Error sending notification:', error);
   }
+});
+
+// Cloud Function that adds the first message to both users when a new conversation is created
+exports.onConversationCreate = functions.database.ref('/conversations/{conversationId}').onCreate((snapshot, context) => {
+  // Get the conversation ID and data
+  const conversationId = context.params.conversationId;
+  const conversationData = snapshot.val();
+
+  // Extract user IDs from conversation ID
+  const userIds = conversationId.split('_');
+  const userId1 = userIds[0];
+  const userId2 = userIds[1];
+
+  // Get the message ID from the conversation data
+  const messageKey = Object.keys(conversationData.messages)[0];
+  const date = conversationData.messages[messageKey].date;
+  const senderId = conversationData.messages[messageKey].senderId;
+
+  // Set message data for user1
+  const messageData1 = {
+    userId: userId2,
+    latestMessage: messageKey,
+    sync: senderId === userId1 ? true : false,
+    date: date
+  };
+
+  // Set message data for user2
+  const messageData2 = {
+    userId: userId1,
+    latestMessage: messageKey,
+    sync: senderId === userId2 ? true : false,
+    date: date
+  };
+
+  // Add conversation to user1's real-time database
+  const user1Ref = admin.database().ref(`users/${userId1}/conversations/${conversationId}`);
+  user1Ref.set(messageData1);
+
+  // Add conversation to user2's real-time database
+  const user2Ref = admin.database().ref(`users/${userId2}/conversations/${conversationId}`);
+  user2Ref.set(messageData2);
+});
+
+// Cloud Function that triggers on new messages within existing conversations
+exports.onNewMessage = functions.database.ref('conversations/{conversationId}/messages/{messageId}').onCreate((snapshot, context) => {
+  // Get the conversation ID and data
+  const conversationId = context.params.conversationId;
+  const messageId = context.params.messageId;
+  const messageData = snapshot.val();
+
+  // Update latestMessage and sync for both users
+  const userIds = conversationId.split('_');
+  const userId1 = userIds[0];
+  const userId2 = userIds[1];
+
+  const date = new Date();
+  const dateInSeconds = date.getTime() / 1000;
+
+  const user1Ref = admin.database().ref(`users/${userId1}/conversations/${conversationId}`);
+  user1Ref.once('value', user1Snapshot => {
+    if (user1Snapshot.exists()) {
+      // User1 has a reference to the conversation, update the existing data
+      const messageData1 = {
+        latestMessage: messageId,
+        sync: userId1 === messageData.senderId ? true : false
+      };
+      user1Ref.update(messageData1);
+    } else {
+      // User1 does not have a reference, create new data
+      const messageData1 = {
+        userId: userId2,
+        latestMessage: messageId,
+        sync: messageData.senderId === userId1 ? true : false,
+        date: dateInSeconds
+      };
+      user1Ref.set(messageData1);
+    }
   });
+
+  // Check if user2 has a reference to the conversation
+  const user2Ref = admin.database().ref(`users/${userId2}/conversations/${conversationId}`);
+  user2Ref.once('value', user2Snapshot => {
+    if (user2Snapshot.exists()) {
+      // User2 has a reference to the conversation, update the existing data
+      const messageData2 = {
+        latestMessage: messageId,
+        sync: userId2 === messageData.senderId ? true : false
+      };
+      user2Ref.update(messageData2);
+    } else {
+      // User2 does not have a reference, create new data
+      const messageData2 = {
+        userId: userId1,
+        latestMessage: messageId,
+        sync: messageData.senderId === userId2 ? true : false,
+        date: dateInSeconds
+      };
+      user2Ref.set(messageData2);
+    }
+  });
+});

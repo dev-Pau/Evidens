@@ -9,7 +9,7 @@ import UIKit
 import SDWebImage
 
 
-class ChatCell: UICollectionViewCell {
+class ConversationCell: UICollectionViewCell {
     
     var viewModel: ConversationViewModel? {
         didSet {

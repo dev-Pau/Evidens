@@ -18,6 +18,11 @@ protocol ChatViewControllerDelegate: AnyObject {
 }
 
 
+class MessageViewController: UIViewController {
+    
+}
+
+/*
 class ChatViewController: MessagesViewController {
     
     //MARK: - Properties
@@ -622,3 +627,4 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         }
     }
 }
+*/
