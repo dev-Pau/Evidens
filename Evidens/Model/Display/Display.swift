@@ -7,10 +7,11 @@
 
 import UIKit
 
-/// The model for a MenuLauncher.
-struct MenuLauncher {
+/// The model for a DisplayContent.
+struct Display {
     
-    /// An enum mapping all the MenuLauncher types.
+    
+    /// An enum mapping all the DisplayContent types.
     enum MenuType: Int, CaseIterable {
         case groupPrivacy
         case applyJobPrivacy
