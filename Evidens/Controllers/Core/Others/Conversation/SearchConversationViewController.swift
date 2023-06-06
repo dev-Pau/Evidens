@@ -23,6 +23,8 @@ protocol SearchConversationViewControllerDelegate: AnyObject {
 
 class SearchConversationViewController: UIViewController {
     
+    /*
+    
     weak var delegate: SearchConversationViewControllerDelegate?
     
     private var recentSearches = [String]()
@@ -44,6 +46,8 @@ class SearchConversationViewController: UIViewController {
         collectionView.showsVerticalScrollIndicator = false
         return collectionView
     }()
+     
+     Conversation
     
     //MARK: - Lifecycle
     
@@ -125,6 +129,7 @@ extension SearchConversationViewController: UICollectionViewDelegateFlowLayout, 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if !isInSearchMode {
             return recentSearches.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 40)
+     return CGSize(width: view.frame.width, height: 40)
         } else {
             return dataLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 40)
         }
@@ -257,5 +262,7 @@ extension SearchConversationViewController: SearchRecentsHeaderDelegate {
             }
         }
     }
+     */
 }
+
 

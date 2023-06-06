@@ -6,20 +6,265 @@
 //
 
 import UIKit
-import MessageKit
-import InputBarAccessoryView
+//import MessageKit
+//import InputBarAccessoryView
 import SDWebImage
-import AVFoundation
-import AVKit
+//import AVFoundation
+//import AVKit
 import PhotosUI
 
+/*
 protocol ChatViewControllerDelegate: AnyObject {
     func didDeleteConversation(withUser user: User, withConversationId id: String)
 }
+ */
+
+private let messageTextCellReuseIdentifier = "MessageTextCellReuseIdentifier"
+
+protocol MessageViewControllerDelegate: AnyObject {
+    func didCreateNewConversation(_ conversation: Conversation)
+    func deleteConversation(_ conversation: Conversation)
+    func didReadAllMessages(for conversation: Conversation)
+}
 
 
-class MessageViewController: UIViewController {
+class MessageViewController: UICollectionViewController {
     
+    // MARK: - Properties
+    
+    weak var delegate: MessageViewControllerDelegate?
+    private var conversation: Conversation
+    private var user: User?
+    private var preview: Bool = false
+    private var newConversation: Bool?
+    private var messages = [Message]()
+    private let messageInputAccessoryView = MessageInputAccessoryView()
+    
+    override var inputAccessoryView: UIView? {
+        get {
+            return messageInputAccessoryView
+        }
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return preview ? false : true
+    }
+    
+    //MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureNavigationBar()
+        configureCollectionView()
+        configureView()
+        getMessages()
+    }
+    
+    /// Initializes a new instance of the MessageViewController with a conversation and a preview flag.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation to display.
+    ///   - preview: A flag indicating wether the view controller is in preview mode.
+    init(conversation: Conversation, user: User? = nil, preview: Bool? = false) {
+        self.conversation = conversation
+        self.user = user
+        self.preview = preview ?? false
+        
+        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 5
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 10, trailing: 10)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        super.init(collectionViewLayout: layout)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureNavigationBar() {
+        title = conversation.name
+    }
+    
+    private func configureCollectionView() {
+        collectionView.register(MessageTextCell.self, forCellWithReuseIdentifier: messageTextCellReuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+    }
+    
+    private func configureView() {
+        view.addSubview(collectionView)
+        messageInputAccessoryView.messageDelegate = self
+    }
+    
+    private func getMessages() {
+        messages = DataService.shared.getMessages(for: conversation)
+        if !messages.isEmpty {
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let strongSelf = self else { return }
+                let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
+                strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
+                if strongSelf.preview == false {
+                    DataService.shared.readMessages(conversation: strongSelf.conversation)
+                    strongSelf.delegate?.didReadAllMessages(for: strongSelf.conversation)
+                }
+            }
+        }
+        
+        DataService.shared.conversationExists(for: conversation.userId) { [weak self] exists in
+            guard let strongSelf = self else { return }
+            strongSelf.newConversation = !exists
+        }
+    }
+    
+    private func deleteMessage(_ message: Message) {
+        if let messageIndex = messages.firstIndex(where: { $0.messageId == message.messageId }) {
+            DataService.shared.delete(message: message)
+            messages.remove(at: messageIndex)
+            collectionView.performBatchUpdates {
+                collectionView.deleteItems(at: [IndexPath(item: messageIndex, section: 0)])
+            } completion: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                if strongSelf.messages.isEmpty {
+                    strongSelf.delegate?.deleteConversation(strongSelf.conversation)
+                }
+            }
+        }
+    }
+}
+
+extension MessageViewController: UICollectionViewDelegateFlowLayout {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let message = messages[indexPath.item]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageTextCellReuseIdentifier, for: indexPath) as! MessageTextCell
+        cell.viewModel = MessageViewModel(message: messages[indexPath.row])
+        cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
+        cell.delegate = self
+        return cell
+        /*
+        switch message.kind {
+            
+        case .text:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageTextCellReuseIdentifier, for: indexPath) as! MessageTextCell
+            cell.viewModel = MessageViewModel(message: messages[indexPath.row])
+            cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
+            return cell
+        case .photo:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageImageCellReuseIdentifier, for: indexPath) as! MessagePhotoCell
+            cell.viewModel = MessageViewModel(message: messages[indexPath.row])
+            cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
+            return cell
+        }
+         */
+    }
+    
+    func firstMessageOfTheDay(indexOfMessage: IndexPath) -> Bool {
+        let messageDate = messages[indexOfMessage.item].sentDate
+        guard indexOfMessage.item > 0 else { return true }
+        let previouseMessageDate = messages[indexOfMessage.item - 1].sentDate
+        
+        let day = Calendar.current.component(.day, from: messageDate)
+        let previouseDay = Calendar.current.component(.day, from: previouseMessageDate)
+        if day == previouseDay {
+            return false
+        } else {
+            return true
+        }
+    }
+}
+
+extension MessageViewController: MessageInputAccessoryViewDelegate {
+    func didSendMessage(message: String) {
+        guard let newConversation = newConversation, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let message = Message(text: message, sentDate: Date(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: .text, phase: .sending)
+        
+        messages.append(message)
+        
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(at: [IndexPath(item: messages.isEmpty ? 0 : messages.count - 1, section: 0)])
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.scrollToItem(at: IndexPath(item: strongSelf.messages.count - 1, section: 0), at: .bottom, animated: true)
+        }
+        
+        if newConversation {
+
+            self.newConversation?.toggle()
+            
+            guard let user = user else { return }
+            FileGateway.shared.saveImage(url: user.profileImageUrl, userId: conversation.userId) { [weak self] url in
+                guard let strongSelf = self else { return }
+                
+                strongSelf.conversation.finishCreatingConversation(image: url?.absoluteString ?? nil , firstMessage: message)
+                
+                DataService.shared.save(conversation: strongSelf.conversation, latestMessage: message)
+                strongSelf.delegate?.didCreateNewConversation(strongSelf.conversation)
+
+                DatabaseManager.shared.createNewConversation(strongSelf.conversation, with: message) { [weak self] error in
+                    guard let strongSelf = self else { return }
+                    if let error {
+                        print(error.localizedDescription)
+                    } else {
+                        strongSelf.messages[0].updatePhase(.sent)
+                        DataService.shared.edit(message: strongSelf.messages[0], set: MessagePhase.sent.rawValue, forKey: "phase")
+                        DispatchQueue.main.async {
+                            strongSelf.collectionView.reloadData()
+                        }
+                    }
+                }
+            }
+            // Add Conversation to Core Data
+            // Display Conversation on Screen
+            
+            // Create Conversation
+            // Send Message
+            // if everything goes fine, update stage of the latest message to send
+            
+        } else {
+            DataService.shared.save(message: message, to: conversation)
+            DatabaseManager.shared.sendMessage(to: conversation, with: message) { [weak self] error in
+                guard let strongSelf = self else { return }
+                if let error {
+                    print(error.localizedDescription)
+                } else {
+                    print("sent message")
+                    strongSelf.messages[strongSelf.messages.count - 1].updatePhase(.sent)
+                    DataService.shared.edit(message: strongSelf.messages[strongSelf.messages.count - 1], set: MessagePhase.sent.rawValue, forKey: "phase")
+                    DispatchQueue.main.async {
+                        print("reload")
+                        print(strongSelf.messages[strongSelf.messages.count - 1])
+                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0)])
+                    }
+                }
+            }
+        }
+    }
+    
+    func didTapAddMedia() {
+        
+    }
+}
+
+extension MessageViewController: MessageCellDelegate {
+    func didTapMenuOption(message: Message, _ option: MessageMenu) {
+        switch option {
+        case .copy:
+            break
+        case .share:
+            break
+        case .delete:
+            deleteMessage(message)
+        case .resend:
+            break
+        }
+    }
 }
 
 /*
