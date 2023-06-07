@@ -64,8 +64,8 @@ class CreateGroupViewController: UIViewController {
     
     private var groupBannerImage = UIImage()
     private var groupProfileImage = UIImage()
-    private var visibilityState: Group.Visibility = .visible
-    private var groupPermissions: Group.Permissions = .invite
+    private var visibilityState: GroupVisibility = .visible
+    private var groupPermissions: GroupPermission = .invite
     private var groupCategories = [String]()
     
     private var isProfile: Bool = false
@@ -437,7 +437,7 @@ extension CreateGroupViewController: GroupVisibilityCellDelegate {
 }
 
 extension CreateGroupViewController: GroupPermissionCellDelegate {
-    func didUpdatePermissions(permissions: Group.Permissions) {
+    func didUpdatePermissions(permissions: GroupPermission) {
         groupPermissions = permissions
         viewModel.permissions = groupPermissions
         groupIsValid()

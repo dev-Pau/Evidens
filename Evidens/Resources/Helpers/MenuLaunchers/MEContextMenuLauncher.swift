@@ -12,7 +12,7 @@ private let headerReuseIdentifier = "PostMenuHeaderReuseIdentifier"
 private let footerReuseIdentifier = "FooterReuseIdentifier"
 
 class MEContextMenuLauncher: NSObject {
-    private let menuLauncherData: MenuLauncher.MenuType
+    private let menuLauncherData: Display
     
     private let blackBackgroundView: UIView = {
         let view = UIView()
@@ -114,7 +114,7 @@ class MEContextMenuLauncher: NSObject {
         }
     }
     
-    init(menuLauncherData: MenuLauncher.MenuType) {
+    init(menuLauncherData: Display) {
         self.menuLauncherData = menuLauncherData
         super.init()
         configureCollectionView()
@@ -131,7 +131,7 @@ extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectio
             return footer
         } else {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerReuseIdentifier, for: indexPath) as! ContextMenuHeader
-            header.set(title: menuLauncherData.title)
+            header.set(title: menuLauncherData.content.title)
             return header
         }
     }
@@ -150,7 +150,7 @@ extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! ContextMenuCell
-        cell.configure(withDescription: menuLauncherData.description)
+        cell.configure(withDescription: menuLauncherData.content.description)
         let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
         menuHeight = contentSize.height + 200
         return cell

@@ -511,7 +511,7 @@ extension UploadPostViewController: ShareCaseImageCellDelegate, AddReferenceHead
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             present(navVC, animated: true)
-        case .reference:
+        case .citation:
             let controller = AddAuthorReferenceViewController(reference: reference)
             controller.delegate = self
             let navVC = UINavigationController(rootViewController: controller)

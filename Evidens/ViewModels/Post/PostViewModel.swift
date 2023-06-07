@@ -113,7 +113,7 @@ struct PostViewModel {
     }
     
     var postReference: Reference? {
-        return post.referenceText.isEmpty ? nil : Reference(option: post.reference!, referenceText: post.referenceText)
+        return post.referenceText.isEmpty ? nil : Reference(option: post.reference, referenceText: post.referenceText)
     }
     
     var timestampString: String? {
@@ -125,7 +125,7 @@ struct PostViewModel {
     }
     
     var evidenceString: String {
-        return post.referenceText.isEmpty ? String() : " " + AppStrings.Global.dot + " " + AppStrings.Evidence.evidence
+        return post.referenceText.isEmpty ? String() : " " + AppStrings.Characters.dot + " " + AppStrings.Evidence.evidence
     }
     
     var privacyImage: UIImage {

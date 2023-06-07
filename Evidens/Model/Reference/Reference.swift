@@ -9,39 +9,16 @@ import UIKit
 
 /// The model for a Reference. 
 struct Reference {
-    var option: Options
+    var option: ReferenceOptions
     var referenceText: String
     
-    /// An enum mapping all the possible reference options.
-    enum Options: Int {
-        case link = 0
-        case reference = 1
-        
-        var message: String {
-            switch self  {
-            case .link:
-                return "Link Reference"
-            case .reference:
-                return "Complete Citation"
-            }
-        }
-        
-        var image: UIImage {
-            switch self {
-            case .link:
-                return (UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
-            case .reference:
-                return (UIImage(systemName: "note", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
-            }
-        }
-        
-        var optionMenuMessage: String {
-            switch self {
-            case .link:
-                return "The content you are viewing is backed up by a web link that provides evidence supporting the ideas and concepts presented."
-            case .reference:
-                return "The content you are viewing is supported by a reference that provides evidence supporting the ideas and concepts presented."
-            }
-        }
+    /// Creates an instance of a Reference with option and referenceText properties.
+    ///
+    /// - Parameters:
+    ///   - option: The option for the instance.
+    ///   - referenceText: The reference text for the instance.
+    init(option: ReferenceOptions, referenceText: String) {
+        self.option = option
+        self.referenceText = referenceText
     }
 }

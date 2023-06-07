@@ -9,7 +9,7 @@ import UIKit
 import Firebase
 
 struct SearchService {
-    static func fetchContentWithTopicSelected(topic: String, category: Search.Topics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
+    static func fetchContentWithTopicSelected(topic: String, category: SearchTopics, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         if lastSnapshot == nil {
             switch category {

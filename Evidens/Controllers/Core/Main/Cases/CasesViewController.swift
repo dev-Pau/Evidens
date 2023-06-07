@@ -390,12 +390,14 @@ extension CasesViewController: UICollectionViewDelegate, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch contentSource {
         case .home:
+            
             if cases.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: primaryEmtpyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                 cell.set(withImage: UIImage(named: "onboarding.date")!, withTitle: "Nothing to see here —— yet.", withDescription: "It's empty now, but it won't be for long. Check back later for new clinical cases or share your own here.", withButtonText: "    Share a case    ")
                 cell.delegate = self
                 return cell
             } else {
+                
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! CaseFeedTextCell
                 cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                 guard cases[indexPath.row].privacyOptions == .visible else { return cell }

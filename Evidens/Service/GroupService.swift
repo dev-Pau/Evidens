@@ -217,7 +217,7 @@ struct GroupService {
         }
     }
     
-    static func uploadGroupPost(post: Post, withPermission permission: Group.Permissions, completion: @escaping(FirestoreCompletion)) {
+    static func uploadGroupPost(post: Post, withPermission permission: GroupPermission, completion: @escaping(FirestoreCompletion)) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let groupId = post.groupId else { return }
         
         let postId = COLLECTION_GROUPS.document(groupId).collection("posts").document().documentID
@@ -249,7 +249,7 @@ struct GroupService {
         COLLECTION_GROUPS.document(groupId).collection("cases").document(caseId).delete(completion: completion)
     }
     
-    static func uploadGroupCase(groupId: String, permissions: Group.Permissions, caseTitle: String, caseDescription: String, caseImageUrl: [String]? = nil, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String? = nil, type: Case.CaseType, professions: [String], completion: @escaping(Error?) -> Void) {
+    static func uploadGroupCase(groupId: String, permissions: GroupPermission, caseTitle: String, caseDescription: String, caseImageUrl: [String]? = nil, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String? = nil, type: Case.CaseType, professions: [String], completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let caseId = COLLECTION_GROUPS.document(groupId).collection("cases").document().documentID
         

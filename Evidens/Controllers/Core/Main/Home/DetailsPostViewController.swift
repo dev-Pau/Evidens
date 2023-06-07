@@ -309,7 +309,7 @@ extension DetailsPostViewController: HomeCellDelegate {
             self.present(navVC, animated: true)
             
         case .reference:
-            let reference = Reference(option: post.reference!, referenceText: post.referenceText)
+            let reference = Reference(option: post.reference, referenceText: post.referenceText)
             referenceMenuLauncher.reference = reference
             referenceMenuLauncher.delegate = self
             referenceMenuLauncher.showImageSettings(in: view)
@@ -948,7 +948,7 @@ extension DetailsPostViewController: MEReferenceMenuLauncherDelegate {
                     present(navVC, animated: true, completion: nil)
                 }
             }
-        case .reference:
+        case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {

@@ -132,7 +132,7 @@ class SideMenuViewController: UIViewController {
         header.configure()
     }
     
-    func updateAppearanceSettings(_ sw: UISwitch, appearance: Appearance.Theme) {
+    func updateAppearanceSettings(_ sw: UISwitch, appearance: Appearance) {
         switch appearance {
         case .dark:
             if sw.isOn {
@@ -236,7 +236,7 @@ class SideMenuTabView: UIView {
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(systemName: "gearshape", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: AppStrings.Icons.gear, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
         return iv
     }()
@@ -282,20 +282,20 @@ class SideMenuTabView: UIView {
             tabBarSeparatorView.backgroundColor = tabControllerShadowColor
         }
         
-        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String else { return }
-        let defaultsTheme = Appearance.Theme(rawValue: defaultsAppearance) ?? .system
+        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int else { return }
+        let defaultsTheme = Appearance(rawValue: defaultsAppearance) ?? .system
         switch defaultsTheme {
         case .dark:
-            appearanceSettingsImageView.image = UIImage(systemName: "moon.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.moon, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         case .system:
             let isSystemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? true : false
             if isSystemDark {
-                appearanceSettingsImageView.image = UIImage(systemName: "moon.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+                appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.moon, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
             } else {
-                appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+                appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.sun, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
             }
         case .light:
-            appearanceSettingsImageView.image = UIImage(systemName: "sun.max", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+            appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.sun, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         }
     }
     

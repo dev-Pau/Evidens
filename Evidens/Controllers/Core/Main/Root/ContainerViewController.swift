@@ -142,8 +142,8 @@ class ContainerViewController: UIViewController {
         if translation.x < 0 && disableRightPan { return }
         
         if viewIsOnConversations {
-            
             if recognizer.state == .ended {
+
                 if translation.x < 0 {
                     openConversation()
                 } else {
@@ -275,44 +275,8 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
 }
 
 extension ContainerViewController: AppearanceMenuLauncherDelegate {
-    func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance.Theme) {
+    func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance) {
         menuController.updateAppearanceSettings(sw, appearance: setting)
-        //handleDisablePan()
-        /*
-        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") else { return }
-        
-        switch setting {
-        case .dark:
-            UserDefaults.standard.set(setting.rawValue, forKey: "themeStateEnum")
-        case .system:
-            UserDefaults.standard.set(setting.rawValue, forKey: "themeStateEnum")
-        case .light:
-            UserDefaults.standard.set(setting.rawValue, forKey: "themeStateEnum")
-        }
-         */
-        /*
-         if let window = UIApplication.shared.keyWindow {
-             UIView.transition (with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                 window.overrideUserInterfaceStyle = .dark //.light or .unspecified
-             }, completion: nil)
-         }
-         */
-        
-        /*
-        if let window = UIApplication.shared.windows.first {
-            UIView.transition (with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                switch setting {
-                case .dark:
-                    window.overrideUserInterfaceStyle = .dark
-                case .system:
-                    window.overrideUserInterfaceStyle = .unspecified
-                case .light:
-                    window.overrideUserInterfaceStyle = .unspecified
-                }
-            }, completion: nil)
-        }
-         */
-        
     }
     
     func didCloseMenu() {
@@ -320,22 +284,17 @@ extension ContainerViewController: AppearanceMenuLauncherDelegate {
     }
 }
 
+
 extension ContainerViewController: UIGestureRecognizerDelegate {
-    /*
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         if viewIsOnConversations {
-            if let currentGesture = gestureRecognizer as? UIPanGestureRecognizer {
-                if currentGesture.translation(in: self.view).x > 0 {
+            if let currentGesture = otherGestureRecognizer as? UIPanGestureRecognizer {
+                if currentGesture.translation(in: self.view).x < 0 {
                     return true
                 }
                 return false
             }
-            return false
         }
         return false
     }
-     */
-     
 }
- 
-

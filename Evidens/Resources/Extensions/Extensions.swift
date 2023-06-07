@@ -11,58 +11,6 @@ import Firebase
 
 fileprivate var containerView: UIView!
 
-extension UIButton {
-    func attributedTitle(buttonInfo: String, buttonContent: String) {
-        let atts: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(rgb: 0x1E1E1E), .font: UIFont.systemFont(ofSize: 16)]
-        let attributedTitle = NSMutableAttributedString(string: "\(buttonInfo) ", attributes: atts)
-        let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(rgb: 0x79CBBF), .font: UIFont.boldSystemFont(ofSize: 16)]
-        attributedTitle.append(NSAttributedString(string: "\(buttonContent) ", attributes: boldAtts))
-        setAttributedTitle(attributedTitle, for: .normal)
-    }
-}
-
-extension UIView {
-    func addSubviews(_ views: UIView...) {
-        views.forEach { addSubview($0) }
-    }
-    
-    
-}
-
-extension UIImage {
-    var averageColor: UIColor? {
-        guard let inputImage = CIImage(image: self) else { return nil }
-        let extentVector = CIVector(x: inputImage.extent.origin.x, y: inputImage.extent.origin.y, z: inputImage.extent.size.width, w: inputImage.extent.size.height)
-
-        guard let filter = CIFilter(name: "CIAreaAverage", parameters: [kCIInputImageKey: inputImage, kCIInputExtentKey: extentVector]) else { return nil }
-        guard let outputImage = filter.outputImage else { return nil }
-
-        var bitmap = [UInt8](repeating: 0, count: 4)
-        let context = CIContext(options: [.workingColorSpace: kCFNull as Any])
-        context.render(outputImage, toBitmap: &bitmap, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: nil)
-
-        return UIColor(red: CGFloat(bitmap[0]) / 255, green: CGFloat(bitmap[1]) / 255, blue: CGFloat(bitmap[2]) / 255, alpha: CGFloat(bitmap[3]) / 255)
-    }
-}
-
-extension UIViewController {
-   
-    func configureGradientLayer() {
-        let gradient = CAGradientLayer()
-        gradient.colors = [UIColor.init(rgb: 0x79cbbf).cgColor, UIColor.init(rgb: 0x1e1e1e).cgColor]
-        gradient.locations = [0, 1]
-        view.layer.addSublayer(gradient)
-        gradient.frame = view.frame
-    }
-    
-
-    func showMessage(withTitle title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
-    }
-}
-
 extension UIView {
     func anchor(top: NSLayoutYAxisAnchor? = nil,
                 left: NSLayoutXAxisAnchor? = nil,
@@ -144,12 +92,6 @@ extension UIView {
         widthAnchor.constraint(equalToConstant: width).isActive = true
     }
     
-    func fillSuperview() {
-        translatesAutoresizingMaskIntoConstraints = false
-        guard let view = superview else { return }
-        anchor(top: view.topAnchor, left: view.leftAnchor,
-               bottom: view.bottomAnchor, right: view.rightAnchor)
-    }
 }
 
 extension UIColor {
@@ -168,25 +110,6 @@ extension UIColor {
                blue: rgb & 0xFF
            )
        }
-}
-
-extension UIImageView {
-
-    func makeRounded() {
-
-        self.layer.borderWidth = 1
-        self.layer.masksToBounds = false
-        self.layer.borderColor = UIColor.black.cgColor
-        self.layer.cornerRadius = self.frame.height / 2
-        self.clipsToBounds = true
-    }
-}
-
-extension String {
-    func isValidEmail() -> Bool {
-        let regex = try! NSRegularExpression(pattern: "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$", options: .caseInsensitive)
-        return regex.firstMatch(in: self, options: [], range: NSRange(location: 0, length: count)) != nil
-    }
 }
 
 extension UIView {
@@ -211,15 +134,6 @@ extension UIView {
                 background.removeFromSuperview()
             }
             self.isUserInteractionEnabled = true
-    }
-}
-
-extension UserDefaults {
-    static func resetDefaults() {
-        if let bundleID = Bundle.main.bundleIdentifier {
-            UserDefaults.standard.removePersistentDomain(forName: bundleID)
-            UserDefaults.standard.synchronize()
-        }
     }
 }
 
@@ -249,11 +163,13 @@ extension UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
-    func deleteConversationAlert(withUserFirstName name: String, completion: @escaping() -> Void) {
-        let alert = UIAlertController(title: "Delete conversation", message: "Are you sure you want to delete your conversation with \(name)?", preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+    func deleteConversationAlert(completion: @escaping(Bool) -> Void) {
+        let alert = UIAlertController(title: "Delete Conversation", message: "This conversation will be deleted from your inbox. Other pople in the conversation will still be able to see it.", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: { _ in
+            completion(false)
+        }))
         alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
-            completion()
+            completion(true)
         }))
         self.present(alert, animated: true, completion: nil)
     }
@@ -421,33 +337,7 @@ extension Date {
 }
 
 extension UIImage {
-    func scalePreservingAspectRatio(targetSize: CGSize) -> UIImage {
-        // Determine the scale factor that preserves aspect ratio
-        let widthRatio = targetSize.width / size.width
-        let heightRatio = targetSize.height / size.height
-        
-        let scaleFactor = min(widthRatio, heightRatio)
-        
-        // Compute the new image size that preserves aspect ratio
-        let scaledImageSize = CGSize(
-            width: size.width * scaleFactor,
-            height: size.height * scaleFactor
-        )
-
-        // Draw and return the resized UIImage
-        let renderer = UIGraphicsImageRenderer(
-            size: scaledImageSize
-        )
-
-        let scaledImage = renderer.image { _ in
-            self.draw(in: CGRect(
-                origin: .zero,
-                size: scaledImageSize
-            ))
-        }
-        
-        return scaledImage
-    }
+    
 }
 
 
@@ -518,12 +408,6 @@ extension UILabel {
     }
 }
 
-extension UIWindow {
-    func switchRootViewController(_ viewController: UIViewController) {
-        rootViewController = viewController
-    }
-}
-
 extension UIViewController {
 
     /**
@@ -588,18 +472,6 @@ extension UIViewController {
 }
 
 
-extension UIColor {
-
-    static var gradientDarkGrey: UIColor {
-        return lightGrayColor
-    }
-
-    static var gradientLightGrey: UIColor {
-        return lightColor
-    }
-
-}
-
 
 // MARK: - Gradient
 extension CAGradientLayer {
@@ -644,46 +516,6 @@ extension CAGradientLayer {
         self.locations = (0..<colors.count).map(NSNumber.init)
         self.type = type
     }
-}
-
-protocol SkeletonLoadable {}
-
-extension SkeletonLoadable {
-    
-    func makeAnimationGroup(previousGroup: CAAnimationGroup? = nil) -> CAAnimationGroup {
-        let animDuration: CFTimeInterval = 0.7
-        let anim1 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim1.fromValue = UIColor.quaternarySystemFill.cgColor
-        anim1.toValue = UIColor.systemFill.cgColor
-        anim1.duration = animDuration
-        anim1.beginTime = 0.0
-
-        let anim2 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim2.fromValue = UIColor.systemFill.cgColor
-        anim2.toValue = UIColor.quaternarySystemFill.cgColor
-        anim2.duration = animDuration
-        anim2.beginTime = anim1.beginTime + anim1.duration
-        
-        let anim3 = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.backgroundColor))
-        anim3.fromValue = UIColor.quaternarySystemFill.cgColor
-        anim3.toValue = UIColor.systemFill.cgColor
-        anim3.duration = animDuration
-        anim3.beginTime = anim2.beginTime + anim2.duration
-
-        let group = CAAnimationGroup()
-        group.animations = [anim1, anim2, anim3]
-        group.repeatCount = .greatestFiniteMagnitude // infinite
-        group.duration = anim2.beginTime + anim2.duration
-        group.isRemovedOnCompletion = false
-
-        if let previousGroup = previousGroup {
-            // Offset groups by 0.33 seconds for effect
-            group.beginTime = previousGroup.beginTime + 0.33
-        }
-
-        return group
-    }
-    
 }
 
 extension UIView {

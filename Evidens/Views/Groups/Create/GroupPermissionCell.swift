@@ -8,7 +8,7 @@
 import UIKit
 
 protocol GroupPermissionCellDelegate: AnyObject {
-    func didUpdatePermissions(permissions: Group.Permissions)
+    func didUpdatePermissions(permissions: GroupPermission)
 }
 
 class GroupPermissionCell: UICollectionViewCell {
@@ -17,7 +17,7 @@ class GroupPermissionCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
     
-    private var permissions: Group.Permissions = .invite
+    private var permissions: GroupPermission = .invite
     
     private var topSeparatorView: UIView = {
         let view = UIView()
@@ -110,7 +110,7 @@ class GroupPermissionCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func checkPermissions() -> Group.Permissions {
+    func checkPermissions() -> GroupPermission {
         let invitePermission = invitePermissionView.privacyOptionIsSelected
         let reviewPermission = reviewPermissionView.privacyOptionIsSelected
         
@@ -127,7 +127,7 @@ class GroupPermissionCell: UICollectionViewCell {
         return permissions
     }
     
-    func setPermissions(permissions: Group.Permissions) {
+    func setPermissions(permissions: GroupPermission) {
         if permissions == .all {
             reviewPermissionView.updateVisibility()
         } else if permissions == .review {

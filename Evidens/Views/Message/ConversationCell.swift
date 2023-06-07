@@ -178,7 +178,7 @@ class ConversationCell: UICollectionViewCell {
             pinMessageButton.configuration?.image = viewModel.pinImage
             if viewModel.unreadMessages > 0 {
                 UIView.animate(withDuration: 0.3) {
-                    self.pinButtonTrailingAnchor.constant = -25
+                    self.pinButtonTrailingAnchor.constant = -30
                 }
             }
         } else {

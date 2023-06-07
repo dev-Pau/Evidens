@@ -14,6 +14,8 @@ protocol EmptyGroupCellDelegate: AnyObject {
 class MEPrimaryEmptyCell: UICollectionViewCell {
     
     weak var delegate: EmptyGroupCellDelegate?
+    private var heightImageAnchor: NSLayoutConstraint!
+    private var topImageAnchor: NSLayoutConstraint!
     
     private let cellContentView = UIView()
     
@@ -30,7 +32,7 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 35, weight: .heavy)
+        label.font = .systemFont(ofSize: 30, weight: .heavy)
         label.textColor = .label
         label.numberOfLines = 0
         return label
@@ -39,7 +41,7 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         return label
@@ -52,7 +54,7 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.baseBackgroundColor = .label
-        
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 25, bottom: 0, trailing: 25)
         button.addTarget(self, action: #selector(handleDiscoverGroups), for: .touchUpInside)
         return button
     }()
@@ -80,12 +82,14 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         ])
         
         cellContentView.addSubviews(imageView, titleLabel, descriptionLabel, discoverButton)
+        topImageAnchor = imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor)
+        heightImageAnchor = imageView.heightAnchor.constraint(equalToConstant: frame.width / 2)
         
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 30),
+            topImageAnchor,
             imageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            imageView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2),
+            heightImageAnchor,
             
             titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 30),
@@ -97,14 +101,23 @@ class MEPrimaryEmptyCell: UICollectionViewCell {
         
             discoverButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
             discoverButton.leadingAnchor.constraint(equalTo: descriptionLabel.leadingAnchor),
-            discoverButton.heightAnchor.constraint(equalToConstant: 50),
+            discoverButton.heightAnchor.constraint(equalToConstant: 60),
         ])
     }
     
-    func set(withImage image: UIImage, withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
-        imageView.image = image
+    func set(withImage image: UIImage? = nil, withTitle title: String, withDescription description: String, withButtonText buttonText: String? = nil) {
+        if let image = image {
+            imageView.image = image
+            topImageAnchor.constant = 30
+            topImageAnchor.isActive = true
+        } else {
+            heightImageAnchor.constant = 0
+            heightImageAnchor.isActive = true
+        }
+
         descriptionLabel.text = description
         titleLabel.text = title
+        
         if let buttonText = buttonText {
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 16, weight: .bold)

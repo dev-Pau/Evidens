@@ -17,7 +17,7 @@ class ApplyJobViewController: UIViewController {
     private var job: Job
     private var company: Company
     private var user: User
-    private var privacyJobMenuLauncher = MEContextMenuLauncher(menuLauncherData: .applyJobPrivacy)
+    private var privacyJobMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .jobPrivacy))
     
     private var viewModel = ApplyJobViewModel()
     

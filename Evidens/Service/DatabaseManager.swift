@@ -658,17 +658,17 @@ extension DatabaseManager {
 
 extension DatabaseManager {
     
-    public func reportContent(source: Report.Source, report: Report, completion: @escaping(Bool) -> Void) {
+    public func reportContent(source: ReportSource, report: Report, completion: @escaping(Bool) -> Void) {
         var reportData = ["contentOwnerUid": report.contentOwnerUid,
                           "target": report.target.rawValue,
                           "topic": report.topic.rawValue,
-                          "reportOwnerUid": report.reportOwnerUid]
+                          "reportOwnerUid": report.reportOwnerUid] as [String : Any]
         
         if let reportInfo = report.reportInfo {
             reportData["reportInfo"] = reportInfo
         }
         
-        let ref = database.child("reports").child(source.rawValue).child(report.contentId).childByAutoId()
+        let ref = database.child("reports").child(String(source.rawValue)).child(report.contentId).childByAutoId()
         ref.setValue(reportData) { error, _ in
             if let _ = error {
                 completion(false)
@@ -1932,7 +1932,7 @@ extension DatabaseManager {
         }
     }
     
-    public func uploadRecentPostToGroup(withGroupId groupId: String, withPostId postId: String, withPermission permission: Group.Permissions, completion: @escaping (Bool) -> Void) {
+    public func uploadRecentPostToGroup(withGroupId groupId: String, withPostId postId: String, withPermission permission: GroupPermission, completion: @escaping (Bool) -> Void) {
         let timestamp = NSDate().timeIntervalSince1970
         
         let data = ["id": postId,
@@ -1967,7 +1967,7 @@ extension DatabaseManager {
         }
     }
     
-    public func uploadRecentCaseToGroup(withGroupId groupId: String, withCaseId caseId: String, withPermission permission: Group.Permissions, completion: @escaping(Bool) -> Void) {
+    public func uploadRecentCaseToGroup(withGroupId groupId: String, withCaseId caseId: String, withPermission permission: GroupPermission, completion: @escaping(Bool) -> Void) {
         
         let timestamp = NSDate().timeIntervalSince1970
         
@@ -2614,9 +2614,240 @@ extension DatabaseManager {
 //MARK: - Sending messages & Conversations+
 extension DatabaseManager {
     
-    /// Creates a new conversation with target user uid and first message sent
-    public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
+    public func createNewConversation(_ conversation: Conversation, with message: Message, completion: @escaping(Error?) -> Void) {
+        guard let conversationId = conversation.id else {
+            completion(nil)
+            return
+        }
         
+        let messageData: [String: Any] = [
+            "kind": message.kind.rawValue,
+            "text": message.text,
+            "date": message.sentDate.timeIntervalSince1970.toDouble(),
+            "senderId": message.senderId
+        ]
+
+        database.child("conversations/\(conversationId)/messages").child(message.messageId).setValue(messageData) { [weak self] error, _ in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    //public func fetchConversations
+    
+    public func checkForNewConversations(with conversationIds: [String], completion: @escaping([String]) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "sync").queryEqual(toValue: false)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion([])
+                return
+            }
+            
+            var conversationIds = [String]()
+            if let values = snapshot.value as? [String: Any] {
+                for value in values {
+                    conversationIds.append(value.key)
+                }
+                
+                completion(conversationIds)
+            }
+        }
+    }
+    
+    public func fetchNewConversations(with conversationIds: [String], completion: @escaping([Conversation]) -> Void) {
+        var conversations = [Conversation]()
+        let group = DispatchGroup()
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        for id in conversationIds {
+            let ref = database.child("users/\(uid)/conversations/\(id)")
+            group.enter()
+            ref.observeSingleEvent(of: .value) { snapshot in
+                defer {
+                    group.leave()
+                }
+                
+                guard snapshot.exists() else {
+                    return
+                }
+
+                guard let value = snapshot.value as? [String: Any], let userId = value["userId"] as? String, let timeInterval = value["date"] as? TimeInterval else {
+                    return
+                }
+                
+                group.enter()
+                UserService.fetchUser(withUid: userId) { user in
+                    defer {
+                        group.leave()
+                    }
+
+                    group.enter()
+                    FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
+                        defer {
+                            group.leave()
+                        }
+                        
+                        let date = Date(timeIntervalSince1970: timeInterval)
+                        let name = user.firstName! + " " + user.lastName!
+                        let conversation = Conversation(id: id, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                        conversations.append(conversation)
+                    }
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(conversations)
+        }
+    }
+    
+    public func deleteConversation(_ conversation: Conversation, completion: @escaping(Result<Bool, Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let id = conversation.id else {
+            return
+        }
+        let ref = database.child("users/\(uid)/conversations/\(id)")
+        ref.removeValue { error, _ in
+            if let error {
+                completion(.failure(error))
+            } else {
+                completion(.success(true))
+            }
+        }
+    }
+    
+    public func fetchMessages(for conversations: [Conversation], completion: @escaping(Bool) -> Void) {
+        let group = DispatchGroup()
+        
+        for conversation in conversations {
+            let date = conversation.date ?? Date()
+            let timeInterval = date.timeIntervalSince1970
+            let conversationId = conversation.id!
+
+            let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(atValue: timeInterval)
+            
+            group.enter()
+            ref.observeSingleEvent(of: .value) { snapshot in
+                defer {
+                    group.leave()
+                }
+                
+                guard snapshot.exists() else {
+                    print("empty snaphsot")
+                    return
+                }
+                
+                guard let messages = snapshot.value as? [String: [String: Any]] else {
+                    print("no good format")
+                    return
+                }
+                
+                print(snapshot.childrenCount)
+                
+                var newMessages = [Message]()
+                for (messageId, message) in messages {
+                    let newMessage = Message(dictionary: message, messageId: messageId)
+                    newMessages.append(newMessage)
+                }
+
+                newMessages.sort(by: { $0.sentDate > $1.sentDate })
+                DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
+                for newMessage in newMessages {
+                    DataService.shared.save(message: newMessage, to: conversation)
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(true)
+        }
+    }
+    
+    public func fetchNewMessages(for conversations: [Conversation], completion: @escaping(Bool) -> Void) {
+        let group = DispatchGroup()
+        
+        for conversation in conversations {
+            guard let latestMessage = conversation.latestMessage else { continue }
+            let date = latestMessage.sentDate
+            let timeInterval = date.timeIntervalSince1970
+            let conversationId = conversation.id!
+
+            let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(afterValue: timeInterval)
+            
+            group.enter()
+            ref.observeSingleEvent(of: .value) { snapshot in
+                defer {
+                    group.leave()
+                }
+                
+                guard snapshot.exists() else {
+                    return
+                }
+                
+                guard let messages = snapshot.value as? [String: [String: Any]] else {
+                    return
+                }
+                
+                var newMessages = [Message]()
+                for (messageId, message) in messages {
+                    let newMessage = Message(dictionary: message, messageId: messageId)
+                    newMessages.append(newMessage)
+                }
+                
+                newMessages.sort(by: { $0.sentDate < $1.sentDate })
+                for newMessage in newMessages {
+                    DataService.shared.save(message: newMessage, to: conversation)
+                }
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(true)
+        }
+    }
+    
+    public func toggleSync(for conversations: [Conversation]) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        for conversation in conversations {
+            let ref = database.child("users/\(uid)/conversations/\(conversation.id!)/sync")
+            ref.setValue(true)
+            print("set value")
+        }
+    }
+    
+    public func sendMessage(to conversation: Conversation, with message: Message, completion: @escaping(Error?) -> Void) {
+        guard let conversationId = conversation.id else {
+            completion(nil)
+            return
+        }
+        
+        let messageData: [String: Any] = [
+            "kind": message.kind.rawValue,
+            "text": message.text,
+            "date": message.sentDate.timeIntervalSince1970.toDouble(),
+            "senderId": message.senderId
+        ]
+        
+        database.child("conversations/\(conversationId)/messages").child(message.messageId).setValue(messageData) { [weak self] error, _ in
+            guard let _ = self else { return }
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+
+
+
+    /// Creates a new conversation with target user uid and first message sent
+   // public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
+        
+        /*
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String,
               let currentName = UserDefaults.standard.value(forKey: "name") as? String else { return }
         
@@ -2704,12 +2935,15 @@ extension DatabaseManager {
                                                 completion: completion)
             }
         }
-    }
+         */
+  //  }
     
 
     /// Fetches and returns all conversations for the user with uid
     public func getAllConversations(forUid uid: String, completion: @escaping(Result<[Conversation], Error>) -> Void) {
-
+        let ref = database.child("users/\(uid)/conversations")
+        
+/*
         var fetchedConversations = [[String: Any]]()
         
         let ref = database.child("users/\(uid)/conversations")
@@ -2755,11 +2989,13 @@ extension DatabaseManager {
             
             completion(.success(conversations))
         }
+ */
     }
     
     
     /// Get all messages for a given conversation
     public func getAllMessagesForConversation(with id: String, withCreationDate creationDate: Double?, completion: @escaping(Result<[Message], Error>) -> Void) {
+        /*
         var messages = [[String: Any]]()
         
         if let creationDate = creationDate {
@@ -2826,11 +3062,12 @@ extension DatabaseManager {
         }
         // There's not creationDate for the conversation so don't fetch any messages
         completion(.failure(DatabaseError.failedToFetch))
+         */
     }
     
     /// Sends a message with target conversation and message
     public func sendMessage(to conversation: String, name: String, otherUserUid: String, newMessage: Message, completion: @escaping (Double?) -> Void) {
-        
+        /*
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
             completion(nil)
             return
@@ -2979,10 +3216,11 @@ extension DatabaseManager {
                 }
             }
         })
+         */
     }
 
     private func finishCreatingConversation(name: String, conversationID: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
-        
+        /*
         let messageDate = firstMessage.sentDate.timeIntervalSince1970.toDouble()
         //let dateString = ChatViewController.dateFormatter.string(from: messageDate)
         
@@ -3095,25 +3333,29 @@ extension DatabaseManager {
                 return
             }
         }
+         */
     }
     
     public func makeLastMessageStateToIsRead(conversationID: String, isReadState isRead: Bool) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        let ref = database.child("users").child(uid).child("conversations").queryOrdered(byChild: "id").queryEqual(toValue: conversationID)
-        
-        ref.observeSingleEvent(of: .value) { snapshot in
-            if let value = snapshot.value as? [String: Any] {
-                if let key = value.keys.first {
-                    let newRef = self.database.child("users").child(uid).child("conversations").child(key).child("latest_message").child("is_read")
-                    newRef.setValue(isRead) { error, _ in
-                        if let _ = error {
-                            return
-                        }
-                    }
-                }
-            }
-        }
+        /*
+         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+         
+         let ref = database.child("users").child(uid).child("conversations").queryOrdered(byChild: "id").queryEqual(toValue: conversationID)
+         
+         ref.observeSingleEvent(of: .value) { snapshot in
+         if let value = snapshot.value as? [String: Any] {
+         if let key = value.keys.first {
+         let newRef = self.database.child("users").child(uid).child("conversations").child(key).child("latest_message").child("is_read")
+         newRef.setValue(isRead) { error, _ in
+         if let _ = error {
+         return
+         }
+         }
+         }
+         }
+         }
+         }
+         */
     }
 }
 

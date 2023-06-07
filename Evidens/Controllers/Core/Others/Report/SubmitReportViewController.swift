@@ -159,7 +159,7 @@ extension SubmitReportViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reportCellReuseIdentifier, for: indexPath) as! ReportTargetCell
-        cell.configure(withTitle: "Report summary", withDescription: "\n" + report.target.summary + "\n\n" + report.topic.rawValue)
+        cell.configure(withTitle: "Report summary", withDescription: "\n" + report.target.summary + "\n\n" + report.topic.title)
         cell.hideSelectionHints()
         return cell
     }

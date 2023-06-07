@@ -25,6 +25,7 @@ protocol MessageViewControllerDelegate: AnyObject {
     func didCreateNewConversation(_ conversation: Conversation)
     func deleteConversation(_ conversation: Conversation)
     func didReadAllMessages(for conversation: Conversation)
+    func didSendMessage(_ message: Message, for conversation: Conversation)
 }
 
 
@@ -35,6 +36,7 @@ class MessageViewController: UICollectionViewController {
     weak var delegate: MessageViewControllerDelegate?
     private var conversation: Conversation
     private var user: User?
+    private var message: Message?
     private var preview: Bool = false
     private var newConversation: Bool?
     private var messages = [Message]()
@@ -79,6 +81,20 @@ class MessageViewController: UICollectionViewController {
         super.init(collectionViewLayout: layout)
     }
     
+    init(conversation: Conversation, message: Message, preview: Bool? = false) {
+        self.conversation = conversation
+        self.message = message
+        self.preview = preview ?? false
+        
+        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 5
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 10, trailing: 10)
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        super.init(collectionViewLayout: layout)
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -91,6 +107,7 @@ class MessageViewController: UICollectionViewController {
         collectionView.register(MessageTextCell.self, forCellWithReuseIdentifier: messageTextCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.keyboardDismissMode = .interactive
     }
     
     private func configureView() {
@@ -99,23 +116,36 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func getMessages() {
-        messages = DataService.shared.getMessages(for: conversation)
-        if !messages.isEmpty {
+        if let message {
+            messages = DataService.shared.getMessages(for: conversation, around: message)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                 guard let strongSelf = self else { return }
-                let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
-                strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
-                if strongSelf.preview == false {
+                if let index = strongSelf.messages.firstIndex(where: { $0.messageId == message.messageId }) {
+                    strongSelf.collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .centeredVertically, animated: false)
                     DataService.shared.readMessages(conversation: strongSelf.conversation)
                     strongSelf.delegate?.didReadAllMessages(for: strongSelf.conversation)
                 }
             }
-        }
-        
-        DataService.shared.conversationExists(for: conversation.userId) { [weak self] exists in
-            guard let strongSelf = self else { return }
-            strongSelf.newConversation = !exists
+        } else {
+            messages = DataService.shared.getMessages(for: conversation)
+            if !messages.isEmpty {
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
+                    strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
+                    if strongSelf.preview == false {
+                        DataService.shared.readMessages(conversation: strongSelf.conversation)
+                        strongSelf.delegate?.didReadAllMessages(for: strongSelf.conversation)
+                    }
+                }
+            }
+            
+            DataService.shared.conversationExists(for: conversation.userId) { [weak self] exists in
+                guard let strongSelf = self else { return }
+                strongSelf.newConversation = !exists
+            }
         }
     }
     
@@ -141,11 +171,15 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let message = messages[indexPath.item]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageTextCellReuseIdentifier, for: indexPath) as! MessageTextCell
         cell.viewModel = MessageViewModel(message: messages[indexPath.row])
+        cell.display = lastSenderMessage(indexOfMessage: indexPath)
         cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
         cell.delegate = self
+        if message?.messageId == messages[indexPath.row].messageId {
+            cell.highlight()
+        }
+        
         return cell
         /*
         switch message.kind {
@@ -177,14 +211,44 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
             return true
         }
     }
+    
+    func lastSenderMessage(indexOfMessage: IndexPath) -> Bool {
+        if messages.count - 1 == indexOfMessage.row {
+            return true
+        }
+        let nextMessage = messages[indexOfMessage.row + 1]
+
+        if nextMessage.senderId != messages[indexOfMessage.row].senderId || lastMessageOfDay(indexOfMessage: indexOfMessage)  {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    func lastMessageOfDay(indexOfMessage: IndexPath) -> Bool {
+        let messageDate = messages[indexOfMessage.item].sentDate
+        let nextMessageIndex = indexOfMessage.item + 1
+        
+        guard nextMessageIndex < messages.count else {
+            return true
+        }
+        let nextMessageDate = messages[nextMessageIndex].sentDate
+        
+        let currentDay = Calendar.current.component(.day, from: messageDate)
+        let nextDay = Calendar.current.component(.day, from: nextMessageDate)
+        
+        return currentDay != nextDay
+    }
 }
 
 extension MessageViewController: MessageInputAccessoryViewDelegate {
     func didSendMessage(message: String) {
         guard let newConversation = newConversation, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let message = Message(text: message, sentDate: Date(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: .text, phase: .sending)
+        let type: MessageKind = message.containsEmojiOnly ? .emoji : .text
         
+        let message = Message(text: message, sentDate: Date(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
+
         messages.append(message)
         
         collectionView.performBatchUpdates {
@@ -228,19 +292,18 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
             // if everything goes fine, update stage of the latest message to send
             
         } else {
+            delegate?.didSendMessage(message, for: conversation)
             DataService.shared.save(message: message, to: conversation)
             DatabaseManager.shared.sendMessage(to: conversation, with: message) { [weak self] error in
                 guard let strongSelf = self else { return }
                 if let error {
                     print(error.localizedDescription)
                 } else {
-                    print("sent message")
                     strongSelf.messages[strongSelf.messages.count - 1].updatePhase(.sent)
+                    strongSelf.delegate?.didSendMessage(strongSelf.messages[strongSelf.messages.count - 1], for: strongSelf.conversation)
                     DataService.shared.edit(message: strongSelf.messages[strongSelf.messages.count - 1], set: MessagePhase.sent.rawValue, forKey: "phase")
                     DispatchQueue.main.async {
-                        print("reload")
-                        print(strongSelf.messages[strongSelf.messages.count - 1])
-                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0)])
+                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
                     }
                 }
             }

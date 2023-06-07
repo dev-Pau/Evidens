@@ -37,6 +37,14 @@ class MessageTextView: UITextView {
         verticalScrollIndicatorInsets.right = 40
         textContainerInset.right = 40
         
+        font = UIFont.systemFont(ofSize: 17)
+        isScrollEnabled = false
+        clipsToBounds = true
+        layer.cornerRadius = 16
+        layer.borderColor = UIColor.systemGray3.cgColor
+        layer.borderWidth = 0.4
+        tintColor = primaryColor
+        
         addSubview(placeholder)
         NSLayoutConstraint.activate([
             placeholder.centerYAnchor.constraint(equalTo: centerYAnchor),

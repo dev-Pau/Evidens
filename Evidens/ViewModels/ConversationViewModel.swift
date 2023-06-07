@@ -7,72 +7,87 @@
 
 import UIKit
 
+/// The view model for the Conversation.
 struct ConversationViewModel {
     
-    var conversation: Conversation
+    private let conversation: Conversation
     
+    /// Creates an instance of the ConversationViewModel.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation of the view model.
     init(conversation: Conversation) {
         self.conversation = conversation
     }
     
-    var isMessageRead: Bool {
-        return conversation.latestMessage.isRead
+    var name: String {
+        return conversation.name
     }
-    
-    var messageText: String {
-        let message = conversation.latestMessage.text
-        
-        if message.contains("https://firebasestorage.googleapis.com") {
-            //Is a photo or video
-            if message.contains("message_images") {
-                return "Sent a photo"
+
+    func image(completion: @escaping(UIImage) -> Void) {
+        guard let imagePath = conversation.image else {
+            completion(UIImage(named: AppStrings.Assets.profile)!)
+            return
+        }
+        DispatchQueue.global().async {
+            if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
+                completion(userImage)
             } else {
-                return "Sent a video"
+                completion(UIImage(named: AppStrings.Assets.profile)!)
+                return
             }
+        }
+    }
+    
+    private var isSender: Bool {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let latestMessage = conversation.latestMessage else { return false }
+        return latestMessage.senderId == uid ? true : false
+    }
+    
+    var lastMessage: String {
+        guard let latestMessage = conversation.latestMessage else { return "" }
+        if latestMessage.phase == .failed {
+            return "Message Send Failure"
         } else {
-            //It is a normal messag
-            return message
+            let text = latestMessage.text
+            return isSender ? "You: " + text : text
         }
     }
     
-    var latestMessageText: String {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return "" }
-        if conversation.latestMessage.senderUid == uid {
-            return "You: \(messageText)"
-        }
-        return messageText
-    }
-    
-    func makeAttributed() -> NSAttributedString {
-            let attributedString = NSMutableAttributedString(string: messageText, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
-            return attributedString
-    }
-     
-    
-    var timestampString: String? {
+    var lastMessageDate: String {
+        guard let sentDate = conversation.latestMessage?.sentDate else { return "" }
         
-        let timeInterval = conversation.latestMessage.date
+        let calendar = Calendar.current
+        let currentDate = Date()
+        let formatter = DateFormatter()
         
-        let formatter = DateComponentsFormatter()
-        formatter.maximumUnitCount = 1
-        formatter.unitsStyle = .abbreviated
-        formatter.zeroFormattingBehavior = .dropAll
-        formatter.allowedUnits = [.day, .hour, .minute, .second]
-
-        let date = Date(timeIntervalSince1970: timeInterval)
-
-        return formatter.string(from: date, to: Date())
-    }
-    
-    func messageToDisplay() -> NSAttributedString {
-        if !isMessageRead {
-            let attributedString = NSMutableAttributedString(string: latestMessageText, attributes: [.font: UIFont.boldSystemFont(ofSize: 15), .foregroundColor: UIColor.label])
-            //attributedString.append(NSAttributedString(string: " • " + timestampString!, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel]))
-            return attributedString
+        if calendar.isDateInToday(sentDate) {
+            return sentDate.formatted(date: .omitted, time: .shortened)
+        } else if calendar.isDateInYesterday(sentDate) {
+            return "Yesterday"
+        } else if let daysAgo = calendar.dateComponents([.day], from: sentDate, to: currentDate).day, daysAgo < 7 {
+            let weekday = calendar.component(.weekday, from: sentDate)
+            let weekdaySymbol = formatter.weekdaySymbols[weekday - 1]
+            return weekdaySymbol
         } else {
-            let attributedString = NSMutableAttributedString(string: latestMessageText, attributes: [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: UIColor.secondaryLabel])
-            //attributedString.append(NSAttributedString(string: " • " + timestampString!, attributes: [.font: UIFont.systemFont(ofSize: 14), .foregroundColor: UIColor.secondaryLabel]))
-            return attributedString
+            return sentDate.formatted(date: .abbreviated, time: .omitted)
         }
+    }
+    
+    var unreadMessages: Int {
+        conversation.unreadMessages ?? 0
+    }
+    
+    var isPinned: Bool {
+        conversation.isPinned
+    }
+
+    var messageColor: UIColor {
+        guard let latestMessage = conversation.latestMessage else { return .clear }
+        return latestMessage.isRead ? .secondaryLabel : primaryColor
+    }
+    
+    var pinImage: UIImage {
+        return (UIImage(systemName: AppStrings.Icons.fillPin)!.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).rotate(radians: .pi/4))!
     }
 }

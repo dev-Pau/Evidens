@@ -20,11 +20,26 @@ extension MessageEntity {
     @NSManaged public var isRead: Bool
     @NSManaged public var senderId: String?
     @NSManaged public var kind: Int16
-    @NSManaged public var messageId: UUID?
+    @NSManaged public var phase: Int16
+    @NSManaged public var messageId: String?
     @NSManaged public var sentDate: Date?
     @NSManaged public var text: String?
     @NSManaged public var conversation: ConversationEntity?
     @NSManaged public var relationship: ConversationEntity?
     
+    var wrappedSenderId: String {
+        senderId ?? "Unknown"
+    }
     
+    var wrappedMessageId: String {
+        messageId ?? "Unknown"
+    }
+    
+    var wrappedSentDate: Date {
+        sentDate ?? Date()
+    }
+    
+    var wrappedText: String {
+        text ?? "Unknown"
+    }
 }

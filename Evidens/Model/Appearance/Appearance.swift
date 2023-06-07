@@ -7,13 +7,15 @@
 
 import UIKit
 
-/// The model for the Appearance.
-struct Appearance {
+/// An enum mapping the appearance themes.
+enum Appearance: Int, CaseIterable {
+    case dark, system, light
     
-    /// An enum mapping all the current appearance themes.
-    enum Theme: String, CaseIterable {
-        case dark = "Dark mode"
-        case system = "Use device settings"
-        case light = "Light mode"
+    var title: String {
+        switch self {
+        case .dark: return AppStrings.Appearance.dark
+        case .system: return AppStrings.Appearance.system
+        case .light: return AppStrings.Appearance.light
+        }
     }
 }

@@ -10,12 +10,12 @@ import UIKit
 protocol ProfessionSelectedCellDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectSearchTopic(_ topic: String)
-    func didSelectSearchCategory(_ category: Search.Topics)
+    func didSelectSearchCategory(_ category: SearchTopics)
 }
 
 class ProfessionSelectedCell: UICollectionViewCell {
     weak var delegate: ProfessionSelectedCellDelegate?
-    private let searchDataSource = Search.Topics.allCases
+    private let searchDataSource = SearchTopics.allCases
     
     var tagsLabel: UILabel = {
         let label = UILabel()

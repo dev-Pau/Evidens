@@ -5,6 +5,7 @@
 //  Created by Pau Fernández Solà on 16/1/22.
 //
 
+
 import UIKit
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
@@ -118,11 +119,11 @@ class ConversationViewController: UIViewController {
         if user.phase == .verified {
             
             let controller = ConversationResultsUpdatingViewController()
-            //controller.delegate = self
+            controller.delegate = self
             searchController = UISearchController(searchResultsController: controller)
             searchController.searchResultsUpdater = controller
             searchController.searchBar.delegate = controller
-            searchController.searchBar.placeholder = "Search Direct Messages"
+            searchController.searchBar.placeholder = AppStrings.Search.Bar.message
             searchController.searchBar.searchTextField.layer.cornerRadius = 17
             searchController.searchBar.searchTextField.layer.masksToBounds = true
             searchController.obscuresBackgroundDuringPresentation = false
@@ -136,7 +137,7 @@ class ConversationViewController: UIViewController {
             view.addSubview(lockView)
         }
   
-        let backButton = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "arrow.backward"/*AppStrings.Icons.leftChevron*/, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""
         backButton.tintColor = .label
@@ -287,8 +288,16 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         guard !conversations.isEmpty else { return }
         let conversation = conversations[indexPath.row]
         let controller = MessageViewController(conversation: conversation)
+        
+        let backItem = UIBarButtonItem()
+        backItem.tintColor = .label
+        backItem.title = ""
+        
+        navigationItem.backBarButtonItem = backItem
+        
         controller.delegate = self
         self.navigationController?.pushViewController(controller, animated: true)
+        delegate?.handleTooglePan()
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
@@ -307,6 +316,24 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
             }
             return UIMenu(children: [deleteAction])
         }
+    }
+}
+
+extension ConversationViewController: ConversationResultsUpdatingViewControllerDelegate {
+    func readMessages(for conversation: Conversation) {
+        didReadAllMessages(for: conversation)
+    }
+    
+    func sendMessage(_ message: Message, to conversation: Conversation) {
+        didSendMessage(message, for: conversation)
+    }
+    
+    func didTapConversation(_ conversation: Conversation) {
+        didReadAllMessages(for: conversation)
+    }
+    
+    func didTapRecents(_ text: String) {
+        searchController.searchBar.text = text
     }
 }
 
@@ -371,7 +398,6 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
                 
                 strongSelf.navigationItem.backBarButtonItem = backItem
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
-                
             }
         }
     }
@@ -390,6 +416,13 @@ extension ConversationViewController: EmptyGroupCellDelegate {
 }
 
 extension ConversationViewController: MessageViewControllerDelegate {
+    func didSendMessage(_ message: Message, for conversation: Conversation) {
+        if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
+            conversations[conversationIndex].changeLatestMessage(to: message)
+            collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
+        }
+    }
+    
     func didReadAllMessages(for conversation: Conversation) {
         if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
             conversations[conversationIndex].markMessagesAsRead()
@@ -419,12 +452,6 @@ extension ConversationViewController: MessageViewControllerDelegate {
                 }
             }
         }
-    }
-}
-
-extension ConversationViewController: UIGestureRecognizerDelegate {
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
     }
 }
 

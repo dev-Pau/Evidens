@@ -207,9 +207,6 @@ class FollowersFollowingViewController: UIViewController {
                         }
                     }
                 }
-                //users.forEach({ self.followingIsFollowed.append(UserFollow(dictionary: ["uid": $0.uid!, "isFollow": true])) })
-                //self.followingLoaded = true
-                //self.followingCollectionView.reloadData()
             }
         }
     }

@@ -71,12 +71,10 @@ class ExploreCasesToolbar: UIToolbar {
         
         addSubviews(selectionCellView, filterCollectionView)
         NSLayoutConstraint.activate([
-            //filterCollectionView.topAnchor.constraint(equalTo: topAnchor),
             filterCollectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             filterCollectionView.heightAnchor.constraint(equalToConstant: 35),
             filterCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             filterCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            //filterCollectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
         filterCollectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)

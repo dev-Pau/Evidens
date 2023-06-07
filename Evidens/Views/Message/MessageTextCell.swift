@@ -15,10 +15,16 @@ class MessageTextCell: UICollectionViewCell {
         }
     }
     
+    var display: Bool = false
+    
     weak var delegate: MessageCellDelegate?
     private var bubbleLeadingConstraint: NSLayoutConstraint!
     private var bubbleTrailingConstraint: NSLayoutConstraint!
     private var bubbleTopConstraint: NSLayoutConstraint!
+    
+    private var timeLeadingConstriant: NSLayoutConstraint!
+    private var timeTrailingConstraint: NSLayoutConstraint!
+    private var panGestureRecognizer: UIPanGestureRecognizer?
     
     private let messageLabel: UILabel = {
         let label = UILabel()
@@ -35,7 +41,7 @@ class MessageTextCell: UICollectionViewCell {
         label.numberOfLines = 3
         label.textAlignment = .center
         label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         return label
     }()
     
@@ -53,7 +59,7 @@ class MessageTextCell: UICollectionViewCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .clear
-        view.layer.cornerRadius = 15
+        view.isUserInteractionEnabled = true
         view.layer.masksToBounds = true
         return view
     }()
@@ -96,6 +102,32 @@ class MessageTextCell: UICollectionViewCell {
         super.prepareForReuse()
         bubbleLeadingConstraint.isActive = false
         bubbleTrailingConstraint.isActive = false
+        timeLeadingConstriant.isActive = false
+        timeTrailingConstraint.isActive = false
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if bubbleView.frame.width < bubbleView.frame.height {
+            bubbleView.layer.cornerRadius = bubbleView.frame.height / 4
+        } else {
+            bubbleView.layer.cornerRadius = bubbleView.frame.height / 2
+        }
+        
+        guard display == true, let viewModel = viewModel, !viewModel.emoji else {
+            bubbleView.layer.mask = nil
+            bubbleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            return
+        }
+        
+        bubbleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner]
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = UIBezierPath(roundedRect: bubbleView.bounds,
+                                      byRoundingCorners: [.bottomRight],
+                                      cornerRadii: CGSize(width: 6, height: 6)).cgPath
+        bubbleView.layer.mask = maskLayer
+        
+        
     }
     
     required init?(coder: NSCoder) {
@@ -113,13 +145,24 @@ class MessageTextCell: UICollectionViewCell {
         
         if viewModel.isSender {
             bubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -constant)
-            bubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 70)
-            
+            bubbleLeadingConstraint = bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: frame.width - 70)
+            timeTrailingConstraint = timeLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 60)
+            timeLeadingConstriant = bubbleLeadingConstraint
         } else {
             bubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: constant)
-            bubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -70)
-            
+            bubbleTrailingConstraint = bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: frame.width - 70)
+            timeLeadingConstriant = timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -60)
+            timeTrailingConstraint = bubbleTrailingConstraint
         }
+        
+        if viewModel.kind == . emoji{
+            messageLabel.font = .systemFont(ofSize: viewModel.size, weight: .regular)
+        } else {
+            messageLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        }
+
+        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleBubbleSwipe))
+        bubbleView.addGestureRecognizer(panGestureRecognizer!)
         
         bubbleTopConstraint = bubbleView.topAnchor.constraint(equalTo: topAnchor)
         
@@ -131,16 +174,17 @@ class MessageTextCell: UICollectionViewCell {
             bubbleView.topAnchor.constraint(equalTo: timestampLabel.bottomAnchor),
             bubbleTrailingConstraint,
             bubbleLeadingConstraint,
-            bubbleView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            bubbleView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             messageLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 10),
             messageLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
             messageLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
             messageLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -10),
         
-            timeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 1),
-            
+            timeLeadingConstriant,
+            timeTrailingConstraint,
+            timeLabel.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+
             errorButton.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
             errorButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             errorButton.heightAnchor.constraint(equalToConstant: 20),
@@ -169,10 +213,10 @@ class MessageTextCell: UICollectionViewCell {
         timeLabel.text = viewModel.time
         messageLabel.text = viewModel.text
         if viewModel.isSender {
-            bubbleView.backgroundColor = primaryColor
+            bubbleView.backgroundColor = viewModel.emoji ? .clear : primaryColor
             messageLabel.textColor = .white
         } else {
-            bubbleView.backgroundColor = .systemGray3
+            bubbleView.backgroundColor = viewModel.emoji ? .clear : .systemGray3
             messageLabel.textColor = .label
         }
         configure()
@@ -184,6 +228,63 @@ class MessageTextCell: UICollectionViewCell {
             timestampLabel.text = "\(viewModel.date)" + "\n"
         } else {
             timestampLabel.text = nil
+        }
+    }
+    
+    func displayBezierPath(_ display: Bool) {
+        self.display = display
+    }
+    
+    func highlight() {
+        guard let viewModel = viewModel else { return }
+        
+        if viewModel.isSender {
+            bubbleView.backgroundColor = primaryColor.withAlphaComponent(1.5)
+            timeLabel.textAlignment = .right
+        } else {
+            bubbleView.backgroundColor = .secondaryLabel
+            timeLabel.textAlignment = .left
+        }
+    }
+    
+    @objc func handleBubbleSwipe() {
+        guard let panGestureRecognizer = panGestureRecognizer, let viewModel = viewModel else { return }
+        let x = panGestureRecognizer.translation(in: bubbleView).x
+
+        if viewModel.isSender {
+            if x < 0 {
+                if x > -50 {
+                    bubbleTrailingConstraint.constant = x
+                } else {
+                    bubbleTrailingConstraint.constant = -50 + (x + 50) * 0.3
+                }
+            }
+        } else {
+            if x > 0 {
+                if x < 50 {
+                    bubbleLeadingConstraint.constant = x
+                } else {
+                    bubbleLeadingConstraint.constant = 50 + (x - 50) * 0.3
+                }
+            }
+        }
+        
+        if panGestureRecognizer.state == .ended {
+            let constant = viewModel.failed ? 35.0 : 10.0
+            
+            if viewModel.isSender {
+                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.bubbleTrailingConstraint.constant = -constant
+                    strongSelf.layoutIfNeeded()
+                }
+            } else {
+                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.bubbleLeadingConstraint.constant = constant
+                    strongSelf.layoutIfNeeded()
+                }
+            }
         }
     }
 }

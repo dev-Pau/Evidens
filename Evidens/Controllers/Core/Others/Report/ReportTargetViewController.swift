@@ -119,7 +119,7 @@ class ReportTargetViewController: UIViewController {
 extension ReportTargetViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Report.Target.allCases.count
+        return ReportTarget.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -130,12 +130,12 @@ extension ReportTargetViewController: UICollectionViewDelegateFlowLayout, UIColl
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reportCellReuseIdentifier, for: indexPath) as! ReportTargetCell
-        cell.configure(withTitle: Report.Target.allCases[indexPath.row].rawValue, withDescription: Report.Target.allCases[indexPath.row].details)
+        cell.configure(withTitle: ReportTarget.allCases[indexPath.row].title, withDescription: ReportTarget.allCases[indexPath.row].content)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        report.target = Report.Target.allCases[indexPath.row]
+        report.target = ReportTarget.allCases[indexPath.row]
         reportButton.isEnabled = true
     }
 }

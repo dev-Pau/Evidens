@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+/// The model for a Language.
+struct Language {
+    var name: String
+    var proficiency: String
+}

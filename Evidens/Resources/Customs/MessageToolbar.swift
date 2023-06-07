@@ -5,247 +5,222 @@
 //  Created by Pau Fernández Solà on 1/6/23.
 //
 
-import Foundation
+import UIKit
+
+private let messageSearchCellReuseIdentifier = "MessageSearchCellReuseIdentifier"
+
+protocol MessageToolbarDelegate: AnyObject {
+    func didTapIndex(_ index: Int)
+}
 
 class MessageToolbar: UIToolbar {
+    weak var toolbarDelegate: MessageToolbarDelegate?
+    private var collectionView: UICollectionView!
+    private var cellPoint: CGPoint!
+    private var dataSource = ["  All  ", "Conversations", "Messages"]
+    private var cellWidths: CGFloat = 0.0
+    private var originCell = [0.0, 0.0, 0.0]
+    private var widthCell = [0.0, 0.0, 0.0]
+    private var spacing: CGFloat = 0.0
+    private var didSelectFirstByDefault: Bool = false
+    private var firstTime: Bool = false
+    private var currentIndex = IndexPath()
+    
+    private var leadingConstraint: NSLayoutConstraint!
+    private var widthConstantConstraint: NSLayoutConstraint!
+    
+    private var highlightView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = primaryColor
+        return view
+    }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = separatorColor
+        return view
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if !didSelectFirstByDefault {
+            selectFirstIndex()
+
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configure() {
+        backgroundColor = .systemBackground
+        barTintColor = UIColor.systemBackground
+        setBackgroundImage(UIImage(), forToolbarPosition: .top, barMetrics: .default)
+        translatesAutoresizingMaskIntoConstraints = false
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createFilterCellLayout())
+        collectionView.backgroundColor = .clear
+        
+        leadingConstraint = highlightView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor)
+        widthConstantConstraint = highlightView.widthAnchor.constraint(equalToConstant: 100)
+        
+        
+        addSubviews(highlightView, collectionView, separatorView)
+        NSLayoutConstraint.activate([
+            collectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: 35),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            
+            highlightView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
+            highlightView.heightAnchor.constraint(equalToConstant: 4),
+            leadingConstraint,
+            widthConstantConstraint,
+            
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ])
+        
+        collectionView.isScrollEnabled = false
+        collectionView.register(MessageSearchCell.self, forCellWithReuseIdentifier: messageSearchCellReuseIdentifier)
+        collectionView.allowsSelection = true
+        collectionView.allowsMultipleSelection = false
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        
+        highlightView.layer.cornerRadius = 4 / 2
+        
+    }
+
+    private func createFilterCellLayout() -> UICollectionViewCompositionalLayout {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
+            guard let strongSelf = self else { return nil }
+            
+            let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .fractionalHeight(1)), subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+            section.orthogonalScrollingBehavior = .continuous
+
+            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            let width = strongSelf.frame.width
+            let availableWidth = width - 30 - 30// - strongSelf.cellWidths
+            strongSelf.spacing = availableWidth / 5
+            section.interGroupSpacing = strongSelf.spacing
+            
+           
+            return section
+        }
+        return layout
+    }
+    
+    private func selectFirstIndex() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: true, scrollPosition: [])
+            strongSelf.collectionView(strongSelf.collectionView, didSelectItemAt: IndexPath(item: 0, section: 0))
+        }
+    }
+    
+    private func getCollectionViewLayout() {
+        if !firstTime {
+            var totalWidth = 0.0
+            for index in 0 ..< collectionView.numberOfItems(inSection: 0) {
+                let indexPath = IndexPath(item: index, section: 0)
+                if let cell = collectionView.cellForItem(at: indexPath) {
+                    let cellWidth = cell.frame.width
+                    totalWidth += cellWidth
+                    originCell[indexPath.row] = cell.frame.origin.x
+                    widthCell[indexPath.row] = cellWidth
+                }
+            }
+            firstTime.toggle()
+        }
+    }
     
 }
 
 
-/*
- 
- class MESearchToolbar: UIToolbar {
-     weak var searchDelegate: MESearchToolbarDelegate?
-     private var collectionView: UICollectionView!
-     private let dataSource = Profession.getAllProfessions().map({ $0.profession })
-     private var displayDataSource = [String]()
-     private let searchDataSource = Search.Topics.allCases
-     private var isInSearchMode: Bool = false
-     private var searchingWithCategorySelected: Bool = false
-     private var separatorColor: UIColor!
-     
-     private let separatorView: UIView = {
-         let view = UIView()
-         view.translatesAutoresizingMaskIntoConstraints = false
-         return view
-     }()
+extension MessageToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 3
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageSearchCellReuseIdentifier, for: indexPath) as! MessageSearchCell
+        cell.label.text = dataSource[indexPath.row]
+        return cell
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let cell = collectionView.cellForItem(at: indexPath) as? MessageSearchCell {
+            if didSelectFirstByDefault {
+                toolbarDelegate?.didTapIndex(indexPath.item)
+            } else {
+                leadingConstraint.constant = cell.frame.origin.x
+                widthConstantConstraint.constant = cell.frame.width
+                didSelectFirstByDefault.toggle()
+                layoutIfNeeded()
+            }
+        }
+    }
+}
 
-     override init(frame: CGRect) {
-         super.init(frame: frame)
-         configure()
-         barTintColor = UIColor.systemBackground
-         setBackgroundImage(UIImage(), forToolbarPosition: .bottom, barMetrics: .default)
-         setShadowImage(UIImage(), forToolbarPosition: .bottom)
-     }
-     
-     required init?(coder: NSCoder) {
-         fatalError("init(coder:) has not been implemented")
-     }
-     
-     private func configure() {
-         displayDataSource = dataSource
-         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCellLayout())
-         collectionView.backgroundColor = .systemBackground
-         collectionView.alwaysBounceVertical = false
-         collectionView.translatesAutoresizingMaskIntoConstraints = false
-         collectionView.delegate = self
-         collectionView.dataSource = self
-         collectionView.register(FilterCasesCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
-         collectionView.register(ProfessionSelectedCell.self, forCellWithReuseIdentifier: professionSelectedCellReuseIdentifier)
-         addSubviews(collectionView, separatorView)
-         
-         if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
-             separatorColor = tabControllerShadowColor
-             separatorView.backgroundColor = separatorColor
-         }
-         
-         NSLayoutConstraint.activate([
-             collectionView.topAnchor.constraint(equalTo: topAnchor),
-             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
-             
-             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-             separatorView.heightAnchor.constraint(equalToConstant: 0.5)
-         ])
-     }
-     
-     private func createCellLayout() -> UICollectionViewCompositionalLayout {
-         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
-             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .estimated(300), heightDimension: .fractionalHeight(1)))
-             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .estimated(200), heightDimension: .absolute(30)), subitems: [item])
-             let section = NSCollectionLayoutSection(group: group)
-          
-             section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-             section.interGroupSpacing = 5
+extension MessageToolbar {
+    
+    /// Changes the bottom border position and the color as we scroll to the left/right. This function gets called every time the collectionView moves
+    func collectionViewDidScroll(for x: CGFloat) {
+        getCollectionViewLayout()
+        
+        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
+        let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
+        let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
+        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
+        
+        switch x {
+        case 0 ... frame.width:
+            let availableWidth = originCell[1] - originCell[0]
+            let factor = availableWidth / frame.width
+            let offset = x * factor
+            leadingConstraint.constant = offset
+            
+            let progress = offset / availableWidth
+            widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
+            firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
+            secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
+            thirdCell?.setDefault()
+            
+        case frame.width ... 2 * frame.width:
+            let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
+            let factor = availableWidth / frame.width
+            
+            let factor2 = (widthCell[1] - widthCell[0]) / frame.width
 
-             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 0, trailing: 10)
-             return section
-         }
-         
-         return layout
-     }
-     
-     func showToolbar() {
-         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
-             self.collectionView.frame.origin.y = 0
-             self.separatorView.backgroundColor = self.separatorColor
-         }
-     }
- }
+            let offset = x * factor + (x - frame.width) * factor2
+            leadingConstraint.constant = offset
+            
+            let progress = abs(1 - (offset / availableWidth))
+            let normalizedProgress = max(0.0, min(1.0, progress))
 
- extension MESearchToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-         return displayDataSource.count
-     }
-     
-     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-         if isInSearchMode && indexPath.row == 0 {
-             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: professionSelectedCellReuseIdentifier, for: indexPath) as! ProfessionSelectedCell
-             cell.setText(text: displayDataSource[indexPath.row])
-             //cell.selectedTag = displayDataSource[indexPath.row]
-             //if searchingWithCategorySelected { cell.selectedCategory = displayDataSource[indexPath.row + 1] } else {
-               //  cell.selectedCategory = nil
-             //}
-             cell.delegate = self
-             return cell
-         } else {
-             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: filterCellReuseIdentifier, for: indexPath) as! FilterCasesCell
-             cell.changeAppearanceOnSelection = false
-             //cell.tagsLabel.text = displayDataSource[indexPath.row]
-             cell.setText(text: displayDataSource[indexPath.row])
-             //if isInSearchMode { collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: .left) }
-             return cell
-         }
-     }
-     
-     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-         if isInSearchMode {
-             //let valueSelected = displayDataSource[indexPath.row]
-             collectionView.performBatchUpdates {
-                 collectionView.moveItem(at: indexPath, to: IndexPath(item: 1, section: 0))
-             } completion: { _ in
-                 self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[indexPath.row]]
-                 self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
-                 self.searchingWithCategorySelected = true
-                 self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-                 self.searchDelegate?.didSelectSearchCategory(self.searchDataSource[indexPath.row - 1])
-             }
-         } else {
-             UIView.animate(withDuration: 0.2) {
-                 collectionView.frame.origin.y = -50
-                 self.separatorView.backgroundColor = .systemBackground
-             } completion: { _ in
-                 self.displayDataSource = [String]()
-                 self.displayDataSource.append(self.dataSource[indexPath.row])
-                 self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.rawValue }))
+            widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
+            thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
+            secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
+            firstCell?.setDefault()
 
-                 self.isInSearchMode = true
-                 self.collectionView.reloadData()
-                 self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
-                 
-                 /*
-                 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
-                     collectionView.frame.origin.y = 0
-                     self.separatorView.backgroundColor = self.separatorColor
-                 }
-                  */
-             }
-             searchDelegate?.didSelectSearchTopic(dataSource[indexPath.row])
-         }
-     }
-     
-     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-         if isInSearchMode && indexPath.row == 0 || searchingWithCategorySelected {
-             if indexPath.row == 0 {
-                 searchDelegate?.showDisciplinesMenu(withOption: displayDataSource[0])
-             } else {
-                 searchDelegate?.showCategoriesMenu(withCategory: displayDataSource[indexPath.row])
-             }
-             return false
-         }
-         return true
-     }
- }
-
- extension MESearchToolbar: ProfessionSelectedCellDelegate {
-     
-     func didSelectSearchTopic(_ topic: String) {
-         if displayDataSource[0] == topic { return }
-         if searchingWithCategorySelected {
-             UIView.animate(withDuration: 0.2) {
-                 self.collectionView.alpha = 0
-             } completion: { _ in
-                 self.displayDataSource.removeAll()
-                 self.displayDataSource.append(topic)
-                 self.displayDataSource.append(contentsOf: self.searchDataSource.map({ $0.rawValue }))
-                 self.collectionView.reloadData()
-                 self.searchingWithCategorySelected = false
-
-                 self.searchDelegate?.didSelectSearchTopic(topic)
-
-                 UIView.animate(withDuration: 0.2) {
-                     self.collectionView.alpha = 1
-                 }
-             }
-         } else {
-             displayDataSource[0] = topic
-             self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-             self.collectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
-             searchDelegate?.didSelectSearchTopic(topic)
-         }
-     }
-     
-     func didSelectSearchCategory(_ category: Search.Topics) {
-         if searchingWithCategorySelected {
-             print("search with category selected")
-             if displayDataSource[1] == category.rawValue { return }
-             displayDataSource[1] = category.rawValue
-             self.collectionView.reloadItems(at: [IndexPath(item: 1, section: 0)])
-             self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-             
-             self.collectionView.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [])
-         } else {
-             if let index = displayDataSource.firstIndex(where: { $0 == category.rawValue }) {
-                 collectionView.performBatchUpdates {
-                     self.collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
-                     self.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: 1, section: 0))
-                 } completion: { _ in
-                     self.displayDataSource = [self.displayDataSource[0], self.displayDataSource[index]]
-                     self.collectionView.performBatchUpdates {
-                         self.collectionView.deleteItems(at: [IndexPath(item: 2, section: 0), IndexPath(item: 3, section: 0), IndexPath(item: 4, section: 0), IndexPath(item: 5, section: 0)])
-                         self.searchingWithCategorySelected = true
-                         self.collectionView.reloadItems(at: [IndexPath(item: 0, section: 0)])
-                     } completion: { _ in
-                     }
-                 }
-             }
-         }
-         searchDelegate?.didSelectSearchCategory(category)
-     }
-     
-     func didRestoreMenu() {
-         UIView.animate(withDuration: 0.2) {
-             self.collectionView.alpha = 0
-             self.separatorView.backgroundColor = .systemBackground
-         } completion: { _ in
-             self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
-             self.displayDataSource = self.dataSource
-             self.isInSearchMode = false
-             self.searchingWithCategorySelected = false
-             self.collectionView.reloadData()
-             self.collectionView.frame.origin.y = -50
-             self.collectionView.alpha = 1
-             
-             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseIn) {
-                 self.collectionView.frame.origin.y = 0
-                 self.separatorView.backgroundColor = self.separatorColor
-                 self.searchDelegate?.didRestoreMenu()
-             }
-         }
-     }
- }
-
- */
+        default:
+            break
+        }
+    }
+}
+    

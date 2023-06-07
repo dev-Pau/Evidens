@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+/// The model for a Patent.
+struct Patent {
+    var title: String
+    var number: String
+    var contributorUids: [String]
+}

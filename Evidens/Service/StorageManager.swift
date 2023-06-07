@@ -314,16 +314,21 @@ struct StorageManager {
         }
     }
     
-    
+    /// Uploads multiple images to the specified group case.
+    ///
+    /// - Parameters:
+    ///   - images: An array of images to upload.
+    ///   - uid: The unique identifier of the user.
+    ///   - groupId: The unique identifier of the group.
+    ///   - completion: A closure to be called when the upload is complete. It receives an array of strings representing the URLs of the uploaded images.
     static func uploadGroupCaseImage(images: [UIImage], uid: String, groupId: String, completion: @escaping([String]) -> Void) {
-
         var caseImagesUrl: [String] = []
         var index = 0
         var order = 0
         
         images.forEach { image in
             
-            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return } //0.75
+            guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
             
             
             let filename = "\(order) \(uid) \(NSUUID().uuidString)"
@@ -347,6 +352,7 @@ struct StorageManager {
         }
     }
     
+    
     static func uploadJobDocument(jobId: String, fileName: String, url: URL, completion: @escaping(String) -> Void) {
         let jobRef = Storage.storage().reference(withPath: "/jobs/\(jobId)/applicants/\(fileName)")
         jobRef.putFile(from: url, metadata: nil) { metadata, error in
@@ -358,7 +364,6 @@ struct StorageManager {
                 guard let downloadUrl = url else { return }
                 completion(downloadUrl.absoluteString)
             }
-            
         }
     }
     

@@ -51,7 +51,7 @@ class ContextMenuFooter: UICollectionReusableView {
     }
     
     func configureWithReference(reference: Reference) {
-        if reference.option == .reference {
+        if reference.option == .citation {
             var container = AttributeContainer()
             container.font = .systemFont(ofSize: 18, weight: .bold)
             reportButton.configuration?.attributedTitle = AttributedString("Explore Author Citation", attributes: container)

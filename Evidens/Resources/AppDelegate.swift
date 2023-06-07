@@ -55,6 +55,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
               )
             application.registerForRemoteNotifications()
         }
+        
+        print("Did finish Launching")
         // Register for user notifications
         
         return true

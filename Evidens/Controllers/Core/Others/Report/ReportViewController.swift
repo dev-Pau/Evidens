@@ -11,7 +11,7 @@ class ReportViewController: UIViewController {
     
     private var contentOwnerUid: String
     private var contentId: String
-    private var source: Report.Source
+    private var source: ReportSource
     private var report = Report(dictionary: [:])
  
     private let scrollView: UIScrollView = {
@@ -86,7 +86,7 @@ class ReportViewController: UIViewController {
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
     
-    init(source: Report.Source, contentOwnerUid: String, contentId: String) {
+    init(source: ReportSource, contentOwnerUid: String, contentId: String) {
         self.contentOwnerUid = contentOwnerUid
         self.contentId = contentId
         self.source = source

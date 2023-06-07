@@ -66,4 +66,8 @@ protocol DetailsContentReviewDelegate: AnyObject {
     func didTapCancelContent(type: ContentGroup.GroupContentType, contentId: String)
 }
 
+protocol MessageCellDelegate: AnyObject {
+    func didTapMenuOption(message: Message, _ option: MessageMenu)
+}
+
 

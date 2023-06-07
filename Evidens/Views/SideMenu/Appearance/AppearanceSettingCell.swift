@@ -8,11 +8,17 @@
 import UIKit
 
 protocol AppearanceSettingsCellDelegate: AnyObject {
-    func didTapSwitch(_ sw: UISwitch, appearance: Appearance.Theme)
+    func didTapSwitch(_ sw: UISwitch, appearance: Appearance)
 }
 
 class AppearanceSettingCell: UICollectionViewCell {
     weak var delegate: AppearanceSettingsCellDelegate?
+    
+    var appearance: Appearance? {
+        didSet {
+            configureWithAppearance()
+        }
+    }
     
     private lazy var appearanceSwitch: UISwitch = {
         let sw = UISwitch()
@@ -61,18 +67,15 @@ class AppearanceSettingCell: UICollectionViewCell {
     }
     
     @objc func switchChanged() {
-        guard let appearanceText = appearanceLabel.text else { return }
-        delegate?.didTapSwitch(appearanceSwitch, appearance: Appearance.Theme(rawValue: appearanceText) ?? .system)
+        guard let appearance = appearance else { return }
+        delegate?.didTapSwitch(appearanceSwitch, appearance: appearance)
     }
     
     
-    func configureWithAppearanceOption(_ appearance: Appearance.Theme) {
-        //appearanceLabel.text = text
-        guard let defaultAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String else { return }
-        let defaultsTheme = Appearance.Theme(rawValue: defaultAppearance) ?? .system
-        
-        print(defaultsTheme)
-        
+    func configureWithAppearance() {
+        guard let defaultAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int, let appearance = appearance else { return }
+        let defaultsTheme = Appearance(rawValue: defaultAppearance)
+
         if defaultsTheme == appearance {
             appearanceSwitch.isOn = true
         } else if defaultsTheme == .system && UIScreen.main.traitCollection.userInterfaceStyle == .dark {
@@ -80,6 +83,6 @@ class AppearanceSettingCell: UICollectionViewCell {
             appearanceSwitch.isOn = true
         }
 
-        appearanceLabel.text = appearance.rawValue
+        appearanceLabel.text = appearance.title
     }
 }

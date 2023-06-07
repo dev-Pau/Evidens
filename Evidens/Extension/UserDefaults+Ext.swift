@@ -6,3 +6,14 @@
 //
 
 import Foundation
+
+extension UserDefaults {
+    
+    /// Resets the user defaults to their default values.
+    static func resetDefaults() {
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+            UserDefaults.standard.synchronize()
+        }
+    }
+}

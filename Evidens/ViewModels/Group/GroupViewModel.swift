@@ -16,18 +16,18 @@ struct CreateGroupViewModel {
     var profileBanner: Bool?
     var professions: [String]?
     var categories: [String]?
-    var visibility: Group.Visibility?
-    var permissions: Group.Permissions?
+    var visibility: GroupVisibility?
+    var permissions: GroupPermission?
     
     var hasName: Bool {
         return name?.isEmpty == false
     }
     
-    var visibilityType: Group.Visibility {
+    var visibilityType: GroupVisibility {
         return visibility ?? .visible
     }
     
-    var permissionsType: Group.Permissions {
+    var permissionsType: GroupPermission {
         return permissions ?? .invite
     }
     

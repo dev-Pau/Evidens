@@ -26,7 +26,7 @@ class MainTabController: UITabBarController {
     private var postMenuLauncher = PostBottomMenuLauncher()
     weak var menuDelegate: MainTabControllerDelegate?
     private let disciplinesMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Profession.getAllProfessions().map({ $0.profession }))
-    private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: Search.Topics.allCases.map({ $0.rawValue }))
+    private let topicsMenuLauncher = SearchAssistantMenuLauncher(searchOptions: SearchTopics.allCases.map({ $0.rawValue }))
     private var collapsed: Bool = false
     
     var user: User? {

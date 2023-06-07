@@ -21,19 +21,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         //window?.rootViewController = UINavigationController(rootViewController: InterestsViewController())
         window?.makeKeyAndVisible()
         
-        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty {
-            let theme = Appearance.Theme(rawValue: appearance) ?? Appearance.Theme.system
+        if let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int/*, !appearance.isEmpty*/ {
+            let theme = Appearance(rawValue: appearance) ?? Appearance.system
 
             switch theme {
-            case .dark:
-                window?.overrideUserInterfaceStyle = .dark
-            case .system:
-                window?.overrideUserInterfaceStyle = .unspecified
-            case .light:
-                window?.overrideUserInterfaceStyle = .light
+            case .dark: window?.overrideUserInterfaceStyle = .dark
+            case .system: window?.overrideUserInterfaceStyle = .unspecified
+            case .light: window?.overrideUserInterfaceStyle = .light
             }
         } else {
-            UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
+            UserDefaults.standard.set(Appearance.system.rawValue, forKey: "themeStateEnum")
         }
     }
     

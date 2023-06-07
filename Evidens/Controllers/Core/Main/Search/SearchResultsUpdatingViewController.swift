@@ -53,7 +53,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     private var selectedImage: UIImageView!
 
     private var topicSearched: String?
-    private var categorySearched: Search.Topics = .people
+    private var categorySearched: SearchTopics = .people
     private var resultItemsCount: Int = 0
 
     private var recentSearches = [String]()
@@ -154,12 +154,8 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
                 
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.resultItemsCount == 0 ? .fractionalHeight(1) : .estimated(65)))
-                
-                //item.contentInsets.leading = 10
-                //item.contentInsets.trailing = 10
-                
+
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: self.resultItemsCount == 0 ? .fractionalHeight(0.9) : .estimated(65)), subitems: [item])
-                
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: self.categorySearched == .people ? 10 : 0, bottom: 20, trailing: self.categorySearched == .people ? 10 : 0)
@@ -330,8 +326,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         categoriesToolbar.didRestoreMenu()
     }
     
-    func fetchContentFor(topic: String, category: Search.Topics) {
-        //resultItemsCount = 0
+    func fetchContentFor(topic: String, category: SearchTopics) {
         SearchService.fetchContentWithTopicSelected(topic: topic, category: category, lastSnapshot: nil) { snapshot in
             switch category {
             case .people:
@@ -531,7 +526,7 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
     }
     
     func didSelectTopicFromMenu(_ topic: String) {
-        if let searchTopic = Search.Topics(rawValue: topic) {
+        if let searchTopic = SearchTopics(rawValue: topic) {
             categoriesToolbar.didSelectSearchCategory(searchTopic)
         }
     }
@@ -601,7 +596,7 @@ extension SearchResultsUpdatingViewController: MESearchToolbarDelegate {
         // when is fetch, clal the toolbar to revert the animation
     }
     
-    func didSelectSearchCategory(_ category: Search.Topics) {
+    func didSelectSearchCategory(_ category: SearchTopics) {
         collectionView.isHidden = true
         activityIndicator.start()
         isInSearchCategoryMode = true
@@ -1278,7 +1273,7 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            let reference = Reference(option: post.reference!, referenceText: post.referenceText)
+            let reference = Reference(option: post.reference, referenceText: post.referenceText)
             referenceMenuLauncher.reference = reference
             referenceMenuLauncher.delegate = self
             referenceMenuLauncher.showImageSettings(in: view)
@@ -1914,7 +1909,7 @@ extension SearchResultsUpdatingViewController: MEReferenceMenuLauncherDelegate {
                     present(navVC, animated: true, completion: nil)
                 }
             }
-        case .reference:
+        case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {

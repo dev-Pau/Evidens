@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+/// An enum mapping the permissions for a group.
+enum GroupPermission: Int {
+    case none, invite, review, all
+}

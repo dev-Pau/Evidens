@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+/// An enum mapping the visibility for a group.
+enum GroupVisibility: Int {
+    
+    case visible, nonVisible
+    
+}

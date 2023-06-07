@@ -177,7 +177,7 @@ class AddAuthorReferenceViewController: UIViewController {
     
     @objc func handleContinueReference() {
         guard let text = authorCitationTextView.text, !text.isEmpty else { return }
-        let reference = Reference(option: .reference, referenceText: text)
+        let reference = Reference(option: .citation, referenceText: text)
         NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
         dismiss(animated: true)
     }

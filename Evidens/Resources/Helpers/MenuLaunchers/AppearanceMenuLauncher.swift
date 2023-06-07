@@ -13,10 +13,9 @@ private let footerReuseIdentifier = "FooterReuseIdentifier"
 
 
 protocol AppearanceMenuLauncherDelegate: AnyObject {
-    func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance.Theme)
+    func didTapAppearanceSetting(_ sw: UISwitch, setting: Appearance)
     func didCloseMenu()
 }
-
 
 class AppearanceMenuLauncher: NSObject {
 
@@ -25,7 +24,6 @@ class AppearanceMenuLauncher: NSObject {
         view.clipsToBounds = false
         return view
     }()
-    
     
     weak var delegate: AppearanceMenuLauncherDelegate?
     
@@ -149,12 +147,12 @@ extension AppearanceMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Appearance.Theme.allCases.count - 1
+        return Appearance.allCases.count - 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: appearanceSettingCellReuseIdentifier, for: indexPath) as! AppearanceSettingCell
-        cell.configureWithAppearanceOption(Appearance.Theme.allCases[indexPath.row])
+        cell.appearance = Appearance.allCases[indexPath.row]
         cell.delegate = self
         return cell
     }
@@ -165,7 +163,7 @@ extension AppearanceMenuLauncher: UICollectionViewDelegateFlowLayout, UICollecti
 }
 
 extension AppearanceMenuLauncher: AppearanceSettingsCellDelegate {
-    func didTapSwitch(_ sw: UISwitch, appearance: Appearance.Theme) {
+    func didTapSwitch(_ sw: UISwitch, appearance: Appearance) {
         if let window = UIApplication.shared.windows.first {
             UIView.transition (with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
                 switch appearance {
@@ -174,25 +172,14 @@ extension AppearanceMenuLauncher: AppearanceSettingsCellDelegate {
                         UserDefaults.standard.set(appearance.rawValue, forKey: "themeStateEnum")
                         window.overrideUserInterfaceStyle = .dark
                     } else {
-                        UserDefaults.standard.set(Appearance.Theme.light.rawValue, forKey: "themeStateEnum")
+                        UserDefaults.standard.set(Appearance.light.rawValue, forKey: "themeStateEnum")
                         window.overrideUserInterfaceStyle = .light
                     }
 
                 case .system:
                     UserDefaults.standard.set(appearance.rawValue, forKey: "themeStateEnum")
                     if sw.isOn { window.overrideUserInterfaceStyle = .unspecified }
-                    
-                    /*
-                    let isSystemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? true : false
-                    if isSystemDark {
-                        UserDefaults.standard.set(Appearance.Theme.dark.rawValue, forKey: "themeStateEnum")
-                    } else {
-                        UserDefaults.standard.set(Appearance.Theme.light.rawValue, forKey: "themeStateEnum")
-                    }
-                     */
-
-                case .light:
-                    print("light")
+                case .light: break
                 }
             }) { _ in
                 // User switched from .dark to .light & .unspecified is on, switch to isOn = false

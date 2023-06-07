@@ -266,6 +266,9 @@ class NotificationsViewController: NavigationBarViewController {
         guard !uniqueGroupIds.isEmpty else {
             print("no group notifications to fetch")
             self.checkIfAllNotificationInfoIsFetched()
+            self.checkIfAllNotificationInfoIsFetched()
+            self.checkIfAllNotificationInfoIsFetched()
+            self.checkIfAllNotificationInfoIsFetched()
             return
         }
         print(uniqueGroupIds)
@@ -297,6 +300,7 @@ class NotificationsViewController: NavigationBarViewController {
         
         //let postIds = notificationGroupPostLikes.map { $0.contentId }
         
+        #warning("aqui falla alguna cosa")
         notificationGroupPostLikes.forEach { notification in
             PostService.fetchGroupPost(withGroupId: notification.groupId, withPostId: notification.contentId) { post in
                 self.groupPosts.append(post)

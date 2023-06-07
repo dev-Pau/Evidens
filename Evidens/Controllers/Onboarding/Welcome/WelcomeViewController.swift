@@ -177,9 +177,8 @@ class WelcomeViewController: UIViewController {
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
-            self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
-            //appearance.shadowColor = .clear    //removing navigationbar 1 px bottom border.
+            self.navigationController?.navigationBar.isTranslucent = true
+            self.navigationController?.navigationBar.tintColor = UIColor.white
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         }
@@ -203,7 +202,6 @@ class WelcomeViewController: UIViewController {
         
         scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
         scrollView.delegate = self
-        //navigationController?.navigationBar.barStyle = .black
         
         let stackLogin = UIStackView(arrangedSubviews: [haveAccountlabel, loginButton])
         stackLogin.translatesAutoresizingMaskIntoConstraints = false
@@ -250,13 +248,12 @@ class WelcomeViewController: UIViewController {
             imagesCollectionView.topAnchor.constraint(equalTo: stackLogin.bottomAnchor, constant: 30)
         ])
     }
-    
-    
-    
+
     //MARK: - Handlers
     
     
     //MARK: - Actions
+    
     @objc func loginButtonPressed() {
         let controller = LoginViewController()
         
@@ -265,7 +262,6 @@ class WelcomeViewController: UIViewController {
         backItem.title = ""
         
         navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     

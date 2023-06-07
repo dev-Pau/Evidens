@@ -15,8 +15,6 @@ private let homeTwoImageTextCellReuseIdentifier = "HomeTwoImageTextCellReuseIden
 private let homeThreeImageTextCellReuseIdentifier = "HomeThreeImageTextCellReuseIdentifier"
 private let homeFourImageTextCellReuseIdentifier = "HomeFourImageTextCellReuseIdentifier"
 private let homeDocumentCellReuseIdentifier = "HomeDocumentCellReuseIdentifier"
-private let skeletonTextReuseIdentifier = "SkeletonReuseIdentifier"
-private let skeletonImageReuseIdentifier = "SkeletonImageReuseIdentifier"
 
 protocol HomeViewControllerDelegate: AnyObject {
     func updateAlpha(alpha: CGFloat)
@@ -126,9 +124,6 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
         collectionView.register(HomeTwoImageTextCell.self, forCellWithReuseIdentifier: homeTwoImageTextCellReuseIdentifier)
         collectionView.register(HomeThreeImageTextCell.self, forCellWithReuseIdentifier: homeThreeImageTextCellReuseIdentifier)
         collectionView.register(HomeFourImageTextCell.self, forCellWithReuseIdentifier: homeFourImageTextCellReuseIdentifier)
-        
-        collectionView.register(SkeletonTextHomeCell.self, forCellWithReuseIdentifier: skeletonTextReuseIdentifier)
-        collectionView.register(SkeletonImageTextHomeCell.self, forCellWithReuseIdentifier: skeletonImageReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -594,7 +589,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 
                 if self.posts[indexPath.item].reference != nil {
                     let action2 = UIAction(title: Post.PostMenuOptions.reference.rawValue, image: Post.PostMenuOptions.reference.menuOptionsImage, handler: { (_) in
-                        let reference = Reference(option: self.posts[indexPath.item].reference!, referenceText: self.posts[indexPath.item].referenceText)
+                        let reference = Reference(option: self.posts[indexPath.item].reference, referenceText: self.posts[indexPath.item].referenceText)
                         self.referenceMenuLauncher.reference = reference
                         self.referenceMenuLauncher.delegate = self
                         self.referenceMenuLauncher.showImageSettings(in: self.view)
@@ -640,7 +635,7 @@ extension HomeViewController: HomeCellDelegate {
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
         case .reference:
-            let reference = Reference(option: post.reference!, referenceText: post.referenceText)
+            let reference = Reference(option: post.reference, referenceText: post.referenceText)
             referenceMenuLauncher.reference = reference
             referenceMenuLauncher.delegate = self
             referenceMenuLauncher.showImageSettings(in: view)
@@ -1266,7 +1261,7 @@ extension HomeViewController: MEReferenceMenuLauncherDelegate {
                     present(navVC, animated: true, completion: nil)
                 }
             }
-        case .reference:
+        case .citation:
             let wordToSearch = reference.referenceText
             if let encodedQuery = wordToSearch.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 if let url = URL(string: "https://www.google.com/search?q=\(encodedQuery)") {

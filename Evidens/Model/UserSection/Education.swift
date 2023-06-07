@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+/// The model for an Education.
+struct Education {
+    var school: String
+    var degree: String
+    var fieldOfStudy: String
+    var startDate: String
+    var endDate: String
+}

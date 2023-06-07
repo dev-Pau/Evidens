@@ -13,7 +13,7 @@ private let professionSelectedCellReuseIdentifier = "ProfessionSelectedCellReuse
 protocol MESearchToolbarDelegate: AnyObject {
     func didRestoreMenu()
     func didSelectSearchTopic(_ topic: String)
-    func didSelectSearchCategory(_ category: Search.Topics)
+    func didSelectSearchCategory(_ category: SearchTopics)
     
     func showDisciplinesMenu(withOption option: String)
     func showCategoriesMenu(withCategory category: String)
@@ -24,7 +24,7 @@ class MESearchToolbar: UIToolbar {
     private var collectionView: UICollectionView!
     private let dataSource = Profession.getAllProfessions().map({ $0.profession })
     private var displayDataSource = [String]()
-    private let searchDataSource = Search.Topics.allCases
+    private let searchDataSource = SearchTopics.allCases
     private var isInSearchMode: Bool = false
     private var searchingWithCategorySelected: Bool = false
     private var separatorColor: UIColor!
@@ -203,7 +203,7 @@ extension MESearchToolbar: ProfessionSelectedCellDelegate {
         }
     }
     
-    func didSelectSearchCategory(_ category: Search.Topics) {
+    func didSelectSearchCategory(_ category: SearchTopics) {
         if searchingWithCategorySelected {
             print("search with category selected")
             if displayDataSource[1] == category.rawValue { return }

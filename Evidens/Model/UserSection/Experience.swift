@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+/// The model for an Experience.
+struct Experience {
+    var role: String
+    var company: String
+    var startDate: String
+    var endDate: String
+}

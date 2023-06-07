@@ -16,8 +16,8 @@ struct Group {
     var groupId: String
     var id: String
     var description: String
-    var visibility: Visibility
-    var permissions: Permissions
+    var visibility: GroupVisibility
+    var permissions: GroupPermission
     var categories: [String]
     var professions: [String]
     let searchFor: [String]
@@ -29,6 +29,7 @@ struct Group {
     /// Initializes a new instance of a Group using a dictionary.
     ///
     /// - Parameters:
+    ///   - groupId: The unique id for the group.
     ///   - dictionary: A dictionary containing the group data.
     ///     - Key: The key representing the specific data field.
     ///     - Value: The value associated with the key.
@@ -40,8 +41,8 @@ struct Group {
         self.searchFor = dictionary["searchFor"] as? [String] ?? []
         self.description = dictionary["description"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.visibility = Visibility(rawValue: dictionary["visibility"] as? Int ?? 0) ?? .visible
-        self.permissions = Permissions(rawValue: dictionary["permissions"] as? Int ?? 0) ?? .invite
+        self.visibility = GroupVisibility(rawValue: dictionary["visibility"] as? Int ?? 0) ?? .visible
+        self.permissions = GroupPermission(rawValue: dictionary["permissions"] as? Int ?? 0) ?? .invite
         self.categories = dictionary["categories"] as? [String] ?? [""]
         self.members = dictionary["members"] as? Int ?? 0
         self.professions = dictionary["professions"] as? [String] ?? []
@@ -53,28 +54,6 @@ struct Group {
 
 extension Group {
     
-    /// An enum mapping the visibility permissions for a group.
-    enum Visibility: Int {
-        case visible
-        case nonVisible
-        
-        var isVisible: Int {
-            switch self {
-            case .visible:
-                return 0
-            case .nonVisible:
-                return 1
-            }
-        }
-    }
-    
-    /// An enum mapping the permissions for a group.
-    enum Permissions: Int {
-        case none = 0
-        case invite = 1
-        case review = 2
-        case all = 3
-    }
     
     /// An enum mapping the membership stage for a group.
     enum GroupMembershipManagement: String, CaseIterable {

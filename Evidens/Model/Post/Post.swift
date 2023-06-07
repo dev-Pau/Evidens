@@ -25,7 +25,7 @@ struct Post {
     var groupId: String?
     var privacyOptions: PrivacyOptions
     var postImageUrl: [String]
-    var reference: Reference.Options?
+    var reference: ReferenceOptions
     var referenceText: String
     
     var didLike = false
@@ -48,7 +48,7 @@ struct Post {
         self.professions = dictionary["professions"] as? [Profession] ?? [Profession(profession: "")]
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.type = PostType(rawValue: dictionary["type"] as? Int ?? 0) ?? .plainText
-        self.reference = Reference.Options(rawValue: dictionary["reference"] as? Int ?? 0)
+        self.reference = ReferenceOptions(rawValue: dictionary["reference"] as? Int ?? 0) ?? .link
         self.referenceText = dictionary["referenceText"] as? String ?? String()
       
         self.postImageUrl = dictionary["postImageUrl"] as? [String] ?? [String()]

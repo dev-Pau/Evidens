@@ -107,7 +107,7 @@ class GroupVisibilityCell: UICollectionViewCell {
         return autoLayoutAttributes
     }
     
-    func setVisibility(visibility: Group.Visibility) {
+    func setVisibility(visibility: GroupVisibility) {
         switch visibility {
         case .visible:
             break
