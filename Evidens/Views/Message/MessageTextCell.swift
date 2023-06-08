@@ -21,10 +21,11 @@ class MessageTextCell: UICollectionViewCell {
     private var bubbleLeadingConstraint: NSLayoutConstraint!
     private var bubbleTrailingConstraint: NSLayoutConstraint!
     private var bubbleTopConstraint: NSLayoutConstraint!
+    private var bubbleViewBottomAnchor: NSLayoutConstraint!
     
     private var timeLeadingConstriant: NSLayoutConstraint!
     private var timeTrailingConstraint: NSLayoutConstraint!
-    private var panGestureRecognizer: UIPanGestureRecognizer?
+
     
     private let messageLabel: UILabel = {
         let label = UILabel()
@@ -104,6 +105,7 @@ class MessageTextCell: UICollectionViewCell {
         bubbleTrailingConstraint.isActive = false
         timeLeadingConstriant.isActive = false
         timeTrailingConstraint.isActive = false
+        bubbleViewBottomAnchor.isActive = false
     }
     
     override func layoutSubviews() {
@@ -111,7 +113,7 @@ class MessageTextCell: UICollectionViewCell {
         if bubbleView.frame.width < bubbleView.frame.height {
             bubbleView.layer.cornerRadius = bubbleView.frame.height / 4
         } else {
-            bubbleView.layer.cornerRadius = bubbleView.frame.height / 2
+            bubbleView.layer.cornerRadius = min(18, bubbleView.frame.height / 2)
         }
         
         guard display == true, let viewModel = viewModel, !viewModel.emoji else {
@@ -124,7 +126,7 @@ class MessageTextCell: UICollectionViewCell {
         let maskLayer = CAShapeLayer()
         maskLayer.path = UIBezierPath(roundedRect: bubbleView.bounds,
                                       byRoundingCorners: [.bottomRight],
-                                      cornerRadii: CGSize(width: 6, height: 6)).cgPath
+                                      cornerRadii: CGSize(width: 5, height: 5)).cgPath
         bubbleView.layer.mask = maskLayer
         
         
@@ -146,12 +148,12 @@ class MessageTextCell: UICollectionViewCell {
         if viewModel.isSender {
             bubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -constant)
             bubbleLeadingConstraint = bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: frame.width - 70)
-            timeTrailingConstraint = timeLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 60)
+            timeTrailingConstraint = timeLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
             timeLeadingConstriant = bubbleLeadingConstraint
         } else {
             bubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: constant)
             bubbleTrailingConstraint = bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: frame.width - 70)
-            timeLeadingConstriant = timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -60)
+            timeLeadingConstriant = timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10)
             timeTrailingConstraint = bubbleTrailingConstraint
         }
         
@@ -161,10 +163,8 @@ class MessageTextCell: UICollectionViewCell {
             messageLabel.font = .systemFont(ofSize: 16, weight: .regular)
         }
 
-        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleBubbleSwipe))
-        bubbleView.addGestureRecognizer(panGestureRecognizer!)
-        
         bubbleTopConstraint = bubbleView.topAnchor.constraint(equalTo: topAnchor)
+        bubbleViewBottomAnchor = bubbleView.bottomAnchor.constraint(equalTo: bottomAnchor)
         
         NSLayoutConstraint.activate([
             timestampLabel.topAnchor.constraint(equalTo: topAnchor),
@@ -174,7 +174,8 @@ class MessageTextCell: UICollectionViewCell {
             bubbleView.topAnchor.constraint(equalTo: timestampLabel.bottomAnchor),
             bubbleTrailingConstraint,
             bubbleLeadingConstraint,
-            bubbleView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bubbleViewBottomAnchor,
+            // this in the top
             
             messageLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 10),
             messageLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
@@ -183,7 +184,7 @@ class MessageTextCell: UICollectionViewCell {
         
             timeLeadingConstriant,
             timeTrailingConstraint,
-            timeLabel.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+            timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor),
 
             errorButton.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
             errorButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -235,6 +236,12 @@ class MessageTextCell: UICollectionViewCell {
         self.display = display
     }
     
+    func displayTime(_ display: Bool) {
+        bubbleViewBottomAnchor.constant = display ? -13 : 0
+        timeLabel.isHidden = !display
+        layoutIfNeeded()
+    }
+    
     func highlight() {
         guard let viewModel = viewModel else { return }
         
@@ -246,11 +253,11 @@ class MessageTextCell: UICollectionViewCell {
             timeLabel.textAlignment = .left
         }
     }
-    
+    /*
     @objc func handleBubbleSwipe() {
         guard let panGestureRecognizer = panGestureRecognizer, let viewModel = viewModel else { return }
         let x = panGestureRecognizer.translation(in: bubbleView).x
-
+        
         if viewModel.isSender {
             if x < 0 {
                 if x > -50 {
@@ -285,8 +292,11 @@ class MessageTextCell: UICollectionViewCell {
                     strongSelf.layoutIfNeeded()
                 }
             }
+            
+            panGestureRecognizer.isEnabled = false
         }
     }
+     */
 }
 
 extension MessageTextCell: UIContextMenuInteractionDelegate {

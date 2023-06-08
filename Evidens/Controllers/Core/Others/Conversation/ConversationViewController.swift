@@ -35,12 +35,20 @@ class ConversationViewController: UIViewController {
     private var conversationsLoaded: Bool = false
     weak var delegate: ConversationViewControllerDelegate?
     private var conversations = [Conversation]()
+    private var didLeaveScreen: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
         configureNavigationBar()
         loadConversations()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if didLeaveScreen {
+            updatePan()
+            didLeaveScreen.toggle()
+        }
     }
 
     // MARK: - Helpers
@@ -238,7 +246,7 @@ class ConversationViewController: UIViewController {
             if conversation1.isPinned && !conversation2.isPinned {
                 return true
             }
-
+            
             if !conversation1.isPinned && conversation2.isPinned {
                 return false
             }
@@ -297,7 +305,8 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         
         controller.delegate = self
         self.navigationController?.pushViewController(controller, animated: true)
-        delegate?.handleTooglePan()
+        updatePan()
+        didLeaveScreen = true
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
@@ -385,6 +394,8 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
                     strongSelf.navigationItem.backBarButtonItem = backItem
                     
                     strongSelf.navigationController?.pushViewController(controller, animated: true)
+                    strongSelf.updatePan()
+                    strongSelf.didLeaveScreen = true
                 }
             } else {
                 guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -398,6 +409,8 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
                 
                 strongSelf.navigationItem.backBarButtonItem = backItem
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
+                strongSelf.updatePan()
+                strongSelf.didLeaveScreen = true
             }
         }
     }

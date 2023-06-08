@@ -6,11 +6,7 @@
 //
 
 import UIKit
-//import MessageKit
-//import InputBarAccessoryView
 import SDWebImage
-//import AVFoundation
-//import AVKit
 import PhotosUI
 
 /*
@@ -20,6 +16,7 @@ protocol ChatViewControllerDelegate: AnyObject {
  */
 
 private let messageTextCellReuseIdentifier = "MessageTextCellReuseIdentifier"
+private let messagePhotoCellReuseIdentifier = "MessagePhotoCellReuseIdentifier"
 
 protocol MessageViewControllerDelegate: AnyObject {
     func didCreateNewConversation(_ conversation: Conversation)
@@ -41,6 +38,8 @@ class MessageViewController: UICollectionViewController {
     private var newConversation: Bool?
     private var messages = [Message]()
     private let messageInputAccessoryView = MessageInputAccessoryView()
+    private var keyboardHidden: Bool = true
+    private var keyboardHeight: CGFloat = 0.0
     
     override var inputAccessoryView: UIView? {
         get {
@@ -57,6 +56,7 @@ class MessageViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
+        configureObservers()
         configureCollectionView()
         configureView()
         getMessages()
@@ -76,11 +76,17 @@ class MessageViewController: UICollectionViewController {
         let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 5
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 10, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 30, trailing: 10)
         let layout = UICollectionViewCompositionalLayout(section: section)
         super.init(collectionViewLayout: layout)
     }
     
+    /// Initializes a new instance of the MessageViewController with a conversation and a message to display.
+    ///
+    /// - Parameters:
+    ///   - conversation: The conversation to display.
+    ///   - message: The message to display.
+    ///   - preview: A flag indicating whether the view controller is in preview mode.
     init(conversation: Conversation, message: Message, preview: Bool? = false) {
         self.conversation = conversation
         self.message = message
@@ -95,6 +101,10 @@ class MessageViewController: UICollectionViewController {
         super.init(collectionViewLayout: layout)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -105,6 +115,7 @@ class MessageViewController: UICollectionViewController {
     
     private func configureCollectionView() {
         collectionView.register(MessageTextCell.self, forCellWithReuseIdentifier: messageTextCellReuseIdentifier)
+        collectionView.register(MessagePhotoCell.self, forCellWithReuseIdentifier: messagePhotoCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.keyboardDismissMode = .interactive
@@ -113,6 +124,18 @@ class MessageViewController: UICollectionViewController {
     private func configureView() {
         view.addSubview(collectionView)
         messageInputAccessoryView.messageDelegate = self
+    }
+    
+    private func configureObservers() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(notification:)),
+                                               name: UIResponder.keyboardWillShowNotification,
+                                               object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillHide(notification:)),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object: nil)
     }
     
     private func getMessages() {
@@ -163,6 +186,33 @@ class MessageViewController: UICollectionViewController {
             }
         }
     }
+    
+    //MARK: - Actions
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard !keyboardHidden else {
+            keyboardHidden.toggle()
+            return
+        }
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let keyboardHeight = keyboardSize.height
+            if notification.name == UIResponder.keyboardWillShowNotification {
+                let bottomOffset = CGPoint(x: 0, y: collectionView.contentSize.height - collectionView.bounds.height + keyboardHeight)
+                collectionView.setContentOffset(bottomOffset, animated: true)
+                self.keyboardHeight = keyboardHeight
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if let isKeyboardLocal = notification.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? NSNumber {
+            if isKeyboardLocal.boolValue == false {
+                return
+            }
+            keyboardHidden = true
+            self.keyboardHeight = messageInputAccessoryView.frame.height
+        }
+    }
 }
 
 extension MessageViewController: UICollectionViewDelegateFlowLayout {
@@ -171,31 +221,29 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageTextCellReuseIdentifier, for: indexPath) as! MessageTextCell
-        cell.viewModel = MessageViewModel(message: messages[indexPath.row])
-        cell.display = lastSenderMessage(indexOfMessage: indexPath)
-        cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
-        cell.delegate = self
-        if message?.messageId == messages[indexPath.row].messageId {
-            cell.highlight()
-        }
+        let currentMessage = messages[indexPath.row]
         
-        return cell
-        /*
-        switch message.kind {
+        switch currentMessage.kind {
             
-        case .text:
+        case .text, .emoji:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageTextCellReuseIdentifier, for: indexPath) as! MessageTextCell
-            cell.viewModel = MessageViewModel(message: messages[indexPath.row])
+            cell.viewModel = MessageViewModel(message: currentMessage)
+            cell.display = lastSenderMessage(indexOfMessage: indexPath)
             cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
+            cell.displayTime(shouldDisplayTime(indexOfMessage: indexPath))
+            cell.delegate = self
+            if message?.messageId == currentMessage.messageId {
+                cell.highlight()
+            }
+            
             return cell
         case .photo:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageImageCellReuseIdentifier, for: indexPath) as! MessagePhotoCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messagePhotoCellReuseIdentifier, for: indexPath) as! MessagePhotoCell
             cell.viewModel = MessageViewModel(message: messages[indexPath.row])
             cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
+            cell.displayTime(shouldDisplayTime(indexOfMessage: indexPath))
             return cell
         }
-         */
     }
     
     func firstMessageOfTheDay(indexOfMessage: IndexPath) -> Bool {
@@ -225,6 +273,50 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
         }
     }
     
+    func shouldDisplayTime(indexOfMessage: IndexPath) -> Bool {
+        let currentMessage = messages[indexOfMessage.item]
+        guard indexOfMessage.row > 0 else { return true }
+        
+        if messages.count - 1 == indexOfMessage.row {
+            return true
+        }
+        
+        let nextMessage = messages[indexOfMessage.item + 1]
+        
+        let messageDate = currentMessage.sentDate
+        let nextMessageDate = nextMessage.sentDate
+        
+        let day = Calendar.current.component(.day, from: messageDate)
+        let nextDay = Calendar.current.component(.day, from: nextMessageDate)
+        
+        if day != nextDay {
+            return true
+        }
+        
+        // Check if current message and next message have different sender IDs
+        if currentMessage.senderId != nextMessage.senderId {
+            return true
+        }
+        
+        // Check if the current message state is not .failed or .sending
+        if currentMessage.phase == .failed || currentMessage.phase == .sending {
+            return true
+        }
+        
+        // Check if current message and next message have different hour or minute
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: messageDate)
+        let minute = calendar.component(.minute, from: messageDate)
+        let nextHour = calendar.component(.hour, from: nextMessageDate)
+        let nextMinute = calendar.component(.minute, from: nextMessageDate)
+        
+        if hour != nextHour || minute != nextMinute {
+            return true
+        }
+        
+        return false
+    }
+    
     func lastMessageOfDay(indexOfMessage: IndexPath) -> Bool {
         let messageDate = messages[indexOfMessage.item].sentDate
         let nextMessageIndex = indexOfMessage.item + 1
@@ -239,6 +331,31 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
         
         return currentDay != nextDay
     }
+    
+    func sendMessageWithImage(image: UIImage) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let uuid = UUID()
+        FileGateway.shared.saveImage(image: image, messageId: uuid.uuidString) { [weak self] url in
+            guard let strongSelf = self, let url = url else { return }
+            
+            let newMessage = Message(text: "Image", sentDate: Date.now, messageId: uuid.uuidString, isRead: true, senderId: uid, image: url.absoluteString, kind: .photo, phase: .sending)
+            
+            //DataService.shared.save(message: newMessage, to: strongSelf.conversation)
+            
+            strongSelf.messages.append(newMessage)
+            //messageDelegate?.didSendMessage(for: conversation, message: newMessage)
+            DispatchQueue.main.async {
+                strongSelf.collectionView.performBatchUpdates {
+                    strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0)])
+                } completion: { _ in
+                    let bottomOffset = CGPoint(x: 0, y: strongSelf.collectionView.contentSize.height - strongSelf.collectionView.bounds.height + strongSelf.keyboardHeight)
+                    strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
+                }
+            }
+        }
+    }
+    
+    
 }
 
 extension MessageViewController: MessageInputAccessoryViewDelegate {
@@ -247,7 +364,11 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
         
         let type: MessageKind = message.containsEmojiOnly ? .emoji : .text
         
-        let message = Message(text: message, sentDate: Date(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
+        let lines = message.components(separatedBy: .newlines)
+        let trimmedLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+        let trimmedMessage = trimmedLines.joined(separator: "\n")
+        
+        let message = Message(text: trimmedMessage, sentDate: Date(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
 
         messages.append(message)
         
@@ -255,7 +376,10 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
             collectionView.insertItems(at: [IndexPath(item: messages.isEmpty ? 0 : messages.count - 1, section: 0)])
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.collectionView.scrollToItem(at: IndexPath(item: strongSelf.messages.count - 1, section: 0), at: .bottom, animated: true)
+            DispatchQueue.main.async {
+                let bottomOffset = CGPoint(x: 0, y: strongSelf.collectionView.contentSize.height - strongSelf.collectionView.bounds.height + strongSelf.keyboardHeight)
+                strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
+            }
         }
         
         if newConversation {
@@ -311,7 +435,12 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
     }
     
     func didTapAddMedia() {
-        
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.filter = .images
+        config.selectionLimit = 1
+        let controller = PHPickerViewController(configuration: config)
+        controller.delegate = self
+        present(controller, animated: true)
     }
 }
 
@@ -326,6 +455,23 @@ extension MessageViewController: MessageCellDelegate {
             deleteMessage(message)
         case .resend:
             break
+        }
+    }
+}
+
+extension MessageViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        if results.count == 0 { return }
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let strongSelf = self else { return }
+                guard let image = reading as? UIImage, error == nil else { return }
+                DispatchQueue.main.async {
+                    picker.dismiss(animated: true)
+                    strongSelf.sendMessageWithImage(image: image)
+                }
+            }
         }
     }
 }

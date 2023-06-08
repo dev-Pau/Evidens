@@ -18,6 +18,8 @@ class MessageInputAccessoryView: UIView {
     
     weak var messageDelegate: MessageInputAccessoryViewDelegate?
     private let messageTextView = MessageTextView()
+    
+    private var messageTextViewLeadingAnchor: NSLayoutConstraint!
 
     private lazy var sendButton: UIButton = {
         let button = UIButton(type: .system)
@@ -80,10 +82,12 @@ class MessageInputAccessoryView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         autoresizingMask = .flexibleHeight
         
+        messageTextViewLeadingAnchor = messageTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 47)
         addSubviews(addButton, messageTextView, sendButton, topView)
         NSLayoutConstraint.activate([
             messageTextView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            messageTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
+            //messageTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
+            messageTextViewLeadingAnchor,
             messageTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             messageTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -6),
             
@@ -105,7 +109,7 @@ class MessageInputAccessoryView: UIView {
         
         messageTextView.delegate = self
     }
-    
+
     // MARK: - Actions
     
     
@@ -115,7 +119,7 @@ class MessageInputAccessoryView: UIView {
     }
     
     @objc func handleAddMedia() {
-        
+        messageDelegate?.didTapAddMedia()
     }
 }
 
@@ -124,5 +128,17 @@ extension MessageInputAccessoryView: UITextViewDelegate {
         guard let text = textView.text else { return }
         sendButton.isEnabled = text.isEmpty ? false : true
         addButton.isEnabled = text.isEmpty ? true : false
+        
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let strongSelf = self else { return }
+            if text.isEmpty {
+                strongSelf.messageTextViewLeadingAnchor.constant = 47
+                strongSelf.addButton.alpha = 1
+            } else {
+                strongSelf.messageTextViewLeadingAnchor.constant = 10
+                strongSelf.addButton.alpha = 0
+            }
+            strongSelf.layoutIfNeeded()
+        }
     }
 }
