@@ -43,8 +43,8 @@ class MessageViewModel {
         if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
             return userImage
         } else {
-            print("Error loading image")
-            return nil
+            #warning("need to return nil on production")
+            return UIImage(named: "user.profile")
         }
     }
     

@@ -48,6 +48,7 @@ class SearchMessageCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
+        label.numberOfLines = 0
         return label
     }()
     
@@ -90,7 +91,7 @@ class SearchMessageCell: UICollectionViewCell {
         let options: NSString.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
         let range = (viewModel.text as NSString).range(of: searchedText, options: options)
 
-        attrString.addAttributes([.backgroundColor: UIColor.systemYellow, .foregroundColor: UIColor.label], range: range)
+        attrString.addAttributes([.foregroundColor: UIColor.label], range: range)
         
         messageLabel.attributedText = attrString
         

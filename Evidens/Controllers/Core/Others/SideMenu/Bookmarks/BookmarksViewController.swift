@@ -9,7 +9,7 @@ import UIKit
 import Firebase
 
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
-private let categoriesCellReuseIdentifier = "ContentTypeCellReuseIdentifier"
+
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseImageCellReuseIdentifier = "CaseImageCellReuseIdentifier"
 
@@ -23,22 +23,6 @@ class BookmarksViewController: UIViewController {
     var lastCaseSnapshot: QueryDocumentSnapshot?
     var lastPostSnapshot: QueryDocumentSnapshot?
     
-    enum CategoriesType: String, CaseIterable {
-        case cases = "Cases"
-        case posts = "Posts"
-        
-        var index: Int {
-            switch self {
-            case .cases:
-                return 0
-            case .posts:
-                return 1
-            }
-        }
-    }
-    
-    private var selectedCategory: CategoriesType = .cases
-    
     private var caseLoaded = false
     private var postLoaded = false
     
@@ -48,23 +32,20 @@ class BookmarksViewController: UIViewController {
     private var posts = [Post]()
     private var postUsers = [User]()
     
-    private let categoriesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.estimatedItemSize = CGSize(width: 100, height: 30)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
-        collectionView.bounces = true
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
-        collectionView.alwaysBounceHorizontal = true
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.allowsSelection = true
-        collectionView.allowsMultipleSelection = false
-        return collectionView
+    private var bookmarkToolbar = BookmarkToolbar()
+    private var isScrollingHorizontally = false
+    private var didFetchPosts: Bool = false
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.isPagingEnabled = true
+        scrollView.backgroundColor = .systemBackground
+        return scrollView
     }()
     
-    private let contentCollectionView: UICollectionView = {
+    private let casesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 0
@@ -72,7 +53,6 @@ class BookmarksViewController: UIViewController {
         layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
-        //collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.isScrollEnabled = true
         collectionView.bounces = true
@@ -80,11 +60,19 @@ class BookmarksViewController: UIViewController {
         return collectionView
     }()
     
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemBackground
-        return view
+    private let postsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        layout.estimatedItemSize = CGSize(width: UIScreen.main.bounds.width, height: .leastNonzeroMagnitude)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .systemBackground
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.isScrollEnabled = true
+        collectionView.bounces = true
+        collectionView.alwaysBounceVertical = true
+        return collectionView
     }()
     
     override func viewDidLoad() {
@@ -95,11 +83,17 @@ class BookmarksViewController: UIViewController {
         fetchBookmarkedClinicalCases()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        postsCollectionView.frame = CGRect(x: view.frame.width, y: 0, width: view.frame.width, height: scrollView.frame.height)
+    }
+    
     private func fetchBookmarkedClinicalCases() {
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { snapshot in
             if snapshot.isEmpty {
                 self.caseLoaded = true
-                self.contentCollectionView.reloadData()
+                self.casesCollectionView.reloadData()
                 return
             }
             
@@ -110,7 +104,7 @@ class BookmarksViewController: UIViewController {
                 UserService.fetchUsers(withUids: ownerUids) { users in
                     self.caseUsers = users
                     self.caseLoaded = true
-                    self.contentCollectionView.reloadData()
+                    self.casesCollectionView.reloadData()
                 }
             }
         }
@@ -120,7 +114,8 @@ class BookmarksViewController: UIViewController {
         PostService.fetchBookmarkedPostDocuments(lastSnapshot: nil) { snapshot in
             if snapshot.isEmpty {
                 self.postLoaded = true
-                self.contentCollectionView.reloadData()
+                self.postsCollectionView.reloadData()
+                self.didFetchPosts = true
                 return
             }
             
@@ -131,59 +126,73 @@ class BookmarksViewController: UIViewController {
                 UserService.fetchUsers(withUids: ownerUids) { users in
                     self.postLoaded = true
                     self.postUsers = users
-                    self.contentCollectionView.reloadData()
+                    self.didFetchPosts = true
+                    self.postsCollectionView.reloadData()
+                    print("posts fetched")
                 }
             }
         }
     }
     
     private func configureNavigationBar() {
-        title = "Bookmarks"
+        title = AppStrings.Title.bookmark
     }
     
     private func configureCollectionViews() {
-        categoriesCollectionView.delegate = self
-        categoriesCollectionView.dataSource = self
-        contentCollectionView.delegate = self
-        contentCollectionView.dataSource = self
+        casesCollectionView.delegate = self
+        casesCollectionView.dataSource = self
+        postsCollectionView.delegate = self
+        postsCollectionView.dataSource = self
         
-        categoriesCollectionView.register(BookmarkCategoriesCell.self, forCellWithReuseIdentifier: categoriesCellReuseIdentifier)
+        casesCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
+        casesCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
+        postsCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
+        postsCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
+        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
+        casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         
-        contentCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        contentCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
-        contentCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
-        contentCollectionView.register(BookmarksPostImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
-        contentCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        contentCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
-        
-        view.addSubviews(categoriesCollectionView, separatorView, contentCollectionView)
-       
-        if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
-            separatorView.backgroundColor = tabControllerShadowColor
-        }
-        /*
-         if let tab = tabBarController as? MainTabController {
-             separatorView.layer.borderColor = tab.tabBar.standardAppearance.shadowColor?.cgColor
-         }
-        */
+        view.addSubviews(bookmarkToolbar, scrollView)
+
         NSLayoutConstraint.activate([
-            categoriesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            categoriesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            categoriesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            categoriesCollectionView.heightAnchor.constraint(equalToConstant: 40),
+            bookmarkToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            bookmarkToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bookmarkToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bookmarkToolbar.heightAnchor.constraint(equalToConstant: 50),
             
-            separatorView.topAnchor.constraint(equalTo: categoriesCollectionView.bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
-            contentCollectionView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
-            contentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            contentCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            contentCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: bookmarkToolbar.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        bookmarkToolbar.toolbarDelegate = self
+        scrollView.delegate = self
+        scrollView.addSubview(casesCollectionView)
+        scrollView.addSubview(postsCollectionView)
+        scrollView.contentSize.width = view.frame.width * 2
     }
     
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.y != 0 {
+            isScrollingHorizontally = false
+        }
+        
+        if scrollView.contentOffset.y == 0 && isScrollingHorizontally {
+            bookmarkToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+        }
+        
+        if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
+            isScrollingHorizontally = true
+        }
+        
+        if scrollView.contentOffset.x > view.frame.width * 0.2 && !didFetchPosts {
+            print("start fetch now")
+            fetchBookmarkedPosts()
+        }
+    }
+    /*
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -224,19 +233,15 @@ class BookmarksViewController: UIViewController {
             }
         }
     }
+     */
 }
 
 extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == categoriesCollectionView {
-            return CategoriesType.allCases.count
+        if collectionView == casesCollectionView {
+            return caseLoaded ? cases.isEmpty ? 1 : cases.count : 0
         } else {
-            switch selectedCategory {
-            case .cases:
-                return caseLoaded ? (cases.count > 0 ? cases.count : 1) : 0
-            case .posts:
-                return postLoaded ? (posts.count > 0 ? posts.count : 1) : 0
-            }
+            return postLoaded ? posts.isEmpty ? 1 : posts.count : 0
         }
     }
     
@@ -246,113 +251,73 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if collectionView == categoriesCollectionView {
-            return CGSize.zero
+        if collectionView == casesCollectionView {
+            return caseLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
         } else {
-            switch selectedCategory {
-            case .cases:
-                return caseLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
-            case .posts:
-                return postLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
-            }
+            return postLoaded ? CGSize.zero : CGSize(width: view.frame.width, height: 65)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == categoriesCollectionView {
-            let cell = categoriesCollectionView.dequeueReusableCell(withReuseIdentifier: categoriesCellReuseIdentifier, for: indexPath) as! BookmarkCategoriesCell
-            cell.set(category: CategoriesType.allCases[indexPath.row].rawValue)
-            if indexPath.row == 0 {
-                categoriesCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left)
-            }
-            return cell
-        } else {
-            switch selectedCategory {
-            case .cases:
-                if cases.count == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: "content.empty"), title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
-                    cell.delegate = self
+        if collectionView == casesCollectionView {
+            if cases.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: "No saved cases yet.", description: "Cases you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                cell.delegate = self
+                return cell
+            } else {
+                let currentCase = cases[indexPath.row]
+                switch currentCase.type {
+                case .text:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    guard currentCase.privacyOptions != .nonVisible else {
+                        return cell
+                    }
+                    
+                    if let user = caseUsers.first(where: { $0.uid! == currentCase.ownerUid }) {
+                        cell.set(user: user)
+                    }
                     return cell
-                }
-
-                if cases[indexPath.row].type == .text {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! BookmarksCaseCell
-
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    guard cases[indexPath.row].privacyOptions == .visible || cases[indexPath.row].privacyOptions == .group else { return cell }
                     
-                    let userIndex = caseUsers.firstIndex { user in
-                        if user.uid == cases[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
+                case .textWithImage:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
+                    cell.viewModel = CaseViewModel(clinicalCase: currentCase)
+                    guard currentCase.privacyOptions != .nonVisible else {
+                        return cell
                     }
                     
-                    if let userIndex = userIndex {
-                        cell.set(user: caseUsers[userIndex])
+                    if let user = caseUsers.first(where: { $0.uid! == currentCase.ownerUid }) {
+                        cell.set(user: user)
                     }
-                    
-                    return cell
-                } else {
-                    
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
-
-                    cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
-                    guard cases[indexPath.row].privacyOptions == .visible else { return cell }
-                    let userIndex = caseUsers.firstIndex { user in
-                        if user.uid == cases[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: caseUsers[userIndex])
-                    }
-                    
-                    return cell
-                }
-            case .posts:
-                if posts.count == 0 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
-                    cell.configure(image: UIImage(named: "content.empty"), title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
-                    cell.delegate = self
                     return cell
                 }
                 
-                if posts[indexPath.row].type.postType == 0 {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
-                    
-                    
-                    let userIndex = postUsers.firstIndex { user in
-                        if user.uid == posts[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: postUsers[userIndex])
+            }
+        } else {
+            if posts.isEmpty {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier, for: indexPath) as! MESecondaryEmptyCell
+                cell.configure(image: UIImage(named: AppStrings.Assets.emptyContent), title: "No saved posts yet.", description: "Posts you save will show up here.", buttonText: EmptyCellButtonOptions.dismiss)
+                cell.delegate = self
+                return cell
+            } else {
+                let currentPost = posts[indexPath.row]
+                
+                if currentPost.type == .plainText {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postTextCellReuseIdentifier, for: indexPath) as! BookmarkPostCell
+                    cell.viewModel = PostViewModel(post: currentPost)
+                    if let user = postUsers.first(where: { $0.uid! == currentPost.ownerUid }) {
+                        cell.set(user: user)
                     }
                     
                     return cell
                     
                 } else {
-                    let cell = contentCollectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
-
-                    cell.viewModel = PostViewModel(post: posts[indexPath.row])
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: postImageCellReuseIdentifier, for: indexPath) as! BookmarksPostImageCell
                     
-                    let userIndex = postUsers.firstIndex { user in
-                        if user.uid == posts[indexPath.row].ownerUid {
-                            return true
-                        }
-                        return false
-                    }
-                    
-                    if let userIndex = userIndex {
-                        cell.set(user: postUsers[userIndex])
+                    cell.viewModel = PostViewModel(post: currentPost)
+                    if let user = postUsers.first(where: { $0.uid! == currentPost.ownerUid }) {
+                        cell.set(user: user)
                     }
                     
                     return cell
@@ -362,72 +327,43 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == categoriesCollectionView {
-
-            let currentIndexSelected = selectedCategory.index
-            selectedCategory = CategoriesType.allCases[indexPath.row]
-            
-            guard selectedCategory.index != currentIndexSelected else { return }
-            
-            switch selectedCategory {
-            case .cases:
-                contentCollectionView.reloadData()
-                return
-            case .posts:
-                contentCollectionView.reloadData()
-                fetchBookmarkedPosts()
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        let backItem = UIBarButtonItem()
+        //backItem.title = ""
+        backItem.tintColor = .label
+        backItem.image = UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
+        navigationItem.leftItemsSupplementBackButton = false
+        navigationItem.backBarButtonItem = backItem
+        
+        if collectionView == casesCollectionView {
+            if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].ownerUid }) {
+                if let _ = cases[indexPath.row].groupId {
+                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, type: .group, collectionViewFlowLayout: layout)
+                    controller.delegate = self
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: user, type: .regular, collectionViewFlowLayout: layout)
+                    controller.delegate = self
+                    navigationController?.pushViewController(controller, animated: true)
+                }
             }
         } else {
-            let layout = UICollectionViewFlowLayout()
-            layout.scrollDirection = .vertical
-            layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
-            layout.minimumLineSpacing = 0
-            layout.minimumInteritemSpacing = 0
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            navigationItem.backBarButtonItem = backItem
-            
-            switch selectedCategory {
-            case .cases:
-                let userIndex = caseUsers.firstIndex { user in
-                    if user.uid == cases[indexPath.row].ownerUid {
-                        return true
-                    }
-                    return false
-                }
+            if let user = postUsers.first(where: { $0.uid! == posts[indexPath.row].ownerUid }) {
                 
-                if let userIndex = userIndex {
-                    if let _ = cases[indexPath.row].groupId {
-                        let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .group, collectionViewFlowLayout: layout)
-                        controller.delegate = self
-                        navigationController?.pushViewController(controller, animated: true)
-                    } else {
-                        let controller = DetailsCaseViewController(clinicalCase: cases[indexPath.row], user: caseUsers[userIndex], type: .regular, collectionViewFlowLayout: layout)
-                        controller.delegate = self
-                        navigationController?.pushViewController(controller, animated: true)
-                    }
-                   
-                }
-            case .posts:
-                let userIndex = postUsers.firstIndex { user in
-                    if user.uid == posts[indexPath.row].ownerUid {
-                        return true
-                    }
-                    return false
-                }
-                
-                if let userIndex = userIndex {
-                    if let _ = posts[indexPath.row].groupId {
-                        let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .group, collectionViewLayout: layout)
-                        controller.delegate = self
-                        navigationController?.pushViewController(controller, animated: true)
-                    } else {
-                        let controller = DetailsPostViewController(post: posts[indexPath.row], user: postUsers[userIndex], type: .regular, collectionViewLayout: layout)
-                        controller.delegate = self
-                        navigationController?.pushViewController(controller, animated: true)
-                    }
+                if let _ = posts[indexPath.row].groupId {
+                    let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, type: .group, collectionViewLayout: layout)
+                    controller.delegate = self
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let controller = DetailsPostViewController(post: posts[indexPath.row], user: user, type: .regular, collectionViewLayout: layout)
+                    controller.delegate = self
+                    navigationController?.pushViewController(controller, animated: true)
                 }
             }
         }
@@ -443,7 +379,7 @@ extension BookmarksViewController: MESecondaryEmptyCellDelegate {
 extension BookmarksViewController: DetailsPostViewControllerDelegate {
     func didDeleteComment(forPost post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = contentCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
+            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
             switch cell {
             case is BookmarkPostCell:
                 let currentCell = cell as! BookmarkPostCell
@@ -463,13 +399,13 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
             posts[postIndex].postText = post.postText
             posts[postIndex].edited = true
-            contentCollectionView.reloadData()
+            postsCollectionView.reloadData()
         }
     }
     
     func didTapLikeAction(forPost post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = contentCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
+            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
             switch cell {
             case is BookmarkPostCell:
                 let currentCell = cell as! BookmarkPostCell
@@ -504,16 +440,16 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
     
     func didTapBookmarkAction(forPost post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            contentCollectionView.performBatchUpdates {
+            postsCollectionView.performBatchUpdates {
                 posts.remove(at: postIndex)
-                contentCollectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
+                postsCollectionView.deleteItems(at: [IndexPath(item: postIndex, section: 0)])
             }
         }
     }
     
     func didComment(forPost post: Post) {
         if let postIndex = posts.firstIndex(where: { $0.postId == post.postId }) {
-            let cell = contentCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
+            let cell = postsCollectionView.cellForItem(at: IndexPath(item: postIndex, section: 0))
             switch cell {
             case is BookmarkPostCell:
                 let currentCell = cell as! BookmarkPostCell
@@ -533,7 +469,7 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
 extension BookmarksViewController: DetailsCaseViewControllerDelegate {
     func didDeleteComment(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            let cell = contentCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
+            let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
             switch cell {
             case is BookmarkPostCell:
                 let currentCell = cell as! BookmarksCaseCell
@@ -551,7 +487,7 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
     
     func didTapLikeAction(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            let cell = contentCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
+            let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
             switch cell {
             case is BookmarksCaseCell:
                 let currentCell = cell as! BookmarksCaseCell
@@ -583,16 +519,16 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
     
     func didTapBookmarkAction(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            contentCollectionView.performBatchUpdates {
+            casesCollectionView.performBatchUpdates {
                 cases.remove(at: caseIndex)
-                contentCollectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
+                casesCollectionView.deleteItems(at: [IndexPath(item: caseIndex, section: 0)])
             }
         }
     }
     
     func didComment(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            let cell = contentCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
+            let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
             switch cell {
             case is BookmarkPostCell:
                 let currentCell = cell as! BookmarksCaseCell
@@ -611,14 +547,20 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
     func didAddUpdate(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             cases[caseIndex].caseUpdates = clinicalCase.caseUpdates
-            contentCollectionView.reloadData()
+            casesCollectionView.reloadData()
         }
     }
     
     func didAddDiagnosis(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             cases[caseIndex].diagnosis = clinicalCase.diagnosis
-            contentCollectionView.reloadData()
+            casesCollectionView.reloadData()
         }
+    }
+}
+
+extension BookmarksViewController: BookmarkToolbarDelegate {
+    func didTapIndex(_ index: Int) {
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
     }
 }

@@ -60,11 +60,13 @@ class ConversationViewController: UIViewController {
             }
             
             if strongSelf.conversations.isEmpty {
+                // Create layout for empty conversations
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.view.frame.width * 0.6)))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(strongSelf.view.frame.width * 0.6)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
+                // Create layout for non-empty conversations using list configuration
                 let section = NSCollectionLayoutSection.list(using: strongSelf.createListConfiguration(), layoutEnvironment: env)
                 return section
             }
@@ -74,6 +76,7 @@ class ConversationViewController: UIViewController {
     
     private func createListConfiguration() -> UICollectionLayoutListConfiguration {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+        // Customize list configuration settings
         configuration.showsSeparators = false
         configuration.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
             guard let strongSelf = self else { return nil }
@@ -85,6 +88,7 @@ class ConversationViewController: UIViewController {
     
     private func createTrailingSwipeActions(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] action, view, completion in
+            // Handle delete action
             guard let strongSelf = self else { return }
             strongSelf.deleteConversationAlert { delete in
                 completion(true)
@@ -95,6 +99,7 @@ class ConversationViewController: UIViewController {
         }
         
         let pinAction = UIContextualAction(style: .normal, title: nil) { [weak self] action, view, completion in
+            // Handle pin action
             guard let strongSelf = self else { return }
             completion(true)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -102,6 +107,7 @@ class ConversationViewController: UIViewController {
             }
         }
         
+        // Configure delete and pin actions
         deleteAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.trash, text: AppStrings.Global.delete, size: 16)
         pinAction.image = UIImage().swipeLayout(icon: AppStrings.Icons.fillPin, text: conversations[indexPath.item].isPinned ? AppStrings.Actions.unpin : AppStrings.Actions.pin, size: 16)
         return UISwipeActionsConfiguration(actions: [deleteAction, pinAction])
@@ -125,7 +131,6 @@ class ConversationViewController: UIViewController {
         guard let user = user else { return }
         
         if user.phase == .verified {
-            
             let controller = ConversationResultsUpdatingViewController()
             controller.delegate = self
             searchController = UISearchController(searchResultsController: controller)
@@ -145,7 +150,7 @@ class ConversationViewController: UIViewController {
             view.addSubview(lockView)
         }
   
-        let backButton = UIBarButtonItem(image: UIImage(systemName: "arrow.backward"/*AppStrings.Icons.leftChevron*/, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(didTapHideConversations))
+        let backButton = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(didTapHideConversations))
         
         backButton.title = ""
         backButton.tintColor = .label
@@ -153,35 +158,47 @@ class ConversationViewController: UIViewController {
     }
     
     private func loadConversations() {
+        // Messages that have not been sent they get updated to failed
         DataService.shared.editPhase()
+        // Retrieve conversations from the data service
         conversations = DataService.shared.getConversations()
-        #warning("Mirar si hi ha missatges no llegits per mostrar una boleta")
         conversationsLoaded = true
         
+        // Check for new conversations and unsynced messages
         DatabaseManager.shared.checkForNewConversations(with: conversations.map { $0.id! }) { [weak self] unsyncedIds in
             guard let strongSelf = self else {
                 return
             }
+            
+            // If there are no unsyncedIds or no conversations with new messages, return
             guard !unsyncedIds.isEmpty else {
                 return
             }
-            // For every unsynced Id, send a query to get messages from last received date stored in core data
-            // if conversation doesnt exist in core data, is either new or new but previously deleted
-            // in both cases, this for each of this conversations get the date field, which is the creation date of the conversation, and get messages from the creation date and up
+            
+            // Filter out conversations that are not yet present in the current conversations list
             let currentConversationIds = strongSelf.conversations.map { $0.id! }
             let newConversationIds = unsyncedIds.filter { !currentConversationIds.contains($0) }
+            
+            // Filter conversations with new messages from the unsyncedIds list
             let conversationsWithNewMessages = unsyncedIds.filter { currentConversationIds.contains($0) }
+            
+            // Fetch new conversations with the provided IDs
             strongSelf.fetchNewConversations(withIds: newConversationIds)
+            
+            // Fetch new messages for conversations that already exist
             strongSelf.fetchNewMewMessages(withIds: conversationsWithNewMessages)
         }
-        // Check for pending to send messages, and check if they exist in rtd, if they don't, switch state to failed.
     }
     
     private func fetchNewConversations(withIds conversationIds: [String]) {
+        // Fetch new conversations and users using the provided conversation IDs
         DatabaseManager.shared.fetchNewConversations(with: conversationIds) { newConversations in
-            // continue with for each conversation, fetch user and fetch messages to create everything.
+            
+            // Fetch messages for each new conversation
             DatabaseManager.shared.fetchMessages(for: newConversations) { [weak self] done in
                 guard let strongSelf = self else { return }
+                
+                // If fetching is done, update conversations, reload collection view, and toggle sync for new conversations
                 if done {
                     strongSelf.conversations = DataService.shared.getConversations()
                     strongSelf.collectionView.reloadData()
@@ -192,9 +209,14 @@ class ConversationViewController: UIViewController {
     }
     
     public func fetchNewMewMessages(withIds conversationIds: [String]) {
+        // Filter conversations based on the provided conversation IDs
         let conversations = conversations.filter { conversationIds.contains($0.id!) }
+        
+        // Fetch new messages for the filtered conversations
         DatabaseManager.shared.fetchNewMessages(for: conversations) { [weak self] fetched in
             guard let strongSelf = self else { return }
+            
+            // If messages are fetched, update conversations, reload collection view, and toggle sync for conversations
             if fetched {
                 strongSelf.conversations = DataService.shared.getConversations()
                 strongSelf.collectionView.reloadData()
@@ -204,53 +226,82 @@ class ConversationViewController: UIViewController {
     }
     
     private func togglePinConversation(at indexPath: IndexPath) {
-        self.conversations[indexPath.row].togglePin()
+        // Toggle the pin status of the conversation at the specified index path
+        conversations[indexPath.row].togglePin()
+        
+        // Get the conversation to update and save the pin status changes
         let conversationToUpdate = self.conversations[indexPath.row]
         DataService.shared.edit(conversation: conversationToUpdate, set: conversationToUpdate.isPinned, forKey: "isPinned")
         
+        // Create a map to sort the conversations based on the updated pin status
         let unorderedConversations = self.conversations
-        self.sortConversations()
+        sortConversations()
         let sortMap = unorderedConversations.map { conversations.firstIndex(of: $0)!}
         
-        collectionView.performBatchUpdates {
+        // Perform batch updates to move items and reload collection view
+        collectionView.performBatchUpdates { [weak self] in
+            guard let strongSelf = self else { return }
             for index in 0 ..< sortMap.count {
                 if index != sortMap[index] {
-                    self.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: sortMap[index], section: 0))
+                    strongSelf.collectionView.moveItem(at: IndexPath(item: index, section: 0), to: IndexPath(item: sortMap[index], section: 0))
                 }
             }
-        } completion: { _ in
-            self.collectionView.reloadData()
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            
+            // Reload the collection view to ensure proper display of the updated order
+            strongSelf.collectionView.reloadData()
         }
     }
     
     private func deleteConversation(at indexPath: IndexPath) {
+        // Get the conversation to delete
         let conversation = conversations[indexPath.row]
+        
+        // Delete the conversation
         DatabaseManager.shared.deleteConversation(conversation) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(_):
+                // If deletion is successful, also delete the conversation from the local data store
                 DataService.shared.delete(conversation: conversation)
+                
+                // Perform batch updates to remove the conversation from the collection view
                 strongSelf.collectionView.performBatchUpdates { [weak self] in
                     guard let strongSelf = self else { return}
                     strongSelf.conversations.remove(at: indexPath.row)
                     strongSelf.collectionView.deleteItems(at: [indexPath])
                 }
             case .failure(let error):
+                // Handle the failure case and print the error message
                 print(error.localizedDescription)
             }
         }
     }
     
     private func sortConversations() {
+        // Sort the conversations based on the defined sorting criteria
         conversations.sort { (conversation1, conversation2) -> Bool in
+            /*
+             If conversation1 is pinned and conversation2 is not pinned,
+             conversation1 should come before conversation2
+             */
             if conversation1.isPinned && !conversation2.isPinned {
                 return true
             }
             
+            /*
+             If conversation1 is not pinned and conversation2 is pinned,
+             conversation1 should come after conversation2
+             */
             if !conversation1.isPinned && conversation2.isPinned {
                 return false
             }
             
+            /*
+             If both conversations are pinned or both conversations are not pinned,
+             compare their latest message sent dates to determine the order
+            */
             return conversation1.latestMessage?.sentDate ?? Date() > conversation2.latestMessage?.sentDate ?? Date()
         }
     }
@@ -258,19 +309,17 @@ class ConversationViewController: UIViewController {
     // MARK: - Actions
     
     @objc func didTapComposeButton() {
+        // Presents the NewMessageViewController modally
         let controller = NewMessageViewController()
         controller.delegate = self
         let navVC = UINavigationController(rootViewController: controller)
-        
         navVC.modalPresentationStyle = .automatic
-        
         present(navVC, animated: true)
     }
     
     @objc func didTapHideConversations() {
         delegate?.didTapHideConversations()
     }
-    
 }
 
 extension ConversationViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -297,12 +346,6 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
         let conversation = conversations[indexPath.row]
         let controller = MessageViewController(conversation: conversation)
         
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
         controller.delegate = self
         self.navigationController?.pushViewController(controller, animated: true)
         updatePan()
@@ -310,10 +353,14 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        // Check if there are selected index paths and if conversations exist
         guard !indexPaths.isEmpty, !conversations.isEmpty else { return nil }
+        
+        // Create a preview view controller for the selected conversation
         let previewViewController = UINavigationController(rootViewController: MessageViewController(conversation: conversations[indexPaths[0].item], preview: true))
         let previewProvider: () -> UINavigationController? = { previewViewController }
        
+        // Define the context menu configuration
         return UIContextMenuConfiguration(identifier: nil, previewProvider: previewProvider) { [weak self] _ in
             guard let strongSelf = self else { return nil }
             let deleteAction = UIAction(title: AppStrings.Alerts.Title.deleteConversation, image: UIImage(systemName: AppStrings.Icons.trash), attributes: .destructive) { action in
@@ -330,18 +377,22 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
 
 extension ConversationViewController: ConversationResultsUpdatingViewControllerDelegate {
     func readMessages(for conversation: Conversation) {
+        // Reads all messages in the given conversation
         didReadAllMessages(for: conversation)
     }
     
     func sendMessage(_ message: Message, to conversation: Conversation) {
+        // Sends the given message to the specified conversation
         didSendMessage(message, for: conversation)
     }
     
     func didTapConversation(_ conversation: Conversation) {
+        // Marks all messages in the conversation as read when the conversation is tapped
         didReadAllMessages(for: conversation)
     }
     
     func didTapRecents(_ text: String) {
+        // Updates the search bar text with the provided text when tapping on any recent search
         searchController.searchBar.text = text
     }
 }
@@ -371,43 +422,42 @@ extension ConversationViewController: SearchConversationViewControllerDelegate {
     }
     
     func updatePan() {
+        // Call the delegate method to handle the toggle pan
         delegate?.handleTooglePan()
     }
     
     func didTapTextToSearch(text: String) {
+        // Set the text in the search bar of the search controller
         searchController.searchBar.text = text
     }
 }
 
 extension ConversationViewController: NewMessageViewControllerDelegate {
     func didOpenConversation(for user: User) {
+        // Check if a conversation already exists for the specified user
         DataService.shared.conversationExists(for: user.uid!) { [weak self] exists in
             guard let strongSelf = self else { return }
             if exists {
+                // If a conversation exists, find its index in the conversations array
                 if let conversationIndex = strongSelf.conversations.firstIndex(where: { $0.userId == user.uid! }) {
+                    // Create and configure the MessageViewController with the existing conversation
                     let controller = MessageViewController(conversation: strongSelf.conversations[conversationIndex], user: user)
                     controller.delegate = self
-                    let backItem = UIBarButtonItem()
-                    backItem.title = ""
-                    backItem.tintColor = .label
-                    
-                    strongSelf.navigationItem.backBarButtonItem = backItem
                     
                     strongSelf.navigationController?.pushViewController(controller, animated: true)
                     strongSelf.updatePan()
                     strongSelf.didLeaveScreen = true
                 }
             } else {
+                // If a conversation doesn't exist, create a new one
                 guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
                 let name = user.firstName! + " " + user.lastName!
                 let newConversation = Conversation(name: name, userId: user.uid!, ownerId: uid)
+                
+                // Create and configure the MessageViewController with the new conversation
                 let controller = MessageViewController(conversation: newConversation, user: user)
                 controller.delegate = self
-                let backItem = UIBarButtonItem()
-                backItem.title = ""
-                backItem.tintColor = .label
-                
-                strongSelf.navigationItem.backBarButtonItem = backItem
+              
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
                 strongSelf.updatePan()
                 strongSelf.didLeaveScreen = true
@@ -418,35 +468,48 @@ extension ConversationViewController: NewMessageViewControllerDelegate {
 
 extension ConversationViewController: EmptyGroupCellDelegate {
     func didTapDiscoverGroup() {
+        // Presents the NewMessageViewController modally
         let controller = NewMessageViewController()
         controller.delegate = self
         let navVC = UINavigationController(rootViewController: controller)
-        
         navVC.modalPresentationStyle = .automatic
-        
         present(navVC, animated: true)
     }
 }
 
 extension ConversationViewController: MessageViewControllerDelegate {
     func didSendMessage(_ message: Message, for conversation: Conversation) {
+        // Find the index of the conversation in the conversations array
         if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
+            // Update the latest message of the conversation with the new message
             conversations[conversationIndex].changeLatestMessage(to: message)
+            
+            // Reload the corresponding item in the collection view to reflect the changes
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
         }
     }
     
     func didReadAllMessages(for conversation: Conversation) {
+        // Find the index of the conversation in the conversations array
         if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
+            // Mark all messages in the conversation as read
             conversations[conversationIndex].markMessagesAsRead()
+            
+            // Reload the corresponding item in the collection view to reflect the changes
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
         }
     }
     
     func deleteConversation(_ conversation: Conversation) {
+        // Delete the conversation from the local data store
         DataService.shared.delete(conversation: conversation)
+        
+        // Find the index of the conversation in the conversations array
         if let conversationIndex = conversations.firstIndex(of: conversation) {
+            // Remove the conversation from the conversations array
             conversations.remove(at: conversationIndex)
+            
+            // Perform batch updates on the collection view to delete the corresponding item
             collectionView.performBatchUpdates {
                 collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
             }
@@ -454,10 +517,16 @@ extension ConversationViewController: MessageViewControllerDelegate {
     }
     
     func didCreateNewConversation(_ conversation: Conversation) {
+        // Insert the new conversation at the beginning of the conversations array
         conversations.insert(conversation, at: 0)
+        
+        // Sort the conversations based on the sorting logic
         sortConversations()
         
+        // Find the index of the new conversation in the conversations array
         if let conversationIndex = conversations.firstIndex(of: conversation) {
+            
+            // Asynchronously perform batch updates on the collection view to insert the new item
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.collectionView.performBatchUpdates {

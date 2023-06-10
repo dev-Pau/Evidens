@@ -16,7 +16,7 @@ struct Message {
     let text: String
     let sentDate: Date
     let messageId: String
-    let image: String?
+    private(set) var image: String?
     private(set) var isRead: Bool
     let senderId: String
     let kind: MessageKind
@@ -56,7 +56,7 @@ struct Message {
         self.messageId = messageId
         self.isRead = false
         self.senderId = dictionary["senderId"] as? String ?? "Unknown"
-        self.image = nil
+        self.image = dictionary["image"] as? String ?? nil
         self.kind = MessageKind(rawValue: dictionary["kind"] as? Int16 ?? 0) ?? .text
         self.phase = MessagePhase.unread
     }
@@ -105,5 +105,10 @@ struct Message {
     /// Updates the instance's isRead property.
     mutating func markAsRead() {
         isRead = true
+    }
+    
+    /// Updates the instance's image property.
+    mutating func updateImage(_ image: String) {
+        self.image = image
     }
 }

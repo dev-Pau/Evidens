@@ -10,7 +10,6 @@ import Firebase
 import FirebaseAuth
 import GoogleSignIn
 
-
 protocol MainTabControllerDelegate: AnyObject {
     func handleMenu()
     func handleDisablePan()
@@ -43,21 +42,7 @@ class MainTabController: UITabBarController {
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
-        
         super.viewDidLoad()
-        /*
-        if #available(iOS 15, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            //self.navigationController?.navigationBar.isTranslucent = true  // pass "true" for fixing iOS 15.0 black bg issue
-            //self.navigationController?.navigationBar.tintColor = UIColor.white // We need to set tintcolor for iOS 15.0
-            
-            appearance.backgroundColor = .systemBackground
-            
-            UINavigationBar.appearance().standardAppearance = appearance
-            UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        }
-         */
         view.backgroundColor = .systemBackground
         self.tabBar.isHidden = true
         
@@ -142,7 +127,7 @@ class MainTabController: UITabBarController {
     func checkIfUserIsLoggedIn() {
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
-                let controller = WelcomeViewController()
+                let controller = OpeningViewController()
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
             }
@@ -207,26 +192,13 @@ class MainTabController: UITabBarController {
     func pushUserProfileViewController() {
         if let currentNavController = selectedViewController as? UINavigationController {
             guard let user = user else { return }
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            
             let userProfileController = UserProfileViewController(user: user)
-            
-            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
-     
             currentNavController.pushViewController(userProfileController, animated: true)
         }
     }
     
     func pushMenuOption(option: SideMenuViewController.MenuOptions) {
         if let currentNavController = selectedViewController as? UINavigationController {
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             
             switch option {
             case .bookmarks:
@@ -255,13 +227,7 @@ class MainTabController: UITabBarController {
     
     func pushSettingsViewController() {
         if let currentNavController = selectedViewController as? UINavigationController {
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            
             let settingsController = ApplicationSettingsViewController()
-            
-            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
             currentNavController.pushViewController(settingsController, animated: true)
         }
     }
@@ -352,21 +318,6 @@ extension MainTabController: NavigationBarViewControllerDelegate {
         menuDelegate?.handleConversations()
     }
     
-    func didTapSearchBar() {
-        if let currentNavController = selectedViewController as? UINavigationController {
-            
-            let backItem = UIBarButtonItem()
-            backItem.title = ""
-            backItem.tintColor = .label
-            
-            let controller = SearchViewController()
-            
-            currentNavController.navigationBar.topItem?.backBarButtonItem = backItem
-            
-            currentNavController.pushViewController(controller, animated: true)
-        }
-    }
-    
     func didTapMenuButton() {
         menuDelegate?.handleMenu()
     }
@@ -388,7 +339,6 @@ extension MainTabController: HomeViewControllerDelegate {
             collapsed = alpha < -1 ? true : false
             currentNavController.viewControllers.last?.navigationItem.leftBarButtonItem?.customView?.alpha = alpha
             currentNavController.viewControllers.last?.navigationItem.rightBarButtonItem?.tintColor = .label.withAlphaComponent(alpha > 1 ? 1 : alpha)
-            //currentNavController.viewControllers.last?.navigationItem.title
         }
     }
 }

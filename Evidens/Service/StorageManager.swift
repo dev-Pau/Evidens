@@ -472,7 +472,50 @@ struct StorageManager {
         })
     }
     
+    static func uploadMessagePhoto(_ image: UIImage, conversationId: String, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
+        let ref = Storage.storage().reference(withPath: "/messages/\(conversationId)/images/\(fileName)")
+        ref.putData(imageData, metadata: nil) { result, error in
+            if let error = error {
+                print("Failed to upload message image \(error.localizedDescription)")
+                return
+            }
+            ref.downloadURL { url, error in
+                guard let url = url else { return }
+                let urlString = url.absoluteString
+                completion(.success(urlString))
+            }
+        }
+    }
+    
+    /*
+     guard let imageData = image.jpegData(compressionQuality: 0.1) else { return }
+     
+     let filename = uid
+     let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
+     
+     ref.putData(imageData, metadata: nil) { metadata, error in
+         if let error = error {
+             completion(nil, error)
+         } else {
+             ref.downloadURL { url, error in
+                 if let error = error {
+                     completion(nil, error)
+                     return
+                 }
+                 if let imageUrl = url?.absoluteString {
+                     completion(imageUrl, nil)
+                     return
+                 }
+                 
+                 completion(nil, nil)
+             }
+         }
+     }
+     */
+    
     ///Upload image that will be sent in a conversation message
+    
     static func uploadMessagePhoto(with data: Data, fileName: String, completion: @escaping (Result<String, Error>) -> Void) {
         let ref = Storage.storage().reference(withPath: "/message_images/\(fileName)")
         ref.putData(data, metadata: nil) { result, error in

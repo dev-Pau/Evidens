@@ -14,13 +14,8 @@ class LoginViewController: UIViewController {
   
     private var viewModel = LoginViewModel()
     
-    var displayEmailPlaceholder: Bool = false
-    var displayPasswordPlaceholder: Bool = false
-    
     private var emailTextFieldIsSelected: Bool = false
     private var passwordTextFieldIsSelected: Bool = false
-    
-    let appearance = UINavigationBarAppearance()
     
     var iconClick = false
     let imageIcon = UIImageView()
@@ -56,7 +51,7 @@ class LoginViewController: UIViewController {
     
     private lazy var loginButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Log In", for: .normal)
+        button.setTitle(AppStrings.Opening.logIn, for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor.withAlphaComponent(0.5)
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -88,7 +83,6 @@ class LoginViewController: UIViewController {
         configureUI()
         configureEye()
         setUpDelegates()
-        //configureNavigationItemButton()
         configureNotificationsObservers()
     }
     
@@ -105,7 +99,7 @@ class LoginViewController: UIViewController {
     //MARK: - Helpers
     
     func configureUI() {
-        navigationItem.title = "Log In"
+        navigationItem.title = AppStrings.Opening.logIn
         
         view.addSubview(scrollView)
         

@@ -655,12 +655,12 @@ extension HomeViewController: HomeCellDelegate {
         displayState = displaysSinglePost ? .others : .none
         
         controller.delegate = self
-       
+       /*
         let backItem = UIBarButtonItem()
         backItem.title = ""
         backItem.tintColor = .label
         navigationItem.backBarButtonItem = backItem
-        
+        */
         navigationController?.pushViewController(controller, animated: true)
     }
     

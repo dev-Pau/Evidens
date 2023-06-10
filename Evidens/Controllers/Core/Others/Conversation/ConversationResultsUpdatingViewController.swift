@@ -50,6 +50,11 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     private var didFetchMainContent = false
     private var didFetchConversations = false
     private var didFetchMessages = false
+    private var scrollIndex: Int = 0 {
+        didSet {
+            print(scrollIndex)
+        }
+    }
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -203,7 +208,6 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             }
         }
         return layout
-
     }
     
     private func createSecondaryLayout() -> UICollectionViewCompositionalLayout {
@@ -221,7 +225,6 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
                 section.boundarySupplementaryItems = [header]
 
             }
-            
             return section
         }
         return layout
@@ -240,15 +243,12 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             
             if !strongSelf.messages.isEmpty {
                 section.boundarySupplementaryItems = [header]
-
             }
-            
             return section
         }
         return layout
     }
                 
-    
     private func createListConfiguration() -> UICollectionLayoutListConfiguration {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
         configuration.showsSeparators = false
@@ -257,7 +257,6 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
             guard !strongSelf.mainMessages.isEmpty, !strongSelf.mainConversations.isEmpty else { return nil }
             return strongSelf.createTrailingSwipeActions(for: indexPath)
         }
-      
         return configuration
     }
     
@@ -287,43 +286,56 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     
     
     private func fetchRecentSearches() {
+        // Fetch recent message searches from the database
         DatabaseManager.shared.fetchRecentMessageSearches { result in
             switch result {
             case .success(let searches):
+                // Check if the fetched searches array is empty
                 guard !searches.isEmpty else {
                     self.dataLoaded = true
                     self.mainCollectionView.reloadData()
                     return
                 }
                 
+                // Set the fetched searches to the recentSearches array
                 self.recentSearches = searches
+                // Mark data as loaded and reload the main collection view
                 self.dataLoaded = true
                 self.mainCollectionView.reloadData()
                 
-            case .failure(_):
-                print("error fetching recent messages")
+            case .failure(let error):
+                // Print the error message if the fetch operation fails
+                print(error.localizedDescription)
             }
         }
     }
     
     private func fetchMainContent() {
+        // Fetch main conversations based on the searched text with a limit of 3
         mainConversations = DataService.shared.getConversations(for: searchedText, withLimit: 3)
+        // Fetch main messages based on the searched text with a limit of 3
         mainMessages = DataService.shared.getMessages(for: searchedText, withLimit: 3)
         
+        // Extract unique conversation IDs from the main messages
         let uniqueConversationIds = Array(Set(mainMessages.map { $0.conversationId! }))
+        // Fetch main message conversations based on the unique conversation IDs
         mainMessageConversations = DataService.shared.getConversations(for: uniqueConversationIds)
 
+        // Reload the main collection view on the main queue
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.mainCollectionView.reloadData()
         }
         
+        // Mark that the main content has been fetched
         didFetchMainContent = true
     }
     
     private func fetchConversations() {
+        // Fetch conversations based on the searched text with a limit of 15
         conversations = DataService.shared.getConversations(for: searchedText, withLimit: 15)
 
+        // Reload the conversation collection view on the main queue
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.conversationCollectionView.reloadData()
@@ -333,56 +345,55 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     }
     
     private func fetchMessages() {
+        // Fetch messages based on the searched text with a limit of 30
         messages = DataService.shared.getMessages(for: searchedText, withLimit: 30)
         
+        // Retrieve unique conversation IDs from the fetched messages
         let uniqueConversationIds = Array(Set(messages.map { $0.conversationId! }))
+        
+        // Fetch conversations for the unique conversation IDs
         messageConversations = DataService.shared.getConversations(for: uniqueConversationIds)
         
+        // Reload the messages collection view on the main queue
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.messagesCollectionView.reloadData()
         }
         
+        // Mark that the messages have been fetched
         didFetchMessages = true
     }
     
     private func show(conversation: Conversation, for indexPath: IndexPath, in collectionView: UICollectionView) {
+        // Create an instance of MessageViewController for the selected conversation
         let controller = MessageViewController(conversation: conversation)
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-
+       
+        // Check if the presenting view controller is ConversationViewController and retrieve its navigation controller
         if let conversationViewController = presentingViewController as? ConversationViewController, let navVC = conversationViewController.navigationController {
-            conversationViewController.navigationItem.backBarButtonItem = backItem
-
+           
             navVC.pushViewController(controller, animated: true)
             delegate?.didTapConversation(conversation)
             
+            // Mark the messages of the selected conversation as read
             if collectionView == mainCollectionView {
                 mainConversations[indexPath.row].markMessagesAsRead()
             } else {
                 conversations[indexPath.row].markMessagesAsRead()
             }
 
+            // Reload the item at the selected index path to update its appearance
             collectionView.reloadItems(at: [indexPath])
         }
     }
     
     private func show(conversation: Conversation, for message: Message, in collectionView: UICollectionView) {
+        // Create an instance of MessageViewController for the selected conversation and message
         let controller = MessageViewController(conversation: conversation, message: message)
         
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
+        // Check if the presenting view controller is ConversationViewController and retrieve its navigation controller
         if let conversationViewController = presentingViewController as? ConversationViewController, let navVC = conversationViewController.navigationController {
-            conversationViewController.navigationItem.backBarButtonItem = backItem
             navVC.pushViewController(controller, animated: true)
-            //delegate?.didTapConversation(conversation)
-            
-            //conversations[indexPath.row].markMessagesAsRead()
-            //collectionView.reloadItems(at: [indexPath])
         }
     }
 }
@@ -490,6 +501,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             if conversations.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                 cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
+                cell.delegate = self
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: conversationCellReuseIdentifier, for: indexPath) as! ConversationCell
@@ -500,6 +512,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
             if messages.isEmpty {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
                 cell.set(withTitle: "No results for \"\(searchedText)\"", withDescription: "The term you entered did not bring up any results. You may want to try using different search terms.", withButtonText: "Start a New Conversation")
+                cell.delegate = self
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageCellReuseIdentifier, for: indexPath) as! SearchMessageCell
@@ -553,65 +566,107 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
 
 extension ConversationResultsUpdatingViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // Check if the scrollView is scrolling vertically
         if scrollView.contentOffset.y != 0 {
             isScrollingHorizontally = false
         }
         
+        // Check if the scrollView is scrolling horizontally and at the top
         if scrollView.contentOffset.y == 0 && isScrollingHorizontally {
+            // Notify the messageToolbar that the collectionView did scroll horizontally
             messageToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
         }
         
+        // Check if the scrollView is scrolling horizontally and not at the top
         if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
             isScrollingHorizontally = true
+            return
         }
         
+        // Determine the current horizontal scrolling position
         switch scrollView.contentOffset.x {
-        case 0 ... view.frame.width:
+        case 0 ..< view.frame.width:
+            // Fetch conversations if not already fetched
             if !didFetchConversations { fetchConversations() }
-        case view.frame.width ... 2 * view.frame.width:
+            if isScrollingHorizontally { scrollIndex = 0 }
+        case view.frame.width ..< 2 * view.frame.width:
+            // Fetch messages if not already fetched
             if !didFetchMessages { fetchMessages() }
+            if isScrollingHorizontally { scrollIndex = 1 }
         case 2 * view.frame.width ... 3 * view.frame.width:
-            if !didFetchMessages {  }
+            // Perform necessary actions for the specific horizontal scrolling position
+            if !didFetchMessages { /* Perform additional actions if needed */ }
+            if isScrollingHorizontally { scrollIndex = 2 }
         default:
             break
+        }
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        if offsetY > contentHeight - height {
+            switch scrollIndex {
+            case 0:
+                print("first")
+            case 1:
+                print("second")
+            case 2:
+                print("third")
+            default:
+                break
+            }
         }
     }
 }
 
 extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UISearchBarDelegate {
-    func updateSearchResults(for searchController: UISearchController) {
-        
-    }
+    func updateSearchResults(for searchController: UISearchController) { /* Perform additional actions if needed */ }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        // Check if the search text is not empty
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
+        
+        // Upload recent message searches to the database
         DatabaseManager.shared.uploadRecentMessageSearches(with: text) { _ in }
+        
+        // Insert the search text at the beginning of the recentSearches array
         recentSearches.insert(text, at: 0)
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        // Resign first responder to dismiss the keyboard
         searchBar.searchTextField.resignFirstResponder()
+        
+        // Reset the search related properties
         searchedText = ""
         isInSearchMode = false
         toolbarHeightAnchor.constant = 0
         
+        // Reset the fetch flags
         didFetchMainContent = false
         didFetchConversations = false
         didFetchMessages = false
         
+        // Reload collection views
         mainCollectionView.reloadData()
         messagesCollectionView.reloadData()
         conversationCollectionView.reloadData()
         
+        // Reset scroll offset
         scrollView.setContentOffset(.zero, animated: false)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        // Reset the fetch flags to fetch new data
         didFetchMainContent = false
         didFetchMessages = false
         didFetchConversations = false
         
+        // Check if the search text is empty or contains only whitespace
         guard let text = searchBar.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else {
+            // Reset search related properties and reload main collection view
             searchedText = ""
             isInSearchMode = false
             toolbarHeightAnchor.constant = 0
@@ -620,6 +675,7 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
             return
         }
         
+        // Update search related properties and perform search based on the content offset
         isInSearchMode = true
         toolbarHeightAnchor.constant = 50
         searchedText = text
@@ -642,6 +698,7 @@ extension ConversationResultsUpdatingViewController: SearchRecentsHeaderDelegate
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success(_):
+                    // Clear the recent searches and reload the main collection view
                     strongSelf.recentSearches.removeAll()
                     strongSelf.mainCollectionView.reloadData()
                 case .failure(let error):
@@ -656,27 +713,32 @@ extension ConversationResultsUpdatingViewController: MainSearchHeaderDelegate {
     func didTapSeeAll(_ header: UICollectionReusableView) {
         switch header.tag {
         case 0:
+            // Scroll to the conversations section
             scrollView.setContentOffset(CGPoint(x: view.frame.width, y: 0), animated: true)
+            scrollIndex = 1
         default:
+            // Scroll to the messages section
             scrollView.setContentOffset(CGPoint(x: 2 * view.frame.width, y: 0), animated: true)
+            scrollIndex = 2
         }
     }
 }
 
 extension ConversationResultsUpdatingViewController: MessageToolbarDelegate {
     func didTapIndex(_ index: Int) {
+        // Set the content offset of the scroll view based on the tapped index
         scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
+        scrollIndex = index
     }
 }
 
 extension ConversationResultsUpdatingViewController: EmptyGroupCellDelegate {
     func didTapDiscoverGroup() {
+        // Presents the NewMessageViewController modally
         let controller = NewMessageViewController()
         controller.delegate = self
         let navVC = UINavigationController(rootViewController: controller)
-        
         navVC.modalPresentationStyle = .automatic
-        
         present(navVC, animated: true)
     }
 }
@@ -687,8 +749,9 @@ extension ConversationResultsUpdatingViewController: MessageViewControllerDelega
     }
     
     func didCreateNewConversation(_ conversation: Conversation) {
-        #warning("implementar create new conversation tb i asaro a conversation view controller perquè l'afegeixi si la crea des d'aquí")
-        
+        if let conversationViewController = presentingViewController as? ConversationViewController {
+            conversationViewController.didCreateNewConversation(conversation)
+        }
     }
     
     func deleteConversation(_ conversation: Conversation) { return }
@@ -700,41 +763,27 @@ extension ConversationResultsUpdatingViewController: MessageViewControllerDelega
 
 extension ConversationResultsUpdatingViewController: NewMessageViewControllerDelegate {
     func didOpenConversation(for user: User) {
-        
+        // Check if a conversation exists for the given user ID
         DataService.shared.conversationExists(for: user.uid!) { [weak self] exists in
             guard let strongSelf = self else { return }
             if exists {
-                #warning("aqui demanar al conversation la conversació i pasarla")
+                // Find the index of the conversation for the user in the conversations array
                 if let conversationIndex = strongSelf.conversations.firstIndex(where: { $0.userId == user.uid! }) {
+                    // Create a MessageViewController with the existing conversation
                     let controller = MessageViewController(conversation: strongSelf.conversations[conversationIndex], user: user)
                     controller.delegate = self
-                    let backItem = UIBarButtonItem()
-                    backItem.title = ""
-                    backItem.tintColor = .label
-                    
-                    strongSelf.navigationItem.backBarButtonItem = backItem
-                    
                     strongSelf.navigationController?.pushViewController(controller, animated: true)
                 }
             } else {
                 guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
                 let name = user.firstName! + " " + user.lastName!
+                
+                // Create a new conversation with the user
                 let newConversation = Conversation(name: name, userId: user.uid!, ownerId: uid)
                 let controller = MessageViewController(conversation: newConversation, user: user)
                 controller.delegate = self
-                let backItem = UIBarButtonItem()
-                backItem.title = ""
-                backItem.tintColor = .label
-                strongSelf.navigationItem.backBarButtonItem = backItem
                 strongSelf.navigationController?.pushViewController(controller, animated: true)
             }
         }
     }
 }
-
-
-/*
-extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    
-}
- */

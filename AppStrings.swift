@@ -37,10 +37,13 @@ struct AppStrings {
         static let leftChevron = "chevron.left"
         static let exclamation = "exclamationmark"
         static let clockwiseArrow = "arrow.clockwise"
+        static let backArrow = "arrow.backward"
         static let note = "note"
         static let moon = "moon.stars"
         static let sun = "sun.max"
         static let gear = "gearshape"
+        static let paperplane = "paperplane"
+        static let apple = "applelogo"
     }
     
     struct Actions {
@@ -55,6 +58,7 @@ struct AppStrings {
         static let message = "Messages"
         static let newMessage = "New Message"
         static let user = "Add User"
+        static let bookmark = "Bookmarks"
     }
     
     struct Placeholder {
@@ -65,6 +69,8 @@ struct AppStrings {
         static let profile = "user.profile"
         static let emptyMessage = "message.empty"
         static let paperplane = "paperplane"
+        static let emptyContent = "content.empty"
+        static let google = "google"
     }
     
     struct Evidence {
@@ -153,4 +159,13 @@ struct AppStrings {
             static let message = "Search Direct Messages"
         }
     }
+    
+    struct Opening {
+        static let googleSignIn = "Continue with Google"
+        static let appleSignIn = "Continue with Apple"
+        static let logIn = "Log In"
+        static let createAccount = "Create Account"
+        static let member = "Already a member?"
+    }
+    
 }

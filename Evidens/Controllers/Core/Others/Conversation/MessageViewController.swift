@@ -40,6 +40,7 @@ class MessageViewController: UICollectionViewController {
     private let messageInputAccessoryView = MessageInputAccessoryView()
     private var keyboardHidden: Bool = true
     private var keyboardHeight: CGFloat = 0.0
+    private var didScrollToBottom: Bool = false
     
     override var inputAccessoryView: UIView? {
         get {
@@ -153,7 +154,6 @@ class MessageViewController: UICollectionViewController {
         } else {
             messages = DataService.shared.getMessages(for: conversation)
             if !messages.isEmpty {
-                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                     guard let strongSelf = self else { return }
                     let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
@@ -161,6 +161,7 @@ class MessageViewController: UICollectionViewController {
                     if strongSelf.preview == false {
                         DataService.shared.readMessages(conversation: strongSelf.conversation)
                         strongSelf.delegate?.didReadAllMessages(for: strongSelf.conversation)
+                        NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
                     }
                 }
             }
@@ -239,6 +240,8 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
             return cell
         case .photo:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messagePhotoCellReuseIdentifier, for: indexPath) as! MessagePhotoCell
+            if indexPath.row == messages.count - 1 { cell.isLastItem = true }
+            cell.delegate = self
             cell.viewModel = MessageViewModel(message: messages[indexPath.row])
             cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
             cell.displayTime(shouldDisplayTime(indexOfMessage: indexPath))
@@ -338,13 +341,12 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
         FileGateway.shared.saveImage(image: image, messageId: uuid.uuidString) { [weak self] url in
             guard let strongSelf = self, let url = url else { return }
             
-            let newMessage = Message(text: "Image", sentDate: Date.now, messageId: uuid.uuidString, isRead: true, senderId: uid, image: url.absoluteString, kind: .photo, phase: .sending)
-            
-            //DataService.shared.save(message: newMessage, to: strongSelf.conversation)
+            var newMessage = Message(text: "Image", sentDate: Date.now, messageId: uuid.uuidString, isRead: true, senderId: uid, image: url.absoluteString, kind: .photo, phase: .sending)
             
             strongSelf.messages.append(newMessage)
-            //messageDelegate?.didSendMessage(for: conversation, message: newMessage)
-            DispatchQueue.main.async {
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
                 strongSelf.collectionView.performBatchUpdates {
                     strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0)])
                 } completion: { _ in
@@ -352,10 +354,37 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
                     strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
                 }
             }
+            
+            DispatchQueue.main.async {
+                strongSelf.delegate?.didSendMessage(newMessage, for: strongSelf.conversation)
+            }
+            
+            DataService.shared.save(message: newMessage, to: strongSelf.conversation)
+            
+            StorageManager.uploadMessagePhoto(image, conversationId: strongSelf.conversation.id!, fileName: uuid.uuidString) { result in
+                
+                switch result {
+                case .success(let url):
+                    newMessage.updateImage(url)
+                    DatabaseManager.shared.sendMessage(to: strongSelf.conversation, with: newMessage) { [weak self] error in
+                        guard let strongSelf = self else { return }
+                        if let error {
+                            print(error.localizedDescription)
+                        } else {
+                            strongSelf.messages[strongSelf.messages.count - 1].updatePhase(.sent)
+                            strongSelf.delegate?.didSendMessage(strongSelf.messages[strongSelf.messages.count - 1], for: strongSelf.conversation)
+                            DataService.shared.edit(message: strongSelf.messages[strongSelf.messages.count - 1], set: MessagePhase.sent.rawValue, forKey: "phase")
+                            DispatchQueue.main.async {
+                                strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
+                            }
+                        }
+                    }
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
         }
     }
-    
-    
 }
 
 extension MessageViewController: MessageInputAccessoryViewDelegate {
@@ -441,6 +470,23 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
         let controller = PHPickerViewController(configuration: config)
         controller.delegate = self
         present(controller, animated: true)
+    }
+}
+
+extension MessageViewController: MessagePhotoCellDelegate {
+    func didTapMenu(_ option: MessageMenu) {
+        return
+    }
+    
+    func didLoadPhoto() {
+        if !didScrollToBottom {
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
+                strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
+                strongSelf.didScrollToBottom = true
+            }
+        }
     }
 }
 

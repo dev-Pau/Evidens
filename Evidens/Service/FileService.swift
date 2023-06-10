@@ -70,7 +70,7 @@ struct FileGateway {
             }
             
             DispatchQueue.global().async {
-                if let imageData = image.jpegData(compressionQuality: 1.0) {
+                if let imageData = image.jpegData(compressionQuality: 0.5) {
                     do {
                         try imageData.write(to: imageUrl)
                         completion(imageUrl)

@@ -134,7 +134,7 @@ extension DataService {
         var messageEntities = [MessageEntity]()
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
         request.predicate = NSPredicate(format: "text CONTAINS[c] %@", text)
-        request.fetchLimit = 3
+        request.fetchLimit = limit
         
         do {
             messageEntities = try managedObjectContext.fetch(request)
@@ -199,18 +199,14 @@ extension DataService {
         return messages.sorted(by: { $0.sentDate < $1.sentDate })
     }
     
-    func getUnreadMessage() -> Int {
-        let request: NSFetchRequest<NSNumber> = NSFetchRequest(entityName: "MessageEntity")
+    func getUnreadConversations() -> Int {
+        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "ConversationEntity")
         request.resultType = .countResultType
-        request.predicate = NSPredicate(format: "isRead == %@", NSNumber(value: false))
-        
+        request.predicate = NSPredicate(format: "SUBQUERY(messages, $message, $message.isRead == %@).@count > 0", NSNumber(value: false))
+
         do {
-            let result = try managedObjectContext.fetch(request)
-            if let count = result.first?.intValue {
-                return count
-            } else {
-                return 0
-            }
+            let result = try managedObjectContext.count(for: request)
+            return result
         } catch {
             print(error.localizedDescription)
             return 0
@@ -222,6 +218,8 @@ extension DataService {
 
 extension DataService {
     
+    /// Updates the phase of the message to failed within the Core Data store.
+    ///
     func editPhase() {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")

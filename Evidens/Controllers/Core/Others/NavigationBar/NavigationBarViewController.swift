@@ -9,7 +9,6 @@ import UIKit
 
 protocol NavigationBarViewControllerDelegate: AnyObject {
     func didTapMenuButton()
-    func didTapSearchBar()
     func didTapConversationsButton()
 }
 
@@ -19,10 +18,8 @@ class NavigationBarViewController: UIViewController {
     weak var panDelegate: DisablePanGestureDelegate?
 
     var controllerIsBeeingPushed: Bool = false
-    //var wantsToHideSearchBar: Bool = false
-
-    //let searchController = UISearchController(searchResultsController: nil)
-
+    private let messageBarIcon = MessageBarIcon()
+    
     private lazy var userImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
@@ -34,8 +31,7 @@ class NavigationBarViewController: UIViewController {
         iv.isUserInteractionEnabled = true
         return iv
     }()
-    
-    private let paperplaneView = PaperplaneView()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +41,7 @@ class NavigationBarViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UnreadMessagesUpdateIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
         
         if !controllerIsBeeingPushed {
             
@@ -60,28 +56,21 @@ class NavigationBarViewController: UIViewController {
             }
             
             navigationItem.leftBarButtonItem = profileImageItem
-            
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "envelope", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), style: .done, target: self, action: #selector(didTapChat))
 
-
-            //navigationItem.rightBarButtonItem = UIBarButtonItem(customView: paperplaneView)
-            //let unread = DataService.shared.getUnreadMessage()
-            //paperplaneView.setUnreadMessages(unread)
-            
-
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: messageBarIcon)
+            navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowMessages)))
+            let unread = DataService.shared.getUnreadConversations()
+            messageBarIcon.setUnreadMessages(unread)
         }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-       
-        //if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
         panDelegate?.disablePanGesture()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        //if wantsToHideSearchBar { panDelegate?.disableRightPanGesture() }
         panDelegate?.disablePanGesture()
     }
 
@@ -89,75 +78,21 @@ class NavigationBarViewController: UIViewController {
         delegate?.didTapMenuButton()
     }
     
-    @objc func didTapChat() {
+    @objc func handleShowMessages() {
         delegate?.didTapConversationsButton()
     }
     
     @objc func didReceiveNotification(notification: NSNotification) {
+        let name = notification.name.rawValue
         
-        if let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, profileImageUrl != "" {
-            userImageView.sd_setImage(with: URL(string: profileImageUrl))
+        switch name {
+        case AppPublishers.Names.refreshUnreadConversations:
+            let unread = DataService.shared.getUnreadConversations()
+            messageBarIcon.setUnreadMessages(unread)
+        default:
+            if let profileImageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, profileImageUrl != "" {
+                userImageView.sd_setImage(with: URL(string: profileImageUrl))
+            }
         }
-    }
-}
-
-class PaperplaneView: UIView {
-    
-    let paperplaneImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.image = UIImage(systemName: "envelope", withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    private let unreadMessagesButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.configuration = .filled()
-        button.isUserInteractionEnabled = false
-        button.configuration?.baseBackgroundColor = .systemRed
-
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-    
-        return button
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        configure()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func configure() {
-        addSubviews(paperplaneImageView, unreadMessagesButton)
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(named: AppStrings.Assets.paperplane), for: .normal)
-        //button.tintColor = .label
-        //addSubview(button)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            paperplaneImageView.topAnchor.constraint(equalTo: topAnchor),
-            paperplaneImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            paperplaneImageView.heightAnchor.constraint(equalToConstant: 27),
-            paperplaneImageView.widthAnchor.constraint(equalToConstant: 27),
-            paperplaneImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            paperplaneImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            
-            unreadMessagesButton.topAnchor.constraint(equalTo: topAnchor),
-            unreadMessagesButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            unreadMessagesButton.heightAnchor.constraint(equalToConstant: 10),
-            unreadMessagesButton.widthAnchor.constraint(equalToConstant: 10)
-        ])
-    }
-    
-    func setUnreadMessages(_ unread: Int) {
-        unreadMessagesButton.isHidden = unread == 0 ? true : false
     }
 }

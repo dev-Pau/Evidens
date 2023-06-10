@@ -10,6 +10,7 @@ import SDWebImage
 
 protocol MessagePhotoCellDelegate: AnyObject {
     func didTapMenu(_ option: MessageMenu)
+    func didLoadPhoto()
 }
 
 class MessagePhotoCell: UICollectionViewCell {
@@ -17,10 +18,11 @@ class MessagePhotoCell: UICollectionViewCell {
     private var bubbleLeadingConstraint: NSLayoutConstraint?
     private var bubbleTrailingConstraint: NSLayoutConstraint?
     private var imageHeightConstraint: NSLayoutConstraint?
-    private var bubbleViewBottomAnchor: NSLayoutConstraint!
+    private var bubbleViewBottomAnchor: NSLayoutConstraint?
     
     private var timeLeadingConstriant: NSLayoutConstraint!
     private var timeTrailingConstraint: NSLayoutConstraint!
+    var isLastItem: Bool = false
     
     var viewModel: MessageViewModel? {
         didSet {
@@ -35,7 +37,7 @@ class MessagePhotoCell: UICollectionViewCell {
         imageHeightConstraint?.isActive = false
         timeLeadingConstriant.isActive = false
         timeTrailingConstraint.isActive = false
-        bubbleViewBottomAnchor.isActive = false
+        bubbleViewBottomAnchor?.isActive = false
     }
     
     private lazy var timestampLabel: UILabel = {
@@ -64,6 +66,8 @@ class MessagePhotoCell: UICollectionViewCell {
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.isUserInteractionEnabled = true
+        iv.backgroundColor = .secondaryLabel
+        iv.image = UIImage()
         return iv
     }()
     
@@ -96,7 +100,7 @@ class MessagePhotoCell: UICollectionViewCell {
         addSubviews(timestampLabel, messageImageView, timeLabel)
         
         if viewModel.isSender {
-            messageImageView.backgroundColor = .systemBlue
+            messageImageView.backgroundColor = .systemGray3
             bubbleTrailingConstraint = messageImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
             bubbleLeadingConstraint = messageImageView.widthAnchor.constraint(equalToConstant: width)
             
@@ -123,7 +127,7 @@ class MessagePhotoCell: UICollectionViewCell {
             bubbleTrailingConstraint!,
             imageHeightConstraint!,
             bubbleLeadingConstraint!,
-            bubbleViewBottomAnchor,
+            bubbleViewBottomAnchor!,
             
             timeLeadingConstriant,
             timeTrailingConstraint,
@@ -131,7 +135,17 @@ class MessagePhotoCell: UICollectionViewCell {
         ])
 
         messageImageView.layer.cornerRadius = 17
-        messageImageView.sd_setImage(with: viewModel.imageUrl)
+        
+        messageImageView.sd_setImage(with: viewModel.imageUrl) { [weak self] (_, _, _, _) in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                // Update content size and scroll to the last item
+                if strongSelf.isLastItem {
+                    strongSelf.delegate?.didLoadPhoto()
+                }
+              
+            }
+        }
         timeLabel.text = viewModel.time
         
         let contextMenu = UIContextMenuInteraction(delegate: self)
@@ -154,7 +168,7 @@ class MessagePhotoCell: UICollectionViewCell {
     }
     
     func displayTime(_ display: Bool) {
-        bubbleViewBottomAnchor.constant = display ? -13 : 0
+        bubbleViewBottomAnchor?.constant = display ? -13 : 0
         timeLabel.isHidden = !display
         layoutIfNeeded()
     }

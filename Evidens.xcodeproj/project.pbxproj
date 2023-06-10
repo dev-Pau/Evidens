@@ -388,6 +388,11 @@
 		5FA85B67299BDAB5002FCEF3 /* JobsBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA85B66299BDAB5002FCEF3 /* JobsBrowserViewController.swift */; };
 		5FA85B6A299BDE5B002FCEF3 /* CreateJobViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA85B69299BDE5B002FCEF3 /* CreateJobViewController.swift */; };
 		5FA91BCE2A31C27900DF6675 /* MessagePhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BCD2A31C27900DF6675 /* MessagePhotoCell.swift */; };
+		5FA91BD02A33220B00DF6675 /* MessageSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BCF2A33220B00DF6675 /* MessageSearch.swift */; };
+		5FA91BD32A332BAD00DF6675 /* BookmarkKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD22A332BAD00DF6675 /* BookmarkKind.swift */; };
+		5FA91BD52A33452600DF6675 /* BookmarkToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD42A33452600DF6675 /* BookmarkToolbar.swift */; };
+		5FA91BD72A34B09A00DF6675 /* MessageBarIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */; };
+		5FA91BD92A34B2C200DF6675 /* AppPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD82A34B2C200DF6675 /* AppPublishers.swift */; };
 		5FA9D17129A4A8C5004EF26A /* CompanyBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17029A4A8C5004EF26A /* CompanyBrowserViewController.swift */; };
 		5FA9D17429A4B423004EF26A /* BrowseCompanyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17329A4B423004EF26A /* BrowseCompanyCell.swift */; };
 		5FA9D17629A4D138004EF26A /* JobService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17529A4D138004EF26A /* JobService.swift */; };
@@ -480,7 +485,7 @@
 		5FC4D88827071FB0006B7A34 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88727071FB0006B7A34 /* Extensions.swift */; };
 		5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88A27072B56006B7A34 /* LoginViewController.swift */; };
 		5FC4D88F2708A5EA006B7A34 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */; };
-		5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */; };
+		5FC4D8932708AABF006B7A34 /* OpeningViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8922708AABF006B7A34 /* OpeningViewController.swift */; };
 		5FC4D8952708AB6D006B7A34 /* CustomLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */; };
 		5FC4D8982709912D006B7A34 /* ResetPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */; };
 		5FDB11D0289ADAB90079463F /* HealthDocumentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */; };
@@ -877,6 +882,11 @@
 		5FA85B66299BDAB5002FCEF3 /* JobsBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsBrowserViewController.swift; sourceTree = "<group>"; };
 		5FA85B69299BDE5B002FCEF3 /* CreateJobViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateJobViewController.swift; sourceTree = "<group>"; };
 		5FA91BCD2A31C27900DF6675 /* MessagePhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePhotoCell.swift; sourceTree = "<group>"; };
+		5FA91BCF2A33220B00DF6675 /* MessageSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSearch.swift; sourceTree = "<group>"; };
+		5FA91BD22A332BAD00DF6675 /* BookmarkKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkKind.swift; sourceTree = "<group>"; };
+		5FA91BD42A33452600DF6675 /* BookmarkToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkToolbar.swift; sourceTree = "<group>"; };
+		5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBarIcon.swift; sourceTree = "<group>"; };
+		5FA91BD82A34B2C200DF6675 /* AppPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPublishers.swift; sourceTree = "<group>"; };
 		5FA9D17029A4A8C5004EF26A /* CompanyBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyBrowserViewController.swift; sourceTree = "<group>"; };
 		5FA9D17329A4B423004EF26A /* BrowseCompanyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseCompanyCell.swift; sourceTree = "<group>"; };
 		5FA9D17529A4D138004EF26A /* JobService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobService.swift; sourceTree = "<group>"; };
@@ -972,7 +982,7 @@
 		5FC4D88727071FB0006B7A34 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		5FC4D88A27072B56006B7A34 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		5FC4D88E2708A5EA006B7A34 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
-		5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
+		5FC4D8922708AABF006B7A34 /* OpeningViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpeningViewController.swift; sourceTree = "<group>"; };
 		5FC4D8942708AB6D006B7A34 /* CustomLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLabel.swift; sourceTree = "<group>"; };
 		5FC4D8972709912D006B7A34 /* ResetPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordViewController.swift; sourceTree = "<group>"; };
 		5FDB11CF289ADAB90079463F /* HealthDocumentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDocumentationViewController.swift; sourceTree = "<group>"; };
@@ -1080,13 +1090,13 @@
 			path = Search;
 			sourceTree = "<group>";
 		};
-		5F4493B62760CCD6008FD6ED /* Welcome */ = {
+		5F4493B62760CCD6008FD6ED /* Opening */ = {
 			isa = PBXGroup;
 			children = (
-				5FC4D8922708AABF006B7A34 /* WelcomeViewController.swift */,
+				5FC4D8922708AABF006B7A34 /* OpeningViewController.swift */,
 				5FC4D88A27072B56006B7A34 /* LoginViewController.swift */,
 			);
-			path = Welcome;
+			path = Opening;
 			sourceTree = "<group>";
 		};
 		5F4493B82760CD14008FD6ED /* Main */ = {
@@ -1112,6 +1122,8 @@
 				5F9E428F2880186B00C2153B /* MECategoryView.swift */,
 				5F91F0F629AD14FC007BB567 /* MESearchToolbar.swift */,
 				5FB4439D2A2882F000A601EE /* MessageToolbar.swift */,
+				5FA91BD42A33452600DF6675 /* BookmarkToolbar.swift */,
+				5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */,
 			);
 			path = Customs;
 			sourceTree = "<group>";
@@ -2110,6 +2122,7 @@
 				5F9CFF8D2A21EC6B003FF382 /* MessageKind.swift */,
 				5F9CFF922A2254E6003FF382 /* MessagePhase.swift */,
 				5FA816D12A24AE5F0082B4C7 /* MessageMenu.swift */,
+				5FA91BCF2A33220B00DF6675 /* MessageSearch.swift */,
 			);
 			path = Message;
 			sourceTree = "<group>";
@@ -2467,6 +2480,22 @@
 			path = Create;
 			sourceTree = "<group>";
 		};
+		5FA91BD12A332B2A00DF6675 /* Bookmark */ = {
+			isa = PBXGroup;
+			children = (
+				5FA91BD22A332BAD00DF6675 /* BookmarkKind.swift */,
+			);
+			path = Bookmark;
+			sourceTree = "<group>";
+		};
+		5FA91BDA2A34B4EA00DF6675 /* Publishers */ = {
+			isa = PBXGroup;
+			children = (
+				5FA91BD82A34B2C200DF6675 /* AppPublishers.swift */,
+			);
+			path = Publishers;
+			sourceTree = "<group>";
+		};
 		5FA9D16F29A4A8B7004EF26A /* Browse */ = {
 			isa = PBXGroup;
 			children = (
@@ -2742,8 +2771,10 @@
 				5F9E42972880589C00C2153B /* Register */,
 				5F8B7C4A2873FC3C005094A5 /* Cases */,
 				5F9E875429C9BA3900BEA131 /* Message */,
+				5FA91BD12A332B2A00DF6675 /* Bookmark */,
 				5F9E875829C9BA6000BEA131 /* Location */,
 				5F9E875729C9BA5A00BEA131 /* Job */,
+				5FA91BDA2A34B4EA00DF6675 /* Publishers */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2850,8 +2881,8 @@
 		5FC4D88927072AE6006B7A34 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				5F4493B62760CCD6008FD6ED /* Opening */,
 				5F5F8949299651470014F378 /* Others */,
-				5F4493B62760CCD6008FD6ED /* Welcome */,
 				5FBC2D9D272D938D004F92CE /* Registration */,
 				5FC4D8962709910B006B7A34 /* PasswordManager */,
 			);
@@ -3106,6 +3137,7 @@
 				5FA0874828B7627500D44829 /* TopPostImageCell.swift in Sources */,
 				5F4493F227832021008FD6ED /* RegisterUserTypeCell.swift in Sources */,
 				5FA9D17429A4B423004EF26A /* BrowseCompanyCell.swift in Sources */,
+				5FA91BD02A33220B00DF6675 /* MessageSearch.swift in Sources */,
 				5F8ECF8A2982AE4800BF5067 /* ExploreCasesToolbar.swift in Sources */,
 				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
@@ -3254,7 +3286,7 @@
 				5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */,
 				5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */,
 				5FA758DB29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift in Sources */,
-				5FC4D8932708AABF006B7A34 /* WelcomeViewController.swift in Sources */,
+				5FC4D8932708AABF006B7A34 /* OpeningViewController.swift in Sources */,
 				5F9F08A228630F580069FD2C /* PostPrivacyCell.swift in Sources */,
 				5F99BCDC29F1017700681C5C /* MEPostTextView.swift in Sources */,
 				5F85218C28A3B32F0033AF67 /* EducationSectionViewController.swift in Sources */,
@@ -3281,6 +3313,7 @@
 				5F91F10B29B642DF007BB567 /* New.swift in Sources */,
 				5F9AF7E42A30CC020007D2B9 /* String+Ext.swift in Sources */,
 				5F4DBCB027410B300005AEC3 /* ProfileImageViewController.swift in Sources */,
+				5FA91BD72A34B09A00DF6675 /* MessageBarIcon.swift in Sources */,
 				5F9A9FA02898FA1D00A25152 /* UserProfileCommentCell.swift in Sources */,
 				5F9F08A528636A780069FD2C /* PostPrivacyHeader.swift in Sources */,
 				5F598C10283CDD4B00189722 /* HomeImageTextCell.swift in Sources */,
@@ -3377,6 +3410,8 @@
 				5F5F894D299686D90014F378 /* ProfileCompletedViewController.swift in Sources */,
 				5F9F08C12865AEC20069FD2C /* PostAttachementsMenuLauncher.swift in Sources */,
 				5FF3777B2A279B8C00181FFF /* ConversationResultsUpdatingViewController.swift in Sources */,
+				5FA91BD92A34B2C200DF6675 /* AppPublishers.swift in Sources */,
+				5FA91BD52A33452600DF6675 /* BookmarkToolbar.swift in Sources */,
 				5F99C1DA29C8658200C681E2 /* AppearanceSettingCell.swift in Sources */,
 				5F9A9F892897A0F600A25152 /* AddExperienceViewController.swift in Sources */,
 				5FA9D18429A66555004EF26A /* JobHiringTeamCell.swift in Sources */,
@@ -3386,6 +3421,7 @@
 				5F9E876229CA00CE00BEA131 /* ExploreCaseCell.swift in Sources */,
 				5FA9D19029A796EA004EF26A /* JobParticipantsViewController.swift in Sources */,
 				5FA3F4DF29EBFFF800CE89E3 /* JobDetailsHeader.swift in Sources */,
+				5FA91BD32A332BAD00DF6675 /* BookmarkKind.swift in Sources */,
 				5FB443B42A28E98C00A601EE /* Experience.swift in Sources */,
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5FA0875028BFC64600D44829 /* Section.swift in Sources */,

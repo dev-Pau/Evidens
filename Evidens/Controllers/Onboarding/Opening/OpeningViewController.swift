@@ -1,5 +1,5 @@
 //
-//  WelcomeViewController.swift
+//  OpeningViewController.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 2/10/21.
@@ -18,7 +18,7 @@ private let onboardingMessageReuseIdentifier = "OnboardingMessageReuseIdentifier
 private let pagingSectionFooterViewReuseIdentifier = "PagingSectionFooterViewReuseIdentifier"
 private let onboardingImageReuseIdentifier = "OnboardingImageReuseIdentifier"
 
-class WelcomeViewController: UIViewController {
+class OpeningViewController: UIViewController {
     
     //MARK: - Properties
     
@@ -51,7 +51,7 @@ class WelcomeViewController: UIViewController {
         return collectionView
     }()
     
-    private lazy var imagesCollectionView: UICollectionView = {
+    private lazy var cardsCollectionView: UICollectionView = {
         let layout = createCellImageLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -71,7 +71,7 @@ class WelcomeViewController: UIViewController {
         button.configuration?.background.strokeColor = .quaternarySystemFill
         button.configuration?.background.strokeWidth = 1.5
          
-        button.configuration?.image = UIImage(named: "google")?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.google)?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20))
         button.configuration?.imagePadding = 15
         
         button.configuration?.baseForegroundColor = .black
@@ -79,7 +79,7 @@ class WelcomeViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .heavy)
-        button.configuration?.attributedTitle = AttributedString("Continue with Google", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.googleSignIn, attributes: container)
         
         button.addTarget(self, action: #selector(googleLoginButtonPressed), for: .touchUpInside)
         
@@ -87,7 +87,6 @@ class WelcomeViewController: UIViewController {
         
         return button
     }()
-    
     
     private lazy var appleSingInButton: UIButton = {
         let button = UIButton()
@@ -97,7 +96,7 @@ class WelcomeViewController: UIViewController {
         button.configuration?.background.strokeColor = .quaternarySystemFill
         button.configuration?.background.strokeWidth = 1.5
         
-        button.configuration?.image = UIImage(systemName: "applelogo")?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.apple)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         button.configuration?.imagePadding = 15
         
         button.configuration?.baseForegroundColor = .black
@@ -107,7 +106,7 @@ class WelcomeViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .heavy)
-        button.configuration?.attributedTitle = AttributedString("Continue with Apple", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.appleSignIn, attributes: container)
         
         button.translatesAutoresizingMaskIntoConstraints = false
         
@@ -122,7 +121,7 @@ class WelcomeViewController: UIViewController {
         
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 15, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Log In", attributes: container)
+        button.configuration?.attributedTitle = AttributedString(AppStrings.Opening.logIn, attributes: container)
         
         button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
         
@@ -150,7 +149,7 @@ class WelcomeViewController: UIViewController {
     
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Create account", for: .normal)
+        button.setTitle(AppStrings.Opening.createAccount, for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = primaryColor
         button.layer.cornerRadius = 26
@@ -164,24 +163,27 @@ class WelcomeViewController: UIViewController {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.textColor = .secondaryLabel
-        label.text = "Already a member?"
+        label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if #available(iOS 15, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            self.navigationController?.navigationBar.isTranslucent = true
-            self.navigationController?.navigationBar.tintColor = UIColor.white
-            UINavigationBar.appearance().standardAppearance = appearance
-            UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
+        
+        let barButtonItemAppearance = UIBarButtonItemAppearance()
+        barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.backButtonAppearance = barButtonItemAppearance
+        
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.navigationBar.tintColor = UIColor.white
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
         
         configureUI()
     }
@@ -195,7 +197,7 @@ class WelcomeViewController: UIViewController {
     func configureUI() {
         collectionView.register(OnboardingCell.self, forCellWithReuseIdentifier: onboardingMessageReuseIdentifier)
         collectionView.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: pagingSectionFooterViewReuseIdentifier)
-        imagesCollectionView.register(OnboardingImageCell.self, forCellWithReuseIdentifier: onboardingImageReuseIdentifier)
+        cardsCollectionView.register(OnboardingImageCell.self, forCellWithReuseIdentifier: onboardingImageReuseIdentifier)
         
         view.addSubview(scrollView)
         view.backgroundColor = .systemBackground
@@ -208,7 +210,7 @@ class WelcomeViewController: UIViewController {
         stackLogin.axis = .horizontal
         stackLogin.spacing = 0
        
-        scrollView.addSubviews(collectionView, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin, imagesCollectionView)
+        scrollView.addSubviews(collectionView, googleSingInButton, appleSingInButton, separatorView, orLabel, signUpButton, stackLogin, cardsCollectionView)
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: UIScreen.main.bounds.height * 0.1),
@@ -242,10 +244,10 @@ class WelcomeViewController: UIViewController {
             stackLogin.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 20),
             stackLogin.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             
-            imagesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10),
-            imagesCollectionView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
-            imagesCollectionView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
-            imagesCollectionView.topAnchor.constraint(equalTo: stackLogin.bottomAnchor, constant: 30)
+            cardsCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10),
+            cardsCollectionView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
+            cardsCollectionView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
+            cardsCollectionView.topAnchor.constraint(equalTo: stackLogin.bottomAnchor, constant: 30)
         ])
     }
 
@@ -256,24 +258,11 @@ class WelcomeViewController: UIViewController {
     
     @objc func loginButtonPressed() {
         let controller = LoginViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
         navigationController?.pushViewController(controller, animated: true)
     }
     
     @objc func signupButtonPressed() {
         let controller = EmailRegistrationViewController()
-        
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -283,15 +272,9 @@ class WelcomeViewController: UIViewController {
     
     @objc func googleLoginButtonPressed() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        // Create Google Sign In configuration object.
         let config = GIDConfiguration(clientID: clientID)
-        // Start the sign in flow!
-
+        
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] signInResult, error in
-          //
-        //}
-        //GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
-
             if let error = error {
                 print(error.localizedDescription)
                 return
@@ -302,17 +285,10 @@ class WelcomeViewController: UIViewController {
             let user = signInResult.user
             
             guard let idToken = user.idToken?.tokenString else { return }
-            //guard let authentication = signInResult?.user.authentication, let idToken = authentication.idToken else { return }
-            
+
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                            accessToken: user.accessToken.tokenString)
-            
-            //let credential = GoogleAuthProvider.credential(withIDToken: signInResult?.user.to, accessToken: <#T##String#>)
 
-            // Firebase Auth
-            
-            
-            
             Auth.auth().signIn(with: credential) { result, error in
                 if let error = error {
                     print(error.localizedDescription)
@@ -321,17 +297,12 @@ class WelcomeViewController: UIViewController {
                 
                 if let newUser = result?.additionalUserInfo?.isNewUser {
                     if newUser {
-
-                        // Displaying user data
                         guard let googleUser = result?.user,
-                              
-                              let email = googleUser.email,
-                            
+                                let email = googleUser.email,
                                 let firstName = user.profile?.givenName/*user?.profile?.givenName*/else { return }
-
                         
                         var credentials = AuthCredentials(firstName: firstName, lastName: "", email: email, password: "", profileImageUrl: "", phase: .categoryPhase, category: .none, profession: "", speciality: "", interests: [])
-                          
+                        
                         if let lastName = user.profile?.familyName {
                             credentials.lastName = lastName
                         }
@@ -351,13 +322,12 @@ class WelcomeViewController: UIViewController {
                         self.present(controller, animated: false)
                     }
                 }
-            } 
+            }
         }
     }
 }
 
-
-extension WelcomeViewController {
+extension OpeningViewController {
     
     func startSignInWithAppleFlow() {
         let nonce = randomNonceString()
@@ -408,17 +378,17 @@ extension WelcomeViewController {
     }
     
     private func sha256(_ input: String) -> String {
-      let inputData = Data(input.utf8)
-      let hashedData = SHA256.hash(data: inputData)
-      let hashString = hashedData.compactMap {
-        String(format: "%02x", $0)
-      }.joined()
-
-      return hashString
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        let hashString = hashedData.compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+        
+        return hashString
     }
 }
 
-extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+extension OpeningViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         ASPresentationAnchor()
     }
@@ -459,25 +429,24 @@ extension WelcomeViewController: ASAuthorizationControllerDelegate, ASAuthorizat
                         controller.modalPresentationStyle = .fullScreen
                         self.present(controller, animated: false)
                     }
-                    
                 }
             }
         }
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        print("error")
+        print(error.localizedDescription)
     }
 }
 
-extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
-
+extension OpeningViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == imagesCollectionView {
+        if collectionView == cardsCollectionView {
             return onboardingImages.count
         } else {
             return onboardingMessages.count
@@ -485,7 +454,7 @@ extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == imagesCollectionView {
+        if collectionView == cardsCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: onboardingImageReuseIdentifier, for: indexPath) as! OnboardingImageCell
             cell.set(image: onboardingImages[indexPath.row])
             return cell
@@ -505,7 +474,6 @@ extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectio
         return footer
     }
     
-    
     private func createCellLayout() -> UICollectionViewCompositionalLayout {
         let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
             
@@ -515,26 +483,25 @@ extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectio
             section.orthogonalScrollingBehavior = .paging
             
             let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(20)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
-
+            
             section.boundarySupplementaryItems = [footer]
             
             section.visibleItemsInvalidationHandler = { [weak self] (item, offset, env) -> Void in
-                guard let self = self else { return }
-                let page = round(offset.x / self.collectionView.bounds.width)
-                // Send the page of the visible image to the PagingInfoSubject
-                self.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
+                guard let strongSelf = self else { return }
+                let page = round(offset.x / strongSelf.collectionView.bounds.width)
+                strongSelf.pagingInfoSubject.send(PagingInfo(currentPage: Int(page)))
                 
             }
             return section
-            
         }
         return layout
     }
     
     private func createCellImageLayout() -> UICollectionViewCompositionalLayout {
-        let layout = UICollectionViewCompositionalLayout { sectionNumber, env in
+        let layout = UICollectionViewCompositionalLayout { [unowned self] sectionNumber, env in
+            //guard let strongSelf = self else { return }
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(self.imagesCollectionView.frame.height)), subitems: [item])
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(self.cardsCollectionView.frame.height)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .paging
             return section
@@ -543,10 +510,9 @@ extension WelcomeViewController: UICollectionViewDelegateFlowLayout, UICollectio
     }
 }
 
-extension WelcomeViewController: PagingSectionFooterViewDelegate {
+extension OpeningViewController: PagingSectionFooterViewDelegate {
     func messageDidChange(_ index: Int) {
-        print(index)
-        imagesCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .left, animated: true)
+        cardsCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .left, animated: true)
     }
 }
 

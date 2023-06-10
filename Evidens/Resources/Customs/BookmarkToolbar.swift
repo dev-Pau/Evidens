@@ -1,23 +1,23 @@
 //
-//  MessagesToolbar.swift
+//  BookmarkToolbar.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/6/23.
+//  Created by Pau Fernández Solà on 9/6/23.
 //
 
 import UIKit
 
 private let messageSearchCellReuseIdentifier = "MessageSearchCellReuseIdentifier"
 
-protocol MessageToolbarDelegate: AnyObject {
+protocol BookmarkToolbarDelegate: AnyObject {
     func didTapIndex(_ index: Int)
 }
 
-class MessageToolbar: UIToolbar {
-    weak var toolbarDelegate: MessageToolbarDelegate?
+class BookmarkToolbar: UIToolbar {
+    weak var toolbarDelegate: BookmarkToolbarDelegate?
     private var collectionView: UICollectionView!
-    private var originCell = [0.0, 0.0, 0.0]
-    private var widthCell = [0.0, 0.0, 0.0]
+    private var originCell = [0.0, 0.0]
+    private var widthCell = [0.0, 0.0]
     private var sizes: CGFloat = 0.0
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
@@ -44,7 +44,7 @@ class MessageToolbar: UIToolbar {
         super.init(frame: frame)
         configure()
         let currentFont = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        let objects = MessageSearch.allCases.map { $0.title }
+        let objects = BookmarkKind.allCases.map { $0.title }
         for object in objects {
             let attributes = [NSAttributedString.Key.font: currentFont]
             let size = (object as NSString).size(withAttributes: attributes)
@@ -56,7 +56,6 @@ class MessageToolbar: UIToolbar {
         super.layoutSubviews()
         if !didSelectFirstByDefault {
             selectFirstIndex()
-
         }
     }
     
@@ -74,14 +73,13 @@ class MessageToolbar: UIToolbar {
         
         leadingConstraint = highlightView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor)
         widthConstantConstraint = highlightView.widthAnchor.constraint(equalToConstant: 100)
-        
-        
+
         addSubviews(highlightView, collectionView, separatorView)
         NSLayoutConstraint.activate([
             collectionView.centerYAnchor.constraint(equalTo: centerYAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 35),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
             
             highlightView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
             highlightView.heightAnchor.constraint(equalToConstant: 4),
@@ -117,8 +115,8 @@ class MessageToolbar: UIToolbar {
 
             section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
             let width = strongSelf.frame.width
-            let availableWidth = width - 30 - 30 - strongSelf.sizes - 10
-            section.interGroupSpacing = availableWidth / 2
+            let availableWidth = width - 70 - 70 - strongSelf.sizes - 20
+            section.interGroupSpacing = availableWidth
             
            
             return section
@@ -152,14 +150,14 @@ class MessageToolbar: UIToolbar {
 }
 
 
-extension MessageToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+extension BookmarkToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return MessageSearch.allCases.count
+        return BookmarkKind.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageSearchCellReuseIdentifier, for: indexPath) as! MessageSearchCell
-        cell.label.text = MessageSearch.allCases[indexPath.row].title
+        cell.label.text = BookmarkKind.allCases[indexPath.row].title
         return cell
     }
     
@@ -178,7 +176,7 @@ extension MessageToolbar: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     }
 }
 
-extension MessageToolbar {
+extension BookmarkToolbar {
     
     /// Changes the bottom border position and the color as we scroll to the left/right. This function gets called every time the collectionView moves
     func collectionViewDidScroll(for x: CGFloat) {
@@ -187,7 +185,6 @@ extension MessageToolbar {
         let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
-        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? MessageSearchCell
         
         switch x {
         case 0 ... frame.width:
@@ -200,25 +197,6 @@ extension MessageToolbar {
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
             firstCell?.set(from: .label, to: .secondaryLabel, progress: progress)
             secondCell?.set(from: .secondaryLabel, to: .label, progress: progress)
-            thirdCell?.setDefault()
-            
-        case frame.width ... 2 * frame.width:
-            let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
-            let factor = availableWidth / frame.width
-            
-            let factor2 = (widthCell[1] - widthCell[0]) / frame.width
-
-            let offset = x * factor + (x - frame.width) * factor2
-            leadingConstraint.constant = offset
-            
-            let progress = abs(1 - (offset / availableWidth))
-            let normalizedProgress = max(0.0, min(1.0, progress))
-
-            widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
-            thirdCell?.set(from: .secondaryLabel, to: .label, progress: normalizedProgress)
-            secondCell?.set(from: .label, to: .secondaryLabel, progress: normalizedProgress)
-            firstCell?.setDefault()
-
         default:
             break
         }

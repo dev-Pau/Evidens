@@ -29,14 +29,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if #available(iOS 15, *) {
             let navigationBarAppearance = UINavigationBarAppearance()
+            navigationBarAppearance.setBackIndicatorImage(UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label), transitionMaskImage: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))
             navigationBarAppearance.configureWithOpaqueBackground()
             
-            let navigationBarAppearance2 = UINavigationBarAppearance()
-            navigationBarAppearance2.configureWithOpaqueBackground()
-
+            let barButtonItemAppearance = UIBarButtonItemAppearance()
+            barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+            navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
+            
             UINavigationBar.appearance().standardAppearance = navigationBarAppearance
-            UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance2
-
+            UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+            
             let tabBarAppearance = UITabBarAppearance()
             tabBarAppearance.configureWithOpaqueBackground()
             UITabBar.appearance().standardAppearance = tabBarAppearance

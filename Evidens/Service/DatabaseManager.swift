@@ -2750,7 +2750,19 @@ extension DatabaseManager {
                 
                 var newMessages = [Message]()
                 for (messageId, message) in messages {
-                    let newMessage = Message(dictionary: message, messageId: messageId)
+                    var newMessage = Message(dictionary: message, messageId: messageId)
+                    
+                    if newMessage.image != nil {
+                        group.enter()
+                        FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
+                            if let url = url {
+                                newMessage.updateImage(url.absoluteString)
+                                newMessages.append(newMessage)
+                                group.leave()
+                            }
+                        }
+                    }
+                    
                     newMessages.append(newMessage)
                 }
 
@@ -2794,7 +2806,19 @@ extension DatabaseManager {
                 
                 var newMessages = [Message]()
                 for (messageId, message) in messages {
-                    let newMessage = Message(dictionary: message, messageId: messageId)
+                    var newMessage = Message(dictionary: message, messageId: messageId)
+                    
+                    if newMessage.image != nil {
+                        group.enter()
+                        FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
+                            if let url = url {
+                                newMessage.updateImage(url.absoluteString)
+                                newMessages.append(newMessage)
+                                group.leave()
+                            }
+                        }
+                    }
+                    
                     newMessages.append(newMessage)
                 }
                 
@@ -2825,12 +2849,16 @@ extension DatabaseManager {
             return
         }
         
-        let messageData: [String: Any] = [
+        var messageData: [String: Any] = [
             "kind": message.kind.rawValue,
             "text": message.text,
             "date": message.sentDate.timeIntervalSince1970.toDouble(),
             "senderId": message.senderId
         ]
+        
+        if let image = message.image {
+            messageData["image"] = image
+        }
         
         database.child("conversations/\(conversationId)/messages").child(message.messageId).setValue(messageData) { [weak self] error, _ in
             guard let _ = self else { return }

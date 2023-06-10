@@ -111,7 +111,7 @@ extension ApplicationSettingsViewController: SettingsOptionFooterDelegate {
             UserDefaults.resetDefaults()
 
             DispatchQueue.main.async {
-                let controller = WelcomeViewController()
+                let controller = OpeningViewController()
                 let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
                 sceneDelegate?.updateRootViewController(controller)
             }
