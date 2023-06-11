@@ -35,6 +35,7 @@ class BookmarksViewController: UIViewController {
     private var bookmarkToolbar = BookmarkToolbar()
     private var isScrollingHorizontally = false
     private var didFetchPosts: Bool = false
+    private var scrollIndex: Int = 0
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -185,55 +186,69 @@ class BookmarksViewController: UIViewController {
         
         if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
             isScrollingHorizontally = true
+            return
         }
         
         if scrollView.contentOffset.x > view.frame.width * 0.2 && !didFetchPosts {
-            print("start fetch now")
             fetchBookmarkedPosts()
         }
+        
+        switch scrollView.contentOffset.x {
+        case 0 ..< view.frame.width:
+            if isScrollingHorizontally { scrollIndex = 0 }
+        case view.frame.width ..< 2 * view.frame.width:
+            if isScrollingHorizontally { scrollIndex = 1 }
+        default:
+            break
+        }
     }
-    /*
+    
+    func fetchMorePosts() {
+        PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
+            guard !snapshot.isEmpty else { return }
+            PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
+                self.lastPostSnapshot = snapshot.documents.last
+                self.posts.append(contentsOf: newPosts)
+                let newOwnerUids = newPosts.map({ $0.ownerUid })
+                UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                    self.postUsers.append(contentsOf: newUsers)
+                    self.postsCollectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    func fetchMoreCases() {
+        CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { snapshot in
+            guard !snapshot.isEmpty else { return }
+            CaseService.fetchCases(snapshot: snapshot) { newClinicalCases in
+                self.lastCaseSnapshot = snapshot.documents.last
+                self.cases.append(contentsOf: newClinicalCases)
+                let newOwnerUids = newClinicalCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
+                UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
+                    self.caseUsers.append(contentsOf: newUsers)
+                    self.casesCollectionView.reloadData()
+                }
+            }
+        }
+    }
+        
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
         
         if offsetY > contentHeight - height {
-            getMoreBookmarksContent()
-        }
-    }
-    
-    private func getMoreBookmarksContent() {
-        switch selectedCategory {
-        case .cases:
-            CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: lastCaseSnapshot) { snapshot in
-                guard !snapshot.isEmpty else { return }
-                CaseService.fetchCases(snapshot: snapshot) { newClinicalCases in
-                    self.lastCaseSnapshot = snapshot.documents.last
-                    self.cases.append(contentsOf: newClinicalCases)
-                    let newOwnerUids = newClinicalCases.filter({ $0.privacyOptions == .visible }).map({ $0.ownerUid })
-                    UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
-                        self.caseUsers.append(contentsOf: newUsers)
-                        self.contentCollectionView.reloadData()
-                    }
-                }
-            }
-        case .posts:
-            PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
-                guard !snapshot.isEmpty else { return }
-                PostService.fetchHomePosts(snapshot: snapshot) { newPosts in
-                    self.lastPostSnapshot = snapshot.documents.last
-                    self.posts.append(contentsOf: newPosts)
-                    let newOwnerUids = newPosts.map({ $0.ownerUid })
-                    UserService.fetchUsers(withUids: newOwnerUids) { newUsers in
-                        self.postUsers.append(contentsOf: newUsers)
-                        self.contentCollectionView.reloadData()
-                    }
-                }
+            switch scrollIndex {
+            case 0:
+                fetchMoreCases()
+            case 1:
+                fetchMorePosts()
+            default:
+                break
             }
         }
     }
-     */
 }
 
 extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {

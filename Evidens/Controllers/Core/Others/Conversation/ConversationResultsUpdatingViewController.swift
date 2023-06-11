@@ -312,9 +312,9 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     
     private func fetchMainContent() {
         // Fetch main conversations based on the searched text with a limit of 3
-        mainConversations = DataService.shared.getConversations(for: searchedText, withLimit: 3)
+        mainConversations = DataService.shared.getConversations(for: searchedText, withLimit: 3, from: Date())
         // Fetch main messages based on the searched text with a limit of 3
-        mainMessages = DataService.shared.getMessages(for: searchedText, withLimit: 3)
+        mainMessages = DataService.shared.getMessages(for: searchedText, withLimit: 3, from: Date())
         
         // Extract unique conversation IDs from the main messages
         let uniqueConversationIds = Array(Set(mainMessages.map { $0.conversationId! }))
@@ -333,7 +333,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     
     private func fetchConversations() {
         // Fetch conversations based on the searched text with a limit of 15
-        conversations = DataService.shared.getConversations(for: searchedText, withLimit: 15)
+        conversations = DataService.shared.getConversations(for: searchedText, withLimit: 15, from: Date())
 
         // Reload the conversation collection view on the main queue
         DispatchQueue.main.async { [weak self] in
@@ -346,7 +346,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     
     private func fetchMessages() {
         // Fetch messages based on the searched text with a limit of 30
-        messages = DataService.shared.getMessages(for: searchedText, withLimit: 30)
+        messages = DataService.shared.getMessages(for: searchedText, withLimit: 30, from: Date())
         
         // Retrieve unique conversation IDs from the fetched messages
         let uniqueConversationIds = Array(Set(messages.map { $0.conversationId! }))
@@ -362,6 +362,38 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         
         // Mark that the messages have been fetched
         didFetchMessages = true
+    }
+    
+    private func fetchMoreConversations() {
+        // Fetch conversations based on the searched text with a limit of 15 and starting from last conversation date recorded
+        guard let latestConversation = conversations.last, let creationDate = latestConversation.date else { return }
+        conversations.append(contentsOf: DataService.shared.getConversations(for: searchedText, withLimit: 15, from: creationDate))
+
+        // Reload the conversation collection view on the main queue
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.conversationCollectionView.reloadData()
+        }
+    }
+    
+    private func fetchMoreMessages() {
+        guard let latestMessage = messages.last else { return }
+        
+        // Fetch messages based on the searched text with a limit of 30 and starting from last sent date recorded
+        let newMessages = DataService.shared.getMessages(for: searchedText, withLimit: 30, from: latestMessage.sentDate)
+        messages.append(contentsOf: newMessages)
+        
+        // Retrieve unique conversation IDs from the fetched messages
+        let uniqueConversationIds = Array(Set(newMessages.map { $0.conversationId! }))
+        
+        // Fetch conversations for the unique conversation IDs
+        messageConversations.append(contentsOf: DataService.shared.getConversations(for: uniqueConversationIds))
+        
+        // Reload the messages collection view on the main queue
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.messagesCollectionView.reloadData()
+        }
     }
     
     private func show(conversation: Conversation, for indexPath: IndexPath, in collectionView: UICollectionView) {
@@ -609,11 +641,11 @@ extension ConversationResultsUpdatingViewController: UIScrollViewDelegate {
         if offsetY > contentHeight - height {
             switch scrollIndex {
             case 0:
-                print("first")
+                break
             case 1:
-                print("second")
+                fetchMoreConversations()
             case 2:
-                print("third")
+                fetchMoreMessages()
             default:
                 break
             }
@@ -643,12 +675,16 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
         searchedText = ""
         isInSearchMode = false
         toolbarHeightAnchor.constant = 0
+        conversations.removeAll()
+        mainMessages.removeAll()
+        mainConversations.removeAll()
+        messages.removeAll()
         
         // Reset the fetch flags
         didFetchMainContent = false
         didFetchConversations = false
         didFetchMessages = false
-        
+
         // Reload collection views
         mainCollectionView.reloadData()
         messagesCollectionView.reloadData()
@@ -666,12 +702,27 @@ extension ConversationResultsUpdatingViewController: UISearchResultsUpdating, UI
         
         // Check if the search text is empty or contains only whitespace
         guard let text = searchBar.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else {
-            // Reset search related properties and reload main collection view
+            // Reset the search related properties
             searchedText = ""
             isInSearchMode = false
             toolbarHeightAnchor.constant = 0
+            conversations.removeAll()
+            mainMessages.removeAll()
+            mainConversations.removeAll()
+            messages.removeAll()
+            
+            // Reset the fetch flags
+            didFetchMainContent = false
+            didFetchConversations = false
+            didFetchMessages = false
+
+            // Reload collection views
             mainCollectionView.reloadData()
-            scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+            messagesCollectionView.reloadData()
+            conversationCollectionView.reloadData()
+            
+            // Reset scroll offset
+            scrollView.setContentOffset(.zero, animated: false)
             return
         }
         

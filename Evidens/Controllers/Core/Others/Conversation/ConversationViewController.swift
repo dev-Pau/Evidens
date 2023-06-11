@@ -164,6 +164,9 @@ class ConversationViewController: UIViewController {
         conversations = DataService.shared.getConversations()
         conversationsLoaded = true
         
+        // Observe current conversations
+        observeConversations()
+        
         // Check for new conversations and unsynced messages
         DatabaseManager.shared.checkForNewConversations(with: conversations.map { $0.id! }) { [weak self] unsyncedIds in
             guard let strongSelf = self else {
@@ -198,11 +201,13 @@ class ConversationViewController: UIViewController {
             DatabaseManager.shared.fetchMessages(for: newConversations) { [weak self] done in
                 guard let strongSelf = self else { return }
                 
-                // If fetching is done, update conversations, reload collection view, and toggle sync for new conversations
+                // If fetching is done, update conversations, reload collection view, toggle sync for new conversations and observe new messages
                 if done {
                     strongSelf.conversations = DataService.shared.getConversations()
                     strongSelf.collectionView.reloadData()
                     DatabaseManager.shared.toggleSync(for: newConversations)
+                    
+                    strongSelf.observeNewConversations(conversations: newConversations)
                 }
             }
         }
@@ -221,6 +226,46 @@ class ConversationViewController: UIViewController {
                 strongSelf.conversations = DataService.shared.getConversations()
                 strongSelf.collectionView.reloadData()
                 DatabaseManager.shared.toggleSync(for: conversations)
+            }
+        }
+    }
+    
+    private func observeConversations() {
+        // Observe current conversations
+        DatabaseManager.shared.observeNewMessages(on: conversations) { [weak self] conversationId in
+            guard let strongSelf = self else { return }
+            let newConversation = DataService.shared.getConversation(with: conversationId)
+            if let newConversation = newConversation, let index = strongSelf.conversations.firstIndex(where: { $0.id == conversationId }) {
+                DispatchQueue.main.async {
+                    strongSelf.collectionView.performBatchUpdates {
+                        strongSelf.conversations[index] = newConversation
+                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                    }
+                }
+                
+                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+                DatabaseManager.shared.toggleSync(for: [newConversation])
+                #warning("Faltarà mostrar popup")
+            }
+        }
+    }
+    
+    private func observeNewConversations(conversations: [Conversation]) {
+        // Observe new conversations
+        DatabaseManager.shared.observeNewMessages(on: conversations) { [weak self] conversationId in
+            guard let strongSelf = self else { return }
+            let newConversation = DataService.shared.getConversation(with: conversationId)
+            if let newConversation = newConversation, let index = strongSelf.conversations.firstIndex(where: { $0.id == conversationId }) {
+                DispatchQueue.main.async {
+                    strongSelf.collectionView.performBatchUpdates {
+                        strongSelf.conversations[index] = newConversation
+                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                    }
+                }
+                
+                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+                DatabaseManager.shared.toggleSync(for: [newConversation])
+                #warning("Faltarà mostrar popup")
             }
         }
     }

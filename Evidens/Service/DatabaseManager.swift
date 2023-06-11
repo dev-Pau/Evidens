@@ -2637,8 +2637,6 @@ extension DatabaseManager {
         }
     }
     
-    //public func fetchConversations
-    
     public func checkForNewConversations(with conversationIds: [String], completion: @escaping([String]) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "sync").queryEqual(toValue: false)
@@ -2737,17 +2735,13 @@ extension DatabaseManager {
                 }
                 
                 guard snapshot.exists() else {
-                    print("empty snaphsot")
                     return
                 }
                 
                 guard let messages = snapshot.value as? [String: [String: Any]] else {
-                    print("no good format")
                     return
                 }
-                
-                print(snapshot.childrenCount)
-                
+
                 var newMessages = [Message]()
                 for (messageId, message) in messages {
                     var newMessage = Message(dictionary: message, messageId: messageId)
@@ -2839,7 +2833,7 @@ extension DatabaseManager {
         for conversation in conversations {
             let ref = database.child("users/\(uid)/conversations/\(conversation.id!)/sync")
             ref.setValue(true)
-            print("set value")
+            
         }
     }
     
@@ -2869,9 +2863,61 @@ extension DatabaseManager {
             }
         }
     }
+    
+    public func observeNewMessages(on conversations: [Conversation], completion: @escaping(String) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let conversationIds = conversations.map { $0.id! }
+        for conversationId in conversationIds {
+            let ref = database.child("users/\(uid)/conversations/\(conversationId)")
+            ref.observe(.value) { snapshot in
+                guard let sync = snapshot.childSnapshot(forPath: "sync").value as? Bool, !sync else { return }
+                if let latestMessage = snapshot.childSnapshot(forPath: "latestMessage").value as? String {
+                    print("We got something new")
+                    self.fetchMessage(withId: latestMessage, for: conversationId) { error in
+                        if let error = error {
+                            print(error.localizedDescription)
+                            return
+                        } else {
+                            print("We fetched the message")
+                            completion(conversationId)
 
-
-
+                        }
+                    }
+                }
+            }
+        }
+    }
+        
+    public func fetchMessage(withId messageId: String, for conversationId: String, completion: @escaping(Error?) -> Void) {
+        let ref = database.child("conversations/\(conversationId)/messages/\(messageId)")
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                return
+            }
+            
+            guard let messages = snapshot.value as? [String: Any], let message = messages.first else {
+                return
+            }
+            
+            var newMessage = Message(dictionary: messages, messageId: message.key)
+            print(newMessage)
+            if newMessage.image != nil {
+                FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
+                    if let url = url {
+                        newMessage.updateImage(url.absoluteString)
+                        DataService.shared.save(message: newMessage, to: conversationId)
+                        completion(nil)
+                    }
+                }
+            } else {
+                DataService.shared.save(message: newMessage, to: conversationId)
+                print("message saved")
+                completion(nil)
+            }
+        }
+    }
+    
     /// Creates a new conversation with target user uid and first message sent
    // public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
         

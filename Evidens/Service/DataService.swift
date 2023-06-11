@@ -66,6 +66,25 @@ extension DataService {
             print(error.localizedDescription)
         }
     }
+    
+    func save(message: Message, to conversationId: String) {
+        let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
+        request.predicate = NSPredicate(format: "id == %@", conversationId)
+        
+        do {
+            let conversationEntities = try managedObjectContext.fetch(request)
+            
+            if let conversationEntity = conversationEntities.first {
+                let messageEntity = message.getEntity(context: managedObjectContext)
+                messageEntity.conversation = conversationEntity
+                conversationEntity.latestMessage = messageEntity
+
+                try managedObjectContext.save()
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
 }
 
 // MARK: - Retrieve Operations
@@ -93,6 +112,24 @@ extension DataService {
         return conversationEntities.compactMap { Conversation(fromEntity: $0) }
     }
     
+    func getConversation(with conversationId: String) -> Conversation? {
+        let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
+        request.predicate = NSPredicate(format: "id == %@", conversationId)
+        
+        do {
+            let conversationEntities = try managedObjectContext.fetch(request)
+            guard let conversationEntity = conversationEntities.first else {
+                return nil
+            }
+            
+            return Conversation(fromEntity: conversationEntity)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        return nil
+    }
+    
     /// Retrieves a batch of Messages from the Core Data store.
     /// - Parameters:
     ///   - conversation: The parent Conversation.
@@ -115,10 +152,11 @@ extension DataService {
         return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
     }
     
-    func getConversations(for text: String, withLimit limit: Int) -> [Conversation] {
+    func getConversations(for text: String, withLimit limit: Int, from date: Date) -> [Conversation] {
         var conversationEntities = [ConversationEntity]()
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
-        request.predicate = NSPredicate(format: "name CONTAINS[c] %@", text)
+        request.predicate = NSPredicate(format: "name CONTAINS[c] %@ AND date < %@", text)
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         request.fetchLimit = limit
 
         do {
@@ -127,13 +165,14 @@ extension DataService {
             print(error.localizedDescription)
         }
         
-        return conversationEntities.compactMap { Conversation(fromEntity: $0) }
+        return conversationEntities.compactMap { Conversation(fromEntity: $0) }.reversed()
     }
     
-    func getMessages(for text: String, withLimit limit: Int) -> [Message] {
+    func getMessages(for text: String, withLimit limit: Int, from date: Date) -> [Message] {
         var messageEntities = [MessageEntity]()
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
-        request.predicate = NSPredicate(format: "text CONTAINS[c] %@", text)
+        request.predicate = NSPredicate(format: "text CONTAINS[c] %@ AND sentDate < %@", text, date as NSDate)
+        request.sortDescriptors = [NSSortDescriptor(key: "sentDate", ascending: false)]
         request.fetchLimit = limit
         
         do {
@@ -142,7 +181,7 @@ extension DataService {
             print(error.localizedDescription)
         }
         
-        return messageEntities.compactMap { Message(fromEntity: $0) }
+        return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
     }
     
     func getConversations(for conversationIds: [String]) -> [Conversation] {

@@ -56,10 +56,13 @@ class MessageBarIcon: UIView {
     }
     
     func setUnreadMessages(_ unread: Int) {
-        unreadMessagesButton.isHidden = unread == 0 ? true : false
-        var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 11, weight: .medium)
-        unreadMessagesButton.configuration?.attributedTitle = AttributedString(String(7), attributes: container)
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.unreadMessagesButton.isHidden = unread == 0 ? true : false
+            var container = AttributeContainer()
+            container.font = .systemFont(ofSize: 11, weight: .medium)
+            strongSelf.unreadMessagesButton.configuration?.attributedTitle = AttributedString(String(unread), attributes: container)
+        }
     }
 }
 

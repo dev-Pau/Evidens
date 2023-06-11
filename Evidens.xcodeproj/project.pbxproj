@@ -393,6 +393,7 @@
 		5FA91BD52A33452600DF6675 /* BookmarkToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD42A33452600DF6675 /* BookmarkToolbar.swift */; };
 		5FA91BD72A34B09A00DF6675 /* MessageBarIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */; };
 		5FA91BD92A34B2C200DF6675 /* AppPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BD82A34B2C200DF6675 /* AppPublishers.swift */; };
+		5FA91BDC2A35B9BD00DF6675 /* ConversationToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA91BDB2A35B9BD00DF6675 /* ConversationToolbar.swift */; };
 		5FA9D17129A4A8C5004EF26A /* CompanyBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17029A4A8C5004EF26A /* CompanyBrowserViewController.swift */; };
 		5FA9D17429A4B423004EF26A /* BrowseCompanyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17329A4B423004EF26A /* BrowseCompanyCell.swift */; };
 		5FA9D17629A4D138004EF26A /* JobService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA9D17529A4D138004EF26A /* JobService.swift */; };
@@ -887,6 +888,7 @@
 		5FA91BD42A33452600DF6675 /* BookmarkToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkToolbar.swift; sourceTree = "<group>"; };
 		5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBarIcon.swift; sourceTree = "<group>"; };
 		5FA91BD82A34B2C200DF6675 /* AppPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPublishers.swift; sourceTree = "<group>"; };
+		5FA91BDB2A35B9BD00DF6675 /* ConversationToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationToolbar.swift; sourceTree = "<group>"; };
 		5FA9D17029A4A8C5004EF26A /* CompanyBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyBrowserViewController.swift; sourceTree = "<group>"; };
 		5FA9D17329A4B423004EF26A /* BrowseCompanyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseCompanyCell.swift; sourceTree = "<group>"; };
 		5FA9D17529A4D138004EF26A /* JobService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobService.swift; sourceTree = "<group>"; };
@@ -1124,6 +1126,7 @@
 				5FB4439D2A2882F000A601EE /* MessageToolbar.swift */,
 				5FA91BD42A33452600DF6675 /* BookmarkToolbar.swift */,
 				5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */,
+				5FA91BDB2A35B9BD00DF6675 /* ConversationToolbar.swift */,
 			);
 			path = Customs;
 			sourceTree = "<group>";
@@ -3142,6 +3145,7 @@
 				5F8620F9289EAFE1004E6184 /* UserProfileNoCaseCell.swift in Sources */,
 				5FC4D88B27072B56006B7A34 /* LoginViewController.swift in Sources */,
 				5F891D4B28D20C3B006DC449 /* EmptyBookmarksView.swift in Sources */,
+				5FA91BDC2A35B9BD00DF6675 /* ConversationToolbar.swift in Sources */,
 				5F9A2820297805C10052E618 /* GroupSearchBarHeader.swift in Sources */,
 				5FAB2DD92A1926F200BD094B /* CaseTitleCell.swift in Sources */,
 				5F9483AE2922442F00D68B46 /* CreateGroupViewController.swift in Sources */,

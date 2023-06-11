@@ -37,10 +37,23 @@ class MessageViewController: UICollectionViewController {
     private var preview: Bool = false
     private var newConversation: Bool?
     private var messages = [Message]()
+    private let conversationToolbar = ConversationToolbar()
     private let messageInputAccessoryView = MessageInputAccessoryView()
     private var keyboardHidden: Bool = true
     private var keyboardHeight: CGFloat = 0.0
     private var didScrollToBottom: Bool = false
+    
+    private lazy var userImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.layer.masksToBounds = true
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFill
+        iv.isUserInteractionEnabled = true
+        //let tap = UITapGestureRecognizer(target: self, action: #selector(handleProfileTap))
+        iv.image = UIImage(named: "user.profile")
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
     
     override var inputAccessoryView: UIView? {
         get {
@@ -97,7 +110,7 @@ class MessageViewController: UICollectionViewController {
         let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 5
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 10, trailing: 10)
+        //section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10)
         let layout = UICollectionViewCompositionalLayout(section: section)
         super.init(collectionViewLayout: layout)
     }
@@ -111,7 +124,32 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func configureNavigationBar() {
-        title = conversation.name
+        if preview { navigationController?.navigationBar.isHidden = true }
+        if let currentAppearance = navigationController?.navigationBar.standardAppearance, !preview {
+            
+            currentAppearance.shadowColor = nil
+            
+            navigationItem.scrollEdgeAppearance = currentAppearance
+            navigationItem.standardAppearance = currentAppearance
+        }
+        userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        userImageView.layer.cornerRadius = 30 / 2
+        
+        navigationItem.titleView = userImageView
+        
+        if let image = conversation.image, let url = URL(string: image), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
+            userImageView.image = userImage
+        }
+        collectionView.addSubview(conversationToolbar)
+        NSLayoutConstraint.activate([
+            conversationToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            conversationToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            conversationToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            conversationToolbar.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        
+        conversationToolbar.set(name: conversation.name)
     }
     
     private func configureCollectionView() {
@@ -120,6 +158,8 @@ class MessageViewController: UICollectionViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.keyboardDismissMode = .interactive
+        collectionView.contentInset.top = 30
+        collectionView.verticalScrollIndicatorInsets.top = 30
     }
     
     private func configureView() {
@@ -437,13 +477,6 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                     }
                 }
             }
-            // Add Conversation to Core Data
-            // Display Conversation on Screen
-            
-            // Create Conversation
-            // Send Message
-            // if everything goes fine, update stage of the latest message to send
-            
         } else {
             delegate?.didSendMessage(message, for: conversation)
             DataService.shared.save(message: message, to: conversation)
