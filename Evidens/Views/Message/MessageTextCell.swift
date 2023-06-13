@@ -175,7 +175,6 @@ class MessageTextCell: UICollectionViewCell {
             bubbleTrailingConstraint,
             bubbleLeadingConstraint,
             bubbleViewBottomAnchor,
-            // this in the top
             
             messageLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 10),
             messageLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
@@ -244,7 +243,6 @@ class MessageTextCell: UICollectionViewCell {
     
     func highlight() {
         guard let viewModel = viewModel else { return }
-        
         if viewModel.isSender {
             bubbleView.backgroundColor = primaryColor.withAlphaComponent(1.5)
             timeLabel.textAlignment = .right
@@ -253,50 +251,6 @@ class MessageTextCell: UICollectionViewCell {
             timeLabel.textAlignment = .left
         }
     }
-    /*
-    @objc func handleBubbleSwipe() {
-        guard let panGestureRecognizer = panGestureRecognizer, let viewModel = viewModel else { return }
-        let x = panGestureRecognizer.translation(in: bubbleView).x
-        
-        if viewModel.isSender {
-            if x < 0 {
-                if x > -50 {
-                    bubbleTrailingConstraint.constant = x
-                } else {
-                    bubbleTrailingConstraint.constant = -50 + (x + 50) * 0.3
-                }
-            }
-        } else {
-            if x > 0 {
-                if x < 50 {
-                    bubbleLeadingConstraint.constant = x
-                } else {
-                    bubbleLeadingConstraint.constant = 50 + (x - 50) * 0.3
-                }
-            }
-        }
-        
-        if panGestureRecognizer.state == .ended {
-            let constant = viewModel.failed ? 35.0 : 10.0
-            
-            if viewModel.isSender {
-                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.bubbleTrailingConstraint.constant = -constant
-                    strongSelf.layoutIfNeeded()
-                }
-            } else {
-                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.bubbleLeadingConstraint.constant = constant
-                    strongSelf.layoutIfNeeded()
-                }
-            }
-            
-            panGestureRecognizer.isEnabled = false
-        }
-    }
-     */
 }
 
 extension MessageTextCell: UIContextMenuInteractionDelegate {

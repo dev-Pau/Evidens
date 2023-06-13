@@ -23,6 +23,7 @@ protocol MessageViewControllerDelegate: AnyObject {
     func deleteConversation(_ conversation: Conversation)
     func didReadAllMessages(for conversation: Conversation)
     func didSendMessage(_ message: Message, for conversation: Conversation)
+    func didReadConversation(_ conversation: Conversation, message: Message)
 }
 
 
@@ -35,9 +36,14 @@ class MessageViewController: UICollectionViewController {
     private var user: User?
     private var message: Message?
     private var preview: Bool = false
+    private var dismiss: Bool = false
     private var newConversation: Bool?
-    private var messages = [Message]()
-    private let conversationToolbar = ConversationToolbar()
+    private var messages = [Message]() {
+        didSet {
+            print(messages.count)
+        }
+    }
+
     private let messageInputAccessoryView = MessageInputAccessoryView()
     private var keyboardHidden: Bool = true
     private var keyboardHeight: CGFloat = 0.0
@@ -69,6 +75,7 @@ class MessageViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         configureNavigationBar()
         configureObservers()
         configureCollectionView()
@@ -125,6 +132,8 @@ class MessageViewController: UICollectionViewController {
     
     private func configureNavigationBar() {
         if preview { navigationController?.navigationBar.isHidden = true }
+        
+        /*
         if let currentAppearance = navigationController?.navigationBar.standardAppearance, !preview {
             
             currentAppearance.shadowColor = nil
@@ -132,6 +141,7 @@ class MessageViewController: UICollectionViewController {
             navigationItem.scrollEdgeAppearance = currentAppearance
             navigationItem.standardAppearance = currentAppearance
         }
+         */
         userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.layer.cornerRadius = 30 / 2
@@ -141,15 +151,6 @@ class MessageViewController: UICollectionViewController {
         if let image = conversation.image, let url = URL(string: image), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
             userImageView.image = userImage
         }
-        collectionView.addSubview(conversationToolbar)
-        NSLayoutConstraint.activate([
-            conversationToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            conversationToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            conversationToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            conversationToolbar.heightAnchor.constraint(equalToConstant: 30)
-        ])
-        
-        conversationToolbar.set(name: conversation.name)
     }
     
     private func configureCollectionView() {
@@ -158,8 +159,7 @@ class MessageViewController: UICollectionViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.keyboardDismissMode = .interactive
-        collectionView.contentInset.top = 30
-        collectionView.verticalScrollIndicatorInsets.top = 30
+        collectionView.contentInsetAdjustmentBehavior = .automatic
     }
     
     private func configureView() {
@@ -168,15 +168,69 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func configureObservers() {
+/*
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillShowNotification,
                                                object: nil)
-        
+        */
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillHide(notification:)),
                                                name: UIResponder.keyboardWillHideNotification,
                                                object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    @objc func keyboardWillChangeFrame(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+                  let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+                return
+            }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
+        print(keyboardFrame.origin.y)
+        print("keyboard change")
+        
+        guard !dismiss else {
+            return
+        }
+        
+        guard !keyboardHidden else {
+            keyboardHidden = false
+            return
+        }
+
+            //let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
+            let intersection = collectionView.frame.intersection(convertedKeyboardFrame)
+            
+            let contentInsetBottom = intersection.height
+            let contentOffsetY = collectionView.contentSize.height - collectionView.bounds.height + contentInsetBottom
+        
+        keyboardHeight = keyboardFrame.size.height
+            let additionalOffset = max(contentOffsetY - collectionView.contentOffset.y, 0)
+
+            UIView.animate(withDuration: duration) {
+                self.collectionView.contentOffset.y += convertedKeyboardFrame.height - self.messageInputAccessoryView.frame.size.height
+                self.view.layoutIfNeeded()
+                self.dismiss = true
+            }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        print("keyboard hide")
+        // Reset content inset and offset when keyboard hides
+        keyboardHidden = true
+        dismiss = false
+        keyboardHeight = messageInputAccessoryView.frame.size.height
+        UIView.animate(withDuration: duration) {
+            self.collectionView.contentInset = UIEdgeInsets.zero
+            self.collectionView.verticalScrollIndicatorInsets = UIEdgeInsets.zero
+            self.view.layoutIfNeeded()
+        }
     }
     
     private func getMessages() {
@@ -194,10 +248,13 @@ class MessageViewController: UICollectionViewController {
         } else {
             messages = DataService.shared.getMessages(for: conversation)
             if !messages.isEmpty {
+                
+                observeConversation()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                     guard let strongSelf = self else { return }
                     let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
                     strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
+                    print("did scroll to bottom")
                     if strongSelf.preview == false {
                         DataService.shared.readMessages(conversation: strongSelf.conversation)
                         strongSelf.delegate?.didReadAllMessages(for: strongSelf.conversation)
@@ -228,21 +285,57 @@ class MessageViewController: UICollectionViewController {
         }
     }
     
-    //MARK: - Actions
+    private func observeConversation() {
+        DatabaseManager.shared.observeConversation(conversation: conversation) { [weak self] newMessage in
+            guard let strongSelf = self else { return }
+            // Add the new message
+            strongSelf.messages.append(newMessage)
+            DispatchQueue.main.async {
+                // Reload your collection view or update the display
+                // For example, if you're using a collection view, you can call reloadData()
+                strongSelf.collectionView.performBatchUpdates {
+                    strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0)])
+                } completion: { [weak self] _ in
+                    guard let strongSelf = self else { return }
+                    DispatchQueue.main.async {
+                        
+                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
+                        
+                        let bottomOffset = CGPoint(x: 0, y: strongSelf.collectionView.contentSize.height - strongSelf.collectionView.bounds.height + strongSelf.keyboardHeight)
+                        
+                        strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
+                    }
+                }
+            }
+            
+            //DataService.shared.readMessages(conversation: strongSelf.conversation)
+            strongSelf.delegate?.didReadConversation(strongSelf.conversation, message: newMessage)
+            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+        }
+    }
     
+    //MARK: - Actions
+    /*
     @objc func keyboardWillShow(notification: NSNotification) {
         guard !keyboardHidden else {
             keyboardHidden.toggle()
             return
         }
+        
+        
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             let keyboardHeight = keyboardSize.height
-            if notification.name == UIResponder.keyboardWillShowNotification {
-                let bottomOffset = CGPoint(x: 0, y: collectionView.contentSize.height - collectionView.bounds.height + keyboardHeight)
-                collectionView.setContentOffset(bottomOffset, animated: true)
+            
+            if collectionView.contentSize.height > collectionView.bounds.height - keyboardHeight {
+                    // Calculate the bottom offset based on the current content offset and keyboard height
+                    //let bottomOffset = CGPoint(x: 0, y: collectionView.contentOffset.y + keyboardHeight - messageInputAccessoryView.frame.height)
+                    
+                    //collectionView.setContentOffset(bottomOffset, animated: true)
+                }
+                
                 self.keyboardHeight = keyboardHeight
-            }
         }
+         
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -250,10 +343,12 @@ class MessageViewController: UICollectionViewController {
             if isKeyboardLocal.boolValue == false {
                 return
             }
+            
             keyboardHidden = true
             self.keyboardHeight = messageInputAccessoryView.frame.height
         }
     }
+     */
 }
 
 extension MessageViewController: UICollectionViewDelegateFlowLayout {
@@ -381,6 +476,8 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
         FileGateway.shared.saveImage(image: image, messageId: uuid.uuidString) { [weak self] url in
             guard let strongSelf = self, let url = url else { return }
             
+            
+            
             var newMessage = Message(text: "Image", sentDate: Date.now, messageId: uuid.uuidString, isRead: true, senderId: uid, image: url.absoluteString, kind: .photo, phase: .sending)
             
             strongSelf.messages.append(newMessage)
@@ -417,6 +514,8 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
                             DispatchQueue.main.async {
                                 strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
                             }
+                            
+                            strongSelf.observeConversation()
                         }
                     }
                 case .failure(let error):
@@ -431,13 +530,14 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
     func didSendMessage(message: String) {
         guard let newConversation = newConversation, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        let type: MessageKind = message.containsEmojiOnly ? .emoji : .text
         
         let lines = message.components(separatedBy: .newlines)
         let trimmedLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
         let trimmedMessage = trimmedLines.joined(separator: "\n")
         
-        let message = Message(text: trimmedMessage, sentDate: Date(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
+        let type: MessageKind = trimmedMessage.containsEmojiOnly ? .emoji : .text
+
+        let message = Message(text: trimmedMessage, sentDate: Date().toUTCDate(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
 
         messages.append(message)
         
@@ -446,11 +546,27 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
             DispatchQueue.main.async {
-                let bottomOffset = CGPoint(x: 0, y: strongSelf.collectionView.contentSize.height - strongSelf.collectionView.bounds.height + strongSelf.keyboardHeight)
-                strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
-            }
+                let contentHeight = strongSelf.collectionView.contentSize.height
+                        let collectionViewHeight = strongSelf.collectionView.bounds.size.height
+                let contentOffsetY = contentHeight - collectionViewHeight
+                        
+                        if contentOffsetY > strongSelf.collectionView.contentOffset.y - strongSelf.keyboardHeight {
+                            // Content is not fully visible, scroll to the bottom
+                            strongSelf.collectionView.setContentOffset(CGPoint(x: 0, y: contentOffsetY + strongSelf.keyboardHeight), animated: true)
+                        }
+                }
         }
-        
+                /*
+                 let contentHeight = strongSelf.collectionView.contentSize.height
+                 let visibleHeight = strongSelf.collectionView.bounds.height
+                 
+                 if contentHeight > visibleHeight && strongSelf.collectionView.contentOffset.y >= contentHeight - visibleHeight {
+                 // Scroll to the bottom
+                 let bottomOffset = CGPoint(x: 0, y: contentHeight - visibleHeight + strongSelf.keyboardHeight)
+                 strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
+                 }
+                 */
+
         if newConversation {
 
             self.newConversation?.toggle()

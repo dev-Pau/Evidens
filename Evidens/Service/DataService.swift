@@ -38,6 +38,7 @@ extension DataService {
         
         do {
             try managedObjectContext.save()
+            print("se save new conversation")
         } catch {
             print(error.localizedDescription)
         }
@@ -49,6 +50,7 @@ extension DataService {
     ///   - message: The Message to be saved.
     ///   - conversation: The parent Conversation.
     func save(message: Message, to conversation: Conversation) {
+        print("save message to conversation !!!!!")
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "userId == %@", conversation.userId as CVarArg)
         
@@ -68,6 +70,7 @@ extension DataService {
     }
     
     func save(message: Message, to conversationId: String) {
+        print("save message to conversationiD !!!!!")
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "id == %@", conversationId)
         
@@ -155,7 +158,7 @@ extension DataService {
     func getConversations(for text: String, withLimit limit: Int, from date: Date) -> [Conversation] {
         var conversationEntities = [ConversationEntity]()
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
-        request.predicate = NSPredicate(format: "name CONTAINS[c] %@ AND date < %@", text)
+        request.predicate = NSPredicate(format: "name CONTAINS[c] %@ AND date < %@", text, date as NSDate)
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         request.fetchLimit = limit
 
@@ -382,6 +385,7 @@ extension DataService {
 extension DataService {
     
     func conversationExists(for id: String, completion: @escaping(Bool) -> Void) {
+        print("check if conversation exists for \(id)")
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "userId == %@", id)
         

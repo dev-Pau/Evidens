@@ -188,6 +188,7 @@
 		5F91F11929BF380B007BB567 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11829BF380B007BB567 /* SearchService.swift */; };
 		5F91F11B29BF8254007BB567 /* NewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11A29BF8253007BB567 /* NewViewModel.swift */; };
 		5F91F11D29C05820007BB567 /* NewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F91F11C29C05820007BB567 /* NewService.swift */; };
+		5F929D1B2A374C9600CD7B7E /* Date+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F929D1A2A374C9600CD7B7E /* Date+Ext.swift */; };
 		5F92FD2929F7BB9400E2894D /* MECommentActionButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */; };
 		5F92FD2B29F7C07100E2894D /* MECommentReplyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */; };
 		5F92FD6829F8F03900E2894D /* CommentRepliesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F92FD6729F8F03900E2894D /* CommentRepliesViewController.swift */; };
@@ -683,6 +684,7 @@
 		5F91F11829BF380B007BB567 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		5F91F11A29BF8253007BB567 /* NewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewViewModel.swift; sourceTree = "<group>"; };
 		5F91F11C29C05820007BB567 /* NewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewService.swift; sourceTree = "<group>"; };
+		5F929D1A2A374C9600CD7B7E /* Date+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Ext.swift"; sourceTree = "<group>"; };
 		5F92FD2829F7BB9400E2894D /* MECommentActionButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECommentActionButtons.swift; sourceTree = "<group>"; };
 		5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MECommentReplyView.swift; sourceTree = "<group>"; };
 		5F92FD6729F8F03900E2894D /* CommentRepliesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRepliesViewController.swift; sourceTree = "<group>"; };
@@ -2022,6 +2024,7 @@
 				5FB443BB2A28FB1100A601EE /* UserDefaults+Ext.swift */,
 				5F93ED812A2A4A7C0087D5CB /* UIColor+Ext.swift */,
 				5F9AF7E32A30CC020007D2B9 /* String+Ext.swift */,
+				5F929D1A2A374C9600CD7B7E /* Date+Ext.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -3374,6 +3377,7 @@
 				5F9A9F97289823E200A25152 /* UserProfileLanguageCell.swift in Sources */,
 				5F9136D329ABA55600675BCE /* ReviewApplicantViewController.swift in Sources */,
 				5FB443B82A28F70500A601EE /* GroupPermission.swift in Sources */,
+				5F929D1B2A374C9600CD7B7E /* Date+Ext.swift in Sources */,
 				5F9CFF932A2254E6003FF382 /* MessagePhase.swift in Sources */,
 				5FE8DE97289578C4009F08F9 /* UserProfileExperienceCell.swift in Sources */,
 				5F9D7D4E29E6B8A9002EA21C /* ReportMainHeader.swift in Sources */,

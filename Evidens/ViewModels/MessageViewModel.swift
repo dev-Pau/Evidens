@@ -36,18 +36,24 @@ class MessageViewModel {
     var date: String {
         return formatDateString(for: message.sentDate)
     }
-    
+    /*
     var image: UIImage? {
         guard let imagePath = message.image else { return nil }
-
-        if let url = URL(string: imagePath), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
-            return userImage
-        } else {
-            #warning("need to return nil on production")
-            return UIImage(named: "user.profile")
+        
+        var loadedImage: UIImage?
+        
+        DispatchQueue.global().sync {
+            if let url = URL(string: imagePath), let data = try? Data(contentsOf: url) {
+                loadedImage = UIImage(data: data)
+            } else {
+                #warning("need to return nil on production")
+                loadedImage = UIImage(named: "user.profile")
+            }
         }
+        
+        return loadedImage
     }
-    
+    */
     var imageUrl: URL? {
         guard let imagePath = message.image else { return nil }
         if let url = URL(string: imagePath) {
@@ -142,9 +148,7 @@ class MessageViewModel {
             return sentDate.formatted(date: .abbreviated, time: .omitted)
         }
     }
-    
-    
-    
+
     func formatHourMinuteString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"

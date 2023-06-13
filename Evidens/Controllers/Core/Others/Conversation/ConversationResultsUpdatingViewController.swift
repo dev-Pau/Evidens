@@ -795,6 +795,12 @@ extension ConversationResultsUpdatingViewController: EmptyGroupCellDelegate {
 }
 
 extension ConversationResultsUpdatingViewController: MessageViewControllerDelegate {
+    func didReadConversation(_ conversation: Conversation, message: Message) {
+        if let conversationViewController = presentingViewController as? ConversationViewController {
+            conversationViewController.didReadConversation(conversation, message: message)
+        }
+    }
+    
     func didSendMessage(_ message: Message, for conversation: Conversation) {
         delegate?.sendMessage(message, to: conversation)
     }

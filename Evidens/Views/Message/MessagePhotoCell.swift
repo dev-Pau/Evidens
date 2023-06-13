@@ -84,17 +84,17 @@ class MessagePhotoCell: UICollectionViewCell {
     }
     
     private func configure() {
-        guard let viewModel = viewModel, let image = viewModel.image else { return }
+        guard let viewModel = viewModel /*, let image = viewModel.image*/else { return }
 
         var width: CGFloat = 0
         var height: CGFloat = 0
         
-        let photoAspectRatio = image.size.width / image.size.height
+        //let photoAspectRatio = image.size.width / image.size.height
         width = UIScreen.main.bounds.width - 110
         
-        height = min(width / photoAspectRatio, UIScreen.main.bounds.width - 40)
+        //height = min(width / photoAspectRatio, UIScreen.main.bounds.width - 40)
         
-        imageHeightConstraint = messageImageView.heightAnchor.constraint(equalToConstant: height)
+        imageHeightConstraint = messageImageView.heightAnchor.constraint(equalToConstant: width)
         imageHeightConstraint?.priority = .defaultHigh
         
         addSubviews(timestampLabel, messageImageView, timeLabel)
@@ -135,17 +135,23 @@ class MessagePhotoCell: UICollectionViewCell {
         ])
 
         messageImageView.layer.cornerRadius = 17
-        
-        messageImageView.sd_setImage(with: viewModel.imageUrl) { [weak self] (_, _, _, _) in
+
+        messageImageView.sd_setImage(with: viewModel.imageUrl) { [weak self] (image, _, _, _) in
             DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
+                guard let strongSelf = self, let image = image else { return }
+                
+                let photoAspectRatio = image.size.width / image.size.height
+                height = min(width / photoAspectRatio, UIScreen.main.bounds.width - 40)
+                strongSelf.imageHeightConstraint = strongSelf.messageImageView.heightAnchor.constraint(equalToConstant: height)
+                strongSelf.layoutIfNeeded()
+                
                 // Update content size and scroll to the last item
                 if strongSelf.isLastItem {
                     strongSelf.delegate?.didLoadPhoto()
                 }
-              
             }
         }
+        
         timeLabel.text = viewModel.time
         
         let contextMenu = UIContextMenuInteraction(delegate: self)

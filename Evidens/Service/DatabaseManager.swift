@@ -2623,7 +2623,7 @@ extension DatabaseManager {
         let messageData: [String: Any] = [
             "kind": message.kind.rawValue,
             "text": message.text,
-            "date": message.sentDate.timeIntervalSince1970.toDouble(),
+            "date": message.sentDate.timeIntervalSince1970,
             "senderId": message.senderId
         ]
 
@@ -2723,7 +2723,7 @@ extension DatabaseManager {
         
         for conversation in conversations {
             let date = conversation.date ?? Date()
-            let timeInterval = date.timeIntervalSince1970
+            let timeInterval = date.toUTCTimestamp()
             let conversationId = conversation.id!
 
             let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(atValue: timeInterval)
@@ -2733,15 +2733,17 @@ extension DatabaseManager {
                 defer {
                     group.leave()
                 }
-                
+
                 guard snapshot.exists() else {
+                    print("snapshot not exist")
                     return
                 }
                 
                 guard let messages = snapshot.value as? [String: [String: Any]] else {
+                    print("bad snapshot format")
                     return
                 }
-
+                print("we found messages")
                 var newMessages = [Message]()
                 for (messageId, message) in messages {
                     var newMessage = Message(dictionary: message, messageId: messageId)
@@ -2761,8 +2763,11 @@ extension DatabaseManager {
                 }
 
                 newMessages.sort(by: { $0.sentDate > $1.sentDate })
+                print(newMessages)
                 DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
                 for newMessage in newMessages {
+                    print("saving message")
+                    print(newMessage)
                     DataService.shared.save(message: newMessage, to: conversation)
                 }
             }
@@ -2779,7 +2784,7 @@ extension DatabaseManager {
         for conversation in conversations {
             guard let latestMessage = conversation.latestMessage else { continue }
             let date = latestMessage.sentDate
-            let timeInterval = date.timeIntervalSince1970
+            let timeInterval = date.toUTCTimestamp()
             let conversationId = conversation.id!
 
             let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(afterValue: timeInterval)
@@ -2830,7 +2835,9 @@ extension DatabaseManager {
     
     public func toggleSync(for conversations: [Conversation]) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
         for conversation in conversations {
+            print(conversation.id!)
             let ref = database.child("users/\(uid)/conversations/\(conversation.id!)/sync")
             ref.setValue(true)
             
@@ -2846,7 +2853,7 @@ extension DatabaseManager {
         var messageData: [String: Any] = [
             "kind": message.kind.rawValue,
             "text": message.text,
-            "date": message.sentDate.timeIntervalSince1970.toDouble(),
+            "date": message.sentDate.toUTCTimestamp(),
             "senderId": message.senderId
         ]
         
@@ -2868,9 +2875,17 @@ extension DatabaseManager {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
         let conversationIds = conversations.map { $0.id! }
-        for conversationId in conversationIds {
-            let ref = database.child("users/\(uid)/conversations/\(conversationId)")
+        for conversation in conversations {
+            guard let conversationId = conversation.id, let latestMessage = conversation.latestMessage else { return }
+            print(latestMessage.sentDate.toUTCTimestamp())
+            #warning("aqui a sota no pots fer per date, això és la conversation date i no està inclos, ferho per sync i afegir els lsiteners quan vaig obtenint les conversatcions no just despres de load conversations perquè puc veure algo que noe stà sync i després tornarho a incloure.")
+            let ref = database.child("users/\(uid)/conversations/\(conversationId)").queryOrdered(byChild: "sync").queryEqual(toValue: true)
             ref.observe(.value) { snapshot in
+                print("we got a new message ltes see if exists in our query")
+                guard snapshot.exists() else {
+                    print("snapshot doesnt exist")
+                    return
+                }
                 guard let sync = snapshot.childSnapshot(forPath: "sync").value as? Bool, !sync else { return }
                 if let latestMessage = snapshot.childSnapshot(forPath: "latestMessage").value as? String {
                     print("We got something new")
@@ -2884,6 +2899,51 @@ extension DatabaseManager {
 
                         }
                     }
+                }
+            }
+        }
+    }
+    
+    public func observeConversation(conversation: Conversation, completion: @escaping(Message) -> Void) {
+        guard let latestMessage = conversation.latestMessage else { return }
+        guard let id = conversation.id, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let conversationRef = database.child("conversations/\(id)/messages").queryOrdered(byChild: "date").queryStarting(afterValue: latestMessage.sentDate.toUTCTimestamp())
+        
+        conversationRef.observe(.childAdded) { snapshot in
+            guard snapshot.exists() else {
+                return
+            }
+            
+            guard let messageData = snapshot.value as? [String: Any] else { return }
+            let messageId = snapshot.key
+            let newMessage = Message(dictionary: messageData, messageId: messageId)
+            guard uid != newMessage.senderId else { return }
+            completion(newMessage)
+        }
+    }
+    
+    public func observeNewConversations(completion: @escaping(Conversation) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
+        let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "date").queryStarting(afterValue: Date().toUTCTimestamp())
+        ref.observe(.childAdded) { snapshot in
+            print("we got new root convesration")
+            guard snapshot.exists() else {
+                return
+            }
+            
+            guard let value = snapshot.value as? [String: Any], let userId = value["userId"] as? String, let timeInterval = value["date"] as? TimeInterval, let sync = value["sync"] as? Bool, !sync  else {
+                return
+            }
+            print("we got new root convesration")
+            let conversationId = snapshot.key
+            
+            UserService.fetchUser(withUid: userId) { user in
+                FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { url in
+                    let date = Date(timeIntervalSince1970: timeInterval)
+                    let name = user.firstName! + " " + user.lastName!
+                    let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                    completion(conversation)
                 }
             }
         }
@@ -2906,6 +2966,7 @@ extension DatabaseManager {
                 FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
                     if let url = url {
                         newMessage.updateImage(url.absoluteString)
+                        print("is image")
                         DataService.shared.save(message: newMessage, to: conversationId)
                         completion(nil)
                     }
@@ -2918,6 +2979,222 @@ extension DatabaseManager {
         }
     }
     
+    public func observeConversations(completion: @escaping(String) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let ref = database.child("users/\(uid)/conversations").queryOrdered(byChild: "sync").queryEqual(toValue: false)
+        ref.observe(.value) { snapshot in
+            print("we got a new message ltes see if exists in our query")
+            
+            guard snapshot.exists() else {
+                print("snapshot doesnt exist")
+                return
+            }
+            
+            for child in snapshot.children.allObjects as! [DataSnapshot] {
+                guard let value = child.value as? [String: Any] else {
+                    print("we couldt get any snaphsot")
+                    //completion(.failure(DatabaseError.failedToFetch))
+                    return
+                }
+                
+                guard let userId = child.childSnapshot(forPath: "userId").value as? String else { return }
+                let conversationId = child.key
+                
+                DataService.shared.conversationExists(for: userId) { exists in
+                    if exists {
+                        print("Existing Conversation")
+                        if let conversation = DataService.shared.getConversation(with: conversationId) {
+                            self.fetchMessages(for: conversation) { fetched in
+                                if fetched {
+                                    print("messages for conversation fetched")
+                                    completion(conversationId)
+                                }
+                            }
+                            
+                            
+                        }
+                    } else {
+                        print("New Conversation")
+                        guard let timeInterval = value["date"] as? TimeInterval else {
+                            return
+                        }
+                        let date = Date(timeIntervalSince1970: timeInterval)
+                        UserService.fetchUser(withUid: userId) { [weak self] user in
+                            guard let strongSelf = self else { return }
+                            FileGateway.shared.saveImage(url: user.profileImageUrl, userId: userId) { [weak self] url in
+                                let name = user.firstName! + " " + user.lastName!
+                                let conversation = Conversation(id: conversationId, userId: userId, name: name, date: date, image: url?.absoluteString ?? nil)
+                               
+                                strongSelf.fetchMessages(forNewConversation: conversation) { fetched in
+                                    if fetched {
+                                        print("messages for new conversation fetched")
+                                        completion(conversationId)
+                                    }
+                                }
+                            }
+                        }
+                      
+                    }
+                }
+/*
+                guard let sync = snapshot.childSnapshot(forPath: "sync").value as? Bool, !sync else { return }
+                if let latestMessage = snapshot.childSnapshot(forPath: "latestMessage").value as? String {
+                    print("We got something new")
+                    let conversationId = snapshot.key
+                    DataService.shared.conversationExists(for: conversationId) { exists in
+                        if exists {
+                            // get conversation and check our last message and fetch from that point
+                            print("existing conversation")
+                        } else {
+                            // fetch all messages from creation date
+                            print("new conversation")
+                        }
+                    }
+                    
+                    
+                    /*
+                     self.fetchMessages(for: <#T##[Conversation]#>, completion: <#T##(Bool) -> Void#>)
+                     self.fetchMessage(withId: latestMessage, for: conversationId) { error in
+                     if let error = error {
+                     print(error.localizedDescription)
+                     return
+                     } else {
+                     print("We fetched the message")
+                     completion(conversationId)
+                     
+                     }
+                     }
+                     */
+ */
+            }
+            
+        }
+    }
+    
+    public func fetchMessages(for conversation: Conversation, completion: @escaping(Bool) -> Void) {
+        let group = DispatchGroup()
+        guard let latestMessage = conversation.latestMessage else { return }
+        let date = latestMessage.sentDate
+        let timeInterval = date.toUTCTimestamp()
+        let conversationId = conversation.id!
+        
+        let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(afterValue: timeInterval)
+        group.enter()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            defer {
+                group.leave()
+            }
+            
+            guard snapshot.exists() else {
+                print("snapshot not exist")
+                return
+            }
+            
+            guard let messages = snapshot.value as? [String: [String: Any]] else {
+                print("bad snapshot format")
+                return
+            }
+            print("we found messages")
+            var newMessages = [Message]()
+            for (messageId, message) in messages {
+                var newMessage = Message(dictionary: message, messageId: messageId)
+                
+                if newMessage.image != nil {
+                    group.enter()
+                    FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
+                        if let url = url {
+                            newMessage.updateImage(url.absoluteString)
+                            newMessages.append(newMessage)
+                            group.leave()
+                        }
+                    }
+                }
+                
+                newMessages.append(newMessage)
+            }
+            
+            #warning("revisar si ha d'anar al revés")
+            newMessages.sort(by: { $0.sentDate < $1.sentDate })
+            print(newMessages)
+            //DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
+            for newMessage in newMessages {
+                group.enter()
+                print("saving message")
+                print(newMessage)
+                DataService.shared.save(message: newMessage, to: conversation)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            self.toggleSync(for: [conversation])
+            completion(true)
+        }
+    }
+    
+    public func fetchMessages(forNewConversation conversation: Conversation, completion: @escaping(Bool) -> Void) {
+        guard let date = conversation.date else { return }
+        let group = DispatchGroup()
+        let timeInterval = date.toUTCTimestamp()
+        let conversationId = conversation.id!
+        
+        let ref = database.child("conversations/\(conversationId)/messages").queryOrdered(byChild: "date").queryStarting(atValue: timeInterval)
+        group.enter()
+        
+        ref.observeSingleEvent(of: .value) { snapshot in
+            defer {
+                group.leave()
+            }
+            
+            guard snapshot.exists() else {
+                print("snapshot not exist")
+                return
+            }
+            
+            guard let messages = snapshot.value as? [String: [String: Any]] else {
+                print("bad snapshot format")
+                return
+            }
+            print("we found messages of new conversation")
+            var newMessages = [Message]()
+            for (messageId, message) in messages {
+                var newMessage = Message(dictionary: message, messageId: messageId)
+                
+                if newMessage.image != nil {
+                    group.enter()
+                    FileGateway.shared.saveImage(url: newMessage.image, userId: newMessage.messageId) { url in
+                        if let url = url {
+                            newMessage.updateImage(url.absoluteString)
+                            newMessages.append(newMessage)
+                            group.leave()
+                        }
+                    }
+                }
+                
+                newMessages.append(newMessage)
+            }
+            
+            newMessages.sort(by: { $0.sentDate < $1.sentDate })
+            print(newMessages)
+            DataService.shared.save(conversation: conversation, latestMessage: newMessages.removeFirst())
+            for newMessage in newMessages {
+                group.enter()
+                print("saving message of new conversation")
+                print(newMessage)
+                DataService.shared.save(message: newMessage, to: conversation)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            self.toggleSync(for: [conversation])
+            completion(true)
+        }
+    }
+
+
     /// Creates a new conversation with target user uid and first message sent
    // public func createNewConversation(withUid otherUserUid: String, name: String, firstMessage: Message, completion: @escaping (Double?) -> Void) {
         

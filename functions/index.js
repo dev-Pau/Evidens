@@ -218,14 +218,15 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
   const conversationId = context.params.conversationId;
   const messageId = context.params.messageId;
   const messageData = snapshot.val();
+  const sentDate = messageData.date
 
+  // Log the value of sentDate
+  functions.logger.log('sentDate:', sentDate);
+  
   // Update latestMessage and sync for both users
   const userIds = conversationId.split('_');
   const userId1 = userIds[0];
   const userId2 = userIds[1];
-
-  const date = new Date();
-  const dateInSeconds = date.getTime() / 1000;
 
   const user1Ref = admin.database().ref(`users/${userId1}/conversations/${conversationId}`);
   user1Ref.once('value', user1Snapshot => {
@@ -242,8 +243,9 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
         userId: userId2,
         latestMessage: messageId,
         sync: messageData.senderId === userId1 ? true : false,
-        date: dateInSeconds
+        date: sentDate
       };
+      functions.logger.log('User1Ref', messageData1.date);
       user1Ref.set(messageData1);
     }
   });
@@ -264,8 +266,9 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
         userId: userId1,
         latestMessage: messageId,
         sync: messageData.senderId === userId2 ? true : false,
-        date: dateInSeconds
+        date: sentDate
       };
+      functions.logger.log('User2Ref', messageData2.date);
       user2Ref.set(messageData2);
     }
   });
