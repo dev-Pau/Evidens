@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Conversation")
+
         container.loadPersistentStores { description, error in
             if let error {
                 fatalError("Unable to load persistent stores: \(error.localizedDescription)")

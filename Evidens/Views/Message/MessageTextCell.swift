@@ -122,14 +122,17 @@ class MessageTextCell: UICollectionViewCell {
             return
         }
         
-        bubbleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner]
+        if viewModel.isSender {
+            bubbleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner]
+        } else {
+            bubbleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMaxYCorner, .layerMaxXMinYCorner]
+        }
+        
         let maskLayer = CAShapeLayer()
         maskLayer.path = UIBezierPath(roundedRect: bubbleView.bounds,
-                                      byRoundingCorners: [.bottomRight],
+                                      byRoundingCorners: [viewModel.isSender ? .bottomRight : .bottomLeft],
                                       cornerRadii: CGSize(width: 5, height: 5)).cgPath
         bubbleView.layer.mask = maskLayer
-        
-        
     }
     
     required init?(coder: NSCoder) {
@@ -139,6 +142,12 @@ class MessageTextCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         
+        if viewModel.kind == . emoji {
+            messageLabel.font = .systemFont(ofSize: viewModel.size, weight: .regular)
+        } else {
+            messageLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        }
+
         addSubviews(timestampLabel, bubbleView, timeLabel, errorButton)
         bubbleView.addSubviews(messageLabel)
         
@@ -157,15 +166,9 @@ class MessageTextCell: UICollectionViewCell {
             timeTrailingConstraint = bubbleTrailingConstraint
         }
         
-        if viewModel.kind == . emoji{
-            messageLabel.font = .systemFont(ofSize: viewModel.size, weight: .regular)
-        } else {
-            messageLabel.font = .systemFont(ofSize: 16, weight: .regular)
-        }
-
         bubbleTopConstraint = bubbleView.topAnchor.constraint(equalTo: topAnchor)
         bubbleViewBottomAnchor = bubbleView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        
+
         NSLayoutConstraint.activate([
             timestampLabel.topAnchor.constraint(equalTo: topAnchor),
             timestampLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -247,7 +250,7 @@ class MessageTextCell: UICollectionViewCell {
             bubbleView.backgroundColor = primaryColor.withAlphaComponent(1.5)
             timeLabel.textAlignment = .right
         } else {
-            bubbleView.backgroundColor = .secondaryLabel
+            bubbleView.backgroundColor = .secondaryLabel.withAlphaComponent(0.5)
             timeLabel.textAlignment = .left
         }
     }

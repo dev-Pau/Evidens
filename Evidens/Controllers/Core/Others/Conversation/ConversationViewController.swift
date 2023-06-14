@@ -28,7 +28,7 @@ class ConversationViewController: UIViewController {
             configureNavigationBar()
         }
     }
-    
+
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     private var collectionView: UICollectionView!
     private var searchController: UISearchController!
@@ -163,163 +163,18 @@ class ConversationViewController: UIViewController {
         DataService.shared.editPhase()
         // Retrieve conversations from the data service
         conversations = DataService.shared.getConversations()
-        print(self.conversations.map { $0.userId })
-        conversationsLoaded = true
-        
-        // Observe current conversations and root for new conversations
-        //observeConversationRoot()
-        observeConversations()
-        
-        /*
-        // Check for new conversations and unsynced messages
-        DatabaseManager.shared.checkForNewConversations(with: conversations.map { $0.id! }) { [weak self] unsyncedIds in
-            guard let strongSelf = self else {
-                return
-            }
-            
-            // If there are no unsyncedIds or no conversations with new messages, return
-            guard !unsyncedIds.isEmpty else {
-                return
-            }
-            
-            // Filter out conversations that are not yet present in the current conversations list
-            let currentConversationIds = strongSelf.conversations.map { $0.id! }
-            let newConversationIds = unsyncedIds.filter { !currentConversationIds.contains($0) }
-            
-            // Filter conversations with new messages from the unsyncedIds list
-            let conversationsWithNewMessages = unsyncedIds.filter { currentConversationIds.contains($0) }
-            
-            // Filter conversations with no new messages
-            let conversationsWithNoNewMessages = currentConversationIds.filter { !unsyncedIds.contains($0) }
-            
-            // Fetch new conversations with the provided IDs
-            strongSelf.fetchNewConversations(withIds: newConversationIds)
-            
-            // Fetch new messages for conversations that already exist
-            strongSelf.fetchNewMewMessages(withIds: conversationsWithNewMessages)
-            
-            strongSelf.observeConversations()
 
-        }
-         */
+        conversationsLoaded = true
+
+        observeConversations()
     }
-    
-    private func fetchNewConversations(withIds conversationIds: [String]) {
-        // Fetch new conversations and users using the provided conversation IDs
-        DatabaseManager.shared.fetchNewConversations(with: conversationIds) { newConversations in
-            
-            // Fetch messages for each new conversation
-            DatabaseManager.shared.fetchMessages(for: newConversations) { [weak self] done in
-                guard let strongSelf = self else { return }
-                
-                // If fetching is done, update conversations, reload collection view, toggle sync for new conversations and observe new messages
-                if done {
-                    strongSelf.conversations = DataService.shared.getConversations()
-                    strongSelf.collectionView.reloadData()
-                    DatabaseManager.shared.toggleSync(for: newConversations)
-                    strongSelf.observeNewConversations(conversations: newConversations)
-                    NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-                }
-            }
-        }
-    }
-    
-    public func fetchNewMewMessages(withIds conversationIds: [String]) {
-        // Filter conversations based on the provided conversation IDs
-        let conversations = conversations.filter { conversationIds.contains($0.id!) }
-        
-        // Fetch new messages for the filtered conversations
-        DatabaseManager.shared.fetchNewMessages(for: conversations) { [weak self] fetched in
-            guard let strongSelf = self else { return }
-            
-            // If messages are fetched, update conversations, reload collection view, and toggle sync for conversations
-            if fetched {
-                strongSelf.conversations = DataService.shared.getConversations()
-                strongSelf.collectionView.reloadData()
-                DatabaseManager.shared.toggleSync(for: conversations)
-                
-            }
-        }
-    }
-    
+
     private func observeConversations() {
         // Observe current conversations
         DatabaseManager.shared.observeConversations { conversationId in
             self.conversations = DataService.shared.getConversations()
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
             self.collectionView.reloadData()
-        }
-        
-        /*
-        DatabaseManager.shared.observeNewMessages(on: conversations) { [weak self] conversationId in
-            guard let strongSelf = self else { return }
-            let newConversation = DataService.shared.getConversation(with: conversationId)
-            if var newConversation = newConversation, let index = strongSelf.conversations.firstIndex(where: { $0.id == conversationId }) {
-                if strongSelf.pendingConversations.contains(newConversation) {
-                    newConversation.markMessagesAsRead()
-                    DataService.shared.readMessages(conversation: newConversation)
-                    strongSelf.pendingConversations.removeAll(where: { $0.id == newConversation.id })
-                }
-                
-                DispatchQueue.main.async {
-                    strongSelf.collectionView.performBatchUpdates {
-                        strongSelf.conversations[index] = newConversation
-                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-                    }
-                }
-                
-                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-                DatabaseManager.shared.toggleSync(for: [newConversation])
-                #warning("Faltarà mostrar popup")
-            }
-        }
-         */
-    }
-    
-    private func observeNewConversations(conversations: [Conversation]) {
-        // Observe new conversations
-        DatabaseManager.shared.observeNewMessages(on: conversations) { [weak self] conversationId in
-            guard let strongSelf = self else { return }
-            print("current convo observer")
-            let newConversation = DataService.shared.getConversation(with: conversationId)
-            if let newConversation = newConversation, let index = strongSelf.conversations.firstIndex(where: { $0.id == conversationId }) {
-                
-                if strongSelf.pendingConversations.contains(newConversation) {
-                    DataService.shared.readMessages(conversation: newConversation)
-                    strongSelf.pendingConversations.removeAll(where: { $0.id == newConversation.id })
-                }
-                
-                DispatchQueue.main.async {
-                    strongSelf.collectionView.performBatchUpdates {
-                        strongSelf.conversations[index] = newConversation
-                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-                    }
-                }
-                
-                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-                DatabaseManager.shared.toggleSync(for: [newConversation])
-                #warning("Faltarà mostrar popup")
-            }
-        }
-    }
-    
-    private func observeConversationRoot() {
-        DatabaseManager.shared.observeNewConversations { newConversation in
-            print("new root convo")
-            print(newConversation)
-            DatabaseManager.shared.fetchMessages(for: [newConversation]) { [weak self] done in
-                print("we fetched root messages")
-                guard let strongSelf = self else { return }
-
-                // If fetching is done, update conversations, reload collection view, toggle sync for new conversations and observe new messages
-                if done {
-                    strongSelf.conversations = DataService.shared.getConversations()
-                    strongSelf.collectionView.reloadData()
-                    DatabaseManager.shared.toggleSync(for: [newConversation])
-                    strongSelf.observeNewConversations(conversations: [newConversation])
-                    NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
-                }
-            }
         }
     }
     
@@ -370,6 +225,9 @@ class ConversationViewController: UIViewController {
                     strongSelf.conversations.remove(at: indexPath.row)
                     strongSelf.collectionView.deleteItems(at: [indexPath])
                 }
+                
+                NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
+                
             case .failure(let error):
                 // Handle the failure case and print the error message
                 print(error.localizedDescription)
@@ -429,7 +287,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if conversations.isEmpty {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellReuseIdentifier, for: indexPath) as! MEPrimaryEmptyCell
-            cell.set(withImage: UIImage(named: AppStrings.Assets.emptyMessage)!, withTitle: "Welcome to your inbox.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "   Write a message   ")
+            cell.set(withImage: nil, withTitle: "Begin Connecting.", withDescription: "Drop a line, share posts, cases and more with private conversations between you and others", withButtonText: "Start a New Conversation")
             cell.delegate = self
             return cell
         } else {
@@ -442,6 +300,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout, UIColl
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard !conversations.isEmpty else { return }
         let conversation = conversations[indexPath.row]
+        
         let controller = MessageViewController(conversation: conversation)
         
         controller.delegate = self
@@ -524,6 +383,10 @@ extension ConversationViewController: SearchConversationViewControllerDelegate {
         delegate?.handleTooglePan()
     }
     
+    func updateScreenToggle() {
+        didLeaveScreen = true
+    }
+    
     func didTapTextToSearch(text: String) {
         // Set the text in the search bar of the search controller
         searchController.searchBar.text = text
@@ -600,6 +463,7 @@ extension ConversationViewController: MessageViewControllerDelegate {
     }
     
     func didReadConversation(_ conversation: Conversation, message: Message) {
+        //pendingConversations.append(conversation)
         if let conversationIndex = conversations.firstIndex(where: { $0.userId == conversation.userId }) {
             conversations[conversationIndex].changeLatestMessage(to: message)
             collectionView.reloadItems(at: [IndexPath(item: conversationIndex, section: 0)])
@@ -622,6 +486,8 @@ extension ConversationViewController: MessageViewControllerDelegate {
             collectionView.performBatchUpdates {
                 collectionView.deleteItems(at: [IndexPath(item: conversationIndex, section: 0)])
             }
+            
+            NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
         }
     }
     
@@ -643,6 +509,8 @@ extension ConversationViewController: MessageViewControllerDelegate {
                 }
             }
         }
+        
+        observeConversations()
     }
 }
 

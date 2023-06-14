@@ -15,13 +15,21 @@ class BookmarksPostImageCell: UICollectionViewCell {
         }
     }
     
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        photoBottomAnchor.isActive = false
+    }
+    
+    private var photoBottomAnchor: NSLayoutConstraint!
+    
     private var userPostView = MEUserPostView()
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -75,41 +83,47 @@ class BookmarksPostImageCell: UICollectionViewCell {
     private func configureUI() {
         backgroundColor = .systemBackground
         userPostView.isUserInteractionEnabled = false
-        
-        let postImageViewHeightConstraint = postImage.heightAnchor.constraint(equalToConstant: 75)
-        postImageViewHeightConstraint.priority = UILayoutPriority(999)
 
-        
-        let userPostViewHeightConstraint = userPostView.heightAnchor.constraint(equalToConstant: 67)
-        userPostViewHeightConstraint.priority = UILayoutPriority(999)
+        photoBottomAnchor = postImage.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
 
         addSubviews(userPostView, postTextLabel, postImage, likesButton, likesCommentsLabel, separatorView)
         
+        let userPostViewHeightConstraint = userPostView.heightAnchor.constraint(equalToConstant: 67)
+        userPostViewHeightConstraint.priority = .defaultHigh
+        userPostViewHeightConstraint.isActive = true
+
+        let spacingConstraint = userPostView.bottomAnchor.constraint(equalTo: postTextLabel.topAnchor)
+        spacingConstraint.priority = .defaultHigh
+        spacingConstraint.isActive = true
+        
+        let postTextLabelTopConstraint = postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor)
+        postTextLabelTopConstraint.priority = .defaultLow
+        postTextLabelTopConstraint.isActive = true
+
         NSLayoutConstraint.activate([
-            
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostViewHeightConstraint,
-            
+
             postImage.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
             postImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             postImage.widthAnchor.constraint(equalToConstant: 75),
-            postImageViewHeightConstraint,
-            
-            postTextLabel.centerYAnchor.constraint(equalTo: postImage.centerYAnchor),
+            postImage.heightAnchor.constraint(equalToConstant: 75),
+            photoBottomAnchor,
+
+            postTextLabelTopConstraint,
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: -10),
-            
-            likesCommentsLabel.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 10),
+            postTextLabel.bottomAnchor.constraint(equalTo: postImage.bottomAnchor),
+
+            likesCommentsLabel.topAnchor.constraint(equalTo: postImage.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
+
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
             likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
-            
+
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -128,6 +142,16 @@ class BookmarksPostImageCell: UICollectionViewCell {
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
         
+        if viewModel.likes > 0 || viewModel.comments > 0 {
+            photoBottomAnchor.constant = -25
+        } else {
+            photoBottomAnchor.constant = -10
+        }
+        
+        photoBottomAnchor.isActive = true
+        
+        layoutIfNeeded()
+        
     }
     
     func set(user: User) {
@@ -144,7 +168,8 @@ class BookmarksPostImageCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 175)
 
-        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
+        //let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes

@@ -154,12 +154,15 @@ class BookmarksCaseImageCell: UICollectionViewCell {
         if let imageUrl = user.profileImageUrl, imageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
+        
+        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
         userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
+        #warning("change this com al'altre")
         var height: CGFloat = 217
         if let text = viewModel?.likesCommentsText {
             if text == "" {

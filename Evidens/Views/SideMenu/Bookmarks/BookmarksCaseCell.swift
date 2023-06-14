@@ -142,6 +142,7 @@ class BookmarksCaseCell: UICollectionViewCell {
         if let imageUrl = user.profileImageUrl, imageUrl != "" {
             userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
         }
+        userPostView.userInfoCategoryLabel.attributedText = user.getUserAttributedInfo()
         userPostView.usernameLabel.text = user.firstName! + " " + user.lastName!
     }
 

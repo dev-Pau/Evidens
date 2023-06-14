@@ -38,16 +38,16 @@ class MessageViewController: UICollectionViewController {
     private var preview: Bool = false
     private var dismiss: Bool = false
     private var newConversation: Bool?
-    private var messages = [Message]() {
-        didSet {
-            print(messages.count)
-        }
-    }
+    private var messages = [Message]()
 
     private let messageInputAccessoryView = MessageInputAccessoryView()
     private var keyboardHidden: Bool = true
     private var keyboardHeight: CGFloat = 0.0
     private var didScrollToBottom: Bool = false
+    
+    private var firstKeyboardHeight: CGFloat = 0.0
+    
+    private var keyboardIsOpened: Bool = false
     
     private lazy var userImageView: UIImageView = {
         let iv = UIImageView()
@@ -61,6 +61,7 @@ class MessageViewController: UICollectionViewController {
         return iv
     }()
     
+    
     override var inputAccessoryView: UIView? {
         get {
             return messageInputAccessoryView
@@ -71,11 +72,14 @@ class MessageViewController: UICollectionViewController {
         return preview ? false : true
     }
     
+    override var canResignFirstResponder: Bool {
+        return true
+    }
+    
     //MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureNavigationBar()
         configureObservers()
         configureCollectionView()
@@ -83,6 +87,13 @@ class MessageViewController: UICollectionViewController {
         getMessages()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(self)
+
+    }
+
     /// Initializes a new instance of the MessageViewController with a conversation and a preview flag.
     ///
     /// - Parameters:
@@ -92,6 +103,8 @@ class MessageViewController: UICollectionViewController {
         self.conversation = conversation
         self.user = user
         self.preview = preview ?? false
+        
+        self.messages = DataService.shared.getMessages(for: conversation)
         
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
@@ -113,8 +126,8 @@ class MessageViewController: UICollectionViewController {
         self.message = message
         self.preview = preview ?? false
         
-        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)))
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)), subitems: [item])
+        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200)), subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 5
         //section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 10, trailing: 10)
@@ -131,34 +144,26 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func configureNavigationBar() {
-        if preview { navigationController?.navigationBar.isHidden = true }
-        
-        /*
-        if let currentAppearance = navigationController?.navigationBar.standardAppearance, !preview {
-            
-            currentAppearance.shadowColor = nil
-            
-            navigationItem.scrollEdgeAppearance = currentAppearance
-            navigationItem.standardAppearance = currentAppearance
-        }
-         */
         userImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
         userImageView.layer.cornerRadius = 30 / 2
         
         navigationItem.titleView = userImageView
         
-        if let image = conversation.image, let url = URL(string: image), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
-            userImageView.image = userImage
+        if let user = user, let image = user.profileImageUrl {
+            userImageView.sd_setImage(with: URL(string: image))
+        } else {
+            if let image = conversation.image, let url = URL(string: image), let data = try? Data(contentsOf: url), let userImage = UIImage(data: data) {
+                userImageView.image = userImage
+            }
         }
     }
     
     private func configureCollectionView() {
         collectionView.register(MessageTextCell.self, forCellWithReuseIdentifier: messageTextCellReuseIdentifier)
-        collectionView.register(MessagePhotoCell.self, forCellWithReuseIdentifier: messagePhotoCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.keyboardDismissMode = .interactive
+        collectionView.keyboardDismissMode = .onDrag
         collectionView.contentInsetAdjustmentBehavior = .automatic
     }
     
@@ -168,72 +173,91 @@ class MessageViewController: UICollectionViewController {
     }
     
     private func configureObservers() {
-/*
+        keyboardHeight = messageInputAccessoryView.frame.size.height
+
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardWillShow(notification:)),
-                                               name: UIResponder.keyboardWillShowNotification,
-                                               object: nil)
-        */
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardWillHide(notification:)),
+                                               selector: #selector(keyboardWillChangeFrame(notification:)),
                                                name: UIResponder.keyboardWillHideNotification,
                                                object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardDidHideNotification, object: nil)
+
     }
+    
+    
+    private var isShowingEmoji: Bool = false
+    
+    enum KeyboardState {
+        case closed
+        case opened
+        case emoji
+        case blocking
+    }
+    
+    private var firstTime: Bool = true
+
+    private var previousKeyboardNotification: NSNotification.Name = UIResponder.keyboardDidChangeFrameNotification
+    private var keyboardState: KeyboardState = .closed
     
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-                  let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+              let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval,
+        let beginKeyboardFrame = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? CGRect else {
+            return
+        }
+        
+
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
+        let convertedBeginKeyboardFrame = view.convert(beginKeyboardFrame, from: view.window)
+
+        if notification.name == UIResponder.keyboardWillChangeFrameNotification {
+            if firstTime {
+                keyboardState = .closed
+                firstTime = false
                 return
             }
-        
-        let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
-        print(keyboardFrame.origin.y)
-        print("keyboard change")
-        
-        guard !dismiss else {
-            return
-        }
-        
-        guard !keyboardHidden else {
-            keyboardHidden = false
-            return
-        }
-
-            //let convertedKeyboardFrame = view.convert(keyboardFrame, from: view.window)
-            let intersection = collectionView.frame.intersection(convertedKeyboardFrame)
             
-            let contentInsetBottom = intersection.height
-            let contentOffsetY = collectionView.contentSize.height - collectionView.bounds.height + contentInsetBottom
-        
-        keyboardHeight = keyboardFrame.size.height
-            let additionalOffset = max(contentOffsetY - collectionView.contentOffset.y, 0)
-
-            UIView.animate(withDuration: duration) {
-                self.collectionView.contentOffset.y += convertedKeyboardFrame.height - self.messageInputAccessoryView.frame.size.height
-                self.view.layoutIfNeeded()
-                self.dismiss = true
+            keyboardHeight = convertedKeyboardFrame.size.height
+            
+            switch keyboardState {
+                
+            case .closed:
+                keyboardState = .opened
+                UIView.animate(withDuration: duration) {
+                    self.collectionView.contentOffset.y += convertedKeyboardFrame.height - self.messageInputAccessoryView.frame.size.height
+                    self.view.layoutIfNeeded()
+                }
+            case .opened:
+                if convertedKeyboardFrame.height > convertedBeginKeyboardFrame.height {
+                    keyboardState = .emoji
+                    self.collectionView.contentOffset.y += convertedKeyboardFrame.height - convertedBeginKeyboardFrame.height
+                    self.view.layoutIfNeeded()
+                }
+            case .emoji:
+                if convertedKeyboardFrame.height < convertedBeginKeyboardFrame.height {
+                    keyboardState = .opened
+                    self.collectionView.contentOffset.y -= (convertedBeginKeyboardFrame.height - convertedKeyboardFrame.height)
+                    self.view.layoutIfNeeded()
+                    
+                } else {
+                    keyboardState = .closed
+                }
+            case .blocking:
+                keyboardState = .closed
+                keyboardHeight = messageInputAccessoryView.frame.size.height
             }
+        }
+        
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            keyboardState = .blocking
+        }
     }
 
-    @objc func keyboardWillHide(notification: NSNotification) {
-        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
-            return
-        }
-        print("keyboard hide")
-        // Reset content inset and offset when keyboard hides
-        keyboardHidden = true
-        dismiss = false
-        keyboardHeight = messageInputAccessoryView.frame.size.height
-        UIView.animate(withDuration: duration) {
-            self.collectionView.contentInset = UIEdgeInsets.zero
-            self.collectionView.verticalScrollIndicatorInsets = UIEdgeInsets.zero
-            self.view.layoutIfNeeded()
-        }
-    }
-    
     private func getMessages() {
+        keyboardHeight = messageInputAccessoryView.frame.size.height
+        
         if let message {
             messages = DataService.shared.getMessages(for: conversation, around: message)
             
@@ -246,15 +270,20 @@ class MessageViewController: UICollectionViewController {
                 }
             }
         } else {
-            messages = DataService.shared.getMessages(for: conversation)
             if !messages.isEmpty {
-                
-                observeConversation()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                     guard let strongSelf = self else { return }
                     let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
-                    strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
-                    print("did scroll to bottom")
+                    
+                    let contentHeight = strongSelf.collectionView.contentSize.height
+                    let collectionViewHeight = strongSelf.collectionView.bounds.size.height
+                    let contentOffsetY = contentHeight - collectionViewHeight
+                    
+                    if contentOffsetY > strongSelf.collectionView.contentOffset.y - strongSelf.keyboardHeight {
+                        strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: false)
+
+                    }
+
                     if strongSelf.preview == false {
                         DataService.shared.readMessages(conversation: strongSelf.conversation)
                         strongSelf.delegate?.didReadAllMessages(for: strongSelf.conversation)
@@ -267,6 +296,8 @@ class MessageViewController: UICollectionViewController {
                 guard let strongSelf = self else { return }
                 strongSelf.newConversation = !exists
             }
+            
+            observeConversation()
         }
     }
     
@@ -298,57 +329,78 @@ class MessageViewController: UICollectionViewController {
                 } completion: { [weak self] _ in
                     guard let strongSelf = self else { return }
                     DispatchQueue.main.async {
+                        let contentHeight = strongSelf.collectionView.contentSize.height
+                        let collectionViewHeight = strongSelf.collectionView.bounds.size.height
+                        let contentOffsetY = contentHeight - collectionViewHeight
                         
-                        strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
-                        
-                        let bottomOffset = CGPoint(x: 0, y: strongSelf.collectionView.contentSize.height - strongSelf.collectionView.bounds.height + strongSelf.keyboardHeight)
-                        
-                        strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
+                        if contentOffsetY > strongSelf.collectionView.contentOffset.y - strongSelf.keyboardHeight {
+                            // Content is not fully visible, scroll to the bottom
+                            strongSelf.collectionView.setContentOffset(CGPoint(x: 0, y: contentOffsetY + strongSelf.keyboardHeight), animated: true)
+                        }
                     }
                 }
             }
             
-            //DataService.shared.readMessages(conversation: strongSelf.conversation)
+            var message = newMessage
+            message.updatePhase(.read)
+            
+            DispatchQueue.main.async {
+                strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
+            }
+            
+            DataService.shared.save(message: message, to: strongSelf.conversation)
+            DataService.shared.readMessages(conversation: strongSelf.conversation)
             strongSelf.delegate?.didReadConversation(strongSelf.conversation, message: newMessage)
             NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
         }
     }
     
-    //MARK: - Actions
-    /*
-    @objc func keyboardWillShow(notification: NSNotification) {
-        guard !keyboardHidden else {
-            keyboardHidden.toggle()
-            return
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard message == nil else { return }
+
+        if scrollView.contentOffset.y <= -scrollView.contentInset.top {
+            fetchMoreMessages()
         }
-        
-        
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            let keyboardHeight = keyboardSize.height
-            
-            if collectionView.contentSize.height > collectionView.bounds.height - keyboardHeight {
-                    // Calculate the bottom offset based on the current content offset and keyboard height
-                    //let bottomOffset = CGPoint(x: 0, y: collectionView.contentOffset.y + keyboardHeight - messageInputAccessoryView.frame.height)
-                    
-                    //collectionView.setContentOffset(bottomOffset, animated: true)
-                }
-                
-                self.keyboardHeight = keyboardHeight
-        }
-         
     }
     
-    @objc func keyboardWillHide(notification: NSNotification) {
-        if let isKeyboardLocal = notification.userInfo?[UIResponder.keyboardIsLocalUserInfoKey] as? NSNumber {
-            if isKeyboardLocal.boolValue == false {
-                return
+    private var initialLoad: Bool = true
+    private var scrolledToBottom: Bool = false
+    
+    private func fetchMoreMessages() {
+        print("fetch more messages")
+        guard let oldestMessage = messages.first else { return }
+        
+        let olderMessages = DataService.shared.getMoreMessages(for: conversation, from: oldestMessage.sentDate)
+        messages.insert(contentsOf: olderMessages, at: 0)
+        
+        var newIndexPaths = [IndexPath]()
+        olderMessages.enumerated().forEach { index, post in
+            newIndexPaths.append(IndexPath(item: index, section: 0))
+            if newIndexPaths.count == olderMessages.count {
+                collectionView.isScrollEnabled = false
+                collectionView.performBatchUpdates {
+                    collectionView.isScrollEnabled = false
+                    collectionView.insertItems(at: newIndexPaths)
+                    var totalHeight: CGFloat = 0.0
+                    for indexPath in newIndexPaths {
+                        if let layoutAttributes = collectionView.layoutAttributesForItem(at: indexPath) {
+                            totalHeight += layoutAttributes.frame.height
+                        }
+                    }
+                    let contentHeight = collectionView.contentSize.height + totalHeight
+                    collectionView.contentSize.height = contentHeight
+                     
+                } completion: { _ in
+                    self.collectionView.isScrollEnabled = true
+
+                }
+                
+                DispatchQueue.main.async {
+                    
+                }
             }
-            
-            keyboardHidden = true
-            self.keyboardHeight = messageInputAccessoryView.frame.height
         }
     }
-     */
 }
 
 extension MessageViewController: UICollectionViewDelegateFlowLayout {
@@ -372,14 +424,6 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
                 cell.highlight()
             }
             
-            return cell
-        case .photo:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messagePhotoCellReuseIdentifier, for: indexPath) as! MessagePhotoCell
-            if indexPath.row == messages.count - 1 { cell.isLastItem = true }
-            cell.delegate = self
-            cell.viewModel = MessageViewModel(message: messages[indexPath.row])
-            cell.displayTimestamp(firstMessageOfTheDay(indexOfMessage: indexPath))
-            cell.displayTime(shouldDisplayTime(indexOfMessage: indexPath))
             return cell
         }
     }
@@ -469,76 +513,21 @@ extension MessageViewController: UICollectionViewDelegateFlowLayout {
         
         return currentDay != nextDay
     }
-    
-    func sendMessageWithImage(image: UIImage) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let uuid = UUID()
-        FileGateway.shared.saveImage(image: image, messageId: uuid.uuidString) { [weak self] url in
-            guard let strongSelf = self, let url = url else { return }
-            
-            
-            
-            var newMessage = Message(text: "Image", sentDate: Date.now, messageId: uuid.uuidString, isRead: true, senderId: uid, image: url.absoluteString, kind: .photo, phase: .sending)
-            
-            strongSelf.messages.append(newMessage)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.collectionView.performBatchUpdates {
-                    strongSelf.collectionView.insertItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0)])
-                } completion: { _ in
-                    let bottomOffset = CGPoint(x: 0, y: strongSelf.collectionView.contentSize.height - strongSelf.collectionView.bounds.height + strongSelf.keyboardHeight)
-                    strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
-                }
-            }
-            
-            DispatchQueue.main.async {
-                strongSelf.delegate?.didSendMessage(newMessage, for: strongSelf.conversation)
-            }
-            
-            DataService.shared.save(message: newMessage, to: strongSelf.conversation)
-            
-            StorageManager.uploadMessagePhoto(image, conversationId: strongSelf.conversation.id!, fileName: uuid.uuidString) { result in
-                
-                switch result {
-                case .success(let url):
-                    newMessage.updateImage(url)
-                    DatabaseManager.shared.sendMessage(to: strongSelf.conversation, with: newMessage) { [weak self] error in
-                        guard let strongSelf = self else { return }
-                        if let error {
-                            print(error.localizedDescription)
-                        } else {
-                            strongSelf.messages[strongSelf.messages.count - 1].updatePhase(.sent)
-                            strongSelf.delegate?.didSendMessage(strongSelf.messages[strongSelf.messages.count - 1], for: strongSelf.conversation)
-                            DataService.shared.edit(message: strongSelf.messages[strongSelf.messages.count - 1], set: MessagePhase.sent.rawValue, forKey: "phase")
-                            DispatchQueue.main.async {
-                                strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
-                            }
-                            
-                            strongSelf.observeConversation()
-                        }
-                    }
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-        }
-    }
 }
 
 extension MessageViewController: MessageInputAccessoryViewDelegate {
+   
     func didSendMessage(message: String) {
         guard let newConversation = newConversation, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        
-        
+
         let lines = message.components(separatedBy: .newlines)
         let trimmedLines = lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
         let trimmedMessage = trimmedLines.joined(separator: "\n")
-        
+
         let type: MessageKind = trimmedMessage.containsEmojiOnly ? .emoji : .text
-
+        
         let message = Message(text: trimmedMessage, sentDate: Date().toUTCDate(), messageId: UUID().uuidString, isRead: true, senderId: uid, kind: type, phase: .sending)
-
+        
         messages.append(message)
         
         collectionView.performBatchUpdates {
@@ -547,28 +536,17 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
             guard let strongSelf = self else { return }
             DispatchQueue.main.async {
                 let contentHeight = strongSelf.collectionView.contentSize.height
-                        let collectionViewHeight = strongSelf.collectionView.bounds.size.height
+                let collectionViewHeight = strongSelf.collectionView.bounds.size.height
                 let contentOffsetY = contentHeight - collectionViewHeight
-                        
-                        if contentOffsetY > strongSelf.collectionView.contentOffset.y - strongSelf.keyboardHeight {
-                            // Content is not fully visible, scroll to the bottom
-                            strongSelf.collectionView.setContentOffset(CGPoint(x: 0, y: contentOffsetY + strongSelf.keyboardHeight), animated: true)
-                        }
+                
+                if contentOffsetY > strongSelf.collectionView.contentOffset.y - strongSelf.keyboardHeight {
+                    // Content is not fully visible, scroll to the bottom
+                    strongSelf.collectionView.setContentOffset(CGPoint(x: 0, y: contentOffsetY + strongSelf.keyboardHeight), animated: true)
                 }
+            }
         }
-                /*
-                 let contentHeight = strongSelf.collectionView.contentSize.height
-                 let visibleHeight = strongSelf.collectionView.bounds.height
-                 
-                 if contentHeight > visibleHeight && strongSelf.collectionView.contentOffset.y >= contentHeight - visibleHeight {
-                 // Scroll to the bottom
-                 let bottomOffset = CGPoint(x: 0, y: contentHeight - visibleHeight + strongSelf.keyboardHeight)
-                 strongSelf.collectionView.setContentOffset(bottomOffset, animated: true)
-                 }
-                 */
-
         if newConversation {
-
+            
             self.newConversation?.toggle()
             
             guard let user = user else { return }
@@ -579,7 +557,7 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                 
                 DataService.shared.save(conversation: strongSelf.conversation, latestMessage: message)
                 strongSelf.delegate?.didCreateNewConversation(strongSelf.conversation)
-
+                
                 DatabaseManager.shared.createNewConversation(strongSelf.conversation, with: message) { [weak self] error in
                     guard let strongSelf = self else { return }
                     if let error {
@@ -607,33 +585,8 @@ extension MessageViewController: MessageInputAccessoryViewDelegate {
                     DispatchQueue.main.async {
                         strongSelf.collectionView.reloadItems(at: [IndexPath(item: strongSelf.messages.count - 1, section: 0), IndexPath(item: strongSelf.messages.count - 2, section: 0)])
                     }
+                    
                 }
-            }
-        }
-    }
-    
-    func didTapAddMedia() {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.filter = .images
-        config.selectionLimit = 1
-        let controller = PHPickerViewController(configuration: config)
-        controller.delegate = self
-        present(controller, animated: true)
-    }
-}
-
-extension MessageViewController: MessagePhotoCellDelegate {
-    func didTapMenu(_ option: MessageMenu) {
-        return
-    }
-    
-    func didLoadPhoto() {
-        if !didScrollToBottom {
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                let lastIndexPath = IndexPath(item: strongSelf.messages.count - 1, section: 0)
-                strongSelf.collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
-                strongSelf.didScrollToBottom = true
             }
         }
     }
@@ -650,23 +603,6 @@ extension MessageViewController: MessageCellDelegate {
             deleteMessage(message)
         case .resend:
             break
-        }
-    }
-}
-
-extension MessageViewController: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true)
-        if results.count == 0 { return }
-        results.forEach { result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
-                guard let strongSelf = self else { return }
-                guard let image = reading as? UIImage, error == nil else { return }
-                DispatchQueue.main.async {
-                    picker.dismiss(animated: true)
-                    strongSelf.sendMessageWithImage(image: image)
-                }
-            }
         }
     }
 }

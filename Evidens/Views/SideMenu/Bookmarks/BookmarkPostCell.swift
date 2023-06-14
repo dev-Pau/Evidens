@@ -15,7 +15,13 @@ class BookmarkPostCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        postBottomAnchor.isActive = false
+    }
+    
     private var userPostView = MEUserPostView()
+    private var postBottomAnchor: NSLayoutConstraint!
     
     private var postTextLabel: UILabel = {
         let label = UILabel()
@@ -65,6 +71,7 @@ class BookmarkPostCell: UICollectionViewCell {
         userPostView.isUserInteractionEnabled = false
         
         addSubviews(userPostView, postTextLabel, likesButton, likesCommentsLabel, separatorView)
+        postBottomAnchor = postTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -75,20 +82,23 @@ class BookmarkPostCell: UICollectionViewCell {
             postTextLabel.topAnchor.constraint(equalTo: userPostView.bottomAnchor),
             postTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             postTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postBottomAnchor,
             
-            likesCommentsLabel.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 10),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            
+            likesCommentsLabel.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            //likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
             likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            
             
         ])
     }
@@ -103,6 +113,16 @@ class BookmarkPostCell: UICollectionViewCell {
         postTextLabel.text = viewModel.postText
         likesCommentsLabel.text = viewModel.likesCommentsText
         likesButton.isHidden = viewModel.likesButtonIsHidden
+        
+        if viewModel.likes > 0 || viewModel.comments > 0 {
+            postBottomAnchor.constant = -25
+        } else {
+            postBottomAnchor.constant = -10
+        }
+        
+        postBottomAnchor.isActive = true
+        
+        layoutIfNeeded()
     }
     
     func set(user: User) {
@@ -117,7 +137,7 @@ class BookmarkPostCell: UICollectionViewCell {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 170)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))

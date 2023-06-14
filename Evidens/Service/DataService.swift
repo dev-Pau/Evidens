@@ -50,7 +50,6 @@ extension DataService {
     ///   - message: The Message to be saved.
     ///   - conversation: The parent Conversation.
     func save(message: Message, to conversation: Conversation) {
-        print("save message to conversation !!!!!")
         let request = NSFetchRequest<ConversationEntity>(entityName: "ConversationEntity")
         request.predicate = NSPredicate(format: "userId == %@", conversation.userId as CVarArg)
         
@@ -143,7 +142,7 @@ extension DataService {
         var messageEntities = [MessageEntity]()
         let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
         request.sortDescriptors = [NSSortDescriptor(key: "sentDate", ascending: false)]
-        request.fetchLimit = 40
+        request.fetchLimit = 20
         request.predicate = NSPredicate(format: "conversation.userId = %@", conversation.userId as CVarArg)
         
         do {
@@ -184,6 +183,22 @@ extension DataService {
             print(error.localizedDescription)
         }
         
+        return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
+    }
+    
+    func getMoreMessages(for conversation: Conversation, from date: Date) -> [Message] {
+        var messageEntities = [MessageEntity]()
+        let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
+        request.sortDescriptors = [NSSortDescriptor(key: "sentDate", ascending: false)]
+        request.fetchLimit = 20
+        request.predicate = NSPredicate(format: "conversation.userId = %@ AND sentDate < %@", conversation.userId as CVarArg, date as NSDate)
+        
+        do {
+            messageEntities = try managedObjectContext.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+        }
+
         return messageEntities.compactMap { Message(fromEntity: $0) }.reversed()
     }
     
@@ -399,6 +414,24 @@ extension DataService {
             }
         } catch {
             print(error.localizedDescription)
+        }
+    }
+    
+    func messageExists(for id: String) -> Bool {
+        let request = NSFetchRequest<MessageEntity>(entityName: "MessageEntity")
+        request.predicate = NSPredicate(format: "messageId == %@", id)
+        
+        do {
+            let messageEntities = try managedObjectContext.fetch(request)
+            
+            if let _ = messageEntities.first {
+                return true
+            } else {
+                return false
+            }
+        } catch {
+            print(error.localizedDescription)
+            return false
         }
     }
 }

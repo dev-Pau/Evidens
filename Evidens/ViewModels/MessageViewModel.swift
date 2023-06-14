@@ -36,24 +36,7 @@ class MessageViewModel {
     var date: String {
         return formatDateString(for: message.sentDate)
     }
-    /*
-    var image: UIImage? {
-        guard let imagePath = message.image else { return nil }
-        
-        var loadedImage: UIImage?
-        
-        DispatchQueue.global().sync {
-            if let url = URL(string: imagePath), let data = try? Data(contentsOf: url) {
-                loadedImage = UIImage(data: data)
-            } else {
-                #warning("need to return nil on production")
-                loadedImage = UIImage(named: "user.profile")
-            }
-        }
-        
-        return loadedImage
-    }
-    */
+   
     var imageUrl: URL? {
         guard let imagePath = message.image else { return nil }
         if let url = URL(string: imagePath) {
@@ -119,7 +102,7 @@ class MessageViewModel {
     var size: CGFloat {
         let count = text.count
         if count == 1 {
-            return 60.0
+            return 50.0
         } else if count == 2 {
             return 40.0
         } else if count == 3 {

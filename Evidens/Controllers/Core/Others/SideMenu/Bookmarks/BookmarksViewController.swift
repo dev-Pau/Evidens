@@ -33,6 +33,7 @@ class BookmarksViewController: UIViewController {
     private var postUsers = [User]()
     
     private var bookmarkToolbar = BookmarkToolbar()
+    private var spacingView = SpacingView()
     private var isScrollingHorizontally = false
     private var didFetchPosts: Bool = false
     private var scrollIndex: Int = 0
@@ -43,6 +44,7 @@ class BookmarksViewController: UIViewController {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.isPagingEnabled = true
         scrollView.backgroundColor = .systemBackground
+        scrollView.bounces = false
         return scrollView
     }()
     
@@ -87,7 +89,8 @@ class BookmarksViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         casesCollectionView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: scrollView.frame.height)
-        postsCollectionView.frame = CGRect(x: view.frame.width, y: 0, width: view.frame.width, height: scrollView.frame.height)
+        spacingView.frame = CGRect(x: view.frame.width, y: 0, width: 10, height: scrollView.frame.height)
+        postsCollectionView.frame = CGRect(x: view.frame.width + 10, y: 0, width: view.frame.width, height: scrollView.frame.height)
     }
     
     private func fetchBookmarkedClinicalCases() {
@@ -129,7 +132,6 @@ class BookmarksViewController: UIViewController {
                     self.postUsers = users
                     self.didFetchPosts = true
                     self.postsCollectionView.reloadData()
-                    print("posts fetched")
                 }
             }
         }
@@ -144,7 +146,7 @@ class BookmarksViewController: UIViewController {
         casesCollectionView.dataSource = self
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
-        
+
         casesCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         postsCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
@@ -172,10 +174,12 @@ class BookmarksViewController: UIViewController {
         scrollView.delegate = self
         scrollView.addSubview(casesCollectionView)
         scrollView.addSubview(postsCollectionView)
-        scrollView.contentSize.width = view.frame.width * 2
+        scrollView.addSubview(spacingView)
+        scrollView.contentSize.width = view.frame.width * 2 + 10
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+
         if scrollView.contentOffset.y != 0 {
             isScrollingHorizontally = false
         }
@@ -348,13 +352,6 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
         layout.estimatedItemSize = CGSize(width: view.frame.width, height: 300)
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
-        
-        let backItem = UIBarButtonItem()
-        //backItem.title = ""
-        backItem.tintColor = .label
-        backItem.image = UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))
-        navigationItem.leftItemsSupplementBackButton = false
-        navigationItem.backBarButtonItem = backItem
         
         if collectionView == casesCollectionView {
             if let user = caseUsers.first(where: { $0.uid! == cases[indexPath.row].ownerUid }) {

@@ -80,23 +80,30 @@ class SearchMessageCell: UICollectionViewCell {
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
+        
+        // Set a lower priority for the height constraint of profileImageView
+        profileImageView.heightAnchor.constraint(equalToConstant: 35).priority = .required
     }
     
     private func configureWithMessage() {
         guard let viewModel = viewModel else { return }
-        //let attrString = NSMutableAttributedString(string: viewModel.text, attributes: [.foregroundColor: UIColor.secondaryLabel])
-        
         let attrString = NSMutableAttributedString(string: viewModel.text, attributes: [.foregroundColor: UIColor.secondaryLabel])
 
         let options: NSString.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
         let range = (viewModel.text as NSString).range(of: searchedText, options: options)
 
-        attrString.addAttributes([.foregroundColor: UIColor.label], range: range)
+        attrString.addAttributes([.foregroundColor: UIColor.label, .font: UIFont.systemFont(ofSize: 15, weight: .medium)], range: range)
         
-        messageLabel.attributedText = attrString
+        let senderString = NSMutableAttributedString(string: "You: ", attributes: [.foregroundColor: UIColor.secondaryLabel])
         
+        if viewModel.isSender {
+            senderString.append(attrString)
+            messageLabel.attributedText = senderString
+        } else {
+            messageLabel.attributedText = attrString
+        }
+       
         dateLabel.text = AppStrings.Characters.dot + viewModel.sentDateString
-
     }
     
     func set(conversation: Conversation?) {
@@ -111,6 +118,5 @@ class SearchMessageCell: UICollectionViewCell {
         })
 
         nameLabel.text = viewModel.name
-        
     }
 }

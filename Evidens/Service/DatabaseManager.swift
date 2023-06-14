@@ -3099,6 +3099,10 @@ extension DatabaseManager {
             print("we found messages")
             var newMessages = [Message]()
             for (messageId, message) in messages {
+                
+                let exists = DataService.shared.messageExists(for: messageId)
+                guard !exists else { continue }
+ 
                 var newMessage = Message(dictionary: message, messageId: messageId)
                 
                 if newMessage.image != nil {

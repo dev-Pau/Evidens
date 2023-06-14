@@ -50,12 +50,7 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
     private var didFetchMainContent = false
     private var didFetchConversations = false
     private var didFetchMessages = false
-    private var scrollIndex: Int = 0 {
-        didSet {
-            print(scrollIndex)
-        }
-    }
-    
+    private var scrollIndex: Int = 0
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -403,10 +398,11 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
        
         // Check if the presenting view controller is ConversationViewController and retrieve its navigation controller
         if let conversationViewController = presentingViewController as? ConversationViewController, let navVC = conversationViewController.navigationController {
-           
+            conversationViewController.updatePan()
+            conversationViewController.updateScreenToggle()
             navVC.pushViewController(controller, animated: true)
             delegate?.didTapConversation(conversation)
-            
+
             // Mark the messages of the selected conversation as read
             if collectionView == mainCollectionView {
                 mainConversations[indexPath.row].markMessagesAsRead()
@@ -425,6 +421,8 @@ class ConversationResultsUpdatingViewController: UIViewController, UINavigationC
         
         // Check if the presenting view controller is ConversationViewController and retrieve its navigation controller
         if let conversationViewController = presentingViewController as? ConversationViewController, let navVC = conversationViewController.navigationController {
+            conversationViewController.updatePan()
+            conversationViewController.updateScreenToggle()
             navVC.pushViewController(controller, animated: true)
         }
     }
@@ -575,7 +573,7 @@ extension ConversationResultsUpdatingViewController: UICollectionViewDelegateFlo
                 } else {
                     guard !mainMessages.isEmpty else { return }
                     let message = mainMessages[indexPath.row]
-                    if let conversation = mainConversations.first(where: { $0.id == message.conversationId }) {
+                    if let conversation = mainMessageConversations.first(where: { $0.id == message.conversationId }) {
                         show(conversation: conversation, for: message, in: collectionView)
                     }
                 }
