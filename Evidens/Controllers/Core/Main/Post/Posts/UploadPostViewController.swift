@@ -555,6 +555,7 @@ extension UploadPostViewController: UITextViewDelegate {
             }
         }
         scrollView.resizeScrollViewContentSize()
+        print(textView.hashtags())
         updateForm()
     }
 }

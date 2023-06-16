@@ -132,7 +132,7 @@ class HomeTwoImageTextCell: UICollectionViewCell {
     func configure() {
         guard let viewModel = viewModel else { return }
 
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " ·• Edited • " : viewModel.timestampString! + " • "
+        userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
 
@@ -141,16 +141,30 @@ class HomeTwoImageTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+        
+        let showMoreSize = 110.0
         
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
             NSLayoutConstraint.activate([
                 showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
-                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
+                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor),
                 showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-                showMoreView.widthAnchor.constraint(equalToConstant: 70),
+                showMoreView.widthAnchor.constraint(equalToConstant: showMoreSize),
             ])
+            
+            layoutIfNeeded()
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                let firstLines = strongSelf.postTextView.getFirstThreeLinesText()!
+                let lastLine = strongSelf.postTextView.getLastLineText()!
+                let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - 10 - showMoreSize, font: UIFont.systemFont(ofSize: 15, weight: .regular))
+
+                strongSelf.postTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+                strongSelf.showMoreView.isHidden = false
+            }
             
         } else {
             showMoreView.isHidden = true

@@ -15,7 +15,7 @@ struct PostViewModel {
     }
     
     var postText: String {
-        return post.postText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return post.postText
     }
     
     var comments: Int {
@@ -125,13 +125,18 @@ struct PostViewModel {
     }
     
     var evidenceString: String {
-        return post.referenceText.isEmpty ? String() : " " + AppStrings.Characters.dot + " " + AppStrings.Evidence.evidence
+        return post.referenceText.isEmpty ? String() : AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence
     }
+    
+    var time: String {
+        return postIsEdited ? timestampString! + evidenceString + AppStrings.Characters.dot + AppStrings.Miscellaneous.evidence + AppStrings.Characters.dot : timestampString! + evidenceString  + AppStrings.Characters.dot
+    }
+    
     
     var privacyImage: UIImage {
         switch post.privacyOptions.rawValue {
         case 0:
-            return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
+            return UIImage(systemName: "globe.europe.africa.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         case 1:
             return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         case 2:

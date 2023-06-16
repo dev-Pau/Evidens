@@ -44,6 +44,7 @@ struct AppStrings {
         static let gear = "gearshape"
         static let paperplane = "paperplane"
         static let apple = "applelogo"
+        static let fillPerson = "person.fill"
     }
     
     struct Actions {
@@ -71,10 +72,13 @@ struct AppStrings {
         static let paperplane = "paperplane"
         static let emptyContent = "content.empty"
         static let google = "google"
+        static let fillBookmark = "bookmark.fill"
+        static let bookmark = "bookmark"
     }
     
-    struct Evidence {
+    struct Miscellaneous {
         static let evidence = "Evidence Based"
+        static let edit = "Edited"
     }
     
     struct Alerts {
@@ -97,6 +101,11 @@ struct AppStrings {
         static let resendMessage = "Try Sending Again"
         static let sharePhoto = "Share Photo"
         static let copy = "Copy"
+    }
+    
+    struct SideMenu {
+        static let profile = "Profile"
+        static let bookmark = "Bookmarks"
     }
     
     struct Reference {
@@ -166,6 +175,10 @@ struct AppStrings {
         static let logIn = "Log In"
         static let createAccount = "Create Account"
         static let member = "Already a member?"
+    }
+    
+    struct Colors {
+        static let primaryGray = "primaryGray"
     }
     
 }

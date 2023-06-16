@@ -23,7 +23,6 @@ class HomeImageTextCell: UICollectionViewCell {
     private let cellContentView = UIView()
     weak var delegate: HomeCellDelegate?
     var userPostView = MEUserPostView()
-    private var referenceHeightAnchor: NSLayoutConstraint!
     var postTextView = MEPostTextView()
     let showMoreView = MEShowMoreView()
     var actionButtonsView = MEPostActionButtons()
@@ -93,7 +92,7 @@ class HomeImageTextCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return }
         
 
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + viewModel.evidenceString + " • Edited • " : viewModel.timestampString! + viewModel.evidenceString + " • "
+        userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
 
@@ -102,26 +101,40 @@ class HomeImageTextCell: UICollectionViewCell {
         
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage
         actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage
-        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 16, weight: .regular), .foregroundColor: UIColor.label])
+        postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
-        let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 300)
-        postImageViewHeightConstraint.priority = UILayoutPriority(999)
-        postImageViewHeightConstraint.isActive = true
+        //let postImageViewHeightConstraint = postImageView.heightAnchor.constraint(equalToConstant: 300)
+        //postImageViewHeightConstraint.priority = UILayoutPriority(999)
+        //postImageViewHeightConstraint.isActive = true
         
-        postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
+        let showMoreSize = 100.0
         
         if postTextView.isTextTruncated {
             addSubview(showMoreView)
             NSLayoutConstraint.activate([
                 showMoreView.heightAnchor.constraint(equalToConstant: postTextView.font?.lineHeight ?? 0.0),
-                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: -1),
+                showMoreView.bottomAnchor.constraint(equalTo: postTextView.bottomAnchor),
                 showMoreView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-                showMoreView.widthAnchor.constraint(equalToConstant: 70),
+                showMoreView.widthAnchor.constraint(equalToConstant: showMoreSize),
             ])
             
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let strongSelf = self else { return }
+                let firstLines = strongSelf.postTextView.getFirstThreeLinesText()!
+                let lastLine = strongSelf.postTextView.getLastLineText()!
+                let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - 10 - showMoreSize, font: UIFont.systemFont(ofSize: 15, weight: .regular))
+
+                strongSelf.postTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+                strongSelf.showMoreView.isHidden = false
+            }
         } else {
             showMoreView.isHidden = true
+            postTextView.attributedText = NSMutableAttributedString(string: viewModel.postText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         }
+        
+        
+        postImageView.sd_setImage(with: viewModel.postImageUrl.first!)
+        
     }
     
     func set(user: User) {

@@ -34,7 +34,7 @@ class MEUserPostView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = .label
+        button.configuration?.baseForegroundColor = UIColor(named: "primaryGray")
         button.configuration?.buttonSize = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -45,10 +45,10 @@ class MEUserPostView: UIView {
     var userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 2
+        label.textColor = .label
+        label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         return label
     }()
     
@@ -57,7 +57,7 @@ class MEUserPostView: UIView {
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "clock")?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
+        iv.image = UIImage(systemName: "clock", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     
@@ -72,8 +72,8 @@ class MEUserPostView: UIView {
         let label = UILabel()
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
-        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .label
         return label
     }()
 
@@ -110,7 +110,7 @@ class MEUserPostView: UIView {
             dotsImageButton.heightAnchor.constraint(equalToConstant: 20),
             dotsImageButton.widthAnchor.constraint(equalToConstant: 20),
             
-            userInfoCategoryLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 2),
+            userInfoCategoryLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor),
             userInfoCategoryLabel.leadingAnchor.constraint(equalTo: usernameLabel.leadingAnchor),
             userInfoCategoryLabel.trailingAnchor.constraint(equalTo: usernameLabel.trailingAnchor),
            
@@ -130,25 +130,7 @@ class MEUserPostView: UIView {
         ])
         
         profileImageView.layer.cornerRadius = 53 / 2
-        /*
-        let handler: UIButton.ConfigurationUpdateHandler = { button in // 1
-            switch button.state { // 2
-            case [.selected, .highlighted]:
-                button.configuration?.baseForegroundColor = primaryColor
-            case .selected:
-                button.configuration?.baseForegroundColor = primaryColor
-            case .highlighted:
-                button.configuration?.baseForegroundColor = primaryColor
-            case .disabled:
-                break
-            default:
-                button.configuration?.baseForegroundColor = primaryColor
-            }
-        }
-        
-        dotsImageButton.configurationUpdateHandler = handler
-         */
-        
+    
     }
     
     @objc func didTapProfile() {

@@ -14,8 +14,7 @@ class BookmarksPostImageCell: UICollectionViewCell {
             configure()
         }
     }
-    
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
         photoBottomAnchor.isActive = false
@@ -48,7 +47,6 @@ class BookmarksPostImageCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "heart.fill")?.scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12)).withRenderingMode(.alwaysOriginal).withTintColor(pinkColor)
-        //button.configuration?.baseForegroundColor = pinkColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -168,7 +166,6 @@ class BookmarksPostImageCell: UICollectionViewCell {
 
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 175)
 
-        //let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.required)
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame

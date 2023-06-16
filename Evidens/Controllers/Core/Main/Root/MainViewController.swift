@@ -61,7 +61,7 @@ class MainViewController: UIViewController {
         mainController.updateUserProfileImageViewAlpha(alfa: alfa)
     }
     
-    func pushMenuOptionController(option: SideMenuViewController.MenuOptions) {
+    func pushMenuOptionController(option: SideMenu) {
         mainController.pushMenuOption(option: option)
     }
 }

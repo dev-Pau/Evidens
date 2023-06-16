@@ -146,7 +146,7 @@ class BookmarksViewController: UIViewController {
         casesCollectionView.dataSource = self
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
-
+        
         casesCollectionView.register(BookmarksCaseCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(BookmarksCaseImageCell.self, forCellWithReuseIdentifier: caseImageCellReuseIdentifier)
         postsCollectionView.register(BookmarkPostCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
@@ -157,7 +157,7 @@ class BookmarksViewController: UIViewController {
         casesCollectionView.register(MESecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         
         view.addSubviews(bookmarkToolbar, scrollView)
-
+        
         NSLayoutConstraint.activate([
             bookmarkToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             bookmarkToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -176,10 +176,11 @@ class BookmarksViewController: UIViewController {
         scrollView.addSubview(postsCollectionView)
         scrollView.addSubview(spacingView)
         scrollView.contentSize.width = view.frame.width * 2 + 10
+        
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-
+        
         if scrollView.contentOffset.y != 0 {
             isScrollingHorizontally = false
         }
@@ -197,16 +198,30 @@ class BookmarksViewController: UIViewController {
             fetchBookmarkedPosts()
         }
         
+        let spacingWidth = spacingView.frame.width / 2
+        
         switch scrollView.contentOffset.x {
         case 0 ..< view.frame.width:
             if isScrollingHorizontally { scrollIndex = 0 }
-        case view.frame.width ..< 2 * view.frame.width:
+        case view.frame.width + spacingWidth ..< 2 * view.frame.width + spacingWidth:
             if isScrollingHorizontally { scrollIndex = 1 }
         default:
             break
         }
+        
+        
     }
     
+    
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        let targetOffset = targetContentOffset.pointee.x
+        if targetOffset == view.frame.width {
+            let desiredOffset = CGPoint(x: targetOffset + 10, y: 0)
+            scrollView.setContentOffset(desiredOffset, animated: true)
+            targetContentOffset.pointee = scrollView.contentOffset
+        }
+    }
+
     func fetchMorePosts() {
         PostService.fetchBookmarkedPostDocuments(lastSnapshot: lastPostSnapshot) { snapshot in
             guard !snapshot.isEmpty else { return }
@@ -236,7 +251,7 @@ class BookmarksViewController: UIViewController {
             }
         }
     }
-        
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -573,6 +588,6 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
 
 extension BookmarksViewController: BookmarkToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width), y: 0), animated: true)
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + 10 * index, y: 0), animated: true)
     }
 }

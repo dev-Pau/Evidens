@@ -135,8 +135,7 @@ class MainTabController: UITabBarController {
     }
     
     //MARK: - Helpers
-    
-    //Setup ViewControllers for the TabBarController
+
     func configureViewControllers() {
         view.backgroundColor = .systemBackground
         self.delegate = self
@@ -184,8 +183,6 @@ class MainTabController: UITabBarController {
         nav.tabBarItem.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 12.1)], for: .normal)
         nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.label)
         tabBar.tintColor = .label
-        //nav.navigationBar.tintColor = .black
-        
         return nav
     }
     
@@ -197,24 +194,16 @@ class MainTabController: UITabBarController {
         }
     }
     
-    func pushMenuOption(option: SideMenuViewController.MenuOptions) {
+    func pushMenuOption(option: SideMenu) {
         if let currentNavController = selectedViewController as? UINavigationController {
             
             switch option {
-            case .bookmarks:
+            case .profile:
+                guard let user = user else { return }
+                let userProfileController = UserProfileViewController(user: user)
+                currentNavController.pushViewController(userProfileController, animated: true)
+            case .bookmark:
                 let controller = BookmarksViewController()
-                currentNavController.pushViewController(controller, animated: true)
-            case .groups:
-                //guard let user = user else { return }
-                let controller = GroupBrowserViewController()
-                //self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
-                //self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
-                currentNavController.pushViewController(controller, animated: true)
-
-            case .jobs:
-                let controller = JobsBrowserViewController()
-                //self.navigationController?.navigationBar.standardAppearance.shadowColor = .clear
-                //self.navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
                 currentNavController.pushViewController(controller, animated: true)
             }
         }

@@ -28,7 +28,7 @@ class MEPostTextView: UITextView {
         isEditable = false
         delaysContentTouches = false
         isScrollEnabled = false
-        font = .systemFont(ofSize: 16, weight: .regular)
+        font = .systemFont(ofSize: 15, weight: .regular)
 
         adjustsFontForContentSizeCategory = false
         textContainer.maximumNumberOfLines = 4

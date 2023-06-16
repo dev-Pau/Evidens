@@ -13,7 +13,7 @@ private let sideMenuHeaderReuseIdentifier = "SideMenuHeaderReuseIdentifier"
 protocol SideMenuViewControllerDelegate: AnyObject {
     func didTapMenuHeader()
     func didTapSettings()
-    func didSelectMenuOption(option: SideMenuViewController.MenuOptions)
+    func didSelectMenuOption(option: SideMenu)
     func didTapAppearanceMenu()
 }
 
@@ -22,24 +22,7 @@ class SideMenuViewController: UIViewController {
     weak var delegate: SideMenuViewControllerDelegate?
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     private let appearanceMenuLauncher = AppearanceMenuLauncher()
-    
-    enum MenuOptions: String, CaseIterable {
-        case bookmarks = "Bookmarks"
-        case groups = "Groups"
-        case jobs = "Jobs"
 
-        var imageName: String {
-            switch self {
-            case .bookmarks:
-                return "bookmark.fill"
-            case .groups:
-                return "groups.selected"
-            case .jobs:
-                return "case.fill"
-            }
-        }
-    }
-    
     private let controllerSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +37,7 @@ class SideMenuViewController: UIViewController {
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.sectionHeadersPinToVisibleBounds = true
+        //layout.sectionHeadersPinToVisibleBounds = true
         layout.scrollDirection = .vertical
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
@@ -92,8 +75,8 @@ class SideMenuViewController: UIViewController {
         NSLayoutConstraint.activate([
             sideMenuTabView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
             sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sideMenuTabView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            sideMenuTabView.heightAnchor.constraint(equalToConstant: tabControllerHeight),
+            sideMenuTabView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -tabControllerHeight),
+            sideMenuTabView.heightAnchor.constraint(equalToConstant: 0.4),
             
             controllerSeparatorView.topAnchor.constraint(equalTo: view.topAnchor),
             controllerSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -163,12 +146,12 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return MenuOptions.allCases.count
+        return SideMenu.allCases.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideMenuCellReuseIdentifier, for: indexPath) as! SideMenuCell
-        cell.set(title: MenuOptions.allCases[indexPath.row].rawValue, image: MenuOptions.allCases[indexPath.row].imageName)
+        cell.set(title: SideMenu.allCases[indexPath.row].title, image: SideMenu.allCases[indexPath.row].image)
         return cell
     }
     
@@ -181,7 +164,7 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selection = MenuOptions.allCases[indexPath.row]
+        let selection = SideMenu.allCases[indexPath.row]
         delegate?.didSelectMenuOption(option: selection)
     }
 }

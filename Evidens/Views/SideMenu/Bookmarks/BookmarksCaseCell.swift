@@ -10,11 +10,18 @@ import UIKit
 class BookmarksCaseCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
-        didSet { configure() }
-        
+        didSet {
+            configure()
+        }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        caseBottomAnchor.isActive = false
     }
     
     private var userPostView = MEUserPostView()
+    private var caseBottomAnchor: NSLayoutConstraint!
     
     private let titleCaseLabel: UILabel = {
         let label = UILabel()
@@ -78,11 +85,12 @@ class BookmarksCaseCell: UICollectionViewCell {
     }
     
     private func configureUI() {
-        userPostView.isUserInteractionEnabled = false
-        
-        
         backgroundColor = .systemBackground
+        userPostView.isUserInteractionEnabled = false
+
         addSubviews(userPostView, titleCaseLabel, caseInfoLabel, descriptionCaseLabel, likesButton, likesCommentsLabel, separatorView)
+        
+        caseBottomAnchor = descriptionCaseLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         
         NSLayoutConstraint.activate([
             
@@ -102,20 +110,22 @@ class BookmarksCaseCell: UICollectionViewCell {
             descriptionCaseLabel.topAnchor.constraint(equalTo: titleCaseLabel.bottomAnchor, constant: 5),
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            caseBottomAnchor,
             
-            likesCommentsLabel.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            
+            likesCommentsLabel.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            //likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
             likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
     
@@ -136,6 +146,16 @@ class BookmarksCaseCell: UICollectionViewCell {
         } else {
             userPostView.profileImageView.image = UIImage(named: "user.profile")
         }
+        
+        if viewModel.caseLikes > 0 || viewModel.caseComments > 0 {
+            caseBottomAnchor.constant = -25
+        } else {
+            caseBottomAnchor.constant = -10
+        }
+        
+        caseBottomAnchor.isActive = true
+        
+        layoutIfNeeded()
     }
     
     func set(user: User) {
@@ -150,7 +170,7 @@ class BookmarksCaseCell: UICollectionViewCell {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
 
-        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
+        let targetSize = CGSize(width: layoutAttributes.frame.width, height: 170)
 
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))

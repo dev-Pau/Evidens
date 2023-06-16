@@ -257,7 +257,7 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
         handleDisablePan()
     }
     
-    func didSelectMenuOption(option: SideMenuViewController.MenuOptions) {
+    func didSelectMenuOption(option: SideMenu) {
         closeMenu()
         mainController.pushMenuOptionController(option: option)
     }

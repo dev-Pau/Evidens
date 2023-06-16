@@ -5,7 +5,7 @@
 //  Created by Pau Fernández Solà on 7/6/23.
 //
 
-import Foundation
+import UIKit
 
 extension String {
     
@@ -33,5 +33,38 @@ extension String {
             }
         }
     }
+    
+    func getSubstringThatFitsWidth(width: CGFloat, font: UIFont) -> String {
+        var substring = ""
+        var currentWidth: CGFloat = 0.0
+        
+        let words = self.components(separatedBy: .whitespacesAndNewlines)
+        
+        let spaceCharacterWidth = " ".size(withAttributes: [.font: font]).width
+        
+        for word in words {
+            let wordSize = word.size(withAttributes: [.font: font])
+            let wordWidth = wordSize.width
+            
+            if currentWidth + wordWidth <= width {
+                substring += word
+                currentWidth += wordWidth
+            } else {
+                break
+            }
+            
+            if currentWidth < width {
+                substring += " "
+                currentWidth += spaceCharacterWidth
+            }
+        }
+
+        if substring.last == " " {
+            substring.removeLast()
+        }
+        
+        return substring
+    }
+    
 }
 

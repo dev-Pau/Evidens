@@ -87,12 +87,12 @@ extension User {
     
     
     func getUserAttributedInfo() -> NSAttributedString {
-        let attributedText = NSMutableAttributedString(string: "\(profession!), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)])
+        let attributedText = NSMutableAttributedString(string: "\(profession!), ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)])
         if category == .professional {
-            attributedText.append(NSAttributedString(string: "\(speciality!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
+            attributedText.append(NSAttributedString(string: "\(speciality!)", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)]))
         } else {
-            attributedText.append(NSAttributedString(string: "\(speciality!) • ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium)]))
-            attributedText.append(NSAttributedString(string: category.userCategoryString, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .medium), .foregroundColor: primaryColor]))
+            attributedText.append(NSAttributedString(string: "\(speciality!) • ", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)]))
+            attributedText.append(NSAttributedString(string: category.userCategoryString, attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular), .foregroundColor: primaryColor]))
             
         }
         return attributedText

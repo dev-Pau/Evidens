@@ -91,15 +91,11 @@ class BookmarkPostCell: UICollectionViewCell {
             
             likesCommentsLabel.topAnchor.constraint(equalTo: postTextLabel.bottomAnchor, constant: 5),
             likesCommentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            //likesCommentsLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
+
             likesButton.centerYAnchor.constraint(equalTo: likesCommentsLabel.centerYAnchor),
             likesButton.trailingAnchor.constraint(equalTo: likesCommentsLabel.leadingAnchor, constant: -2),
             likesButton.widthAnchor.constraint(equalToConstant: 12),
             likesButton.heightAnchor.constraint(equalToConstant: 12),
-            
-            
-            
         ])
     }
     
@@ -108,7 +104,7 @@ class BookmarkPostCell: UICollectionViewCell {
         
         userPostView.dotsImageButton.isHidden = true
         
-        userPostView.postTimeLabel.text = viewModel.postIsEdited ? viewModel.timestampString! + " • Edited • " : viewModel.timestampString! + " • "
+        userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         postTextLabel.text = viewModel.postText
         likesCommentsLabel.text = viewModel.likesCommentsText

@@ -37,11 +37,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
             navigationBarAppearance.backButtonAppearance = barButtonItemAppearance
             
+            navigationBarAppearance.shadowColor = separatorColor
+            
             UINavigationBar.appearance().standardAppearance = navigationBarAppearance
             UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
             
             let tabBarAppearance = UITabBarAppearance()
             tabBarAppearance.configureWithOpaqueBackground()
+            tabBarAppearance.shadowColor = separatorColor
             UITabBar.appearance().standardAppearance = tabBarAppearance
             UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         }

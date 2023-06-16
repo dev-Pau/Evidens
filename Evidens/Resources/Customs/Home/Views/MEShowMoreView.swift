@@ -12,11 +12,11 @@ class MEShowMoreView: UIView {
     private let showMoreLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = " MORE"
+        label.text = "...show more"
         label.textColor = .secondaryLabel
         label.backgroundColor = .systemBackground
         //label.backgroundColor = .systemBackground
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         return label
     }()
     
@@ -30,16 +30,10 @@ class MEShowMoreView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
-        addSubviews(showMoreLabel, gradientView)
+        addSubviews(showMoreLabel)
         NSLayoutConstraint.activate([
             showMoreLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            //showMoreLabel.topAnchor.constraint(equalTo: topAnchor),
             showMoreLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            
-            gradientView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            gradientView.trailingAnchor.constraint(equalTo: showMoreLabel.leadingAnchor),
-            gradientView.topAnchor.constraint(equalTo: topAnchor),
-            gradientView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
     
@@ -49,13 +43,6 @@ class MEShowMoreView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        gradientLayer.colors = [UIColor.clear.cgColor, UIColor.systemBackground, UIColor.systemBackground.cgColor]
-        gradientLayer.locations = [0, 0.2, 1]
-        gradientLayer.frame = gradientView.bounds
-        gradientView.layer.mask = gradientLayer
     }
 }
 

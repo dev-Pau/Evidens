@@ -476,6 +476,8 @@
 		5FBCB9FE28A8D8EE007EF79D /* AddCaseUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */; };
 		5FBCBA0028A8DE88007EF79D /* UpdateCaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */; };
 		5FBDDC802A3A1DDE00EB4A89 /* SpacingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDDC7F2A3A1DDE00EB4A89 /* SpacingView.swift */; };
+		5FBDDC822A3B579500EB4A89 /* SideMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDDC812A3B579500EB4A89 /* SideMenu.swift */; };
+		5FBDDC842A3B6B0100EB4A89 /* UITextView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBDDC832A3B6B0100EB4A89 /* UITextView+Ext.swift */; };
 		5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4D85D27070274006B7A34 /* AppDelegate.swift */; };
 		5FC4D86527070274006B7A34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86327070274006B7A34 /* Main.storyboard */; };
 		5FC4D86727070277006B7A34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5FC4D86627070277006B7A34 /* Assets.xcassets */; };
@@ -972,6 +974,8 @@
 		5FBCB9FD28A8D8EE007EF79D /* AddCaseUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCaseUpdateViewController.swift; sourceTree = "<group>"; };
 		5FBCB9FF28A8DE88007EF79D /* UpdateCaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCaseCell.swift; sourceTree = "<group>"; };
 		5FBDDC7F2A3A1DDE00EB4A89 /* SpacingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacingView.swift; sourceTree = "<group>"; };
+		5FBDDC812A3B579500EB4A89 /* SideMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenu.swift; sourceTree = "<group>"; };
+		5FBDDC832A3B6B0100EB4A89 /* UITextView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Ext.swift"; sourceTree = "<group>"; };
 		5FC4D85A27070274006B7A34 /* Evidens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Evidens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FC4D85D27070274006B7A34 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5FC4D85F27070274006B7A34 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -2025,6 +2029,7 @@
 				5F93ED812A2A4A7C0087D5CB /* UIColor+Ext.swift */,
 				5F9AF7E32A30CC020007D2B9 /* String+Ext.swift */,
 				5F929D1A2A374C9600CD7B7E /* Date+Ext.swift */,
+				5FBDDC832A3B6B0100EB4A89 /* UITextView+Ext.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -2463,6 +2468,7 @@
 				5FB443AF2A28E96700A601EE /* Patent.swift */,
 				5FB443B12A28E97500A601EE /* Education.swift */,
 				5FB443B32A28E98C00A601EE /* Experience.swift */,
+				5FBDDC812A3B579500EB4A89 /* SideMenu.swift */,
 			);
 			path = UserSection;
 			sourceTree = "<group>";
@@ -3341,6 +3347,7 @@
 				5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */,
 				5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */,
 				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
+				5FBDDC822A3B579500EB4A89 /* SideMenu.swift in Sources */,
 				5F527D8D2881DCF4009D5027 /* ImageRegistrationViewController.swift in Sources */,
 				5F9A9F9A2898448E00A25152 /* UserProfilePublicationCell.swift in Sources */,
 				5F9A2824297841490052E618 /* GroupMemberUserCell.swift in Sources */,
@@ -3548,6 +3555,7 @@
 				5F9CFF8E2A21EC6B003FF382 /* MessageKind.swift in Sources */,
 				5FA9D17129A4A8C5004EF26A /* CompanyBrowserViewController.swift in Sources */,
 				5FF1B3FC2985A671002806E6 /* MELoadingHeader.swift in Sources */,
+				5FBDDC842A3B6B0100EB4A89 /* UITextView+Ext.swift in Sources */,
 				5F9A280629743BA70052E618 /* RequestSelectorCell.swift in Sources */,
 				5F5F895129993F910014F378 /* OnboardingViewModel.swift in Sources */,
 				5F204F952992BCEB009A416A /* UserContributorCell.swift in Sources */,

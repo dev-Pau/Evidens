@@ -74,8 +74,8 @@ class SideMenuHeader: UICollectionReusableView {
             viewProfileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: viewProfileLabel.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: viewProfileLabel.trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
