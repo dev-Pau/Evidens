@@ -34,7 +34,7 @@ class MEUserPostView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "ellipsis")
-        button.configuration?.baseForegroundColor = UIColor(named: "primaryGray")
+        button.configuration?.baseForegroundColor = separatorColor
         button.configuration?.buttonSize = .small
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true

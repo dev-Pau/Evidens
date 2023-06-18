@@ -45,6 +45,12 @@ struct AppStrings {
         static let paperplane = "paperplane"
         static let apple = "applelogo"
         static let fillPerson = "person.fill"
+        static let person = "person"
+        static let scalemass = "scalemass"
+        static let circleQuestion = "questionmark.circle"
+        static let upChevron = "chevron.up"
+        static let downChevron = "chevron.down"
+        static let docOnDoc = "doc.on.doc"
     }
     
     struct Actions {
@@ -67,6 +73,7 @@ struct AppStrings {
     }
     
     struct Assets {
+        static let app = "AppIcon"
         static let profile = "user.profile"
         static let emptyMessage = "message.empty"
         static let paperplane = "paperplane"
@@ -74,6 +81,7 @@ struct AppStrings {
         static let google = "google"
         static let fillBookmark = "bookmark.fill"
         static let bookmark = "bookmark"
+        static let fillPost = "post.selected"
     }
     
     struct Miscellaneous {
@@ -106,6 +114,7 @@ struct AppStrings {
     struct SideMenu {
         static let profile = "Profile"
         static let bookmark = "Bookmarks"
+        static let create = "Create"
     }
     
     struct Reference {
@@ -177,8 +186,15 @@ struct AppStrings {
         static let member = "Already a member?"
     }
     
-    struct Colors {
-        static let primaryGray = "primaryGray"
+    struct App {
+        static let appName = "MyEvidens"
+        static let contactMail = "support@myevidens.com"
+    }
+    
+    struct URL {
+        static let privacy = "https://www.apple.com"
+        static let terms = "https://www.apple.com"
+        static let cookie = "https://www.apple.com"
     }
     
 }

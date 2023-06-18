@@ -64,6 +64,10 @@ class MainViewController: UIViewController {
     func pushMenuOptionController(option: SideMenu) {
         mainController.pushMenuOption(option: option)
     }
+    
+    func pushSubMenuOptionController(option: SideSubMenuKind) {
+        mainController.pushSubMenuOption(option: option)
+    }
 }
 
 extension MainViewController: MainTabControllerDelegate {

@@ -252,6 +252,11 @@ extension ContainerViewController: MainViewControllerDelegate {
 
 
 extension ContainerViewController: SideMenuViewControllerDelegate {
+    func didSelectSubMenuOption(option: SideSubMenuKind) {
+        closeMenu()
+        mainController.pushSubMenuOptionController(option: option)
+    }
+    
     func didTapAppearanceMenu() {
         appearanceMenuLauncher.showPostSettings(in: view)
         handleDisablePan()

@@ -7,7 +7,6 @@
 
 import UIKit
 
-private let separatorCellReuseIdentifier = "SeparatorCellReuseIdentifier"
 private let exploreCellReuseIdentifier = "ExploreCellReuseIdentifier"
 private let filterCellReuseIdentifier = "FilterCellReuseIdentifier"
 

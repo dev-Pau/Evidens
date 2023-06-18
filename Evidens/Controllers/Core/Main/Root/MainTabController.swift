@@ -205,6 +205,27 @@ class MainTabController: UITabBarController {
             case .bookmark:
                 let controller = BookmarksViewController()
                 currentNavController.pushViewController(controller, animated: true)
+            case .create:
+                #warning("kek")
+                print("kek")
+            }
+        }
+    }
+    
+    func pushSubMenuOption(option: SideSubMenuKind) {
+        if let currentNavController = selectedViewController as? UINavigationController {
+            switch option {
+            case .settings:
+                break
+            case .legal:
+                let controller = LegalInquiresViewController()
+                currentNavController.pushViewController(controller, animated: true)
+            case .app:
+                let controller = AboutUsViewController()
+                currentNavController.pushViewController(controller, animated: true)
+            case .contact:
+                let controller = ContactUsViewController()
+                currentNavController.pushViewController(controller, animated: true)
             }
         }
     }

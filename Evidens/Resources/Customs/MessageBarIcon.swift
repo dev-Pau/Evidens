@@ -11,7 +11,7 @@ class MessageBarIcon: UIView {
     
     let paperplaneImageView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(systemName: AppStrings.Icons.paperplane, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(named: AppStrings.Assets.paperplane)!.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
         iv.translatesAutoresizingMaskIntoConstraints = false

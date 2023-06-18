@@ -186,6 +186,9 @@ class HomeViewController: NavigationBarViewController, UINavigationControllerDel
             if snapshot.isEmpty {
                 // Fetch current posts again
                 
+                
+                
+                
                 self.collectionView.refreshControl?.endRefreshing()
                 //self.collectionView.reloadData()
             } else {

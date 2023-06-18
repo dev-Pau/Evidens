@@ -8,12 +8,15 @@
 import UIKit
 
 private let sideMenuCellReuseIdentifier = "SideMenuCellReuseIdentifier"
-private let sideMenuHeaderReuseIdentifier = "SideMenuHeaderReuseIdentifier"
+private let sideSubMenuCellReuseIdentifier = "SideSubMenuCellReuseIdentifier"
+private let sideMenuFooterReuseIdentifier = "SideMenuFooterReuseIdentifier"
+private let sideSubMenuKindCellReuseIdentifier = "SideSubMenuKindCellReuseIdentifier"
 
 protocol SideMenuViewControllerDelegate: AnyObject {
     func didTapMenuHeader()
     func didTapSettings()
     func didSelectMenuOption(option: SideMenu)
+    func didSelectSubMenuOption(option: SideSubMenuKind)
     func didTapAppearanceMenu()
 }
 
@@ -22,7 +25,8 @@ class SideMenuViewController: UIViewController {
     weak var delegate: SideMenuViewControllerDelegate?
     private lazy var lockView = MEPrimaryBlurLockView(frame: view.bounds)
     private let appearanceMenuLauncher = AppearanceMenuLauncher()
-
+    private let sideMenuView = SideMenuView()
+    
     private let controllerSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -31,13 +35,15 @@ class SideMenuViewController: UIViewController {
         return view
     }()
     
-    private let sideMenuTabView = SideMenuTabView(frame: .zero)
+    private var settingsCount = 1
+    private var helpCount = 1
+    
+    private let sideMenuTabView = SideMenuToolbar(frame: .zero)
     
     private var menuWidth: CGFloat = UIScreen.main.bounds.width - 50
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        //layout.sectionHeadersPinToVisibleBounds = true
         layout.scrollDirection = .vertical
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.bounces = true
@@ -48,8 +54,6 @@ class SideMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
-        //NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("ProfileImageUpdateIdentifier"), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name("UserUpdateIdentifier"), object: nil)
     }
     
@@ -59,32 +63,44 @@ class SideMenuViewController: UIViewController {
     
     private func configureCollectionView() {
         collectionView.backgroundColor = .systemBackground
-        collectionView.frame = view.bounds
-        view.addSubviews(collectionView, sideMenuTabView, controllerSeparatorView)
+        //collectionView.frame = view.bounds
+        view.addSubviews(sideMenuView, collectionView, sideMenuTabView, controllerSeparatorView)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(SideMenuCell.self, forCellWithReuseIdentifier: sideMenuCellReuseIdentifier)
-        collectionView.register(SideMenuHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: sideMenuHeaderReuseIdentifier)
-
+        collectionView.register(SideSubKindMenuCell.self, forCellWithReuseIdentifier: sideSubMenuKindCellReuseIdentifier)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.register(SideSubMenuCell.self, forCellWithReuseIdentifier: sideSubMenuCellReuseIdentifier)
+        collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: sideMenuFooterReuseIdentifier)
         let tabControllerHeight = UITabBarController().tabBar.frame.height
         if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
             controllerSeparatorView.layer.borderColor = tabControllerShadowColor.cgColor
         }
         
-        
+        sideMenuView.sizeToFit()
         NSLayoutConstraint.activate([
-            sideMenuTabView.leadingAnchor.constraint(equalTo: collectionView.leadingAnchor),
-            sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sideMenuTabView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -tabControllerHeight),
-            sideMenuTabView.heightAnchor.constraint(equalToConstant: 0.4),
+            sideMenuView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            sideMenuView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            sideMenuView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sideMenuView.heightAnchor.constraint(equalToConstant: 140),
             
+            sideMenuTabView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
+            sideMenuTabView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sideMenuTabView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -tabControllerHeight),
+            sideMenuTabView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            collectionView.topAnchor.constraint(equalTo: sideMenuView.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: sideMenuView.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: sideMenuView.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: sideMenuTabView.topAnchor),
+
             controllerSeparatorView.topAnchor.constraint(equalTo: view.topAnchor),
             controllerSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             controllerSeparatorView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             controllerSeparatorView.widthAnchor.constraint(equalToConstant: 0.5)
         ])
         
-        sideMenuTabView.delegate = self
+        sideMenuTabView.toolbarDelegate = self
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -102,8 +118,8 @@ class SideMenuViewController: UIViewController {
     }
     
     func updateUserData(user: User) {
-        let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
-        header.configure()
+        //let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
+        //header.configure()
         
         if user.phase != .verified {
             view.addSubview(lockView)
@@ -111,8 +127,8 @@ class SideMenuViewController: UIViewController {
     }
     
     func updateUserData() {
-        let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
-        header.configure()
+        //let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
+        //header.configure()
     }
     
     func updateAppearanceSettings(_ sw: UISwitch, appearance: Appearance) {
@@ -137,35 +153,151 @@ class SideMenuViewController: UIViewController {
 }
 
 extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
-    
+    /*
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sideMenuHeaderReuseIdentifier, for: indexPath) as! SideMenuHeader
         header.delegate = self
         return header
     }
+    */
     
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 3
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return SideMenu.allCases.count
+        if section == 0 {
+            return SideMenu.allCases.count
+        } else if section == 1 {
+            return settingsCount
+        } else {
+            return helpCount
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        if section == 0 || section == 1 {
+            return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+        } else {
+            return UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideMenuCellReuseIdentifier, for: indexPath) as! SideMenuCell
-        cell.set(title: SideMenu.allCases[indexPath.row].title, image: SideMenu.allCases[indexPath.row].image)
-        return cell
+        if indexPath.section == 0 {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideMenuCellReuseIdentifier, for: indexPath) as! SideMenuCell
+            cell.set(option: SideMenu.allCases[indexPath.row])
+            return cell
+        } else if indexPath.section == 1 {
+            if indexPath.row == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideSubMenuCellReuseIdentifier, for: indexPath) as! SideSubMenuCell
+                cell.set(option: SideSubMenu.settings)
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideSubMenuKindCellReuseIdentifier, for: indexPath) as! SideSubKindMenuCell
+                cell.set(option: SideSubMenu.settings.kind[indexPath.row - 1])
+                return cell
+            }
+        } else {
+            if indexPath.row == 0 {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideSubMenuCellReuseIdentifier, for: indexPath) as! SideSubMenuCell
+                cell.set(option: SideSubMenu.help)
+                return cell
+            } else {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideSubMenuKindCellReuseIdentifier, for: indexPath) as! SideSubKindMenuCell
+                cell.set(option: SideSubMenu.help.kind[indexPath.row - 1])
+                return cell
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width, height: 40)
+        if indexPath.section == 1 || indexPath.section == 2 {
+            return CGSize(width: menuWidth, height: 30)
+        } else {
+            return CGSize(width: menuWidth, height: 40)
+        }
+
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width, height: 140)
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionFooter {
+            let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sideMenuFooterReuseIdentifier, for: indexPath)
+            
+            let separatorLine = UIView()
+            separatorLine.backgroundColor = separatorColor
+            separatorLine.translatesAutoresizingMaskIntoConstraints = false
+            footerView.addSubview(separatorLine)
+
+            NSLayoutConstraint.activate([
+                separatorLine.leadingAnchor.constraint(equalTo: footerView.leadingAnchor, constant: 20),
+                separatorLine.trailingAnchor.constraint(equalTo: footerView.trailingAnchor, constant: -20),
+                separatorLine.bottomAnchor.constraint(equalTo: footerView.bottomAnchor),
+                separatorLine.heightAnchor.constraint(equalToConstant: 0.4)
+            ])
+            
+            return footerView
+        }
+        
+        return UICollectionReusableView()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        return section == 0 ? CGSize(width: collectionView.bounds.width, height: 20) : CGSize.zero
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selection = SideMenu.allCases[indexPath.row]
-        delegate?.didSelectMenuOption(option: selection)
+        if indexPath.section == 0 {
+            let selection = SideMenu.allCases[indexPath.row]
+            delegate?.didSelectMenuOption(option: selection)
+        } else if indexPath.section == 1 {
+            if indexPath.row == 0 {
+                let cell = collectionView.cellForItem(at: indexPath) as! SideSubMenuCell
+                cell.test()
+                if settingsCount == 1 {
+                    settingsCount = SideSubMenu.settings.kind.count + 1
+                    self.collectionView.performBatchUpdates {
+                            collectionView.insertItems(at: [IndexPath(item: 1, section: 1), IndexPath(item: 2, section: 1)])
+                    }
+                } else {
+                    settingsCount = 1
+                    self.collectionView.performBatchUpdates {
+                            collectionView.deleteItems(at: [IndexPath(item: 1, section: 1), IndexPath(item: 2, section: 1)])
+                    }
+                }
+            } else {
+                let kind = SideSubMenu.settings.kind[indexPath.row - 1]
+                switch kind {
+                case .settings, .legal: delegate?.didSelectSubMenuOption(option: kind)
+                case .app, .contact: break
+                }
+            }
+            
+            
+        } else {
+            if indexPath.row == 0 {
+                let cell = collectionView.cellForItem(at: indexPath) as! SideSubMenuCell
+                cell.test()
+                if helpCount == 1 {
+                    helpCount = SideSubMenu.help.kind.count + 1
+                    self.collectionView.performBatchUpdates {
+                            collectionView.insertItems(at: [IndexPath(item: 1, section: 2), IndexPath(item: 2, section: 2)])
+                    }
+                } else {
+                    helpCount = 1
+                    self.collectionView.performBatchUpdates {
+                            collectionView.deleteItems(at: [IndexPath(item: 1, section: 2), IndexPath(item: 2, section: 2)])
+                    }
+                }
+            } else {
+                let kind = SideSubMenu.help.kind[indexPath.row - 1]
+                switch kind {
+                case .settings, .legal: break
+                case .contact, .app:
+                    delegate?.didSelectSubMenuOption(option: kind)
+                }
+            }
+        }
     }
 }
 
@@ -180,28 +312,19 @@ extension SideMenuViewController: SideMenuTabViewDelegate {
     }
 }
 
-extension SideMenuViewController: SideMenuHeaderDelegate {
+extension SideMenuViewController: SideMenuViewDelegate {
     func didTapHeader() {
         delegate?.didTapMenuHeader()
     }
 }
-
-
-
-
-
-
-
-
-
 
 protocol SideMenuTabViewDelegate: AnyObject {
     func didTapConfigureAppearance()
     func didTapSettings()
 }
 
-class SideMenuTabView: UIView {
-    weak var delegate: SideMenuTabViewDelegate?
+class SideMenuToolbar: UIToolbar {
+    weak var toolbarDelegate: SideMenuTabViewDelegate?
     
     lazy var appearanceSettingsImageView: UIImageView = {
         let iv = UIImageView()
@@ -213,24 +336,6 @@ class SideMenuTabView: UIView {
         return iv
     }()
 
-    lazy var settingsImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.isUserInteractionEnabled = true
-        iv.image = UIImage(systemName: AppStrings.Icons.gear, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSettingsTap)))
-        return iv
-    }()
-    
-    private let tabBarSeparatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.borderWidth = 0
-        return view
-    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -241,29 +346,21 @@ class SideMenuTabView: UIView {
     }
     
     private func configure() {
-        backgroundColor = .systemBackground
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.shadowColor = separatorColor
+        
+        standardAppearance = appearance
+        scrollEdgeAppearance = appearance
+        
         translatesAutoresizingMaskIntoConstraints = false
-        addSubviews(tabBarSeparatorView, appearanceSettingsImageView, settingsImageView)
+        addSubviews(appearanceSettingsImageView)
         NSLayoutConstraint.activate([
-            tabBarSeparatorView.topAnchor.constraint(equalTo: topAnchor),
-            tabBarSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tabBarSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tabBarSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            
             appearanceSettingsImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            appearanceSettingsImageView.topAnchor.constraint(equalTo: tabBarSeparatorView.bottomAnchor, constant: 6),
+            appearanceSettingsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             appearanceSettingsImageView.heightAnchor.constraint(equalToConstant: 27),
             appearanceSettingsImageView.widthAnchor.constraint(equalToConstant: 27),
-            
-            settingsImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            settingsImageView.topAnchor.constraint(equalTo: tabBarSeparatorView.bottomAnchor, constant: 6),
-            settingsImageView.heightAnchor.constraint(equalToConstant: 27),
-            settingsImageView.widthAnchor.constraint(equalToConstant: 27)
         ])
-        
-        if let tabControllerShadowColor = UITabBarController().tabBar.standardAppearance.shadowColor {
-            tabBarSeparatorView.backgroundColor = tabControllerShadowColor
-        }
         
         guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int else { return }
         let defaultsTheme = Appearance(rawValue: defaultsAppearance) ?? .system
@@ -283,10 +380,10 @@ class SideMenuTabView: UIView {
     }
     
     @objc func handleSettingsTap() {
-        delegate?.didTapSettings()
+        toolbarDelegate?.didTapSettings()
     }
     
     @objc func handleAppearanceTap() {
-        delegate?.didTapConfigureAppearance()
+        toolbarDelegate?.didTapConfigureAppearance()
     }
 }

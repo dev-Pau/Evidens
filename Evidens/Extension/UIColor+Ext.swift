@@ -9,6 +9,26 @@ import UIKit
 
 extension UIColor {
     
+    var baseColor: UIColor {
+        guard let defaultsAppearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? Int else { return .label }
+        
+        let defaultsTheme = Appearance(rawValue: defaultsAppearance) ?? .system
+        
+        switch defaultsTheme {
+        case .dark:
+            return .black
+        case .system:
+            let isSystemDark = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? true : false
+            if isSystemDark {
+                return .black
+            } else {
+                return .white
+            }
+        case .light:
+            return .white
+        }
+    }
+    
     /// Interpolates between two colors based on the progress value.
     ///
     /// - Parameters:

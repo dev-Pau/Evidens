@@ -1,17 +1,20 @@
 //
-//  SideMenuCell.swift
+//  SideSubKindMenuCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 10/9/22.
+//  Created by Pau Fernández Solà on 18/6/23.
 //
+
+import Foundation
+
 
 import UIKit
 
-class SideMenuCell: UICollectionViewCell {
+class SideSubKindMenuCell: UICollectionViewCell {
     
     private let label: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .heavy)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.textColor = .label
@@ -34,8 +37,8 @@ class SideMenuCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             image.centerYAnchor.constraint(equalTo: centerYAnchor),
             image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            image.heightAnchor.constraint(equalToConstant: 25),
-            image.widthAnchor.constraint(equalToConstant: 25),
+            image.heightAnchor.constraint(equalToConstant: 18),
+            image.widthAnchor.constraint(equalToConstant: 18),
             
             label.centerYAnchor.constraint(equalTo: image.centerYAnchor),
             label.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 20),
@@ -44,10 +47,13 @@ class SideMenuCell: UICollectionViewCell {
     }
     
 
-    func set(option: SideMenu) {
+    func set(option: SideSubMenuKind) {
         label.text = option.title
-        self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(option.color)
-        label.textColor = option == .create ? primaryColor : .label
+        if option == .app {
+            self.image.image = option.image
+        } else {
+            self.image.image = option.image.withTintColor(.label)
+        }
     }
     
     required init?(coder: NSCoder) {

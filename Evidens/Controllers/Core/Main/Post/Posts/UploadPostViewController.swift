@@ -108,7 +108,7 @@ class UploadPostViewController: UIViewController {
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
         container.font = .systemFont(ofSize: 17, weight: .bold)
-        button.configuration?.attributedTitle = AttributedString("Upload", attributes: container)
+        button.configuration?.attributedTitle = AttributedString("Post", attributes: container)
         button.addTarget(self, action: #selector(didTapShare), for: .touchUpInside)
         return button
     }()
@@ -165,7 +165,6 @@ class UploadPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        title = "Upload Post"
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
@@ -342,38 +341,6 @@ class UploadPostViewController: UIViewController {
                     }
                 }
             }
-            /*
-            postToUpload.groupId = group.groupId
-            // Group post
-            if !postImages.isEmpty {
-                //let imagesToUpload = postImages.compactMap { $0 }
-                
-                    StorageManager.uploadGroupPostImage(images: imagesToUpload, uid: uid, groupId: group.groupId) { imageUrl in
-                        GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: self.selectedProfessions, type: postType, privacy: .group, groupPermission: group.permissions, postImageUrl: imageUrl) { error in
-                            self.progressIndicator.dismiss(animated: true)
-                            if let error = error {
-                                print("DEBUG: \(error.localizedDescription)")
-                                return
-                            } else {
-                                self.dismiss(animated: true)
-                                return
-                            }
-                        }
-                }
-            } else {
-                GroupService.uploadGroupPost(groupId: group.groupId, post: postTextView, professions: selectedProfessions, type: .plainText, privacy: .group, groupPermission: group.permissions, postImageUrl: nil) { error in
-                    self.progressIndicator.dismiss(animated: true)
-                    if let error = error {
-                        print("DEBUG: \(error.localizedDescription)")
-                        
-                        return
-                    } else {
-                        self.dismiss(animated: true)
-                        return
-                    }
-                }
-            }
-             */
             }
         else {
             // No group post
@@ -402,82 +369,6 @@ class UploadPostViewController: UIViewController {
                     }
                 }
             }
-            /*
-            if postImages.count > 0 {
-                let imagesToUpload = postImages.compactMap { $0 }
-                
-                switch imagesToUpload.count {
-                case 1:
-                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                        // Post images saved to firebase. Upload post with images
-                        // post: postTextView, type: .plainText, privacy: privacyType, user: user
-                        PostService.uploadSingleImagePost(post: postTextView, type: .textWithImage, professions: self.selectedProfessions, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.progressIndicator.dismiss(animated: true)
-                            if let error = error {
-                                print("DEBUG: \(error.localizedDescription)")
-                                return
-                            } else {
-                                self.dismiss(animated: true)
-                                
-                            }
-                        }
-                    }
-                    
-                case 2:
-                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                        // Post images saved to firebase. Upload post with images
-                        PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithTwoImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.progressIndicator.dismiss(animated: true)
-                            if let error = error {
-                                print("DEBUG: \(error.localizedDescription)")
-                                return
-                            } else {
-                                self.dismiss(animated: true)
-                            }
-                        }
-                    }
-                case 3:
-                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                        // Post images saved to firebase. Upload post with images
-                        PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithThreeImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.progressIndicator.dismiss(animated: true)
-                            if let error = error {
-                                print("DEBUG: \(error.localizedDescription)")
-                                return
-                            } else {
-                                self.dismiss(animated: true)
-                            }
-                        }
-                    }
-                case 4:
-                    StorageManager.uploadPostImage(images: imagesToUpload, uid: uid) { imageUrl in
-                        // Post images saved to firebase. Upload post with images
-                        PostService.uploadPost(post: postTextView, professions: self.selectedProfessions, type: .textWithFourImage, privacy: self.privacyType, postImageUrl: imageUrl, user: self.user) { error in
-                            self.progressIndicator.dismiss(animated: true)
-                            if let error = error {
-                                print("DEBUG: \(error.localizedDescription)")
-                                return
-                            } else {
-                                self.dismiss(animated: true)
-                            }
-                        }
-                    }
-                default:
-                    break
-                }
-            } else {
-                // Post has text only
-                PostService.uploadTextPost(post: postTextView, type: .plainText, professions: selectedProfessions, privacy: privacyType, user: user) { error in
-                    if let error = error {
-                        self.progressIndicator.dismiss(animated: true)
-                        print("DEBUG: \(error.localizedDescription)")
-                        return
-                    } else {
-                        self.dismiss(animated: true)
-                    }
-                }
-            }
-             */
         }
     }
 }

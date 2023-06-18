@@ -7,17 +7,18 @@
 
 import UIKit
 
-protocol SideMenuHeaderDelegate: AnyObject {
+protocol SideMenuViewDelegate: AnyObject {
     func didTapHeader()
 }
 
-class SideMenuHeader: UICollectionReusableView {
+class SideMenuView: UIView {
     
-    weak var delegate: SideMenuHeaderDelegate?
+    weak var delegate: SideMenuViewDelegate?
     
     private lazy var userImageView: UIImageView = {
         let iv = UIImageView()
         iv.layer.masksToBounds = true
+        iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.image = UIImage(named: "user.profile")
@@ -55,6 +56,7 @@ class SideMenuHeader: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
         
@@ -67,15 +69,15 @@ class SideMenuHeader: UICollectionReusableView {
             
             nameLabel.topAnchor.constraint(equalTo: userImageView.bottomAnchor, constant: 10),
             nameLabel.leadingAnchor.constraint(equalTo: userImageView.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
             viewProfileLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
             viewProfileLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             viewProfileLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: userImageView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
