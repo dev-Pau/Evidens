@@ -184,6 +184,47 @@ struct AuthService {
         }
     }
     
+    static func providerKind(completion: @escaping(Provider) -> Void) {
+        if let currentUser = Auth.auth().currentUser {
+            for userInfo in currentUser.providerData {
+                let providerID = userInfo.providerID
+                if providerID == "password" {
+                    completion(.password)
+                } else if providerID == "google.com" {
+                    completion(.google)
+                } else if providerID == "apple.com" {
+                    completion(.apple)
+                } else {
+                    completion(.undefined)
+                }
+            }
+        }
+        completion(.undefined)
+    }
+    
+    static func reauthenticate(with password: String, completion: @escaping(Error?) -> Void) {
+        guard let currentUser = Auth.auth().currentUser, let email = currentUser.email else { return }
+        
+        let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+        currentUser.reauthenticate(with: credential) { result, error in
+            if let error = error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    static func changePassword(_ password: String, completion: @escaping(Error?) -> Void) {
+        Auth.auth().currentUser?.updatePassword(to: password) { error in
+            if let error = error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
     /// Logs out the currently authenticated user from Firebase.
     static func logout() {
         do {

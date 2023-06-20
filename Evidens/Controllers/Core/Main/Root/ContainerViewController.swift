@@ -266,13 +266,13 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
         closeMenu()
         mainController.pushMenuOptionController(option: option)
     }
-    
+    /*
     func didTapSettings() {
         closeMenu()
         mainController.pushSettingsViewController()
     }
     
-    
+    */
     func didTapMenuHeader() {
         closeMenu()
         mainController.pushUserProfileViewController()

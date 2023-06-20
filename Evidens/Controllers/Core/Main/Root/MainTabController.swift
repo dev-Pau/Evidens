@@ -211,17 +211,19 @@ class MainTabController: UITabBarController {
             }
         }
     }
-    
+
     func pushSubMenuOption(option: SideSubMenuKind) {
         if let currentNavController = selectedViewController as? UINavigationController {
             switch option {
             case .settings:
-                break
+                let controller = SettingsViewController()
+                currentNavController.pushViewController(controller, animated: true)
             case .legal:
                 let controller = LegalInquiresViewController()
                 currentNavController.pushViewController(controller, animated: true)
             case .app:
                 let controller = AboutUsViewController()
+                controller.hidesBottomBarWhenPushed = true
                 currentNavController.pushViewController(controller, animated: true)
             case .contact:
                 let controller = ContactUsViewController()
@@ -235,13 +237,14 @@ class MainTabController: UITabBarController {
         menuDelegate?.updateUser(user: user)
     }
     
+    /*
     func pushSettingsViewController() {
         if let currentNavController = selectedViewController as? UINavigationController {
             let settingsController = ApplicationSettingsViewController()
             currentNavController.pushViewController(settingsController, animated: true)
         }
     }
-    
+    */
     func showSearchMenuLauncher(withOption option: String) {
         disciplinesMenuLauncher.showPostSettings(withOption: option, in: view)
     }

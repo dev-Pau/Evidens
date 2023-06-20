@@ -120,7 +120,6 @@ class BookmarkToolbar: UIToolbar {
             let availableWidth = width - 70 - 70 - strongSelf.sizes - 20
             section.interGroupSpacing = availableWidth
             
-           
             return section
         }
         return layout
@@ -187,7 +186,7 @@ extension BookmarkToolbar {
         let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row}
         let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? MessageSearchCell
         let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? MessageSearchCell
-        
+
         switch x {
         case 0 ... frame.width:
             let availableWidth = originCell[1] - originCell[0]

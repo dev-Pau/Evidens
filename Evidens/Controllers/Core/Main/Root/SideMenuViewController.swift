@@ -14,7 +14,6 @@ private let sideSubMenuKindCellReuseIdentifier = "SideSubMenuKindCellReuseIdenti
 
 protocol SideMenuViewControllerDelegate: AnyObject {
     func didTapMenuHeader()
-    func didTapSettings()
     func didSelectMenuOption(option: SideMenu)
     func didSelectSubMenuOption(option: SideSubMenuKind)
     func didTapAppearanceMenu()
@@ -77,7 +76,6 @@ class SideMenuViewController: UIViewController {
             controllerSeparatorView.layer.borderColor = tabControllerShadowColor.cgColor
         }
         
-        sideMenuView.sizeToFit()
         NSLayoutConstraint.activate([
             sideMenuView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             sideMenuView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -100,6 +98,7 @@ class SideMenuViewController: UIViewController {
             controllerSeparatorView.widthAnchor.constraint(equalToConstant: 0.5)
         ])
         
+        sideMenuView.delegate = self
         sideMenuTabView.toolbarDelegate = self
     }
     
@@ -113,22 +112,17 @@ class SideMenuViewController: UIViewController {
          }
     }
     
-    @objc func handleSettingsTap() {
-        delegate?.didTapSettings()
-    }
-    
     func updateUserData(user: User) {
         //let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
         //header.configure()
-        
+        sideMenuView.configure()
         if user.phase != .verified {
             view.addSubview(lockView)
         }
     }
     
     func updateUserData() {
-        //let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as! SideMenuHeader
-        //header.configure()
+        sideMenuView.configure()
     }
     
     func updateAppearanceSettings(_ sw: UISwitch, appearance: Appearance) {
@@ -302,10 +296,7 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
 }
 
 extension SideMenuViewController: SideMenuTabViewDelegate {
-    func didTapSettings() {
-        delegate?.didTapSettings()
-    }
-    
+   
     func didTapConfigureAppearance() {
         //appearanceMenuLauncher.showPostSettings(in: view)
         delegate?.didTapAppearanceMenu()
@@ -313,14 +304,13 @@ extension SideMenuViewController: SideMenuTabViewDelegate {
 }
 
 extension SideMenuViewController: SideMenuViewDelegate {
-    func didTapHeader() {
+    func didTapProfile() {
         delegate?.didTapMenuHeader()
     }
 }
 
 protocol SideMenuTabViewDelegate: AnyObject {
     func didTapConfigureAppearance()
-    func didTapSettings()
 }
 
 class SideMenuToolbar: UIToolbar {
@@ -377,10 +367,6 @@ class SideMenuToolbar: UIToolbar {
         case .light:
             appearanceSettingsImageView.image = UIImage(systemName: AppStrings.Icons.sun, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         }
-    }
-    
-    @objc func handleSettingsTap() {
-        toolbarDelegate?.didTapSettings()
     }
     
     @objc func handleAppearanceTap() {

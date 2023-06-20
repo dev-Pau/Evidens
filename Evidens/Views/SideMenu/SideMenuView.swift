@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SideMenuViewDelegate: AnyObject {
-    func didTapHeader()
+    func didTapProfile()
 }
 
 class SideMenuView: UIView {
@@ -101,8 +101,6 @@ class SideMenuView: UIView {
     }
     
     @objc func handleHeaderTap() {
-        delegate?.didTapHeader()
+        delegate?.didTapProfile()
     }
-    
-    
 }

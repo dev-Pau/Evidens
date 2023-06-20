@@ -52,11 +52,11 @@ class MainViewController: UIViewController {
     func pushUserProfileViewController() {
         mainController.pushUserProfileViewController()
     }
-    
+    /*
     func pushSettingsViewController() {
         mainController.pushSettingsViewController()
     }
-    
+    */
     func updateUserProfileImageViewAlpha(withAlfa alfa: CGFloat) {
         mainController.updateUserProfileImageViewAlpha(alfa: alfa)
     }

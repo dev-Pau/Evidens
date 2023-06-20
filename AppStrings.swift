@@ -35,6 +35,7 @@ struct AppStrings {
         static let share = "square.and.arrow.up"
         static let plus = "plus"
         static let leftChevron = "chevron.left"
+        static let rightChevron = "chevron.right"
         static let exclamation = "exclamationmark"
         static let clockwiseArrow = "arrow.clockwise"
         static let backArrow = "arrow.backward"
@@ -51,6 +52,10 @@ struct AppStrings {
         static let upChevron = "chevron.up"
         static let downChevron = "chevron.down"
         static let docOnDoc = "doc.on.doc"
+        static let bell = "bell"
+        static let key = "key"
+        static let xmarkCircleFill = "xmark.circle.fill"
+        static let checkmarkCircleFill = "checkmark.circle.fill"
     }
     
     struct Actions {
@@ -82,6 +87,7 @@ struct AppStrings {
         static let fillBookmark = "bookmark.fill"
         static let bookmark = "bookmark"
         static let fillPost = "post.selected"
+        static let brokenHeart = "heart.broken"
     }
     
     struct Miscellaneous {
@@ -197,4 +203,17 @@ struct AppStrings {
         static let cookie = "https://www.apple.com"
     }
     
+    struct Settings {
+        static let accountTitle = "Your Account"
+        static let accountContent = "Access details about your account or explore the available choices for deactivating your account."
+        static let notificationsTitle = "Notifications"
+        static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations."
+        
+        static let accountInfoTitle = "Account Information"
+        static let accountInfoContent = "See your account information like your email address."
+        static let accountPasswordTitle = "Change Password"
+        static let accountPasswordContent = "Change your password at any time."
+        static let accountDeactivateTitle = "Deactivate your Account"
+        static let accountDeactivateContent = "Find out on how you can deactivate your account"
+    }
 }
