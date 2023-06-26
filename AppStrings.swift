@@ -77,7 +77,7 @@ struct AppStrings {
     struct Placeholder {
         static let message = "Text Message"
     }
-    
+
     struct Assets {
         static let app = "AppIcon"
         static let profile = "user.profile"
