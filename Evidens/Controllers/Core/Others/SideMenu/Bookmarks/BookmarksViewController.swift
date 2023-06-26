@@ -186,7 +186,7 @@ class BookmarksViewController: UIViewController {
         }
         
         if scrollView.contentOffset.y == 0 && isScrollingHorizontally {
-            bookmarkToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x)
+            bookmarkToolbar.collectionViewDidScroll(for: scrollView.contentOffset.x - 10)
         }
         
         if scrollView.contentOffset.y == 0 && !isScrollingHorizontally {
@@ -215,6 +215,7 @@ class BookmarksViewController: UIViewController {
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         let targetOffset = targetContentOffset.pointee.x
+        print(targetOffset)
         if targetOffset == view.frame.width {
             let desiredOffset = CGPoint(x: targetOffset + 10, y: 0)
             scrollView.setContentOffset(desiredOffset, animated: true)
@@ -588,6 +589,6 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
 
 extension BookmarksViewController: BookmarkToolbarDelegate {
     func didTapIndex(_ index: Int) {
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + 10 * index, y: 0), animated: true)
+        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
     }
 }

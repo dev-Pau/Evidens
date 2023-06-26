@@ -154,6 +154,7 @@ extension UIViewController {
         }))
         self.present(alert, animated: true, completion: nil)
     }
+    
     func dismissDiagnosisAlert(completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Skip diagnosis", message: "Are you sure you want to solve this case without adding a diagnosis?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Add", style: UIAlertAction.Style.cancel, handler: nil))
@@ -175,9 +176,9 @@ extension UIViewController {
     }
     
     func logoutAlert(completion: @escaping() -> Void) {
-        let alert = UIAlertController(title: "Log out", message: "Are you sure you want to log out of MyEvidens?", preferredStyle: UIAlertController.Style.alert)
+        let alert = UIAlertController(title: "Log Out", message: "Are you sure you want to log out of MyEvidens?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Log out", style: UIAlertAction.Style.destructive, handler: { _ in
+        alert.addAction(UIAlertAction(title: "Log Out", style: UIAlertAction.Style.destructive, handler: { _ in
             completion()
         }))
         self.present(alert, animated: true, completion: nil)

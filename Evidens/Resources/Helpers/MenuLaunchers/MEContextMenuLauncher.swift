@@ -20,14 +20,8 @@ class MEContextMenuLauncher: NSObject {
         return view
     }()
     
-    private var menuHeight: CGFloat = UIScreen.main.bounds.height * 0.5 {
-        didSet {
-            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                self.blackBackgroundView.alpha = 1
-                self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
-            }, completion: nil)
-        }
-    }
+    private var menuHeight: CGFloat = 0.0
+    
     private let menuYOffset: CGFloat = UIScreen.main.bounds.height
     
     private var screenWidth: CGFloat = 0
@@ -43,15 +37,55 @@ class MEContextMenuLauncher: NSObject {
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         return collectionView
     }()
-                                                
+    
+
     func showImageSettings(in view: UIView) {
         screenWidth = view.frame.width
         configureImageSettings(in: view)
+        
+        let numberOfItems = collectionView.numberOfItems(inSection: 0)
+        var totalHeight: CGFloat = 0
+        
+        for index in 0..<numberOfItems {
+            let indexPath = IndexPath(item: index, section: 0)
+            let cellHeight = calculateCellHeight(at: indexPath)
+            totalHeight += cellHeight
+        }
+        
+        menuHeight = totalHeight + 80 + 80
+
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.blackBackgroundView.alpha = 1
             self.collectionView.frame = CGRect(x: 0, y: self.menuYOffset - self.menuHeight, width: self.screenWidth, height: self.menuHeight)
         }, completion: nil)
     }
+
+    func calculateCellHeight(at indexPath: IndexPath) -> CGFloat {
+        let dummyCell = ContextMenuCell(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 0))
+    
+        dummyCell.configure(withDescription: menuLauncherData.content.description)
+        
+        dummyCell.translatesAutoresizingMaskIntoConstraints = false
+        dummyCell.widthAnchor.constraint(equalToConstant: screenWidth).isActive = true
+        let heightConstraint = dummyCell.heightAnchor.constraint(equalToConstant: 1)
+        heightConstraint.priority = .defaultLow
+        heightConstraint.isActive = true
+        
+        dummyCell.setNeedsLayout()
+        dummyCell.layoutIfNeeded()
+        
+        let targetSize = CGSize(width: screenWidth, height: UIView.layoutFittingCompressedSize.height)
+        let cellSize = dummyCell.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        
+        return cellSize.height
+    }
+    
+    
+    
+    
+    
+    
+    
     
     @objc func handleDismiss(selectedOption: String?) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) {
@@ -91,6 +125,9 @@ class MEContextMenuLauncher: NSObject {
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         collectionView.addGestureRecognizer(pan)
         
+        collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.layoutIfNeeded()
+
     }
     
     @objc func handlePan(sender: UIPanGestureRecognizer) {
@@ -118,6 +155,7 @@ class MEContextMenuLauncher: NSObject {
         self.menuLauncherData = menuLauncherData
         super.init()
         configureCollectionView()
+        collectionView.layoutIfNeeded()
     }
 }
 
@@ -151,8 +189,8 @@ extension MEContextMenuLauncher: UICollectionViewDelegateFlowLayout, UICollectio
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath) as! ContextMenuCell
         cell.configure(withDescription: menuLauncherData.content.description)
-        let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
-        menuHeight = contentSize.height + 200
+        //let contentSize = collectionView.collectionViewLayout.collectionViewContentSize
+        //menuHeight = contentSize.height + 200
         return cell
     }
 }

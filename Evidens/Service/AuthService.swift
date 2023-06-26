@@ -65,7 +65,9 @@ struct AuthService {
                                            "profession": credentials.profession,
                                            "speciality": credentials.speciality]
                 
+                UserDefaults.standard.set(uid, forKey: "uid")
                 COLLECTION_USERS.document(uid).setData(data, completion: completion)
+                addHistory(for: .phase, with: credentials.category.rawValue)
             }
         }
     }
@@ -86,7 +88,9 @@ struct AuthService {
                                    "profession": credentials.profession,
                                    "speciality": credentials.speciality]
         
+        UserDefaults.standard.set(uid, forKey: "uid")
         COLLECTION_USERS.document(uid).setData(data, completion: completion)
+        addHistory(for: .phase, with: credentials.category.rawValue)
         
     }
     
@@ -107,7 +111,9 @@ struct AuthService {
                                    "profession": credentials.profession,
                                    "speciality": credentials.speciality]
         
+        UserDefaults.standard.set(uid, forKey: "uid")
         COLLECTION_USERS.document(uid).setData(data, completion: completion)
+        addHistory(for: .phase, with: credentials.category.rawValue)
     }
     
     /// Updates the registration category details of a user in Firebase.
@@ -123,6 +129,7 @@ struct AuthService {
                                    "speciality": credentials.speciality]
         
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+        addHistory(for: .phase, with: credentials.category.rawValue)
     }
     
     /// Updates the registration name details of a user in Firebase.
@@ -157,6 +164,7 @@ struct AuthService {
         let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue,
                                    "membershipCode": membershipCode]
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+        addHistory(for: .phase, with: User.UserRegistrationPhase.awaitingVerification.rawValue)
     }
     
     /// Updates the registration documentation details of a user in Firebase.
@@ -167,6 +175,7 @@ struct AuthService {
     static func updateUserRegistrationDocumentationDetails(withUid uid: String, completion: @escaping(Error?) -> Void) {
         let data: [String: Any] = ["phase": User.UserRegistrationPhase.awaitingVerification.rawValue]
         COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+        addHistory(for: .phase, with: User.UserRegistrationPhase.awaitingVerification.rawValue)
     }
     
     /// Sends a password reset email to the provided email address.
@@ -198,8 +207,9 @@ struct AuthService {
                     completion(.undefined)
                 }
             }
+        } else {
+            completion(.undefined)
         }
-        completion(.undefined)
     }
     
     static func reauthenticate(with password: String, completion: @escaping(Error?) -> Void) {
@@ -215,8 +225,76 @@ struct AuthService {
         }
     }
     
+    static func deactivate(completion: @escaping(Error?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
+        let timestamp = Timestamp()
+        let data: [String: Any] = ["phase": User.UserRegistrationPhase.deactivate.rawValue,
+                                   "dDate": timestamp]
+        
+        let historyData: [String: Any] = ["value": User.UserRegistrationPhase.deactivate.rawValue,
+                                   "timestamp": timestamp]
+        
+        COLLECTION_HISTORY.document(uid).collection(History.phase.path).addDocument(data: historyData) { error in
+            if let _ = error {
+                return
+            } else {
+                COLLECTION_USERS.document(uid).updateData(data, completion: completion)
+            }
+        }
+    }
+    
+    static func activate(dDate: Timestamp, completion: @escaping(Error?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+            return
+        }
+        
+        let query = COLLECTION_HISTORY.document(uid).collection(History.phase.path).order(by: "timestamp", descending: true).whereField("timestamp", isLessThan: dDate).limit(to: 1)
+        query.getDocuments { snapshot, error in
+            if let error = error {
+                completion(error)
+            } else {
+                guard let document = snapshot?.documents.first else {
+                    completion(AuthError.missingField)
+                    return
+                }
+
+                let data = document.data()
+                if let previousPhase = data["value"] as? Int {
+                    let data: [String: Any] = ["value": previousPhase,
+                                               "timestamp": Timestamp()]
+
+                    COLLECTION_HISTORY.document(uid).collection(History.phase.path).addDocument(data: data) { error in
+                        if let _ = error {
+                            return
+                        } else {
+                            let phaseData: [String: Any] = ["dDate": FieldValue.delete(),
+                                                            "phase": previousPhase]
+                            COLLECTION_USERS.document(uid).updateData(phaseData, completion: completion)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     static func changePassword(_ password: String, completion: @escaping(Error?) -> Void) {
         Auth.auth().currentUser?.updatePassword(to: password) { error in
+            if let error = error {
+                print("update password error")
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    static func userEmail(completion: @escaping(String?) -> Void) {
+        completion(Auth.auth().currentUser?.email)
+    }
+    
+    static func changeEmail(to email: String, completion: @escaping(Error?) -> Void) {
+        Auth.auth().currentUser?.sendEmailVerification(beforeUpdatingEmail: email) { error in
             if let error = error {
                 completion(error)
             } else {
@@ -229,6 +307,7 @@ struct AuthService {
     static func logout() {
         do {
             try Auth.auth().signOut()
+
         } catch {
             print(error.localizedDescription)
         }
@@ -239,5 +318,24 @@ struct AuthService {
         GIDSignIn.sharedInstance.signOut()
     }
     
+    static func addHistory(for type: History, with value: Any) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let path = COLLECTION_HISTORY.document(uid).collection(type.path).document()
+        
+        switch type {
+        case .logIn:
+            break
+        case .phase:
+            let phaseData: [String: Any] = ["timestamp": Timestamp(),
+                                            "value": value]
+            path.setData(phaseData)
+        case .password:
+            break
+        }
+    }
+}
+
+enum AuthError: Error {
+    case missingField
 }
 

@@ -82,12 +82,14 @@ extension SettingsKindViewController: UICollectionViewDataSource, UICollectionVi
         let subSetting = kind.subSetting[indexPath.row]
         switch subSetting {
         case .account:
-            break
+            let controller = AccountInformationViewController()
+            navigationController?.pushViewController(controller, animated: true)
         case .password:
             let controller = ChangePasswordViewController()
             navigationController?.pushViewController(controller, animated: true)
         case .deactivate:
-            break
+            let controller = DeactivateAccountViewController()
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 }

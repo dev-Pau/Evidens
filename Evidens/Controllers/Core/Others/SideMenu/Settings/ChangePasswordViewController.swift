@@ -10,12 +10,22 @@ import UIKit
 class ChangePasswordViewController: UIViewController {
     
     private var viewModel = ChangePasswordViewModel()
+    private let passwordDetailsMenu = MEContextMenuLauncher(menuLauncherData: Display(content: .password))
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
         return scrollView
+    }()
+    
+    private let kindLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        return label
     }()
     
     private let currentPasswordLabel: UILabel = {
@@ -107,6 +117,23 @@ class ChangePasswordViewController: UIViewController {
         return view
     }()
     
+    
+    private var passwordConditionTextView: UITextView = {
+        let tv = UITextView()
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.isSelectable = true
+        tv.isUserInteractionEnabled = true
+        tv.isEditable = false
+        tv.delaysContentTouches = false
+        tv.isScrollEnabled = false
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.contentInset = .zero
+        tv.textContainerInset = .zero
+        tv.textContainer.lineFragmentPadding = .zero
+        return tv
+    }()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
@@ -130,14 +157,22 @@ class ChangePasswordViewController: UIViewController {
         scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .onDrag
         view.addSubview(scrollView)
-        scrollView.addSubviews(currentPasswordLabel, currentPasswordTextField, passwordSeparatorView, newPasswordLabel, newPasswordTextField, newPasswordSeparatorView, confirmPasswordLabel, confirmPasswordTextField, confirmPasswordSeparatorView)
+        scrollView.addSubviews(kindLabel, passwordConditionTextView, currentPasswordLabel, currentPasswordTextField, passwordSeparatorView, newPasswordLabel, newPasswordTextField, newPasswordSeparatorView, confirmPasswordLabel, confirmPasswordTextField, confirmPasswordSeparatorView)
         
         currentPasswordLabel.sizeToFit()
         currentPasswordLabel.setContentHuggingPriority(.required, for: .horizontal)
         currentPasswordLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
         NSLayoutConstraint.activate([
-            currentPasswordLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            kindLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            
+            passwordConditionTextView.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
+            passwordConditionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            passwordConditionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            
+            currentPasswordLabel.topAnchor.constraint(equalTo: passwordConditionTextView.bottomAnchor, constant: 20),
             currentPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             currentPasswordLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             
@@ -176,6 +211,13 @@ class ChangePasswordViewController: UIViewController {
             confirmPasswordSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             confirmPasswordSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
+        
+        kindLabel.text = AppStrings.Settings.accountPasswordContent
+        let passwordString = NSMutableAttributedString(string: "Please note that only non-Google and non-Apple accounts can be modified in this section. Learn more", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .regular), .foregroundColor: UIColor.secondaryLabel])
+        passwordString.addAttributes([.foregroundColor: primaryColor, .link: NSAttributedString.Key("presentCommunityInformation")], range: (passwordString.string as NSString).range(of: "Learn more"))
+    
+        passwordConditionTextView.attributedText = passwordString
+        passwordConditionTextView.delegate = self
     }
     
     private func updateForm() {
@@ -195,7 +237,7 @@ class ChangePasswordViewController: UIViewController {
     }
     
     @objc func handleChangePassword() {
-        guard let password = viewModel.newPassword else { return }
+        guard let password = viewModel.currentPassword, let newPassword = viewModel.newPassword else { return }
         guard viewModel.newPasswordMatch else {
             let popUp = METopPopupView(title: "The two given passwords do not match", image: AppStrings.Icons.xmarkCircleFill, popUpType: .destructive)
             popUp.showTopPopup(inView: view)
@@ -210,6 +252,7 @@ class ChangePasswordViewController: UIViewController {
         
         AuthService.providerKind { [weak self] provider in
             guard let strongSelf = self else { return }
+            print(provider)
             guard provider == .password else {
                 strongSelf.displayAlert(withTitle: provider.title, withMessage: provider.content)
                 return
@@ -222,18 +265,44 @@ class ChangePasswordViewController: UIViewController {
                     return
                 }
                 
-                AuthService.changePassword(password) { error in
+                AuthService.changePassword(newPassword) { [weak self] error in
+                    guard let strongSelf = self else { return }
                     if let error = error {
                         strongSelf.displayAlert(withTitle: "Error", withMessage: error.localizedDescription)
                         return
                     }
                     
-                    let popUp = METopPopupView(title: "Your password has been successfully changed", image: AppStrings.Icons.checkmarkCircleFill, popUpType: .regular)
-                    popUp.showTopPopup(inView: strongSelf.view)
-                    strongSelf.navigationController?.popViewController(animated: true)
-                    
+                    let controller = UserChangesViewController(change: .password)
+                    let navVC = UINavigationController(rootViewController: controller)
+                    navVC.modalPresentationStyle = .fullScreen
+                    strongSelf.present(navVC, animated: true) {
+                        strongSelf.navigationController?.popToRootViewController(animated: true)
+                    }
                 }
             }
+        }
+    }
+}
+
+extension ChangePasswordViewController: UITextViewDelegate {
+    
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        if URL.absoluteString == "presentCommunityInformation" {
+            currentPasswordTextField.resignFirstResponder()
+            newPasswordTextField.resignFirstResponder()
+            confirmPasswordTextField.resignFirstResponder()
+
+            passwordDetailsMenu.showImageSettings(in: view)
+            return false
+        }
+        return true
+    }
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        if textView.selectedTextRange != nil {
+            textView.delegate = nil
+            textView.selectedTextRange = nil
+            textView.delegate = self
         }
     }
 }

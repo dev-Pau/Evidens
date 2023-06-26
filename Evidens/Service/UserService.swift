@@ -28,6 +28,11 @@ struct UserService {
         }
     }
     
+    static func updateEmail(email: String) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        COLLECTION_USERS.document(uid).setData(["email" : email.lowercased()], merge: true)
+    }
+    
     static func updateBannerUrl(bannerImageUrl: String, completion: @escaping(Bool) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_USERS.document(uid).setData(["bannerImageUrl" : bannerImageUrl], merge: true) { err in

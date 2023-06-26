@@ -22,6 +22,7 @@ struct User {
     var category: UserCategory
     var profession: String?
     var speciality: String?
+    var dDate: Timestamp?
     var isFollowed = false
     var stats: UserStats!
     var interests: [String]?
@@ -42,6 +43,7 @@ struct User {
         self.bannerImageUrl = dictionary["bannerImageUrl"] as? String ?? ""
         self.category = UserCategory(rawValue: dictionary["category"] as? Int ?? 00) ?? .professional
         self.phase = UserRegistrationPhase(rawValue: dictionary["phase"] as? Int ?? 00) ?? .categoryPhase
+        self.dDate = dictionary["dDate"] as? Timestamp ?? Timestamp()
         self.profession = dictionary["profession"] as? String ?? ""
         self.speciality = dictionary["speciality"] as? String ?? ""
         self.interests = dictionary["interests"] as? [String] ?? []
@@ -59,6 +61,17 @@ extension User {
         case verificationPhase
         case awaitingVerification
         case verified
+        case deactivate
+        case ban
+        
+        var content: String {
+            switch self {
+            case .categoryPhase, .userDetailsPhase, .deactivate, .ban: return String()
+            case .verificationPhase: return "Verify Account"
+            case .awaitingVerification: return "Awaiting Verification"
+            case .verified: return "Account Verified"
+            }
+        }
     }
     
     /// An enum mapping the category of a user.

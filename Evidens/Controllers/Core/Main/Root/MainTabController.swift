@@ -57,12 +57,16 @@ class MainTabController: UITabBarController {
     
     func fetchUser() {
         //Get the uid of current user
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let currentUser = Auth.auth().currentUser else { return }
         //Fetch user with user uid
-        UserService.fetchUser(withUid: uid) { user in
+        UserService.fetchUser(withUid: currentUser.uid) { user in
             //Set user property
             self.user = user
             self.configureViewControllers()
+            
+            UserDefaults.standard.set(user.uid, forKey: "uid")
+            UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
+            UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
             
             switch user.phase {
             case .categoryPhase:
@@ -93,9 +97,7 @@ class MainTabController: UITabBarController {
             case .verified:
                 print("main tab bar controller")
                 
-                UserDefaults.standard.set(user.uid, forKey: "uid")
-                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
+              
                 self.tabBar.isHidden = false
                 /*
                 guard let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty else {
@@ -103,6 +105,19 @@ class MainTabController: UITabBarController {
                     return
                 }
                 */
+                
+                if let email = currentUser.email, email != user.email {
+                    UserService.updateEmail(email: email)
+                }
+                
+                
+                
+                
+                /*
+                 guard let uid = Auth.auth().currentUser?.uid else { return }
+                 //Fetch user with user uid
+                 UserService.fetchUser(withUid: uid) { user in
+                 */
                 
                 
                 /*
@@ -120,6 +135,14 @@ class MainTabController: UITabBarController {
                 //blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 //self.topBlurView.insertSubview(blurView, at: 0)
                 //blurView.frame = self.topBlurView.boundCOLLECTION_POSTS.whereFie
+            case .deactivate:
+                print("deactivate")
+                let controller = ActivateAccountViewController(user: user)
+                let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate
+                sceneDelegate?.updateRootViewController(controller)
+                
+            case .ban:
+                print("ban")
             }
         }
     }

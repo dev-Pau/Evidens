@@ -367,6 +367,19 @@
 		5FA58D6C2A41E3C800CA6085 /* ChangePasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA58D6B2A41E3C800CA6085 /* ChangePasswordViewModel.swift */; };
 		5FA58D6E2A41EE9C00CA6085 /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA58D6D2A41EE9C00CA6085 /* Provider.swift */; };
 		5FA58D702A4201FD00CA6085 /* AccountInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA58D6F2A4201FD00CA6085 /* AccountInformationViewController.swift */; };
+		5FA58D722A4336A200CA6085 /* ConfirmPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA58D712A4336A200CA6085 /* ConfirmPasswordViewController.swift */; };
+		5FA5A7612A435567000DA054 /* InputTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7602A435567000DA054 /* InputTextField.swift */; };
+		5FA5A7632A447BF2000DA054 /* AddEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7622A447BF2000DA054 /* AddEmailViewController.swift */; };
+		5FA5A7672A449174000DA054 /* UserChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7662A449174000DA054 /* UserChange.swift */; };
+		5FA5A7692A449523000DA054 /* UserChangesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7682A449523000DA054 /* UserChangesViewController.swift */; };
+		5FA5A76B2A457C88000DA054 /* DeactivateAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A76A2A457C88000DA054 /* DeactivateAccountViewController.swift */; };
+		5FA5A76D2A459C13000DA054 /* DeactivatePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A76C2A459C13000DA054 /* DeactivatePasswordViewController.swift */; };
+		5FA5A76F2A46CB9A000DA054 /* ActivateAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A76E2A46CB9A000DA054 /* ActivateAccountViewController.swift */; };
+		5FA5A7712A46F2FF000DA054 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7702A46F2FE000DA054 /* History.swift */; };
+		5FA5A7732A496008000DA054 /* NotificationKindViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7722A496008000DA054 /* NotificationKindViewController.swift */; };
+		5FA5A7752A49619D000DA054 /* DisabledNotificationsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7742A49619D000DA054 /* DisabledNotificationsCell.swift */; };
+		5FA5A7772A4962F5000DA054 /* NotificationStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7762A4962F5000DA054 /* NotificationStepView.swift */; };
+		5FA5A7792A4963E3000DA054 /* NotificationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A7782A4963E3000DA054 /* NotificationFlow.swift */; };
 		5FA5A87829D4843B00E2848C /* SearchJobsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA5A87729D4843B00E2848C /* SearchJobsViewController.swift */; };
 		5FA6938B29A34BE800DF3ADC /* Job.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6938A29A34BE800DF3ADC /* Job.swift */; };
 		5FA6938E29A3594800DF3ADC /* CreateJobHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6938D29A3594800DF3ADC /* CreateJobHeader.swift */; };
@@ -388,6 +401,15 @@
 		5FA758DB29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758DA29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift */; };
 		5FA758DE29DD71FB00F1DEA4 /* MESearchMenuHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758DD29DD71FB00F1DEA4 /* MESearchMenuHeader.swift */; };
 		5FA758E029DD86A000F1DEA4 /* MESearchMenuFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758DF29DD86A000F1DEA4 /* MESearchMenuFooter.swift */; };
+		5FA7B00B2A498E7C00DFCF36 /* NotificationPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B00A2A498E7C00DFCF36 /* NotificationPreference.swift */; };
+		5FA7B00D2A49904700DFCF36 /* NotificationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B00C2A49904700DFCF36 /* NotificationTarget.swift */; };
+		5FA7B00F2A49932900DFCF36 /* NotificationTopic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B00E2A49932900DFCF36 /* NotificationTopic.swift */; };
+		5FA7B0112A49966900DFCF36 /* NotificationGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0102A49966900DFCF36 /* NotificationGroup.swift */; };
+		5FA7B0132A4996F800DFCF36 /* NotificationTargetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0122A4996F800DFCF36 /* NotificationTargetCell.swift */; };
+		5FA7B0152A49C4A900DFCF36 /* NotificationToggleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0142A49C4A900DFCF36 /* NotificationToggleCell.swift */; };
+		5FA7B0172A49CF0600DFCF36 /* NotificationGroupHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0162A49CF0600DFCF36 /* NotificationGroupHeader.swift */; };
+		5FA7B0192A49D60400DFCF36 /* NotificationTargetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0182A49D60400DFCF36 /* NotificationTargetViewController.swift */; };
+		5FA7B01B2A49E4FE00DFCF36 /* NotificationTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B01A2A49E4FE00DFCF36 /* NotificationTargetView.swift */; };
 		5FA7F0A62A03A42D00CACA45 /* CommentCaseRepliesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7F0A52A03A42D00CACA45 /* CommentCaseRepliesViewController.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
@@ -882,6 +904,19 @@
 		5FA58D6B2A41E3C800CA6085 /* ChangePasswordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangePasswordViewModel.swift; sourceTree = "<group>"; };
 		5FA58D6D2A41EE9C00CA6085 /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
 		5FA58D6F2A4201FD00CA6085 /* AccountInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInformationViewController.swift; sourceTree = "<group>"; };
+		5FA58D712A4336A200CA6085 /* ConfirmPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmPasswordViewController.swift; sourceTree = "<group>"; };
+		5FA5A7602A435567000DA054 /* InputTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTextField.swift; sourceTree = "<group>"; };
+		5FA5A7622A447BF2000DA054 /* AddEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEmailViewController.swift; sourceTree = "<group>"; };
+		5FA5A7662A449174000DA054 /* UserChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserChange.swift; sourceTree = "<group>"; };
+		5FA5A7682A449523000DA054 /* UserChangesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserChangesViewController.swift; sourceTree = "<group>"; };
+		5FA5A76A2A457C88000DA054 /* DeactivateAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeactivateAccountViewController.swift; sourceTree = "<group>"; };
+		5FA5A76C2A459C13000DA054 /* DeactivatePasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeactivatePasswordViewController.swift; sourceTree = "<group>"; };
+		5FA5A76E2A46CB9A000DA054 /* ActivateAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivateAccountViewController.swift; sourceTree = "<group>"; };
+		5FA5A7702A46F2FE000DA054 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
+		5FA5A7722A496008000DA054 /* NotificationKindViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationKindViewController.swift; sourceTree = "<group>"; };
+		5FA5A7742A49619D000DA054 /* DisabledNotificationsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisabledNotificationsCell.swift; sourceTree = "<group>"; };
+		5FA5A7762A4962F5000DA054 /* NotificationStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationStepView.swift; sourceTree = "<group>"; };
+		5FA5A7782A4963E3000DA054 /* NotificationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFlow.swift; sourceTree = "<group>"; };
 		5FA5A87729D4843B00E2848C /* SearchJobsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchJobsViewController.swift; sourceTree = "<group>"; };
 		5FA6938A29A34BE800DF3ADC /* Job.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Job.swift; sourceTree = "<group>"; };
 		5FA6938D29A3594800DF3ADC /* CreateJobHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateJobHeader.swift; sourceTree = "<group>"; };
@@ -903,6 +938,15 @@
 		5FA758DA29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchAssistantMenuLauncher.swift; sourceTree = "<group>"; };
 		5FA758DD29DD71FB00F1DEA4 /* MESearchMenuHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MESearchMenuHeader.swift; sourceTree = "<group>"; };
 		5FA758DF29DD86A000F1DEA4 /* MESearchMenuFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MESearchMenuFooter.swift; sourceTree = "<group>"; };
+		5FA7B00A2A498E7C00DFCF36 /* NotificationPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPreference.swift; sourceTree = "<group>"; };
+		5FA7B00C2A49904700DFCF36 /* NotificationTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTarget.swift; sourceTree = "<group>"; };
+		5FA7B00E2A49932900DFCF36 /* NotificationTopic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTopic.swift; sourceTree = "<group>"; };
+		5FA7B0102A49966900DFCF36 /* NotificationGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationGroup.swift; sourceTree = "<group>"; };
+		5FA7B0122A4996F800DFCF36 /* NotificationTargetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTargetCell.swift; sourceTree = "<group>"; };
+		5FA7B0142A49C4A900DFCF36 /* NotificationToggleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationToggleCell.swift; sourceTree = "<group>"; };
+		5FA7B0162A49CF0600DFCF36 /* NotificationGroupHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationGroupHeader.swift; sourceTree = "<group>"; };
+		5FA7B0182A49D60400DFCF36 /* NotificationTargetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTargetViewController.swift; sourceTree = "<group>"; };
+		5FA7B01A2A49E4FE00DFCF36 /* NotificationTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTargetView.swift; sourceTree = "<group>"; };
 		5FA7F0A52A03A42D00CACA45 /* CommentCaseRepliesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseRepliesViewController.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
@@ -1167,6 +1211,8 @@
 				5FA91BD62A34B09A00DF6675 /* MessageBarIcon.swift */,
 				5FA91BDB2A35B9BD00DF6675 /* ConversationToolbar.swift */,
 				5FBDDC7F2A3A1DDE00EB4A89 /* SpacingView.swift */,
+				5FA5A7762A4962F5000DA054 /* NotificationStepView.swift */,
+				5FA7B01A2A49E4FE00DFCF36 /* NotificationTargetView.swift */,
 			);
 			path = Customs;
 			sourceTree = "<group>";
@@ -1350,6 +1396,7 @@
 		5F5F8949299651470014F378 /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				5FA5A76E2A46CB9A000DA054 /* ActivateAccountViewController.swift */,
 				5F5F894A299651570014F378 /* BannerRegistrationViewController.swift */,
 				5F5F894C299686D90014F378 /* ProfileCompletedViewController.swift */,
 			);
@@ -1924,9 +1971,16 @@
 				5FBDDC8F2A3F196900EB4A89 /* LegalInquiresViewController.swift */,
 				5FBDDC9A2A3F5FAA00EB4A89 /* AboutUsViewController.swift */,
 				5FA58D5B2A40AA4F00CA6085 /* SettingsViewController.swift */,
+				5FA5A7722A496008000DA054 /* NotificationKindViewController.swift */,
+				5FA7B0182A49D60400DFCF36 /* NotificationTargetViewController.swift */,
 				5FA58D622A418D7F00CA6085 /* SettingsKindViewController.swift */,
 				5FA58D692A41C00000CA6085 /* ChangePasswordViewController.swift */,
 				5FA58D6F2A4201FD00CA6085 /* AccountInformationViewController.swift */,
+				5FA58D712A4336A200CA6085 /* ConfirmPasswordViewController.swift */,
+				5FA5A7622A447BF2000DA054 /* AddEmailViewController.swift */,
+				5FA5A7682A449523000DA054 /* UserChangesViewController.swift */,
+				5FA5A76A2A457C88000DA054 /* DeactivateAccountViewController.swift */,
+				5FA5A76C2A459C13000DA054 /* DeactivatePasswordViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2137,6 +2191,8 @@
 			isa = PBXGroup;
 			children = (
 				5F5889012712EC39005E5B4F /* User.swift */,
+				5FA5A7662A449174000DA054 /* UserChange.swift */,
+				5FA5A7702A46F2FE000DA054 /* History.swift */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -2145,6 +2201,11 @@
 			isa = PBXGroup;
 			children = (
 				5FBC2DF02732883A004F92CE /* Notification.swift */,
+				5FA5A7782A4963E3000DA054 /* NotificationFlow.swift */,
+				5FA7B00A2A498E7C00DFCF36 /* NotificationPreference.swift */,
+				5FA7B00C2A49904700DFCF36 /* NotificationTarget.swift */,
+				5FA7B00E2A49932900DFCF36 /* NotificationTopic.swift */,
+				5FA7B0102A49966900DFCF36 /* NotificationGroup.swift */,
 			);
 			path = Notification;
 			sourceTree = "<group>";
@@ -2315,6 +2376,7 @@
 				5F92FD2A29F7C07100E2894D /* MECommentReplyView.swift */,
 				5F9CFF962A23345B003FF382 /* MessageTextView.swift */,
 				5F9CFF982A233668003FF382 /* MessageInputAccessoryView.swift */,
+				5FA5A7602A435567000DA054 /* InputTextField.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -2776,6 +2838,10 @@
 				5FFDE2C22A405DB200A0311A /* AboutUsContentView.swift */,
 				5FA58D5D2A417A5100CA6085 /* SettingsCell.swift */,
 				5FA58D662A419AB600CA6085 /* SettingsKindHeader.swift */,
+				5FA5A7742A49619D000DA054 /* DisabledNotificationsCell.swift */,
+				5FA7B0122A4996F800DFCF36 /* NotificationTargetCell.swift */,
+				5FA7B0142A49C4A900DFCF36 /* NotificationToggleCell.swift */,
+				5FA7B0162A49CF0600DFCF36 /* NotificationGroupHeader.swift */,
 			);
 			path = MenuKind;
 			sourceTree = "<group>";
@@ -3199,6 +3265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FA5A7752A49619D000DA054 /* DisabledNotificationsCell.swift in Sources */,
 				5F598C032836347D00189722 /* UserCellViewModel.swift in Sources */,
 				5F77BF7528587ED400F31A75 /* MEProfileImageView.swift in Sources */,
 				5FBCB9FC28A80A3D007EF79D /* CaseUpdatesViewController.swift in Sources */,
@@ -3212,6 +3279,7 @@
 				5FA417AD295497D00026F267 /* GroupContentSelectionHeader.swift in Sources */,
 				5FB443A02A2891E500A601EE /* MessageSearchCell.swift in Sources */,
 				5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */,
+				5FA7B0192A49D60400DFCF36 /* NotificationTargetViewController.swift in Sources */,
 				5F9D7D5429E6FD93002EA21C /* SubmitReportViewController.swift in Sources */,
 				5FB443B62A28F50F00A601EE /* GroupVisibility.swift in Sources */,
 				5F9A28142976C0850052E618 /* GroupMembershipViewController.swift in Sources */,
@@ -3276,6 +3344,7 @@
 				5FA58D612A417F3600CA6085 /* SettingKind.swift in Sources */,
 				5FAC98CD29470CCC00C72228 /* GroupPageHeaderCell.swift in Sources */,
 				5FBDDC942A3F1A8300EB4A89 /* Legal.swift in Sources */,
+				5FA7B0112A49966900DFCF36 /* NotificationGroup.swift in Sources */,
 				5F9FB29128F6CF2000BABDFD /* CategoriesExploreCasesCell.swift in Sources */,
 				5F9A9F7F289678CC00A25152 /* CustomSectionCell.swift in Sources */,
 				5F94DA77297FF02600FA7D5C /* MEReviewActionButtons.swift in Sources */,
@@ -3365,6 +3434,7 @@
 				5F78D2FF2891274600FE0C99 /* EditProfilePictureCell.swift in Sources */,
 				5F91F11429B78337007BB567 /* NewsListViewController.swift in Sources */,
 				5FAB2DDD2A1A2BB500BD094B /* EditCaseHeader.swift in Sources */,
+				5FA7B00D2A49904700DFCF36 /* NotificationTarget.swift in Sources */,
 				5FA9D18229A6625B004EF26A /* JobDescriptionCell.swift in Sources */,
 				5F98F9BE298D1E0000F21074 /* RecentContentSearchCell.swift in Sources */,
 				5F91F10929B248DF007BB567 /* SearchTopics.swift in Sources */,
@@ -3382,6 +3452,7 @@
 				5F8666FA2754D659009B26E6 /* CommentService.swift in Sources */,
 				5FA9D17C29A5160A004EF26A /* JobDetailsViewController.swift in Sources */,
 				5FEB92E4289C062F004BE2E4 /* MEContextMenuLauncher.swift in Sources */,
+				5FA7B0172A49CF0600DFCF36 /* NotificationGroupHeader.swift in Sources */,
 				5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */,
 				5F9AFAC828D497F4004D61D3 /* BookmarksCaseCell.swift in Sources */,
 				5FA758DB29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift in Sources */,
@@ -3428,10 +3499,12 @@
 				5F85219428A54BBA0033AF67 /* EditPostViewController.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
 				5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */,
+				5FA5A7612A435567000DA054 /* InputTextField.swift in Sources */,
 				5FC4D85E27070274006B7A34 /* AppDelegate.swift in Sources */,
 				5FA58D652A418E6A00CA6085 /* SubSetting.swift in Sources */,
 				5F992B0028ACD6F30030F7F1 /* TopCaseTextCell.swift in Sources */,
 				5FC4D87B2707058D006B7A34 /* HomeViewController.swift in Sources */,
+				5FA5A7712A46F2FF000DA054 /* History.swift in Sources */,
 				5F8620FB289ECA3C004E6184 /* UserProfileCaseTextCell.swift in Sources */,
 				5F71C17428CC871200A16571 /* ContainerViewController.swift in Sources */,
 				5F8B7C4C2873FC48005094A5 /* Speciality.swift in Sources */,
@@ -3440,6 +3513,8 @@
 				5F9A9F9A2898448E00A25152 /* UserProfilePublicationCell.swift in Sources */,
 				5F9A2824297841490052E618 /* GroupMemberUserCell.swift in Sources */,
 				5FA6C2B12A1A618600C8E0EC /* CaseSeparatorFooter.swift in Sources */,
+				5FA5A7732A496008000DA054 /* NotificationKindViewController.swift in Sources */,
+				5FA7B00B2A498E7C00DFCF36 /* NotificationPreference.swift in Sources */,
 				5F8AF97F292CA3E5005C6778 /* GroupService.swift in Sources */,
 				5FC4D8792707047E006B7A34 /* MainTabController.swift in Sources */,
 				5FAC98D2294873BC00C72228 /* GroupAboutHeader.swift in Sources */,
@@ -3458,6 +3533,7 @@
 				5FE8DE8F28918E83009F08F9 /* UserProfilePostImageCell.swift in Sources */,
 				5F4493C027620415008FD6ED /* DatabaseManager.swift in Sources */,
 				5FA85B67299BDAB5002FCEF3 /* JobsBrowserViewController.swift in Sources */,
+				5FA7B0152A49C4A900DFCF36 /* NotificationToggleCell.swift in Sources */,
 				5FA0875328C099EE00D44829 /* SupportSectionCell.swift in Sources */,
 				5FBC2DF327329316004F92CE /* NotificationService.swift in Sources */,
 				5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */,
@@ -3493,6 +3569,8 @@
 				5F91F10E29B75292007BB567 /* NewTitleCell.swift in Sources */,
 				5F8E52BC2869FFE50053F011 /* PostPollCell.swift in Sources */,
 				5FA85B6A299BDE5B002FCEF3 /* CreateJobViewController.swift in Sources */,
+				5FA5A7772A4962F5000DA054 /* NotificationStepView.swift in Sources */,
+				5FA7B00F2A49932900DFCF36 /* NotificationTopic.swift in Sources */,
 				5F91F0F729AD14FC007BB567 /* MESearchToolbar.swift in Sources */,
 				5F0A4F532725623E00700304 /* StorageManager.swift in Sources */,
 				5F05206B27BD4D9C001E7D8F /* ConversationCell.swift in Sources */,
@@ -3527,6 +3605,7 @@
 				5FA3F4DF29EBFFF800CE89E3 /* JobDetailsHeader.swift in Sources */,
 				5FA91BD32A332BAD00DF6675 /* BookmarkKind.swift in Sources */,
 				5FB443B42A28E98C00A601EE /* Experience.swift in Sources */,
+				5FA58D722A4336A200CA6085 /* ConfirmPasswordViewController.swift in Sources */,
 				5F8B7C5A28797B28005094A5 /* ClinicalTypeCell.swift in Sources */,
 				5FA0875028BFC64600D44829 /* Section.swift in Sources */,
 				5F77BF7E2858EF5B00F31A75 /* MEPostActionButtons.swift in Sources */,
@@ -3547,6 +3626,7 @@
 				5F98413429F6607200AE437F /* MEReferenceMenuLauncher.swift in Sources */,
 				5FEB92E2289BD07B004BE2E4 /* ContextMenuHeader.swift in Sources */,
 				5F9A9F872896D8AD00A25152 /* AddAboutViewController.swift in Sources */,
+				5FA7B0132A4996F800DFCF36 /* NotificationTargetCell.swift in Sources */,
 				5F85219128A4D2130033AF67 /* ShareCaseViewModel.swift in Sources */,
 				5FA3F4E229EC2D8400CE89E3 /* Display.swift in Sources */,
 				5FB443A82A28DE0400A601EE /* ReportTopics.swift in Sources */,
@@ -3561,6 +3641,7 @@
 				5F9A9FAC2899854500A25152 /* PassportViewController.swift in Sources */,
 				5FA58D672A419AB600CA6085 /* SettingsKindHeader.swift in Sources */,
 				5F99C1D729C8638500C681E2 /* AppearanceMenuLauncher.swift in Sources */,
+				5FA5A7792A4963E3000DA054 /* NotificationFlow.swift in Sources */,
 				5F5889282718677A005E5B4F /* AuthenticationViewModel.swift in Sources */,
 				5FB2901D2886A6AA002FBAE1 /* MECaseLabel.swift in Sources */,
 				5FBDDC9B2A3F5FAA00EB4A89 /* AboutUsViewController.swift in Sources */,
@@ -3579,6 +3660,7 @@
 				5F204F932992933E009A416A /* AddContributorsViewController.swift in Sources */,
 				5F9E4299288058A800C2153B /* Profession.swift in Sources */,
 				5FA6C2B72A1B763700C8E0EC /* ShareCaseDiagnosisViewController.swift in Sources */,
+				5FA5A76B2A457C88000DA054 /* DeactivateAccountViewController.swift in Sources */,
 				5FA9D19829A7C860004EF26A /* JobAttachementsCell.swift in Sources */,
 				5F9D7D5229E6F066002EA21C /* ReportTypeViewController.swift in Sources */,
 				5F8E52B0286846A20053F011 /* METextField.swift in Sources */,
@@ -3599,6 +3681,7 @@
 				5FB290262886F843002FBAE1 /* CaseTextImageCell.swift in Sources */,
 				5FAB2DD32A18FD1700BD094B /* MessageEntity+CoreDataProperties.swift in Sources */,
 				5FA276CC29F13EBA005A339D /* AddAuthorReferenceViewController.swift in Sources */,
+				5FA5A76D2A459C13000DA054 /* DeactivatePasswordViewController.swift in Sources */,
 				5F80B8CA275E2622001EC105 /* NotificationViewModel.swift in Sources */,
 				5F9CFF9F2A2489C4003FF382 /* MessageViewModel.swift in Sources */,
 				5F86210228A0E41D004E6184 /* UserProfileNoCommentsCell.swift in Sources */,
@@ -3614,12 +3697,16 @@
 				5F9A9F7D289665C400A25152 /* EditCategoryCell.swift in Sources */,
 				5F85218728A390E70033AF67 /* PublicationSectionViewController.swift in Sources */,
 				5F6076C1299A7BBF0015AA16 /* MEProgressHUD.swift in Sources */,
+				5FA5A7692A449523000DA054 /* UserChangesViewController.swift in Sources */,
 				5F9475DA292674B900C6D44E /* Category.swift in Sources */,
 				5F91F0EC29ACD66C007BB567 /* MainSearchHeader.swift in Sources */,
 				5F8AF97D292BED19005C6778 /* GroupViewModel.swift in Sources */,
 				5F9F0894285F7A960069FD2C /* PostLikesViewController.swift in Sources */,
+				5FA5A76F2A46CB9A000DA054 /* ActivateAccountViewController.swift in Sources */,
 				5F951B49294B21FA00E99F34 /* GroupContentCreationCell.swift in Sources */,
+				5FA5A7672A449174000DA054 /* UserChange.swift in Sources */,
 				5F93ED842A2C62AA0087D5CB /* SearchMessageCell.swift in Sources */,
+				5FA7B01B2A49E4FE00DFCF36 /* NotificationTargetView.swift in Sources */,
 				5FA23F42293F65D000A913CB /* GroupSizeCell.swift in Sources */,
 				5F944788291D1391003B3DA0 /* DiscoverGroupsViewController.swift in Sources */,
 				5F4DBCAC27382BB50005AEC3 /* PostService.swift in Sources */,
@@ -3638,6 +3725,7 @@
 				5FBDDC972A3F231500EB4A89 /* LegalCell.swift in Sources */,
 				5F11AF3B286EC156005BC807 /* ZoomTransitioning.swift in Sources */,
 				5FA2FB3328DEE8B600B37424 /* ConversationViewModel.swift in Sources */,
+				5FA5A7632A447BF2000DA054 /* AddEmailViewController.swift in Sources */,
 				5F9E4281287ADDA000C2153B /* CaseDiagnosisViewController.swift in Sources */,
 				5F91F11229B77EC2007BB567 /* NewImageFooter.swift in Sources */,
 				5FA276CA29F12C3B005A339D /* WebViewController.swift in Sources */,

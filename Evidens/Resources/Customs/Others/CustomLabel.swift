@@ -12,11 +12,9 @@ class CustomLabel: UILabel {
     init(placeholder: String) {
         super.init(frame: .zero)
         text = placeholder
-        font = .systemFont(ofSize: 35, weight: .heavy)
-        //font = UIFont(name: "Raleway-Black", size: 35)
+        font = .systemFont(ofSize: 27, weight: .heavy)
         textColor = .label
         numberOfLines = 0
-        //sizeToFit()
         translatesAutoresizingMaskIntoConstraints = false
     }
     

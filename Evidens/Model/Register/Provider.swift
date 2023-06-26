@@ -13,8 +13,8 @@ enum Provider {
     var title: String {
         switch self {
         case .password: return String()
-        case .google: return "Password Change Unavailable"
-        case .apple: return "Password Change Unavailable"
+        case .google: return "Credentials Change Unavailable"
+        case .apple: return "Credentials Change Unavailable"
         case .undefined: return String()
         }
     }
@@ -22,9 +22,18 @@ enum Provider {
     var content: String {
         switch self {
         case .password: return String()
-        case .google: return "You are currently logged in with Google services. Changing the password is not available for this type of account."
-        case .apple: return "You are currently logged in using your Apple ID. Password change is unavailable for Apple accounts."
+        case .google: return "You are currently logged in with Google services. Changing credentials is not available for this type of account."
+        case .apple: return "You are currently logged in using your Apple ID. Changing credentials is unavailable for Apple accounts."
         case .undefined: return "Oops, something went wrong. Please try again later."
+        }
+    }
+    
+    var id: String {
+        switch self {
+        case .password: return "password"
+        case .google: return "google.com"
+        case .apple: return "apple.com"
+        case .undefined: return "undefined"
         }
     }
 }

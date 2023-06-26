@@ -56,6 +56,7 @@ struct AppStrings {
         static let key = "key"
         static let xmarkCircleFill = "xmark.circle.fill"
         static let checkmarkCircleFill = "checkmark.circle.fill"
+        static let badgeBell = "bell.badge"
     }
     
     struct Actions {
@@ -88,6 +89,8 @@ struct AppStrings {
         static let bookmark = "bookmark"
         static let fillPost = "post.selected"
         static let brokenHeart = "heart.broken"
+        static let eye = "eye"
+        static let slashEye = "eye.slash"
     }
     
     struct Miscellaneous {
@@ -136,7 +139,11 @@ struct AppStrings {
         static let jobPrivacyTitle = "Privacy Rules"
         static let jobPrivacyContent = "To ensure the security and privacy of our users, we want to remind you that you are about to provide your personal contact information, including your full name, email address, phone number, and resume. Please note that this information will be shared with the hiring personnel of the company or organization you are applying to. They will use your contact information to communicate with you regarding your application and potential employment opportunities."
         static let joinTitle = "Eligibility Requirements"
-        static let joinContent = "Our healthcare professional and student application is designed to connect individuals who are interested in healthcare-related topics. To ensure that the application is used by the intended audience, we have identified three categories of users who are eligible to join\n\n• Healthcare Professionals (e.g. physicians, nurses, dentists, pharmacists, allied health professionals)\n• Healthcare Students (e.g. medical students, nursing students, dental students, allied health students)\n• Retired Healthcare Professionals."
+        static let joinContent = "Our healthcare professional and student application is designed to connect individuals who are interested in healthcare-related topics. To ensure that the application is used by the intended audience, we have identified three categories of users who are eligible to join.\n\n• Healthcare Professionals (e.g. physicians, nurses, dentists, pharmacists, allied health professionals)\n• Healthcare Students (e.g. medical students, nursing students, dental students, allied health students)\n• Retired Healthcare Professionals."
+        static let emailChangeTitle = "Account Rules"
+        static let emailChangeContent = "In order to provide a seamless account management experience, please be aware that you can only modify accounts that are not associated with Google or Apple. If you signed up or logged in using your Google or Apple credentials, we regret to inform you that account changes, including email address updates, are not available through this feature.\n For accounts created with email and password credentials, you can freely make changes such as updating your email address or making adjustments to your in-app preferences. However, if you initially signed up or logged in using your Google or Apple account, your account information, including your email address, is managed by those respective services."
+        static let passwordChangeTitle = "Password Rules"
+        static let passwordChangeContent = "In order to provide a seamless account management experience, please be aware that you can only modify passwords that are not associated with Google or Apple. If you signed up or logged in using your Google or Apple credentials, we regret to inform you that account changes are not available through this feature.\n For accounts created with email and password credentials, you can freely make changes such as updating your email address or making adjustments to your in-app preferences. However, if you initially signed up or logged in using your Google or Apple account, your account information, including your email address, is managed by those respective services."
     }
     
     struct Report {
@@ -210,7 +217,7 @@ struct AppStrings {
         static let notificationsContent = "Select the kinds of notifications you get about your activities, interests, and recommendations."
         
         static let accountInfoTitle = "Account Information"
-        static let accountInfoContent = "See your account information like your email address."
+        static let accountInfoContent = "See your account information like your email address and your in-app condition."
         static let accountPasswordTitle = "Change Password"
         static let accountPasswordContent = "Change your password at any time."
         static let accountDeactivateTitle = "Deactivate your Account"
