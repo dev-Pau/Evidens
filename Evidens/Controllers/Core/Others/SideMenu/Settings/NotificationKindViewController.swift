@@ -26,12 +26,11 @@ class NotificationKindViewController: UIViewController {
     }
     
     private var collectionView: UICollectionView!
-    //private var preferences: NotificationPreference?
     private var preferences: NotificationPreference?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        preferences = NotificationPreference(enabled: true, reply: true, like: false, follower: true, message: true, replyTarget: .anyone, likeTarget: .follow)
+        fetchPreferences()
         configureNavigationBar()
         configure()
     }
@@ -41,6 +40,20 @@ class NotificationKindViewController: UIViewController {
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
             guard let strongSelf = self else { return }
             strongSelf.authorization = settings.authorizationStatus
+            
+        }
+    }
+    
+    private func fetchPreferences() {
+        NotificationService.fetchPreferences { result in
+            switch result {
+            case .success(let preferences):
+                self.preferences = preferences
+                self.collectionView.reloadData()
+                self.collectionView.isHidden = false
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
         }
     }
     
@@ -72,6 +85,7 @@ class NotificationKindViewController: UIViewController {
     private func configure() {
         view.backgroundColor = .systemBackground
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
+        collectionView.isHidden = true
         view.addSubviews(collectionView)
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -90,6 +104,7 @@ class NotificationKindViewController: UIViewController {
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
             guard let strongSelf = self else { return }
             strongSelf.authorization = settings.authorizationStatus
+            NotificationService.set("enabled", strongSelf.authorization == .authorized ? true : false)
         }
     }
 }
@@ -149,19 +164,22 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationToggleCellReuseIdentifier, for: indexPath) as! NotificationToggleCell
                 cell.set(title: notification.title)
                 cell.set(isOn: preferences?.follower ?? false)
+                cell.delegate = self
                 return cell
             case .messages:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationToggleCellReuseIdentifier, for: indexPath) as! NotificationToggleCell
                 cell.set(title: notification.title)
                 cell.set(isOn: preferences?.message ?? false)
+                cell.delegate = self
                 return cell
             case .cases:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationTargetCellReuseIdentifier, for: indexPath) as! NotificationTargetCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: notificationToggleCellReuseIdentifier, for: indexPath) as! NotificationToggleCell
                 cell.set(title: notification.title)
-                cell.set(onOff: preferences?.reply ?? false)
-                cell.hide()
+                cell.set(isOn: preferences?.trackCase ?? false)
+                cell.delegate = self
                 return cell
             }
+            
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: disabledNotificationsCellReuseIdentifier, for: indexPath) as! DisabledNotificationsCell
             return cell
@@ -176,12 +194,58 @@ extension NotificationKindViewController: UICollectionViewDataSource, UICollecti
             switch notification {
             case .replies:
                 let controller = NotificationTargetViewController(topic: notification, isOn: preferences.reply, target: preferences.replyTarget)
+                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             case .likes:
                 let controller = NotificationTargetViewController(topic: notification, isOn: preferences.like, target: preferences.likeTarget)
+                controller.delegate = self
                 navigationController?.pushViewController(controller, animated: true)
             case .followers, .messages, .cases: break
             }
         }
+    }
+}
+
+extension NotificationKindViewController: NotificationToggleCellDelegate {
+    func didToggle(_ cell: UICollectionViewCell, _ value: Bool) {
+        if let indexPath = collectionView.indexPath(for: cell) {
+            let topic = NotificationTopic.allCases[indexPath.section == 1 ? indexPath.row : indexPath.row + NotificationGroup.activity.topic.count]
+            
+            switch topic {
+            case .replies, .likes: break
+            case .followers:
+                NotificationService.set("follower", value)
+            case .messages:
+                NotificationService.set("message", value)
+            case .cases:
+                NotificationService.set("trackCase", value)
+            }
+        }
+    }
+}
+
+extension NotificationKindViewController: NotificationTargetViewControllerDelegate {
+    func didChange(topic: NotificationTopic, for target: NotificationTarget) {
+        switch topic {
+        case .replies:
+            preferences?.update(keyPath: \.replyTarget, value: target)
+        case .likes:
+            preferences?.update(keyPath: \.likeTarget, value: target)
+        case .followers, .messages, .cases: break
+        }
+        
+        collectionView.reloadData()
+    }
+    
+    func didToggle(topic: NotificationTopic, _ value: Bool) {
+        switch topic {
+        case .replies:
+            preferences?.update(keyPath: \.reply, value: value)
+        case .likes:
+            preferences?.update(keyPath: \.like, value: value)
+        case .followers, .messages, .cases: break
+        }
+        
+        collectionView.reloadData()
     }
 }

@@ -7,9 +7,45 @@ admin.initializeApp();
 const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
+const { sendNotification, addNotificationOnLike } = require('./notifications');
+
 const db = admin.firestore();
 
 const APP_NAME = 'EVIDENS';
+
+
+
+
+exports.sendNotification = sendNotification;
+exports.addNotificationOnLike = addNotificationOnLike
+
+
+
+exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
+    const userId = context.params.userId;
+
+    const preferencesData = {
+      enabled: false,
+      reply: {
+        value: true,
+        replyTarget: 1, // Update with your desired default value for replyTarget
+      },
+      like: {
+        value: true,
+        likeTarget: 1, // Update with your desired default value for likeTarget
+      },
+      follower: true,
+      message: true,
+      trackCase: true
+    };
+
+    try {
+      const preferencesRef = admin.firestore().collection('notifications').doc(userId);
+      await preferencesRef.set(preferencesData);
+    } catch (error) {
+      console.error('Error creating notification preferences:', error);
+    }
+  });
 
 // Cloud Function that listens for document creations in the 'posts' collection and performs the necessary actions to update the 'user-home-feed' collection of every follower.
 exports.updateUserHomeFeed = functions.firestore.document('posts/{postId}').onCreate(async (snapshot, context) => {
@@ -94,82 +130,6 @@ exports.updateUserHomeFeedOnUnfollow = functions.firestore.document('followers/{
   }
 })
 
-
-
-// Cloud Function that sends a notification to the group members when new content is shared
-exports.sendGroupNotificationOnNewContent = functions.database.ref(`groups/{groupId}/content/all`).onCreate((snapshot, context) => {
-  let groupId = context.params.groupId;
-  let content = snapshot.val();
-
-  const id = content.id;
-  const type = content.type;
-
-  console.log('New content created in group:', groupId);
-  console.log('ID:', id);
-  console.log('Type:', type);
-
-
-
-
-})
-
-
-// Cloud Function that sends a notification to the 'userId' when a notification document is created
-exports.sendNotification = functions.firestore.document('notifications/{userId}/user-notifications/{notificationId}').onCreate(async (snap, context) => {
-  const userId = context.params.userId;
-  const notificationId = context.params.notificationId;
-  const notificationData = snap.data();
-
-  const userRef = db.collection('users').doc(notificationData.uid);
-  const userSnapshot = await userRef.get();
-  const user = userSnapshot.data();
-
-  const firstName = user.firstName;
-  const lastName = user.lastName;
-
-  const notificationType = notificationData["type"];
-  const commentText = notificationData.comment || '';
-
-  let messageTitle;
-
-  switch (notificationType) {
-    case 0:
-      messageTitle = `${firstName} ${lastName} liked your post.`
-      break;
-    case 1:
-      messageTitle = `${firstName} ${lastName} liked your case.`
-      break;
-    case 2:
-      messageTitle = `${firstName} is now following you.`
-      break;
-    case 3:
-      commentText = notificationData["comment"]
-      messageTitle = `${firstName} ${lastName} commented on your post: ${commentText}.`
-      break;
-
-    case 4:
-      commentText = notificationData["comment"]
-      messageTitle = `${firstName} ${lastName} commented on your case: ${commentText}.`
-      break;
-  }
-
-  const tokenSnapshot = await admin.database().ref(`/tokens/${userId}`).once('value');
-  const tokenData = tokenSnapshot.val();
-
-  const payload = {
-    notification: {
-      body: messageTitle
-    }
-  };
-
-
-  try {
-    const response = await admin.messaging().sendToDevice(tokenData, payload);
-    functions.logger.log('Notification sent:', response);
-  } catch (error) {
-    functions.logger.error('Error sending notification:', error);
-  }
-});
 
 // Cloud Function that adds the first message to both users when a new conversation is created
 exports.onConversationCreate = functions.database.ref('/conversations/{conversationId}').onCreate((snapshot, context) => {

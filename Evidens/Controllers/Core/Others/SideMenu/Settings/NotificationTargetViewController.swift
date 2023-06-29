@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol NotificationTargetViewControllerDelegate: AnyObject {
+    func didToggle(topic: NotificationTopic, _ value: Bool)
+    func didChange(topic: NotificationTopic, for target: NotificationTarget)
+}
+
 class NotificationTargetViewController: UIViewController {
+    
+    weak var delegate: NotificationTargetViewControllerDelegate?
 
     private let topic: NotificationTopic
     private let isOn: Bool
@@ -63,6 +70,7 @@ class NotificationTargetViewController: UIViewController {
     
     private var followingView: NotificationTargetView!
     private var anyoneView: NotificationTargetView!
+    private var stackView: UIStackView!
 
     init(topic: NotificationTopic, isOn: Bool, target: NotificationTarget) {
         self.topic = topic
@@ -90,8 +98,12 @@ class NotificationTargetViewController: UIViewController {
         scrollView.frame = view.bounds
        
         uiSwitch.isOn = isOn
+        uiSwitch.addTarget(self, action: #selector(switchValueChanged(_:)), for: .valueChanged)
         followingView = NotificationTargetView(title: "My Network", isOn: target == .follow ? true : false)
         anyoneView = NotificationTargetView(title: "From Anyone", isOn: target == .anyone ? true : false)
+        
+        followingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        anyoneView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
         
         followingView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         followingView.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
@@ -100,7 +112,7 @@ class NotificationTargetViewController: UIViewController {
         separator.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         separator.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
         
-        let stackView = UIStackView(arrangedSubviews: [separator, followingView, anyoneView])
+        stackView = UIStackView(arrangedSubviews: [separator, followingView, anyoneView])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.spacing = 10
@@ -135,8 +147,61 @@ class NotificationTargetViewController: UIViewController {
         targetLabel.text = topic.target
         
         if !isOn {
-            stackView.isHidden = true
-            targetLabel.isHidden = true
+            targetLabel.alpha = 0
+            stackView.alpha = 0
+            stackView.isUserInteractionEnabled = false
         }
+    }
+    
+    @objc func switchValueChanged(_ sender: UISwitch) {
+        switch topic {
+        case .replies:
+            NotificationService.set("reply", "value", sender.isOn)
+        case .likes:
+            NotificationService.set("like", "value", sender.isOn)
+        case .followers, .messages, .cases: break
+        }
+        
+        delegate?.didToggle(topic: topic, sender.isOn)
+        
+        if sender.isOn {
+            UIView.animate(withDuration: 0.5) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.stackView.alpha = 1
+                strongSelf.targetLabel.alpha = 1
+                strongSelf.stackView.isUserInteractionEnabled = true
+            }
+        } else {
+            UIView.animate(withDuration: 0.5) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.stackView.alpha = 0
+                strongSelf.targetLabel.alpha = 0
+                strongSelf.stackView.isUserInteractionEnabled = false
+            }
+        }
+    }
+    
+    @objc func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let tappedView = gestureRecognizer.view
+        
+        if tappedView == followingView {
+            if followingView.isOn == true { return }
+        } else {
+            if anyoneView.isOn == true { return }
+        }
+
+        followingView.set(isOn: tappedView == followingView ? true : false)
+        anyoneView.set(isOn: tappedView == anyoneView ? true : false)
+        
+        switch topic {
+        case .replies:
+            NotificationService.set("reply", "target", tappedView == followingView ? NotificationTarget.follow.rawValue : NotificationTarget.anyone.rawValue)
+            delegate?.didChange(topic: topic, for: tappedView == followingView ? NotificationTarget.follow : NotificationTarget.anyone)
+        case .likes:
+            NotificationService.set("like", "target", tappedView == followingView ? NotificationTarget.follow.rawValue : NotificationTarget.anyone.rawValue)
+        case .followers, .messages, .cases: break
+        }
+        
+        delegate?.didChange(topic: topic, for: tappedView == followingView ? NotificationTarget.follow : NotificationTarget.anyone)
     }
 }

@@ -16,7 +16,7 @@ enum NotificationTopic: Int, CaseIterable {
         case .likes: return "Likes"
         case .followers: return "New Followers"
         case .messages: return "Direct Messages"
-        case .cases: return "Cases"
+        case .cases: return "Track Saved Cases"
         }
     }
     
@@ -24,7 +24,8 @@ enum NotificationTopic: Int, CaseIterable {
         switch self {
         case .replies: return "Receive notifications when people reply to any of your content, including posts, cases and comments."
         case .likes: return "Receive notifications when people like your posts, cases and comments. "
-        case .followers, .messages, .cases: return ""
+        case .followers, .messages: return ""
+        case .cases: return "Receive notifications for updates on the cases you have saved."
         }
     }
     

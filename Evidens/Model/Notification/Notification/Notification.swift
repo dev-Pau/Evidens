@@ -14,11 +14,9 @@ struct Notification {
     let uid: String
     var contentId: String
     let timestamp: Timestamp
-    let type: NotificationType
+    let kind: NotificationKind
     let id: String
-    let userProfileImageUrl: String
     let commentId: String
-    let groupId: String
     var userIsFollowed = false
     
     var post: Post?
@@ -36,10 +34,8 @@ struct Notification {
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
         self.id = dictionary["id"] as? String ?? ""
         self.uid = dictionary["uid"] as? String ?? ""
-        self.groupId = dictionary["groupId"] as? String ?? String()
         self.contentId = dictionary["contentId"] as? String ?? ""
-        self.type = NotificationType(rawValue: dictionary["type"] as? Int ?? 0) ?? .likePost
-        self.userProfileImageUrl = dictionary["userProfileImageUrl"] as? String ?? ""
+        self.kind = NotificationKind(rawValue: dictionary["kind"] as? Int ?? 0) ?? .likePost
         self.commentId = dictionary["commentId"] as? String ?? ""
     }
     #warning("update tokens!!!! ")
@@ -57,24 +53,16 @@ extension Notification {
         case likePost
         case likeCase
         case follow
-        case commentPost
-        case commentCase
-        case commentGroupPost
-        case commentGroupCase
-        case likeGroupPost
-        case likeGroupCase
+        case replyPost
+        case replyCase
         
         var notificationMessage: String {
             switch self {
             case .likePost: return " liked your post"
             case .likeCase: return " liked your case"
             case .follow: return " followed you"
-            case .commentPost: return " commented on your post"
-            case .commentCase: return " commented on your case"
-            case .commentGroupPost: return " commented your group post in"
-            case .commentGroupCase: return " commented your group case in"
-            case .likeGroupPost: return " liked your group post in"
-            case .likeGroupCase: return " liked your group case in"
+            case .replyPost: return " commented on your post"
+            case .replyCase: return " commented on your case"
             }
         }
     }

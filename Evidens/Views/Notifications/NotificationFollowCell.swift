@@ -62,7 +62,7 @@ class NotificationFollowCell: UICollectionViewCell {
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -240,7 +240,7 @@ class NotificationFollowCell: UICollectionViewCell {
             attributedText.append(NSAttributedString(string: " and others", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         }
 
-        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: " " + viewModel.notification.kind.message + ". ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         //attributedText.append(NSAttributedString(string: viewModel.notificationText!, attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notificationTimeStamp, attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium), .foregroundColor: UIColor.secondaryLabel.cgColor]))
         

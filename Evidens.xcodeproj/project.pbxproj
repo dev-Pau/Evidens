@@ -410,6 +410,7 @@
 		5FA7B0172A49CF0600DFCF36 /* NotificationGroupHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0162A49CF0600DFCF36 /* NotificationGroupHeader.swift */; };
 		5FA7B0192A49D60400DFCF36 /* NotificationTargetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0182A49D60400DFCF36 /* NotificationTargetViewController.swift */; };
 		5FA7B01B2A49E4FE00DFCF36 /* NotificationTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B01A2A49E4FE00DFCF36 /* NotificationTargetView.swift */; };
+		5FA7B0212A4B2E7800DFCF36 /* NotificationKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7B0202A4B2E7800DFCF36 /* NotificationKind.swift */; };
 		5FA7F0A62A03A42D00CACA45 /* CommentCaseRepliesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA7F0A52A03A42D00CACA45 /* CommentCaseRepliesViewController.swift */; };
 		5FA803B92925368400FAB5C7 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803B82925368400FAB5C7 /* CategoryCell.swift */; };
 		5FA803BB29263FD600FAB5C7 /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */; };
@@ -947,6 +948,7 @@
 		5FA7B0162A49CF0600DFCF36 /* NotificationGroupHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationGroupHeader.swift; sourceTree = "<group>"; };
 		5FA7B0182A49D60400DFCF36 /* NotificationTargetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTargetViewController.swift; sourceTree = "<group>"; };
 		5FA7B01A2A49E4FE00DFCF36 /* NotificationTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTargetView.swift; sourceTree = "<group>"; };
+		5FA7B0202A4B2E7800DFCF36 /* NotificationKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationKind.swift; sourceTree = "<group>"; };
 		5FA7F0A52A03A42D00CACA45 /* CommentCaseRepliesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCaseRepliesViewController.swift; sourceTree = "<group>"; };
 		5FA803B82925368400FAB5C7 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		5FA803BA29263FD600FAB5C7 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
@@ -2200,12 +2202,8 @@
 		5F9E875129C9BA2700BEA131 /* Notification */ = {
 			isa = PBXGroup;
 			children = (
-				5FBC2DF02732883A004F92CE /* Notification.swift */,
-				5FA5A7782A4963E3000DA054 /* NotificationFlow.swift */,
-				5FA7B00A2A498E7C00DFCF36 /* NotificationPreference.swift */,
-				5FA7B00C2A49904700DFCF36 /* NotificationTarget.swift */,
-				5FA7B00E2A49932900DFCF36 /* NotificationTopic.swift */,
-				5FA7B0102A49966900DFCF36 /* NotificationGroup.swift */,
+				5FA7B01F2A4B2E4600DFCF36 /* Notification */,
+				5FA7B01E2A4B2E3500DFCF36 /* Preferences */,
 			);
 			path = Notification;
 			sourceTree = "<group>";
@@ -2591,6 +2589,27 @@
 				5F9D7D5829E80A00002EA21C /* Context */,
 			);
 			path = MenuLauncher;
+			sourceTree = "<group>";
+		};
+		5FA7B01E2A4B2E3500DFCF36 /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				5FA5A7782A4963E3000DA054 /* NotificationFlow.swift */,
+				5FA7B00A2A498E7C00DFCF36 /* NotificationPreference.swift */,
+				5FA7B00C2A49904700DFCF36 /* NotificationTarget.swift */,
+				5FA7B00E2A49932900DFCF36 /* NotificationTopic.swift */,
+				5FA7B0102A49966900DFCF36 /* NotificationGroup.swift */,
+			);
+			path = Preferences;
+			sourceTree = "<group>";
+		};
+		5FA7B01F2A4B2E4600DFCF36 /* Notification */ = {
+			isa = PBXGroup;
+			children = (
+				5FBC2DF02732883A004F92CE /* Notification.swift */,
+				5FA7B0202A4B2E7800DFCF36 /* NotificationKind.swift */,
+			);
+			path = Notification;
 			sourceTree = "<group>";
 		};
 		5FA85B68299BDE47002FCEF3 /* Create */ = {
@@ -3469,6 +3488,7 @@
 				5F9A9F9428981E6D00A25152 /* UserProfileSeeOthersCell.swift in Sources */,
 				5F8666F2274FAD30009B26E6 /* CommentPostViewController.swift in Sources */,
 				5F39B4A828310F120079F8CF /* RecentTextCellViewModel.swift in Sources */,
+				5FA7B0212A4B2E7800DFCF36 /* NotificationKind.swift in Sources */,
 				5F9F977B299552E40087293B /* OnboardingHomeHeader.swift in Sources */,
 				5F11AF3F286EFEF3005BC807 /* MEScrollImageView.swift in Sources */,
 				5F5889022712EC39005E5B4F /* User.swift in Sources */,

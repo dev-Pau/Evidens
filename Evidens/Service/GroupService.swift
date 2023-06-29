@@ -335,7 +335,7 @@ struct GroupService {
         //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes + 1])
         
         //Update posts likes collection to track likes for a particular post
-        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").document(uid).setData([:]) { _ in
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("post-likes").document(uid).setData([:]) { _ in
             //Update user likes collection to track likes for a particular user
             COLLECTION_USERS.document(uid).collection("user-group-likes").document(post.postId).setData([:], completion: completion)
         }
@@ -373,7 +373,7 @@ struct GroupService {
         
         //COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).updateData(["likes" : post.likes - 1])
 
-        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").document(uid).delete() { _ in
+        COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("post-likes").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-group-likes").document(post.postId).delete(completion: completion)
         }
     }
@@ -423,7 +423,7 @@ struct GroupService {
     static func fetchLikesForGroupPost(groupId: String, postId: String, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         //let likesRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
-        let likesRef = COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).collection("posts-likes").count
+        let likesRef = COLLECTION_GROUPS.document(groupId).collection("posts").document(postId).collection("post-likes").count
         likesRef.getAggregation(source: .server) { snaphsot, _ in
             //guard let snaphsot = snaphsot else { return }
             if let likes = snaphsot?.count {

@@ -120,7 +120,7 @@ struct PostService {
     
     static func fetchLikesForPost(postId: String, completion: @escaping(Int) -> Void) {
         guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let likesRef = COLLECTION_POSTS.document(postId).collection("posts-likes").count
+        let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
         likesRef.getAggregation(source: .server) { snaphsot, _ in
             if let likes = snaphsot?.count {
                 completion(likes.intValue)
@@ -448,7 +448,7 @@ struct PostService {
         let likeData = ["timestamp": Timestamp(date: Date())]
         //Add a new like to the post
         //Update posts likes collection to track likes for a particular post
-        COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).setData(likeData) { _ in
+        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).setData(likeData) { _ in
             //Update user likes collection to track likes for a particular user
             COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).setData(likeData, completion: completion)
         }
@@ -470,7 +470,7 @@ struct PostService {
         
         //COLLECTION_POSTS.document(post.postId).updateData(["likes" : post.likes - 1])
 
-        COLLECTION_POSTS.document(post.postId).collection("posts-likes").document(uid).delete() { _ in
+        COLLECTION_POSTS.document(post.postId).collection("post-likes").document(uid).delete() { _ in
             COLLECTION_USERS.document(uid).collection("user-home-likes").document(post.postId).delete(completion: completion)
         }
     }
@@ -519,7 +519,7 @@ struct PostService {
     static func getAllLikesFor(post: Post, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(QuerySnapshot) -> Void) {
         if lastSnapshot == nil {
             if let groupId = post.groupId {
-                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").limit(to: 30).getDocuments { snapshot, _ in
+                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -533,7 +533,7 @@ struct PostService {
                     completion(snapshot)
                 }
             } else {
-                COLLECTION_POSTS.document(post.postId).collection("posts-likes").limit(to: 30).getDocuments { snapshot, _ in
+                COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -550,7 +550,7 @@ struct PostService {
             }
         } else {
             if let groupId = post.groupId {
-                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("posts-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                COLLECTION_GROUPS.document(groupId).collection("posts").document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return
@@ -564,7 +564,7 @@ struct PostService {
                     completion(snapshot)
                 }
             } else {
-                COLLECTION_POSTS.document(post.postId).collection("posts-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
+                COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, _ in
                     guard let snapshot = snapshot, !snapshot.isEmpty else {
                         completion(snapshot!)
                         return

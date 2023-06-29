@@ -21,15 +21,12 @@ class NotificationsViewController: NavigationBarViewController {
     private var users = [User]()
     private var posts = [Post]()
     private var cases = [Case]()
-    private var groups = [Group]()
     
     private var followCellIndexPath = IndexPath()
     private var progressIndicator = JGProgressHUD()
     
     private var postLike = [Post]()
     private var caseLike = [Case]()
-    private var groupPosts = [Post]()
-    private var groupCases = [Case]()
     
     private var comments = [Comment]()
     private var userFollowers: Int = 0
@@ -92,110 +89,114 @@ class NotificationsViewController: NavigationBarViewController {
     private func fetchNotifications() {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
+
+        let group = DispatchGroup()
         
+        group.enter()
         NotificationService.fetchNotifications(lastSnapshot: nil) { snapshot in
             if snapshot.isEmpty {
-                self.loaded = true
-                self.activityIndicator.stop()
-                if user.phase != .verified {
-                    self.view.addSubview(self.lockView)
-                }
-                self.collectionView.refreshControl?.endRefreshing()
-                self.collectionView.reloadData()
-                self.collectionView.isHidden = false
+                self.handleEmptyNotifications(user: user)
+                group.leave()
                 return
             }
-
             
-            self.notificationsFirstSnapshot = snapshot.documents.first
-            self.notificationsLastSnapshot = snapshot.documents.last
-            self.notifications = snapshot.documents.map({ Notification(dictionary: $0.data()) })
-
-            self.checkIfUserIsFollowed()
-            self.fetchPostsForLikeNotification()
-            self.fetchCaseForLikeNotification()
-            self.fetchCommentsForPostCommentNotification()
-            self.fetchCommentsForCaseCommentNotification()
-            self.fetchNumberOfFollowers()
-            self.fetchNotificationGroups()
+            self.handleNotificationsSnapshot(snapshot.documents)
             
-            let userUids = self.notifications.map { $0.uid }
-            let uniqueUserUids = Array(Set(userUids))
-            UserService.fetchUsers(withUids: uniqueUserUids) { users in
-                self.users = users
-                print("users fetched")
-                self.checkIfAllNotificationInfoIsFetched()
+            group.enter()
+            UserService.fetchNumberOfFollowers { followers in
+                self.userFollowers = followers
+                print("followers fetched")
+                group.leave()
             }
-        }
-    }
-    
-    func fetchNumberOfFollowers() {
-        UserService.fetchNumberOfFollowers { followers in
-            self.userFollowers = followers
-            self.checkIfAllNotificationInfoIsFetched()
-            print("num of followes fetched")
-        }
-    }
-    
-    func checkIfUserIsFollowed() {
-        var count = 0
-        let notificationFollow = notifications.filter({ $0.type == .follow })
-        guard !notificationFollow.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
-            print("follow noti empty")
-            return
-        }
-        notificationFollow.forEach { notification in
-            UserService.checkIfUserIsFollowed(uid: notification.uid) { isFollowed in
-                if let index = self.notifications.firstIndex(where: { $0.id == notification.id }) {
-                    self.notifications[index].userIsFollowed = isFollowed
-                    count += 1
-                    if notificationFollow.count == count {
-                        self.checkIfAllNotificationInfoIsFetched()
-                        print("check if is followed done")
-                    }
-                }
+            
+            self.fetchAdditionalNotificationData(group: group)
+            
+            group.notify(queue: .main) {
+                print("all fetched")
+                self.handleAllNotificationInfoFetched(user: user)
             }
+            group.leave()
         }
     }
     
-    func fetchPostsForLikeNotification() {
-        let notificationPostLikes = notifications.filter({ $0.type == .likePost })
+    private func handleEmptyNotifications(user: User) {
+        self.loaded = true
+        self.activityIndicator.stop()
+        if user.phase != .verified {
+            self.view.addSubview(self.lockView)
+        }
+        self.collectionView.refreshControl?.endRefreshing()
+        self.collectionView.reloadData()
+        self.collectionView.isHidden = false
+    }
+    
+    private func handleNotificationsSnapshot(_ snapshot: [QueryDocumentSnapshot]) {
+        self.notificationsFirstSnapshot = snapshot.first
+        self.notificationsLastSnapshot = snapshot.last
+        self.notifications = snapshot.map({ Notification(dictionary: $0.data()) })
+    }
+    
+    private func fetchAdditionalNotificationData(group: DispatchGroup) {
+        fetchUsers(group: group)
+        fetchPostLikes(group: group)
+        fetchCaseLikes(group: group)
+        fetchPostComments(group: group)
+        fetchCaseComments(group: group)
+    }
+    
+    private func fetchUsers(group: DispatchGroup) {
+        group.enter()
+        let userUids = self.notifications.map { $0.uid }
+        let uniqueUserUids = Array(Set(userUids))
+
+        UserService.fetchUsers(withUids: uniqueUserUids) { users in
+            self.users = users
+            print("users fetched")
+            group.leave()
+        }
+    }
+    
+    private func fetchPostLikes(group: DispatchGroup) {
+        group.enter()
+        let notificationPostLikes = notifications.filter({ $0.kind == .likePost })
+        
         guard !notificationPostLikes.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
-            print("post like empty")
+            group.leave()
             return
         }
         
         var count = 0
         let postLikeIds = notificationPostLikes.map({ $0.contentId })
+
         PostService.fetchPosts(withPostIds: postLikeIds) { posts in
             self.postLike = posts
             
             posts.forEach { post in
                 if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == post.postId }) {
-                    
                     self.notifications[notificationIndex].post = post
                     count += 1
                     if posts.count == count {
-                        self.checkIfAllNotificationInfoIsFetched()
                         print("like posts")
+                        group.leave()
                     }
                 }
             }
         }
     }
     
-    func fetchCaseForLikeNotification() {
-        let notificationCaseLikes = notifications.filter({ $0.type == .likeCase })
+    private func fetchCaseLikes(group: DispatchGroup) {
+        group.enter()
+        let notificationCaseLikes = notifications.filter({ $0.kind == .likeCase })
+        
         guard !notificationCaseLikes.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
+            group.leave()
             print("like cases empty")
             return
         }
         
         var count = 0
         let caseLikeIds = notificationCaseLikes.map({ $0.contentId })
+
         CaseService.fetchCases(withCaseIds: caseLikeIds) { cases in
             self.caseLike = cases
             cases.forEach { clinicalCase in
@@ -204,17 +205,18 @@ class NotificationsViewController: NavigationBarViewController {
                     count += 1
                     if cases.count == count {
                         print("like cases")
-                        self.checkIfAllNotificationInfoIsFetched()
+                        group.leave()
                     }
                 }
             }
         }
     }
     
-    func fetchCommentsForPostCommentNotification() {
-        let notificationCommentPost = notifications.filter({ $0.type == .commentPost })
+    func fetchPostComments(group: DispatchGroup) {
+        group.enter()
+        let notificationCommentPost = notifications.filter({ $0.kind == .replyPost })
         guard !notificationCommentPost.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
+            group.leave()
             print("comments post empty")
             return
         }
@@ -228,20 +230,22 @@ class NotificationsViewController: NavigationBarViewController {
                     count += 1
                     if comments.count == count {
                         print("comments post")
-                        self.checkIfAllNotificationInfoIsFetched()
+                        group.leave()
                     }
                 }
             }
         }
     }
     
-    func fetchCommentsForCaseCommentNotification() {
-        let notificationCommentCase = notifications.filter({ $0.type == .commentCase })
+    private func fetchCaseComments(group: DispatchGroup) {
+        group.enter()
+        let notificationCommentCase = notifications.filter({ $0.kind == .replyCase })
         guard !notificationCommentCase.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
+            group.leave()
             print("comments case empty")
             return
         }
+        
         CommentService.fetchNotificationCaseComments(withNotifications: notificationCommentCase) { comments in
             self.comments.append(contentsOf: comments)
             var count = 0
@@ -251,173 +255,21 @@ class NotificationsViewController: NavigationBarViewController {
                     count += 1
                     if comments.count == count {
                         print("comments case")
-                        self.checkIfAllNotificationInfoIsFetched()
-                    }
-                }
-            }
-        }
-    }
-    //fetchGroupPostsForLikeNotification
-    func fetchNotificationGroups() {
-        let groupNotifications = notifications.filter { !$0.groupId.isEmpty }
-        let groupIds = groupNotifications.map { $0.groupId }
-        let uniqueGroupIds = Array(Set(groupIds))
-        
-        guard !uniqueGroupIds.isEmpty else {
-            print("no group notifications to fetch")
-            self.checkIfAllNotificationInfoIsFetched()
-            self.checkIfAllNotificationInfoIsFetched()
-            self.checkIfAllNotificationInfoIsFetched()
-            self.checkIfAllNotificationInfoIsFetched()
-            return
-        }
-        print(uniqueGroupIds)
-        GroupService.fetchGroups(withGroupIds: uniqueGroupIds) { groupsFetched in
-            self.groups = groupsFetched
-            
-            
-            self.notifications.enumerated().forEach { index, notification in
-                self.notifications[index].group = self.groups.first(where: { $0.groupId == notification.groupId })
-            }
-            
-            print("we got groups")
-            self.fetchGroupPostsForLikeNotification()
-            self.fetchGroupCaseForLikeNotification()
-            self.fetchCommentsForGroupPostCommentNotification()
-            self.fetchCommentsForGroupCaseCommentNotification()
-        }
-    }
-    
-    func fetchGroupPostsForLikeNotification() {
-        let notificationGroupPostLikes = notifications.filter { $0.type == .likeGroupPost }
-        guard !notificationGroupPostLikes.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
-            print("like group post likes empty")
-            return
-        }
-        
-        var count = 0
-        
-        //let postIds = notificationGroupPostLikes.map { $0.contentId }
-        
-        #warning("aqui falla alguna cosa")
-        notificationGroupPostLikes.forEach { notification in
-            PostService.fetchGroupPost(withGroupId: notification.groupId, withPostId: notification.contentId) { post in
-                self.groupPosts.append(post)
-                
-                self.groupPosts.forEach { post in
-                    if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == post.postId}) {
-                        self.notifications[notificationIndex].post = post
-                        count += 1
-                        if self.groupPosts.count == count {
-                            self.checkIfAllNotificationInfoIsFetched()
-                            print("like group posts")
-                        }
+                        group.leave()
                     }
                 }
             }
         }
     }
     
-    func fetchGroupCaseForLikeNotification() {
-        let notificationGroupPostLikes = notifications.filter { $0.type == .likeGroupCase }
-        guard !notificationGroupPostLikes.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
-            print("like group case likes empty")
-            return
-        }
-        
-        var count = 0
-        
-        //let postIds = notificationGroupPostLikes.map { $0.contentId }
-        
-        notificationGroupPostLikes.forEach { notification in
-            CaseService.fetchGroupCase(withGroupId: notification.groupId, withCaseId: notification.contentId) { clinicalCase in
-                self.groupCases.append(clinicalCase)
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.contentId == clinicalCase.caseId }) {
-                    self.notifications[notificationIndex].clinicalCase = clinicalCase
-                    count += 1
-                    if self.groupCases.count == count {
-                        self.checkIfAllNotificationInfoIsFetched()
-                        print("like group cases")
-                    }
-                }
-            }
-        }
+    private func handleAllNotificationInfoFetched(user: User) {
+        self.loaded = true
+        self.activityIndicator.stop()
+        self.collectionView.reloadData()
+        self.collectionView.isHidden = false
+        self.collectionView.refreshControl?.endRefreshing()
     }
-    
-    func fetchCommentsForGroupPostCommentNotification() {
-        let notificationCommentPost = notifications.filter({ $0.type == .commentGroupPost })
-        
-        guard !notificationCommentPost.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
-            print("group comments post empty")
-            return
-        }
-        
-        CommentService.fetchNotificationGroupPostComments(withNotifications: notificationCommentPost) { comments in
-            self.comments.append(contentsOf: comments)
-            var count = 0
-            comments.forEach { comment in
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.commentId == comment.id }) {
-                    self.notifications[notificationIndex].comment = comment
-                    count += 1
-                    if comments.count == count {
-                        print("comments group post")
-                        self.checkIfAllNotificationInfoIsFetched()
-                    }
-                }
-            }
-        }
-    }
-    
-    func fetchCommentsForGroupCaseCommentNotification() {
-        let notificationCommentCase = notifications.filter({ $0.type == .commentGroupCase })
-        
-        guard !notificationCommentCase.isEmpty else {
-            self.checkIfAllNotificationInfoIsFetched()
-            print("group comments case empty")
-            return
-        }
-        
-        CommentService.fetchNotificationGroupCaseComments(withNotifications: notificationCommentCase) { comments in
-            self.comments.append(contentsOf: comments)
-            var count = 0
-            comments.forEach { comment in
-                if let notificationIndex = self.notifications.firstIndex(where: { $0.commentId == comment.id }) {
-                    self.notifications[notificationIndex].comment = comment
-                    count += 1
-                    if comments.count == count {
-                        print("comments group case")
-                        self.checkIfAllNotificationInfoIsFetched()
-                    }
-                }
-            }
-        }
-    }
-    
-    
-    
-    
-    
-    /*
-     self.fetchGroupPostsForLikeNotification()
-     
-     */
-    
-    func checkIfAllNotificationInfoIsFetched() {
-        fetchedCount += 1
-        print(fetchedCount)
-        if fetchedCount == 11 {
-            print("we got all data")
-            self.loaded = true
-            self.activityIndicator.stop()
-            self.collectionView.reloadData()
-            self.collectionView.isHidden = false
-            self.collectionView.refreshControl?.endRefreshing()
-        }
-    }
-    
+
     @objc func handleRefresh() {
         HapticsManager.shared.vibrate(for: .success)
         guard notificationsFirstSnapshot != nil else {
@@ -476,7 +328,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             cell.set(withImage: UIImage(named: "notification.empty")!, withTitle: "Nothing to see here —— yet.", withDescription: "Complete your profile and connect with people you know to start receive notifications about your activity.", withButtonText: "   Learn more   ")
             return cell
         } else {
-            if notifications[indexPath.row].type.rawValue == 2 {
+            if notifications[indexPath.row].kind == .follow {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: followCellReuseIdentifier, for: indexPath) as! NotificationFollowCell
                 cell.followers = userFollowers
                 cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])

@@ -512,30 +512,7 @@ struct CommentService {
         }
     }
     
-    static func fetchNotificationGroupPostComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
-        var comments = [Comment]()
-        
-        guard !notifications.isEmpty else {
-            completion(comments)
-            return
-        }
-        
-        notifications.forEach { notification in
-            let query = COLLECTION_GROUPS.document(notification.groupId).collection("posts").document(notification.contentId).collection("comments").document(notification.commentId)
-            //COLLECTION_POSTS.document(notification.contentId).collection("comments").document(notification.commentId)
-            query.getDocument { snapshot, error in
-                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
-                    completion(comments)
-                    return
-                }
-                
-                comments.append(Comment(dictionary: data))
-                if comments.count == notifications.count {
-                    completion(comments)
-                }
-            }
-        }
-    }
+    
     
     static func fetchNotificationCaseComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
         var comments = [Comment]()
@@ -547,31 +524,6 @@ struct CommentService {
         
         notifications.forEach { notification in
             let query = COLLECTION_CASES.document(notification.contentId).collection("comments").document(notification.commentId)
-            query.getDocument { snapshot, error in
-                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
-                    completion(comments)
-                    return
-                }
-                
-                comments.append(Comment(dictionary: data))
-                if comments.count == notifications.count {
-                    print(comments)
-                    completion(comments)
-                }
-            }
-        }
-    }
-    
-    static func fetchNotificationGroupCaseComments(withNotifications notifications: [Notification], completion: @escaping([Comment]) -> Void) {
-        var comments = [Comment]()
-        
-        guard !notifications.isEmpty else {
-            completion(comments)
-            return
-        }
-        
-        notifications.forEach { notification in
-            let query = COLLECTION_GROUPS.document(notification.groupId).collection("cases").document(notification.contentId).collection("comments").document(notification.commentId)
             query.getDocument { snapshot, error in
                 guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
                     completion(comments)

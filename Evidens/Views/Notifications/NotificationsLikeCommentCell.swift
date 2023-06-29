@@ -48,7 +48,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
     private lazy var dotsImageButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        button.configuration?.image = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor!)
         button.configuration?.baseForegroundColor = .secondaryLabel
         button.configuration?.cornerStyle = .small
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -133,7 +133,7 @@ class NotificationLikeCommentCell: UICollectionViewCell {
         attributedText.append(NSAttributedString(string: user.lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
         attributedText.append(NSAttributedString(string: viewModel.notificationTypeDescription, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)]))
 
-        attributedText.append(NSAttributedString(string: viewModel.notification.type.notificationMessage + " ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
+        attributedText.append(NSAttributedString(string: viewModel.notification.kind.message + " ", attributes: [.font: UIFont.systemFont(ofSize: 14)]))
         
         //attributedText.append(NSAttributedString(string: viewModel.groupInformation, attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: UIColor.label.cgColor]))
         
@@ -159,11 +159,11 @@ class NotificationLikeCommentCell: UICollectionViewCell {
    
     @objc func handleAction() {
         guard let viewModel = viewModel else { return }
-        let type = viewModel.notification.type
-        if type == .likePost || type == .commentPost {
+        let type = viewModel.notification.kind
+        if type == .likePost || type == .replyPost {
             delegate?.cell(self, wantsToViewPost: viewModel.notification.contentId)
             return
-        } else if type == .likeCase || type == .commentCase {
+        } else if type == .likeCase || type == .replyCase {
             delegate?.cell(self, wantsToViewCase: viewModel.notification.contentId)
             return
         } else {

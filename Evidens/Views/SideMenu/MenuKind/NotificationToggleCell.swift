@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol NotificationToggleCellDelegate: AnyObject {
+    func didToggle(_ cell: UICollectionViewCell, _ value: Bool)
+}
+
 class NotificationToggleCell: UICollectionViewCell {
+    
+    weak var delegate: NotificationToggleCellDelegate?
     
     private let title: UILabel = {
         let label = UILabel()
@@ -22,6 +28,15 @@ class NotificationToggleCell: UICollectionViewCell {
         let uiSwitch = UISwitch()
         uiSwitch.translatesAutoresizingMaskIntoConstraints = false
         return uiSwitch
+    }()
+    
+    private let content: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        return label
     }()
     
     override init(frame: CGRect) {
@@ -44,6 +59,8 @@ class NotificationToggleCell: UICollectionViewCell {
             title.trailingAnchor.constraint(equalTo: uiSwitch.leadingAnchor, constant: -10),
             title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13)
         ])
+        
+        uiSwitch.addTarget(self, action: #selector(didToggleSwitch), for: .valueChanged)
     }
     
     func set(title: String) {
@@ -52,6 +69,11 @@ class NotificationToggleCell: UICollectionViewCell {
     
     func set(isOn: Bool) {
         uiSwitch.isOn = isOn
+    }
+    
+    @objc func didToggleSwitch() {
+        let isOn = uiSwitch.isOn
+        delegate?.didToggle(self, isOn)
     }
 }
 

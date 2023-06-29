@@ -8,6 +8,7 @@
 import UIKit
 
 class NotificationTargetCell: UICollectionViewCell {
+
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

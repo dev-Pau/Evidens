@@ -10,7 +10,7 @@ import UIKit
 class NotificationTargetView: UIView {
     
     private let title: String
-    private var isOn: Bool {
+    private(set) var isOn: Bool {
         didSet {
             configureImage()
         }
@@ -52,7 +52,7 @@ class NotificationTargetView: UIView {
     
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
-
+        isUserInteractionEnabled = true
         addSubviews(targetLabel, targetImageView)
         NSLayoutConstraint.activate([
             targetLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -77,5 +77,6 @@ class NotificationTargetView: UIView {
     
     func set(isOn: Bool) {
         self.isOn = isOn
+        configureImage()
     }
 }

@@ -1375,7 +1375,7 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
         case is HomeImageTextCell:
@@ -1395,7 +1395,7 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1417,7 +1417,7 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1438,7 +1438,7 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1459,7 +1459,7 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
+                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1976,7 +1976,7 @@ extension GroupPageViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeGroupCase, clinicalCase: clinicalCase)
+                    //NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeGroupCase, clinicalCase: clinicalCase)
                 }
             }
         case is CaseTextImageCell:
@@ -1996,7 +1996,7 @@ extension GroupPageViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeGroupCase, clinicalCase: clinicalCase)
+                    //NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeGroupCase, clinicalCase: clinicalCase)
                 }
             }
 

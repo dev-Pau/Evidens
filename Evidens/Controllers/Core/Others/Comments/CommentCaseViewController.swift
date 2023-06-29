@@ -386,7 +386,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 
                 self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.currentUser, comment: newComment)
                 
-                let type: Notification.NotificationType = self.clinicalCase.groupId != nil ? .commentGroupCase : .commentCase
+                let type: Notification.NotificationType = .replyCase
                 
                 NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: self.currentUser, type: type, clinicalCase: self.clinicalCase, withCommentId: commentUid)
             }

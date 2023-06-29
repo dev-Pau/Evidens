@@ -58,11 +58,18 @@ class MainTabController: UITabBarController {
     func fetchUser() {
         //Get the uid of current user
         guard let currentUser = Auth.auth().currentUser else { return }
+        print("Email Verified \(currentUser.isEmailVerified)")
+        
+        
         //Fetch user with user uid
         UserService.fetchUser(withUid: currentUser.uid) { user in
             //Set user property
             self.user = user
             self.configureViewControllers()
+            
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                NotificationService.syncPreferences(settings.authorizationStatus)
+            }
             
             UserDefaults.standard.set(user.uid, forKey: "uid")
             UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
@@ -89,15 +96,9 @@ class MainTabController: UITabBarController {
                 
             case .awaitingVerification:
                 print("awaiting verification")
-                UserDefaults.standard.set(user.uid, forKey: "uid")
-                UserDefaults.standard.set("\(user.firstName ?? "") \(user.lastName ?? "")", forKey: "name")
-                UserDefaults.standard.set(user.profileImageUrl!, forKey: "userProfileImageUrl")
-                //UserDefaults.standard.set(Appearance.Theme.system.rawValue, forKey: "themeStateEnum")
                 self.tabBar.isHidden = false
             case .verified:
                 print("main tab bar controller")
-                
-              
                 self.tabBar.isHidden = false
                 /*
                 guard let appearance = UserDefaults.standard.value(forKey: "themeStateEnum") as? String, !appearance.isEmpty else {

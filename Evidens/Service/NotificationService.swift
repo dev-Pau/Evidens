@@ -11,19 +11,89 @@ import FirebaseAuth
 
 struct NotificationService {
     
+    static func syncPreferences(_ status: UNAuthorizationStatus) {
+        switch status {
+        case .notDetermined, .denied, .provisional, .ephemeral:
+            set("enabled", false)
+        case .authorized:
+            set("enabled", true)
+        @unknown default:
+            set("enabled", false)
+        }
+    }
+    
+    static func fetchPreferences(completion: @escaping(Result<NotificationPreference?, Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        preferenceRef.getDocument { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
+                    completion(.success(nil))
+                    return
+                }
+
+                let preferences = NotificationPreference(dictionary: data)
+                print(preferences)
+                completion(.success(preferences))
+            }
+        }
+    }
+    
+    static func set(_ key: String, _ value: Bool) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        preferenceRef.setData([key: value], merge: true) { error in
+            if let error = error {
+                print("ERROR BELOW")
+                print(error)
+            } else {
+                print("Update successful")
+            }
+        }
+    }
+    
+    static func set(_ parentKey: String, _ nestedKey: String, _ value: Any) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        
+        let updateData: [String: Any] = [
+            parentKey: [
+                nestedKey: value
+            ]
+        ]
+        
+        preferenceRef.setData(updateData, merge: true) { error in
+            if let error = error {
+                print("ERROR BELOW")
+                print(error)
+            } else {
+                print("Update Nested successful")
+            }
+        }
+    }
+    
+    
     //Upload a notification to a specific user
-    
-    
+
     #warning("ADD GROUP ID TO NOTIFICATION IN CASE IT IS FROM GROUP, ADD THE CASE GROUP POST AND GROPU CASE AND BECAUSE RIGHT NOW FOR JULIA ROBERT IS NOT FETCHING GOOD")
 
     static func uploadNotification(toUid uid: String, fromUser: User, type: Notification.NotificationType, post: Post? = nil, clinicalCase: Case? = nil, withCommentId: String? = nil, job: Job? = nil) {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard type != .likePost else {
+            print("we are not sending notification")
+            return
+            
+        }
+        print("we are sending notification")
         //To avoid receiving user own notifications
         guard uid != currentUid else { return }
         if let post = post {
             
             let id = post.postId
-            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("contentId", isEqualTo: id).whereField("type", isEqualTo: type.rawValue)
+            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("contentId", isEqualTo: id).whereField("kind", isEqualTo: type.rawValue)
             notificationExists.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
                     let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
@@ -31,7 +101,7 @@ struct NotificationService {
                     var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
                                                "uid": fromUser.uid as Any,
                                                "contentId": post.postId,
-                                               "type": type.rawValue,
+                                               "kind": type.rawValue,
                                                "id": docRef.documentID]
                     
                     if let comment = withCommentId {
@@ -60,7 +130,7 @@ struct NotificationService {
         } else if let clinicalCase = clinicalCase {
             
             let id = clinicalCase.caseId
-            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("contentId", isEqualTo: id).whereField("type", isEqualTo: type.rawValue)
+            let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("contentId", isEqualTo: id).whereField("kind", isEqualTo: type.rawValue)
             notificationExists.getDocuments { snapshot, error in
                 guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
                     let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
@@ -68,7 +138,7 @@ struct NotificationService {
                     var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
                                                "uid": fromUser.uid as Any,
                                                "contentId": clinicalCase.caseId,
-                                               "type": type.rawValue,
+                                               "kind": type.rawValue,
                                                "id": docRef.documentID]
                     
                     if let comment = withCommentId {
@@ -96,14 +166,14 @@ struct NotificationService {
             }
         } else {
 
-                let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("type", isEqualTo: type.rawValue)
+                let notificationExists = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").whereField("kind", isEqualTo: type.rawValue)
                 notificationExists.getDocuments { snapshot, error in
                     guard let snapshot = snapshot, !snapshot.isEmpty, let notificationSnapshot = snapshot.documents.first else {
                         let docRef = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document()
                         
                         let data: [String: Any] = ["timestamp": Timestamp(date: Date()),
                                                    "uid": fromUser.uid as Any,
-                                                   "type": type.rawValue,
+                                                   "kind": type.rawValue,
                                                    "id": docRef.documentID]
                         docRef.setData(data)
                         return
