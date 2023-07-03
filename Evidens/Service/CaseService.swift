@@ -12,6 +12,81 @@ import AlgoliaSearchClient
 
 struct CaseService {
     
+    static func uploadCase(viewModel: ShareCaseViewModel, completion: @escaping(Error?) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let stage = viewModel.stage else { return }
+        
+        let timestamp = Timestamp()
+        
+        var data = ["title": title,
+                    "description": description,
+                    "specialities": viewModel.specialities,
+                    "details": viewModel.details,
+                    "stage": stage.rawValue,
+                    "professions": viewModel.professions,
+                    "ownerUid": uid,
+                    "privacy": viewModel.privacy.rawValue,
+                    "timestamp": timestamp,
+                    "type": viewModel.type.rawValue] as [String : Any]
+        
+        
+        let caseRef = COLLECTION_CASES.document()
+        
+        if viewModel.hasImages {
+            // Case has images
+            StorageManager.uploadCaseImage(images: viewModel.images, uid: uid) { imageUrl in
+                data["caseImageUrl"] = imageUrl
+                caseRef.setData(data) { error in
+                    if let error {
+                        completion(error)
+                    } else {
+                        if let diagnosis = viewModel.diagnosis {
+                            let caseId = caseRef.documentID
+                            
+                            let diagnosis: [String: Any] = ["content": diagnosis.content,
+                                                            "kind": diagnosis.kind.rawValue,
+                                                            "timestamp": timestamp]
+                            
+                            COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
+                                if let error = error {
+                                    completion(error)
+                                } else {
+                                    completion(nil)
+                                }
+                            }
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                }
+            }
+        } else {
+            // Case has no images
+            caseRef.setData(data) { error in
+                if let error {
+                    completion(error)
+                } else {
+                    if let diagnosis = viewModel.diagnosis {
+                        let caseId = caseRef.documentID
+                        
+                        let diagnosis: [String: Any] = ["content": diagnosis.content,
+                                                        "kind": diagnosis.kind.rawValue,
+                                                        "timestamp": timestamp]
+
+                        COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: diagnosis) { error in
+                            if let error = error {
+                                completion(error)
+                            } else {
+                                completion(nil)
+                            }
+                        }
+                    } else {
+                        completion(nil)
+                    }
+                }
+            }
+        }
+    }
+    
     static func uploadCase(privacy: Case.Privacy, caseTitle: String, caseDescription: String, caseImageUrl: [String]? = nil, specialities: [String], details: [String], stage: Case.CaseStage, diagnosis: String? = nil, type: Case.CaseType, professions: [String], completion: @escaping(Error?) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         var data = ["title": caseTitle,
@@ -343,6 +418,63 @@ struct CaseService {
                     completion(false)
                 }
                 completion(true)
+            }
+        }
+    }
+    
+    static func addCaseRevision(withCaseId caseId: String, revision: CaseRevision, completion: @escaping(Error?) -> Void) {
+        let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
+        
+        let data: [String: Any] = ["timestamp": revision.timestamp,
+                                   "content": revision.content,
+                                   "kind": revision.kind.rawValue,
+                                   "title": revision.title]
+        ref.addDocument(data: data) { error in
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    static func fetchCaseRevisions(withCaseId caseId: String, completion: @escaping(Result<[CaseRevision], Error>) -> Void) {
+        let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
+        ref.getDocuments { snapshot, error in
+            if let error {
+                completion(.failure(error))
+            } else {
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.success([]))
+                    return
+                }
+                
+                let revisions = snapshot.documents.map { CaseRevision(dictionary: $0.data() )}
+                completion(.success(revisions))
+            }
+        }
+    }
+    
+    static func updateCaseStage(to stage: Case.CaseStage, withCaseId caseId: String, withDiagnosis diagnosis: CaseRevision? = nil, completion: @escaping(Error?) -> Void) {
+        COLLECTION_CASES.document(caseId).updateData(["stage": stage.rawValue]) { error in
+            if let error {
+                completion(error)
+            } else {
+                if let diagnosis {
+                    let data: [String: Any] = ["content": diagnosis.content,
+                                               "kind": diagnosis.kind.rawValue,
+                                               "timestamp": Timestamp()]
+                    
+                    COLLECTION_CASES.document(caseId).collection("case-revisions").addDocument(data: data) { error in
+                        if let error = error {
+                            completion(error)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                } else {
+                    completion(nil)
+                }
             }
         }
     }

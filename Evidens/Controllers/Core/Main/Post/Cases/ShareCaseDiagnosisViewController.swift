@@ -44,7 +44,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         container.font = .systemFont(ofSize: 18, weight: .bold)
         button.configuration?.attributedTitle = AttributedString("Add Diagnosis", attributes: container)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(handleShareSolvedCase), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addDiagnosis), for: .touchUpInside)
         return button
     }()
     
@@ -59,7 +59,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         container.font = .systemFont(ofSize: 15, weight: .bold)
         container.foregroundColor = .label
         button.configuration?.attributedTitle = AttributedString("Share without Diagnosis", attributes: container)
-        button.addTarget(self, action: #selector(handleShareWithoutDiagnosis), for: .touchUpInside)
+        button.addTarget(self, action: #selector(shareCase), for: .touchUpInside)
         return button
     }()
     
@@ -116,146 +116,61 @@ class ShareCaseDiagnosisViewController: UIViewController {
         descriptionLabel.text = "By adding a diagnosis to your case, you can greatly contribute to the community and foster more engagement. Share your conclusions and treatment details to provide valuable insights for others.\nHowever, please note that adding a diagnosis is entirely optional."
     }
     
-    @objc func handleShareSolvedCase() {
-        let controller = CaseDiagnosisViewController(diagnosisText: viewModel.diagnosis ?? String())
+    @objc func addDiagnosis() {
+        let controller = CaseDiagnosisViewController()
         controller.delegate = self
-        let backItem = UIBarButtonItem()
-        backItem.tintColor = .label
-        backItem.title = ""
-        
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
-    
-    
-    @objc func handleShareWithoutDiagnosis() {
-        guard let title = viewModel.title, let description = viewModel.description, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        if let group = viewModel.group {
-            if viewModel.images.isEmpty {
-                GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, specialities: viewModel.specialities, details: viewModel.details, stage: viewModel.stage!, type: .text, professions: viewModel.professions) { error in
-                    
-                    self.progressIndicator.dismiss(animated: true)
-                    
-                    if let error = error {
-                        print("DEBUG: \(error.localizedDescription)")
-                        
-                        return
-                    } else {
-                        self.dismiss(animated: true)
-                        return
-                        
-                    }
-                }
+
+    @objc func shareCase() {
+        CaseService.uploadCase(viewModel: viewModel) { error in
+            if let error {
+                print(error.localizedDescription)
             } else {
-                StorageManager.uploadGroupCaseImage(images: viewModel.images, uid: uid, groupId: group.groupId) { imageUrl in
-                    GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.viewModel.specialities, details: self.viewModel.details, stage: self.viewModel.stage!, type: .textWithImage, professions: self.viewModel.professions) { error in
-                        self.progressIndicator.dismiss(animated: true)
-                        
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                            return
-                        }
-                    }
-                }
-            }
-            
-        } else {
-            if viewModel.images.isEmpty {
-                CaseService.uploadCase(privacy: viewModel.privacy, caseTitle: title, caseDescription: description, specialities: viewModel.specialities, details: viewModel.details, stage: viewModel.stage!, type: .text, professions: viewModel.professions) { error in
-                    self.progressIndicator.dismiss(animated: true)
-                    if let error = error {
-                        print(error.localizedDescription)
-                    } else {
-                        self.dismiss(animated: true)
-                        return
-                    }
-                }
-            } else {
-                StorageManager.uploadCaseImage(images: viewModel.images, uid: uid) { imageUrl in
-                    CaseService.uploadCase(privacy: self.viewModel.privacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.viewModel.specialities, details: self.viewModel.details, stage: self.viewModel.stage!, type: .textWithImage, professions: self.viewModel.professions) { error in
-                        self.progressIndicator.dismiss(animated: true)
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                            return
-                        }
-                    }
-                }
+                self.dismiss(animated: true)
             }
         }
     }
 }
 
 extension ShareCaseDiagnosisViewController: CaseDiagnosisViewControllerDelegate {
-    func handleAddDiagnosis(_ text: String, caseId: String) {
-        viewModel.diagnosis = text
-        
+    func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?) {
+        guard let diagnosis = diagnosis else { return }
+        viewModel.diagnosis = diagnosis
+        shareCase()
+    }
+    
+   
+    /*
+    func handleAddDiagnosis(diagnosis: CaseRevision, clinicalCase: Case?) {
+
         guard let title = viewModel.title, let description = viewModel.description, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         progressIndicator.show(in: view)
-        
-        if let group = viewModel.group {
-            if viewModel.images.isEmpty {
-                GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, specialities: viewModel.specialities, details: viewModel.details, stage: viewModel.stage!, type: .text, professions: viewModel.professions) { error in
-                    
-                    self.progressIndicator.dismiss(animated: true)
-                    
-                    if let error = error {
-                        print("DEBUG: \(error.localizedDescription)")
-                        
-                        return
-                    } else {
-                        self.dismiss(animated: true)
-                        return
-                        
-                    }
-                }
-            } else {
-                StorageManager.uploadGroupCaseImage(images: viewModel.images, uid: uid, groupId: group.groupId) { imageUrl in
-                    GroupService.uploadGroupCase(groupId: group.groupId, permissions: group.permissions, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.viewModel.specialities, details: self.viewModel.details, stage: self.viewModel.stage!, diagnosis: self.viewModel.diagnosis!, type: .textWithImage, professions: self.viewModel.professions) { error in
-                        self.progressIndicator.dismiss(animated: true)
-                        
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                            return
-                        }
-                    }
+        if viewModel.images.isEmpty {
+            CaseService.uploadCase(privacy: viewModel.privacy, caseTitle: title, caseDescription: description, specialities: viewModel.specialities, details: viewModel.details, stage: viewModel.stage!, diagnosis: viewModel.diagnosis?.content, type: .text, professions: viewModel.professions) { error in
+                self.progressIndicator.dismiss(animated: true)
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    self.dismiss(animated: true)
+                    return
                 }
             }
-            
         } else {
-            if viewModel.images.isEmpty {
-                CaseService.uploadCase(privacy: viewModel.privacy, caseTitle: title, caseDescription: description, specialities: viewModel.specialities, details: viewModel.details, stage: viewModel.stage!, diagnosis: viewModel.diagnosis!, type: .text, professions: viewModel.professions) { error in
+            StorageManager.uploadCaseImage(images: viewModel.images, uid: uid) { imageUrl in
+                CaseService.uploadCase(privacy: self.viewModel.privacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.viewModel.specialities, details: self.viewModel.details, stage: self.viewModel.stage!, diagnosis: self.viewModel.diagnosis?.content, type: .textWithImage, professions: self.viewModel.professions) { error in
                     self.progressIndicator.dismiss(animated: true)
                     if let error = error {
-                        print(error.localizedDescription)
+                        print("DEBUG: \(error.localizedDescription)")
+                        return
                     } else {
                         self.dismiss(animated: true)
                         return
-                    }
-                }
-            } else {
-                StorageManager.uploadCaseImage(images: viewModel.images, uid: uid) { imageUrl in
-                    CaseService.uploadCase(privacy: self.viewModel.privacy, caseTitle: title, caseDescription: description, caseImageUrl: imageUrl, specialities: self.viewModel.specialities, details: self.viewModel.details, stage: self.viewModel.stage!, diagnosis: self.viewModel.diagnosis!, type: .textWithImage, professions: self.viewModel.professions) { error in
-                        self.progressIndicator.dismiss(animated: true)
-                        if let error = error {
-                            print("DEBUG: \(error.localizedDescription)")
-                            return
-                        } else {
-                            self.dismiss(animated: true)
-                            return
-                        }
                     }
                 }
             }
         }
+
     }
+     */
 }

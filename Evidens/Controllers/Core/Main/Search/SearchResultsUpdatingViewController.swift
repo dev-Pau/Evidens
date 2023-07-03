@@ -785,7 +785,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                         if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                         cell.delegate = self
                         return cell
-                    case .textWithImage:
+                    case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                         cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
                         if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
@@ -913,7 +913,7 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                     if indexPath.row == topCases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     cell.delegate = self
                     return cell
-                case .textWithImage:
+                case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: topCases[indexPath.row])
                     if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == topCases[indexPath.row].ownerUid }) {
@@ -1154,7 +1154,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.topPosts[indexPath.row].didLike = true
                     self.topPosts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: self.user, type: .likePost, post: post)
                 }
             }
         case is HomeImageTextCell:
@@ -1174,7 +1173,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.topPosts[indexPath.row].didLike = true
                     self.topPosts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: self.user, type: .likePost, post: post)
                 }
             }
             
@@ -1196,7 +1194,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.topPosts[indexPath.row].didLike = true
                     self.topPosts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: self.user, type: .likePost, post: post)
                 }
             }
             
@@ -1217,7 +1214,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.topPosts[indexPath.row].didLike = true
                     self.topPosts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: self.user, type: .likePost, post: post)
                 }
             }
             
@@ -1238,7 +1234,6 @@ extension SearchResultsUpdatingViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.topPosts[indexPath.row].didLike = true
                     self.topPosts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: self.user, type: .likePost, post: post)
                 }
             }
             
@@ -1465,7 +1460,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.topCases[indexPath.row].didLike = true
                     self.topCases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: self.user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
@@ -1485,7 +1479,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.topCases[indexPath.row].didLike = true
                     self.topCases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: self.user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
         default:
@@ -1512,7 +1505,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.topCases[indexPath.row].didBookmark = true
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -1530,7 +1522,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.topCases[indexPath.row].didBookmark = true
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
         default:
@@ -1552,8 +1543,6 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
-        case .edit:
-            break
         }
     }
     
@@ -1577,8 +1566,7 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
         if let userIndex = topCaseUsers.firstIndex(where: { $0.uid == clinicalCase.ownerUid }) {
-            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: topCaseUsers[userIndex])
-            controller.controllerIsPushed = true
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: topCaseUsers[userIndex])
 
             let backItem = UIBarButtonItem()
             backItem.title = ""
@@ -1824,7 +1812,7 @@ extension SearchResultsUpdatingViewController: CommentCaseViewControllerDelegate
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
                 
-            case .textWithImage:
+            case .image:
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextImageCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
             }
@@ -1833,6 +1821,12 @@ extension SearchResultsUpdatingViewController: CommentCaseViewControllerDelegate
 }
 
 extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate {
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) { }
+    
     func didTapLikeAction(forCase clinicalCase: Case) {
         let index = topCases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -1877,10 +1871,6 @@ extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate
         }
     }
     
-    func didAddUpdate(forCase clinicalCase: Case) { }
-    
-    func didAddDiagnosis(forCase clinicalCase: Case) { }
-    
     func didDeleteComment(forCase clinicalCase: Case) {
         if let caseIndex = topCases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             topCases[caseIndex].numberOfComments -= 1
@@ -1890,7 +1880,7 @@ extension SearchResultsUpdatingViewController: DetailsCaseViewControllerDelegate
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
                 
-            case .textWithImage:
+            case .image:
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: isInSearchCategoryMode ? 0 : 2)) as! CaseTextImageCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
             }

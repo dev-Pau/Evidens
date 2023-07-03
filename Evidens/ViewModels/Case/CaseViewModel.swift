@@ -12,7 +12,7 @@ struct CaseViewModel {
     var clinicalCase: Case
     
     var caseTitle: String {
-        return clinicalCase.caseTitle
+        return clinicalCase.title
     }
     
     var caseIsAnonymous: Bool {
@@ -20,15 +20,15 @@ struct CaseViewModel {
     }
     
     var caseDescription: String {
-        return clinicalCase.caseDescription
+        return clinicalCase.description
     }
     
     var caseSpecialities: [String] {
-        return clinicalCase.caseSpecialities
+        return clinicalCase.specialities
     }
     
     var caseTypeDetails: [String] {
-        return clinicalCase.caseTypeDetails
+        return clinicalCase.details
     }
     
     var caseTags: [String] {
@@ -63,13 +63,13 @@ struct CaseViewModel {
         var caseInfoArray = [String]()
         caseInfoArray.append(caseStageString)
         
-        if caseResolvedWithDiagnosis {
+        if hasDiagnosis {
             caseInfoArray.append("Diagnosis")
-        } else if caseHasUpdates {
-            caseInfoArray.append("Updates")
+        } else if hasUpdates {
+            caseInfoArray.append("Revisions")
         }
         
-        if clinicalCase.type == .textWithImage {
+        if clinicalCase.type == .image {
             caseInfoArray.append("Images")
         }
         
@@ -82,10 +82,10 @@ struct CaseViewModel {
         var caseInfoArray = [String]()
         caseInfoArray.append(caseStageString)
         
-        if caseResolvedWithDiagnosis {
+        if hasDiagnosis {
             caseInfoArray.append("Diagnosis")
-        } else if caseHasUpdates {
-            caseInfoArray.append("Updates")
+        } else if hasUpdates {
+            caseInfoArray.append("Revisions")
         }
         
         caseInfoArray.append(contentsOf: caseProfessions)
@@ -99,17 +99,6 @@ struct CaseViewModel {
     
     var privacyImage: UIImage {
         switch clinicalCase.privacyOptions {
-            /*
-             case 0:
-                 return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-             case 1:
-                 return UIImage(systemName: "person.2.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-             case 2:
-                 return UIImage(systemName: "lock.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-             default:
-                 return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
-             }
-             */
         case .visible:
             return UIImage(systemName: "globe.europe.africa.fill")!.scalePreservingAspectRatio(targetSize: CGSize(width: 11.6, height: 11.6))
         case .nonVisible:
@@ -167,12 +156,12 @@ struct CaseViewModel {
         return clinicalCase.stage.rawValue == 0 ? .systemGreen : .label
     }
     
-    var caseResolvedWithDiagnosis: Bool {
-        return clinicalCase.stage.rawValue == 0 && !diagnosisText.isEmpty ? true : false
+    var hasDiagnosis: Bool {
+        return clinicalCase.stage == .resolved && clinicalCase.revision == .diagnosis ? true : false
     }
     
-    var caseHasUpdates: Bool {
-        return clinicalCase.caseUpdates.isEmpty ? false : true
+    var hasUpdates: Bool {
+        return clinicalCase.revision == .update
     }
     
     var diagnosisText: String {
@@ -272,17 +261,5 @@ struct CaseViewModel {
     var bookMarkImage: UIImage? {
         let imageName = clinicalCase.didBookmark ? "bookmark.fill" : "bookmark"
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
-    }
-    
-    var viewsText: String {
-        if clinicalCase.numberOfViews > 1 {
-            return "\(clinicalCase.numberOfViews) views"
-        }
-        else if clinicalCase.numberOfViews == 1 {
-            return "\(clinicalCase.numberOfViews) view"
-        }
-        else {
-            return ""
-        }
     }
 }

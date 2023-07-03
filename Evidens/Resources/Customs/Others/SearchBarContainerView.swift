@@ -77,14 +77,14 @@ class MENavigationBarTitleView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        translatesAutoresizingMaskIntoConstraints = true
+        
         NSLayoutConstraint.activate([
-            fullNameLabel.topAnchor.constraint(equalTo: topAnchor),
-            fullNameLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            fullNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            
+            fullNameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            fullNameLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -8),
+                    
+            categoryLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             categoryLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),
-            categoryLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            categoryLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
     }
 }

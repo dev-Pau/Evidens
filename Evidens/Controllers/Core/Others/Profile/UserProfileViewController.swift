@@ -834,14 +834,16 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                 cell.configure(user: user)
                 return cell
             } else {
+                let currentCase = recentCases[indexPath.row]
                 
-                if recentCases[indexPath.row].type.caseType == 0 {
+                switch currentCase.type {
+                case .text:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextCellReuseIdentifier, for: indexPath) as! UserProfileCaseTextCell
                     cell.user = user
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
                     if indexPath.row == recentCases.count - 1 { cell.separatorView.isHidden = true } else { cell.separatorView.isHidden = false }
                     return cell
-                } else {
+                case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! UserProfileCaseImageCell
                     cell.user = user
                     cell.viewModel = CaseViewModel(clinicalCase: recentCases[indexPath.row])
@@ -849,7 +851,6 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
                     return cell
                 }
             }
-            
         } else if indexPath.section == 4 {
             // Comments
             if recentComments.count != 0 {
@@ -1219,7 +1220,6 @@ extension UserProfileViewController: UserProfileHeaderCellDelegate {
                     currentCell.viewModel?.user.isFollowed = true
                     currentCell.isUpdatingFollowState = false
                     currentCell.updateButtonAfterAction = true
-                    NotificationService.uploadNotification(toUid: uid, fromUser: currentUser, type: .follow)
                     self.delegate?.didFollowUser(user: user, didFollow: true)
                     //Update user feed posts related to the followed user
                     #warning("we need to fetch user stats again")

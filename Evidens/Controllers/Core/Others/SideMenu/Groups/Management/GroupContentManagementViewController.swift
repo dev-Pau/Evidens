@@ -458,7 +458,7 @@ extension GroupContentManagementViewController: UICollectionViewDelegate, UIColl
                         cell.configureWithReviewOptions()
                         cell.delegate = self
                         return cell
-                    case .textWithImage:
+                    case .image:
                         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                         cell.reviewDelegate = self
                         cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])

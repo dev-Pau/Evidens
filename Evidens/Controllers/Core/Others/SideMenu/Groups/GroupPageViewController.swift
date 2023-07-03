@@ -1031,7 +1031,7 @@ extension GroupPageViewController: UICollectionViewDelegateFlowLayout, UICollect
             cell.delegate = self
             if let userIndex = userIndex { cell.set(user: users[userIndex]) }
             return cell
-        case .textWithImage:
+        case .image:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
             cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
             cell.delegate = self
@@ -1375,7 +1375,6 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
         case is HomeImageTextCell:
@@ -1395,7 +1394,6 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1417,7 +1415,6 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1438,7 +1435,6 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1459,7 +1455,6 @@ extension GroupPageViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likeGroupPost, post: post)
                 }
             }
             
@@ -1976,7 +1971,6 @@ extension GroupPageViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeGroupCase, clinicalCase: clinicalCase)
                 }
             }
         case is CaseTextImageCell:
@@ -1996,7 +1990,6 @@ extension GroupPageViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    //NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeGroupCase, clinicalCase: clinicalCase)
                 }
             }
 
@@ -2066,18 +2059,18 @@ extension GroupPageViewController: CaseCellDelegate {
         case .delete:
             print("delete")
         case .update:
-            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-            controller.controllerIsPushed = true
+
             controller.delegate = self
             controller.groupId = group.groupId
             navigationController?.pushViewController(controller, animated: true)
             
         case .solved:
-            let controller = CaseDiagnosisViewController(diagnosisText: "")
+            let controller = CaseDiagnosisViewController()
             controller.stageIsUpdating = true
             controller.groupId = group.groupId
             controller.delegate = self
@@ -2088,15 +2081,6 @@ extension GroupPageViewController: CaseCellDelegate {
         case .report:
             let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
             reportPopup.showTopPopup(inView: self.view)
-        case .edit:
-            let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
-            controller.diagnosisIsUpdating = true
-            controller.groupId = group.groupId
-            controller.delegate = self
-            controller.caseId = clinicalCase.caseId
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true)
         }
     }
     
@@ -2115,8 +2099,8 @@ extension GroupPageViewController: CaseCellDelegate {
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
-        controller.controllerIsPushed = true
+        let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
+
         //displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -2183,7 +2167,7 @@ extension GroupPageViewController: CommentCaseViewControllerDelegate {
                 let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
                 cell.viewModel?.clinicalCase.numberOfComments += 1
                 
-            case .textWithImage:
+            case .image:
                 let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
                 cell.viewModel?.clinicalCase.numberOfComments += 1
             }
@@ -2192,6 +2176,34 @@ extension GroupPageViewController: CommentCaseViewControllerDelegate {
 }
 
 extension GroupPageViewController: DetailsCaseViewControllerDelegate {
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        if contentIndexSelected == .all {
+            if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
+                let indexPath = IndexPath(item: index, section: 1)
+                if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+                    if let diagnosis {
+                        cases[caseIndex].revision = diagnosis
+                    }
+
+                    cases[caseIndex].stage = .resolved
+                    collectionView.reloadItems(at: [indexPath])
+                } else { return }
+            } else { return }
+        } else {
+            if let index = cases.firstIndex(where: { $0.groupId == clinicalCase.caseId }) {
+                if let diagnosis {
+                    cases[index].revision = diagnosis
+                }
+                cases[index].stage = .resolved
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
+            } else { return }
+        }
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) {
+        
+    }
+    
     func didDeleteComment(forCase clinicalCase: Case) {
         var indexPath = IndexPath()
         if contentIndexSelected == .all {
@@ -2212,7 +2224,7 @@ extension GroupPageViewController: DetailsCaseViewControllerDelegate {
         case .text:
             let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
             cell.viewModel?.clinicalCase.numberOfComments += 1
-        case .textWithImage:
+        case .image:
             let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
             cell.viewModel?.clinicalCase.numberOfComments += 1
         }
@@ -2275,7 +2287,7 @@ extension GroupPageViewController: DetailsCaseViewControllerDelegate {
         case .text:
             let cell = collectionView.cellForItem(at: indexPath) as! CaseTextCell
             cell.viewModel?.clinicalCase.numberOfComments += 1
-        case .textWithImage:
+        case .image:
             let cell = collectionView.cellForItem(at: indexPath) as! CaseTextImageCell
             cell.viewModel?.clinicalCase.numberOfComments += 1
         }
@@ -2297,44 +2309,25 @@ extension GroupPageViewController: DetailsCaseViewControllerDelegate {
             } else { return }
         }
     }
-    
-    func didAddDiagnosis(forCase clinicalCase: Case) {
+}
 
+extension GroupPageViewController: CaseDiagnosisViewControllerDelegate {
+    func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?) {
+        guard let clinicalCase = clinicalCase else { return }
+        // just search the case and add
         if contentIndexSelected == .all {
             if let index = content.firstIndex(where: { $0.id == clinicalCase.caseId }) {
                 let indexPath = IndexPath(item: index, section: 1)
                 if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-                    cases[caseIndex].diagnosis = clinicalCase.diagnosis
                     cases[caseIndex].stage = .resolved
+                    if let diagnosis { cases[caseIndex].revision = diagnosis.kind }
                     collectionView.reloadItems(at: [indexPath])
                 } else { return }
             } else { return }
         } else {
             if let index = cases.firstIndex(where: { $0.groupId == clinicalCase.caseId }) {
-                cases[index].diagnosis = clinicalCase.diagnosis
                 cases[index].stage = .resolved
-                collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
-            } else { return }
-        }
-    }
-}
-
-extension GroupPageViewController: CaseDiagnosisViewControllerDelegate {
-    func handleAddDiagnosis(_ text: String, caseId: String) {
-        // just search the case and add
-        if contentIndexSelected == .all {
-            if let index = content.firstIndex(where: { $0.id == caseId }) {
-                let indexPath = IndexPath(item: index, section: 1)
-                if let caseIndex = cases.firstIndex(where: { $0.caseId == caseId }) {
-                    cases[caseIndex].diagnosis = text
-                    cases[caseIndex].stage = .resolved
-                    collectionView.reloadItems(at: [indexPath])
-                } else { return }
-            } else { return }
-        } else {
-            if let index = cases.firstIndex(where: { $0.groupId == caseId }) {
-                cases[index].diagnosis = text
-                cases[index].stage = .resolved
+                if let diagnosis { cases[index].revision = diagnosis.kind }
                 collectionView.reloadItems(at: [IndexPath(item: index, section: 1)])
             } else { return }
         }
@@ -2342,6 +2335,8 @@ extension GroupPageViewController: CaseDiagnosisViewControllerDelegate {
 }
 
 extension GroupPageViewController: CaseUpdatesViewControllerDelegate {
+    func didAddRevision(to clinicalCase: Case, _ revision: CaseRevision) { }
+    
     func didAddUpdateToCase(withUpdates updates: [String], caseId: String) {
         // just search the case and add
         if contentIndexSelected == .all {

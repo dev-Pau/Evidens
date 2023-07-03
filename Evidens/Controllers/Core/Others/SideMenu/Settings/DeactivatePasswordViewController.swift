@@ -34,7 +34,7 @@ class DeactivatePasswordViewController: UIViewController {
     }()
 
     private let passwordTextField: UITextField = {
-        let tf = InputTextField(placeholder: "Password", secureTextEntry: true)
+        let tf = InputTextField(placeholder: "Password", secureTextEntry: true, title: "Password")
         return tf
     }()
     

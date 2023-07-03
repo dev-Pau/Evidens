@@ -156,9 +156,9 @@ extension UIViewController {
     }
     
     func dismissDiagnosisAlert(completion: @escaping() -> Void) {
-        let alert = UIAlertController(title: "Skip diagnosis", message: "Are you sure you want to solve this case without adding a diagnosis?", preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "Add", style: UIAlertAction.Style.cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Skip", style: UIAlertAction.Style.destructive, handler: { _ in
+        let alert = UIAlertController(title: "Skip Diagnosis", message: "Are you sure you want to solve this case without adding a diagnosis?", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Add Diagnosis", style: UIAlertAction.Style.cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Solve without Diagnosis", style: UIAlertAction.Style.default, handler: { _ in
             completion()
         }))
         self.present(alert, animated: true, completion: nil)

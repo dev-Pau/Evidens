@@ -80,7 +80,7 @@ class CommentCaseViewController: UICollectionViewController {
         // Append the title of the case as comment
         comments.append(Comment(dictionary: [
             "anonymous": clinicalCase.privacyOptions == .nonVisible ? true : false,
-            "comment": clinicalCase.caseTitle as String,
+            "comment": clinicalCase.title as String,
             "timestamp": clinicalCase.timestamp as Any,
             "uid": user.uid as Any,
             "isAuthor": true as Bool,
@@ -353,7 +353,7 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 let caseUid = ids[1]
                 
                 if self.type == .regular {
-                    DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.caseTitle, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in }
+                    DatabaseManager.shared.uploadRecentComments(withCommentUid: commentUid, withRefUid: caseUid, title: self.clinicalCase.title, comment: comment, type: .clinlicalCase, withTimestamp: Date()) { uploaded in }
                 }
                
                 self.clinicalCase.numberOfComments += 1
@@ -385,10 +385,6 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
                 self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
                 
                 self.delegate?.didCommentCase(clinicalCase: self.clinicalCase, user: self.currentUser, comment: newComment)
-                
-                let type: Notification.NotificationType = .replyCase
-                
-                NotificationService.uploadNotification(toUid: self.clinicalCase.ownerUid, fromUser: self.currentUser, type: type, clinicalCase: self.clinicalCase, withCommentId: commentUid)
             }
         }
     }

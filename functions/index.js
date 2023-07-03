@@ -7,19 +7,20 @@ admin.initializeApp();
 const { object } = require('firebase-functions/v1/storage');
 const { firestore } = require('firebase-admin');
 
-const { sendNotification, addNotificationOnLike } = require('./notifications');
+const { sendNotification, addNotificationOnPostLike, addNotificationOnCaseLike, addNotificationOnCaseRevision, addNotificationOnPostComment, addNotificationOnCaseComment, addNotificationOnNewFollower, sendNotificationOnNewMessage } = require('./notifications');
 
 const db = admin.firestore();
 
 const APP_NAME = 'EVIDENS';
 
-
-
-
 exports.sendNotification = sendNotification;
-exports.addNotificationOnLike = addNotificationOnLike
-
-
+exports.addNotificationOnPostLike = addNotificationOnPostLike;
+exports.addNotificationOnCaseLike = addNotificationOnCaseLike;
+exports.addNotificationOnCaseRevision = addNotificationOnCaseRevision;
+exports.addNotificationOnPostComment = addNotificationOnPostComment;
+exports.addNotificationOnCaseComment = addNotificationOnCaseComment;
+exports.addNotificationOnNewFollower = addNotificationOnNewFollower;
+exports.sendNotificationOnNewMessage = sendNotificationOnNewMessage;
 
 exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(async (snapshot, context) => {
     const userId = context.params.userId;
@@ -28,15 +29,15 @@ exports.onUserCreate = functions.firestore.document('users/{userId}').onCreate(a
       enabled: false,
       reply: {
         value: true,
-        replyTarget: 1, // Update with your desired default value for replyTarget
+        replyTarget: 0, // Update with your desired default value for replyTarget
       },
       like: {
         value: true,
-        likeTarget: 1, // Update with your desired default value for likeTarget
+        likeTarget: 0, // Update with your desired default value for likeTarget
       },
       follower: true,
-      message: true,
-      trackCase: true
+      message: false,
+      trackCase: false
     };
 
     try {

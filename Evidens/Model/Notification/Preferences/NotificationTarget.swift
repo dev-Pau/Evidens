@@ -9,5 +9,4 @@ import Foundation
 
 enum NotificationTarget: Int {
     case follow, anyone
-    
 }

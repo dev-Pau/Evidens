@@ -235,20 +235,19 @@ extension CaseViewController: CaseCellDelegate {
             #warning("Implement delete")
             print("delete")
         case .update:
-            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-            
-            controller.controllerIsPushed = true
+
 #warning("Implement delegate")
             controller.delegate = self
             
             navigationController?.pushViewController(controller, animated: true)
         case .solved:
-            let controller = CaseDiagnosisViewController(diagnosisText: "")
+            let controller = CaseDiagnosisViewController()
             controller.stageIsUpdating = true
 #warning("Implement delete")
             controller.delegate = self
@@ -259,15 +258,6 @@ extension CaseViewController: CaseCellDelegate {
         case .report:
             let reportPopup = METopPopupView(title: "Case successfully reported", image: "checkmark.circle.fill", popUpType: .regular)
             reportPopup.showTopPopup(inView: self.view)
-        case .edit:
-            let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
-            controller.diagnosisIsUpdating = true
-#warning("Implement delete")
-            controller.delegate = self
-            controller.caseId = clinicalCase.caseId
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true)
         }
     }
     
@@ -309,8 +299,8 @@ extension CaseViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
 
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
-        controller.controllerIsPushed = true
+        let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
+
         displayState = .others
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -345,7 +335,6 @@ extension CaseViewController: CaseCellDelegate {
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.cases[indexPath.row].didBookmark = true
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -363,7 +352,6 @@ extension CaseViewController: CaseCellDelegate {
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.cases[indexPath.row].didBookmark = true
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
         default:
@@ -397,7 +385,6 @@ extension CaseViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
@@ -417,7 +404,6 @@ extension CaseViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
         default:
@@ -490,14 +476,7 @@ extension CaseViewController {
 }
 
 extension CaseViewController: DetailsCaseViewControllerDelegate {
-    func didDeleteComment(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.ownerUid == clinicalCase.caseId }) {
-            cases[caseIndex].numberOfComments += 1
-            collectionView.reloadData()
-        }
-    }
-    
-    func didAddDiagnosis(forCase clinicalCase: Case) {
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
                 return true
@@ -507,26 +486,29 @@ extension CaseViewController: DetailsCaseViewControllerDelegate {
         }
         
         if let index = index {
-            cases[index].diagnosis = clinicalCase.diagnosis
             cases[index].stage = .resolved
+            if let diagnosis {
+                cases[index].revision = diagnosis
+            }
+
             collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }
     
-    func didAddUpdate(forCase clinicalCase: Case) {
-        let index = cases.firstIndex { homeCase in
-            if homeCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            cases[index].caseUpdates = clinicalCase.caseUpdates
+    func didAddRevision(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.ownerUid == clinicalCase.caseId }) {
+            cases[caseIndex].revision = clinicalCase.revision
             collectionView.reloadData()
         }
     }
-    
+
+    func didDeleteComment(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.ownerUid == clinicalCase.caseId }) {
+            cases[caseIndex].numberOfComments += 1
+            collectionView.reloadData()
+        }
+    }
+
     func didTapLikeAction(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -596,25 +578,19 @@ extension CaseViewController: CommentCaseViewControllerDelegate {
 }
 
 extension CaseViewController: CaseUpdatesViewControllerDelegate {
-    func didAddUpdateToCase(withUpdates updates: [String], caseId: String) {
-        let index = cases.firstIndex { homeCase in
-            if homeCase.caseId == caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            cases[index].caseUpdates = updates
-            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+    func didAddRevision(to clinicalCase: Case, _ revision: CaseRevision) {
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[index].revision = revision.kind
+            collectionView.reloadData()
         }
     }
 }
 
 extension CaseViewController: CaseDiagnosisViewControllerDelegate {
-    func handleAddDiagnosis(_ text: String, caseId: String) {
+    func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?) {
+        guard let clinicalCase = clinicalCase else { return }
         let index = cases.firstIndex { homeCase in
-            if homeCase.caseId == caseId {
+            if homeCase.caseId == clinicalCase.caseId {
                 return true
             }
             return false
@@ -622,10 +598,8 @@ extension CaseViewController: CaseDiagnosisViewControllerDelegate {
         
         if let index = index {
             cases[index].stage = .resolved
-            cases[index].diagnosis = text
+            if let diagnosis { cases[index].revision = diagnosis.kind }
             collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }
-    
-    
 }

@@ -8,8 +8,9 @@
 import UIKit
 import SDWebImage
 
-protocol CommentInputAccessoryViewDelegate: AnyObject {
+@objc protocol CommentInputAccessoryViewDelegate: AnyObject {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String)
+    @objc optional func textDidChange(_ inputView: CommentInputAccessoryView)
 }
 
 class CommentInputAccessoryView: UIView {
@@ -154,6 +155,7 @@ class CommentInputAccessoryView: UIView {
 
 extension CommentInputAccessoryView: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        accessoryViewDelegate?.textDidChange?(self)
         postRoundedButton.isEnabled = commentTextView.text.isEmpty ? false : true
     }
 }

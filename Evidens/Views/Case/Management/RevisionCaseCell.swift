@@ -1,21 +1,20 @@
 //
-//  DiagnosisCaseCell.swift
+//  UpdateCaseCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 27/10/22.
+//  Created by Pau Fernández Solà on 14/8/22.
 //
 
 import UIKit
 
-class DiagnosisCaseCell: UICollectionViewCell {
-    
+class RevisionCaseCell: UICollectionViewCell {
     
     var viewModel: RevisionKindViewModel? {
         didSet {
             configureWithRevision()
         }
     }
-    
+
     var authorLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -39,6 +38,15 @@ class DiagnosisCaseCell: UICollectionViewCell {
         iv.image = UIImage(named: "user.profile.privacy")
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
+    }()
+    
+    var titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        return label
     }()
     
     var contentLabel: UILabel = {
@@ -66,7 +74,6 @@ class DiagnosisCaseCell: UICollectionViewCell {
         return view
     }()
     
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -77,7 +84,8 @@ class DiagnosisCaseCell: UICollectionViewCell {
     }
     
     private func configure() {
-        addSubviews(authorLabel, imageView, revisionLabel, contentLabel, separatorView)
+        addSubviews(authorLabel, imageView, revisionLabel, titleLabel, contentLabel, separatorView)
+        
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -91,9 +99,13 @@ class DiagnosisCaseCell: UICollectionViewCell {
             revisionLabel.topAnchor.constraint(equalTo: authorLabel.topAnchor),
             revisionLabel.leadingAnchor.constraint(equalTo: authorLabel.trailingAnchor),
 
-            contentLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor, constant: 5),
-            contentLabel.leadingAnchor.constraint(equalTo: authorLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor, constant: 5),
+            titleLabel.leadingAnchor.constraint(equalTo: authorLabel.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
+            contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -101,12 +113,13 @@ class DiagnosisCaseCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
-        
+
         imageView.layer.cornerRadius = 40 / 2
     }
     
     private func configureWithRevision() {
         guard let viewModel = viewModel else { return }
+        titleLabel.text = viewModel.title
         contentLabel.text = viewModel.content
         revisionLabel.text = AppStrings.Characters.dot + viewModel.timestamp
         authorLabel.text = viewModel.kind

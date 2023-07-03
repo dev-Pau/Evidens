@@ -11,20 +11,20 @@ import Firebase
 /// The model for a Case.
 struct Case {
     
-    var caseTitle: String
-    var caseDescription: String
-    var caseSpecialities: [String]
-    var caseTypeDetails: [String]
+    var title: String
+    var description: String
+    var specialities: [String]
+    var details: [String]
     var caseUpdates: [String]
-    var likes: Int
-    var numberOfComments: Int
+
     var numberOfViews: Int
     var numberOfBookmarks: Int
     let ownerUid: String
     var groupId: String?
     let timestamp: Timestamp
+    var revision: CaseRevisionKind
     let caseId: String
-    let type: CaseType
+    var type: CaseKind
     let professions: [String]
     var stage: CaseStage
     let privacyOptions: Privacy
@@ -33,6 +33,8 @@ struct Case {
     
     var didLike = false
     var didBookmark = false
+    var likes: Int
+    var numberOfComments: Int
     
     /// Initializes a new instance of a Case using a dictionary.
     ///
@@ -42,21 +44,22 @@ struct Case {
     ///     - Value: The value associated with the key.
     init(caseId: String, dictionary: [String: Any]) {
         self.caseId = caseId
-        self.caseTitle = dictionary["title"] as? String ?? ""
-        self.caseDescription = dictionary["description"] as? String ?? ""
-        self.caseSpecialities = dictionary["specialities"] as? [String] ?? [""]
+        self.title = dictionary["title"] as? String ?? ""
+        self.description = dictionary["description"] as? String ?? ""
+        self.specialities = dictionary["specialities"] as? [String] ?? [""]
         self.caseUpdates = dictionary["updates"] as? [String] ?? []
-        self.caseTypeDetails = dictionary["details"] as? [String] ?? [""]
+        self.details = dictionary["details"] as? [String] ?? [""]
         self.likes = dictionary["likes"] as? Int ?? 0
         self.numberOfBookmarks = dictionary["bookmarks"] as? Int ?? 0
         self.stage = CaseStage(rawValue: dictionary["stage"] as? Int ?? 0) ?? .unresolved
         self.numberOfComments = dictionary["comments"] as? Int ?? 0
+        self.revision = CaseRevisionKind(rawValue: dictionary["revision"] as? Int ?? 0) ?? .clear
         self.numberOfViews = dictionary["views"] as? Int ?? 0
         self.diagnosis = dictionary["diagnosis"] as? String ?? ""
         self.ownerUid = dictionary["ownerUid"] as? String ?? ""
         self.groupId = dictionary["groupId"] as? String ?? nil
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.type = CaseType(rawValue: dictionary["type"] as? Int ?? 0) ?? .text
+        self.type = CaseKind(rawValue: dictionary["type"] as? Int ?? 0) ?? .text
         self.caseImageUrl = dictionary["caseImageUrl"] as? [String] ?? [""]
         self.professions = dictionary["professions"] as? [String] ?? [""]
         self.privacyOptions = Privacy(rawValue: dictionary["privacy"] as? Int ?? 0) ?? .visible
@@ -109,7 +112,7 @@ extension Case {
         case delete = "Delete this Case"
         case update = "Add Case Update"
         case solved = "Change to Solved"
-        case edit = "Edit Case Diagnosis"
+        //case edit = "Edit Case Diagnosis"
         case report = "Report Case"
         
         var menuOptionsImage: UIImage {
@@ -120,8 +123,8 @@ extension Case {
                 return UIImage(systemName: "book", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
             case .solved:
                 return UIImage(systemName: "checkmark.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
-            case .edit:
-                return UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
+            //case .edit:
+              //  return UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
             case .report:
                 return UIImage(systemName: "flag", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))!
             }

@@ -18,6 +18,7 @@ class InputTextView: UITextView {
     let placeholderLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -28,11 +29,15 @@ class InputTextView: UITextView {
                 placeholderLabel.anchor(left: leftAnchor, right: rightAnchor)
                 placeholderLabel.centerY(inView: self)
             } else {
-                placeholderLabel.anchor(top: topAnchor, left: leftAnchor)
+                NSLayoutConstraint.activate([
+                    placeholderLabel.topAnchor.constraint(equalTo: topAnchor),
+                    placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+                    placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
+                ])
             }
         }
     }
-    
+
     //MARK: - Lifecycle
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {

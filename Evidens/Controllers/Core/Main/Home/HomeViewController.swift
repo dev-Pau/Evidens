@@ -745,7 +745,6 @@ extension HomeViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
         case is HomeImageTextCell:
@@ -765,7 +764,6 @@ extension HomeViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -787,7 +785,6 @@ extension HomeViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -808,7 +805,6 @@ extension HomeViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -829,7 +825,6 @@ extension HomeViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             

@@ -22,12 +22,5 @@ enum NotificationKind: Int, CaseIterable {
         case .trackCase: return ", whose case you saved, has added a new update to their case"
         }
     }
-    
-    /*
-     
-     Cloud functions made:
-     - Like
-     
-     */
 }
 

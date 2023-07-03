@@ -366,7 +366,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
 }
 
 extension NotificationsViewController: NotificationCellDelegate {
-    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: Notification.NotificationMenuOptions) {
+    func cell(_ cell: UICollectionViewCell, didPressThreeDotsFor notification: Notification, option: NotificationMenu) {
         
         switch option {
         case .delete:
@@ -404,7 +404,6 @@ extension NotificationsViewController: NotificationCellDelegate {
                 currentCell.isUpdatingFollowingState = false
                 currentCell.setNeedsUpdateConfiguration()
                 PostService.updateUserFeedAfterFollowing(userUid: uid, didFollow: true)
-                NotificationService.uploadNotification(toUid: uid, fromUser: user, type: .follow)
             }
         default:
             break

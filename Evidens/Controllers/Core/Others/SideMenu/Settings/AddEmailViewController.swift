@@ -32,7 +32,7 @@ class AddEmailViewController: UIViewController {
     }()
 
     private let emailTextField: UITextField = {
-        let tf = InputTextField(placeholder: "Email address", secureTextEntry: false)
+        let tf = InputTextField(placeholder: "Email address", secureTextEntry: false, title: "Email")
         return tf
     }()
     

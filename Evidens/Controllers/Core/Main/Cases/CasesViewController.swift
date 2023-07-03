@@ -675,19 +675,6 @@ extension CasesViewController: CaseCellDelegate {
                 cases[index].diagnosis = clinicalCase.diagnosis
                 casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             }
-        case .edit:
-            let index = cases.firstIndex { homeCase in
-                if homeCase.caseId == clinicalCase.caseId {
-                    return true
-                }
-                return false
-            }
-            
-            if let index = index {
-                cases[index].stage = .resolved
-                cases[index].diagnosis = clinicalCase.diagnosis
-                casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-            }
         case .report:
             let controller = ReportViewController(source: .clinicalCase, contentOwnerUid: clinicalCase.ownerUid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
@@ -800,7 +787,6 @@ extension CasesViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
@@ -955,6 +941,20 @@ extension CasesViewController {
 }
         
 extension CasesViewController: DetailsCaseViewControllerDelegate {
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        if let index = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            if let diagnosis {
+                cases[index].revision = diagnosis
+            }
+            cases[index].stage = .resolved
+            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) {
+        
+    }
+    
     func didDeleteComment(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -1015,20 +1015,6 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
         }
     }
     
-    func didAddUpdate(forCase clinicalCase: Case) {
-        let index = cases.firstIndex { homeCase in
-            if homeCase.caseId == clinicalCase.caseId {
-                return true
-            }
-            return false
-        }
-        
-        if let index = index {
-            cases[index].caseUpdates = clinicalCase.caseUpdates
-            casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-        }
-    }
-    
     func didAddDiagnosis(forCase clinicalCase: Case) {
         let index = cases.firstIndex { homeCase in
             if homeCase.caseId == clinicalCase.caseId {
@@ -1039,7 +1025,8 @@ extension CasesViewController: DetailsCaseViewControllerDelegate {
         
         if let index = index {
             cases[index].stage = .resolved
-            cases[index].diagnosis = clinicalCase.diagnosis
+            cases[index].revision = .diagnosis
+            //cases[index].diagnosis = clinicalCase.diagnosis
             casesCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
         }
     }

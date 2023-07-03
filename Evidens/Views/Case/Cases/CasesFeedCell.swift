@@ -165,10 +165,10 @@ class CasesFeedCell: UICollectionViewCell {
         compositionalCollectionView.reloadData()
         
         if viewModel.caseIsAnonymous {
-            print(viewModel.clinicalCase.caseTitle + "is  " + String(viewModel.caseIsAnonymous))
+            print(viewModel.clinicalCase.title + "is  " + String(viewModel.caseIsAnonymous))
             profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
-            print(viewModel.clinicalCase.caseTitle + "is  " + String(viewModel.caseIsAnonymous))
+            print(viewModel.clinicalCase.title + "is  " + String(viewModel.caseIsAnonymous))
             profileImageView.image = UIImage(named: "user.profile")
         }
     }

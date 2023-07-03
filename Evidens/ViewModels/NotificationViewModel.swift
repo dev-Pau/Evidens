@@ -82,7 +82,7 @@ struct NotificationViewModel {
             return "\"\(post.postText.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .likeCase:
             guard let clinicalCase = notification.clinicalCase else { return "" }
-            return "\"\(clinicalCase.caseTitle.trimmingCharacters(in: .whitespacesAndNewlines))\". "
+            return "\"\(clinicalCase.title.trimmingCharacters(in: .whitespacesAndNewlines))\". "
         case .follow:
             return ""
         case .replyPost:

@@ -315,7 +315,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
                     }
                     return cell
                     
-                case .textWithImage:
+                case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseImageCellReuseIdentifier, for: indexPath) as! BookmarksCaseImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: currentCase)
                     guard currentCase.privacyOptions != .nonVisible else {
@@ -495,6 +495,24 @@ extension BookmarksViewController: DetailsPostViewControllerDelegate {
 }
 
 extension BookmarksViewController: DetailsCaseViewControllerDelegate {
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[caseIndex].stage = .resolved
+            if let diagnosis {
+                cases[caseIndex].revision = diagnosis
+            }
+
+            casesCollectionView.reloadData()
+        }
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) {
+        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
+            cases[caseIndex].revision = clinicalCase.revision
+            casesCollectionView.reloadData()
+        }
+    }
+    
     func didDeleteComment(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             let cell = casesCollectionView.cellForItem(at: IndexPath(item: caseIndex, section: 0))
@@ -569,20 +587,6 @@ extension BookmarksViewController: DetailsCaseViewControllerDelegate {
             default:
                 return
             }
-        }
-    }
-    
-    func didAddUpdate(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].caseUpdates = clinicalCase.caseUpdates
-            casesCollectionView.reloadData()
-        }
-    }
-    
-    func didAddDiagnosis(forCase clinicalCase: Case) {
-        if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
-            cases[caseIndex].diagnosis = clinicalCase.diagnosis
-            casesCollectionView.reloadData()
         }
     }
 }

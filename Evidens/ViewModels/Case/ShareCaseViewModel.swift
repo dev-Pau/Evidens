@@ -34,7 +34,7 @@ struct ShareCaseViewModel: ShareViewModel {
     var details = [String]()
     var stage: Case.CaseStage?
     
-    var diagnosis: String?
+    var diagnosis: CaseRevision?
     
     
     var hasTitle: Bool {
@@ -58,6 +58,10 @@ struct ShareCaseViewModel: ShareViewModel {
     var hasStageSelected: Bool {
         guard let stageSelected = stageSelected else { return false }
         return stageSelected == true ? true : false
+    }
+    
+    var hasImages: Bool {
+        return !images.isEmpty
     }
     
     var caseIsValid: Bool {
@@ -93,7 +97,10 @@ struct ShareCaseViewModel: ShareViewModel {
     var privacyImage: UIImage {
         return privacy.privacyTypeImage.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
     }
-
+    
+    var type: Case.CaseType {
+        return hasImages ? .textWithImage : .text
+    }
     // MARK: - Operations
     
     mutating func removeImage(at index: Int) {

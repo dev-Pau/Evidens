@@ -152,17 +152,17 @@ class CaseTextImageCell: UICollectionViewCell {
         caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
         descriptionCaseLabel.text = viewModel.caseDescription
         
-        if viewModel.caseResolvedWithDiagnosis {
+        if viewModel.hasDiagnosis {
             updateView.layoutIfNeeded()
             updateView.isHidden = false
-            updateView.diagnosisLabel.text = "The author has added a diagnosis"
+            updateView.diagnosisLabel.text = "The author has added a diagnosis."
             heightCaseUpdatesConstraint.constant = 20
             heightCaseUpdatesConstraint.isActive = true
             //updateView.setHeightConstraint(toConstant: 20)
-        } else if viewModel.caseHasUpdates {
+        } else if viewModel.hasUpdates {
             updateView.layoutIfNeeded()
             updateView.isHidden = false
-            updateView.diagnosisLabel.text = "An update has been made by the author"
+            updateView.diagnosisLabel.text = "The author has added a revision."
             heightCaseUpdatesConstraint.constant = 20
             heightCaseUpdatesConstraint.isActive = true
         } else {
@@ -226,11 +226,7 @@ class CaseTextImageCell: UICollectionViewCell {
                 let menuItems = UIMenu(title: "", subtitle: "", image: nil, identifier: nil, options: .displayInline, children: [
                     UIAction(title: Case.CaseMenuOptions.delete.rawValue, image: Case.CaseMenuOptions.delete.menuOptionsImage, handler: { (_) in
                         self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .delete)
-                    }),
-                    UIAction(title: Case.CaseMenuOptions.edit.rawValue, image: Case.CaseMenuOptions.edit.menuOptionsImage, handler: { (_) in
-                        self.delegate?.clinicalCase(self, didTapMenuOptionsFor: viewModel.clinicalCase, option: .edit)
                     })
-                   
                 ])
                 userPostView.dotsImageButton.showsMenuAsPrimaryAction = true
                 return menuItems

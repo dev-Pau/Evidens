@@ -108,7 +108,9 @@ class DetailsPostViewController: UICollectionViewController, UINavigationControl
             
             CommentService.getPostCommmentsValuesFor(forPost: self.post, forComments: self.comments, forType: self.type) { fetchedComments in
                 self.comments = fetchedComments
+                
                 let uids = self.comments.map { $0.uid }
+                
                 UserService.fetchUsers(withUids: uids) { users in
                     self.users.append(contentsOf: users)
                     self.commentsLoaded = true
@@ -371,7 +373,6 @@ extension DetailsPostViewController: HomeCellDelegate {
                     PostService.likePost(post: post) { _ in
                         currentCell.viewModel?.post.likes = post.likes + 1
                         self.delegate?.didTapLikeAction(forPost: post)
-                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
@@ -408,7 +409,6 @@ extension DetailsPostViewController: HomeCellDelegate {
                     PostService.likePost(post: post) { _ in
                         currentCell.viewModel?.post.likes = post.likes + 1
                         self.delegate?.didTapLikeAction(forPost: post)
-                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
@@ -444,7 +444,6 @@ extension DetailsPostViewController: HomeCellDelegate {
                     PostService.likePost(post: post) { _ in
                         currentCell.viewModel?.post.likes = post.likes + 1
                         self.delegate?.didTapLikeAction(forPost: post)
-                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
@@ -481,7 +480,6 @@ extension DetailsPostViewController: HomeCellDelegate {
                 PostService.likePost(post: post) { _ in
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.delegate?.didTapLikeAction(forPost: post)
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             case .group:
                 //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in
@@ -519,7 +517,6 @@ extension DetailsPostViewController: HomeCellDelegate {
                     PostService.likePost(post: post) { _ in
                         currentCell.viewModel?.post.likes = post.likes + 1
                         self.delegate?.didTapLikeAction(forPost: post)
-                        NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                 case .group:
                     //GroupService.likeGroupPost(groupId: post.groupId!, post: post) { _ in

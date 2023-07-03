@@ -21,8 +21,8 @@ protocol DetailsCaseViewControllerDelegate: AnyObject {
     func didTapLikeAction(forCase clinicalCase: Case)
     func didTapBookmarkAction(forCase clinicalCase: Case)
     func didComment(forCase clinicalCase: Case)
-    func didAddUpdate(forCase clinicalCase: Case)
-    func didAddDiagnosis(forCase clinicalCase: Case)
+    func didAddRevision(forCase clinicalCase: Case)
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?)
     func didDeleteComment(forCase clinicalCase: Case)
 }
 
@@ -35,6 +35,14 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     private var displayState: DisplayState = .none
     private var commentsLastSnapshot: QueryDocumentSnapshot?
     private var commentsLoaded: Bool = false
+    
+    private lazy var commentInputView: CommentInputAccessoryView = {
+        let cv = CommentInputAccessoryView()
+        cv.accessoryViewDelegate = self
+        return cv
+    }()
+    
+    private var bottomAnchorConstraint: NSLayoutConstraint!
     
     private var users: [User] = []
 
@@ -77,6 +85,33 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         configureNavigationBar()
         configureCollectionView()
         fetchComments()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+        
+        // Calculate the height of the visible portion of the keyboard
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+        
+        // Calculate the height of the tab bar
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        
+        // Calculate the constant value for the bottom anchor constraint
+        let constant = -(keyboardHeight - tabBarHeight)
+        UIView.animate(withDuration: animationDuration) {
+            self.bottomAnchorConstraint.constant = constant
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func configureNavigationBar() {
@@ -92,7 +127,7 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
-        
+        collectionView.keyboardDismissMode = .onDrag
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentReuseIdentifier)
         collectionView.register(SecondarySearchHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: commentHeaderReuseIdentifier)
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
@@ -101,9 +136,21 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         switch clinicalCase.type { 
         case .text:
             collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
-        case .textWithImage:
+        case .image:
             collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseImageTextCellReuseIdentifier)
         }
+        
+        view.addSubview(commentInputView)
+        
+        bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        NSLayoutConstraint.activate([
+            bottomAnchorConstraint,
+            commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
+        collectionView.verticalScrollIndicatorInsets.bottom = 50
     }
     
     private func fetchComments() {
@@ -316,20 +363,19 @@ extension DetailsCaseViewController: CaseCellDelegate {
             #warning("Implement delete")
             print("delete")
         case .update:
-            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
             
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
             navigationItem.backBarButtonItem = backItem
-            
-            controller.controllerIsPushed = true
+
             controller.delegate = self
             controller.groupId = groupId
             
             navigationController?.pushViewController(controller, animated: true)
         case .solved:
-            let controller = CaseDiagnosisViewController(diagnosisText: "")
+            let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             controller.stageIsUpdating = true
             controller.delegate = self
             controller.caseId = clinicalCase.caseId
@@ -342,15 +388,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
-        case .edit:
-            let controller = CaseDiagnosisViewController(diagnosisText: clinicalCase.diagnosis)
-            controller.diagnosisIsUpdating = true
-            controller.delegate = self
-            controller.caseId = clinicalCase.caseId
-            controller.groupId = groupId
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true)
         }
     }
     
@@ -408,7 +445,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                     CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                        NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                     }
                 case .group:
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
@@ -437,7 +473,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                     CaseService.likeCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                         self.delegate?.didTapLikeAction(forCase: clinicalCase)
-                        NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                     }
                 case .group:
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
@@ -474,7 +509,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                     CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                        //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                     
                 case .group:
@@ -506,7 +540,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                     CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                         currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                         self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
-                        //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                     }
                     
                 case .group:
@@ -538,9 +571,8 @@ extension DetailsCaseViewController: CaseCellDelegate {
     
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
-        let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: user)
+        let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: user)
         controller.delegate = self
-        controller.controllerIsPushed = true
         
         let backItem = UIBarButtonItem()
         backItem.title = ""
@@ -604,19 +636,24 @@ extension DetailsCaseViewController: CommentCaseViewControllerDelegate {
 }
 
 extension DetailsCaseViewController: CaseUpdatesViewControllerDelegate {
-    func didAddUpdateToCase(withUpdates updates: [String], caseId: String) {
-        self.clinicalCase.caseUpdates = updates
+    func didAddRevision(to clinicalCase: Case, _ revision: CaseRevision) {
+        self.clinicalCase.revision = revision.kind
         collectionView.reloadData()
-        delegate?.didAddUpdate(forCase: self.clinicalCase)
+        delegate?.didAddRevision(forCase: self.clinicalCase)
     }
 }
 
 extension DetailsCaseViewController: CaseDiagnosisViewControllerDelegate {
-    func handleAddDiagnosis(_ text: String, caseId: String) {
-        clinicalCase.stage = .resolved
-        clinicalCase.diagnosis = text
+    func handleSolveCase(diagnosis: CaseRevision?, clinicalCase: Case?) {
+        self.clinicalCase.stage = .resolved
+        if let diagnosis {
+            self.clinicalCase.revision = diagnosis.kind
+            delegate?.didSolveCase(forCase: self.clinicalCase, with: .diagnosis)
+        } else {
+            delegate?.didSolveCase(forCase: self.clinicalCase, with: nil)
+        }
+        
         collectionView.reloadData()
-        delegate?.didAddDiagnosis(forCase: clinicalCase)
     }
 }
 
@@ -694,3 +731,14 @@ extension DetailsCaseViewController: CommentCaseRepliesViewControllerDelegate {
     }
 }
 
+extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
+    func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
+        print("uPLOAD COMMENT")
+    }
+    
+    func textDidChange(_ inputView: CommentInputAccessoryView) {
+        print("text did change")
+        collectionView.contentInset.bottom = inputView.frame.height
+        collectionView.verticalScrollIndicatorInsets.bottom = inputView.frame.height
+    }
+}

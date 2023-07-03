@@ -407,7 +407,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                     cell.delegate = self
                     if indexPath.row == cases.count - 1 { cell.actionButtonsView.separatorView.isHidden = true } else { cell.actionButtonsView.separatorView.isHidden = false }
                     return cell
-                case .textWithImage:
+                case .image:
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: caseTextImageCellReuseIdentifier, for: indexPath) as! CaseTextImageCell
                     cell.viewModel = CaseViewModel(clinicalCase: cases[indexPath.row])
                     cell.set(user: caseUsers[index])
@@ -582,7 +582,6 @@ extension SearchViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
             
@@ -602,7 +601,6 @@ extension SearchViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.likes = clinicalCase.likes + 1
                     self.cases[indexPath.row].didLike = true
                     self.cases[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: clinicalCase.ownerUid, fromUser: user, type: .likeCase, clinicalCase: clinicalCase)
                 }
             }
         default:
@@ -629,7 +627,6 @@ extension SearchViewController: CaseCellDelegate {
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.cases[indexPath.row].didBookmark = true
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -647,7 +644,6 @@ extension SearchViewController: CaseCellDelegate {
                 CaseService.bookmarkCase(clinicalCase: clinicalCase) { _ in
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.cases[indexPath.row].didBookmark = true
-                    //NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
         default:
@@ -668,8 +664,6 @@ extension SearchViewController: CaseCellDelegate {
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = .fullScreen
             self.present(navVC, animated: true)
-        case .edit:
-            break
         }
     }
     
@@ -687,9 +681,7 @@ extension SearchViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
         if let userIndex = caseUsers.firstIndex(where: { $0.uid == clinicalCase.ownerUid }) {
-            let controller = CaseUpdatesViewController(clinicalCase: clinicalCase, user: caseUsers[userIndex])
-            controller.controllerIsPushed = true
-
+            let controller = CaseRevisionViewController(clinicalCase: clinicalCase, user: caseUsers[userIndex])
             let backItem = UIBarButtonItem()
             backItem.title = ""
             backItem.tintColor = .label
@@ -778,7 +770,6 @@ extension SearchViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
         case is HomeImageTextCell:
@@ -798,7 +789,6 @@ extension SearchViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -820,7 +810,6 @@ extension SearchViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -841,7 +830,6 @@ extension SearchViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -862,7 +850,6 @@ extension SearchViewController: HomeCellDelegate {
                     currentCell.viewModel?.post.likes = post.likes + 1
                     self.posts[indexPath.row].didLike = true
                     self.posts[indexPath.row].likes += 1
-                    NotificationService.uploadNotification(toUid: post.ownerUid, fromUser: user, type: .likePost, post: post)
                 }
             }
             
@@ -1066,6 +1053,12 @@ extension SearchViewController: CommentCaseViewControllerDelegate {
 }
 
 extension SearchViewController: DetailsCaseViewControllerDelegate {
+    func didSolveCase(forCase clinicalCase: Case, with diagnosis: CaseRevisionKind?) {
+        
+    }
+    
+    func didAddRevision(forCase clinicalCase: Case) { }
+    
     func didDeleteComment(forCase clinicalCase: Case) {
         if let caseIndex = cases.firstIndex(where: { $0.caseId == clinicalCase.caseId }) {
             cases[caseIndex].numberOfComments -= 1
@@ -1075,7 +1068,7 @@ extension SearchViewController: DetailsCaseViewControllerDelegate {
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
                 
-            case .textWithImage:
+            case .image:
                 let cell = collectionView.cellForItem(at: IndexPath(item: caseIndex, section: 4)) as! CaseTextImageCell
                 cell.viewModel?.clinicalCase.numberOfComments -= 1
             }
@@ -1126,9 +1119,6 @@ extension SearchViewController: DetailsCaseViewControllerDelegate {
         }
     }
     
-    func didAddUpdate(forCase clinicalCase: Case) { return }
-    
-    func didAddDiagnosis(forCase clinicalCase: Case) { return }
 }
 
 extension SearchViewController: DetailsPostViewControllerDelegate {
