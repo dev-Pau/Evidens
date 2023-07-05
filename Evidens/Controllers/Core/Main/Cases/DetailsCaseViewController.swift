@@ -95,14 +95,11 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         
         let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
         let intersection = convertedKeyboardFrame.intersection(view.bounds)
-        
-        // Calculate the height of the visible portion of the keyboard
+
         let keyboardHeight = view.bounds.maxY - intersection.minY
-        
-        // Calculate the height of the tab bar
+
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
-        
-        // Calculate the constant value for the bottom anchor constraint
+
         let constant = -(keyboardHeight - tabBarHeight)
         UIView.animate(withDuration: animationDuration) {
             self.bottomAnchorConstraint.constant = constant
@@ -115,12 +112,23 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
     }
     
     private func configureNavigationBar() {
-        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared anonymously" : user.firstName! + " " + user.lastName!
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        
+        let fullName = clinicalCase.privacyOptions == .nonVisible ? "Shared Anonymously" : user.firstName! + " " + user.lastName!
         let view = MENavigationBarTitleView(fullName: fullName, category: "Case")
         view.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 44)
         navigationItem.titleView = view
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
+        
+        if clinicalCase.privacyOptions == .nonVisible && clinicalCase.ownerUid == uid  {
+            commentInputView.profileImageView.image = UIImage(named: "user.profile.privacy")
+        } else {
+            guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, !imageUrl.isEmpty else { return }
+            commentInputView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+        }
+        
+        commentInputView.set(placeholder: "Voice your thoughts here...")
     }
     
     private func configureCollectionView() {
@@ -141,7 +149,6 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
         
         view.addSubview(commentInputView)
-        
         bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         NSLayoutConstraint.activate([
             bottomAnchorConstraint,
@@ -163,9 +170,10 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
             
             self.commentsLastSnapshot = snapshot.documents.last
             self.comments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
-            
+
             CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: self.comments, forType: self.type) { fetchedComments in
                 self.comments = fetchedComments
+                self.comments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
                 let userUids = self.comments.map { $0.uid }
                 UserService.fetchUsers(withUids: userUids) { users in
                     self.users = users
@@ -176,26 +184,57 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
         }
     }
     
+    private func getMoreComments() {
+        guard commentsLastSnapshot != nil else { return }
+        CommentService.fetchCaseComments(forCase: clinicalCase, forType: type, lastSnapshot: commentsLastSnapshot) { snapshot in
+            guard !snapshot.isEmpty else {
+                return
+            }
+            
+            self.commentsLastSnapshot = snapshot.documents.last
+            var newComments = snapshot.documents.map({ Comment(dictionary: $0.data()) })
+            CommentService.getCaseCommentValuesFor(forCase: self.clinicalCase, forComments: newComments, forType: self.type) { fetchedComments in
+                newComments = fetchedComments
+                newComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+                self.comments.append(contentsOf: newComments)
+                let newUserUids = newComments.map { $0.uid }
+                let currentUserUids = self.users.map { $0.uid }
+                let usersToFetch = newUserUids.filter { !currentUserUids.contains($0) }
+                
+                guard !usersToFetch.isEmpty else {
+                    self.collectionView.reloadData()
+                    return
+                }
+                
+                UserService.fetchUsers(withUids: usersToFetch) { users in
+                    self.users.append(contentsOf: users)
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+        
+        if offsetY > contentHeight - height {
+            getMoreComments()
+        }
+    }
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 2
     }
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if commentsLoaded {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: commentHeaderReuseIdentifier, for: indexPath) as! SecondarySearchHeader
-            header.configureWith(title: "   Comments", linkText: comments.count >= 15 ? "See All   " : "")
-            header.separatorView.isHidden = true
-            if comments.count < 15 { header.hideSeeAllButton() }
-            header.delegate = self
-            return header
-        } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
-            return header
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        return header
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return section == 0 ? CGSize.zero : commentsLoaded ? comments.isEmpty ? CGSize.zero : CGSize(width: view.frame.width, height: 55) : CGSize(width: view.frame.width, height: 55)
+        return section == 0 ? CGSize.zero : commentsLoaded ? comments.isEmpty ? CGSize.zero : CGSize.zero : CGSize(width: view.frame.width, height: 55)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -238,32 +277,33 @@ class DetailsCaseViewController: UICollectionViewController, UINavigationControl
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentReuseIdentifier, for: indexPath) as! CommentCell
-                cell.authorButton.isHidden = true
-                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                cell.commentTextView.isSelectable = false
                 cell.delegate = self
-                
-                let userIndex = users.firstIndex { user in
-                    if user.uid == comments[indexPath.row].uid {
-                        return true
+                /*
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        cell.configure()
                     }
-                    return false
-                }
+                 */
                 
-                if let userIndex = userIndex {
+                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                cell.authorButton.isHidden = true
+                if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
                     cell.set(user: users[userIndex])
                 }
-                
+
                 if comments[indexPath.row].hasCommentFromAuthor {
                     if comments[indexPath.row].anonymous {
-                        cell.commentActionButtons.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
+                        cell.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
                     } else {
-                        cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                        if let image = user.profileImageUrl, !image.isEmpty {
+                            cell.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
+                        }
                     }
 
                 } else {
                     cell.commentActionButtons.ownerPostImageView.image = nil
                 }
-                
+
                 return cell
             }
         }
@@ -302,11 +342,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: user)
             controller.delegate = self
-            let backItem = UIBarButtonItem()
-            backItem.tintColor = .label
-            backItem.title = ""
-            navigationItem.backBarButtonItem = backItem
-            
+           
             navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -515,8 +551,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
                     currentCell.viewModel?.clinicalCase.numberOfBookmarks = clinicalCase.numberOfBookmarks + 1
                     self.delegate?.didTapBookmarkAction(forCase: clinicalCase)
                 }
-                //Like post here
-                
             }
             
         case is CaseTextImageCell:
@@ -733,12 +767,50 @@ extension DetailsCaseViewController: CommentCaseRepliesViewControllerDelegate {
 
 extension DetailsCaseViewController: CommentInputAccessoryViewDelegate {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
-        print("uPLOAD COMMENT")
+        guard let tab = tabBarController as? MainTabController else { return }
+        guard let currentUser = tab.user else { return }
+        inputView.commentTextView.resignFirstResponder()
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        
+        CommentService.addComment(comment, for: clinicalCase, from: currentUser, kind: type) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let comment):
+
+                strongSelf.clinicalCase.numberOfComments += 1
+
+                strongSelf.users.append(User(dictionary: [
+                    "uid": currentUser.uid as Any,
+                    "firstName": currentUser.firstName as Any,
+                    "lastName": currentUser.lastName as Any,
+                    "profileImageUrl": currentUser.profileImageUrl as Any,
+                    "profession": currentUser.profession as Any,
+                    "category": currentUser.category.rawValue as Any,
+                    "speciality": currentUser.speciality as Any]))
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            strongSelf.collectionView.performBatchUpdates {
+                                strongSelf.comments.insert(comment, at: 0)
+                                strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                            } completion: { _ in
+                                let contentInsetBottom = inputView.frame.height
+                                strongSelf.delegate?.didComment(forCase: strongSelf.clinicalCase)
+                            }
+                        }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
     
     func textDidChange(_ inputView: CommentInputAccessoryView) {
-        print("text did change")
+        print("Text did change")
         collectionView.contentInset.bottom = inputView.frame.height
         collectionView.verticalScrollIndicatorInsets.bottom = inputView.frame.height
+        view.layoutIfNeeded()
+    }
+    
+    func textDidBeginEditing() {
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
     }
 }

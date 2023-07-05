@@ -432,7 +432,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     }
                 }
                 
-                //cell.layoutIfNeeded()
+                cell.layoutIfNeeded()
                 return cell
                 
             } else if posts[indexPath.row].type.postType == 1 {

@@ -40,24 +40,12 @@ class MECommentActionButtons: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "bubble.left", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22))
+        button.configuration?.image = UIImage(named: "comment")?.scalePreservingAspectRatio(targetSize: CGSize(width: 22, height: 22)).withTintColor(.secondaryLabel)
         button.addTarget(self, action: #selector(handleComment), for: .touchUpInside)
         return button
     }()
-    
+
     lazy var commentsLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isUserInteractionEnabled = true
-        label.textColor = primaryColor
-        label.numberOfLines = 0
-        label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
-        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleComment)))
-        return label
-    }()
-    
-    lazy var commentsHintLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
@@ -65,10 +53,8 @@ class MECommentActionButtons: UIView {
         label.numberOfLines = 0
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 13, weight: .semibold)
-        //label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleLikesTap)))
         return label
     }()
-    
     
     lazy var ownerPostImageView: UIImageView = {
         let iv = UIImageView()
@@ -90,33 +76,31 @@ class MECommentActionButtons: UIView {
     private func configure() {
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = true
-        addSubviews(likeButton, likesLabel, commentButton, commentsHintLabel, ownerPostImageView, commentsLabel)
+        
+        let buttonsStackView = UIStackView(arrangedSubviews: [likeButton, commentButton])
+        buttonsStackView.distribution = .equalSpacing
+        buttonsStackView.axis = .horizontal
+        buttonsStackView.alignment = .leading
+        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        addSubviews(buttonsStackView, likesLabel, commentsLabel)
         NSLayoutConstraint.activate([
-            likeButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            likeButton.leadingAnchor.constraint(equalTo: leadingAnchor),
+            buttonsStackView.widthAnchor.constraint(equalToConstant: 130),
+            buttonsStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            buttonsStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            
+            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 7),
+            likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            
+            commentsLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 7),
+            commentsLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
+            
             likeButton.heightAnchor.constraint(equalToConstant: 20),
             likeButton.widthAnchor.constraint(equalToConstant: 20),
             
-            likesLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            likesLabel.leadingAnchor.constraint(equalTo: likeButton.trailingAnchor, constant: 5),
-            likesLabel.widthAnchor.constraint(equalToConstant: 30),
-            //likesLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -20),
-            
-            commentButton.leadingAnchor.constraint(equalTo: likesLabel.trailingAnchor, constant: 10),
-            commentButton.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
             commentButton.widthAnchor.constraint(equalToConstant: 22),
             commentButton.heightAnchor.constraint(equalToConstant: 22),
-            
-            commentsHintLabel.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor),
-            commentsHintLabel.leadingAnchor.constraint(equalTo: commentButton.trailingAnchor, constant: 5),
-            
-            commentsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            commentsLabel.centerYAnchor.constraint(equalTo: likesLabel.centerYAnchor),
-            
-            ownerPostImageView.centerYAnchor.constraint(equalTo: commentButton.centerYAnchor),
-            ownerPostImageView.trailingAnchor.constraint(equalTo: commentsLabel.leadingAnchor, constant: -5),
-            ownerPostImageView.heightAnchor.constraint(equalToConstant: 20),
-            ownerPostImageView.widthAnchor.constraint(equalToConstant: 20),
+          
             
         ])
     }

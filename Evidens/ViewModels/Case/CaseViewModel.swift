@@ -230,7 +230,7 @@ struct CaseViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return clinicalCase.didLike ? pinkColor : .label
+        return clinicalCase.didLike ? pinkColor : .secondaryLabel
     }
     
     var likeButtonImage: UIImage? {

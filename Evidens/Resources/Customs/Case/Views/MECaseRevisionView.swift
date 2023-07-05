@@ -11,7 +11,7 @@ protocol MECaseUpdateViewDelegate: AnyObject {
     func didTapCaseUpdates()
 }
 
-class MECaseUpdateView: UIView {
+class MECaseRevisionView: UIView {
     
     weak var delegate: MECaseUpdateViewDelegate?
     
@@ -58,7 +58,6 @@ class MECaseUpdateView: UIView {
             diagnosisLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             diagnosisLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 5),
             diagnosisLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            //diagnosisLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
         
         profileImageView.layer.cornerRadius = 20 / 2

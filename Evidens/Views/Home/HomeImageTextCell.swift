@@ -90,7 +90,6 @@ class HomeImageTextCell: UICollectionViewCell {
     
     func configure() {
         guard let viewModel = viewModel else { return }
-        
 
         userPostView.postTimeLabel.text = viewModel.time
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
@@ -120,8 +119,8 @@ class HomeImageTextCell: UICollectionViewCell {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                 guard let strongSelf = self else { return }
-                let firstLines = strongSelf.postTextView.getFirstThreeLinesText()!
-                let lastLine = strongSelf.postTextView.getLastLineText()!
+                let firstLines = strongSelf.postTextView.getFirstLinesText(3)!
+                let lastLine = strongSelf.postTextView.getLastLineText(3)!
                 let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - 10 - showMoreSize, font: UIFont.systemFont(ofSize: 15, weight: .regular))
 
                 strongSelf.postTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])

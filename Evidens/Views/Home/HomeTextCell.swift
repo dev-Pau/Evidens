@@ -101,8 +101,8 @@ class HomeTextCell: UICollectionViewCell {
                 showMoreView.widthAnchor.constraint(equalToConstant: showMoreSize),
             ])
             
-            let firstLines = postTextView.getFirstThreeLinesText()!
-            let lastLine = postTextView.getLastLineText()!
+            let firstLines = postTextView.getFirstLinesText(3)!
+            let lastLine = postTextView.getLastLineText(3)!
             let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - 10 - showMoreSize, font: UIFont.systemFont(ofSize: 15, weight: .regular))
 
             postTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])

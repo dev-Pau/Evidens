@@ -23,7 +23,8 @@ class CaseTextCell: UICollectionViewCell {
     
     private let cellContentView = UIView()
 
-    private var heightCaseUpdatesConstraint: NSLayoutConstraint!
+    private var heightAnchorConstraint: NSLayoutConstraint!
+    private var topRevisionConstraint: NSLayoutConstraint!
 
     private let caseInfoLabel: UILabel = {
         let label = UILabel()
@@ -37,7 +38,7 @@ class CaseTextCell: UICollectionViewCell {
     private var userPostView = MEUserPostView()
     var titleCaseLabel = METitleCaseLabel()
     var descriptionCaseLabel = MEPostLabel()
-    private var updateView = MECaseUpdateView()
+    private var revisionView = MECaseRevisionView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
@@ -50,7 +51,7 @@ class CaseTextCell: UICollectionViewCell {
         
         actionButtonsView.delegate = self
         userPostView.delegate = self
-        updateView.delegate = self
+        revisionView.delegate = self
     
         cellContentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(cellContentView)
@@ -62,11 +63,11 @@ class CaseTextCell: UICollectionViewCell {
             cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
        
-        cellContentView.addSubviews(userPostView, caseInfoLabel,  titleCaseLabel, descriptionCaseLabel, updateView, actionButtonsView)
+        cellContentView.addSubviews(userPostView, caseInfoLabel,  titleCaseLabel, descriptionCaseLabel, revisionView, actionButtonsView)
        
-        heightCaseUpdatesConstraint = updateView.heightAnchor.constraint(equalToConstant: 0)
-        heightCaseUpdatesConstraint.isActive = true
-        
+        heightAnchorConstraint = revisionView.heightAnchor.constraint(equalToConstant: 0)
+        topRevisionConstraint = revisionView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor)
+
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -85,11 +86,12 @@ class CaseTextCell: UICollectionViewCell {
             descriptionCaseLabel.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
             descriptionCaseLabel.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            updateView.topAnchor.constraint(equalTo: descriptionCaseLabel.bottomAnchor, constant: 10),
-            updateView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
-            updateView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
+            heightAnchorConstraint,
+            topRevisionConstraint,
+            revisionView.leadingAnchor.constraint(equalTo: titleCaseLabel.leadingAnchor),
+            revisionView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             
-            actionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor, constant: 10),
+            actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
@@ -99,35 +101,41 @@ class CaseTextCell: UICollectionViewCell {
     private func configure() {
         guard let viewModel = viewModel else { return }
         
-        userPostView.postTimeLabel.text = viewModel.timestampString! + " • "
+        userPostView.postTimeLabel.text = viewModel.timestampString! + AppStrings.Characters.dot
         userPostView.privacyImage.configuration?.image = viewModel.privacyImage.withTintColor(.label)
         userPostView.dotsImageButton.menu = addMenuItems()
-        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: " • ")
+        caseInfoLabel.text = viewModel.caseSummaryInfoString.joined(separator: AppStrings.Characters.dot)
         descriptionCaseLabel.text = viewModel.caseDescription
         
         if viewModel.hasDiagnosis {
-            updateView.layoutIfNeeded()
-            updateView.isHidden = false
-            updateView.diagnosisLabel.text = "The author has added a diagnosis."
-            heightCaseUpdatesConstraint.constant = 20
-            heightCaseUpdatesConstraint.isActive = true
+            revisionView.isHidden = false
+            revisionView.diagnosisLabel.text = "The author has added a diagnosis."
+            heightAnchorConstraint.constant = 20
+            topRevisionConstraint.constant = 10
+            heightAnchorConstraint.isActive = true
+            topRevisionConstraint.isActive = true
+            revisionView.layoutIfNeeded()
         } else if viewModel.hasUpdates {
-            updateView.layoutIfNeeded()
-            updateView.isHidden = false
-            updateView.diagnosisLabel.text = "The author has added a revision."
-            heightCaseUpdatesConstraint.constant = 20
-            heightCaseUpdatesConstraint.isActive = true
+            revisionView.isHidden = false
+            revisionView.diagnosisLabel.text = "The author has added a revision."
+            heightAnchorConstraint.constant = 20
+            topRevisionConstraint.constant = 10
+            heightAnchorConstraint.isActive = true
+            topRevisionConstraint.isActive = true
+            revisionView.layoutIfNeeded()
         } else {
-            updateView.layoutIfNeeded()
-            heightCaseUpdatesConstraint.constant = 0
-            heightCaseUpdatesConstraint.isActive = true
-            updateView.isHidden = true
+            heightAnchorConstraint.constant = 0
+            topRevisionConstraint.constant = 0
+            heightAnchorConstraint.isActive = true
+            topRevisionConstraint.isActive = true
+            revisionView.isHidden = true
+            revisionView.layoutIfNeeded()
         }
         
         actionButtonsView.likesLabel.text = viewModel.likesText
         actionButtonsView.commentLabel.text = viewModel.commentsText
         actionButtonsView.likeButton.configuration?.image = viewModel.likeButtonImage?.withTintColor(viewModel.likeButtonTintColor)
-        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.label)
+        actionButtonsView.bookmarkButton.configuration?.image = viewModel.bookMarkImage?.withTintColor(.secondaryLabel)
         
         titleCaseLabel.text = viewModel.caseTitle
     }
@@ -180,12 +188,12 @@ class CaseTextCell: UICollectionViewCell {
         self.user = user
 
         if viewModel.caseIsAnonymous {
-            updateView.profileImageView.image = UIImage(named: "user.profile.privacy")
+            revisionView.profileImageView.image = UIImage(named: "user.profile.privacy")
             userPostView.profileImageView.image = UIImage(named: "user.profile.privacy")
             userPostView.usernameLabel.text = "Shared anonymously"
         } else {
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
-                updateView.profileImageView.sd_setImage(with: URL(string: imageUrl))
+                revisionView.profileImageView.sd_setImage(with: URL(string: imageUrl))
                 userPostView.profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
             

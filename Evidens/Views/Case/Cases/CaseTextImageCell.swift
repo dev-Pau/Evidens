@@ -46,7 +46,7 @@ class CaseTextImageCell: UICollectionViewCell {
     private var userPostView = MEUserPostView()
     var titleCaseLabel = METitleCaseLabel()
     var descriptionCaseLabel = MEPostLabel()
-    private var updateView = MECaseUpdateView()
+    private var updateView = MECaseRevisionView()
     var actionButtonsView = MEPostActionButtons()
     private lazy var reviewActionButtonsView = MEReviewActionButtons()
     
@@ -137,7 +137,7 @@ class CaseTextImageCell: UICollectionViewCell {
             updateView.trailingAnchor.constraint(equalTo: titleCaseLabel.trailingAnchor),
             //updateView.heightAnchor.constraint(equalToConstant: 20),
             
-            actionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor, constant: 10),
+            actionButtonsView.topAnchor.constraint(equalTo: updateView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
             actionButtonsView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)

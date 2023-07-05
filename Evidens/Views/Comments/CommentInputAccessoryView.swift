@@ -11,6 +11,7 @@ import SDWebImage
 @objc protocol CommentInputAccessoryViewDelegate: AnyObject {
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String)
     @objc optional func textDidChange(_ inputView: CommentInputAccessoryView)
+    @objc optional func textDidBeginEditing()
 }
 
 class CommentInputAccessoryView: UIView {
@@ -109,14 +110,10 @@ class CommentInputAccessoryView: UIView {
         ])
     
         profileImageView.layer.cornerRadius = 37 / 2
-        /*
-        if caseIsAnonymous {
-            profileImageView.image = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(grayColor)
-        } else {
-            guard let uid = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String else { return }
-            profileImageView.sd_setImage(with: URL(string: uid))
-        }
-         */
+    }
+    
+    func set(placeholder: String) {
+        commentTextView.placeholderText = placeholder
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -157,5 +154,9 @@ extension CommentInputAccessoryView: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         accessoryViewDelegate?.textDidChange?(self)
         postRoundedButton.isEnabled = commentTextView.text.isEmpty ? false : true
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        accessoryViewDelegate?.textDidBeginEditing?()
     }
 }

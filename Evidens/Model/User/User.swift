@@ -113,10 +113,10 @@ extension User {
     
     func userLabelText() -> NSAttributedString {
         if category == .professional {
-            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName!, attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
             return attributedString
         } else {
-            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName! + " • ", attributes: [.font: UIFont.boldSystemFont(ofSize: 14)])
+            let attributedString = NSMutableAttributedString(string: firstName! + " " + lastName! + " • ", attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
             attributedString.append(NSAttributedString(string: "Student", attributes: [.font: UIFont.boldSystemFont(ofSize: 14), .foregroundColor: primaryColor]))
             return attributedString
         }

@@ -13,6 +13,7 @@ import Firebase
 
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
+private let replyCellReuseIdentifier = "ReplyCellReuseIdentifier"
 
 protocol CommentCaseRepliesViewControllerDelegate: AnyObject {
     func didLikeComment(comment: Comment)
@@ -32,8 +33,8 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
     weak var delegate: CommentCaseRepliesViewControllerDelegate?
-    //weak var delegate: CommentPostViewControllerDelegate?
-    
+    private var bottomAnchorConstraint: NSLayoutConstraint!
+
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
@@ -52,11 +53,10 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(300)), subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
-            
-            section.contentInsets.leading = sectionIndex == 0 ? .zero : 50
             return section
        }
 
+        print(self.comment)
         super.init(collectionViewLayout: compositionalLayout)
     }
     
@@ -71,21 +71,16 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         fetchRepliesForComment()
     }
     
-    override var inputAccessoryView: UIView? {
-        get { return repliesEnabled ? commentInputView : nil }
-    }
-    
-    override var canBecomeFirstResponder: Bool {
-        return true
-    }
-    
-    
     private func configureNavigationBar() {
         title = "Replies"
     }
     
     private func fetchRepliesForComment() {
-        guard repliesEnabled else { return }
+        guard repliesEnabled else {
+            commentsLoaded = true
+            return
+        }
+        
         CommentService.fetchRepliesForCaseComment(forClinicalCase: clinicalCase, type: type, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.commentsLoaded = true
@@ -101,6 +96,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             CommentService.getCaseRepliesCommmentsValuesFor(forCase: self.clinicalCase, forComment: self.comment, forReplies: comments, forType: self.type) { fetchedReplies in
                 UserService.fetchUsers(withUids: replyUids) { users in
                     self.users = users
+                    print(self.users)
                     self.comments = fetchedReplies.sorted { $0.timestamp.seconds < $1.timestamp.seconds }
                     self.commentsLoaded = true
                     self.collectionView.reloadData()
@@ -115,11 +111,26 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.register(MELoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
+        collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
-        collectionView.keyboardDismissMode = .interactive
+        collectionView.keyboardDismissMode = .onDrag
+        
+        if repliesEnabled {
+            view.addSubview(commentInputView)
+            bottomAnchorConstraint = commentInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            NSLayoutConstraint.activate([
+                bottomAnchorConstraint,
+                commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            ])
+            
+            collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
+            collectionView.verticalScrollIndicatorInsets.bottom = 50
+        }
+
     }
     
     private func configureUI() {
@@ -134,43 +145,43 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return section == 0 ? 1 : commentsLoaded ? comments.count : 0
+        return section == 0 ? 1 : commentsLoaded ? comments.count : 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 1 && !commentsLoaded {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingCell
-            return cell
-        } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
-            cell.delegate = self
-            cell.showingRepliesForComment = indexPath.section == 0 ? true : false
-            cell.isReply = indexPath.section == 1 ? true : false
-            cell.viewModel = CommentViewModel(comment: indexPath.section == 0 ? comment : comments[indexPath.row])
-            if indexPath.section == 0 {
+        if indexPath.section == 0 {
+            if repliesEnabled {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
+                cell.delegate = self
+                cell.showingRepliesForComment = true
+                cell.isReply = false
+                cell.viewModel = CommentViewModel(comment: comment)
                 cell.set(user: user)
+                return cell
             } else {
-                let userIndex = users.firstIndex { user in
-                    return user.uid == comments[indexPath.row].uid
-                }!
-                
-                cell.set(user: users[userIndex])
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
+                cell.delegate = self
+                cell.isExpanded = true
+                cell.viewModel = CommentViewModel(comment: comment)
+                cell.set(user: user)
+                return cell
             }
-            
-            if indexPath.section == 1 {
-                cell.separatorView.isHidden = true
-                cell.commentActionButtons.commentButton.isHidden = true
+        } else {
+            if !commentsLoaded {
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingCell
+                return cell
             } else {
-                if repliesEnabled {
-                    cell.separatorView.isHidden = false
-                    cell.commentActionButtons.commentButton.isHidden = false
-                } else {
-                    cell.separatorView.isHidden = false
-                    cell.commentActionButtons.commentButton.isHidden = true
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
+                cell.delegate = self
+                cell.isExpanded = false
+                cell.isAuthor = comments[indexPath.row].uid == clinicalCase.ownerUid
+                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                cell.commentTextView.isSelectable = false
+                if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
+                    cell.set(user: users[userIndex])
                 }
+                return cell
             }
-            
-            return cell
         }
     }
 }
@@ -205,30 +216,18 @@ extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
                 "profession": self.currentUser.profession as Any,
                 "category": self.currentUser.category.rawValue as Any,
                 "speciality": self.currentUser.speciality as Any]))
-            //}
-            
+
             let indexPath = IndexPath(item: self.comments.count - 1, section: 1)
             self.collectionView.insertItems(at: [indexPath])
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
             self.delegate?.didAddReplyToComment(comment: self.comment)
-            //self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
-            /*
-             self.collectionView.insertItems(at: [indexPath])
-             let indexPath = IndexPath(item: 1, section: 0)
-             self.collectionView.insertItems(at: [indexPath])
-             self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
-             
-             self.delegate?.didCommentPost(post: self.post, user: self.currentUser, comment: addedComment)
-             
-             NotificationService.uploadNotification(toUid: self.post.ownerUid, fromUser: self.currentUser, type: .commentPost, post: self.post, withCommentId: commentUid)
-             */
         }
     }
 }
 
 extension CommentCaseRepliesViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
-        
+        print("did tap comment")
         #warning("Implement")
     }
     
@@ -237,6 +236,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             return
             
         }
+        
         rootController.didTapProfile(forUser: user)
         
     }
@@ -246,13 +246,9 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
         if let indexPath = collectionView.indexPath(for: cell) {
             guard indexPath.section != 0 else { return }
             if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
+
                 let controller = CommentCaseRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: currentUser, repliesEnabled: false)
                 controller.delegate = self
-                let backItem = UIBarButtonItem()
-                backItem.tintColor = .label
-                backItem.title = ""
-                navigationItem.backBarButtonItem = backItem
-                
                 navigationController?.pushViewController(controller, animated: true)
             }
         }

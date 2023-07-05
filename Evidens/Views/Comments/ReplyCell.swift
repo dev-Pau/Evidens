@@ -1,21 +1,13 @@
 //
-//  CommentCell.swift
+//  ReplyCell.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 27/11/21.
+//  Created by Pau Fernández Solà on 5/7/23.
 //
 
 import UIKit
-import SDWebImage
 
-protocol CommentCellDelegate: AnyObject {
-    func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions)
-    func didTapProfile(forUser user: User)
-    func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment)
-    func didTapLikeActionFor(_ cell: UICollectionViewCell, forComment comment: Comment)
-}
-
-class CommentCell: UICollectionViewCell {
+class ReplyCell: UICollectionViewCell {
     
     //MARK: - Properties
     
@@ -28,12 +20,10 @@ class CommentCell: UICollectionViewCell {
     private var user: User?
     private var heightAuthorAnchor: NSLayoutConstraint!
     private var heightActionsConstraint: NSLayoutConstraint!
-    var showingRepliesForComment: Bool = false
-    var isReply: Bool = false
-
-    weak var delegate: CommentCellDelegate?
     
-    private let cellContentView = UIView()
+    var isExpanded: Bool = false
+    var isAuthor: Bool = false
+    weak var delegate: CommentCellDelegate?
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
@@ -111,8 +101,8 @@ class CommentCell: UICollectionViewCell {
         return label
     }()
     
-    var commentActionButtons = MECommentActionButtons()
-
+    var commentActionButtons = MEDetailsActionButtons()
+    
     var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -120,52 +110,26 @@ class CommentCell: UICollectionViewCell {
         return view
     }()
     
-    private let ownerLineView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
-        return view
-    }()
-    
-    var ownerPostImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFill
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    
     //MARK: - Lifecycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
-        cellContentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(cellContentView)
-        cellContentView.backgroundColor = .systemBackground
+        addSubviews(profileImageView, dotsImageButton, commentTextView, authorButton, timestampLabel, nameLabel, professionLabel, commentActionButtons, separatorView)
         
-        NSLayoutConstraint.activate([
-            cellContentView.topAnchor.constraint(equalTo: topAnchor),
-            cellContentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            cellContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            cellContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
         
-        cellContentView.addSubviews(profileImageView, dotsImageButton, commentTextView, authorButton, timestampLabel, nameLabel, professionLabel, commentActionButtons, separatorView)
-
         heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
         heightAuthorAnchor.isActive = true
         heightActionsConstraint = commentActionButtons.heightAnchor.constraint(equalToConstant: 40)
         heightActionsConstraint.isActive = true
-
+        
         nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         timestampLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: cellContentView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             profileImageView.heightAnchor.constraint(equalToConstant: 53),
             profileImageView.widthAnchor.constraint(equalToConstant: 53),
             
@@ -177,7 +141,7 @@ class CommentCell: UICollectionViewCell {
             timestampLabel.trailingAnchor.constraint(equalTo: dotsImageButton.leadingAnchor, constant: -10),
             
             dotsImageButton.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-            dotsImageButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
+            dotsImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             dotsImageButton.heightAnchor.constraint(equalToConstant: 15),
             dotsImageButton.widthAnchor.constraint(equalToConstant: 15),
             
@@ -187,33 +151,28 @@ class CommentCell: UICollectionViewCell {
             
             authorButton.topAnchor.constraint(equalTo: professionLabel.bottomAnchor, constant: 2),
             authorButton.leadingAnchor.constraint(equalTo: professionLabel.leadingAnchor),
-            //authorButton.heightAnchor.constraint(equalToConstant: 18),
-            //authorButton.widthAnchor.constraint(equalToConstant: 50),
             
             commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor, constant: 2),
             commentTextView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            commentTextView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            //commentLabel.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor, constant: -30),
+            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             commentActionButtons.topAnchor.constraint(equalTo: commentTextView.bottomAnchor),
-            commentActionButtons.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor, constant: 10),
-            commentActionButtons.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor, constant: -10),
-            //commentActionButtons.heightAnchor.constraint(equalToConstant: 40),
-            commentActionButtons.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor),
-
+            commentActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            commentActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            separatorView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
-            separatorView.bottomAnchor.constraint(equalTo: cellContentView.bottomAnchor)
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
         commentActionButtons.delegate = self
-
+        
         profileImageView.layer.cornerRadius = 53 / 2
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapComment)))
-
+        
     }
     
     @objc func didTapComment() {
@@ -224,80 +183,22 @@ class CommentCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     //MARK: - Helpers
     func configure() {
         guard let viewModel = viewModel else {
             return }
-
+        
         timestampLabel.text = AppStrings.Characters.dot + viewModel.timestampString!
         dotsImageButton.menu = addMenuItems()
         
         commentActionButtons.likeButton.configuration?.image = viewModel.likeButtonImage
         commentActionButtons.likesLabel.text = viewModel.likesLabelText
-        commentActionButtons.commentsLabel.text = viewModel.commentsText
 
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
-        ownerLineView.isHidden = true
-
+        commentTextView.textContainer.maximumNumberOfLines = isExpanded ? 0 : 4
         
-        if showingRepliesForComment {
-            commentTextView.textContainer.maximumNumberOfLines = 0
-            commentActionButtons.ownerPostImageView.removeFromSuperview()
-            return
-        } else {
-            commentTextView.textContainer.maximumNumberOfLines = 4
-            
-            if viewModel.hasCommentFromAuthor {
-                addSubviews(ownerLineView, ownerPostImageView)
-                ownerLineView.isHidden = false
-
-                NSLayoutConstraint.activate([
-                    ownerLineView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 2),
-                    ownerLineView.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-                    ownerLineView.widthAnchor.constraint(equalToConstant: 2),
-                    ownerLineView.bottomAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 2),
-                    
-                    ownerPostImageView.topAnchor.constraint(equalTo: commentActionButtons.topAnchor, constant: 5),
-                    ownerPostImageView.centerXAnchor.constraint(equalTo: ownerLineView.centerXAnchor),
-                    ownerPostImageView.heightAnchor.constraint(equalToConstant: 27),
-                    ownerPostImageView.widthAnchor.constraint(equalToConstant: 27)
-                ])
-                
-                ownerPostImageView.layer.cornerRadius = 27 / 2
-
-                ownerLineView.layer.cornerRadius = 2/2
-            } else {
-                ownerLineView.removeFromSuperview()
-                ownerPostImageView.removeFromSuperview()
-                ownerLineView.isHidden = true
-                ownerPostImageView.isHidden = true
-            }
-        }
-        
-        if isReply {
-            commentActionButtons.commentButton.isHidden = true
-        } else {
-            commentActionButtons.commentButton.isHidden = false
-        }
-        
-        /*
-        if viewModel.isTextFromAuthor {
-            commentTextView.textContainer.maximumNumberOfLines = 0
-            commentTextView.isSelectable = true
-            commentActionButtons.isHidden = true
-            heightActionsConstraint.constant = 10
-            heightActionsConstraint.isActive = true
-        } else {
-            commentTextView.textContainer.maximumNumberOfLines = 4
-            commentTextView.isSelectable = false
-            commentActionButtons.isHidden = false
-            heightActionsConstraint.constant = 40
-            heightActionsConstraint.isActive = true
-        }
-         */
-
         let showMoreSize = 100.0
         
         showMoreView.isHidden = true
@@ -306,10 +207,10 @@ class CommentCell: UICollectionViewCell {
         let textContainer = commentTextView.textContainer
         layoutManager.ensureLayout(for: textContainer)
         
-        if commentTextView.isTextTruncated && !viewModel.isTextFromAuthor {
+        if commentTextView.isTextTruncated && !isExpanded {
             addSubview(showMoreView)
             showMoreView.isHidden = false
-
+            
             showMoreView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))
             NSLayoutConstraint.activate([
                 showMoreView.heightAnchor.constraint(equalToConstant: commentTextView.font?.lineHeight ?? 0.0),
@@ -317,18 +218,31 @@ class CommentCell: UICollectionViewCell {
                 showMoreView.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor),
                 showMoreView.widthAnchor.constraint(equalToConstant: showMoreSize),
             ])
-
-                let firstLines = self.commentTextView.getFirstLinesText(3)!
-                let lastLine = self.commentTextView.getLastLineText(3)!
+            
+            let firstLines = self.commentTextView.getFirstLinesText(3)!
+            let lastLine = self.commentTextView.getLastLineText(3)!
             let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - showMoreSize - 80, font: UIFont.systemFont(ofSize: 15, weight: .regular))
-             
-                self.commentTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-                self.showMoreView.isHidden = false
+            
+            self.commentTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
+            self.showMoreView.isHidden = false
         } else {
             commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
-
+            
             showMoreView.removeFromSuperview()
             showMoreView.isHidden = true
+        }
+        
+        if isAuthor {
+            authorButton.isHidden = false
+            heightAuthorAnchor.isActive = false
+            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
+            heightAuthorAnchor.isActive = true
+            
+        } else {
+            authorButton.isHidden = true
+            heightAuthorAnchor.isActive = false
+            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
+            heightAuthorAnchor.isActive = true
         }
     }
     
@@ -346,19 +260,6 @@ class CommentCell: UICollectionViewCell {
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
                 profileImageView.sd_setImage(with: URL(string: imageUrl))
             }
-        }
-        
-        if viewModel.isAuthor {
-            authorButton.isHidden = false
-            heightAuthorAnchor.isActive = false
-            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 20)
-            heightAuthorAnchor.isActive = true
-            
-        } else {
-            authorButton.isHidden = true
-            heightAuthorAnchor.isActive = false
-            heightAuthorAnchor = authorButton.heightAnchor.constraint(equalToConstant: 0)
-            heightAuthorAnchor.isActive = true
         }
     }
     
@@ -403,21 +304,21 @@ class CommentCell: UICollectionViewCell {
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-        let autoLayoutSize = cellContentView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
+        let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: autoLayoutSize.height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
 }
 
-extension CommentCell: MECommentActionButtonsDelegate {
-    func wantsToSeeReplies() {
-        guard let viewModel = viewModel else { return }
-        delegate?.wantsToSeeRepliesFor(self, forComment: viewModel.comment)
-    }
-    
-    func handleLike() {
+extension ReplyCell: MEDetailsActionButtonsDelegate {
+    func handleLikes() {
         guard let viewModel = viewModel else { return }
         delegate?.didTapLikeActionFor(self, forComment: viewModel.comment)
     }
+    
+    func handleShowLikes() {
+        return
+    }
 }
+

@@ -81,7 +81,7 @@ class MENavigationBarTitleView: UIView {
         
         NSLayoutConstraint.activate([
             fullNameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            fullNameLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -8),
+            fullNameLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -10),
                     
             categoryLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             categoryLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor),

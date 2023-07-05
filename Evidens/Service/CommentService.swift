@@ -100,6 +100,34 @@ struct CommentService {
         }
     }
     
+    static func addComment(_ comment: String, for clinicalCase: Case, from user: User, kind: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
+        switch kind {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
+            
+            let anonymous = user.uid == clinicalCase.ownerUid && clinicalCase.privacyOptions == .nonVisible
+            let author = user.uid == clinicalCase.ownerUid
+            
+            let data: [String: Any] = ["uid": user.uid as Any,
+                                       "comment": comment,
+                                       "id": commentRef.documentID,
+                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2)),
+                                       "anonymous": anonymous,
+                                       "isAuthor": author]
+            
+            commentRef.setData(data) { error in
+                if let error {
+                    completion(.failure(error))
+                } else {
+                    let comment = Comment(dictionary: data)
+                    completion(.success(comment))
+                }
+            }
+        case .group:
+            break
+        }
+    }
+    
     static func uploadAnonymousComment(comment: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping([String]) -> Void) {
         switch type {
         case .regular:
@@ -257,7 +285,6 @@ struct CommentService {
                         completion(snapshot)
                         return
                     }
-                    
                     completion(snapshot)
                 }
             case .group:

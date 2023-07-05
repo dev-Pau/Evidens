@@ -48,7 +48,7 @@ class MEUserPostView: UIView {
         label.textColor = .label
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         return label
     }()
     
@@ -72,7 +72,7 @@ class MEUserPostView: UIView {
         let label = UILabel()
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = .label
         return label
     }()

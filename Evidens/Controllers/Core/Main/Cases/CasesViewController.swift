@@ -694,11 +694,6 @@ extension CasesViewController: CaseCellDelegate {
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user, type: .regular, collectionViewFlowLayout: layout)
         controller.delegate = self
         
-        let backItem = UIBarButtonItem()
-        backItem.title = ""
-        backItem.tintColor = .label
-        navigationItem.backBarButtonItem = backItem
-        
         navigationController?.pushViewController(controller, animated: true)
     }
     

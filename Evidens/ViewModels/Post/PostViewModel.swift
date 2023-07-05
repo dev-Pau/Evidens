@@ -61,7 +61,7 @@ struct PostViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return post.didLike ? pinkColor : .label
+        return post.didLike ? pinkColor : .secondaryLabel
     }
     
     var likeButtonImage: UIImage? {
@@ -69,18 +69,18 @@ struct PostViewModel {
         if post.didLike {
             return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.systemPink)
         } else {
-            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label)
+            return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
         }
 
     }
     
     var bookMarkImage: UIImage? {
         let imageName = post.didBookmark ? "bookmark.fill" : "bookmark"
-        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.label)
+        return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withTintColor(.secondaryLabel)
     }
     
     var bookmarkButtonTintColor: UIColor {
-        return .label
+        return .secondaryLabel
     }
     
     var likesLabelText: String {

@@ -161,8 +161,8 @@ class HomeThreeImageTextCell: UICollectionViewCell {
             
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
-                let firstLines = strongSelf.postTextView.getFirstThreeLinesText()!
-                let lastLine = strongSelf.postTextView.getLastLineText()!
+                let firstLines = strongSelf.postTextView.getFirstLinesText(3)!
+                let lastLine = strongSelf.postTextView.getLastLineText(3)!
                 let lastLineFits = lastLine.getSubstringThatFitsWidth(width: UIScreen.main.bounds.width - 10 - showMoreSize, font: UIFont.systemFont(ofSize: 15, weight: .regular))
 
                 strongSelf.postTextView.attributedText = NSMutableAttributedString(string: firstLines.appending(lastLineFits) , attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])

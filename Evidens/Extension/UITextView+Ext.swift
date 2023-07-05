@@ -78,14 +78,14 @@ extension UITextView {
     }
     
     
-    func getLastLineText() -> String? {
+    func getLastLineText(_ totalLines: Int) -> String? {
         let layoutManager = self.layoutManager
         let textContainer = self.textContainer
         
         let glyphRange = layoutManager.glyphRange(for: textContainer)
         
         // Calculate the line index for the fourth line
-        let lineIndex = 3  // Fourth line index (zero-based)
+        let lineIndex = totalLines  // Fourth line index (zero-based)
         
         var visibleLineCount = 0
         var visibleLineText = ""
@@ -115,14 +115,14 @@ extension UITextView {
     }
     
     
-    func getFirstThreeLinesText() -> String? {
+    func getFirstLinesText(_ lines: Int) -> String? {
         let layoutManager = self.layoutManager
         let textContainer = self.textContainer
         
         let glyphRange = layoutManager.glyphRange(for: textContainer)
         
-        // Calculate the line index for the third line
-        let lineIndex = 2  // Third line index (zero-based)
+        // Calculate the line index for the x line
+        let lineIndex = lines - 1  // Third line index (zero-based)
         
         var visibleLineCount = 0
         var visibleLineText = ""
