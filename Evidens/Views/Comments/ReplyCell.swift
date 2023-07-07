@@ -251,10 +251,10 @@ class ReplyCell: UICollectionViewCell {
         self.user = user
         let attributedString = NSMutableAttributedString(string: "Anonymous", attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
         
-        nameLabel.attributedText = viewModel.anonymousComment ? attributedString : user.userLabelText()
+        nameLabel.attributedText = viewModel.anonymous ? attributedString : user.userLabelText()
         professionLabel.text = user.profession! + ", " + user.speciality!
         
-        if viewModel.anonymousComment {
+        if viewModel.anonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
@@ -267,14 +267,7 @@ class ReplyCell: UICollectionViewCell {
         guard let viewModel = viewModel else { return nil }
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         dotsImageButton.showsMenuAsPrimaryAction = true
-        
-        if viewModel.isTextFromAuthor {
-            let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.back.rawValue, image: Comment.CommentOptions.back.commentOptionsImage, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .back)
-                })])
-            return menuItems
-        } else if viewModel.commentOnwerUid == uid {
+        if viewModel.commentOnwerUid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
                     self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
@@ -291,7 +284,7 @@ class ReplyCell: UICollectionViewCell {
     
     @objc func didTapProfile() {
         guard let viewModel = viewModel, let user = user else { return }
-        if viewModel.anonymousComment { return } else {
+        if viewModel.anonymous { return } else {
             delegate?.didTapProfile(forUser: user)
         }
     }

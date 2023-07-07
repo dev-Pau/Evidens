@@ -210,7 +210,7 @@ extension CommentCaseViewController: UICollectionViewDelegateFlowLayout {
         cell.set(user: users[userIndex])
         
         if comments[indexPath.row].hasCommentFromAuthor {
-            if comments[indexPath.row].anonymous {
+            if comments[indexPath.row].visible == .anonymous {
                 cell.commentActionButtons.ownerPostImageView.image = UIImage(named: "user.profile.privacy")
             } else {
                 cell.commentActionButtons.ownerPostImageView.sd_setImage(with: URL(string: user.profileImageUrl! ))
@@ -252,7 +252,7 @@ extension CommentCaseViewController: CommentCellDelegate {
     }
 
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        if comment.isTextFromAuthor { return }
+        //if comment.isTextFromAuthor { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentCaseRepliesViewController(comment: comment, user: users[userIndex], clinicalCase: clinicalCase, type: type, currentUser: currentUser)
             controller.delegate = self
@@ -277,6 +277,8 @@ extension CommentCaseViewController: CommentCellDelegate {
                 }
             }
         case .delete:
+            
+            /*
             if let indexPath = self.collectionView.indexPath(for: cell) {
                 self.deleteCommentAlert {
                     CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: comment.id) { deleted in
@@ -298,6 +300,8 @@ extension CommentCaseViewController: CommentCellDelegate {
                     }
                 }
             }
+             */
+            break
         case .back:
             navigationController?.popViewController(animated: true)
         }
@@ -391,14 +395,30 @@ extension CommentCaseViewController: CommentInputAccessoryViewDelegate {
 }
 
 extension CommentCaseViewController: CommentCaseRepliesViewControllerDelegate {
+    func didDeleteComment(comment: Comment) {
+        return
+    }
+    
+    func didDeleteReply(withReference reference: String, comment: Comment) {
+        print("delete this vc")
+    }
+    
     func didLikeComment(comment: Comment) {
+        return
+    }
+    
+    func didDeleteReply(withRefComment refComment: Comment, comment: Comment) {
+        return
+    }
+    
+    func didDeleteReply(comment: Comment) {
         if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
             self.comments[commentIndex].likes = comment.likes
             self.comments[commentIndex].didLike = comment.didLike
             self.collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 0)])
         }
     }
-    
+
     func didAddReplyToComment(comment: Comment) {
         if let commentIndex = self.comments.firstIndex(where: { $0.id == comment.id }) {
             self.comments[commentIndex].numberOfComments += 1

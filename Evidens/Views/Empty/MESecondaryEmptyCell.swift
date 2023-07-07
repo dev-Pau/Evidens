@@ -62,6 +62,7 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         button.configuration?.baseBackgroundColor = .label
         button.configuration?.baseForegroundColor = .systemBackground
         button.configuration?.cornerStyle = .capsule
+        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
         button.addTarget(self, action: #selector(didTapEmptyCellButton), for: .touchUpInside)
         return button
     }()
@@ -105,9 +106,8 @@ class MESecondaryEmptyCell: UICollectionViewCell {
         emptyDescriptionLabel.text = description
         emptyCellOption = buttonText
         var container = AttributeContainer()
-        container.font = .systemFont(ofSize: 15, weight: .bold)
+        container.font = .systemFont(ofSize: 15, weight: .semibold)
         emptyCellButton.configuration?.attributedTitle = AttributedString(buttonText.rawValue, attributes: container)
-        
     }
     
     @objc func didTapEmptyCellButton() {
@@ -117,17 +117,12 @@ class MESecondaryEmptyCell: UICollectionViewCell {
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         let autoLayoutAttributes = super.preferredLayoutAttributesFitting(layoutAttributes)
-
         let targetSize = CGSize(width: layoutAttributes.frame.width, height: 0)
-
         let autoLayoutSize = systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: UILayoutPriority.required, verticalFittingPriority: UILayoutPriority.defaultLow)
-        
         let height = max(UIScreen.main.bounds.height * multiplier, autoLayoutSize.height)
-
         let autoLayoutFrame = CGRect(origin: autoLayoutAttributes.frame.origin, size: CGSize(width: autoLayoutSize.width, height: height))
         autoLayoutAttributes.frame = autoLayoutFrame
         return autoLayoutAttributes
     }
-     
 }
 

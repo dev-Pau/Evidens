@@ -106,20 +106,24 @@ struct CommentService {
             let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
             
             let anonymous = user.uid == clinicalCase.ownerUid && clinicalCase.privacyOptions == .nonVisible
-            let author = user.uid == clinicalCase.ownerUid
-            
-            let data: [String: Any] = ["uid": user.uid as Any,
+
+            var data: [String: Any] = ["uid": user.uid as Any,
                                        "comment": comment,
                                        "id": commentRef.documentID,
-                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2)),
-                                       "anonymous": anonymous,
-                                       "isAuthor": author]
+                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
+            
+            if anonymous {
+                data["visible"] = Visible.anonymous.rawValue
+            } else {
+                data["visible"] = Visible.regular.rawValue
+            }
             
             commentRef.setData(data) { error in
                 if let error {
                     completion(.failure(error))
                 } else {
-                    let comment = Comment(dictionary: data)
+                    var comment = Comment(dictionary: data)
+                    comment.isAuthor = user.uid == clinicalCase.ownerUid
                     completion(.success(comment))
                 }
             }
@@ -628,8 +632,16 @@ struct CommentService {
         }
     }
     
-    static func deleteCaseComment(forCase clinicalCase: Case, forCommentUid commentUid: String, completion: @escaping(Bool) -> Void) {
-        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).delete { error in
+    static func deleteCaseComment(forCase clinicalCase: Case, forCommentUid commentId: String, completion: @escaping(Error?) -> Void) {
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).updateData(["visible": Visible.deleted.rawValue]) { error in
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+        /*
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).delete { error in
             if let _ = error {
                 print("Error deleting document")
                 completion(false)
@@ -639,6 +651,29 @@ struct CommentService {
             //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments - 1])
             completion(true)
         }
+         */
+    }
+    
+    static func deleteCaseReply(forCase clinicalCase: Case, forCommentUid commentId: String, forReplyId replyId: String, completion: @escaping(Error?) -> Void) {
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document(replyId).updateData(["visible": Visible.deleted.rawValue]) { error in
+            if let error {
+                completion(error)
+            } else {
+                completion(nil)
+            }
+        }
+        /*
+        COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).delete { error in
+            if let _ = error {
+                print("Error deleting document")
+                completion(false)
+                return
+            }
+            print("Comment deleted from firestore")
+            //COLLECTION_CASES.document(clinicalCase.caseId).updateData(["comments": clinicalCase.numberOfComments - 1])
+            completion(true)
+        }
+         */
     }
     
     static func likeCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(FirestoreCompletion)) {
@@ -784,14 +819,17 @@ struct CommentService {
     static func fetchNumberOfCommentsForCaseComment(forCase clinicalCase: Case, forType type: Comment.CommentType, forCommentUid commentUid: String, completion: @escaping(Int) -> Void) {
         switch type {
         case .regular:
-            let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").count
-            commentsRef.getAggregation(source: .server) { snapshot, _ in
+            let commentsRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments")
+            let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+            
+            query.getAggregation(source: .server) { snapshot, _ in
                 if let comments = snapshot?.count {
                     completion(comments.intValue)
                 }
             }
         case .group:
-            let commentsRef = COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").count
+            let commentsRef =
+            COLLECTION_GROUPS.document(clinicalCase.groupId!).collection("cases").document(clinicalCase.caseId).collection("comments").document(commentUid).collection("comments").count
             commentsRef.getAggregation(source: .server) { snapshot, _ in
                 if let comments = snapshot?.count {
                     completion(comments.intValue)
@@ -1132,6 +1170,38 @@ struct CommentService {
                     completion(likes.intValue)
                 }
             }
+        }
+    }
+    
+    static func addReply(_ reply: String, commentId: String, clinicalCase: Case, user: User, type: Comment.CommentType, completion: @escaping(Result<Comment, Error>) -> Void) {
+        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        switch type {
+        case .regular:
+            let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(commentId).collection("comments").document()
+
+            let anonymous = user.uid == clinicalCase.ownerUid && clinicalCase.privacyOptions == .nonVisible
+            
+            var data: [String: Any] = ["uid": uid,
+                                       "comment": reply,
+                                       "id": commentRef.documentID,
+                                       "timestamp": Timestamp(date: Date(timeIntervalSinceNow: -2))]
+            
+            if anonymous {
+                data["anonymous"] = anonymous
+            }
+
+            commentRef.setData(data) { error in
+                if let error {
+                    completion(.failure(error))
+                } else {
+                    var comment = Comment(dictionary: data)
+                    comment.isAuthor = user.uid == clinicalCase.ownerUid
+                    completion(.success(comment))
+                }
+            }
+            
+        case .group:
+            break
         }
     }
     

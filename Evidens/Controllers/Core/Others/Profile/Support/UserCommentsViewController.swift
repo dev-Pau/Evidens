@@ -116,9 +116,9 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
         backItem.tintColor = .label
         self.navigationItem.backBarButtonItem = backItem
         
-        if comment.type == 0 {
+        if comment.source == .post {
             // Post
-            PostService.fetchPost(withPostId: comment.refUid) { post in
+            PostService.fetchPost(withPostId: comment.referenceId) { post in
                 self.progressIndicator.dismiss(animated: true)
                 
                 let layout = UICollectionViewFlowLayout()
@@ -132,7 +132,7 @@ extension UserCommentsViewController: UICollectionViewDelegateFlowLayout, UIColl
             }
         } else {
             // Clinical Case
-            CaseService.fetchCase(withCaseId: comment.refUid) { clinicalCase in
+            CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
                 self.progressIndicator.dismiss(animated: true)
                 let layout = UICollectionViewFlowLayout()
                 layout.scrollDirection = .vertical

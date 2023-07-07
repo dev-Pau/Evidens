@@ -10,17 +10,23 @@ import UIKit
 struct CommentViewModel {
     var comment: Comment
     
-    var anonymousComment: Bool {
-        return comment.anonymous
+    var visible: Visible {
+        return comment.visible
+    }
+    
+    var anonymous: Bool {
+        return comment.visible == .anonymous
     }
     
     var commentOnwerUid: String {
         return comment.uid
     }
     
+    /*
     var isTextFromAuthor: Bool {
         return comment.isTextFromAuthor
     }
+    */
     
     var isAuthor: Bool {
         return comment.isAuthor

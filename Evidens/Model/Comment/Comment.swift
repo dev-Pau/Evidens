@@ -14,13 +14,12 @@ struct Comment {
     let id: String
     let timestamp: Timestamp
     let commentText: String
-    let anonymous: Bool
-    var isAuthor: Bool
-    let isTextFromAuthor: Bool
-    
+    var visible: Visible
+
     var didLike = false
     var likes = 0
     var numberOfComments = 0
+    var isAuthor = false
     var hasCommentFromAuthor = false
     
     /// Initializes a new instance of a Comment using a dictionary.
@@ -34,9 +33,10 @@ struct Comment {
         self.id = dictionary["id"] as? String ?? ""
         self.commentText = dictionary["comment"] as? String ?? ""
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
-        self.anonymous = dictionary["anonymous"] as? Bool ?? false
-        self.isAuthor = dictionary["isAuthor"] as? Bool ?? false
-        self.isTextFromAuthor = dictionary["isTextFromAuthor"] as? Bool ?? false
+        //self.anonymous = dictionary["anonymous"] as? Bool ?? false
+        self.visible = Visible(rawValue: dictionary["visible"] as? Int ?? 0) ?? .regular
+        //self.isAuthor = dictionary["isAuthor"] as? Bool ?? false
+        //self.isTextFromAuthor = dictionary["isTextFromAuthor"] as? Bool ?? false
     }
 }
 

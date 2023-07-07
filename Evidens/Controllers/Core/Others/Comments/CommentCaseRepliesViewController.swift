@@ -14,10 +14,13 @@ import Firebase
 private let loadingCellReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 private let replyCellReuseIdentifier = "ReplyCellReuseIdentifier"
+private let deletedContentCellReuseIdentifier = "DeletedContentCellReuseIdentifier"
 
 protocol CommentCaseRepliesViewControllerDelegate: AnyObject {
     func didLikeComment(comment: Comment)
     func didAddReplyToComment(comment: Comment)
+    func didDeleteReply(withRefComment refComment: Comment, comment: Comment)
+    func didDeleteComment(comment: Comment)
 }
 
 class CommentCaseRepliesViewController: UICollectionViewController {
@@ -33,6 +36,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
     weak var delegate: CommentCaseRepliesViewControllerDelegate?
+    private var commentMenuLauncher = MEContextMenuLauncher(menuLauncherData: Display(content: .comment))
     private var bottomAnchorConstraint: NSLayoutConstraint!
 
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -69,6 +73,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         configureNavigationBar()
         configureUI()
         fetchRepliesForComment()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     private func configureNavigationBar() {
@@ -90,13 +95,11 @@ class CommentCaseRepliesViewController: UICollectionViewController {
             
             self.lastReplySnapshot = snapshot.documents.last
             let comments = snapshot.documents.map { Comment(dictionary: $0.data()) }
-            
             let replyUids = comments.map { $0.uid }
 
             CommentService.getCaseRepliesCommmentsValuesFor(forCase: self.clinicalCase, forComment: self.comment, forReplies: comments, forType: self.type) { fetchedReplies in
                 UserService.fetchUsers(withUids: replyUids) { users in
                     self.users = users
-                    print(self.users)
                     self.comments = fetchedReplies.sorted { $0.timestamp.seconds < $1.timestamp.seconds }
                     self.commentsLoaded = true
                     self.collectionView.reloadData()
@@ -112,6 +115,7 @@ class CommentCaseRepliesViewController: UICollectionViewController {
         collectionView.register(MELoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentCell.self, forCellWithReuseIdentifier: commentCellReuseIdentifier)
         collectionView.register(ReplyCell.self, forCellWithReuseIdentifier: replyCellReuseIdentifier)
+        collectionView.register(DeletedContentCell.self, forCellWithReuseIdentifier: deletedContentCellReuseIdentifier)
         view.addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -126,12 +130,35 @@ class CommentCaseRepliesViewController: UICollectionViewController {
                 commentInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 commentInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
             ])
-            
+            commentInputView.set(placeholder: "Voice your thoughts here...")
             collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
             collectionView.verticalScrollIndicatorInsets.bottom = 50
         }
-
     }
+    
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+
+        let constant = -(keyboardHeight - tabBarHeight)
+        UIView.animate(withDuration: animationDuration) {
+            self.bottomAnchorConstraint.constant = constant
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     
     private func configureUI() {
         guard let imageUrl = UserDefaults.standard.value(forKey: "userProfileImageUrl") as? String, imageUrl != "" else { return }
@@ -150,37 +177,58 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            if repliesEnabled {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
+            
+            switch comment.visible {
+                
+            case .regular, .anonymous:
+                if repliesEnabled {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: commentCellReuseIdentifier, for: indexPath) as! CommentCell
+                    cell.delegate = self
+                    cell.showingRepliesForComment = true
+                    cell.isReply = false
+                    cell.viewModel = CommentViewModel(comment: comment)
+                    cell.set(user: user)
+                    return cell
+                } else {
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
+                    cell.delegate = self
+                    cell.isExpanded = true
+                    cell.isAuthor = comment.uid == clinicalCase.ownerUid
+                    cell.viewModel = CommentViewModel(comment: comment)
+                    cell.set(user: user)
+                    return cell
+                }
+            case .deleted:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
                 cell.delegate = self
-                cell.showingRepliesForComment = true
-                cell.isReply = false
-                cell.viewModel = CommentViewModel(comment: comment)
-                cell.set(user: user)
-                return cell
-            } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
-                cell.delegate = self
-                cell.isExpanded = true
-                cell.viewModel = CommentViewModel(comment: comment)
-                cell.set(user: user)
                 return cell
             }
+
         } else {
             if !commentsLoaded {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: loadingCellReuseIdentifier, for: indexPath) as! MELoadingCell
                 return cell
+                
             } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
-                cell.delegate = self
-                cell.isExpanded = false
-                cell.isAuthor = comments[indexPath.row].uid == clinicalCase.ownerUid
-                cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
-                cell.commentTextView.isSelectable = false
-                if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
-                    cell.set(user: users[userIndex])
+                let comment = comments[indexPath.row]
+                switch comment.visible {
+                    
+                case .regular, .anonymous:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: replyCellReuseIdentifier, for: indexPath) as! ReplyCell
+                    cell.delegate = self
+                    cell.isExpanded = false
+                    cell.isAuthor = comments[indexPath.row].uid == clinicalCase.ownerUid
+                    cell.viewModel = CommentViewModel(comment: comments[indexPath.row])
+                    cell.commentTextView.isSelectable = false
+                    if let userIndex = users.firstIndex(where: { $0.uid == comments[indexPath.row].uid }) {
+                        cell.set(user: users[userIndex])
+                    }
+                    return cell
+                case .deleted:
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: deletedContentCellReuseIdentifier, for: indexPath) as! DeletedContentCell
+                    cell.delegate = self
+                    return cell
                 }
-                return cell
             }
         }
     }
@@ -189,56 +237,112 @@ extension CommentCaseRepliesViewController: UICollectionViewDelegateFlowLayout {
 extension CommentCaseRepliesViewController: CommentInputAccessoryViewDelegate {
     
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        CommentService.uploadCaseReplyComment(comment: comment, commentId: self.comment.id, clinicalCase: clinicalCase, user: user, type: type) { [self] commentId in
-            self.comment.numberOfComments += 1
-            
-            inputView.clearCommentTextView()
-            
-            let isAuthor = uid == self.clinicalCase.ownerUid ? true : false
-            
-            let addedComment = Comment(dictionary: [
-                "comment": comment,
-                "uid": self.currentUser.uid as Any,
-                "id": commentId as Any,
-                "timestamp": "Now" as Any,
-                "isTextFromAuthor": false as Bool,
-                "anonymous": (isAuthor && clinicalCase.privacyOptions == .nonVisible) ? true : false,
-                "isAuthor": isAuthor as Any])
-            
-            self.comments.append(addedComment)
-            
-            self.users.append(User(dictionary: [
-                "uid": self.currentUser.uid as Any,
-                "firstName": self.currentUser.firstName as Any,
-                "lastName": self.currentUser.lastName as Any,
-                "profileImageUrl": self.currentUser.profileImageUrl as Any,
-                "profession": self.currentUser.profession as Any,
-                "category": self.currentUser.category.rawValue as Any,
-                "speciality": self.currentUser.speciality as Any]))
-
-            let indexPath = IndexPath(item: self.comments.count - 1, section: 1)
-            self.collectionView.insertItems(at: [indexPath])
-            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
-            self.delegate?.didAddReplyToComment(comment: self.comment)
+        inputView.commentTextView.resignFirstResponder()
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        CommentService.addReply(comment, commentId: self.comment.id, clinicalCase: clinicalCase, user: user, type: type) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let comment):
+                strongSelf.comment.numberOfComments += 1
+                
+                strongSelf.users.append(User(dictionary: [
+                    "uid": strongSelf.currentUser.uid as Any,
+                    "firstName": strongSelf.currentUser.firstName as Any,
+                    "lastName": strongSelf.currentUser.lastName as Any,
+                    "profileImageUrl": strongSelf.currentUser.profileImageUrl as Any,
+                    "profession": strongSelf.currentUser.profession as Any,
+                    "category": strongSelf.currentUser.category.rawValue as Any,
+                    "speciality": strongSelf.currentUser.speciality as Any]))
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    strongSelf.collectionView.performBatchUpdates {
+                        strongSelf.comments.insert(comment, at: 0)
+                        strongSelf.collectionView.insertItems(at: [IndexPath(item: 0, section: 1)])
+                    } completion: { _ in
+                        strongSelf.delegate?.didAddReplyToComment(comment: strongSelf.comment)
+                    }
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
         }
     }
 }
 
 extension CommentCaseRepliesViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
-        print("did tap comment")
-        #warning("Implement")
+        if let indexPath = collectionView.indexPath(for: cell) {
+            switch action {
+            case .back:
+                navigationController?.popViewController(animated: true)
+            case .report:
+                print("report")
+            case .delete:
+                if repliesEnabled {
+                    if indexPath.section == 0 {
+                        // Is the Original Comment
+                        deleteCommentAlert {
+                            CommentService.deleteCaseComment(forCase: self.clinicalCase, forCommentUid: self.comment.id) { error in
+                                if let error {
+                                    print(error.localizedDescription)
+                                } else {
+                                    self.comment.visible = .deleted
+                                    self.collectionView.reloadItems(at: [indexPath])
+                                    #warning("descomentar això i mirar que realment és a reply a qui fa referencia")
+                                    //DatabaseManager.shared.deleteRecentComment(forCommentId: self.comment.id)
+                                    
+                                    self.delegate?.didDeleteComment(comment: self.comment)
+                                    
+                                    let popupView = METopPopupView(title: "Comment deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                                    popupView.showTopPopup(inView: self.view)
+                                }
+                            }
+                        }
+                    } else {
+                        // Is a reply of a comment
+                        deleteCommentAlert {
+                            CommentService.deleteCaseReply(forCase: self.clinicalCase, forCommentUid: self.comment.id, forReplyId: comment.id) { error in
+                                if let error {
+                                    print(error.localizedDescription)
+                                } else {
+                                    #warning("descomentar això i mirar que realment és a reply a qui fa referencia")
+                                    //DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+
+                                    self.comments[indexPath.row].visible = .deleted
+                                    self.collectionView.reloadItems(at: [indexPath])
+                                    self.delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
+                                    let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                                    popupView.showTopPopup(inView: self.view)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Is a reply
+                    deleteCommentAlert {
+                        CommentService.deleteCaseReply(forCase: self.clinicalCase, forCommentUid: self.referenceCommentId, forReplyId: comment.id) { error in
+                            if let error {
+                                print(error.localizedDescription)
+                            } else {
+                                #warning("descomentar això i mirar que realment és a reply a qui fa referencia")
+                                //DatabaseManager.shared.deleteRecentComment(forCommentId: comment.id)
+
+                                self.comment.visible = .deleted
+                                self.collectionView.reloadData()
+                                self.delegate?.didDeleteReply(withRefComment: comment, comment: comment)
+                                let popupView = METopPopupView(title: "Reply deleted", image: "checkmark.circle.fill", popUpType: .regular)
+                                popupView.showTopPopup(inView: self.view)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     func didTapProfile(forUser user: User) {
-        guard let rootController = navigationController?.viewControllers.first as? CommentPostViewController else {
-            return
-            
-        }
-        
-        rootController.didTapProfile(forUser: user)
-        
+        let controller = UserProfileViewController(user: user)
+        self.navigationController?.pushViewController(controller, animated: true)
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
@@ -258,11 +362,11 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         
         HapticsManager.shared.vibrate(for: .success)
-        let currentCell = cell as! CommentCell
-        currentCell.viewModel?.comment.didLike.toggle()
-        
-        
+
         if indexPath.section == 0 && repliesEnabled {
+            let currentCell = cell as! CommentCell
+            currentCell.viewModel?.comment.didLike.toggle()
+            
             // Comment like
             if comment.didLike {
                 
@@ -283,6 +387,8 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
                 }
             }
         } else {
+            let currentCell = cell as! ReplyCell
+            currentCell.viewModel?.comment.didLike.toggle()
             // Reply like
             if comment.didLike {
                 
@@ -316,8 +422,17 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
     }
 }
 
-extension CommentCaseRepliesViewController: CommentsRepliesViewControllerDelegate {
-    // This will never get called because this call will come from another CommentRepliesViewController on top of it, which is not available to comment there, only like
+extension CommentCaseRepliesViewController: CommentsRepliesViewControllerDelegate, CommentCaseRepliesViewControllerDelegate {
+    func didDeleteComment(comment: Comment) { return }
+    
+    func didDeleteReply(withRefComment refComment: Comment, comment: Comment) {
+        if let commentIndex = comments.firstIndex(where: { $0.id == comment.id }) {
+            comments[commentIndex].visible = .deleted
+            collectionView.reloadItems(at: [IndexPath(item: commentIndex, section: 1)])
+            delegate?.didDeleteReply(withRefComment: self.comment, comment: comment)
+        }
+    }
+    
     func didAddReplyToComment(comment: Comment) { return }
     
     func didLikeComment(comment: Comment) {
@@ -329,7 +444,13 @@ extension CommentCaseRepliesViewController: CommentsRepliesViewControllerDelegat
     }
 }
 
-extension CommentCaseRepliesViewController: CommentCaseRepliesViewControllerDelegate {
+extension CommentCaseRepliesViewController: DeletedContentCellDelegate {
+    func didTapReplies(_ cell: UICollectionViewCell, forComment comment: Comment) { return }
+    
+    func didTapLearnMore() {
+        commentInputView.resignFirstResponder()
+        commentMenuLauncher.showImageSettings(in: view)
+    }
+    
     
 }
-

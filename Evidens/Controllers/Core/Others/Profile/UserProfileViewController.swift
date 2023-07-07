@@ -497,9 +497,9 @@ class UserProfileViewController: UIViewController {
                     self.checkIfAllUserInformationIsFetched()
                     return
                 }
-                
-                //recentComments.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+
                 self.recentComments = recentComments.reversed()
+                print(self.recentComments)
                 self.checkIfAllUserInformationIsFetched()
             case .failure(_):
                 print("Failure fetching recent comments")
@@ -1031,31 +1031,32 @@ extension UserProfileViewController: UICollectionViewDelegate, UICollectionViewD
             // Comments
             guard !recentComments.isEmpty else { return }
             let comment = recentComments[indexPath.row]
-            if comment.type == 0 {
-                // Post
-                    showLoadingView()
-                    PostService.fetchPost(withPostId: comment.refUid) { post in
-                        self.dismissLoadingView()
-                        let layout = UICollectionViewFlowLayout()
-                        layout.scrollDirection = .vertical
-                        layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
-                        layout.minimumLineSpacing = 0
-                        layout.minimumInteritemSpacing = 0
-                        
-                        let controller = DetailsPostViewController(post: post, user: self.user, type: .regular, collectionViewLayout: layout)
-                        
-                        let backItem = UIBarButtonItem()
-                        backItem.title = ""
-                        backItem.tintColor = .label
-                        self.navigationItem.backBarButtonItem = backItem
-                        
-                        self.navigationController?.pushViewController(controller, animated: true)
+            
+            switch comment.source {
+            case .post:
+                showLoadingView()
+                PostService.fetchPost(withPostId: comment.referenceId) { post in
+                    self.dismissLoadingView()
+                    let layout = UICollectionViewFlowLayout()
+                    layout.scrollDirection = .vertical
+                    layout.estimatedItemSize = CGSize(width: self.view.frame.width, height: 300)
+                    layout.minimumLineSpacing = 0
+                    layout.minimumInteritemSpacing = 0
                     
-                }
-            } else {
+                    let controller = DetailsPostViewController(post: post, user: self.user, type: .regular, collectionViewLayout: layout)
+                    
+                    let backItem = UIBarButtonItem()
+                    backItem.title = ""
+                    backItem.tintColor = .label
+                    self.navigationItem.backBarButtonItem = backItem
+                    
+                    self.navigationController?.pushViewController(controller, animated: true)
+                
+            }
+            case .clinicalCase:
                 // Case
                     showLoadingView()
-                    CaseService.fetchCase(withCaseId: comment.refUid) { clinicalCase in
+                CaseService.fetchCase(withCaseId: comment.referenceId) { clinicalCase in
                         self.dismissLoadingView()
                         let layout = UICollectionViewFlowLayout()
                         layout.scrollDirection = .vertical

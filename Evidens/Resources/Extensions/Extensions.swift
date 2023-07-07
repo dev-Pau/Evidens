@@ -203,7 +203,7 @@ extension UIViewController {
     }
     
     func deleteCommentAlert(completion: @escaping() -> Void) {
-        let alert = UIAlertController(title: "Delete comment", message: "Are you sure you want to delete this comment?", preferredStyle: UIAlertController.Style.alert)
+        let alert = UIAlertController(title: "Delete Comment", message: "Are you sure you want to delete this comment?", preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Delete", style: UIAlertAction.Style.destructive, handler: { _ in
             completion()

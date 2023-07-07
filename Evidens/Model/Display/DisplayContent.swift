@@ -9,7 +9,7 @@ import Foundation
 
 /// An enum mapping all the DisplayContent types.
 enum DisplayContent: Int, CaseIterable {
-    case groupPrivacy, jobPrivacy, join, email, password
+    case groupPrivacy, jobPrivacy, join, email, password, comment
     
     var title: String {
         switch self {
@@ -18,6 +18,7 @@ enum DisplayContent: Int, CaseIterable {
         case .join: return AppStrings.Display.joinTitle
         case .email: return AppStrings.Display.emailChangeTitle
         case .password: return AppStrings.Display.passwordChangeTitle
+        case .comment: return AppStrings.Display.commentTitle
         }
     }
     
@@ -28,6 +29,7 @@ enum DisplayContent: Int, CaseIterable {
         case .join: return AppStrings.Display.joinContent
         case .email: return AppStrings.Display.emailChangeContent
         case .password: return AppStrings.Display.passwordChangeContent
+        case .comment: return AppStrings.Display.commentContent
         }
     }
 }

@@ -234,3 +234,48 @@ exports.onNewMessage = functions.database.ref('conversations/{conversationId}/me
     }
   });
 });
+
+exports.addReferenceOnCaseComment = functions.firestore.document('cases/{caseId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+  const caseId = context.params.caseId;
+  const commentId = context.params.commentId;
+  const userId = snapshot.data().uid;
+  const timestamp = snapshot.data().timestamp;
+  const kind = 0;
+  const source = 1;
+
+  // source, 0 post, 1 comment
+  // kind 0 comment, 1 reply
+  const comment = {
+    id: commentId,
+    referenceId: caseId,
+    kind: kind,
+    source: source,
+    timestamp: admin.database.ServerValue.TIMESTAMP
+  }
+
+  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();;
+  userRef.set(comment);
+});
+
+exports.addReferenceOnCaseReply = functions.firestore.document('cases/{caseId}/comments/{commentId}/comments/{replyId}').onCreate(async (snapshot, context) => {
+  const caseId = context.params.caseId;
+  const commentId = context.params.commentId;
+  const replyId = context.params.replyId;
+  const userId = snapshot.data().uid;
+  const timestamp = snapshot.data().timestamp;
+  const kind = 1;
+  const source = 1;
+
+  const comment = {
+    id: replyId,
+    referenceId: caseId,
+    kind: kind,
+    source: source,
+    commentId: commentId,
+    timestamp: admin.database.ServerValue.TIMESTAMP
+  }
+
+  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();;
+  userRef.set(comment);
+});
+

@@ -106,7 +106,7 @@ class UserProfileCommentCell: UICollectionViewCell {
     func configure(recentComment: RecentComment) {
         guard let user = user else { return }
 
-        let date = NSDate(timeIntervalSince1970: recentComment.timestamp)
+        let date = Date(timeIntervalSince1970: recentComment.timestamp / 1000)
         //let date = NSDate
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth, .year]
@@ -115,15 +115,8 @@ class UserProfileCommentCell: UICollectionViewCell {
         //let commentTimestamp = formatter.string(for: date)
         let commentTimestamp = formatter.string(from: date as Date, to: Date())
         
-        if recentComment.type == 0 {
-            // Post
-            commentTextLabel.attributedText = commentLabelAttributedString(text: "commented on this post", timestamp: commentTimestamp ?? "")
-        } else {
-            // Clinical case
-            commentTextLabel.attributedText = commentLabelAttributedString(text: "commented on this case", timestamp: commentTimestamp ?? "")
-        }
-        
-        commentUserLabel.text = recentComment.comment
+        commentTextLabel.attributedText = commentLabelAttributedString(text: recentComment.kind.title + " on this " + recentComment.source.title, timestamp: commentTimestamp ?? "")
+        commentUserLabel.text = recentComment.content
  
         if let imageUrl = user.profileImageUrl, imageUrl != "" {
             profileImageView.sd_setImage(with: URL(string: imageUrl))

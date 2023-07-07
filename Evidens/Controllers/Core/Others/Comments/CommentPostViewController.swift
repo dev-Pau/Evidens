@@ -236,7 +236,7 @@ extension CommentPostViewController: CommentCellDelegate {
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        if comment.isTextFromAuthor { return }
+        //if comment.isTextFromAuthor { return }
         if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
             let controller = CommentsRepliesViewController(comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser)
             controller.delegate = self

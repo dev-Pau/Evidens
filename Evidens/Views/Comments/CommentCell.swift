@@ -240,7 +240,7 @@ class CommentCell: UICollectionViewCell {
         commentTextView.attributedText = NSMutableAttributedString(string: viewModel.commentText, attributes: [.font: UIFont.systemFont(ofSize: 15, weight: .regular), .foregroundColor: UIColor.label])
         
         ownerLineView.isHidden = true
-
+        print(viewModel.comment.visible)
         
         if showingRepliesForComment {
             commentTextView.textContainer.maximumNumberOfLines = 0
@@ -306,7 +306,7 @@ class CommentCell: UICollectionViewCell {
         let textContainer = commentTextView.textContainer
         layoutManager.ensureLayout(for: textContainer)
         
-        if commentTextView.isTextTruncated && !viewModel.isTextFromAuthor {
+        if commentTextView.isTextTruncated /*&& !viewModel.isTextFromAuthor*/ {
             addSubview(showMoreView)
             showMoreView.isHidden = false
 
@@ -337,10 +337,10 @@ class CommentCell: UICollectionViewCell {
         self.user = user
         let attributedString = NSMutableAttributedString(string: "Anonymous", attributes: [.font: UIFont.boldSystemFont(ofSize: 16)])
         
-        nameLabel.attributedText = viewModel.anonymousComment ? attributedString : user.userLabelText()
+        nameLabel.attributedText = viewModel.anonymous ? attributedString : user.userLabelText()
         professionLabel.text = user.profession! + ", " + user.speciality!
         
-        if viewModel.anonymousComment {
+        if viewModel.anonymous {
             profileImageView.image = UIImage(named: "user.profile.privacy")
         } else {
             if let imageUrl = user.profileImageUrl, imageUrl != "" {
@@ -367,13 +367,7 @@ class CommentCell: UICollectionViewCell {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
         dotsImageButton.showsMenuAsPrimaryAction = true
         
-        if viewModel.isTextFromAuthor {
-            let menuItems = UIMenu(options: .displayInline, children: [
-                UIAction(title: Comment.CommentOptions.back.rawValue, image: Comment.CommentOptions.back.commentOptionsImage, handler: { _ in
-                    self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .back)
-                })])
-            return menuItems
-        } else if viewModel.commentOnwerUid == uid {
+        if viewModel.commentOnwerUid == uid {
             let menuItems = UIMenu(options: .displayInline, children: [
                 UIAction(title: Comment.CommentOptions.delete.rawValue, image: Comment.CommentOptions.delete.commentOptionsImage, handler: { _ in
                     self.delegate?.didTapComment(self, forComment: viewModel.comment, action: .delete)
@@ -390,7 +384,7 @@ class CommentCell: UICollectionViewCell {
     
     @objc func didTapProfile() {
         guard let viewModel = viewModel, let user = user else { return }
-        if viewModel.anonymousComment { return } else {
+        if viewModel.anonymous { return } else {
             delegate?.didTapProfile(forUser: user)
         }
     }

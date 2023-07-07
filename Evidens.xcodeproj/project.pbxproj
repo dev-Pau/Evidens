@@ -399,7 +399,7 @@
 		5FA6C2B92A1CA62500C8E0EC /* AppStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA6C2B82A1CA62500C8E0EC /* AppStrings.swift */; };
 		5FA758D029D5B62900F1DEA4 /* SearchGroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */; };
 		5FA758D229D6C53900F1DEA4 /* METertiaryEmptyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */; };
-		5FA758D529D89D8A00F1DEA4 /* UserSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D429D89D8A00F1DEA4 /* UserSection.swift */; };
+		5FA758D529D89D8A00F1DEA4 /* RecentComment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D429D89D8A00F1DEA4 /* RecentComment.swift */; };
 		5FA758D729DB12AC00F1DEA4 /* CaseFeedTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D629DB12AC00F1DEA4 /* CaseFeedTextCell.swift */; };
 		5FA758D929DB2CC000F1DEA4 /* CasesFeedTextImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758D829DB2CC000F1DEA4 /* CasesFeedTextImageCell.swift */; };
 		5FA758DB29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA758DA29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift */; };
@@ -499,6 +499,8 @@
 		5FB6FD162A53026600B4044E /* NotificationMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD152A53026600B4044E /* NotificationMenu.swift */; };
 		5FB6FD182A53ED9300B4044E /* MEDetailsActionButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD172A53ED9300B4044E /* MEDetailsActionButtons.swift */; };
 		5FB6FD1C2A55C42100B4044E /* ReplyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD1B2A55C42100B4044E /* ReplyCell.swift */; };
+		5FB6FD1E2A56DA9800B4044E /* Visible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD1D2A56DA9800B4044E /* Visible.swift */; };
+		5FB6FD202A56F9D400B4044E /* DeletedContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB6FD1F2A56F9D400B4044E /* DeletedContentCell.swift */; };
 		5FBC2DA2272E903C004F92CE /* TopCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */; };
 		5FBC2DEF273020BC004F92CE /* NotificationFollowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */; };
 		5FBC2DF12732883A004F92CE /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBC2DF02732883A004F92CE /* Notification.swift */; };
@@ -945,7 +947,7 @@
 		5FA6C2B82A1CA62500C8E0EC /* AppStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStrings.swift; sourceTree = "<group>"; };
 		5FA758CF29D5B62900F1DEA4 /* SearchGroupsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchGroupsViewController.swift; sourceTree = "<group>"; };
 		5FA758D129D6C53900F1DEA4 /* METertiaryEmptyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = METertiaryEmptyCell.swift; sourceTree = "<group>"; };
-		5FA758D429D89D8A00F1DEA4 /* UserSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSection.swift; sourceTree = "<group>"; };
+		5FA758D429D89D8A00F1DEA4 /* RecentComment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentComment.swift; sourceTree = "<group>"; };
 		5FA758D629DB12AC00F1DEA4 /* CaseFeedTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseFeedTextCell.swift; sourceTree = "<group>"; };
 		5FA758D829DB2CC000F1DEA4 /* CasesFeedTextImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasesFeedTextImageCell.swift; sourceTree = "<group>"; };
 		5FA758DA29DD544200F1DEA4 /* SearchAssistantMenuLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchAssistantMenuLauncher.swift; sourceTree = "<group>"; };
@@ -1045,6 +1047,8 @@
 		5FB6FD152A53026600B4044E /* NotificationMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationMenu.swift; sourceTree = "<group>"; };
 		5FB6FD172A53ED9300B4044E /* MEDetailsActionButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MEDetailsActionButtons.swift; sourceTree = "<group>"; };
 		5FB6FD1B2A55C42100B4044E /* ReplyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplyCell.swift; sourceTree = "<group>"; };
+		5FB6FD1D2A56DA9800B4044E /* Visible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visible.swift; sourceTree = "<group>"; };
+		5FB6FD1F2A56F9D400B4044E /* DeletedContentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletedContentCell.swift; sourceTree = "<group>"; };
 		5FBC2DA1272E903C004F92CE /* TopCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCollectionViewCell.swift; sourceTree = "<group>"; };
 		5FBC2DEE273020BC004F92CE /* NotificationFollowCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFollowCell.swift; sourceTree = "<group>"; };
 		5FBC2DF02732883A004F92CE /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
@@ -2237,8 +2241,10 @@
 		5F9E875329C9BA3400BEA131 /* Comment */ = {
 			isa = PBXGroup;
 			children = (
-				5FA758D429D89D8A00F1DEA4 /* UserSection.swift */,
+				5FA758D429D89D8A00F1DEA4 /* RecentComment.swift */,
 				5F8666FB27552222009B26E6 /* Comment.swift */,
+				5FB6FD1D2A56DA9800B4044E /* Visible.swift */,
+				5FB6FD1F2A56F9D400B4044E /* DeletedContentCell.swift */,
 			);
 			path = Comment;
 			sourceTree = "<group>";
@@ -3404,7 +3410,7 @@
 				5FB2902D28895CFF002FBAE1 /* HomeOptionsMenuLauncher.swift in Sources */,
 				5F4493FC27942818008FD6ED /* MessageViewController.swift in Sources */,
 				5FA276C629F10E3F005A339D /* ReferencesViewController.swift in Sources */,
-				5FA758D529D89D8A00F1DEA4 /* UserSection.swift in Sources */,
+				5FA758D529D89D8A00F1DEA4 /* RecentComment.swift in Sources */,
 				5F9E429B28812F6C00C2153B /* RegisterCell.swift in Sources */,
 				5F951B472949D33F00E99F34 /* GroupAdminCell.swift in Sources */,
 				5F0A4F5B2725B91E00700304 /* ProfileHeaderViewModel.swift in Sources */,
@@ -3413,6 +3419,7 @@
 				5FC4D88527071CB6006B7A34 /* HomeTextCell.swift in Sources */,
 				5F9A9F8D2897ECF900A25152 /* AddPatentViewController.swift in Sources */,
 				5FA6939229A3809400DF3ADC /* Location.swift in Sources */,
+				5FB6FD1E2A56DA9800B4044E /* Visible.swift in Sources */,
 				5FA32DC828E1E85700D83759 /* OnboardingMessage.swift in Sources */,
 				5F8B7C5228758164005094A5 /* CaseDetailsView.swift in Sources */,
 				5FA2639529CC35F500E61357 /* RegistrationInterestsCell.swift in Sources */,
@@ -3544,6 +3551,7 @@
 				5F4DBCB2274793320005AEC3 /* Post.swift in Sources */,
 				5FA6939729A391DD00DF3ADC /* JobViewModel.swift in Sources */,
 				5F9AFAC428D48887004D61D3 /* BookmarkPostCell.swift in Sources */,
+				5FB6FD202A56F9D400B4044E /* DeletedContentCell.swift in Sources */,
 				5F85219428A54BBA0033AF67 /* EditPostViewController.swift in Sources */,
 				5F0A4F592725A1EE00700304 /* K.swift in Sources */,
 				5F8E5291286605B90053F011 /* UploadPostViewModel.swift in Sources */,

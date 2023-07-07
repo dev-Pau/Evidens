@@ -247,8 +247,9 @@ struct CaseService {
     }
     
     static func fetchCommentsForCase(caseId: String, completion: @escaping(Int) -> Void) {
-        let likesRef = COLLECTION_CASES.document(caseId).collection("comments").count
-        likesRef.getAggregation(source: .server) { snaphsot, _ in
+        let commentsRef = COLLECTION_CASES.document(caseId).collection("comments")
+        let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: 0).whereField("visible", isLessThanOrEqualTo: 1).count
+        query.getAggregation(source: .server) { snaphsot, _ in
             if let likes = snaphsot?.count {
                 completion(likes.intValue)
             }

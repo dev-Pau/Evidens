@@ -479,28 +479,139 @@ extension DatabaseManager {
     
     public func fetchRecentComments(forUid uid: String, completion: @escaping(Result<[RecentComment], Error>) -> Void) {
         let ref = database.child("users").child(uid).child("profile").child("comments").queryOrdered(byChild: "timestamp").queryLimited(toLast: 3)
-        var recentComments = [[String: Any]]()
+        var recentComments = [RecentComment]()
         
         ref.observeSingleEvent(of: .value) { snapshot in
             guard snapshot.exists() else {
                 completion(.success([RecentComment]()))
                 return
             }
+            
+            let dispatchGroup = DispatchGroup()
+            
             for child in snapshot.children.allObjects as! [DataSnapshot] {
-                guard let value = child.value as? [String: Any] else { return }
-                recentComments.append(value)
-                if recentComments.count == snapshot.children.allObjects.count {
-                    let comments: [RecentComment] = recentComments.compactMap { dictionary in
-                        guard let comment = dictionary["comment"] as? String,
-                              let commentUid = dictionary["commentUid"] as? String,
-                              let refUid = dictionary["refUid"] as? String,
-                              let type = dictionary["type"] as? Int,
-                              let timestamp = dictionary["timestamp"] as? TimeInterval else { return nil }
-                        
-                        return RecentComment(comment: comment, commentUid: commentUid, refUid: refUid, type: type, timestamp: timestamp)
-                    }
-                    completion(.success(comments))
+                dispatchGroup.enter()
+                
+                guard let value = child.value as? [String: Any] else {
+                    dispatchGroup.leave()
+                    continue
                 }
+ 
+                var comment = RecentComment(dictionary: value)
+
+                switch comment.source {
+                case .post:
+                    switch comment.kind {
+                    case .comment:
+                        let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.id)
+                        
+                        dispatchGroup.enter()
+                        
+                        ref.getDocument { snapshot, error in
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            
+                            if let error {
+                                completion(.failure(error))
+                            } else {
+                                guard let snapshot = snapshot, let data = snapshot.data() else {
+                                    completion(.success([]))
+                                    return
+                                }
+                                
+                                var userComment = Comment(dictionary: data)
+                                comment.setComment(userComment.commentText)
+                                recentComments.append(comment)
+                            }
+                        }
+                    case .reply:
+                        // Post & Reply
+                        let ref = COLLECTION_POSTS.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
+                        
+                        dispatchGroup.enter()
+                        
+                        ref.getDocument { snapshot, error in
+                            
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            
+                            if let error {
+                                completion(.failure(error))
+                            } else {
+                                guard let snapshot = snapshot, let data = snapshot.data() else {
+                                    completion(.success([]))
+                                    return
+                                }
+                                
+                                let userComment = Comment(dictionary: data)
+                                comment.setComment(userComment.commentText)
+                                recentComments.append(comment)
+                            }
+                        }
+                    }
+                case .clinicalCase:
+                    switch comment.kind {
+                    case .comment:
+                        // Case & Comment
+                        let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.id)
+                        
+                        dispatchGroup.enter()
+                        
+                        ref.getDocument { snapshot, error in
+                            
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            
+                            if let error {
+                                completion(.failure(error))
+                            } else {
+                                guard let snapshot = snapshot, let data = snapshot.data() else {
+                                    completion(.success([]))
+                                    return
+                                }
+                                
+                                let userComment = Comment(dictionary: data)
+                                comment.setComment(userComment.commentText)
+                                recentComments.append(comment)
+                            }
+                        }
+                    case .reply:
+                        // Case & Reply
+                        let ref = COLLECTION_CASES.document(comment.referenceId).collection("comments").document(comment.commentId!).collection("comments").document(comment.id)
+                        
+                        dispatchGroup.enter()
+                        
+                        ref.getDocument { snapshot, error in
+                            
+                            defer {
+                                dispatchGroup.leave()
+                            }
+                            
+                            if let error {
+                                completion(.failure(error))
+                            } else {
+                                guard let snapshot = snapshot, let data = snapshot.data() else {
+                                    completion(.success([]))
+                                    return
+                                }
+                                
+                                let userComment = Comment(dictionary: data)
+                                comment.setComment(userComment.commentText)
+                                recentComments.append(comment)
+                            }
+                        }
+                    }
+                }
+                
+                dispatchGroup.leave()
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                
+            completion(.success(recentComments))
             }
         }
     }
@@ -515,16 +626,7 @@ extension DatabaseManager {
                     guard let value = child.value as? [String: Any] else { return }
                     recentComments.append(value)
                     if recentComments.count == snapshot.children.allObjects.count {
-                        let comments: [RecentComment] = recentComments.compactMap { dictionary in
-                            guard let comment = dictionary["comment"] as? String,
-                                  let commentUid = dictionary["commentUid"] as? String,
-                                  let refUid = dictionary["refUid"] as? String,
-                                  let type = dictionary["type"] as? Int,
-                                  let timestamp = dictionary["timestamp"] as? TimeInterval else { return nil }
-                            
-                            
-                            return RecentComment(comment: comment, commentUid: commentUid, refUid: refUid, type: type, timestamp: timestamp)
-                        }
+                        let comments = recentComments.compactMap { RecentComment(dictionary: $0 )}
                         completion(.success(comments))
                     }
                 }
@@ -539,16 +641,7 @@ extension DatabaseManager {
                     guard let value = child.value as? [String: Any] else { return }
                     recentComments.append(value)
                     if recentComments.count == snapshot.children.allObjects.count {
-                        let comments: [RecentComment] = recentComments.compactMap { dictionary in
-                            guard let comment = dictionary["comment"] as? String,
-                                  let commentUid = dictionary["commentUid"] as? String,
-                                  let refUid = dictionary["refUid"] as? String,
-                                  let type = dictionary["type"] as? Int,
-                                  let timestamp = dictionary["timestamp"] as? TimeInterval else { return nil }
-                            
-                            
-                            return RecentComment(comment: comment, commentUid: commentUid, refUid: refUid, type: type, timestamp: timestamp)
-                        }
+                        let comments = recentComments.compactMap { RecentComment(dictionary: $0 )}
                         completion(.success(comments))
                     }
                 }
@@ -559,7 +652,7 @@ extension DatabaseManager {
     public func deleteRecentComment(forCommentId commentID: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         let ref = database.child("users").child(uid).child("profile").child("comments")
-        let query = ref.queryOrdered(byChild: "commentUid").queryEqual(toValue: commentID).queryLimited(toFirst: 1)
+        let query = ref.queryOrdered(byChild: "id").queryEqual(toValue: commentID).queryLimited(toFirst: 1)
         
         query.observeSingleEvent(of: .value) { snapshot in
             if let value = snapshot.value as? [String: Any] {

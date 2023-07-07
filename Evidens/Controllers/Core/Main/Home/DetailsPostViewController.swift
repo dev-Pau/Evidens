@@ -751,7 +751,7 @@ extension DetailsPostViewController: CommentCellDelegate {
     }
     
     func wantsToSeeRepliesFor(_ cell: UICollectionViewCell, forComment comment: Comment) {
-        if comment.isTextFromAuthor { return }
+        //if comment.isTextFromAuthor { return }
         guard let tab = tabBarController as? MainTabController else { return }
         guard let user = tab.user else { return }
         
