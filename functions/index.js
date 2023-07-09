@@ -279,3 +279,49 @@ exports.addReferenceOnCaseReply = functions.firestore.document('cases/{caseId}/c
   userRef.set(comment);
 });
 
+exports.addReferenceOnPostComment = functions.firestore.document('posts/{postId}/comments/{commentId}').onCreate(async (snapshot, context) => {
+  const postId = context.params.postId;
+  const commentId = context.params.commentId;
+  const userId = snapshot.data().uid;
+  const timestamp = snapshot.data().timestamp;
+  const kind = 0;
+  const source = 0;
+
+  // source, 0 post, 1 case
+  // kind 0 comment, 1 reply
+  const comment = {
+    id: commentId,
+    referenceId: postId,
+    kind: kind,
+    source: source,
+    timestamp: admin.database.ServerValue.TIMESTAMP
+  }
+
+  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();;
+  userRef.set(comment);
+});
+
+exports.addReferenceOnPostReply = functions.firestore.document('posts/{postId}/comments/{commentId}/comments/{replyId}').onCreate(async (snapshot, context) => {
+  const postId = context.params.postId;
+  const commentId = context.params.commentId;
+  const replyId = context.params.replyId;
+  const userId = snapshot.data().uid;
+  const timestamp = snapshot.data().timestamp;
+  const kind = 1;
+  const source = 0;
+
+  const comment = {
+    id: replyId,
+    referenceId: postId,
+    kind: kind,
+    source: source,
+    commentId: commentId,
+    timestamp: admin.database.ServerValue.TIMESTAMP
+  }
+
+  const userRef = admin.database().ref(`users/${userId}/profile/comments`).push();
+  userRef.set(comment);
+});
+
+
+

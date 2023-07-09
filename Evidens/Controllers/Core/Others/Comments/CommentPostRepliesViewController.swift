@@ -14,9 +14,11 @@ private let commentCellReuseIdentifier = "CommentCellReuseIdentifier"
 protocol CommentsRepliesViewControllerDelegate: AnyObject {
     func didLikeComment(comment: Comment)
     func didAddReplyToComment(comment: Comment)
+    func didDeleteReply(withRefComment refComment: Comment, comment: Comment)
+    func didDeleteComment(comment: Comment)
 }
 
-class CommentsRepliesViewController: UICollectionViewController {
+class CommentPostRepliesViewController: UICollectionViewController {
     private let currentUser: User
     private let type: Comment.CommentType
     private let post: Post
@@ -29,8 +31,8 @@ class CommentsRepliesViewController: UICollectionViewController {
     private var lastReplySnapshot: QueryDocumentSnapshot?
     private let repliesEnabled: Bool
     weak var delegate: CommentsRepliesViewControllerDelegate?
-    //weak var delegate: CommentPostViewControllerDelegate?
-    
+    private var bottomAnchorConstraint: NSLayoutConstraint!
+
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
@@ -66,23 +68,42 @@ class CommentsRepliesViewController: UICollectionViewController {
         configureNavigationBar()
         configureUI()
         fetchRepliesForComment()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardFrameChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
-    
-    override var inputAccessoryView: UIView? {
-        get { return repliesEnabled ? commentInputView : nil }
-    }
-    
-    override var canBecomeFirstResponder: Bool {
-        return true
-    }
-    
     
     private func configureNavigationBar() {
         title = "Replies"
     }
     
+    @objc func handleKeyboardFrameChange(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
+        let intersection = convertedKeyboardFrame.intersection(view.bounds)
+
+        let keyboardHeight = view.bounds.maxY - intersection.minY
+
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+
+        let constant = -(keyboardHeight - tabBarHeight)
+        UIView.animate(withDuration: animationDuration) {
+            self.bottomAnchorConstraint.constant = constant
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     private func fetchRepliesForComment() {
-        guard repliesEnabled else { return }
+        guard repliesEnabled else {
+            commentsLoaded = true
+            return
+        }
+        
         CommentService.fetchRepliesForPostComment(forPost: post, type: type, forCommentId: comment.id, lastSnapshot: nil) { snapshot in
             guard !snapshot.isEmpty else {
                 self.commentsLoaded = true
@@ -125,7 +146,7 @@ class CommentsRepliesViewController: UICollectionViewController {
     }
 }
 
-extension CommentsRepliesViewController: UICollectionViewDelegateFlowLayout {
+extension CommentPostRepliesViewController: UICollectionViewDelegateFlowLayout {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return repliesEnabled ? 2 : 1
     }
@@ -172,7 +193,7 @@ extension CommentsRepliesViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
+extension CommentPostRepliesViewController: CommentInputAccessoryViewDelegate {
     
     func inputView(_ inputView: CommentInputAccessoryView, wantsToUploadComment comment: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
@@ -222,18 +243,20 @@ extension CommentsRepliesViewController: CommentInputAccessoryViewDelegate {
     }
 }
 
-extension CommentsRepliesViewController: CommentCellDelegate {
+extension CommentPostRepliesViewController: CommentCellDelegate {
     func didTapComment(_ cell: UICollectionViewCell, forComment comment: Comment, action: Comment.CommentOptions) {
         
         #warning("Implement")
     }
     
     func didTapProfile(forUser user: User) {
+        /*
         guard let rootController = navigationController?.viewControllers.first as? CommentPostViewController else {
             return
             
         }
         rootController.didTapProfile(forUser: user)
+         */
         
     }
     
@@ -244,7 +267,7 @@ extension CommentsRepliesViewController: CommentCellDelegate {
             guard indexPath.section != 0 else { return }
             if let userIndex = users.firstIndex(where: { $0.uid == comment.uid }) {
                 print("4")
-                let controller = CommentsRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser, repliesEnabled: false)
+                let controller = CommentPostRepliesViewController(referenceCommentId: self.comment.id, comment: comment, user: users[userIndex], post: post, type: type, currentUser: currentUser, repliesEnabled: false)
                 controller.delegate = self
                 let backItem = UIBarButtonItem()
                 backItem.tintColor = .label
@@ -318,7 +341,7 @@ extension CommentsRepliesViewController: CommentCellDelegate {
     }
 }
 
-extension CommentsRepliesViewController: CommentsRepliesViewControllerDelegate {
+extension CommentPostRepliesViewController: CommentsRepliesViewControllerDelegate {
     // This will never get called because this call will come from another CommentRepliesViewController on top of it, which is not available to comment there, only like
     func didAddReplyToComment(comment: Comment) { return }
     
